@@ -21,12 +21,15 @@
       "configTemplate": "Path to XML template in templates/connectors/",
       "docsUrl": "https://docs.mulesoft.com/{connector}/latest/",
       "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/{slug}-release-notes-mule-4",
+      "exchangeUrl": "https://anypoint.mulesoft.com/exchange/{groupId}/{artifactId}/",
       "propertiesRequired": [
         "Property keys needed in .properties files"
       ],
       "notes": "Special considerations, license requirements, known issues",
       "category": "Category key for grouping",
       "lastVerified": "YYYY-MM",
+      "lastAddedDate": "YYYY-MM (when first added to this registry)",
+      "lastVerifiedBy": "Claude session date or engineer name who verified",
       "licenseRequired": true
     },
     "platformGaps": {
@@ -994,9 +997,9 @@
         }
       }
     },
-    "crm_sales": {
-      "displayName": "CRM & Sales",
-      "description": "Customer relationship management and sales platforms (non-Salesforce)",
+    "crm_marketing": {
+      "displayName": "CRM & Marketing",
+      "description": "Customer relationship management, sales, and marketing platforms (non-Salesforce)",
       "connectors": {
         "microsoft-dynamics-365": {
           "displayName": "Microsoft Dynamics 365",
@@ -1019,7 +1022,7 @@
             "d365.resourceUrl"
           ],
           "notes": "Covers Dynamics 365 CRM (Sales, Service, Marketing). Uses Microsoft Dataverse REST API.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false,
           "version": "2.4.1"
@@ -1042,7 +1045,7 @@
             "marketo.instanceUrl"
           ],
           "notes": "Adobe Marketo Engage marketing automation REST API.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1067,7 +1070,7 @@
             "dcrm.resourceUrl"
           ],
           "notes": "Microsoft Dynamics CRM (on-premises or Online). For Dynamics 365 Online use the microsoft-dynamics-365 connector.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1091,7 +1094,7 @@
             "d365bc.environment"
           ],
           "notes": "Microsoft Dynamics 365 Business Central ERP (SMB-focused ERP). OData REST API.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1114,7 +1117,7 @@
             "d365fo.resourceUrl"
           ],
           "notes": "Microsoft Dynamics 365 Finance & Operations (D365FO) OData services. Enterprise ERP \u2014 different from D365 CRM.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1138,7 +1141,7 @@
             "dax.password"
           ],
           "notes": "Microsoft Dynamics AX 2012 (on-premises). Legacy ERP \u2014 for newer on-premises use D365FO.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1162,7 +1165,7 @@
             "dgp.company"
           ],
           "notes": "Microsoft Dynamics GP (Great Plains) on-premises ERP. Uses GP Web Services.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1186,7 +1189,7 @@
             "dnav.company"
           ],
           "notes": "Microsoft Dynamics NAV (precursor to Business Central) OData endpoint.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1210,7 +1213,7 @@
             "zendesk.apiToken"
           ],
           "notes": "Zendesk Support, Help Center, and Chat REST APIs. Covers tickets, users, organizations, macros.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1232,7 +1235,7 @@
             "shopify.accessToken"
           ],
           "notes": "Shopify REST Admin API and GraphQL API. Covers orders, products, customers, inventory.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1252,7 +1255,7 @@
             "stripe.secretKey"
           ],
           "notes": "Stripe payments platform REST API. Covers charges, customers, subscriptions, payment intents, webhooks.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1275,7 +1278,7 @@
             "braintree.environment"
           ],
           "notes": "Braintree (PayPal subsidiary) payments platform. GraphQL and REST API. Covers transactions, vaults, subscriptions.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1296,7 +1299,7 @@
             "intercom.accessToken"
           ],
           "notes": "Intercom customer messaging platform REST API. Covers contacts, conversations, companies, events.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1318,7 +1321,7 @@
             "magento.accessToken"
           ],
           "notes": "Adobe Commerce (formerly Magento 2) REST API. Covers catalog, orders, customers, inventory.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1339,7 +1342,7 @@
             "hubspot.accessToken"
           ],
           "notes": "HubSpot CRM (Contacts, Companies, Deals, Tickets). Same connector as HubSpot Marketing. Free CRM tier available.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1361,7 +1364,7 @@
             "zoho.refreshToken"
           ],
           "notes": "No dedicated connector. Use HTTP with Zoho CRM REST API v6. Covers leads, contacts, accounts, deals, modules.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1382,7 +1385,7 @@
             "pipedrive.apiToken"
           ],
           "notes": "No dedicated connector. Use HTTP with api_token query param. Covers deals, persons, organizations, activities, pipelines.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1403,7 +1406,7 @@
             "freshsales.apiKey"
           ],
           "notes": "No dedicated connector. Use HTTP with Authorization header (Token token=API_KEY). Covers contacts, accounts, deals, leads.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1425,7 +1428,7 @@
             "sugarcrm.clientSecret"
           ],
           "notes": "No dedicated connector. Use HTTP with SugarCRM REST API v11. Covers all modules via metadata-driven endpoints.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -1447,7 +1450,7 @@
             "outreach.accessToken"
           ],
           "notes": "No dedicated connector. Use HTTP with Bearer token. Covers prospects, sequences, accounts, opportunities.",
-          "category": "crm_sales",
+          "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         }
@@ -2525,7 +2528,7 @@
             "db.oracle.user",
             "db.oracle.password"
           ],
-          "notes": "Oracle DB variant of the generic Database connector. Includes ojdbc11 driver. Use service name not SID for modern configs.",
+          "notes": "Oracle DB variant of the generic Database connector. Includes ojdbc11 driver. Use service name not SID for modern configs. IMPORTANT: ojdbc11.jar cannot be in pom.xml due to Oracle license — must be placed in shared lib folder on CloudHub 2.0.",
           "category": "database",
           "lastVerified": "2026-05",
           "licenseRequired": false
@@ -2679,7 +2682,7 @@
           "propertiesRequired": [
             "file.workingDirectory"
           ],
-          "notes": "Local file system access. Used for batch file processing, archiving, temp storage.",
+          "notes": "Local file system access. Used for batch file processing, archiving, temp storage. WARNING: CloudHub 2.0 local filesystem is ephemeral — use S3, SFTP, or Azure Blob for any persistence requirement.",
           "category": "file_storage",
           "lastVerified": "2026-05",
           "licenseRequired": false
@@ -2915,7 +2918,7 @@
             "sharepoint.siteUrl"
           ],
           "notes": "Microsoft SharePoint Online and on-premises. Covers lists, libraries, files, workflows. Use Microsoft Graph API (HTTP connector) for modern SPO.",
-          "category": "file_storage",
+          "category": "microsoft_productivity",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -2938,7 +2941,7 @@
             "onedrive.tenantId"
           ],
           "notes": "Microsoft OneDrive and OneDrive for Business via Microsoft Graph API.",
-          "category": "file_storage",
+          "category": "microsoft_productivity",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -3461,7 +3464,7 @@
             "asb.mgmt.clientSecret"
           ],
           "notes": "Azure Service Bus management plane operations (create/delete queues, topics, subscriptions). Different from the messaging connector which handles data plane send/receive.",
-          "category": "azure_cloud",
+          "category": "messaging_eventing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -3483,7 +3486,7 @@
             "excel.tenantId"
           ],
           "notes": "Microsoft Excel Online via Microsoft Graph API. Read/write workbooks, worksheets, tables, ranges stored in OneDrive or SharePoint.",
-          "category": "azure_cloud",
+          "category": "microsoft_productivity",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -4263,7 +4266,7 @@
             "ctg.password"
           ],
           "notes": "IBM CICS Transaction Gateway for mainframe CICS program integration. Requires IBM CTG client libraries. Supports COMMAREA and channel/container calls.",
-          "category": "protocols_core",
+          "category": "messaging_eventing",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -4283,7 +4286,7 @@
             "dotnet.assembly"
           ],
           "notes": "Invoke .NET assemblies directly from Mule flows. Uses a .NET bridge process. Only works on Windows or with a Windows remote host.",
-          "category": "protocols_core",
+          "category": "microsoft_productivity",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -4306,7 +4309,7 @@
             "powershell.password"
           ],
           "notes": "Execute PowerShell scripts on remote Windows hosts via WinRM. Use for Windows server automation, Active Directory management.",
-          "category": "protocols_core",
+          "category": "microsoft_productivity",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -4350,6 +4353,146 @@
           "category": "protocols_core",
           "lastVerified": "2026-05",
           "licenseRequired": true
+        },
+        "aggregators": {
+          "displayName": "Aggregators Module",
+          "groupId": "org.mule.modules",
+          "artifactId": "mule-aggregators-module",
+          "docVersion": "1.0",
+          "auth": "none",
+          "authOptions": ["none"],
+          "configTemplate": "templates/connectors/http-generic-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/aggregators-module/latest/",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/aggregators-module-release-notes-mule-4",
+          "propertiesRequired": [],
+          "notes": "Time-based and size-based message aggregation. Use for batching upstream events before downstream processing.",
+          "category": "protocols_core",
+          "lastVerified": "2026-05",
+          "licenseRequired": false
+        },
+        "cryptography": {
+          "displayName": "Cryptography Module",
+          "groupId": "org.mule.modules",
+          "artifactId": "mule-cryptography-module",
+          "docVersion": "1.3",
+          "auth": "none",
+          "authOptions": ["none"],
+          "configTemplate": "templates/connectors/http-generic-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/cryptography-module/latest/",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/cryptography-module-release-notes-mule-4",
+          "propertiesRequired": [],
+          "notes": "Encrypt/decrypt payloads (PGP, JCE, XML) and sign/verify messages. Required for regulated patterns.",
+          "category": "protocols_core",
+          "lastVerified": "2026-05",
+          "licenseRequired": false
+        },
+        "compression": {
+          "displayName": "Compression Module",
+          "groupId": "org.mule.modules",
+          "artifactId": "mule-compression-module",
+          "docVersion": "2.2",
+          "auth": "none",
+          "authOptions": ["none"],
+          "configTemplate": "templates/connectors/http-generic-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/compression-module/latest/",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/compression-module-release-notes-mule-4",
+          "propertiesRequired": [],
+          "notes": "Compress and decompress payloads (ZIP, GZIP, TAR). Use in file-based ETL and large-payload flows.",
+          "category": "protocols_core",
+          "lastVerified": "2026-05",
+          "licenseRequired": false
+        },
+        "java": {
+          "displayName": "Java Module",
+          "groupId": "org.mule.modules",
+          "artifactId": "mule-java-module",
+          "docVersion": "1.2",
+          "auth": "none",
+          "authOptions": ["none"],
+          "configTemplate": "templates/connectors/http-generic-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/java-module/latest/",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/java-module-release-notes-mule-4",
+          "propertiesRequired": [],
+          "notes": "Invoke Java methods and constructors from DataWeave or XML. Use for helper libraries that cannot be expressed in DataWeave.",
+          "category": "protocols_core",
+          "lastVerified": "2026-05",
+          "licenseRequired": false
+        },
+        "json": {
+          "displayName": "JSON Module",
+          "groupId": "org.mule.modules",
+          "artifactId": "mule-json-module",
+          "docVersion": "2.2",
+          "auth": "none",
+          "authOptions": ["none"],
+          "configTemplate": "templates/connectors/http-generic-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/json-module/latest/",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/json-module-release-notes-mule-4",
+          "propertiesRequired": [],
+          "notes": "JSON schema validation. Use json:validate-schema to reject invalid payloads at API boundary before processing.",
+          "category": "protocols_core",
+          "lastVerified": "2026-05",
+          "licenseRequired": false
+        },
+        "kerberos": {
+          "displayName": "Kerberos Module",
+          "groupId": "org.mule.modules",
+          "artifactId": "mule-kerberos-module",
+          "docVersion": "1.0",
+          "auth": "kerberos",
+          "authOptions": ["kerberos"],
+          "configTemplate": "templates/connectors/http-generic-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/kerberos-module/latest/",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/kerberos-module-release-notes-mule-4",
+          "propertiesRequired": [
+            "kerberos.principal",
+            "kerberos.keytabPath",
+            "kerberos.krb5ConfPath"
+          ],
+          "notes": "Kerberos ticket acquisition. Required for Hadoop HDFS, enterprise AD-integrated systems, and some on-prem database/LDAP auth.",
+          "category": "protocols_core",
+          "lastVerified": "2026-05",
+          "licenseRequired": false
+        },
+        "oauth": {
+          "displayName": "OAuth Module",
+          "groupId": "org.mule.modules",
+          "artifactId": "mule-oauth-module",
+          "docVersion": "1.1",
+          "auth": "oauth2",
+          "authOptions": ["oauth2-client-credentials", "oauth2-auth-code"],
+          "configTemplate": "templates/connectors/http-generic-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/oauth-module/latest/",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/oauth-module-release-notes-mule-4",
+          "propertiesRequired": [],
+          "notes": "Mule OAuth 2.0 provider and token validation. Use when building APIs that accept OAuth tokens from external identity providers.",
+          "category": "protocols_core",
+          "lastVerified": "2026-05",
+          "licenseRequired": false
+        }
+      }
+    },
+    "microsoft_productivity": {
+      "displayName": "Microsoft Productivity",
+      "description": "Microsoft productivity and platform tools \u2014 SharePoint, OneDrive, Excel Online, Power BI, .NET, MSMQ, PowerShell",
+      "connectors": {
+        "microsoft-sharepoint": {
+          "$ref": "See file_storage.microsoft-sharepoint \u2014 category field: microsoft_productivity"
+        },
+        "microsoft-onedrive": {
+          "$ref": "See file_storage.microsoft-onedrive \u2014 category field: microsoft_productivity"
+        },
+        "microsoft-excel-online": {
+          "$ref": "See azure_cloud.microsoft-excel-online \u2014 category field: microsoft_productivity"
+        },
+        "power-bi": {
+          "$ref": "See analytics_bi.power-bi \u2014 category field: microsoft_productivity"
+        },
+        "microsoft-dotnet": {
+          "$ref": "See protocols_core.microsoft-dotnet \u2014 category field: microsoft_productivity"
+        },
+        "microsoft-powershell": {
+          "$ref": "See protocols_core.microsoft-powershell \u2014 category field: microsoft_productivity"
         }
       }
     },
@@ -4400,7 +4543,7 @@
             "google.drive.clientSecret"
           ],
           "notes": "Google Drive REST API. Covers file upload/download, folder management, sharing, metadata.",
-          "category": "google_cloud",
+          "category": "file_storage",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
@@ -4610,7 +4753,7 @@
             "powerbi.tenantId"
           ],
           "notes": "Microsoft Power BI REST API. Push data to streaming datasets, manage reports, refresh datasets.",
-          "category": "analytics_bi",
+          "category": "microsoft_productivity",
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
