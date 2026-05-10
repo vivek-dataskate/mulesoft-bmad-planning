@@ -54,6 +54,7 @@ Status API (GET /orders/{correlationId}/status)
 ```json
 {
   "integration": {
+    "integrationStyle": "hybrid",
     "primaryPattern": "process-orchestration",
     "direction": "unidirectional"
   },
@@ -64,10 +65,21 @@ Status API (GET /orders/{correlationId}/status)
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "compensating-transaction",
     "maxRetries": 3,
     "backoff": "exponential",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{domain}-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "hybrid",
+    "messageTtlHours": 168,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 10080
   },
   "scheduling": {
     "required": false,

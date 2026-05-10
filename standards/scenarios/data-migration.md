@@ -70,6 +70,7 @@ Target System (now primary)
 ```json
 {
   "integration": {
+    "integrationStyle": "file-transfer",
     "primaryPattern": "data-migration",
     "direction": "unidirectional"
   },
@@ -81,10 +82,20 @@ Target System (now primary)
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 3,
     "backoff": "exponential",
     "dlq": true,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "pull",
+    "messageTtlHours": null,
+    "maxConcurrency": 4,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 43200
   },
   "scheduling": {
     "required": false,
@@ -92,7 +103,7 @@ Target System (now primary)
     "objectStore": "persistent"
   },
   "devops": {
-    "munitCoverage": 60,
+    "munitCoverage": 75,
     "environments": ["dev", "uat", "prod"]
   }
 }

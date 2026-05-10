@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd">
+
+    <!-- ============================================================ -->
+    <!-- UC-05 MERGE RESOLUTION                                       -->
+    <!-- HubSpot contact.merge / company.merge webhook  →  D365 F&O   -->
+    <!-- Logic: receive webhook → dedup → lookup loser in D365 →      -->
+    <!--        deactivate the loser's D365 record → store eventId    -->
+    <!-- Always returns 200 OK to HubSpot (no retry storms).          -->
+    <!-- ============================================================ -->
+    <flow name="zyris-proj-uc5Flow" doc:id="fa330c4c-5baf-4b9d-80da-1218db25b80c">
+
+        <http:listener doc:name="Listener" doc:id="274f7cd0-30cd-442f-9017-786f9d9b6f40"
+                       config-ref="HTTP_Listener_config"
+                       path="/merge-event-webhook"/>
+
+        <!-- Preserve the raw inbound webhook body for the rest of the flow.
+             Subsequent transforms / lookups will overwrite `payload`. -->
+        <set-variable variableName="originalPayload"
+                      doc:name="Set originalPayload"
+                      value="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
+        <logger level="INFO" doc:name="Trace Inbound Webhook"
+                message="#['TRACE UC05 inbound webhook | payload=' ++ write(payload default {}, 'application/json')]"/>
+
+        <!-- ========================================================
+             EXTRACT MERGE EVENT FIELDS
+             HubSpot v3 webhook envelope is always an array; we read
+             element[0] with a single-object fallback for safety.
+             ======================================================== -->
+        <ee:transform doc:name="Extract Merge Event Fields">
+            <ee:message/>
+            <ee:variables>
+                <ee:set-variable variableName="eventId"><![CDATA[%dw 2.0
+output application/java
+---
+(vars.originalPayload[0].eventId default vars.originalPayload.eventId default "") as String]]></ee:set-variable>
+
+                <ee:set-variable variableName="eventType"><![CDATA[%dw 2.0
+output application/java
+---
+// subscriptionType holds "contact.merge" or "company.merge"
+(vars.originalPayload[0].subscriptionType default vars.originalPayload.subscriptionType default "") as String]]></ee:set-variable>
+
+                <ee:set-variable variableName="winnerId"><![CDATA[%dw 2.0
+output application/java
+---
+// primaryObjectId is the surviving (winner) HubSpot record ID
+(vars.originalPayload[0].primaryObjectId default vars.originalPayload.primaryObjectId default "") as String]]></ee:set-variable>
+
+                <ee:set-variable variableName="loserId"><![CDATA[%dw 2.0
+output application/java
+// HubSpot includes BOTH winner and losers in mergedObjectIds.
+// Filter the winner out to obtain the actual loser(s).
+// 2-way merge → exactly one loser. 3+ way merge → multiple; we take the first
+// and a separate logger warns when loserCount > 1.
+var winner = vars.originalPayload[0].primaryObjectId default vars.originalPayload.primaryObjectId
+var allMerged = (vars.originalPayload[0].mergedObjectIds default vars.originalPayload.mergedObjectIds default [])
+var losers = allMerged filter ($ != winner)
+---
+((losers[0]) default "") as String]]></ee:set-variable>
+
+                <ee:set-variable variableName="loserCount"><![CDATA[%dw 2.0
+output application/java
+var winner = vars.originalPayload[0].primaryObjectId default vars.originalPayload.primaryObjectId
+var allMerged = (vars.originalPayload[0].mergedObjectIds default vars.originalPayload.mergedObjectIds default [])
+---
+sizeOf(allMerged filter ($ != winner))]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="Trace Extracted Merge Fields"
+                message="#['TRACE UC05 extracted | eventId=' ++ (vars.eventId default '') ++ ' eventType=' ++ (vars.eventType default '') ++ ' winnerId=' ++ (vars.winnerId default '') ++ ' loserId=' ++ (vars.loserId default '') ++ ' loserCount=' ++ (vars.loserCount default 0)]"/>
+
+        <choice doc:name="Multi-way Merge Detected?">
+            <when expression="#[(vars.loserCount default 0) > 1]">
+                <logger level="WARN" doc:name="Log Multi-way Merge"
+                        message="#['UC05 multi-way merge detected | eventId=' ++ vars.eventId ++ ' loserCount=' ++ vars.loserCount ++ ' -- only first loser will be deactivated, remaining losers may need manual review']"/>
+            </when>
+            <otherwise>
+                <logger level="DEBUG" doc:name="Log Single Loser Merge"
+                        message="UC05 single-loser merge"/>
+            </otherwise>
+        </choice>
+
+        <!-- ========================================================
+             VALIDATE → DEDUP → ROUTE → LOOKUP → DEACTIVATE → STORE
+             ======================================================== -->
+        <choice doc:name="Validate Required Fields">
+            <when expression="#[isEmpty(vars.eventId) or isEmpty(vars.eventType) or isEmpty(vars.winnerId) or isEmpty(vars.loserId)]">
+                <logger level="ERROR" doc:name="Log Invalid Payload"
+                        message="#['UC05 invalid webhook payload, missing required fields | payload=' ++ write(vars.originalPayload default {}, 'application/json')]"/>
+                <set-payload doc:name="Set 200 Response - Invalid"
+                             value='#[output application/json --- {"status":"ignored","reason":"invalid_payload"}]'/>
+            </when>
+            <otherwise>
+
+                <!-- Idempotency check: HubSpot retries on non-2xx, so we must
+                     dedup by eventId. Store entry happens only on success. -->
+                <os:contains doc:name="Check Dedup Store"
+                             key="#[vars.eventId]"
+                             objectStore="Store_Hubspot_eventId_Object_store"
+                             target="isDuplicate"/>
+                <logger level="INFO" doc:name="Trace Dedup Check"
+                        message="#['TRACE UC05 dedup check | eventId=' ++ vars.eventId ++ ' isDuplicate=' ++ (vars.isDuplicate default false)]"/>
+
+                <choice doc:name="Is Duplicate Event?">
+                    <when expression="#[vars.isDuplicate == true]">
+                        <logger level="INFO" doc:name="Log Duplicate"
+                                message="#['UC05 duplicate event skipped | eventId=' ++ vars.eventId]"/>
+                        <set-payload doc:name="Set 200 Response - Duplicate"
+                                     value='#[output application/json --- {"status":"ok","reason":"duplicate"}]'/>
+                    </when>
+                    <otherwise>
+
+                        <!-- Branch routing variables based on event type.
+                             Both branches set d365Entity / hubspotIdField /
+                             naturalKeyField / deactivateField / deactivateValue
+                             from properties so swapping field names later is
+                             a config change, not a code change. -->
+                        <choice doc:name="Route by Event Type">
+                            <when expression="#[vars.eventType == 'company.merge']">
+                                <logger level="INFO" doc:name="Log Company Merge"
+                                        message="#['UC05 company.merge | winner=' ++ vars.winnerId ++ ' loser=' ++ vars.loserId]"/>
+                                <ee:transform doc:name="Set D365 Routing Vars - Company">
+                                    <ee:message/>
+                                    <ee:variables>
+                                        <ee:set-variable variableName="d365Entity"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.customer.entity')]]></ee:set-variable>
+                                        <ee:set-variable variableName="hubspotIdField"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.customer.hubspotid.field')]]></ee:set-variable>
+                                        <ee:set-variable variableName="naturalKeyField"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.customer.naturalkey.field')]]></ee:set-variable>
+                                        <ee:set-variable variableName="deactivateField"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.customer.deactivate.field')]]></ee:set-variable>
+                                        <ee:set-variable variableName="deactivateValue"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.customer.deactivate.value')]]></ee:set-variable>
+                                    </ee:variables>
+                                </ee:transform>
+                            </when>
+                            <when expression="#[vars.eventType == 'contact.merge']">
+                                <logger level="INFO" doc:name="Log Contact Merge"
+                                        message="#['UC05 contact.merge | winner=' ++ vars.winnerId ++ ' loser=' ++ vars.loserId]"/>
+                                <ee:transform doc:name="Set D365 Routing Vars - Contact">
+                                    <ee:message/>
+                                    <ee:variables>
+                                        <ee:set-variable variableName="d365Entity"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.contact.entity')]]></ee:set-variable>
+                                        <ee:set-variable variableName="hubspotIdField"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.contact.hubspotid.field')]]></ee:set-variable>
+                                        <ee:set-variable variableName="naturalKeyField"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.contact.naturalkey.field')]]></ee:set-variable>
+                                        <ee:set-variable variableName="deactivateField"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.contact.deactivate.field')]]></ee:set-variable>
+                                        <ee:set-variable variableName="deactivateValue"><![CDATA[%dw 2.0
+output application/java
+---
+p('d365.contact.deactivate.value')]]></ee:set-variable>
+                                    </ee:variables>
+                                </ee:transform>
+                            </when>
+                            <otherwise>
+                                <logger level="WARN" doc:name="Log Unknown Type"
+                                        message="#['UC05 unknown event type, skipping | eventType=' ++ (vars.eventType default '')]"/>
+                                <set-payload doc:name="Set 200 Response - Unknown"
+                                             value='#[output application/json --- {"status":"ignored","reason":"unknown_event_type"}]'/>
+                            </otherwise>
+                        </choice>
+
+                        <!-- Skip D365 work entirely if the event type wasn't
+                             recognized (no routing vars set). -->
+                        <choice doc:name="Proceed Only If Routed">
+                            <when expression="#[!isEmpty(vars.d365Entity default '')]">
+
+                                <!-- Build the OData query string used by the
+                                     dynamics365ForOperations:retrieve-multiple-by-query
+                                     connector. Connector consumes payload as the
+                                     query string. -->
+                                <ee:transform doc:name="Build OData Query for Loser HubSpot ID">
+                                    <ee:message>
+                                        <ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+vars.d365Entity ++ "?\$filter=" ++ vars.hubspotIdField ++ " eq '" ++ vars.loserId ++ "'"]]></ee:set-payload>
+                                    </ee:message>
+                                </ee:transform>
+                                <logger level="INFO" doc:name="Trace Lookup Query"
+                                        message="#['TRACE UC05 lookup query | payload=' ++ write(payload default '', 'application/json')]"/>
+
+                                <dynamics365ForOperations:retrieve-multiple-by-query doc:name="Lookup D365 Record by Loser HubSpot ID"
+                                                                                     doc:id="eae89947-47a0-4821-96b7-916a1d00c234"
+                                                                                     config-ref="Dynamics_365_For_Operations_Config"/>
+                                <logger level="INFO" doc:name="Trace Lookup Response"
+                                        message="#['TRACE UC05 lookup response | payload=' ++ write(payload default {}, 'application/json')]"/>
+
+                                <!-- Extract D365 records and the natural key
+                                     of the first match. The Mule
+                                     dynamics365ForOperations connector unwraps
+                                     the OData `value` envelope automatically:
+                                     `payload` IS the records array (unlike
+                                     raw Postman calls where you'd reference
+                                     payload.value). The natural-key value
+                                     goes into the deactivate PATCH URL. -->
+                                <ee:transform doc:name="Extract D365 Natural Key">
+                                    <ee:message/>
+                                    <ee:variables>
+                                        <ee:set-variable variableName="d365Records"><![CDATA[%dw 2.0
+output application/java
+---
+(payload default [])]]></ee:set-variable>
+                                        <ee:set-variable variableName="d365NaturalKey"><![CDATA[%dw 2.0
+output application/java
+var records = (payload default [])
+var firstRecord = records[0] default {}
+var keyField = vars.naturalKeyField
+---
+firstRecord[keyField] default ""]]></ee:set-variable>
+                                    </ee:variables>
+                                </ee:transform>
+                                <logger level="INFO" doc:name="Trace Extracted Natural Key"
+                                        message="#['TRACE UC05 d365NaturalKey=' ++ (vars.d365NaturalKey default '') ++ ' recordCount=' ++ sizeOf(vars.d365Records default [])]"/>
+
+                                <choice doc:name="Was D365 Record Found?">
+                                    <when expression="#[sizeOf(vars.d365Records default []) > 0 and !isEmpty(vars.d365NaturalKey default '')]">
+
+                                        <!-- Get a valid D365 token before PATCH.
+                                             Cached in D365_Token_Store; sub-flow
+                                             refreshes if missing/expired. -->
+                                        <flow-ref doc:name="Get D365 Token"
+                                                  name="Get-D365-OAuth-Token-Subflow"/>
+                                        <logger level="INFO" doc:name="Trace Token Retrieved"
+                                                message="'TRACE UC05 token retrieved for PATCH'"/>
+
+                                        <!-- Build the deactivate PATCH body.
+                                             Field & value differ per entity:
+                                             customers: OnHoldStatus=All
+                                             contacts:  IsInactive=Yes
+                                             Both come from properties via
+                                             vars.deactivateField / deactivateValue. -->
+                                        <ee:transform doc:name="Build PATCH Body - Deactivate">
+                                            <ee:message/>
+                                            <ee:variables>
+                                                <ee:set-variable variableName="deactivatePatchPayload"><![CDATA[%dw 2.0
+output application/json
+---
+{
+    (vars.deactivateField): vars.deactivateValue
+}]]></ee:set-variable>
+                                            </ee:variables>
+                                        </ee:transform>
+                                        <logger level="INFO" doc:name="Trace Deactivate PATCH Body"
+                                                message="#['TRACE UC05 deactivate PATCH body | payload=' ++ write(vars.deactivatePatchPayload default {}, 'application/json')]"/>
+
+                                        <try doc:name="Try Deactivate PATCH">
+                                            <http:request method="PATCH"
+                                                          doc:name="PATCH - Deactivate D365 Record"
+                                                          config-ref="HTTP_Request_D365_OData"
+                                                          path="#['/' ++ vars.d365Entity ++ '(dataAreaId=\'' ++ p('d365.dataAreaId') ++ '\',' ++ vars.naturalKeyField ++ '=\'' ++ vars.d365NaturalKey ++ '\')']">
+                                                <http:body><![CDATA[#[vars.deactivatePatchPayload]]]></http:body>
+                                                <http:headers><![CDATA[#[output application/java
+---
+{
+    "Authorization": "Bearer " ++ vars.d365Token,
+    "Content-Type": "application/json",
+    "If-Match": "*"
+}]]]></http:headers>
+                                            </http:request>
+                                            <logger level="INFO" doc:name="Trace Deactivate PATCH Response"
+                                                    message="'TRACE UC05 deactivate response received'"/>
+                                            <error-handler>
+                                                <on-error-continue type="HTTP:UNAUTHORIZED, HTTP:FORBIDDEN"
+                                                                   enableNotifications="true"
+                                                                   logException="true"
+                                                                   doc:name="On 401/403 Refresh Token and Retry">
+                                                    <logger level="INFO" doc:name="Log Token Expired"
+                                                            message="UC05 D365 token expired on deactivate PATCH, refreshing and retrying"/>
+                                                    <os:remove key="access_token"
+                                                               objectStore="D365_Token_Store"
+                                                               doc:name="Evict Cached Token"/>
+                                                    <flow-ref doc:name="Refresh Token"
+                                                              name="Get-D365-OAuth-Token-Subflow"/>
+                                                    <http:request method="PATCH"
+                                                                  doc:name="Retry Deactivate PATCH"
+                                                                  config-ref="HTTP_Request_D365_OData"
+                                                                  path="#['/' ++ vars.d365Entity ++ '(dataAreaId=\'' ++ p('d365.dataAreaId') ++ '\',' ++ vars.naturalKeyField ++ '=\'' ++ vars.d365NaturalKey ++ '\')']">
+                                                        <http:body><![CDATA[#[vars.deactivatePatchPayload]]]></http:body>
+                                                        <http:headers><![CDATA[#[output application/java
+---
+{
+    "Authorization": "Bearer " ++ vars.d365Token,
+    "Content-Type": "application/json",
+    "If-Match": "*"
+}]]]></http:headers>
+                                                    </http:request>
+                                                    <logger level="INFO" doc:name="Trace Retry Deactivate PATCH Response"
+                                                            message="'TRACE UC05 retry deactivate response received'"/>
+                                                </on-error-continue>
+                                            </error-handler>
+                                        </try>
+
+                                        <!-- Persist the eventId AFTER all D365
+                                             writes succeed. Storing earlier
+                                             would block legitimate retries on
+                                             partial-failure scenarios. -->
+                                        <os:store doc:name="Store eventId for Idempotency"
+                                                  key="#[vars.eventId]"
+                                                  objectStore="Store_Hubspot_eventId_Object_store">
+                                            <os:value><![CDATA[#[output application/json
+---
+{
+    processedAt: now() as String,
+    winnerId: vars.winnerId,
+    loserId: vars.loserId,
+    eventType: vars.eventType,
+    d365Entity: vars.d365Entity,
+    d365NaturalKey: vars.d365NaturalKey
+}]]]></os:value>
+                                        </os:store>
+                                        <logger level="INFO" doc:name="Trace eventId Stored"
+                                                message="#['TRACE UC05 eventId stored, merge complete | eventId=' ++ vars.eventId]"/>
+
+                                        <set-payload doc:name="Set 200 Response - Success"
+                                                     value='#[output application/json --- {"status":"ok","reason":"processed"}]'/>
+
+                                    </when>
+                                    <otherwise>
+                                        <logger level="WARN" doc:name="Log Record Not Found"
+                                                message="#['UC05 no D365 record found for loser HubSpot ID | loserId=' ++ vars.loserId ++ ' entity=' ++ vars.d365Entity]"/>
+                                        <set-payload doc:name="Set 200 Response - Not Found"
+                                                     value='#[output application/json --- {"status":"ok","reason":"d365_record_not_found"}]'/>
+                                    </otherwise>
+                                </choice>
+
+                            </when>
+                            <otherwise>
+                                <logger level="DEBUG" doc:name="Log Not Routed"
+                                        message="UC05 no entity routed, flow ending without D365 calls"/>
+                            </otherwise>
+                        </choice>
+
+                    </otherwise>
+                </choice>
+            </otherwise>
+        </choice>
+
+        <!-- ============================================================
+             FLOW-LEVEL CATCH-ALL ERROR HANDLER
+             Anything not caught earlier ends here. We always return 200
+             to HubSpot to prevent webhook retry storms; failures get
+             logged at ERROR with full context for ops review.
+             ============================================================ -->
+        <error-handler>
+            <on-error-continue type="ANY"
+                               enableNotifications="true"
+                               logException="true"
+                               doc:name="On Error Continue - Catch All">
+                <logger level="ERROR" doc:name="Log UC05 Failure"
+                        message="#['UC05 CRITICAL FAILURE | eventId=' ++ (vars.eventId default 'UNKNOWN') ++ ' eventType=' ++ (vars.eventType default 'UNKNOWN') ++ ' winnerId=' ++ (vars.winnerId default 'UNKNOWN') ++ ' loserId=' ++ (vars.loserId default 'UNKNOWN') ++ ' errorType=' ++ (error.errorType.identifier default 'Unknown') ++ ' reason=' ++ (error.description default error.detailedDescription default 'Unknown')]"/>
+                <set-payload doc:name="Set 200 Response - Error"
+                             value='#[output application/json --- {"status":"error","reason":"internal_error"}]'/>
+            </on-error-continue>
+        </error-handler>
+
+    </flow>
+
+    <!-- ============================================================ -->
+    <!-- D365 OAUTH TOKEN SUB-FLOW (shared utility)                   -->
+    <!-- Cached in D365_Token_Store with 55-min TTL.                  -->
+    <!-- Always sets vars.d365Token (cached or fresh).                -->
+    <!-- ============================================================ -->
+    <sub-flow name="Get-D365-OAuth-Token-Subflow" doc:id="5a3cac74-3301-4c07-829b-9ab1af8ae0d3">
+
+        <logger level="INFO" doc:name="Log Token Subflow Entry"
+                doc:id="8ad2ac32-a379-4eef-8547-71df14d8efdb"
+                message="OAuth Dance for D365 access token"/>
+
+        <os:retrieve doc:name="Retrieve Token"
+                     key="access_token"
+                     objectStore="D365_Token_Store"
+                     target="d365Token">
+            <os:default-value><![CDATA[#[""]]]></os:default-value>
+        </os:retrieve>
+        <logger level="INFO" doc:name="Trace Retrieve Token"
+                message="#['TRACE token retrieve completed | hasToken=' ++ (!isEmpty(vars.d365Token default ''))]"/>
+
+        <choice doc:name="Does Token Exist?">
+            <when expression="#[isEmpty(vars.d365Token)]">
+                <logger level="INFO" doc:name="Log Fetching New Token"
+                        message="D365 Token expired or missing. Fetching new token from Azure AD..."/>
+
+                <!-- DEBUG: log property values (lengths only for the secret).
+                     Verifies that properties are loaded correctly and no
+                     trailing whitespace / encoding issues are present.
+                     These loggers are safe to leave in production: they
+                     never log the actual secret value. -->
+                <logger level="INFO" doc:name="DEBUG Token Properties"
+                        message="#['DEBUG token props | tenant=' ++ (p('d365.tenant.id') default 'NULL') ++ ' | clientId=' ++ (p('d365.client.id') default 'NULL') ++ ' | clientIdLen=' ++ sizeOf((p('d365.client.id') default '')) ++ ' | secretLen=' ++ sizeOf((p('d365.client.secret') default ''))]"/>
+
+                <http:request method="POST"
+                              doc:name="Fetch New Token"
+                              config-ref="HTTP_Request_AzureAD_OAuth"
+                              path="#['/' ++ p('d365.tenant.id') ++ '/oauth2/v2.0/token']">
+                    <http:body><![CDATA[#[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+    "client_id": p('d365.client.id'),
+    "client_secret": p('d365.client.secret'),
+    "scope": "https://zyris-zydev91ed270f8a3f5c58aos.axcloud.dynamics.com/.default",
+    "grant_type": "client_credentials"
+}]]]></http:body>
+                    <http:headers><![CDATA[#[output application/java
+---
+{
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Accept": "application/json"
+}]]]></http:headers>
+                </http:request>
+                <!-- DEBUG: log full response from Azure AD. On success this
+                     is the access_token JSON; on failure it's the error
+                     response (or HTML if a parser fallback occurs). -->
+                <logger level="INFO" doc:name="DEBUG Token Response"
+                        message="#['DEBUG token response | payload=' ++ write(payload default {}, 'application/json')]"/>
+
+                <set-variable variableName="d365Token"
+                              doc:name="Set d365Token"
+                              value="#[payload.access_token]"/>
+                <logger level="INFO" doc:name="Trace Set d365Token"
+                        message="'TRACE d365Token variable set'"/>
+
+                <os:store doc:name="Store Token"
+                          key="access_token"
+                          objectStore="D365_Token_Store">
+                    <os:value><![CDATA[#[vars.d365Token]]]></os:value>
+                </os:store>
+                <logger level="INFO" doc:name="Trace Store Token"
+                        message="'TRACE token stored in object store'"/>
+            </when>
+            <otherwise>
+                <logger level="DEBUG" doc:name="Log Cached Token Used"
+                        message="Using cached D365 OAuth Token."/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+</mule>

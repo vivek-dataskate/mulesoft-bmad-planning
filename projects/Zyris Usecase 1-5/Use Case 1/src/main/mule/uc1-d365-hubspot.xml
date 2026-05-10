@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+		http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd
+		http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+		http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+	
+	<flow name="d365-hubspot-sync-uc1Flow">
+		<scheduler doc:name="Daily Sync Scheduler" doc:id="c834d7f5-4009-481d-9eee-73a7261cc5e2">
+			<scheduling-strategy >
+				<cron expression="${sync.scheduler.cron}" timeZone="${sync.scheduler.timezone}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Log Flow Triggered" message='UC1 sync triggered. Flow=[#[app.name default "d365-hubspot-sync-uc1"]], timestamp=[#[(now() as String) default ""]]'/>
+
+		<flow-ref doc:name="Flow Reference" name="main-logic-flow"/>
+	</flow>
+
+	<sub-flow name="main-logic-flow">
+		<logger level="INFO" doc:name="Log Main Logic Start" message='Starting main-logic-flow. Watermark key=[${sync.watermark.key}], objectStore=[${watermark.object.store.name}]'/>
+		<os:retrieve doc:name="Retrieve lastSyncTime" key="${sync.watermark.key}" objectStore="${watermark.object.store.name}" target="lastSyncTime">
+			<os:default-value ><![CDATA[#[%dw 2.0
+output application/java
+---
+/* Static Date for Testing: Ensures we pick up the sample invoice */
+p('sync.default.lastSyncTime')]]]></os:default-value>
+		</os:retrieve>
+		<logger level="INFO" doc:name="Log Retrieved Watermark Value" message='Watermark retrieved safely. lastSyncTime=[#[vars.lastSyncTime default ""]]'/>
+		<set-variable value="#[((now() + |P1D|) as String {format: 'yyyy-MM-dd'}) ++ 'T00:00:00Z']" doc:name="Set Current Run Time to Midnight" variableName="currentRunTime"/>
+		<logger level="INFO" doc:name="Log Current Run Time" message='Computed currentRunTime safely. currentRunTime=[#[vars.currentRunTime default ""]]'/>
+		<logger level="INFO" doc:name="Log Watermark" message="Fetching D365 Invoices with InvoiceDate after: #[vars.lastSyncTime]" />
+
+		<ee:transform doc:name="Transform Message" doc:id="25aea899-3412-4482-ab82-db5402e7543c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+var entityName = "SalesInvoiceHeadersV4"
+var selectParams = "?\$select=InvoiceNumber,InvoiceDate,TotalInvoiceAmount,InvoiceCustomerAccountNumber"
+
+/* CHANGED: Swapped 'ge' to 'gt' to avoid fetching the boundary record twice */
+var filterParams = "&\$filter=InvoiceDate gt " ++ vars.lastSyncTime ++ " and InvoiceDate lt " ++ vars.currentRunTime
+---
+entityName ++ selectParams ++ filterParams]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log D365 Query Built" message='Built D365 query payload safely. query=[#[payload default ""]]'/>
+		<dynamics365ForOperations:retrieve-multiple-by-query config-ref="Dynamics_365_For_Operations_Config" doc:name="Retrieve Invoices by Query">
+		</dynamics365ForOperations:retrieve-multiple-by-query>
+		<logger level="INFO" doc:name="Log D365 Retrieve Completed" message='D365 retrieve completed. payloadType=[#[typeOf(payload) default "Unknown"]], recordCount=[#[sizeOf(payload default []) default 0]]'/>
+
+		<logger level="INFO" doc:name="Log Record Count" message="Successfully fetched #[sizeOf(payload default [])] records from D365 FO." />
+        
+		<choice doc:name="Choice" doc:id="71139dca-33d5-4f8e-b5d8-f2904a5f6e1d" >
+			<when expression="#[sizeOf(payload) &gt; 0]">
+				<logger level="INFO" doc:name="Log Records Present Branch" message='Records present branch entered. recordsToProcess=[#[sizeOf(payload default []) default 0]]'/>
+				
+				<os:store doc:name="Update Watermark" key="${sync.watermark.key}" objectStore="${watermark.object.store.name}">
+					<os:value ><![CDATA[#[%dw 2.0
+output application/java
+---
+max(payload map $.InvoiceDate)]]]></os:value>
+				</os:store>
+				<logger level="INFO" doc:name="Log Watermark Updated" message='Watermark updated successfully for key=[${sync.watermark.key}].'/>
+
+				<foreach doc:name="For Each Invoice" collection="#[payload default []]">
+					<logger level="INFO" doc:name="Log Invoice Loop Iteration Start" message='Starting invoice iteration. invoiceNumber=[#[payload.InvoiceNumber default ""]], customerAccount=[#[payload.InvoiceCustomerAccountNumber default ""]] '/>
+					<flow-ref doc:name="Call HubSpot Upsert Subflow" name="hubspot-upsert-subflow" />
+					<logger level="INFO" doc:name="Log Invoice Loop Iteration End" message='Completed invoice iteration. invoiceNumber=[#[payload.InvoiceNumber default ""]] '/>
+				</foreach>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="a611036c-bbf8-404b-bb68-6b4075e33d99" message='#["No records to sync, stopping flow."]'/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log Main Logic End" message='Completed main-logic-flow execution.'/>
+	</sub-flow>
+
+	<sub-flow name="hubspot-upsert-subflow">
+		<set-variable value="#[payload]" doc:name="Current invoice from foreach" variableName="invoice"/>
+		<logger level="INFO" doc:name="Log Invoice Context Set" message='Invoice context set. invoiceNumber=[#[vars.invoice.InvoiceNumber default ""]], invoiceDate=[#[vars.invoice.InvoiceDate default ""]]'/>
+		<try doc:name="Try Record Processing">
+		<logger level="INFO" doc:name="Log Record Processing Start" message='Starting HubSpot upsert processing for invoice=[#[vars.invoice.InvoiceNumber default ""]] '/>
+		<ee:transform doc:name="Transform Message" doc:id="c7770e67-afd1-40af-b31c-e9a74dd3a289" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+var acct = vars.invoice.InvoiceCustomerAccountNumber default ""
+var escaped = acct replace "'" with "''"
+---
+"CustomersV3?\$filter=CustomerAccount eq '" ++ escaped ++ "'&\$select=OrganizationName"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log D365 Customer Query Built" message='Built D365 customer lookup query. query=[#[payload default ""]]'/>
+		
+		<dynamics365ForOperations:retrieve-multiple-by-query config-ref="Dynamics_365_For_Operations_Config" doc:name="Get Customer Name from D365 (DSQL)" target="d365CustomerResponse">
+		</dynamics365ForOperations:retrieve-multiple-by-query>
+		<logger level="INFO" doc:name="Log D365 Customer Response" message='D365 customer lookup completed. matches=[#[sizeOf(vars.d365CustomerResponse default []) default 0]], customerName=[#[((vars.d365CustomerResponse default [])[0].OrganizationName) default "Unknown Name"]]'/>
+
+		<ee:transform doc:name="Map HubSpot Search Payload (By Name)" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+				output application/json
+				var customerName = (vars.d365CustomerResponse default [])[0].OrganizationName default "Unknown Name"
+				---
+				{
+					"filterGroups": [
+						{
+							"filters": [
+								{
+									"propertyName": "name",
+									"operator": "EQ",
+									"value": customerName
+								}
+							]
+						}
+					],
+					"properties": [ "hs_object_id", "name" ]
+				}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log HubSpot Company Search Payload Ready" message='Prepared HubSpot company search payload for invoice=[#[vars.invoice.InvoiceNumber default ""]] '/>
+
+		<until-successful maxRetries="${hubspot.search.retry.maxRetries}" millisBetweenRetries="${hubspot.search.retry.millisBetweenRetries}" doc:name="Retry Search Company">
+    <http:request method="POST" doc:name="Search Company in HubSpot" config-ref="HubSpot_HTTP_Request_Config" path="/crm/v3/objects/companies/search" target="hubspotSearchResponse">
+        <http:headers><![CDATA[#[output application/java
+        ---
+        {
+            "Authorization" : "Bearer ${hubspot.private.app.token}",
+            "Content-Type" : "application/json",
+            "Accept" : "application/json"
+        }]]]></http:headers>
+    </http:request>
+</until-successful>
+		<logger level="INFO" doc:name="Log HubSpot Company Search Response" message='HubSpot company search completed. total=[#[vars.hubspotSearchResponse.total default 0]]'/>
+
+		<choice doc:name="Check if Company Found">
+			<when expression="#[(vars.hubspotSearchResponse.total default 0) &gt; 0]">
+				<logger level="INFO" doc:name="Log Company Found Branch" message='Company found in HubSpot. companyId=[#[vars.hubspotSearchResponse.results[0].id default ""]] '/>
+				
+				<ee:transform doc:name="Map Deal Search Payload" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"filterGroups": [
+		{
+			"filters": [
+				{
+					"propertyName": "dealname",
+					"operator": "EQ",
+					"value": vars.invoice.InvoiceNumber as String
+				}
+			]
+		}
+	],
+	"properties": [ "hs_object_id" ]
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Log Deal Search Payload Ready" message='Prepared deal search payload. invoiceNumber=[#[vars.invoice.InvoiceNumber default ""]] '/>
+
+				<http:request method="POST" doc:name="Search Existing Deal" config-ref="HubSpot_HTTP_Request_Config" path="/crm/v3/objects/deals/search" target="dealSearchResponse">
+					<http:headers><![CDATA[#[output application/java
+			---
+			{
+				"Authorization" : "Bearer ${hubspot.private.app.token}",
+				"Content-Type" : "application/json",
+				"Accept" : "application/json"
+			}]]]></http:headers>
+				</http:request>
+				<logger level="INFO" doc:name="Log Deal Search Response" message='Deal search completed. total=[#[vars.dealSearchResponse.total default 0]]'/>
+
+				<choice doc:name="Upsert Deal Router">
+					<when expression="#[(vars.dealSearchResponse.total default 0) &gt; 0]">
+						<logger level="INFO" doc:name="Log Deal Update Branch" message='Existing deal found. Will update dealId=[#[vars.dealSearchResponse.results[0].id default ""]] for invoice=[#[vars.invoice.InvoiceNumber default ""]] '/>
+
+						<ee:transform doc:name="Map Deal Update Payload" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var inv = vars.invoice
+fun hubSpotCloseDate(d) =
+if (d == null) null
+else ((("" ++ d) splitBy "T")[0] default null)
+---
+{
+	"properties": {
+		"amount": inv.TotalInvoiceAmount as String,
+		"closedate": hubSpotCloseDate(inv.InvoiceDate),
+		"dealstage": p('hubspot.deal.stage.closedwon'),
+		"pipeline": p('hubspot.deal.pipeline.default')
+		}
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="INFO" doc:name="Log Deal Update Payload Ready" message='Prepared deal update payload for invoice=[#[vars.invoice.InvoiceNumber default ""]] '/>
+
+						<http:request method="PATCH" doc:name="Update Deal" config-ref="HubSpot_HTTP_Request_Config" path="#['/crm/v3/objects/deals/' ++ vars.dealSearchResponse.results[0].id]">
+							<http:headers><![CDATA[#[output application/java
+			---
+			{
+				"Authorization" : "Bearer ${hubspot.private.app.token}",
+				"Content-Type" : "application/json",
+				"Accept" : "application/json"
+			}]]]></http:headers>
+						</http:request>
+						<logger level="INFO" doc:name="Log Update Success" message="Successfully UPDATED existing Deal for Invoice #[vars.invoice.InvoiceNumber]" />
+					</when>
+
+					<otherwise >
+						<logger level="INFO" doc:name="Log Deal Create Branch Existing Company" message='No existing deal found. Will create new deal for existing companyId=[#[vars.hubspotSearchResponse.results[0].id default ""]] '/>
+						<ee:transform doc:name="Map Deal Create Payload" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var companyId = vars.hubspotSearchResponse.results[0].id
+var inv = vars.invoice
+fun hubSpotCloseDate(d) =
+	if (d == null) null
+	else ((("" ++ d) splitBy "T")[0] default null)
+---
+{
+	"properties": {
+		"amount": inv.TotalInvoiceAmount as String,
+		"closedate": hubSpotCloseDate(inv.InvoiceDate),
+		"dealname": inv.InvoiceNumber as String,
+		"dealstage": p('hubspot.deal.stage.closedwon'),
+		"pipeline": p('hubspot.deal.pipeline.default')
+		},
+	"associations": [
+		{
+			"to": { "id": companyId },
+			"types": [
+				{
+					"associationCategory": "HUBSPOT_DEFINED",
+					"associationTypeId": p('hubspot.association.companyToDeal.typeId') as Number
+				}
+			]
+		}
+	]
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="INFO" doc:name="Log Deal Create Payload Existing Company Ready" message='Prepared deal create payload (existing company). invoice=[#[vars.invoice.InvoiceNumber default ""]] '/>
+
+						<http:request method="POST" doc:name="Create Deal" config-ref="HubSpot_HTTP_Request_Config" path="/crm/v3/objects/deals">
+							<http:headers><![CDATA[#[output application/java
+			---
+			{
+				"Authorization" : "Bearer ${hubspot.private.app.token}",
+				"Content-Type" : "application/json",
+				"Accept" : "application/json"
+			}]]]></http:headers>
+						</http:request>
+						<logger level="INFO" doc:name="Log Create Success" message="Successfully CREATED new Deal for Invoice #[vars.invoice.InvoiceNumber]" />
+					</otherwise>
+				</choice>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Log Missing Customer" message="Could not find HubSpot Company. Creating new company with Name: #[((vars.d365CustomerResponse default [])[0].OrganizationName) default 'Unknown Name']..." />
+				<logger level="INFO" doc:name="Log Company Create Branch" message='Company not found branch entered for invoice=[#[vars.invoice.InvoiceNumber default ""]] '/>
+
+				<ee:transform doc:name="Map Company Create Payload">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var customerName = (vars.d365CustomerResponse default [])[0].OrganizationName default "Unknown Name"
+---
+{
+	"properties": {
+		"name": customerName
+	}
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Log Company Create Payload Ready" message='Prepared company create payload. customerName=[#[((vars.d365CustomerResponse default [])[0].OrganizationName) default "Unknown Name"]]'/>
+
+				<http:request method="POST" doc:name="Create Company in HubSpot" config-ref="HubSpot_HTTP_Request_Config" path="/crm/v3/objects/companies" target="createCompanyResponse">
+					<http:headers><![CDATA[#[output application/java
+					---
+					{
+						"Authorization" : "Bearer ${hubspot.private.app.token}",
+						"Content-Type" : "application/json",
+						"Accept" : "application/json"
+					}]]]></http:headers>
+				</http:request>
+
+				<logger level="INFO" doc:name="Log Company Create Success" message="Successfully created new HubSpot Company with ID #[vars.createCompanyResponse.id]" />
+
+				<ee:transform doc:name="Map Deal Create Payload (New Company)">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+						output application/json
+						var companyId = vars.createCompanyResponse.id
+						var inv = vars.invoice
+						fun hubSpotCloseDate(d) =
+							if (d == null) null
+							else ((("" ++ d) splitBy "T")[0] default null)
+						---
+						{
+							"properties": {
+								"amount": inv.TotalInvoiceAmount as String,
+								"closedate": hubSpotCloseDate(inv.InvoiceDate),
+								"dealname": inv.InvoiceNumber default "Unknown",
+								"dealstage": p('hubspot.deal.stage.closedwon'),
+								"pipeline": p('hubspot.deal.pipeline.default')
+							},
+							"associations": [
+								{
+									"to": { "id": companyId },
+									"types": [
+										{
+											"associationCategory": "HUBSPOT_DEFINED",
+											"associationTypeId": p('hubspot.association.companyToDeal.typeId') as Number
+										}
+									]
+								}
+							]
+						}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Log Deal Create Payload New Company Ready" message='Prepared deal create payload (new company). companyId=[#[vars.createCompanyResponse.id default ""]] '/>
+
+				<http:request method="POST" doc:name="Create Deal (New Company)" config-ref="HubSpot_HTTP_Request_Config" path="/crm/v3/objects/deals">
+					<http:headers><![CDATA[#[output application/java
+					---
+					{
+						"Authorization" : "Bearer ${hubspot.private.app.token}",
+						"Content-Type" : "application/json",
+						"Accept" : "application/json"
+					}]]]></http:headers>
+				</http:request>
+				
+				<logger level="INFO" doc:name="Log Deal Create Success" message="Successfully CREATED new Deal for Invoice #[vars.invoice.InvoiceNumber default ''] linked to newly created Company." />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log Record Processing End" message='Completed HubSpot upsert processing for invoice=[#[vars.invoice.InvoiceNumber default ""]] '/>
+		<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue for Record">
+					<logger level="ERROR" doc:name="Log Record Failure" message='Failed to process Invoice #[vars.invoice.InvoiceNumber default "Unknown"]. Error: #[error.description]' />
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+</mule>

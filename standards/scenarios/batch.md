@@ -45,6 +45,7 @@ SFTP / DB / File source
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "batch",
     "direction": "unidirectional"
   },
@@ -55,10 +56,19 @@ SFTP / DB / File source
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 2,
     "backoff": "fixed",
     "dlq": true,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "pull",
+    "messageTtlHours": null,
+    "maxConcurrency": 4,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": false
   },
   "scheduling": {
     "required": true,
@@ -67,7 +77,7 @@ SFTP / DB / File source
     "objectStore": "persistent"
   },
   "devops": {
-    "munitCoverage": 70
+    "munitCoverage": 75
   }
 }
 ```
