@@ -406,6 +406,7 @@ If not found follow UNKNOWN SYSTEM HANDLING section.
 □ data-masking-in-logs
 □ flow-control (rate-limiting, backpressure)
 □ invalid-message-channel (separate from DLQ — for validation failures)
+□ wire-tap (non-intrusive async copy of every message to audit queue — set retentionHours)
 ```
 
 ---
@@ -1025,7 +1026,7 @@ The profile determines which templates and cross-cutting components are generate
 |---------|----------------------------------------|-------------------|
 | **minimal** | security=internal, availability=best-effort, pattern=outbound-notification only | HTTP listener, basic error handler, 1 flow file, MUnit stubs |
 | **standard** | security=internal or partner, availability=99.9, any async pattern | Global error handler, DLQ, env properties, logging config, MUnit stubs, idempotency check if async |
-| **enterprise** | availability=99.99, OR customDashboard=true, OR compensationStrategy=compensating-transaction | All of standard + retry framework, wire tap, Anypoint Monitoring alerts, custom dashboard config, backpressure config, claim-check if payload>1MB indicated |
+| **enterprise** | availability=99.99, OR customDashboard=true, OR compensationStrategy=compensating-transaction | All of standard + retry framework, Anypoint Monitoring alerts, custom dashboard config, backpressure config, claim-check if payload>1MB indicated |
 | **regulated** | security=regulated or government | All of enterprise + field encryption, Secrets Manager config, mTLS config, audit trail flow, compliance logging, invalid-message-channel always generated |
 
 Profile is written to `decisions.json` as `scaffold.profile` by the Architect agent.
@@ -1136,6 +1137,11 @@ If > 6 months old, prints warning:
     "teams": false,
     "slackWebhook": null,
     "emailRecipients": []
+  },
+  "wireTap": {
+    "enabled": false,
+    "retentionHours": 72,
+    "queueName": ""
   },
   "scheduling": {
     "required": false,
@@ -1510,7 +1516,7 @@ CHUNK 8 — Scaffold Generator         [ ] NOT STARTED
     - Checks connector version staleness (> 30 days → MCP verify required)
     - Generates flow control config when flowControl.backpressureEnabled=true
     - Generates idempotency check when pattern is async
-    - Generates wire-tap when profile=enterprise or regulated
+    - Generates wire-tap when wireTap.enabled=true (architect decision at Level 4)
     - Generates invalid-message-channel when errorHandling.invalidMessageChannel=true
     - Generates claim-check stub when any flow may carry payload > 1MB
     - Profile-specific: regulated profile always generates field-encryption + audit-trail flow

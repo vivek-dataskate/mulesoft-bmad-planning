@@ -1,0 +1,89 @@
+<!--
+    Trigger: Anypoint MQ Subscriber (event-driven / pubsub-fanout / outbound-notification)
+    Queue: ${mq.queue.{{QUEUE_PROPERTY}}}
+    Ack mode: MANUAL — ACK only after successful processing to guarantee delivery
+    maxConcurrency: {{MAX_CONCURRENCY}} — set based on downstream capacity, not Mule CPU
+    Idempotency: MANDATORY — duplicates will occur; check before any downstream write
+    TTL: {{MESSAGE_TTL_HOURS}}h  |  deduplicationTtl: {{DEDUP_TTL_MINUTES}} min
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <anypoint-mq:subscriber
+            config-ref="Anypoint_MQ_Config"
+            destination="${mq.queue.{{QUEUE_PROPERTY}}}"
+            acknowledgementMode="MANUAL"
+            maxConcurrency="{{MAX_CONCURRENCY}}"
+            doc:name="MQ Subscriber — ${mq.queue.{{QUEUE_PROPERTY}}}"/>
+
+        <!-- Propagate messageId as correlationId across async boundary -->
+        <set-variable
+            variableName="messageId"
+            value="#[attributes.messageId default correlationId]"
+            doc:name="Capture Message ID"/>
+
+        <logger
+            level="INFO"
+            message='#["[START] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | messageId=" ++ vars.messageId ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log MQ Message Received"/>
+
+        <!-- ── Idempotency check — MANDATORY ────────────────────────────── -->
+        <!--
+            Key:  {{CONSUMER_PREFIX}}-{messageId}
+            TTL:  {{DEDUP_TTL_MINUTES}} min (= messageTtlHours × 60 = {{MESSAGE_TTL_HOURS}} × 60)
+            IMPORTANT: TTL must equal or exceed the queue's messageTtlHours.
+            On duplicate: log WARN + ACK + exit without processing.
+        -->
+        <os:retrieve
+            key='#["{{CONSUMER_PREFIX}}-" ++ vars.messageId]'
+            objectStore="Persistent_Object_Store"
+            target="seenBefore"
+            doc:name="Check Idempotency Key">
+            <os:default-value>#[false]</os:default-value>
+        </os:retrieve>
+
+        <choice doc:name="Duplicate Check">
+            <when expression="#[vars.seenBefore == true]">
+                <logger
+                    level="WARN"
+                    message='#["[DUPLICATE] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | messageId=" ++ vars.messageId ++ " | skipping"]'
+                    doc:name="Log Duplicate"/>
+                <anypoint-mq:ack
+                    ackToken="#[attributes.ackToken]"
+                    config-ref="Anypoint_MQ_Config"
+                    doc:name="ACK Duplicate (skip)"/>
+            </when>
+            <otherwise>
+                <!-- Store key BEFORE processing — prevents re-processing on crash during retry -->
+                <os:store
+                    key='#["{{CONSUMER_PREFIX}}-" ++ vars.messageId]'
+                    objectStore="Persistent_Object_Store"
+                    ttl="{{DEDUP_TTL_MINUTES}}"
+                    ttlUnit="MINUTES"
+                    doc:name="Mark as Processing">
+                    <os:value>#[true]</os:value>
+                </os:store>
+
+                <!--
+                    TODO: Validate message structure BEFORE any downstream write.
+                    Validation failures → Invalid Message Channel (never DLQ).
+                    Example:
+                      <validation:is-not-null value="#[payload.orderId]" message="orderId required"/>
+                -->
+
+                <!-- TODO: Implement {{FLOW_DESCRIPTION}} -->
+                <!-- Source: {{FLOW_SOURCE}} → Target: {{FLOW_TARGET}} -->
+
+                <anypoint-mq:ack
+                    ackToken="#[attributes.ackToken]"
+                    config-ref="Anypoint_MQ_Config"
+                    doc:name="ACK Message"/>
+
+                <logger
+                    level="INFO"
+                    message='#["[END] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | messageId=" ++ vars.messageId]'
+                    doc:name="Log Processing End"/>
+            </otherwise>
+        </choice>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>

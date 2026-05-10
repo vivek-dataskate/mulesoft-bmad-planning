@@ -108,7 +108,10 @@ Walk the 6-level decision tree — enforce all rules; do not skip levels:
       CDC events → messageTtlHours=4
     deduplicationTtlMinutes = messageTtlHours × 60 (always)
     scheduling.watermarking=true for all scheduled-sync (D) flows (persistent Object Store)
-    Write to: decisions.json observability.*, notifications.*, scheduling.*, flowControl.*
+    wire-tap: set wireTap.enabled=true if client needs message audit trail or production debugging;
+      set wireTap.retentionHours (default 72; increase for longer replay window);
+      set wireTap.queueName to {domain}-audit-{env}-queue
+    Write to: decisions.json observability.*, notifications.*, scheduling.*, flowControl.*, wireTap.*
 
   Level 5 — Security Level
     internal | partner | regulated | government
@@ -121,7 +124,11 @@ Cross-cutting (evaluate ALL — none are optional):
   Idempotent Receiver → flowControl.deduplicationEnabled=true (all async flows)
   Claim Check → if any flow payload may exceed 1MB
   Normalizer → if N source formats for same entity
-  Wire Tap → if profile=enterprise or regulated
+  Wire Tap → architect decision (Level 4). Set wireTap.enabled=true when client needs message-level
+    audit trail, production debugging capability, or replay visibility. Set wireTap.retentionHours:
+    default 72h (debugging window); increase if client needs longer replay (e.g. 168h for 7-day window).
+    Queue depth must be sized for (messages/hour × retentionHours). Wire tap is NOT consumed in normal
+    operation — messages expire via TTL. Write to: decisions.json wireTap.*
   Invalid Message Channel → errorHandling.invalidMessageChannel=true when applicable
   Semantic Dissonance → document in architecture.md table when field names collide
   Anti-patterns → check all 10 from PLANNING_CONTEXT.md anti-patterns table

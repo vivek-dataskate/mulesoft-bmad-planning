@@ -1,0 +1,60 @@
+<!--
+    Snippet: Idempotency Check
+    MANDATORY for ALL async MQ/Kafka consumers — no exceptions.
+    Insert this block BEFORE any downstream write operation.
+
+    Key:  {{CONSUMER_PREFIX}}-{messageId}
+    Store: Persistent_Object_Store (survives restarts)
+    TTL:  {{DEDUP_TTL_MINUTES}} min  (MUST equal messageTtlHours × 60)
+          Do NOT hardcode 24h for critical queues (7-day TTL → 10080 min).
+          Standard events (24h TTL)  → 1440 min
+          Critical events (7d TTL)   → 10080 min
+          Notification events (1h TTL) → 60 min
+          CDC events (4h TTL)        → 240 min
+
+    On duplicate: ACK message + log WARN + exit without processing.
+    Failure to implement is a P0 bug (guaranteed duplicates from broker).
+-->
+
+        <!-- Idempotency Check — MANDATORY -->
+        <os:retrieve
+            key='#["{{CONSUMER_PREFIX}}-" ++ (attributes.messageId default correlationId)]'
+            objectStore="Persistent_Object_Store"
+            target="seenBefore"
+            doc:name="Check Idempotency Key">
+            <os:default-value>#[false]</os:default-value>
+        </os:retrieve>
+
+        <choice doc:name="Is Duplicate?">
+            <when expression="#[vars.seenBefore == true]">
+                <logger
+                    level="WARN"
+                    message='#["[DUPLICATE SKIPPED] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | messageId=" ++ (attributes.messageId default "unknown")]'
+                    doc:name="Log Duplicate"/>
+                <!-- ACK the duplicate so it is not redelivered -->
+                <anypoint-mq:ack
+                    ackToken="#[attributes.ackToken]"
+                    config-ref="Anypoint_MQ_Config"
+                    doc:name="ACK Duplicate"/>
+                <!-- Stop flow processing without error -->
+            </when>
+            <otherwise>
+                <!--
+                    Store key BEFORE processing — idempotent even on crash.
+                    If processing fails, message goes to DLQ for retry.
+                    DLQ handler must also implement idempotency.
+                -->
+                <os:store
+                    key='#["{{CONSUMER_PREFIX}}-" ++ (attributes.messageId default correlationId)]'
+                    objectStore="Persistent_Object_Store"
+                    ttl="{{DEDUP_TTL_MINUTES}}"
+                    ttlUnit="MINUTES"
+                    doc:name="Store Idempotency Key">
+                    <os:value>#[true]</os:value>
+                </os:store>
+
+                <!-- ── PROCESSING STEPS GO HERE ─────────────────────────────── -->
+                <!-- (Move your actual processing logic inside this otherwise block) -->
+
+            </otherwise>
+        </choice>

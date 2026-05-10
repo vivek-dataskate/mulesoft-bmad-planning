@@ -1,0 +1,41 @@
+<!--
+    Snippet: Wire Tap (non-intrusive async message copy for audit/debugging)
+    Insert at any point in a flow where message capture is required.
+    The async wrapper ensures this NEVER affects primary flow latency or reliability.
+
+    Queue: ${mq.queue.audit}  (set in decisions.json wireTap.queueName)
+    Retention: {{WIRE_TAP_RETENTION_HOURS}}h (set in decisions.json wireTap.retentionHours)
+    Generated when: decisions.json wireTap.enabled = true
+
+    Properties:
+      mq.queue.audit   → Anypoint MQ queue for audit message capture
+      Retention handled by queue TTL configuration (see global-mq-queues story)
+-->
+
+        <!-- Wire Tap — async capture; never blocks or fails the primary flow -->
+        <async doc:name="Wire Tap — Audit Capture">
+            <on-error-continue type="ANY" doc:name="Swallow Wire Tap Errors">
+                <!-- Wire tap failure MUST NOT affect primary flow — always on-error-continue -->
+                <logger
+                    level="WARN"
+                    message='#["[WIRE TAP ERROR] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | " ++ error.description]'
+                    doc:name="Log Wire Tap Error"/>
+            </on-error-continue>
+            <anypoint-mq:publish
+                config-ref="Anypoint_MQ_Config"
+                destination="${mq.queue.audit}"
+                messageId="#[correlationId ++ '-' ++ now() as Number as String]"
+                doc:name="Publish to Audit Queue">
+                <anypoint-mq:body><![CDATA[#[output application/json
+---
+{
+    correlationId: correlationId,
+    flow:          flow.name,
+    environment:   p("mule.env"),
+    timestamp:     now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    payload:       payload
+    // NOTE: Mask PII fields here before publishing to audit queue
+    // Example: payload - { "ssn", "creditCardNumber", "password" }
+}]]]></anypoint-mq:body>
+            </anypoint-mq:publish>
+        </async>
