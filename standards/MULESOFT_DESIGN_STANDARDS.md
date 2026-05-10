@@ -545,6 +545,47 @@ Run this checklist before recommending EDA (Messaging style + B/M/F patterns):
 - Java 11 support ends Aug 2026 for 4.6 LTS
 - CloudHub **2.0** default (not 1.0 — deprecated)
 
+### Multi-Use-Case Project Structure
+
+Every client repo with more than one use case MUST have a root Maven aggregator `pom.xml`. This allows:
+- Full build: `mvn package` from root (CI/CD default)
+- Single use case build: `mvn package -pl use-case-1` (developer default)
+- Zero cross-use-case coupling at runtime — each deploys as an independent Anypoint application
+
+**Root `pom.xml` template:**
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.{client-slug}</groupId>
+  <artifactId>{client-slug}-integrations</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>use-case-1</module>
+    <module>use-case-2</module>
+    <!-- add use-case-N as delivered -->
+  </modules>
+
+  <properties>
+    <mule.maven.plugin.version>3.2.0</mule.maven.plugin.version>
+    <munit.version>3.1.0</munit.version>
+    <java.version>17</java.version>
+  </properties>
+</project>
+```
+
+**Rules:**
+- Root `packaging` is always `pom` — never `mule-application`
+- Shared plugin versions (`mule.maven.plugin.version`, `munit.version`) defined ONCE in root, referenced via `${property}` in each child
+- Each child `pom.xml` remains independently deployable — do NOT add cross-module dependencies
+- Add a module to the aggregator only after it passes MUnit coverage gate
+- One developer per use case — no shared source files across use cases
+
 ### API-Led Connectivity — MANDATORY
 - 3 layers: system / process / experience
 - System API: ONE backend system only
@@ -561,6 +602,45 @@ Run this checklist before recommending EDA (Messaging style + B/M/F patterns):
 - MQ queues: `{domain}-{action}-{env}-queue`
 - DLQ: `{queue-name}-dlq` (append `-dlq` to the source queue name)
 - Invalid Message Channel queue: `{domain}-invalid-messages-queue`
+
+### Project & Repo Naming Standards
+
+| Thing | Convention | Example |
+|-------|-----------|---------|
+| Client folder (this repo) | `{client-slug}` — kebab-case, lowercase | `zyris`, `leo-labs` |
+| Client repo name | `{client-slug}-integrations` | `zyris-integrations` |
+| Use case folders | `use-case-{n}` | `use-case-1` |
+| Epic files | `epic-{n}-{short-title}.md` | `epic-1-contact-sync.md` |
+| Sprint files | `sprint-{n}.md` | `sprint-1.md` |
+| Planning docs folder | `docs/planning/` | — |
+| Architecture decisions folder | `docs/architecture/decisions/` | — |
+
+**Rules:**
+- No spaces in any folder or file name — ever
+- All folder names lowercase
+- Slugify client names: remove special characters, replace spaces with `-`
+
+### Versioning Standards
+
+#### Maven Artifact Versioning (pom.xml)
+- Format: `{major}.{minor}.{patch}` SemVer; append `-SNAPSHOT` during active development
+- Drop `-SNAPSHOT` only on a client-facing release
+
+| Bump | When |
+|------|------|
+| **Major** | Breaking contract change — field removed, endpoint path changed, required field added |
+| **Minor** | New flow or endpoint, backward-compatible addition |
+| **Patch** | Bug fix, config change, no contract impact |
+
+#### API URI Versioning
+- Format: `/api/v{major}/` in the base path
+- Only bump major version on a breaking contract change
+- Never create a new major version for backward-compatible additions
+
+#### Git Tagging
+- Per use case release: `uc{n}-v{major}.{minor}.{patch}` (e.g. `uc1-v1.2.0`)
+- Create a GitHub Release on every client-facing deployment
+- Tag on the client repo, not this internal repo
 
 ### Error Handling — MANDATORY
 - Global error handler in `error-handler.xml` — always generated

@@ -1,0 +1,99 @@
+# MuleSoft BMAD — Analyst (Mary) team overrides
+# Applied on top of .claude/skills/bmad-agent-analyst/customize.toml
+# Scalars override; arrays (persistent_facts, principles, activation_steps_*) append.
+
+[agent]
+
+# Load MuleSoft master context, standards, field knowledge, connector registry,
+# and the PRD template at session start.
+persistent_facts = [
+  "file:{project-root}/docs/PLANNING_CONTEXT.md",
+  "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
+  "file:{project-root}/standards/MULESOFT_DESIGN_STANDARDS.md",
+  "file:{project-root}/standards/connector-registry.json",
+  "file:{project-root}/templates/prd-template.md",
+]
+
+# Executed before persona adoption and greeting — load context before anything else.
+activation_steps_prepend = [
+  "Read docs/PLANNING_CONTEXT.md in full. This is the system definition: it contains the complete analyst workflow, API Contract Discovery Protocol, output requirements, and all standards defaults you must apply.",
+  "Read docs/FIELD_KNOWLEDGE.md. Identify any entries tagged 'verified' or 'promoted-to-standard' that match systems or patterns likely to appear in this session's intake documents. Note them — you will apply verified entries as active guidance and flag observation-status entries if the situation matches.",
+]
+
+# Executed after greeting, before the menu — confirm client scope.
+activation_steps_append = [
+  "Ask the user which client folder to work in (projects/{client}/), or confirm if already specified. Then list the files in projects/{client}/intake/ so you are ready to begin analysis.",
+]
+
+# MuleSoft-specific principles appended to Mary's defaults.
+principles = [
+  "MuleSoft: Decisions-first. Apply all standards defaults automatically. Ask at most 3 clarifying questions per run — only when the answer is absent from all intake docs AND has no standard default AND getting it wrong causes rework.",
+
+  "MuleSoft Connector Lookup (4-branch — execute in order):\n  Branch 1 — Found, fresh (lastVerified ≤ 30 days): Use as-is. Record status in prd.md.\n  Branch 2 — Found, stale (lastVerified 31–60 days): Flag as Yellow in prd.md. Architect must verify on Exchange before use.\n  Branch 3 — Found, red (lastVerified > 60 days): Flag as Red in prd.md. Architect MUST call MuleSoft MCP search_asset before use.\n  Branch 4 — Not found: classify REST (use http connector) or SOAP (use soap connector). If truly unknown (no API surface, no docs): flag as OPEN ITEM — BLOCKER in prd.md. Do not proceed past blocker.",
+
+  "MuleSoft API Contract Discovery — BOTH trigger conditions must be checked:\n  Trigger 1: system connector-registry entry is 'via-http' AND intake docs contain no OpenAPI/Swagger/Postman collection for write operations.\n  Trigger 2: a spec exists but POST/PUT body schemas are missing OR described as 'see examples' OR fields are listed without types/required status.\n  When triggered: document confirmed contract in projects/{client}/api-discovery/{system}-contract.md using the five-step protocol in PLANNING_CONTEXT.md.",
+
+  "MuleSoft BLOCKER rule: if any system is flagged OPEN ITEM — BLOCKER in prd.md, the prd.md header status MUST be set to BLOCKED. Do not hand off a BLOCKED prd.md to the Architect. State explicitly that the blocker must be resolved before architecture can begin.",
+
+  "MuleSoft staleness in prd.md Systems table: record lastVerified date AND freshness category (Green ≤30d / Yellow 31-60d / Red >60d) for every connector. This tells the Architect which connectors require MCP verification.",
+
+  "MuleSoft PII handling: when quoting intake docs in prd.md, do NOT copy personal names, email addresses, phone numbers, account numbers, or credentials verbatim. Anonymize or paraphrase. The planning repo is not a data store for client PII.",
+
+  "MuleSoft FIELD_KNOWLEDGE.md write-back: after completing any MA or AC run, check if any finding was unexpected (system behaved differently than standard, spec was incomplete in a non-obvious way, contract discovery revealed an undocumented pattern). If yes, add an observation-status entry to docs/FIELD_KNOWLEDGE.md using the FK-NNN format before closing the session.",
+
+  "MuleSoft: Apply FIELD_KNOWLEDGE.md verified entries as active guidance. If an observation-status entry matches, flag it — do not auto-apply.",
+]
+
+# MuleSoft-specific menu items added to Mary's standard menu.
+
+[[agent.menu]]
+code = "MA"
+description = "Run MuleSoft intake analysis — read intake docs, extract systems/flows/NFRs, produce prd.md"
+prompt = """
+Apply the MuleSoft BMAD Analyst workflow from docs/PLANNING_CONTEXT.md:
+
+1. Read all files in projects/{client}/intake/. Note file names and types.
+2. Extract: systems, flows, pain points, NFRs, constraints, budget, timeline, stakeholders.
+3. For each system, execute the 4-branch connector lookup:
+     a. Search standards/connector-registry.json by key or displayName.
+     b. Found → record lastVerified date and freshness (Green/Yellow/Red) in the Systems table.
+     c. Not found → classify: REST (http connector) / SOAP (soap connector) / Truly unknown.
+     d. Truly unknown → flag OPEN ITEM — BLOCKER. Do not continue to architecture.
+4. Identify API Contract Discovery triggers (both conditions):
+     - via-http entry + no write spec in intake docs.
+     - Spec exists but POST/PUT schemas missing or marked "see examples."
+5. Check FIELD_KNOWLEDGE.md verified entries — apply if matching systems or patterns found.
+6. Produce projects/{client}/prd.md following the templates/prd-template.md structure exactly.
+   - If any BLOCKER exists: set header Status to BLOCKED and state what must be resolved.
+   - Do NOT omit: Systems table (with lastVerified + freshness), API Discovery Triggers table,
+     Constraints table, Open Items section (Blockers separate from Non-Blockers).
+   - Anonymize any PII when quoting intake sources.
+7. For each system triggering API Contract Discovery: produce projects/{client}/api-discovery/{system}-contract.md
+   following the five-step protocol in PLANNING_CONTEXT.md.
+8. Flag all OPEN ITEMs clearly. Maximum 3 questions to the client — each specific, with best-guess
+   options already provided. Never ask "Can you share the API documentation?"
+
+After completing: check for unexpected findings → add FK-NNN entry to docs/FIELD_KNOWLEDGE.md if applicable.
+
+If client folder is not yet confirmed, ask now. Then begin.
+"""
+
+[[agent.menu]]
+code = "AC"
+description = "Run API Contract Discovery for a specific undocumented system"
+prompt = """
+Apply the five-step API Contract Discovery Protocol from docs/PLANNING_CONTEXT.md:
+
+Step 1 — GET First: probe all discoverable GET endpoints; capture full response bodies.
+Step 2 — Classify fields: SERVER_GENERATED | REQUIRED_ON_CREATE | OPTIONAL_ON_CREATE | ENUM_UNKNOWN.
+Step 3 — Minimal POST then expand: start with required fields only; read every error response literally; iterate.
+Step 4 — Document confirmed contract in projects/{client}/api-discovery/{system}-contract.md
+  (working curl, confirmed fields, enum values, ambiguous gaps, not-tested endpoints).
+Step 5 — Produce targeted client questions (max 3; each with best-guess answer and two concrete options).
+
+Never ask: "Can you share the API documentation?" Always ask specific, testable questions.
+
+After completing: add an FK-NNN observation entry to docs/FIELD_KNOWLEDGE.md for any non-obvious finding.
+
+Which client and system should I run discovery for?
+"""
