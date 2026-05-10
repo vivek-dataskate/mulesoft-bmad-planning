@@ -61,11 +61,28 @@ App A    App B     App C        ← each reads full stream independently
 
 ---
 
+## EDA Fit Assessment
+
+Before finalising this pattern, run the EDA fit checklist from `docs/PLANNING_CONTEXT.md → EDA FIT ASSESSMENT`.
+
+Key questions for pub/sub fan-out:
+- Will new consumers be added over time without publisher changes? → YES = pubsub-fanout is warranted; this is the core value
+- Do publisher and consumer teams evolve independently? → YES = EDA warranted
+- Is each consumer guaranteed independent delivery? → YES = Anypoint MQ Exchange (one queue per consumer) or Kafka consumer groups
+- Is throughput > 100K events/day OR consumers > 10? → YES = Kafka required; NO = Anypoint MQ Exchange is sufficient
+- Does the consumer need to replay events? → YES = Kafka required
+
+**Anti-pattern check:** If you control both publisher and consumer and have exactly one consumer,
+use `event-driven` (1-to-1) not pubsub-fanout — the topology decoupling adds cost with no benefit.
+
+---
+
 ## decisions.json Defaults
 
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "pubsub-fanout",
     "direction": "unidirectional"
   },
@@ -76,10 +93,21 @@ App A    App B     App C        ← each reads full stream independently
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 5,
     "backoff": "exponential",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{consumer-domain}-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
   },
   "systems": {
     "connectors": ["anypoint-mq"]

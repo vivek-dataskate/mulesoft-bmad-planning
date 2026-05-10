@@ -80,11 +80,25 @@ Source DB
 
 ---
 
+## EDA Fit Assessment
+
+Before finalising this pattern, run the EDA fit checklist from `docs/PLANNING_CONTEXT.md → EDA FIT ASSESSMENT`.
+
+Key questions for CDC streaming:
+- Does the source have a proper event API? → YES = use `event-driven` instead; CDC is for sources where you only have DB/platform access
+- Does the consumer need to replay past state? → YES = Kafka + Debezium required; Salesforce Platform Events have limited replay (24h window)
+- Is throughput > 100K changes/day? → YES = Kafka/Debezium required; Salesforce polling CDC will not keep up
+
+CDC is a push-based pattern you don't control — the source system emits changes. This justifies EDA complexity.
+
+---
+
 ## decisions.json Defaults
 
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "cdc-streaming",
     "direction": "unidirectional"
   },
@@ -95,10 +109,21 @@ Source DB
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 5,
     "backoff": "fixed",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{domain}-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 4,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 60
   },
   "systems": {
     "connectors": ["salesforce"]
@@ -109,7 +134,7 @@ Source DB
     "objectStore": "persistent"
   },
   "devops": {
-    "munitCoverage": 75
+    "munitCoverage": 80
   }
 }
 ```

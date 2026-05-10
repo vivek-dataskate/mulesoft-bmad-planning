@@ -69,6 +69,7 @@ Batch process-records step
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "event-driven",
     "secondaryPatterns": ["ai-augmented-flow"]
   },
@@ -79,10 +80,20 @@ Batch process-records step
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 2,
     "backoff": "fixed",
     "dlq": true,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
   },
   "systems": {
     "connectors": ["anypoint-mq"]

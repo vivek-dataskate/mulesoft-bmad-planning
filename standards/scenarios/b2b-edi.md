@@ -73,6 +73,7 @@ B2B Gateway (Experience layer)
 ```json
 {
   "integration": {
+    "integrationStyle": "hybrid",
     "primaryPattern": "b2b-edi",
     "direction": "bidirectional"
   },
@@ -83,10 +84,21 @@ B2B Gateway (Experience layer)
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 3,
     "backoff": "exponential",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{domain}-edi-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
   },
   "security": {
     "level": "partner",
@@ -94,7 +106,7 @@ B2B Gateway (Experience layer)
     "mtls": true
   },
   "devops": {
-    "munitCoverage": 75
+    "munitCoverage": 80
   }
 }
 ```

@@ -56,11 +56,26 @@ Anypoint MQ (webhook ingestion queue)
 
 ---
 
+## EDA Fit Assessment
+
+Before finalising this pattern, run the EDA fit checklist from `docs/PLANNING_CONTEXT.md → EDA FIT ASSESSMENT`.
+
+Key questions for webhook ingestion:
+- Do you control the event source? → NO = webhook ingestion is correct (you don't control what the external SaaS publishes)
+- Can you change the source to publish to a broker instead? → Usually NO for third-party SaaS; YES for internal systems → if internal, use `event-driven` with MQ instead
+- Does one webhook event need to reach multiple consumers? → YES = use `pubsub-fanout` downstream after ingesting to MQ
+- Is the external system guaranteed to retry on failure? → Verify per provider — if NO, the MQ publish step is critical for reliability
+
+Webhook ingestion is EDA-justified because you don't control the publisher.
+
+---
+
 ## decisions.json Defaults
 
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "webhook-ingestion",
     "direction": "unidirectional"
   },
@@ -71,10 +86,21 @@ Anypoint MQ (webhook ingestion queue)
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 5,
     "backoff": "exponential",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{domain}-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
   },
   "systems": {
     "connectors": ["anypoint-mq"]

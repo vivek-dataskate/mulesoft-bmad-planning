@@ -70,6 +70,7 @@ MuleSoft Experience API (standard HTTP; OpenAPI spec published to Exchange)
 ```json
 {
   "integration": {
+    "integrationStyle": "rpc",
     "primaryPattern": "agentic-mcp-integration",
     "direction": "unidirectional"
   },
@@ -80,10 +81,20 @@ MuleSoft Experience API (standard HTTP; OpenAPI spec published to Exchange)
   },
   "errorHandling": {
     "strategy": "fail-fast",
+    "compensationStrategy": "retry",
     "maxRetries": 1,
     "backoff": "fixed",
     "dlq": false,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": null,
+    "maxConcurrency": 4,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 5
   },
   "security": {
     "level": "partner",

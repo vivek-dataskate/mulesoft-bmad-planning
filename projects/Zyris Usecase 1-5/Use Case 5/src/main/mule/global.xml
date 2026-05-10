@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd">
+
+    <!-- ======================================================== -->
+    <!-- D365 Finance & Operations connector configuration         -->
+    <!-- ======================================================== -->
+    <dynamics365ForOperations:dynamics-365-for-operations-config name="Dynamics_365_For_Operations_Config" doc:name="Dynamics 365 For Operations Config">
+        <dynamics365ForOperations:oauth-client-credentials-connection resource="https://zyris-zydev91ed270f8a3f5c58aos.axcloud.dynamics.com">
+            <reconnection>
+                <reconnect count="3"/>
+            </reconnection>
+            <dynamics365ForOperations:oauth-client-credentials clientId="${d365.client.id}" clientSecret="${d365.client.secret}" tokenUrl="https://login.microsoftonline.com/${d365.tenant.id}/oauth2/v2.0/token" scopes="https://zyris-zydev91ed270f8a3f5c58aos.axcloud.dynamics.com/.default"/>
+        </dynamics365ForOperations:oauth-client-credentials-connection>
+    </dynamics365ForOperations:dynamics-365-for-operations-config>
+
+    <!-- ======================================================== -->
+    <!-- HTTP listener (shared, port 8081)                         -->
+    <!-- ======================================================== -->
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0b1ba0e9-14c3-42ff-a0f6-2e8688ccec4e">
+        <http:listener-connection host="0.0.0.0" port="8081"/>
+    </http:listener-config>
+
+    <!-- ======================================================== -->
+    <!-- HTTP request config for direct D365 OData PATCH calls     -->
+    <!-- ======================================================== -->
+    <http:request-config name="HTTP_Request_D365_OData"
+                         doc:name="HTTP Request configuration"
+                         doc:id="876a7777-f7bc-467a-a03b-82ac9b8fe167"
+                         basePath="/data">
+        <http:request-connection protocol="HTTPS"
+                                 host="${d365.host}"
+                                 port="443"/>
+    </http:request-config>
+
+    <!-- ======================================================== -->
+    <!-- HTTP request config for Azure AD OAuth token endpoint     -->
+    <!-- Without a dedicated config, Mule's implicit fallback      -->
+    <!-- strips the URL path, sending POST to / instead of         -->
+    <!-- /{tenant}/oauth2/v2.0/token. That triggers Microsoft's    -->
+    <!-- WS-Federation fallback and the AADSTS90081 HTML error.    -->
+    <!-- ======================================================== -->
+    <http:request-config name="HTTP_Request_AzureAD_OAuth"
+                         doc:name="HTTP Request Azure AD OAuth"
+                         doc:id="cd0fa593-1e81-4007-b056-d8091357630d">
+        <http:request-connection protocol="HTTPS"
+                                 host="login.microsoftonline.com"
+                                 port="443"/>
+    </http:request-config>
+
+    <!-- ======================================================== -->
+    <!-- Object Store configuration                                -->
+    <!-- ======================================================== -->
+    <os:config name="ObjectStore_Config" doc:name="ObjectStore Config">
+        <os:connection>
+            <reconnection/>
+        </os:connection>
+    </os:config>
+
+    <!-- ======================================================== -->
+    <!-- D365 OAuth token cache                                    -->
+    <!-- TTL 55 min (token lifetime is 60 min, refresh 5 min early)-->
+    <!-- ======================================================== -->
+    <os:object-store name="D365_Token_Store"
+                     persistent="true"
+                     maxEntries="1"
+                     entryTtl="55"
+                     entryTtlUnit="MINUTES"
+                     doc:name="D365 Token Store"/>
+
+    <!-- ======================================================== -->
+    <!-- UC-05 idempotency / dedup store for HubSpot merge eventId -->
+    <!-- TTL 7 days; HubSpot retries don't extend beyond that      -->
+    <!-- ======================================================== -->
+    <os:object-store name="Store_Hubspot_eventId_Object_store"
+                     persistent="true"
+                     maxEntries="5000"
+                     entryTtl="7"
+                     entryTtlUnit="DAYS"
+                     doc:name="UC05 Hubspot eventId Dedup Store"/>
+
+    <!-- ======================================================== -->
+    <!-- Externalized properties                                   -->
+    <!-- ======================================================== -->
+    <configuration-properties doc:name="Configuration properties"
+                              doc:id="9f181e9a-9b30-416e-89a9-b988cf70f83d"
+                              file="configurations\application.properties"/>
+
+</mule>

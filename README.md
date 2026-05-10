@@ -1,7 +1,17 @@
 # MuleSoft BMAD Planning System
 
-> **Tech lead use only.** This repo contains BMAD agents, standards, and scaffold tooling.
-> Developers never see this repo — they receive a generated GitHub repo they open directly in Codespace.
+> **Tech lead / Architect use only.** Developers never see this repo — they receive a generated GitHub repo they open directly in Codespace.
+
+## Start here (new to this system?)
+
+Read in this order — nothing else first:
+
+1. **This README** — what exists, how to operate it, your responsibilities
+2. **[docs/PLANNING_CONTEXT.md](docs/PLANNING_CONTEXT.md)** — every decision made and why; the agents run from this
+3. **[docs/FIELD_KNOWLEDGE.md](docs/FIELD_KNOWLEDGE.md)** — lessons from real projects; agents apply verified entries automatically
+4. **Run your first project** using the Quick Start below — the agents carry the standards, you judge the 3 hard questions
+
+That's the full onboarding. No separate briefing needed.
 
 ---
 
@@ -62,10 +72,10 @@ From discovery docs to a developer writing code: under an hour, with consistent 
 Takes any client discovery document and produces a ready-to-open MuleSoft project:
 
 ```
-Discovery docs  →  BMAD Analyst  →  BMAD Architect  →  BMAD PM  →  Scaffold Generator  →  Client dev repo
+Discovery docs  →  BMAD Analyst  →  [API Contract Discovery]  →  BMAD Architect  →  BMAD PM  →  Scaffold Generator  →  Client dev repo
 ```
 
-The developer opens the generated GitHub repo in a Codespace, gets a compiling Mule project with structured TODO comments, and starts delivering — no blank files, no guessing structure.
+The Analyst extracts requirements and probes any undocumented systems (GET-first, iterative POST testing) before the Architect touches the project. The developer opens the generated GitHub repo in a Codespace, gets a compiling Mule project with pre-scaffolded MUnit stubs, and starts delivering — no blank files, no guessing structure.
 
 ---
 
@@ -82,12 +92,25 @@ Open Claude Code and say:
 ```
 Talk to Mary (the analyst). Analyse all docs in projects/{client}/intake/ and produce projects/{client}/prd.md
 ```
+The Analyst will automatically trigger API Contract Discovery for any system without a complete
+write-endpoint spec. Output includes `projects/{client}/api-discovery/{system}-contract.md` per
+undocumented system — confirmed curl, field contracts, and gap questions with best guesses already
+provided. Review these before running the Architect.
+
+### 2a. Review API Contract Discovery output (if any)
+```
+projects/{client}/api-discovery/
+```
+Send the gap questions to the client using the targeted-question template in each contract file.
+Wait for client confirmation before proceeding to the Architect step.
 
 ### 3. Run BMAD Architect
 ```
 Talk to Winston (the architect). Read projects/{client}/prd.md and standards/MULESOFT_DESIGN_STANDARDS.md.
 Walk the 6-level decision tree. Produce projects/{client}/architecture.md and projects/{client}/decisions.json
 ```
+Winston also reads `docs/FIELD_KNOWLEDGE.md` and applies any verified entries that match the
+project's systems or patterns before walking the decision tree.
 
 Verify `decisions.json` is valid against `standards/decisions-schema.json` before proceeding.
 
@@ -120,6 +143,7 @@ The script creates `github.com/{org}/{client}-mule`, pushes code, and prints the
 | `scaffold/xml-templates/` | Source XML files the generator renders |
 | `projects/{client}/` | One folder per client engagement |
 | `projects/{client}/intake/` | Raw discovery documents (drop here) |
+| `projects/{client}/api-discovery/` | API contract files produced by Analyst for undocumented systems |
 | `.devcontainer/` | Codespace config for this planning repo |
 
 ---
@@ -131,9 +155,71 @@ The script creates `github.com/{org}/{client}-mule`, pushes code, and prints the
 | `docs/PLANNING_CONTEXT.md` | Master system context — read before every session |
 | `docs/CHUNK_PROGRESS.md` | Build progress tracker |
 | `docs/PATTERNS_RESEARCH.md` | Research reference — EIP patterns, flow control, coupling, compensation |
+| `docs/FIELD_KNOWLEDGE.md` | Architect's lesson log — real project findings; read by all agents |
 | `standards/decisions-schema.json` | Empty template — architect fills this per project |
 | `standards/connector-registry.json` | All known connectors with versions and required properties |
 | `standards/MULESOFT_DESIGN_STANDARDS.md` | The constitution — all decisions flow from here |
+
+---
+
+## Issue Tracking
+
+Three parallel tracks — each serves a different audience:
+
+| Track | Tool | Who sees it | Created by |
+|---|---|---|---|
+| Client deliverables | Jira | Client + delivery team | Tech lead manually |
+| Developer tasks | GitHub Issues in **client dev repo** | Developers | Auto-created by `create-client-repo.sh` from `stories.md` |
+| System learning | GitHub Issues in **this repo** | Tech lead only | Tech lead manually |
+
+### How a finding travels from a project to a system improvement
+
+```
+Developer hits something unexpected on a project
+        ↓
+Opens GitHub Issue in client dev repo
+Resolves it, documents the fix in the PR
+        ↓
+Tech lead reviews — judges: recurring pattern or one-off?
+        ↓
+If worth capturing:
+  Opens new issue in this planning repo
+  Label: field-knowledge-candidate
+  Summarizes the finding (anonymized)
+        ↓
+Tech lead adds FK-NNN entry to docs/FIELD_KNOWLEDGE.md
+  Status: observation
+        ↓
+Second project hits the same thing → status: verified
+Agents on all future projects apply it automatically
+        ↓
+Third occurrence or clear pattern → promoted to scenario file or standard
+```
+
+The issue in the client dev repo stays there as project history. Only the **extracted finding** crosses into the planning repo — not the issue itself.
+
+---
+
+## Adding Field Knowledge (Architect Only)
+
+When a project surfaces a lesson not covered by the existing standards, add it to `docs/FIELD_KNOWLEDGE.md`:
+
+```markdown
+## FK-{NNN} — {Short title}
+Date: YYYY-MM-DD
+Project: {anonymized}
+Trigger: {what condition activates this}
+Scenario: {what happened}
+What worked: {the correct approach}
+Status: observation
+```
+
+- **observation** — seen once; agents are aware but don't auto-apply
+- **verified** — seen 2+ times; agents apply as active guidance
+- **promoted-to-standard** — incorporated into a scenario file or standard
+
+The architect updates the status after second and third occurrences. Agents on every future project
+read this file and apply verified entries automatically — no re-educating developers required.
 
 ---
 

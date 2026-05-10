@@ -43,6 +43,7 @@ Consumer (HTTP)
 ```json
 {
   "integration": {
+    "integrationStyle": "rpc",
     "primaryPattern": "real-time",
     "direction": "unidirectional"
   },
@@ -52,10 +53,19 @@ Consumer (HTTP)
   },
   "errorHandling": {
     "strategy": "fail-fast",
+    "compensationStrategy": "retry",
     "maxRetries": 3,
     "backoff": "exponential",
     "dlq": false,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": null,
+    "maxConcurrency": 4,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": false
   },
   "devops": {
     "munitCoverage": 80

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="scheduler-main-flow" doc:id="de65f4cf-e5b7-4492-891c-279416cc4e9a" >
+		<scheduler doc:name="Every 15 Minutes" doc:id="8ade1562-07b5-49db-975a-ccd0a291328b" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="${scheduler.frequency.minutes}" startDelay="30" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Schedule Triggered" doc:id="4c2c8b07-25cd-43c2-ae44-4d95dd9a51c1" message="Scheduler triggered. Initiating bidirectional customer sync." category="com.company.uc03" />
+		<flow-ref doc:name="hs-to-d365-flow-ref" doc:id="a99e0c78-16b5-4733-a8e5-6f03de8d44aa" name="hs-to-d365-mainFlow"/>
+	</flow>
+</mule>
