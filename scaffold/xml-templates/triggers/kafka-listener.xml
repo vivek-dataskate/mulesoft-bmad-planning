@@ -1,0 +1,71 @@
+<!--
+    Trigger: Kafka Message Listener (streaming-pipeline / cdc-streaming / event-driven high-volume)
+    Topic: ${kafka.topics.{{TOPIC_PROPERTY}}}
+    Consumer group: ${kafka.consumer.groupId}
+    Idempotency: MANDATORY — Kafka delivers at-least-once; check before any downstream write
+    Use Kafka (not Anypoint MQ) when: replay needed, throughput > 100K/day, consumers > 10
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <kafka:message-listener
+            config-ref="Kafka_Consumer_Config"
+            topics="${kafka.topics.{{TOPIC_PROPERTY}}}"
+            doc:name="Kafka Listener — ${kafka.topics.{{TOPIC_PROPERTY}}}"/>
+
+        <!-- Propagate Kafka offset as correlation context -->
+        <set-variable
+            variableName="kafkaOffset"
+            value="#[attributes.offset]"
+            doc:name="Capture Kafka Offset"/>
+
+        <logger
+            level="INFO"
+            message='#["[START] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | topic=" ++ attributes.topic ++ " | partition=" ++ attributes.partition as String ++ " | offset=" ++ attributes.offset as String ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log Kafka Message Received"/>
+
+        <!-- ── Idempotency check — MANDATORY ────────────────────────────── -->
+        <!--
+            Key: {{CONSUMER_PREFIX}}-{topic}-{partition}-{offset}
+            TTL: {{DEDUP_TTL_MINUTES}} min (= messageTtlHours × 60)
+            Kafka delivers at-least-once — deduplication is required.
+        -->
+        <os:retrieve
+            key='#["{{CONSUMER_PREFIX}}-" ++ attributes.topic ++ "-" ++ attributes.partition as String ++ "-" ++ attributes.offset as String]'
+            objectStore="Persistent_Object_Store"
+            target="seenBefore"
+            doc:name="Check Idempotency Key">
+            <os:default-value>#[false]</os:default-value>
+        </os:retrieve>
+
+        <choice doc:name="Duplicate Check">
+            <when expression="#[vars.seenBefore == true]">
+                <logger
+                    level="WARN"
+                    message='#["[DUPLICATE] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | offset=" ++ attributes.offset as String ++ " | skipping"]'
+                    doc:name="Log Duplicate"/>
+            </when>
+            <otherwise>
+                <os:store
+                    key='#["{{CONSUMER_PREFIX}}-" ++ attributes.topic ++ "-" ++ attributes.partition as String ++ "-" ++ attributes.offset as String]'
+                    objectStore="Persistent_Object_Store"
+                    ttl="{{DEDUP_TTL_MINUTES}}"
+                    ttlUnit="MINUTES"
+                    doc:name="Mark as Processed">
+                    <os:value>#[true]</os:value>
+                </os:store>
+
+                <!--
+                    TODO: Validate message schema BEFORE any downstream write.
+                    TODO: Implement {{FLOW_DESCRIPTION}}
+                    Source: {{FLOW_SOURCE}} → Target: {{FLOW_TARGET}}
+                -->
+
+                <logger
+                    level="INFO"
+                    message='#["[END] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | offset=" ++ vars.kafkaOffset as String]'
+                    doc:name="Log Processing End"/>
+            </otherwise>
+        </choice>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>
