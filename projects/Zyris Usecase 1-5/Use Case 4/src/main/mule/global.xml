@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:shopify="http://www.mulesoft.org/schema/mule/shopify"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/shopify http://www.mulesoft.org/schema/mule/shopify/current/mule-shopify.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+<dynamics365ForOperations:dynamics-365-for-operations-config name="Dynamics_365_For_Operations_Config" doc:name="Dynamics 365 For Operations Config">
+        <dynamics365ForOperations:oauth-client-credentials-connection resource="${d365.host}" >
+            <reconnection >
+                <reconnect count="3" />
+            </reconnection>
+            <dynamics365ForOperations:oauth-client-credentials clientId="${d365.client.id}" clientSecret="${d365.client.secret}" tokenUrl="https://login.microsoftonline.com/${d365.tenant.id}/oauth2/v2.0/token" scopes="${d365.host}/.default"/>
+        </dynamics365ForOperations:oauth-client-credentials-connection>
+    </dynamics365ForOperations:dynamics-365-for-operations-config>
+
+	<os:config name="Watermark_ObjectStore_Config" doc:name="Watermark ObjectStore Config" >
+		<os:connection />
+	</os:config>
+	<os:object-store name="Watermark_Store" doc:name="Watermark Store" config-ref="Watermark_ObjectStore_Config" />
+
+	<os:config name="FulfillmentQueue_ObjectStore_Config" doc:name="FulfillmentQueue ObjectStore Config" >
+		<os:connection >
+		</os:connection>
+	</os:config>
+	<os:object-store name="FulfillmentQueue_Store" doc:name="FulfillmentQueue Store" config-ref="FulfillmentQueue_ObjectStore_Config" />
+	<http:request-config name="Shopify_HTTP_Request_Config" doc:name="Shopify HTTP Request Config" doc:id="4e8e5528-e1d5-45ef-9c0c-3c65c15fdd9e">
+		<http:request-connection protocol="HTTPS" host="${shopify.host}" port="443">
+			<reconnection >
+				<reconnect count="3" frequency="60000" />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+	<os:object-store name="Shopify_Token_Store"
+                 doc:name="Shopify Token Object Store"
+                 doc:id="9692e486-6936-4048-819b-dc8be1dbf1ee"
+                 entryTtl="50"
+                 entryTtlUnit="MINUTES"
+                 maxEntries="10"
+                 expirationInterval="5"
+                 expirationIntervalUnit="MINUTES"
+                 persistent="true"/>
+	<http:request-config name="HTTP_Request_Shopify_OAuth"
+                     doc:name="HTTP Request Shopify OAuth"
+                     doc:id="0b51e37a-571a-4925-b012-7ff6c9bf486c">
+    <http:request-connection protocol="HTTPS"
+                             host="${shopify.host}"
+                             port="443"/>
+</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="95e3bc6f-3707-4bf1-9ebc-8b76e9b1a6fb" file="configurations\application.properties" />
+	<os:config name="ObjectStore_Config_shopify" doc:name="ObjectStore Config" doc:id="6d4c6e76-ead7-49df-bb9c-272366fbad96" >
+		<os:connection >
+			<reconnection />
+		</os:connection>
+	</os:config>
+
+</mule>

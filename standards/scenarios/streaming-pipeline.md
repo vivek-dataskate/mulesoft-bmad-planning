@@ -67,11 +67,28 @@ Kafka topic: orders.raw
 
 ---
 
+## EDA Fit Assessment
+
+Before finalising this pattern, run the EDA fit checklist from `docs/PLANNING_CONTEXT.md → EDA FIT ASSESSMENT`.
+
+Key questions for streaming pipeline:
+- Is throughput > 100K messages/day? → YES = Kafka required (Anypoint MQ cannot handle this volume)
+- Do multiple independent consumers need the same stream? → YES = Kafka consumer groups (each reads full stream independently)
+- Does the consumer need to replay historical events (rewind)? → YES = Kafka required; Anypoint MQ has no replay
+- Is this truly a continuous/append-only analytics feed? → YES = streaming pipeline; NO = consider batch or scheduled-sync
+
+Streaming pipeline is EDA-justified by high volume and the analytics infrastructure that demands continuous push.
+`write-off` is the correct compensation strategy: individual event loss is acceptable;
+stream continuity takes priority over per-record recovery.
+
+---
+
 ## decisions.json Defaults
 
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "streaming-pipeline",
     "direction": "unidirectional"
   },
@@ -84,16 +101,25 @@ Kafka topic: orders.raw
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "write-off",
     "maxRetries": 3,
     "backoff": "fixed",
     "dlq": true,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "pull",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": false
   },
   "systems": {
     "connectors": ["kafka", "amazon-s3"]
   },
   "devops": {
-    "munitCoverage": 70
+    "munitCoverage": 80
   }
 }
 ```

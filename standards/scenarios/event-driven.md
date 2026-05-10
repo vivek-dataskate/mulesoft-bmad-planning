@@ -56,11 +56,27 @@ Proc A    Proc B
 
 ---
 
+## EDA Fit Assessment
+
+Before finalising this pattern, run the EDA fit checklist from `docs/PLANNING_CONTEXT.md → EDA FIT ASSESSMENT`.
+
+Key questions for event-driven (1-to-1):
+- Do publisher and consumer teams evolve independently? → YES = EDA warranted
+- Will only one consumer process each event? → YES = this pattern; NO = use `pubsub-fanout`
+- Does the consumer need event replay? → YES = Kafka required (not Anypoint MQ)
+- Is throughput > 100K messages/day? → YES = Kafka required
+
+If publisher is internal and both ends are under your control, consider async RPC (HTTP + async response)
+as a simpler alternative before committing to a broker.
+
+---
+
 ## decisions.json Defaults
 
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "event-driven",
     "direction": "unidirectional"
   },
@@ -70,10 +86,21 @@ Proc A    Proc B
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 5,
     "backoff": "fixed",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{domain}-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
   },
   "systems": {
     "connectors": ["anypoint-mq"]

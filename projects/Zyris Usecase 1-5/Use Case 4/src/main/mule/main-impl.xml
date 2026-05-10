@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:shopify="http://www.mulesoft.org/schema/mule/shopify"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/shopify http://www.mulesoft.org/schema/mule/shopify/current/mule-shopify.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+	
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f4aefb15-a0d9-4554-b6e7-cf63071777e9" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="Flow_A_Single_Step_Headers_First" doc:id="f6c1fe7e-ac4d-45e3-833f-ceb914dc4459" >
+		<scheduler doc:name="Scheduler" doc:id="3414e703-044f-4728-9e98-ffbf2ab54a26" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="15" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		
+		<logger level="INFO" doc:name="Log Flow Start"
+        message="#['[UC04] Flow triggered at ' ++ (now() as String)]"/>
+		
+		<ee:transform doc:name="Build SO Header Query" doc:id="5ea07450-e8dd-4591-a4cf-8562b1822a59" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var today = now() as String {format: "yyyy-MM-dd'T'00:00:00'Z'"}
+---
+"SalesOrderHeadersV4?\$filter=SalesOrderProcessingStatus eq Microsoft.Dynamics.DataEntities.SalesOrderProcessingStatus'Delivered' and SalesOrderOriginCode eq 'SHOPIFY' and RequestedShippingDate ge " ++ today]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		
+		<logger level="INFO" doc:name="Log SO Header Query"
+        message="#['[UC04] D365 Query built | query=' ++ (payload default '')]"/>
+		
+		<dynamics365ForOperations:retrieve-multiple-by-query doc:name="Retrieve Delivered Headers" doc:id="30a91fba-dc6c-41dd-a7ca-095b519065b7" config-ref="Dynamics_365_For_Operations_Config"/>
+		
+		<logger level="INFO" doc:name="Log Delivered Headers Response"
+        message="#['[UC04] D365 returned delivered headers | payload=' ++ write(payload default [], 'application/json')]"/>
+		
+		<ee:transform doc:name="Extract Headers Array" doc:id="c67dd91a-969e-4637-9d7d-bd49f04c9a30" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload default []]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		
+		<logger level="INFO" doc:name="Log Headers Count"
+        message="#['[UC04] Delivered orders to process | count=' ++ sizeOf(payload default [])]"/>
+		
+		<foreach doc:name="For Each Delivered Order" doc:id="fd7419ed-9274-4e31-8500-1aee4cc36933" >
+		
+		<logger level="INFO" doc:name="Log Foreach Entry"
+        message="#['[UC04] Processing order | SalesOrderNumber=' ++ (payload.SalesOrderNumber default 'NULL') ++ ' | ShopifyOrderId=' ++ (payload.CustomersOrderReference default 'NULL')]"/>
+			
+			<ee:transform doc:name="Save Header &amp; Build Box Query" doc:id="f4d1a0ed-2e95-489b-a73c-a9fc4bcf5911" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+"SalesTableBoxes?\$filter=SalesId eq '" ++ (payload.SalesOrderNumber default "") ++ "'"]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="shopifyOrderId" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.CustomersOrderReference default ""]]></ee:set-variable>
+					<ee:set-variable variableName="salesOrderNumber" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.SalesOrderNumber default ""]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			
+			<logger level="INFO" doc:name="Log Box Query Built"
+        message="#['[UC04] Box query built | salesOrder=' ++ vars.salesOrderNumber ++ ' | shopifyOrderId=' ++ vars.shopifyOrderId ++ ' | query=' ++ (payload default '')]"/>
+
+			<dynamics365ForOperations:retrieve-multiple-by-query doc:name="Retrieve Tracking Boxes" doc:id="fc759358-94c9-4a98-bd57-7596782913ce" config-ref="Dynamics_365_For_Operations_Config"/>
+			
+			<logger level="INFO" doc:name="Log Tracking Boxes Response"
+        message="#['[UC04] Tracking boxes returned | salesOrder=' ++ vars.salesOrderNumber ++ ' | payload=' ++ write(payload default [], 'application/json')]"/>
+        
+			<ee:transform doc:name="Extract Tracking Number" doc:id="1d67671e-a3fc-4917-b5a0-016f81f4376a" >
+				<ee:variables >
+					<ee:set-variable variableName="trackingNumber" ><![CDATA[%dw 2.0
+output application/java
+---
+// Extracts the first available tracking number from the array of boxes
+(payload filter (!isEmpty($.TrackingNumber)))[0].TrackingNumber default ""
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			
+			<logger level="INFO" doc:name="Log Tracking Number"
+        message="#['[UC04] Tracking extracted | salesOrder=' ++ vars.salesOrderNumber ++ ' | trackingNumber=' ++ (vars.trackingNumber default 'EMPTY')]"/>
+
+			<choice doc:name="Valid for Shopify Fulfillment?" doc:id="3f6b1f4e-d15d-4adb-927b-bc5f821d3cb7">
+				<when expression="#[!isEmpty(vars.shopifyOrderId) and !isEmpty(vars.trackingNumber)]">
+					
+					<try doc:name="Try - Shopify GET" doc:id="15a2e4c7-88d6-4b7a-9cf9-796e3b860c53">
+					
+						<flow-ref doc:name="Get Shopify Token (GET)" name="Get-Shopify-OAuth-Token-Subflow"/>
+						
+						<logger level="INFO" doc:name="Log Before Shopify GET"
+        message="#['[UC04] Calling Shopify GET fulfillment_orders | shopifyOrderId=' ++ vars.shopifyOrderId ++ ' | tokenPresent=' ++ (!isEmpty(vars.shopifyToken default ''))]"/>
+						
+						<http:request doc:name="GET Fulfillment Orders" config-ref="Shopify_HTTP_Request_Config" path="#['/admin/api/2026-04/orders/' ++ vars.shopifyOrderId ++ '/fulfillment_orders.json']">
+							<http:headers><![CDATA[#[output application/java
+---
+{
+    "X-Shopify-Access-Token": vars.shopifyToken,
+    "Content-Type": "application/json"
+}]]]></http:headers>
+						</http:request>
+						
+						<logger level="INFO" doc:name="Log Shopify GET Response"
+        message="#['[UC04] Shopify GET response | shopifyOrderId=' ++ vars.shopifyOrderId ++ ' | payload=' ++ write(payload default {}, 'application/json')]"/>
+						
+						<error-handler>
+							<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" type="HTTP:UNAUTHORIZED, HTTP:FORBIDDEN, HTTP:NOT_FOUND">
+								<logger level="ERROR" doc:name="Log API Error" message="#['Shopify GET failed for Order ' ++ vars.shopifyOrderId]"/>
+							</on-error-continue>
+						</error-handler>
+					</try>
+					
+					<ee:transform doc:name="Extract OPEN Fulfillment ID">
+						<ee:variables>
+							<ee:set-variable variableName="fulfillmentOrderId"><![CDATA[%dw 2.0
+output application/java
+var openFulfillments = (payload.fulfillment_orders default []) filter ($.status == "open" or $.status == "in_progress")
+---
+openFulfillments[0].id default ""]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					
+					<logger level="INFO" doc:name="Log Fulfillment ID"
+        message="#['[UC04] Open fulfillment extracted | shopifyOrderId=' ++ vars.shopifyOrderId ++ ' | fulfillmentOrderId=' ++ (vars.fulfillmentOrderId default 'EMPTY')]"/>
+
+					<choice doc:name="Is Order Still Open?" doc:id="c3d6a03d-75ac-4e44-83e7-7aa9805e2fe1">
+						<when expression="#[!isEmpty(vars.fulfillmentOrderId)]">
+							<ee:transform doc:name="Payload: Fulfillment WITH Tracking" doc:id="7685ad64-c8cf-4105-924d-c4afe8c89c08">
+								<ee:message>
+									<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "fulfillment": {
+    "notify_customer": true,
+    "tracking_info": {
+      "number": vars.trackingNumber
+    },
+    "line_items_by_fulfillment_order": [
+      {
+        "fulfillment_order_id": vars.fulfillmentOrderId
+      }
+    ]
+  }
+}]]></ee:set-payload>
+								</ee:message>
+							</ee:transform>
+							
+							<logger level="INFO" doc:name="Log POST Payload Built"
+        message="#['[UC04] POST payload built | shopifyOrderId=' ++ vars.shopifyOrderId ++ ' | payload=' ++ write(payload default {}, 'application/json')]"/>
+							
+							<try doc:name="Try - Shopify POST" doc:id="0c7e3375-14ca-4236-bd29-ed5580476381">
+								<flow-ref doc:name="Get Shopify Token (POST)" name="Get-Shopify-OAuth-Token-Subflow"/>
+								
+								<logger level="INFO" doc:name="Log Before Shopify POST"
+        message="#['[UC04] Calling Shopify POST fulfillments | shopifyOrderId=' ++ vars.shopifyOrderId ++ ' | trackingNumber=' ++ vars.trackingNumber ++ ' | tokenPresent=' ++ (!isEmpty(vars.shopifyToken default ''))]"/>
+								
+								<http:request method="POST" doc:name="POST Fulfillment to Shopify" doc:id="e6491a98-34c0-4060-8858-b7aaf65157c1" config-ref="Shopify_HTTP_Request_Config" path="/admin/api/2026-04/fulfillments.json">
+									<http:headers><![CDATA[#[output application/java
+---
+{
+    "X-Shopify-Access-Token": vars.shopifyToken,
+    "Content-Type": "application/json"
+}]]]></http:headers>
+								</http:request>
+								
+								<logger level="INFO" doc:name="Log Shopify POST Response"
+        message="#['[UC04] Shopify POST response | shopifyOrderId=' ++ vars.shopifyOrderId ++ ' | payload=' ++ write(payload default {}, 'application/json')]"/>
+        
+								<error-handler>
+									<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" type="HTTP:UNAUTHORIZED, HTTP:FORBIDDEN">
+										<logger level="ERROR" doc:name="Log API Error" message="Shopify POST failed."/>
+									</on-error-continue>
+								</error-handler>
+							</try>
+							<logger level="INFO" doc:name="Log Success" message="#[%dw 2.0 output text/plain --- 'Successfully fulfilled order $(vars.shopifyOrderId) with tracking $(vars.trackingNumber)']"/>
+						</when>
+						<otherwise >
+							<logger level="INFO" doc:name="Log Already Fulfilled" message="#[%dw 2.0 output text/plain --- 'Order $(vars.shopifyOrderId) is already fulfilled in Shopify. Skipping.']"/>
+						</otherwise>
+					</choice>
+				</when>
+				<otherwise>
+					<logger level="INFO" doc:name="Log Missing Data" message="#[%dw 2.0 output text/plain --- 'Skipping D365 Order $(vars.salesOrderNumber). Missing Shopify ID or Tracking Number.']"/>
+				</otherwise>
+			</choice>
+		</foreach>
+	</flow>
+	<sub-flow name="Get-Shopify-OAuth-Token-Subflow" doc:id="b7cce305-c3e4-4bba-8269-ac7ecc12454e">
+
+    <logger level="INFO" doc:name="Log Token Subflow Entry"
+            message="OAuth Dance for Shopify access token"/>
+
+    <os:retrieve doc:name="Retrieve Shopify Token"
+                 key="shopify_access_token"
+                 objectStore="Shopify_Token_Store"
+                 target="shopifyToken">
+        <os:default-value><![CDATA[#[""]]]></os:default-value>
+    </os:retrieve>
+
+    <logger level="INFO" doc:name="Trace Retrieve Token"
+            message="#['TRACE shopify token retrieve completed | hasToken=' ++ (!isEmpty(vars.shopifyToken default ''))]"/>
+
+    <choice doc:name="Does Shopify Token Exist?">
+        <when expression="#[isEmpty(vars.shopifyToken)]">
+            <logger level="INFO" doc:name="Log Fetching New Token"
+                    message="Shopify Token expired or missing. Fetching new token from Shopify OAuth..."/>
+
+            <!-- DEBUG: log property values (lengths only for the secret) -->
+            <logger level="INFO" doc:name="DEBUG Token Properties"
+                    message="#['DEBUG shopify token props | host=' ++ (p('shopify.oauth.host') default 'NULL') ++ ' | clientId=' ++ (p('shopify.client.id') default 'NULL') ++ ' | clientIdLen=' ++ sizeOf((p('shopify.client.id') default '')) ++ ' | secretLen=' ++ sizeOf((p('shopify.client.secret') default ''))]"/>
+
+            <http:request method="POST"
+                          doc:name="Fetch New Shopify Token"
+                          config-ref="HTTP_Request_Shopify_OAuth"
+                          path="/admin/oauth/access_token">
+                <http:body><![CDATA[#[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+    "grant_type": "client_credentials",
+    "client_id": p('shopify.client.id'),
+    "client_secret": p('shopify.client.secret')
+}]]]></http:body>
+                <http:headers><![CDATA[#[output application/java
+---
+{
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Accept": "application/json"
+}]]]></http:headers>
+            </http:request>
+
+            <logger level="INFO" doc:name="DEBUG Token Response"
+                    message="#['DEBUG shopify token response | payload=' ++ write(payload default {}, 'application/json')]"/>
+
+            <set-variable variableName="shopifyToken"
+                          doc:name="Set shopifyToken"
+                          value="#[payload.access_token]"/>
+
+            <logger level="INFO" doc:name="Trace Set shopifyToken"
+                    message="'TRACE shopifyToken variable set'"/>
+
+            <os:store doc:name="Store Shopify Token"
+                      key="shopify_access_token"
+                      objectStore="Shopify_Token_Store">
+                <os:value><![CDATA[#[vars.shopifyToken]]]></os:value>
+            </os:store>
+
+            <logger level="INFO" doc:name="Trace Store Token"
+                    message="'TRACE shopify token stored in object store'"/>
+        </when>
+        <otherwise>
+            <logger level="DEBUG" doc:name="Log Cached Token Used"
+                    message="Using cached Shopify OAuth Token."/>
+        </otherwise>
+    </choice>
+</sub-flow>
+</mule>

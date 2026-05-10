@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd">
+	<flow name="hs-to-d365-mainFlow" doc:id="803b9de4-91f2-46ba-bf82-229d442027b1" >
+		<logger level="INFO" doc:name="Logger" doc:id="ddb005e0-46b6-4e62-9b19-54c8f25b2433" />
+		<os:retrieve doc:name="Get HubSpot Company Watermark" doc:id="78751051-eb73-4d2a-a713-167e67553635" objectStore="Watermark_Object_Store" target="hsCompanyWatermark" key="hs-company-watermark">
+			<os:default-value ><![CDATA[${watermark.default}]]></os:default-value>
+		</os:retrieve>
+		<os:retrieve doc:name="Get HubSpot Contact Watermark" doc:id="6e161b91-ab38-4130-8066-2509e9fa286b" key="hs-contact-watermark" objectStore="Watermark_Object_Store" target="hsContactWatermark">
+			<os:default-value ><![CDATA[${watermark.default}]]></os:default-value>
+		</os:retrieve>
+		<flow-ref doc:name="Fetch-HS-Companies" doc:id="aaaf3697-97f5-4b88-8028-6cac25c365a9" name="sf-fetch-hs-companies"/>
+		<ee:transform doc:name="HubSpot Companies" doc:id="6b724ef4-8427-485c-acda-149784029cbb" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="hsCustomers" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Fetch-HS-Contact" doc:id="3f6bcfa3-c880-4eb2-91d2-745e69814f2b" name="sf-fetch-hs-contacts"/>
+		<ee:transform doc:name="HubSpot Contacts Variable" doc:id="5c8ab7cf-bb84-4006-978b-ffdfa5168ac7" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="hsContacts" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<batch:job jobName="UC03-HS-Companies-Batch" doc:id="1083fea7-ec5b-4128-808e-a54d261c5e87" blockSize="${batch.blockSize}">
+			<batch:process-records >
+				<batch:step name="ValidateCompany" doc:id="5a3277b1-910d-4eb9-9131-159626af4b6a" >
+					<ee:transform doc:name="Validate Required Fields" doc:id="5e4c2bb5-b33d-41b6-8222-4838408f2ba0" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+import * from dw::core::Strings
+var requiredFields = ["name", "hs_object_id"]
+var missingFields  = requiredFields filter (f) -> (payload[f] == null or isEmpty(payload[f] as String default ""))
+---
+{
+  valid:         isEmpty(missingFields),
+  missingFields: missingFields,
+  record:        payload
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<choice doc:name="Is Valid?" doc:id="d0e72102-e924-46fb-80e0-be902ccd6e13" >
+						<when expression="#[payload.valid == false]">
+							<logger level="INFO" doc:name="Company Validation Failed" doc:id="973b01ff-d45d-48dd-804f-6902e25eb959" message="Company validation failed | id=#[payload.record.hs_object_id] | missing=#[payload.missingFields]"/>
+							<flow-ref doc:name="sf-send-to-dlq" doc:id="406ba991-ce68-4680-947f-aac2cfa3267f" name="sf-send-to-dlq"/>
+							<set-variable variableName="skipRecord" value="true" doc:name="Skip Record"/>
+						</when>
+					</choice>
+				</batch:step>
+				<batch:step name="UpsertD365Account" doc:id="a0026343-06a4-4754-aa65-bb0175224654" acceptExpression="#[vars.skipRecord != true]">
+					<ee:transform doc:name="Map HS Company → D365 Account" doc:id="6c866481-f54a-4a13-9119-081bb362f313" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+import * from dw::core::Strings
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+fun toTitleCase(s: String): String =
+  s splitBy " " map (w) -> upper(w[0]) ++ lower(w[1 to -1]) joinBy " "
+
+fun cleanPhone(p: String | Null): String =
+  if (p == null) "" else p replace /[^0-9+\-().x ]/ with ""
+
+// ── Variable side-effects (consumed by downstream match steps) ─────────────
+var hsCompanyId    = payload.hs_object_id
+var hsCompanyEmail = payload.domain default ""    // Company-level email/domain
+---
+// Set variables for downstream use (Mule vars set via set-variable separately)
+// This transform outputs the D365 Account body for upsert
+
+{
+  // ── Core fields ────────────────────────────────────────────────────────
+  name:                   payload.name,
+  emailaddress1:          payload.domain        default null,
+  telephone1:             cleanPhone(payload.phone),
+
+  // ── Address entity ─────────────────────────────────────────────────────
+  "address1_line1":       payload.address       default null,
+  "address1_city":        payload.city          default null,
+  "address1_stateorprovince": payload.state     default null,
+  "address1_postalcode":  payload.zip           default null,
+  "address1_country":     payload.country       default null,
+
+  // ── Correlation / idempotency keys ─────────────────────────────────────
+  // Custom field: HubSpot Company ID stored as D365 External ID
+  "cr000_hubspot_company_id": payload.hs_object_id,
+
+  // ── Metadata ───────────────────────────────────────────────────────────
+  "cr000_last_sync_source": "MULESOFT_UC03",
+  "cr000_last_sync_ts":     now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}
+}
+]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<until-successful maxRetries="3" doc:name="Retry D365 Upsert" doc:id="9d277b15-8306-495d-8ac7-6adf3fe9c2e9" >
+						<http:request doc:name="Match D365 Account by HS ID" doc:id="9ee373d9-199a-4787-8d28-7244d3f7bf5f" config-ref="D365FO_HTTP_Request_config" path="/data/v10.0.47/accounts">
+							<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"$filter" : "cr000_hubspot_company_id eq '#[vars.hsCompanyId]'",
+	"$select" : "accountid,cr000_hubspot_company_id"
+}]]]></http:query-params>
+						</http:request>
+					</until-successful>
+					<choice doc:name="Account Exists?" doc:id="2f4bd5d8-de7e-4378-bb3e-ef428931e4b0" >
+						<when expression="#[payload.value != null and !isEmpty(payload.value)]">
+							<set-variable value="#[payload.value[0].accountid]" doc:name="D365 Account ID" doc:id="377d27b0-c27c-4ebd-978b-7c8a43701560" variableName="d365AccountId" />
+							<ee:transform doc:name="Path Variable" doc:id="700b8fff-d386-408f-beab-8d2d4ae9d655" >
+								<ee:message >
+								</ee:message>
+								<ee:variables >
+									<ee:set-variable variableName="accountPath" ><![CDATA[%dw 2.0
+output application/java
+---
+"/data/v10.0.47/accounts(" ++ vars.d365AccountId ++ ")"]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+							<until-successful maxRetries="3" doc:name="Until Successful" doc:id="6b5f3eb5-3cd1-4b14-8263-22b0ad715dbf" >
+								<http:request doc:name="Update D365 Account" doc:id="4bf22f6c-f5cf-4a48-b360-623aefa24d2d" config-ref="D365FO_HTTP_Request_config" method="PATCH" path="#[vars.accountPath]" />
+							</until-successful>
+							<logger level="INFO" doc:name="Updated D365 Account" doc:id="005150a0-7aa8-44c0-9506-96e9b75db3ba" message="Updated D365 Account #[vars.d365AccountId] from HS Company #[vars.hsCompanyId]"/>
+						</when>
+						<otherwise>
+							<until-successful maxRetries="3" doc:name="Until Successful" doc:id="2644db9e-b240-4851-b6a5-fd8edea76af6" >
+								<http:request doc:name="Match D365 Account by Email" doc:id="896446c5-fd4c-44b1-bdca-bc6d00e111ed" config-ref="D365FO_HTTP_Request_config" path="/data/v10.0.47/accounts">
+								<http:query-params><![CDATA[#[output application/java
+---
+{
+	"$filter" : "emailaddress1 eq '#[vars.hsCompanyEmail]'",
+	"$select" : "accountid"
+}]]]></http:query-params>
+							</http:request>
+							</until-successful>
+							<choice doc:name="Email Match Found?" doc:id="c942f6eb-79e4-4fdc-a600-f2dc11cc0ef4" >
+								<when expression="#[payload.value != null and !isEmpty(payload.value)]">
+									<set-variable value="#[payload.value[0].accountid]" doc:name="D365 Account ID" doc:id="fe19f897-9a81-4705-acc4-10c9f6feec94" variableName="d365AccountId"/>
+									<ee:transform doc:name="Path Variable" doc:id="58460a9e-463d-42b3-9251-71e147b44cef" >
+										<ee:message />
+										<ee:variables >
+											<ee:set-variable variableName="accountPath" ><![CDATA[%dw 2.0
+output application/java
+---
+"/data/v10.0.47/accounts(" ++ vars.d365AccountId ++ ")"]]></ee:set-variable>
+										</ee:variables>
+									</ee:transform>
+									<until-successful maxRetries="3" doc:name="Until Successful" doc:id="6482323f-9ed4-4637-8d3b-0177c7682110" >
+										<http:request doc:name="Update D365 Account" doc:id="a353107f-4a3e-45ea-9a7c-b6d372b2b271" config-ref="D365FO_HTTP_Request_config" method="PATCH" path="#[vars.accountPath]" />
+									</until-successful>
+									<logger level="INFO" doc:name="Update D365 Account" doc:id="42adbe1f-42fd-41c9-82ad-69d336a4e552" message="Updated D365 Account #[vars.d365AccountId] from HS Company #[vars.hsCompanyId]"/>
+								</when>
+								<otherwise>
+									<until-successful maxRetries="3" doc:name="Until Successful" doc:id="a6b1ea2e-9e5d-4308-b25e-68af7b6c82c1" >
+										<http:request doc:name="Create D365 Account" doc:id="144ed0b7-e133-4d91-adb0-c8d3cd9aae94" config-ref="D365FO_HTTP_Request_config" method="POST" path="/data/v10.047/accounts"/>
+									</until-successful>
+									<ee:transform doc:name="Account ID Variable" doc:id="e6251c1e-58d7-4747-a957-6804025ef895" >
+										<ee:message >
+										</ee:message>
+										<ee:variables >
+											<ee:set-variable variableName="d365AccountId" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.accountid]]></ee:set-variable>
+										</ee:variables>
+									</ee:transform>
+									<logger level="INFO" doc:name="Create Account" doc:id="6568d23c-3a91-4521-9861-20e1e67585dd" message="Created D365 Account #[vars.d365AccountId] from HS Company #[vars.hsCompanyId]" category="com.company.uc03" />
+								</otherwise>
+							</choice>
+						</otherwise>
+					</choice>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+		<error-handler ref="global-Error_Handler" />
+	</flow>
+	<sub-flow name="sf-fetch-hs-companies" doc:id="e2a14cac-840a-4917-907d-ec0302c0a628" >
+		<logger level="INFO" doc:name="Fetching HS Companies" doc:id="1b8b2f9c-a155-40e7-8a24-f441d2eb7a42" message="Fetching HS Companies since #[vars.hsCompanyWatermark]"/>
+		<set-variable value="#[[]]" doc:name="All HS Companies" doc:id="1924894a-18bf-4beb-96ac-7734456ac6d8" variableName="allHsCompanies" />
+		<set-variable value="" doc:name="Set Cursor" doc:id="26f07ba2-b98b-4505-b05f-d5658ca401bc" variableName="hsCursor" />
+		<until-successful maxRetries="5" doc:name="Paginate HS Companies" doc:id="3103dc52-38dd-4ce7-8a0e-04acd796a6f3" >
+			<ee:transform doc:name="Build HS JSON Request" doc:id="15e7a654-0d09-4918-9b8b-ce1deb77fd78">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  filterGroups: [{
+    filters: [{
+      propertyName: "hs_lastmodifieddate",
+      operator: "GTE",
+      value: vars.hsCompanyWatermark
+    }]
+  }],
+  properties: ["name","hs_object_id","domain","phone",
+                "address","city","state","zip","country",
+                "d365_account_id"],
+  limit: 100,
+  after: vars.hsCursor
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			<http:request doc:name="Search Company in HubSpot" doc:id="ed6e35a5-3cc0-47db-b376-0e31764ac8c6" config-ref="HubSpot_HTTP_Request_Config" method="POST" path="/crm/v3/objects/companies/search">
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer ${hubspot.private.app.token}",
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			</http:request>
+			<ee:transform doc:name="Accumulate Companies" doc:id="d04ac987-b993-4b4a-8507-faabd04ebd0b" >
+				<ee:variables >
+					<ee:set-variable variableName="allHsCompanies" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.allHsCompanies ++ (payload.results map (r) -> r.properties)]]></ee:set-variable>
+					<ee:set-variable variableName="hsCursor" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.paging.next.after default ""]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<choice doc:name="More Pages?" doc:id="e40c344c-0dcd-49a8-8b26-2393112d8321" >
+				<when expression="#[vars.hsCursor == '']">
+					<raise-error doc:name="Raise Pagination error" doc:id="16421819-7a1d-4dcf-bf1a-8f67c84e9f67" type="PAGINATION:DONE" description="No more pages" />
+				</when>
+			</choice>
+		</until-successful>
+	</sub-flow>
+	<sub-flow name="sf-fetch-hs-contacts" doc:id="f232b162-ad54-4979-829f-541a431524e1" >
+		<logger level="INFO" doc:name="Fetching HS Contacts" doc:id="e4e116b0-8a5e-482e-8ce7-b3aae64f828c" message="Fetching HS Contacts since #[vars.hsContactWatermark]"/>
+		<set-variable value="#[[]]" doc:name="All HS Contacts" doc:id="13a9f9ab-52b9-47f4-a941-191b1f6ab3cb" variableName="allHsContacts" />
+		<set-variable value="" doc:name="Set Cursor" doc:id="f835c7c9-a488-4073-be33-899dcae17173" variableName="hsCursor" />
+		<until-successful maxRetries="5" doc:name="Paginate HS Contacts" doc:id="3c5d7c27-aea6-422d-9fb9-ef149b231d8e" >
+			<ee:transform doc:name="Build HS Contacts JSON Request" doc:id="6f085e5d-bb05-454e-a3a8-221a83b4c74d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			<http:request doc:name="Search Contacts in HubSpot" doc:id="adf426d9-d07b-40e6-9ac1-3ca29672d1aa" config-ref="HubSpot_HTTP_Request_Config" method="POST" path="/crm/v3/objects/contacts/search" >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer ${hubspot.private.app.token}",
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			</http:request>
+			<ee:transform doc:name="Accumulate Contacts" doc:id="338c3501-889d-46c9-b13d-4da4a7e6a5ac" >
+				<ee:variables >
+					<ee:set-variable variableName="allHsContacts" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.allHsContacts ++ (payload.results map (r) -> r.properties)]]></ee:set-variable>
+					<ee:set-variable variableName="hsCursor" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.paging.next.after default ""]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<choice doc:name="More Pages?" doc:id="59e08550-f26f-4090-ba24-c8bf5057c740" >
+				<when expression="#[vars.hsCursor == '']" >
+					<raise-error doc:name="Raise pagination error" doc:id="ab3d6359-70a2-49bc-9802-572c56753204" type="PAGINATION:DONE" description="No more pages" />
+				</when>
+			</choice>
+		</until-successful>
+	</sub-flow>
+	<sub-flow name="sf-send-to-dlq" doc:id="e3a98218-1b9a-47bd-9b2d-221b5fb8cff4" >
+		<ee:transform doc:name="Build Entry Error" doc:id="6cf329dd-32af-42a8-a7c2-9e1e27efe3e1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  correlationId:    correlationId,
+  timestamp:        now() as String,
+  flow:             flow.name,
+  errorDescription: error.description default "Validation failure",
+  record:           payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<os:store doc:name="Persist Failed Record to ObjectStore" doc:id="96fa89d6-b857-4443-af73-cc626e065a8c" key="#['zyris-error-' ++ correlationId ++ '-' ++ (uuid() as String)]" objectStore="Watermark_Object_Store"/>
+		
+		<logger level="WARN" doc:name="Failed record persisted" doc:id="c4db87be-c145-413b-a612-c253860308a1" message="Failed record persisted to ObjectStore | correlationId=#[correlationId]"/>
+	</sub-flow>
+</mule>

@@ -58,11 +58,26 @@ Business event trigger (MQ message, threshold check, scheduler)
 
 ---
 
+## EDA Fit Assessment
+
+Before finalising this pattern, run the EDA fit checklist from `docs/PLANNING_CONTEXT.md → EDA FIT ASSESSMENT`.
+
+Key questions for outbound notification:
+- Is this notification triggered by a business event? → YES = messaging style is correct
+- Is the notification the primary business output (e.g., transactional email must be delivered)? → YES = use `process-orchestration` with a notification step instead; this pattern is for best-effort alerts
+- Is notification the ONLY thing this flow does? → YES = outbound-notification is correct; NO = embed it as a secondary step in the primary pattern flow
+
+`write-off` is the correct compensation strategy: notification failures must never break the primary flow.
+Always wrap notification calls in `on-error-continue`.
+
+---
+
 ## decisions.json Defaults
 
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "outbound-notification",
     "direction": "unidirectional"
   },
@@ -73,10 +88,19 @@ Business event trigger (MQ message, threshold check, scheduler)
   },
   "errorHandling": {
     "strategy": "retry-only",
+    "compensationStrategy": "write-off",
     "maxRetries": 3,
     "backoff": "fixed",
     "dlq": false,
+    "invalidMessageChannel": false,
     "errorEnvelope": false
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 1,
+    "maxConcurrency": 4,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": false
   },
   "notifications": {
     "email": true,
