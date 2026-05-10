@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    error-handler.xml — Global error handler. Referenced by all flows via:
+        <error-handler ref="Global_Error_Handler"/>
+
+    Error envelope format (never expose Java stack traces):
+        { correlationId, errorCode, message, timestamp, failingComponent }
+
+    Routing rules (in priority order):
+      VALIDATION:*          → 400  → Invalid Message Channel (no retry — structural failure)
+      HTTP:CONNECTIVITY     → 503  → log + retry upstream (transient)
+      HTTP:TIMEOUT          → 503  → log + retry upstream (transient)
+      HTTP:UNAUTHORIZED     → 401  → log WARN (no PII), do not retry
+      HTTP:FORBIDDEN        → 403  → log WARN, do not retry
+      MULE:SECURITY         → 401  → log WARN, do not retry
+      ANY                   → 500  → DLQ + log ERROR
+
+    Notification failures NEVER break the primary flow (wrapped in on-error-continue).
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/anypoint-mq
+          http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <error-handler name="Global_Error_Handler">
+
+        <!-- ── Validation failures → 400 + Invalid Message Channel ─────────── -->
+        <!--
+            Validation errors are NEVER retried — the message is structurally wrong
+            and will fail again on every retry. Route to invalid-messages-queue.
+            DLQ is for delivery failures, NOT for validation failures.
+        -->
+        <on-error-continue
+            type="VALIDATION:INVALID_VALUE,VALIDATION:NULL,VALIDATION:EMPTY_COLLECTION,VALIDATION:NOT_EMPTY_COLLECTION,VALIDATION:SIZE,VALIDATION:EXPRESSION,MULE:EXPRESSION"
+            logException="true"
+            doc:name="Validation Error — Invalid Message Channel">
+            <ee:transform doc:name="Build 400 Error Envelope">
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:    correlationId,
+    errorCode:        "VALIDATION_ERROR",
+    message:          error.description,
+    timestamp:        now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    failingComponent: error.failingComponent
+}]]></ee:set-payload>
+                </ee:message>
+                <ee:variables>
+                    <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                </ee:variables>
+            </ee:transform>
+            {{#if INVALID_MESSAGE_CHANNEL_ENABLED}}
+            <anypoint-mq:publish
+                config-ref="Anypoint_MQ_Config"
+                destination="${mq.queue.invalid-messages}"
+                doc:name="Publish to Invalid Message Channel">
+                <anypoint-mq:body>#[output application/json --- { payload: payload, error: error.description, correlationId: correlationId, timestamp: now() as String }]</anypoint-mq:body>
+            </anypoint-mq:publish>
+            {{/if}}
+            <logger
+                level="WARN"
+                message='#["[VALIDATION] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | error=" ++ error.description]'
+                doc:name="Log Validation Error"/>
+        </on-error-continue>
+
+        <!-- ── Transient connectivity / timeout → 503 ───────────────────────── -->
+        <on-error-continue
+            type="HTTP:CONNECTIVITY,HTTP:TIMEOUT,ANYPOINT-MQ:CONNECTIVITY,DB:CONNECTIVITY,DB:QUERY_EXECUTION"
+            logException="true"
+            doc:name="Connectivity/Timeout Error">
+            <ee:transform doc:name="Build 503 Error Envelope">
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:    correlationId,
+    errorCode:        "SERVICE_UNAVAILABLE",
+    message:          "A downstream system is temporarily unavailable. Please retry.",
+    timestamp:        now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    failingComponent: error.failingComponent
+}]]></ee:set-payload>
+                </ee:message>
+                <ee:variables>
+                    <ee:set-variable variableName="httpStatus"><![CDATA[503]]></ee:set-variable>
+                </ee:variables>
+            </ee:transform>
+            <logger
+                level="ERROR"
+                message='#["[CONNECTIVITY] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | error=" ++ error.description]'
+                doc:name="Log Connectivity Error"/>
+        </on-error-continue>
+
+        <!-- ── Security / Auth errors → 401/403 ─────────────────────────────── -->
+        <on-error-continue
+            type="HTTP:UNAUTHORIZED,HTTP:FORBIDDEN,MULE:SECURITY"
+            logException="false"
+            doc:name="Auth Error">
+            <ee:transform doc:name="Build 401 Error Envelope">
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:    correlationId,
+    errorCode:        "AUTHORIZATION_ERROR",
+    message:          "Authentication or authorization failed.",
+    timestamp:        now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    failingComponent: error.failingComponent
+}]]></ee:set-payload>
+                </ee:message>
+                <ee:variables>
+                    <ee:set-variable variableName="httpStatus"><![CDATA[401]]></ee:set-variable>
+                </ee:variables>
+            </ee:transform>
+            <!-- Log WARN — no PII, no credentials, no request body -->
+            <logger
+                level="WARN"
+                message='#["[AUTH] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | component=" ++ error.failingComponent]'
+                doc:name="Log Auth Error"/>
+        </on-error-continue>
+
+        <!-- ── Catch-all: DLQ + 500 ──────────────────────────────────────────── -->
+        <on-error-continue
+            type="ANY"
+            logException="true"
+            doc:name="Catch-All Error">
+            <ee:transform doc:name="Build 500 Error Envelope">
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:    correlationId,
+    errorCode:        "INTERNAL_ERROR",
+    message:          "An unexpected error occurred. Reference ID: " ++ correlationId,
+    timestamp:        now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    failingComponent: error.failingComponent
+}]]></ee:set-payload>
+                </ee:message>
+                <ee:variables>
+                    <ee:set-variable variableName="httpStatus"><![CDATA[500]]></ee:set-variable>
+                </ee:variables>
+            </ee:transform>
+            {{#if DLQ_ENABLED}}
+            <!-- Publish to DLQ — async so DLQ failure doesn't mask original error -->
+            <async doc:name="Publish to DLQ Async">
+                <anypoint-mq:publish
+                    config-ref="Anypoint_MQ_Config"
+                    destination="${mq.queue.{{DLQ_QUEUE_PROPERTY}}}"
+                    doc:name="Publish to DLQ">
+                    <anypoint-mq:body>#[output application/json --- {
+    correlationId: correlationId,
+    errorCode:     error.errorType.toString(),
+    message:       error.description,
+    failingFlow:   flow.name,
+    timestamp:     now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" }
+}]</anypoint-mq:body>
+                </anypoint-mq:publish>
+            </async>
+            {{/if}}
+            <logger
+                level="ERROR"
+                message='#["[UNHANDLED] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | error=" ++ error.description ++ " | component=" ++ error.failingComponent]'
+                doc:name="Log Unhandled Error"/>
+        </on-error-continue>
+
+    </error-handler>
+
+</mule>

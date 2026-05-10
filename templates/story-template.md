@@ -37,7 +37,7 @@ Number globally across all stories sequentially — do not restart per flow or p
 | {CLIENT}-{NNN} | Secrets Manager Configuration | Always | P0 |
 | {CLIENT}-{NNN} | CI/CD Pipeline | Always | P1 |
 | {CLIENT}-{NNN} | Anypoint Visualizer Layer Verification | Always | P1 |
-| {CLIENT}-{NNN} | Wire Tap Audit Flow | If scaffold.profile=enterprise or regulated | P1 |
+| {CLIENT}-{NNN} | Wire Tap Audit Flow | If wireTap.enabled=true (architect Level 4 decision) | P1 |
 | {CLIENT}-{NNN} | Field Encryption + Audit-Trail Flow | If scaffold.profile=regulated | P0 |
 | {CLIENT}-{NNN} | Invalid Message Channel Setup | If errorHandling.invalidMessageChannel=true | P0 |
 | {CLIENT}-{NNN} | Sprint 1 Contract Confirmation | If any api-discovery/*-contract.md has Open Gaps | P0 |
@@ -192,7 +192,7 @@ MANUAL ack: yes
 
 **Type:** Infrastructure
 **Priority:** P1
-**Condition:** Generate only if `scaffold.profile=enterprise` or `scaffold.profile=regulated`
+**Condition:** Generate only if `decisions.json wireTap.enabled = true`. This is an explicit architect decision at Level 4 — not a default. Architect sets `wireTap.retentionHours` (default 72h) and `wireTap.queueName`.
 **Standard:** `standards/MULESOFT_DESIGN_STANDARDS.md → Cross-Cutting Patterns → Wire Tap`
 
 **Acceptance Criteria:**
