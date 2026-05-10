@@ -1,7 +1,7 @@
 <!--
     Snippet: Wire Tap (non-intrusive async message copy for audit/debugging)
     Insert at any point in a flow where message capture is required.
-    The async wrapper ensures this NEVER affects primary flow latency or reliability.
+    The async + try wrapper ensures this NEVER affects primary flow latency or reliability.
 
     Queue: ${mq.queue.audit}  (set in decisions.json wireTap.queueName)
     Retention: {{WIRE_TAP_RETENTION_HOURS}}h (set in decisions.json wireTap.retentionHours)
@@ -10,32 +10,54 @@
     Properties:
       mq.queue.audit   → Anypoint MQ queue for audit message capture
       Retention handled by queue TTL configuration (see global-mq-queues story)
+
+    COMPLIANCE REQUIREMENT:
+      PII MUST be masked before publishing. The DataWeave body below removes a standard
+      set of sensitive field names. ADD any project-specific PII fields to the exclusion
+      list before enabling wire tap. Failure to mask is a compliance violation.
+      Standard exclusions: ssn, taxId, creditCardNumber, cvv, password, secret, token,
+                           dateOfBirth, bankAccountNumber, routingNumber
 -->
 
-        <!-- Wire Tap — async capture; never blocks or fails the primary flow -->
+        <!-- Wire Tap — async + try; any failure is swallowed, primary flow is never affected -->
         <async doc:name="Wire Tap — Audit Capture">
-            <on-error-continue type="ANY" doc:name="Swallow Wire Tap Errors">
-                <!-- Wire tap failure MUST NOT affect primary flow — always on-error-continue -->
-                <logger
-                    level="WARN"
-                    message='#["[WIRE TAP ERROR] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | " ++ error.description]'
-                    doc:name="Log Wire Tap Error"/>
-            </on-error-continue>
-            <anypoint-mq:publish
-                config-ref="Anypoint_MQ_Config"
-                destination="${mq.queue.audit}"
-                messageId="#[correlationId ++ '-' ++ now() as Number as String]"
-                doc:name="Publish to Audit Queue">
-                <anypoint-mq:body><![CDATA[#[output application/json
+            <try doc:name="Wire Tap with Error Isolation">
+                <ee:transform doc:name="Build Audit Payload — Mask PII">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+// TODO [COMPLIANCE]: Add project-specific PII field names to the exclusion set below
+var piiFields = { "ssn", "taxId", "creditCardNumber", "cvv", "password", "secret",
+                  "token", "dateOfBirth", "bankAccountNumber", "routingNumber" }
+var maskedPayload = if (payload is Object)
+    payload - piiFields
+  else
+    "(non-object payload — type: " ++ (payload is String then "string" else "other") ++ ")"
 ---
 {
     correlationId: correlationId,
     flow:          flow.name,
     environment:   p("mule.env"),
     timestamp:     now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
-    payload:       payload
-    // NOTE: Mask PII fields here before publishing to audit queue
-    // Example: payload - { "ssn", "creditCardNumber", "password" }
-}]]]></anypoint-mq:body>
-            </anypoint-mq:publish>
+    payload:       maskedPayload
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+                <anypoint-mq:publish
+                    config-ref="Anypoint_MQ_Config"
+                    destination="${mq.queue.audit}"
+                    messageId="#[correlationId ++ '-' ++ now() as Number as String]"
+                    doc:name="Publish to Audit Queue">
+                    <anypoint-mq:body>#[output application/json --- payload]</anypoint-mq:body>
+                </anypoint-mq:publish>
+                <error-handler>
+                    <on-error-continue type="ANY" doc:name="Swallow Wire Tap Errors">
+                        <!-- Wire tap failure MUST NOT affect primary flow -->
+                        <logger
+                            level="WARN"
+                            message='#["[WIRE TAP ERROR] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | " ++ error.description]'
+                            doc:name="Log Wire Tap Error"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
         </async>

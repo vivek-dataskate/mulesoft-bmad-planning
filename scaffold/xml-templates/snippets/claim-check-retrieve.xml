@@ -39,11 +39,13 @@
             doc:name="Retrieve Payload from Azure Blob"/>
         -->
 
-        <!-- Restore full payload from storage response -->
+        <!-- Restore full payload from storage response — S3 returns an InputStream -->
         <ee:transform doc:name="Parse Retrieved Payload">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
-output application/java
+// Payload stored was JSON (see claim-check-store.xml). Output as JSON to restore.
+// If your payload was stored in a different format, change the output type to match.
+output application/json
 ---
 payload]]></ee:set-payload>
             </ee:message>

@@ -1,0 +1,66 @@
+<!--
+    Connector: Redis
+    Registry key: redis
+    Connector: mule-redis-connector 3.3.2  (com.mulesoft.connectors)
+    Namespace: xmlns:redis="http://www.mulesoft.org/schema/mule/redis"
+    Schema:    http://www.mulesoft.org/schema/mule/redis/current/mule-redis.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-redis-connector/
+
+    Use cases in MuleSoft integration:
+      - Distributed rate-limiting (store request counts per client per window)
+      - Token caching (OAuth tokens with TTL, shared across replicas)
+      - Session / claim-check storage (alternative to S3 for small payloads < 512KB)
+      - Pub/Sub (Redis channels — alternative to Anypoint MQ for simple broadcast)
+      - Idempotency key store (alternative to Object Store for cross-app deduplication)
+
+    NOTE: For per-app idempotency within a single Mule app, prefer Persistent Object Store
+    (CloudHub 2.0 managed). Use Redis when deduplication must span multiple Mule applications.
+
+    Auth options:
+      A. No auth (dev/local — Redis default, never prod)
+      B. Redis AUTH password
+      C. AWS ElastiCache (use endpoint + auth token)
+      D. Azure Cache for Redis (use hostname + access key)
+
+    Properties required in {env}.yaml:
+      redis.host     → Redis server hostname
+      redis.port     → "6379" (default)
+      redis.password → via Secrets Manager (empty string for no-auth dev)
+      redis.db       → "0" (database index, 0–15)
+-->
+
+    <redis:config
+        name="Redis_Config"
+        doc:name="Redis Config">
+        <redis:non-cluster-connection
+            host="${redis.host}"
+            port="${redis.port}"
+            password="${redis.password}"
+            database="${redis.db}"
+            connectionTimeout="5000"
+            clientName="{{artifactId}}"/>
+    </redis:config>
+
+    <!--
+        Usage in flows:
+
+          Set (with TTL for token caching):
+            <redis:set config-ref="Redis_Config" key="#['token-' ++ vars.clientId]"
+                       value="#[vars.accessToken]" expire="3300" doc:name="Cache OAuth Token"/>
+
+          Get:
+            <redis:get config-ref="Redis_Config" key="#['token-' ++ vars.clientId]"
+                       target="cachedToken" doc:name="Get Cached Token"/>
+
+          Incr (rate limiting counter):
+            <redis:increment config-ref="Redis_Config" key="#['ratelimit-' ++ attributes.remoteAddress]"
+                             delta="1" target="requestCount" doc:name="Increment Rate Counter"/>
+
+          Del (evict on 401 — critical for token caching pattern FK-005):
+            <redis:del config-ref="Redis_Config" key="#['token-' ++ vars.clientId]"
+                       doc:name="Evict Stale Token"/>
+
+          Pub/Sub (publish):
+            <redis:publish config-ref="Redis_Config" channel="${redis.channel.events}"
+                           message="#[output application/json --- payload]" doc:name="Publish to Redis Channel"/>
+    -->

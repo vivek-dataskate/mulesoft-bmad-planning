@@ -37,6 +37,15 @@
             doc:name="Log Watermark"/>
 
         <!-- Poll changed records since last watermark -->
+        <!--
+            BATCH SIZE WARNING: If batchSize records are returned, MORE records may exist
+            in this watermark window. The watermark advances to now() — records between the
+            batch cut-off and now() will be picked up on the NEXT run.
+            For high-volume sources (> batchSize records per poll interval), either:
+              a) Decrease poll interval so batches are smaller, OR
+              b) Use a loop until empty (see FK-006 in docs/FIELD_KNOWLEDGE.md), OR
+              c) Switch to batch scope (see scaffold/xml-templates/triggers/batch-scope.xml)
+        -->
         <db:select config-ref="Database_Config" doc:name="Poll Changed Records — {{FLOW_SOURCE}}">
             <db:sql><![CDATA[
                 -- TODO: Replace with actual query for {{FLOW_SOURCE}}
@@ -52,28 +61,53 @@
 
         <logger
             level="INFO"
-            message='#["[POLL] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | recordCount=" ++ sizeOf(payload) as String]'
+            message='#["[POLL] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | recordCount=" ++ sizeOf(payload) as String ++ " | batchFull=" ++ (sizeOf(payload) as String == p("db.poll.batchSize") then "WARNING-may-have-more" else "false")]'
             doc:name="Log Record Count"/>
 
-        <!-- Process each changed record -->
-        <foreach doc:name="Process Each Record">
-            <!--
-                TODO: Transform each record using:
-                  resources/dwl/{{DWL_FILE_NAME}}.dwl
-                TODO: Write to target: {{FLOW_TARGET}}
-                TODO: Handle idempotency per record if target is an API
-                      (use record's natural key, not MQ messageId)
-            -->
-        </foreach>
+        <!--
+            Wrap foreach + watermark update in try/error-handler.
+            Per FK-007: watermark MUST advance ONLY after all records process successfully.
+            On any failure, watermark is NOT updated → next run re-fetches from last good watermark.
+            This guarantees at-least-once delivery but requires idempotency in the foreach body.
+        -->
+        <try doc:name="Process Records — Watermark Only Advances on Full Success">
+            <!-- Process each changed record -->
+            <foreach doc:name="Process Each Record">
+                <!--
+                    TODO: Transform each record using resources/dwl/{{DWL_FILE_NAME}}.dwl
+                    TODO: Write to target: {{FLOW_TARGET}}
+                    TODO: Implement idempotency per record using the record's natural business key
+                          (not MQ messageId — this is a DB poll, not an MQ consumer)
+                    Example:
+                      <os:retrieve key="#['processed-' ++ payload.id]" .../>
+                      <choice>... skip if already processed ...</choice>
+                -->
+            </foreach>
 
-        <!-- Save new watermark — highest timestamp seen in this batch -->
-        <os:store
-            key="{{FLOW_NAME}}-watermark"
-            objectStore="Persistent_Object_Store"
-            doc:name="Update Watermark">
-            <!-- Store run time, not max(record.updatedAt) — avoids missing records updated during poll window -->
-            <os:value>#[now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" }]</os:value>
-        </os:store>
+            <!-- Save new watermark ONLY after all records succeed (FK-007) -->
+            <os:store
+                key="{{FLOW_NAME}}-watermark"
+                objectStore="Persistent_Object_Store"
+                doc:name="Update Watermark — post-success only">
+                <!--
+                    Store now() (run start time), not max(record.updatedAt).
+                    Reason: records updated DURING the poll window (after query, before now())
+                    would be missed if we advance to max(updatedAt). Using now() ensures those
+                    records are re-fetched on the next run (idempotency handles duplicates).
+                -->
+                <os:value>#[now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" }]</os:value>
+            </os:store>
+
+            <error-handler>
+                <on-error-continue type="ANY" doc:name="Processing Failed — Watermark NOT Advanced">
+                    <logger
+                        level="ERROR"
+                        message='#["[POLL FAILED] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | watermark NOT advanced — will retry from: " ++ vars.watermark ++ " | error: " ++ error.description]'
+                        doc:name="Log Watermark Not Advanced"/>
+                    <!-- TODO: publish to DLQ or page on-call if this repeats -->
+                </on-error-continue>
+            </error-handler>
+        </try>
 
         <logger
             level="INFO"

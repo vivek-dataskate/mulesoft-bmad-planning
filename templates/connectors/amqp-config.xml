@@ -1,0 +1,91 @@
+<!--
+    Connector: AMQP / RabbitMQ
+    Registry key: rabbitmq (or amqp)
+    Connector: mule-amqp-connector 1.8.0  (com.mulesoft.connectors)
+    Namespace: xmlns:amqp="http://www.mulesoft.org/schema/mule/amqp"
+    Schema:    http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-amqp-connector/
+
+    Use when:
+      - Client uses RabbitMQ as their message broker (not Anypoint MQ)
+      - On-premise messaging infrastructure requirement
+      - AMQP 0-9-1 protocol compatibility needed
+
+    Prefer Anypoint MQ when: running on CloudHub 2.0 without a specific RabbitMQ requirement.
+    RabbitMQ on CloudHub 2.0: connect to external RabbitMQ cluster via AMQP over TLS.
+
+    Exchange / Queue model:
+      RabbitMQ uses exchanges (direct, topic, fanout, headers) + queues + bindings.
+      Anypoint MQ uses queues + exchanges directly.
+      Design the RabbitMQ topology BEFORE coding — topology changes require broker admin.
+
+    Auth:
+      A. Username + Password (standard)
+      B. AMQPS (AMQP over TLS) — required for production and external brokers
+
+    Properties required in {env}.yaml:
+      amqp.host          → RabbitMQ hostname (or load balancer)
+      amqp.port          → "5672" (AMQP) or "5671" (AMQPS/TLS)
+      amqp.username      → RabbitMQ user
+      amqp.password      → via Secrets Manager
+      amqp.virtualHost   → "/" (default) or custom vhost
+      amqp.exchange      → exchange name (set per flow in flow files, not here)
+      amqp.queue         → queue name (set per flow)
+-->
+
+    <!-- Option A: Plain AMQP (dev/local only) -->
+    <!--
+    <amqp:config name="AMQP_Config" doc:name="AMQP Config — RabbitMQ">
+        <amqp:connection
+            host="${amqp.host}"
+            port="${amqp.port}"
+            username="${amqp.username}"
+            password="${amqp.password}"
+            virtualHost="${amqp.virtualHost}"/>
+    </amqp:config>
+    -->
+
+    <!-- Option B: AMQPS (TLS) — required for production -->
+    <amqp:config name="AMQP_Config" doc:name="AMQP Config — RabbitMQ (TLS)">
+        <amqp:connection
+            host="${amqp.host}"
+            port="${amqp.port}"
+            username="${amqp.username}"
+            password="${amqp.password}"
+            virtualHost="${amqp.virtualHost}">
+            <amqp:tls-context>
+                <!-- TODO: configure TLS trust store for the RabbitMQ server certificate -->
+                <tls:trust-store path="${amqp.tls.trustStorePath}" password="${amqp.tls.trustStorePassword}"/>
+            </amqp:tls-context>
+        </amqp:connection>
+    </amqp:config>
+
+    <!--
+        Usage in flows:
+
+          Publisher:
+            <amqp:publish config-ref="AMQP_Config"
+                          exchangeName="${amqp.exchange}"
+                          routingKey="${amqp.routingKey}"
+                          doc:name="Publish to RabbitMQ">
+              <amqp:message>
+                <amqp:body>#[output application/json --- payload]</amqp:body>
+                <amqp:properties contentType="application/json" deliveryMode="PERSISTENT"
+                                 messageId="#[correlationId]"/>
+                <amqp:headers>#[{ "X-Correlation-ID": correlationId }]</amqp:headers>
+              </amqp:message>
+            </amqp:publish>
+
+          Consumer (trigger):
+            <amqp:listener config-ref="AMQP_Config"
+                           queueName="${amqp.queue}"
+                           ackMode="MANUAL"
+                           doc:name="AMQP Listener"/>
+            <!-- Idempotency check MANDATORY (see snippets/idempotency-check.xml) -->
+            <!-- ACK on success: <amqp:ack ackId="#[attributes.ackId]" config-ref="AMQP_Config"/> -->
+            <!-- NACK (requeue): <amqp:reject ackId="#[attributes.ackId]" config-ref="AMQP_Config" requeue="true"/> -->
+
+          Dead Letter Exchange (RabbitMQ DLX — configure at broker level):
+            Queue properties: x-dead-letter-exchange = your-dlx-exchange
+            RabbitMQ handles requeue/DLX routing — configure in broker, not in Mule.
+    -->
