@@ -2,7 +2,18 @@
     Trigger: HTTP Listener (request-reply / api-aggregation / webhook-ingestion)
     Layer: {{API_LAYER}} (system | process | experience)
     Naming: {action}-{entity}-flow
-    correlationId: generated here from inbound X-Correlation-ID header or new UUID — never downstream
+
+    Correlation ID strategy:
+      - Client sends X-Correlation-ID header → we adopt it as the Mule correlationId
+      - Client sends no header → Mule auto-generates a UUID correlationId
+      - We echo the correlationId back in every response header (success and error)
+      - Error handler uses bare `correlationId` expression (Mule built-in) — same value
+
+    Validation namespace: add to mule root element if using validation:* module
+      xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+      and to xsi:schemaLocation:
+      http://www.mulesoft.org/schema/mule/validation
+        http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 -->
     <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
 
@@ -11,7 +22,7 @@
             path="{{HTTP_PATH}}"
             allowedMethods="{{HTTP_METHODS}}"
             doc:name="HTTP Listener">
-            <!-- Return correlationId in response header for client tracing -->
+            <!-- Echo correlationId back to caller for end-to-end tracing -->
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[{
     "X-Correlation-ID": correlationId,
@@ -27,11 +38,15 @@
             </http:error-response>
         </http:listener>
 
-        <!-- Propagate inbound correlation ID or generate new UUID -->
-        <set-variable
-            variableName="correlationId"
+        <!--
+            Adopt the client's X-Correlation-ID as the Mule event correlationId so that
+            ALL downstream logs, error envelopes, and MQ messages use the client's ID.
+            set-correlation-id (Mule 4.6+) sets the actual Mule event correlationId —
+            not a variable. Using set-variable here would NOT propagate to the error handler.
+        -->
+        <set-correlation-id
             value="#[attributes.headers['X-Correlation-ID'] default correlationId]"
-            doc:name="Set Correlation ID"/>
+            doc:name="Adopt Inbound Correlation ID"/>
 
         <logger
             level="INFO"
@@ -40,9 +55,11 @@
 
         <!--
             TODO: Validate inbound payload BEFORE any downstream call.
-            Route validation failures to Invalid Message Channel, not DLQ.
+            Route validation failures to Invalid Message Channel (not DLQ).
+            Validation module must be in pom.xml and namespace declared above.
             Example:
               <validation:is-not-null value="#[payload.orderId]" message="orderId is required"/>
+              <validation:matches-regex value="#[payload.email]" regex="^[^@]+@[^@]+$" message="Invalid email format"/>
         -->
 
         <!-- TODO: Implement {{FLOW_DESCRIPTION}} -->

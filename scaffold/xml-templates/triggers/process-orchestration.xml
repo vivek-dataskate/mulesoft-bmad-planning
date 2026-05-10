@@ -1,0 +1,309 @@
+<!--
+    Trigger: Process Orchestration (pattern H — multi-step saga with compensation)
+    Use when: multi-step workflow across 3+ systems with rollback needed if any step fails.
+
+    This template generates THREE flows:
+      1. {name}-initiate-flow   — receives request, returns 202, triggers async orchestration
+      2. {name}-process-flow    — orchestrates steps; writes saga state to Object Store
+      3. {name}-status-flow     — status polling endpoint; clients query for outcome
+
+    Saga pattern (Starbucks Does Not Use Two-Phase Commit):
+      - Each step is local to its system; no distributed transaction
+      - On failure: run compensating transactions in reverse order
+      - Compensation strategy: decided PER STEP at design time (write-off / retry / compensate)
+      - Financial / provisioning / compliance mutations REQUIRE compensating-transaction
+
+    State machine in Object Store:
+      PENDING → IN_PROGRESS → COMPLETED | FAILED | COMPENSATED
+
+    Object Store key: saga-{correlationId}
+    Object Store TTL: match the longest reasonable processing time + buffer (e.g. 24h)
+
+    See PLANNING_CONTEXT.md COMPENSATION DECISION FRAMEWORK for decision rules.
+-->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         FLOW 1: Initiate — accepts request, returns 202 Accepted immediately
+         ═══════════════════════════════════════════════════════════════════ -->
+    <flow name="{{FLOW_NAME}}-initiate-flow" doc:name="{{FLOW_DESCRIPTION}} — Initiate">
+
+        <http:listener
+            config-ref="HTTP_Listener_Config"
+            path="{{HTTP_PATH}}"
+            allowedMethods="POST"
+            doc:name="HTTP Listener — Initiate">
+            <http:response statusCode="#[vars.httpStatus default 202]">
+                <http:headers><![CDATA[#[{
+    "X-Correlation-ID": correlationId,
+    "Location":         "/api/v1/{{RESOURCE_PATH}}/status/" ++ correlationId,
+    "Content-Type":     "application/json"
+}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:headers><![CDATA[#[{ "X-Correlation-ID": correlationId }]]]></http:headers>
+                <http:body>#[payload]</http:body>
+            </http:error-response>
+        </http:listener>
+
+        <set-correlation-id
+            value="#[attributes.headers['X-Correlation-ID'] default correlationId]"
+            doc:name="Adopt Inbound Correlation ID"/>
+
+        <logger
+            level="INFO"
+            message='#["[INITIATE] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log Initiation"/>
+
+        <!-- TODO: Validate inbound request before accepting -->
+
+        <!-- Write PENDING state BEFORE publishing to queue — prevents lost initiation -->
+        <os:store
+            key="#['saga-' ++ correlationId]"
+            objectStore="Persistent_Object_Store"
+            ttl="86400"
+            ttlUnit="SECONDS"
+            doc:name="Store PENDING Saga State">
+            <os:value><![CDATA[#[{
+    status:      "PENDING",
+    correlationId: correlationId,
+    initiatedAt: now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    payload:     payload,
+    steps:       []
+}]]]></os:value>
+        </os:store>
+
+        <!-- Trigger async processing via MQ (decouples response from processing) -->
+        <anypoint-mq:publish
+            config-ref="Anypoint_MQ_Config"
+            destination="${mq.queue.{{ORCHESTRATION_QUEUE_PROPERTY}}}"
+            messageId="#[correlationId]"
+            doc:name="Trigger Async Orchestration">
+            <anypoint-mq:body>#[output application/json --- { correlationId: correlationId, payload: payload }]</anypoint-mq:body>
+        </anypoint-mq:publish>
+
+        <!-- Return 202 Accepted — processing happens asynchronously -->
+        <ee:transform doc:name="Build 202 Accepted Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId: correlationId,
+    status:        "PENDING",
+    message:       "Request accepted for processing.",
+    statusUrl:     "/api/v1/{{RESOURCE_PATH}}/status/" ++ correlationId
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[202]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         FLOW 2: Process — orchestrates saga steps with compensation
+         ═══════════════════════════════════════════════════════════════════ -->
+    <flow name="{{FLOW_NAME}}-process-flow" doc:name="{{FLOW_DESCRIPTION}} — Orchestrate">
+
+        <anypoint-mq:subscriber
+            config-ref="Anypoint_MQ_Config"
+            destination="${mq.queue.{{ORCHESTRATION_QUEUE_PROPERTY}}}"
+            acknowledgementMode="MANUAL"
+            maxConcurrency="{{MAX_CONCURRENCY}}"
+            doc:name="MQ Subscriber — Orchestration Queue"/>
+
+        <!-- Idempotency check — MANDATORY (see snippets/idempotency-check.xml) -->
+        <os:retrieve
+            key='#["saga-proc-" ++ payload.correlationId]'
+            objectStore="Persistent_Object_Store"
+            target="alreadyProcessed"
+            doc:name="Idempotency Check">
+            <os:default-value>#[false]</os:default-value>
+        </os:retrieve>
+
+        <choice doc:name="Already Processed?">
+            <when expression="#[vars.alreadyProcessed == true]">
+                <logger level="WARN"
+                    message='#["[SAGA DUPLICATE] correlationId=" ++ payload.correlationId ++ " | skipping"]'
+                    doc:name="Log Duplicate"/>
+                <anypoint-mq:ack ackToken="#[attributes.ackToken]" config-ref="Anypoint_MQ_Config"/>
+            </when>
+            <otherwise>
+                <os:store
+                    key='#["saga-proc-" ++ payload.correlationId]'
+                    objectStore="Persistent_Object_Store"
+                    ttl="{{DEDUP_TTL_MINUTES}}"
+                    ttlUnit="MINUTES"
+                    doc:name="Mark Processing Started">
+                    <os:value>#[true]</os:value>
+                </os:store>
+
+                <!-- Capture saga context from initiation payload -->
+                <set-variable variableName="sagaCorrelationId" value="#[payload.correlationId]" doc:name="Set Saga Correlation ID"/>
+                <set-variable variableName="sagaPayload"       value="#[payload.payload]"       doc:name="Set Saga Payload"/>
+
+                <!-- Update state: IN_PROGRESS -->
+                <os:store key='#["saga-" ++ vars.sagaCorrelationId]' objectStore="Persistent_Object_Store"
+                    doc:name="State: IN_PROGRESS">
+                    <os:value><![CDATA[#[{
+    status:       "IN_PROGRESS",
+    correlationId: vars.sagaCorrelationId,
+    startedAt:    now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    steps:        []
+}]]]></os:value>
+                </os:store>
+
+                <try doc:name="Execute Saga Steps with Compensation">
+
+                    <!-- ── STEP 1: {{STEP_1_SYSTEM}} ────────────────────────── -->
+                    <!--
+                        TODO: Execute step 1 (e.g. create order in system A).
+                        Store the result key for potential compensation.
+                        Compensation: if later steps fail, delete/reverse this record.
+                    -->
+                    <!-- <flow-ref name="{{STEP_1_SUBFLOW}}"/> -->
+                    <set-variable variableName="step1Result" value='#[{ "id": "TODO", "status": "success" }]'
+                        doc:name="PLACEHOLDER: Step 1 result"/>
+
+                    <!-- Record Step 1 completion in saga state (enables compensation audit trail) -->
+                    <os:store key='#["saga-" ++ vars.sagaCorrelationId]' objectStore="Persistent_Object_Store"
+                        doc:name="Record Step 1 Complete">
+                        <os:value><![CDATA[#[{
+    status:       "IN_PROGRESS",
+    correlationId: vars.sagaCorrelationId,
+    step1:        { status: "COMPLETE", result: vars.step1Result }
+}]]]></os:value>
+                    </os:store>
+
+                    <!-- ── STEP 2: {{STEP_2_SYSTEM}} ────────────────────────── -->
+                    <!-- TODO: Execute step 2 (depends on step 1 result) -->
+                    <!-- <flow-ref name="{{STEP_2_SUBFLOW}}"/> -->
+
+                    <!-- ── Mark saga COMPLETED ───────────────────────────────── -->
+                    <os:store key='#["saga-" ++ vars.sagaCorrelationId]' objectStore="Persistent_Object_Store"
+                        doc:name="State: COMPLETED">
+                        <os:value><![CDATA[#[{
+    status:       "COMPLETED",
+    correlationId: vars.sagaCorrelationId,
+    completedAt:  now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" }
+}]]]></os:value>
+                    </os:store>
+
+                    <anypoint-mq:ack ackToken="#[attributes.ackToken]" config-ref="Anypoint_MQ_Config"
+                        doc:name="ACK — Success"/>
+
+                    <error-handler>
+                        <on-error-continue type="ANY" doc:name="Compensation Handler">
+                            <logger
+                                level="ERROR"
+                                message='#["[SAGA FAILURE] correlationId=" ++ vars.sagaCorrelationId ++ " | error=" ++ error.description ++ " | running compensation"]'
+                                doc:name="Log Saga Failure"/>
+
+                            <!-- ── COMPENSATION: reverse completed steps in reverse order ── -->
+                            <!--
+                                TODO: Add compensating transaction subflow calls here.
+                                Rules (from PLANNING_CONTEXT.md COMPENSATION DECISION FRAMEWORK):
+                                  - Financial mutations (payment, charge) → MUST compensate (refund/reverse)
+                                  - Provisioning mutations (account, license) → MUST compensate (disable/revoke)
+                                  - Notification sends → write-off (log WARN, do not compensate)
+                                  - Read-only steps → no compensation needed
+
+                                Example:
+                                  <flow-ref name="{{FLOW_NAME}}-compensate-step1-subflow"/>
+
+                                Each compensation subflow:
+                                  - Implements its own retry (compensation must succeed)
+                                  - Logs every action with saga correlationId
+                                  - Updates saga state with compensation result
+                            -->
+
+                            <!-- Mark saga FAILED/COMPENSATED -->
+                            <os:store key='#["saga-" ++ vars.sagaCorrelationId]' objectStore="Persistent_Object_Store"
+                                doc:name="State: FAILED">
+                                <os:value><![CDATA[#[{
+    status:         "FAILED",
+    correlationId:  vars.sagaCorrelationId,
+    failedAt:       now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    errorMessage:   error.description,
+    compensation:   "TODO: update to COMPENSATED after compensation runs"
+}]]]></os:value>
+                            </os:store>
+
+                            <!-- Do NOT ACK on failure — let connector redeliver up to maxRedelivery, then DLQ -->
+                        </on-error-continue>
+                    </error-handler>
+                </try>
+
+            </otherwise>
+        </choice>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         FLOW 3: Status Polling — client polls for saga outcome
+         ═══════════════════════════════════════════════════════════════════ -->
+    <flow name="{{FLOW_NAME}}-status-flow" doc:name="{{FLOW_DESCRIPTION}} — Status">
+
+        <http:listener
+            config-ref="HTTP_Listener_Config"
+            path="{{HTTP_PATH}}/status/{correlationId}"
+            allowedMethods="GET"
+            doc:name="HTTP Listener — Status Polling">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[{ "X-Correlation-ID": correlationId, "Content-Type": "application/json" }]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:headers><![CDATA[#[{ "X-Correlation-ID": correlationId }]]]></http:headers>
+                <http:body>#[payload]</http:body>
+            </http:error-response>
+        </http:listener>
+
+        <set-correlation-id value="#[attributes.headers['X-Correlation-ID'] default correlationId]"
+            doc:name="Adopt Inbound Correlation ID"/>
+
+        <os:retrieve
+            key='#["saga-" ++ attributes.uriParams.correlationId]'
+            objectStore="Persistent_Object_Store"
+            target="sagaState"
+            doc:name="Retrieve Saga State">
+            <os:default-value>#[null]</os:default-value>
+        </os:retrieve>
+
+        <choice doc:name="Saga Found?">
+            <when expression="#[vars.sagaState == null]">
+                <ee:transform doc:name="Build 404 — Saga Not Found">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId: correlationId,
+    errorCode:     "NOT_FOUND",
+    message:       "No saga found for correlationId: " ++ attributes.uriParams.correlationId
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </when>
+            <otherwise>
+                <ee:transform doc:name="Build Status Response">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+vars.sagaState]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <!-- 200 for terminal states (COMPLETED/FAILED/COMPENSATED), 202 for in-progress -->
+                        <ee:set-variable variableName="httpStatus"><![CDATA[#[if (vars.sagaState.status == "PENDING" or vars.sagaState.status == "IN_PROGRESS") 202 else 200]]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </otherwise>
+        </choice>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>

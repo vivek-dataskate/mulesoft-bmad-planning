@@ -9,8 +9,10 @@ http:
   port: "8081"
 
 # Scheduler
+# Override scheduler.cron in Runtime Manager > Application Properties for the uat environment
+# to control the actual schedule without redeploying.
 scheduler:
-  cron: "${scheduler.cron.uat}"           # Set in Runtime Manager for UAT environment
+  cron: "0 0 * * * ?"                    # Hourly in UAT — override in Runtime Manager for precise schedule
   frequencySeconds: "120"
 
 # MQ Queue names — uat suffix

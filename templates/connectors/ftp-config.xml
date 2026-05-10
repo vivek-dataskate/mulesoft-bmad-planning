@@ -1,0 +1,76 @@
+<!--
+    Connector: FTP (plain FTP — prefer SFTP for production)
+    Registry key: ftp
+    Connector: mule-ftp-connector 1.8.0  (org.mule.connectors)
+    Namespace: xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+    Schema:    http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-ftp-connector/
+
+    SECURITY WARNING: Plain FTP transmits credentials and data in cleartext.
+    Use SFTP (mule-sftp-connector) for all new projects and regulated environments.
+    FTP is only acceptable for: legacy partner integrations where SFTP is not supported.
+    If FTP is required, use FTPS (FTP over TLS) — same connector, add TLS context.
+
+    CRITICAL (CloudHub 2.0): Local filesystem is EPHEMERAL — do not write to local paths.
+    Always process files to S3, Azure Blob, or another SFTP site after reading from FTP.
+
+    Auth: Username + Password only (FTP has no key-based auth)
+
+    Properties required in {env}.yaml:
+      ftp.host                        → FTP server hostname
+      ftp.port                        → "21" (FTP) or "990" (FTPS implicit)
+      ftp.username                    → FTP user
+      ftp.password                    → via Secrets Manager
+      ftp.inbound.directory           → inbound file directory
+      ftp.inbound.processedDirectory  → move-to directory after pickup
+      ftp.poll.frequencySeconds       → poll interval
+-->
+
+    <!-- Plain FTP — use SFTP instead if at all possible -->
+    <ftp:config
+        name="FTP_Config"
+        doc:name="FTP Config">
+        <ftp:connection
+            host="${ftp.host}"
+            port="${ftp.port}"
+            username="${ftp.username}"
+            password="${ftp.password}"
+            workingDir="${ftp.inbound.directory}"/>
+    </ftp:config>
+
+    <!--
+        FTPS (FTP over TLS — use instead of plain FTP for any sensitive data):
+        <ftp:config name="FTP_Config" doc:name="FTPS Config">
+            <ftp:connection
+                host="${ftp.host}"
+                port="${ftp.port}"
+                username="${ftp.username}"
+                password="${ftp.password}"
+                workingDir="${ftp.inbound.directory}">
+                <tls:context>
+                    <tls:trust-store path="${ftp.tls.trustStorePath}" password="${ftp.tls.trustStorePassword}"/>
+                </tls:context>
+            </ftp:connection>
+        </ftp:config>
+
+        Usage in flows:
+          Listener (trigger — same structure as sftp:listener):
+            <ftp:listener config-ref="FTP_Config"
+                          directory="${ftp.inbound.directory}"
+                          autoDelete="false"
+                          moveToDirectory="${ftp.inbound.processedDirectory}"
+                          doc:name="FTP On New File">
+                <scheduling-strategy>
+                    <fixed-frequency frequency="${ftp.poll.frequencySeconds}" timeUnit="SECONDS"/>
+                </scheduling-strategy>
+                <ftp:matcher filenamePattern="*.csv" directories="EXCLUDE"/>
+            </ftp:listener>
+
+          Read specific file:
+            <ftp:read config-ref="FTP_Config" path="#[attributes.path ++ '/' ++ attributes.name]"/>
+
+          Write file:
+            <ftp:write config-ref="FTP_Config" path="${ftp.outbound.directory}/output.csv">
+                <ftp:content>#[output application/csv --- payload]</ftp:content>
+            </ftp:write>
+    -->

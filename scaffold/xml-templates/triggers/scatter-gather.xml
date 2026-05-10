@@ -1,0 +1,163 @@
+<!--
+    Trigger: Scatter-Gather (pattern I — api-aggregation)
+    Use when: parallel calls to N systems → merge results into one response.
+    Always returns synchronously to the caller (< 10s).
+
+    Key rules for scatter-gather:
+      1. EACH leg gets its OWN timeout — one slow system doesn't stall others
+      2. Error strategy: ROUTE_FIRST_SUCCESSFUL or ALL_ROUTES (configure per NFR)
+      3. Response composition happens in a single DataWeave transform after the scatter-gather
+      4. Never scatter-gather to more than 6 systems — latency risk compounds
+      5. All legs run in parallel — do not put sequential logic inside scatter-gather
+
+    Leg timeout: {{SCATTER_GATHER_TIMEOUT_MS}}ms per leg (from decisions.json nfr.latency)
+    Error strategy: ALL_ROUTES (all legs must succeed) or ROUTE_FIRST_SUCCESSFUL
+    Layer: {{API_LAYER}} (usually experience or process)
+    Source: {{FLOW_SOURCE}} → Aggregates from: {{FLOW_TARGET}}
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <http:listener
+            config-ref="HTTP_Listener_Config"
+            path="{{HTTP_PATH}}"
+            allowedMethods="GET,POST"
+            doc:name="HTTP Listener">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[{ "X-Correlation-ID": correlationId, "Content-Type": "application/json" }]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:headers><![CDATA[#[{ "X-Correlation-ID": correlationId, "Content-Type": "application/json" }]]]></http:headers>
+                <http:body>#[payload]</http:body>
+            </http:error-response>
+        </http:listener>
+
+        <set-correlation-id
+            value="#[attributes.headers['X-Correlation-ID'] default correlationId]"
+            doc:name="Adopt Inbound Correlation ID"/>
+
+        <logger
+            level="INFO"
+            message='#["[START] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | method=" ++ attributes.method ++ " | path=" ++ attributes.requestPath ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log Request Start"/>
+
+        <!--
+            TODO: Validate / extract request parameters before scatter-gather.
+            Store any shared context in variables — scatter-gather legs share the payload
+            and variables from before the scatter-gather element.
+        -->
+        <set-variable
+            variableName="requestId"
+            value="#[payload.id default attributes.uriParams.id]"
+            doc:name="Extract Request ID"/>
+
+        <!-- ─────────────────────────────────────────────────────────────────
+             SCATTER-GATHER: parallel calls to all systems
+             Each <route> runs in its own thread simultaneously.
+             The scatter-gather returns when ALL routes complete (or timeout).
+             ───────────────────────────────────────────────────────────────── -->
+        <scatter-gather
+            timeout="{{SCATTER_GATHER_TIMEOUT_MS}}"
+            doc:name="Parallel Calls — {{FLOW_DESCRIPTION}}">
+
+            <!-- ── Route 1: {{SYSTEM_1}} ──────────────────────────────── -->
+            <route doc:name="Call {{SYSTEM_1}}">
+                <logger
+                    level="DEBUG"
+                    message='#["[SCATTER LEG 1] correlationId=" ++ correlationId ++ " | calling {{SYSTEM_1}}"]'
+                    doc:name="Log Leg 1 Start"/>
+                <!--
+                    TODO: Call {{SYSTEM_1}}.
+                    Use flow-ref to a System API sub-flow, or an HTTP request directly.
+                    Include X-Correlation-ID header for tracing.
+                    Example:
+                      <http:request config-ref="HTTP_System1_Config" method="GET"
+                                    path="/api/v1/resource/#[vars.requestId]">
+                        <http:headers>#[{ "X-Correlation-ID": correlationId }]</http:headers>
+                      </http:request>
+                -->
+                <!-- IMPORTANT: set a response target variable to avoid overwriting payload -->
+                <target value="system1Result" doc:name="Store System1 Result"/>
+            </route>
+
+            <!-- ── Route 2: {{SYSTEM_2}} ──────────────────────────────── -->
+            <route doc:name="Call {{SYSTEM_2}}">
+                <logger
+                    level="DEBUG"
+                    message='#["[SCATTER LEG 2] correlationId=" ++ correlationId ++ " | calling {{SYSTEM_2}}"]'
+                    doc:name="Log Leg 2 Start"/>
+                <!--
+                    TODO: Call {{SYSTEM_2}}.
+                    Same pattern as Route 1. Use a different target variable name.
+                -->
+                <target value="system2Result" doc:name="Store System2 Result"/>
+            </route>
+
+            <!-- ── Route N: Add more routes as needed ─────────────────── -->
+            <!--
+                <route doc:name="Call {{SYSTEM_N}}">
+                    ...
+                    <target value="systemNResult"/>
+                </route>
+            -->
+
+        </scatter-gather>
+
+        <!--
+            After scatter-gather, payload contains a map of route results.
+            With <target> on each route, results are in vars.system1Result, vars.system2Result, etc.
+            If no <target> is used, payload = { "0": route0result, "1": route1result, ... }
+            Use the <target> pattern — it makes the composition DataWeave readable.
+        -->
+
+        <!-- ── Compose aggregated response ────────────────────────────── -->
+        <ee:transform doc:name="Compose Aggregated Response — {{FLOW_NAME}}">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+// TODO: move to resources/dwl/{{DWL_FILE_NAME}}.dwl if > 10 lines
+---
+{
+    // TODO: compose response from all system results
+    // Access results via vars.system1Result.payload, vars.system2Result.payload, etc.
+
+    correlationId: correlationId,
+
+    // Example composition:
+    // customer: vars.system1Result.payload,
+    // orders:   vars.system2Result.payload.orders default [],
+    // balance:  vars.system2Result.payload.accountBalance
+
+    // TODO: handle partial failures (one system returned error but others succeeded)
+    // Check each vars.systemNResult for error indicators before mapping
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[200]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <logger
+            level="INFO"
+            message='#["[END] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | status=" ++ (vars.httpStatus default 200) as String]'
+            doc:name="Log Request End"/>
+
+        <!--
+            Error handling notes for scatter-gather:
+            - COMPOSITE_ROUTING error fires if ANY route fails (default behaviour)
+            - Global_Error_Handler catches COMPOSITE_ROUTING as ANY → 500 response
+            - For partial failure tolerance (some routes can fail): add per-route
+              <error-handler> inside each route's try scope and return a default value
+            - Example per-route fallback:
+                <route>
+                    <try>
+                        <http:request .../>
+                        <error-handler>
+                            <on-error-continue type="HTTP:CONNECTIVITY,HTTP:TIMEOUT">
+                                <set-payload value='#[{ "error": "system unavailable", "data": null }]'/>
+                            </on-error-continue>
+                        </error-handler>
+                    </try>
+                </route>
+        -->
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>

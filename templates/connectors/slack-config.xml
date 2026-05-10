@@ -1,0 +1,70 @@
+<!--
+    Connector: Slack
+    Registry key: slack
+    Connector: mule-slack-connector 1.1.0  (com.mulesoft.connectors)
+    Namespace: xmlns:slack="http://www.mulesoft.org/schema/mule/slack"
+    Schema:    http://www.mulesoft.org/schema/mule/slack/current/mule-slack.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-slack-connector/
+
+    DECISION: Use connector vs. HTTP webhook?
+      Simple alert dispatch (outbound-notification pattern N) → use HTTP Incoming Webhook (no connector needed)
+      Rich bidirectional integration (reading channels, interactive messages) → use Slack connector
+
+    Auth: OAuth2 (Bot Token)
+      1. Create Slack App at api.slack.com/apps
+      2. Add Bot Token Scopes: chat:write, channels:read (add more as needed)
+      3. Install app to workspace → copy Bot User OAuth Token (xoxb-...)
+      4. Store token in Secrets Manager — NEVER in property files
+
+    For simple outbound notifications, use HTTP connector with Incoming Webhook URL instead:
+      <http:request-config name="Slack_Webhook_Config" basePath="">
+          <http:request-connection host="hooks.slack.com" port="443" protocol="HTTPS"/>
+      </http:request-config>
+
+      In flow (always async + on-error-continue — notification failure NEVER breaks primary flow):
+      <async><try>
+        <http:request config-ref="Slack_Webhook_Config" method="POST"
+                      path="/services/YOUR/WEBHOOK/PATH">
+          <http:body>#[output application/json --- { text: payload.message }]</http:body>
+        </http:request>
+        <error-handler><on-error-continue type="ANY">
+          <logger level="WARN" message='#["[SLACK NOTIFY FAILED] " ++ error.description]'/>
+        </on-error-continue></error-handler>
+      </try></async>
+
+    Properties required in {env}.yaml:
+      slack.botToken    → via Secrets Manager (xoxb-...)
+      slack.channel     → default channel ID (not name) e.g. "C01234ABCDE"
+-->
+
+    <!-- Slack Connector Config — for rich integration (not simple notifications) -->
+    <slack:config
+        name="Slack_Config"
+        doc:name="Slack Config">
+        <slack:token-connection
+            token="${slack.botToken}"/>
+    </slack:config>
+
+    <!--
+        Usage in flows (always wrap in async + error isolation for notifications):
+
+          Send message:
+            <async doc:name="Notify Slack Async">
+              <try>
+                <slack:chat-post-message
+                  config-ref="Slack_Config"
+                  channelId="${slack.channel}"
+                  doc:name="Post to Slack">
+                  <slack:message>#[output application/json --- { text: payload.message }]</slack:message>
+                </slack:chat-post-message>
+                <error-handler>
+                  <on-error-continue type="ANY">
+                    <logger level="WARN" message='#["[SLACK FAILED] " ++ error.description]'/>
+                  </on-error-continue>
+                </error-handler>
+              </try>
+            </async>
+
+          For DLQ alert template:
+            text: ":red_circle: *[ALERT][{env}] DLQ messages detected*\n>Queue: {queueName}\n>Count: {count}\n>CorrelationId: {correlationId}"
+    -->

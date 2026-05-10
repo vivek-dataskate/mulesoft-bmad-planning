@@ -5,6 +5,16 @@
     maxConcurrency: {{MAX_CONCURRENCY}} — set based on downstream capacity, not Mule CPU
     Idempotency: MANDATORY — duplicates will occur; check before any downstream write
     TTL: {{MESSAGE_TTL_HOURS}}h  |  deduplicationTtl: {{DEDUP_TTL_MINUTES}} min
+
+    ACK / NACK behaviour (MANUAL ack mode):
+      Success path:  explicit <anypoint-mq:ack> at end of processing → message removed from queue
+      Duplicate:     explicit <anypoint-mq:ack> in the when/duplicate branch → message discarded (no processing)
+      Error path:    flow throws, Global_Error_Handler runs (on-error-continue), flow COMPLETES.
+                     Message is NEVER ack'd or nack'd on error — the connector waits for the
+                     ackTimeout (default 2 min) then redelivers. After maxRedelivery attempts,
+                     the broker routes the message to the DLQ automatically.
+                     → Do NOT explicitly nack in the error handler; let the timeout handle redelivery.
+                     → DLQ count > 0 pages on-call (see Anypoint Monitoring alert config).
 -->
     <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
 

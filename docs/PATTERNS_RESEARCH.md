@@ -512,6 +512,157 @@ These are practical rules derived from the research for making judgment calls in
 
 ---
 
+---
+
+## Part 10: Modern Patterns Beyond EIP — 2024–2026 Additions
+
+These patterns are not in the EIP 2003 catalog and were not materially covered by Hohpe's 2019–2022
+ramblings. They emerged from microservices adoption, cloud-native data stacks, and AI/LLM integration.
+Each has a dedicated scenario file in `standards/scenarios/`.
+
+### 10A. Transactional Outbox (Scenario S)
+
+**The problem it solves:** The dual-write problem — an application writes to its own DB AND must publish
+an event to a message broker. These are two separate operations; either can fail independently, causing
+silent data loss (DB write succeeds, event never published).
+
+**The solution:** Application writes to an `outbox_events` table in the same DB transaction as its
+domain write. MuleSoft polls this outbox table, publishes each row to MQ, and marks it as published.
+The two-step sequence (atomic DB write → eventual MQ publish) guarantees at-least-once delivery without
+distributed transactions.
+
+**Why it is NOT in EIP:** EIP assumes the sender IS the message-oriented middleware or has a reliable
+client library. The outbox pattern addresses the gap where the application is a non-MuleSoft service
+that cannot reliably publish to a broker atomically with its own persistence.
+
+**When to use vs. CDC (F):** Prefer CDC (Debezium/Kafka Connect) when you control the DB infrastructure
+and can attach a log reader. Use Transactional Outbox when you don't control the infra or when CDC
+adds too much operational complexity. The outbox pattern is simpler to operate: it just requires a
+table and a scheduled poller.
+
+**MuleSoft role:** Poller — scheduler + db:select on outbox table + anypoint-mq:publish + db:update.
+
+**Key constraints:**
+- `maxConcurrency=1` on the poller — must process rows in creation order; parallel polling causes duplicates
+- Object Store idempotency check as duplicate guard (race condition between poll cycles)
+- Never advance the watermark — outbox uses a `published_at IS NULL` filter, not a watermark
+- Stalled rows (retry_count > maxRetries) are NOT moved to DLQ — they stay in the DB table for ops review
+
+**See:** `standards/scenarios/transactional-outbox.md`
+
+---
+
+### 10B. Reverse ETL (Scenario T)
+
+**The problem it solves:** Data warehouses and ML platforms generate enriched data (customer segments,
+propensity scores, LTV predictions) that must flow back into operational systems (Salesforce, NetSuite,
+Dynamics 365) so teams can act on it. Classic ETL moves data from operational → analytics; Reverse ETL
+moves it back.
+
+**Why it is NOT in EIP:** EIP assumes the message flow is operational-system-to-operational-system.
+The data warehouse as a source of truth for enriched operational data is a post-2018 pattern driven by
+the modern data stack (dbt, Snowflake, Databricks).
+
+**Architectural distinction from ETL/batch:**
+- Pattern E (file-based-ETL) and K (data-migration): operational → warehouse (forward direction)
+- Pattern T (reverse-ETL): warehouse → operational (reverse direction)
+- Pattern D (scheduled-sync): operational ↔ operational (lateral sync)
+- T is the only pattern where a data warehouse is the **source** in MuleSoft
+
+**Key constraints:**
+- JDBC driver for Snowflake/Redshift/BigQuery cannot go in pom.xml — flagged as TODO in scaffold
+- Always use **upsert** (not insert) at the operational system — idempotency by external ID
+- Stale score guard: skip records where `score_date` > staleness threshold (broken model signal)
+- Watermark must NOT advance if the batch fails — next run re-processes the failed window
+- PII in ML scores: log aggregates only; never log individual scores with identifying fields
+
+**MuleSoft role:** Batch processor — scheduler + db:select (warehouse) + transform + upsert (operational system).
+
+**See:** `standards/scenarios/reverse-etl.md`
+
+---
+
+### 10C. AI Gateway (Scenario U)
+
+**The problem it solves:** As multiple internal teams start using LLM APIs (OpenAI, Anthropic, AWS
+Bedrock), AI traffic becomes ungoverned — no cost tracking, no rate limiting, no PII guardrails,
+no model routing, and all API keys embedded in individual applications.
+
+**The solution:** MuleSoft as a centralized AI proxy layer. All LLM calls from all applications route
+through a single managed endpoint that enforces authentication, rate limits per team, PII redaction
+before sending to external LLMs, model routing, and async audit logging.
+
+**Why it is NOT in EIP:** EIP predates LLM APIs. The AI Gateway is a specialized variant of the
+API Gateway / Message Router pattern, but with LLM-specific concerns: token-based cost tracking,
+PII in prompt text, model version routing, and provider fallback.
+
+**Relationship to P (ai-augmented-flow):** Pattern P describes calling an LLM from within a MuleSoft
+flow. The AI Gateway (U) is the governed endpoint that P calls instead of calling the LLM API directly.
+When a client has 3+ teams using AI, upgrade P calls to route through U.
+
+**Key capabilities to implement:**
+1. **Auth + caller identity:** client-id-enforcement; identify team/cost-center per call
+2. **Rate limiting:** Object Store sliding window counter per app per hour
+3. **PII redaction:** regex-based scan + redact before forwarding to external LLM
+4. **Model routing:** normalize model names → route to correct provider config
+5. **Provider-neutral internal API:** callers don't couple to OpenAI/Anthropic schemas
+6. **Response normalization:** OpenAI and Anthropic have different response formats; gateway normalizes
+7. **Async audit log:** prompt hash + token count + cost estimate → MQ audit queue (never log full prompt)
+8. **Circuit breaker + fallback:** LLM provider timeout → try fallback provider or return 504
+
+**Key constraints:**
+- All LLM provider API keys MUST be in Secrets Manager — never in properties files
+- Audit log failure is **write-off** — never let audit MQ publish failure break the primary LLM call
+- PII redaction is MANDATORY before any external LLM call — compliance requirement for regulated clients
+- Rate limit counter uses persistent Object Store with 1-hour TTL sliding window
+- Response timeout must be explicit: LLM calls can take 30+ seconds; default HTTP timeout will fire
+
+**MuleSoft role:** Synchronous proxy — http:listener → enrich/validate → http:request (LLM) → normalize → respond.
+
+**See:** `standards/scenarios/ai-gateway.md`
+
+---
+
+### 10D. Notable Gaps (Documented, Not Implemented as Scenarios)
+
+These patterns are real but either operate below MuleSoft's layer or are too infrastructure-specific
+to warrant MuleSoft scenario files. Architects should be aware of them when clients raise them.
+
+#### CQRS (Command Query Responsibility Segregation)
+Separates write model (commands) from read model (queries) with eventual consistency via events.
+MuleSoft's integration role: the event bus between the command side (writes) and the query side
+(read model materialization) uses Patterns B or M. CQRS is an application architecture decision,
+not an integration pattern MuleSoft implements. When a client uses CQRS, MuleSoft is the event relay
+(patterns B, F, M) between the command and query sides.
+
+#### Saga Choreography (vs. Orchestration)
+Pattern H covers saga **orchestration** (central coordinator). Choreography sagas have no central
+coordinator — each service reacts to events and publishes its own. MuleSoft's role in choreography
+sagas is as one of the participants (event subscriber + publisher), not the coordinator. Use Pattern B
+(event-driven) for each choreography saga step. Document the full saga event sequence in architecture.md.
+
+#### Service Mesh (Istio/Linkerd)
+Operates below MuleSoft at the Kubernetes pod networking layer. When `deployment=runtime-fabric` and
+the client runs Istio: the service mesh handles mTLS, retry, and circuit-breaking at the network level.
+**Do NOT duplicate these in MuleSoft flows** — it creates conflicting retry behavior. Document the
+boundary: MuleSoft handles business-layer error handling; Istio handles network-layer reliability.
+
+#### CloudEvents v1.0 (CNCF Standard)
+Vendor-neutral event envelope standard with required fields: `specversion`, `id`, `source`, `type`.
+When integrating with AWS EventBridge, Azure Event Grid, or GCP Pub/Sub, inbound events arrive in
+CloudEvents format. Add a normalizer sub-flow (see Cross-Cutting: Normalizer) to strip the CloudEvents
+envelope and extract the business payload before processing. Document the CloudEvents → canonical
+mapping in architecture.md.
+
+#### AsyncAPI 3.0
+The OpenAPI equivalent for event-driven APIs — describes Kafka topics, MQ queues, WebSockets.
+Currently not natively supported in Anypoint Design Center. Use AsyncAPI as the design-time spec
+for async flows; publish the spec to Exchange manually or via CI/CD. This does not change flow
+implementation — it changes documentation and governance.
+
+---
+
 *Research compiled: 2026-05-10*
-*Sources: EIP canonical (Hohpe & Woolf, 2003, all 65 patterns), intpatt.pdf (Microsoft/Hohpe, 2004, full text), Ramblings articles (Hohpe, 2019–2022), Architecture & Governance survey*
+*Updated: 2026-05-10 — Added Part 10 covering post-EIP patterns (Transactional Outbox, Reverse ETL, AI Gateway, CQRS/Choreography awareness, Service Mesh boundary, CloudEvents, AsyncAPI)*
+*Sources: EIP canonical (Hohpe & Woolf, 2003, all 65 patterns), intpatt.pdf (Microsoft/Hohpe, 2004, full text), Ramblings articles (Hohpe, 2019–2022), Architecture & Governance survey, microservices.io, AWS/Azure prescriptive guidance, CNCF CloudEvents spec, AsyncAPI spec*
 *Review annually — integration landscape evolves; EIP patterns are stable but implementation guidance changes*

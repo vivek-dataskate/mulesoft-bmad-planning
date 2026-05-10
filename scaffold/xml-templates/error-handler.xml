@@ -77,7 +77,7 @@ output application/json
 
         <!-- ── Transient connectivity / timeout → 503 ───────────────────────── -->
         <on-error-continue
-            type="HTTP:CONNECTIVITY,HTTP:TIMEOUT,ANYPOINT-MQ:CONNECTIVITY,DB:CONNECTIVITY,DB:QUERY_EXECUTION"
+            type="HTTP:CONNECTIVITY,HTTP:TIMEOUT,ANYPOINT-MQ:CONNECTIVITY,KAFKA:CONNECTIVITY,DB:CONNECTIVITY,DB:QUERY_EXECUTION,SFTP:CONNECTIVITY,FILE:FILE_NOT_FOUND"
             logException="true"
             doc:name="Connectivity/Timeout Error">
             <ee:transform doc:name="Build 503 Error Envelope">

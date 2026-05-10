@@ -58,8 +58,9 @@ output application/json
     // Example with date format conversion:
     // createdAt: payload.created_date as DateTime { format: "yyyy-MM-dd" } as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
 
-    // Correlation ID always included in target payload for tracing
-    _correlationId: correlationId
+    // Correlation ID included for end-to-end tracing across systems
+    // Use a non-underscore name — underscore-prefixed fields are rejected by some APIs (MongoDB, Elasticsearch)
+    integrationCorrelationId: correlationId
 
     // TODO [OPEN ITEM]: {question from architecture.md} — best guess: {value}
 }

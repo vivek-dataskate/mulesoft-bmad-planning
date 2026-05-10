@@ -2,6 +2,21 @@
   "minMuleVersion": "4.8.0",
   "secureProperties": [
     {{SECURE_PROPERTIES}}
+    /*
+      SECURE_PROPERTIES format: comma-separated quoted property names.
+      Properties listed here are encrypted at rest in CloudHub 2.0 and
+      masked in Runtime Manager logs. List every property that holds a secret.
+
+      Generated example (replace with actual property names from {env}.yaml):
+        "salesforce.consumerSecret",
+        "db.password",
+        "anypoint-mq.clientSecret",
+        "email.smtp.password"
+
+      Rule: include every property name that ends in: password, secret, key, token,
+      passphrase, credential. Do NOT list properties that reference Secrets Manager
+      paths — those resolve at runtime and are never in the property files.
+    */
   ],
   "classLoaderModelLoaderDescriptor": {
     "id": "mule",
