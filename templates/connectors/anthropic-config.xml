@@ -1,0 +1,66 @@
+<!--
+    Connector: Anthropic (Claude)
+    Registry key: anthropic
+    Connector: mule-anthropic-connector 1.0.0  (VERIFY on Exchange — new Winter 2026)
+    Namespace: xmlns:anthropic="http://www.mulesoft.org/schema/mule/anthropic"
+    Schema:    http://www.mulesoft.org/schema/mule/anthropic/current/mule-anthropic.xsd
+    TODO: Verify exact version and availability at https://anypoint.mulesoft.com/exchange/
+    NOTE: If connector not on Exchange, use HTTP connector with Anthropic REST API directly.
+
+    Used in patterns: P (ai-augmented-flow), Q (rag-data-pipeline), R (agentic-mcp-integration)
+    Always secondary to a primary integration pattern.
+
+    Auth: API Key (x-api-key header)
+    Same criticality rules as OpenAI connector:
+      - API key MUST be in Secrets Manager — never in property files
+      - Set timeout — Claude calls can take 10-30s for complex prompts
+      - Fallback on timeout (decisions.json aiIntegration.fallbackOnTimeout)
+      - Never log full prompt/completion (PII risk)
+
+    Properties required in {env}.yaml:
+      anthropic.apiKey       → via Secrets Manager ONLY
+      anthropic.model        → "claude-sonnet-4-6" | "claude-opus-4-7" | "claude-haiku-4-5-20251001"
+      anthropic.timeoutSec   → "30" (from decisions.json aiIntegration.timeoutSeconds)
+-->
+
+    <!-- If using dedicated Anthropic connector (verify on Exchange first) -->
+    <anthropic:config
+        name="Anthropic_Config"
+        doc:name="Anthropic Config">
+        <anthropic:connection
+            apiKey="${anthropic.apiKey}"
+            timeoutSeconds="${anthropic.timeoutSec}"/>
+    </anthropic:config>
+
+    <!--
+        If Anthropic connector unavailable — use HTTP connector directly:
+
+        <http:request-config name="Anthropic_HTTP_Config" doc:name="Anthropic HTTP Config"
+            basePath="/v1">
+            <http:request-connection host="api.anthropic.com" port="443" protocol="HTTPS"/>
+        </http:request-config>
+
+        In flow (Messages API):
+        <http:request config-ref="Anthropic_HTTP_Config" method="POST" path="/messages">
+          <http:headers>#[{
+            "x-api-key": p("anthropic.apiKey"),
+            "anthropic-version": "2023-06-01",
+            "Content-Type": "application/json"
+          }]</http:headers>
+          <http:body>#[output application/json --- {
+            model: p("anthropic.model"),
+            max_tokens: 1024,
+            messages: [{ role: "user", content: payload.prompt }]
+          }]</http:body>
+          <http:response-timeout value="${anthropic.timeoutSec}" unit="SECONDS"/>
+        </http:request>
+
+        Extract response text:
+        <ee:transform>
+          <ee:message>
+            <ee:set-payload>%dw 2.0 output application/json
+---
+payload.content[0].text</ee:set-payload>
+          </ee:message>
+        </ee:transform>
+    -->

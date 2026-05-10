@@ -1,0 +1,47 @@
+<!--
+    Connector: JMS (ActiveMQ / Generic JMS broker)
+    Registry key: jms (activemq)
+    Connector: mule-jms-connector 1.9.0  (org.mule.connectors)
+    Namespace: xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+    Schema:    http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-jms-connector/
+
+    Use when: Client has existing JMS broker (ActiveMQ, IBM MQ via JMS, RabbitMQ via JMS)
+    Prefer Anypoint MQ for new greenfield projects (managed, CloudHub 2.0 native).
+
+    Auth options:
+      A. ActiveMQ basic (username + password)
+      B. SSL/TLS (add keystore/truststore for prod)
+
+    Properties required in {env}.yaml:
+      jms.brokerUrl  → "failover:(tcp://broker1:61616,tcp://broker2:61616)"
+      jms.username   → JMS username
+      jms.password   → via Secrets Manager
+-->
+
+    <jms:config name="JMS_Config" doc:name="JMS Config">
+        <jms:active-mq-connection
+            specification="JMS_2_0"
+            username="${jms.username}"
+            password="${jms.password}">
+            <jms:factory-configuration brokerUrl="${jms.brokerUrl}"/>
+        </jms:active-mq-connection>
+    </jms:config>
+
+    <!--
+        Usage in flows:
+          Consumer:
+            <jms:listener
+              config-ref="JMS_Config"
+              destination="${jms.queue.target}"
+              ackMode="MANUAL"
+              doc:name="JMS Listener"/>
+
+          Publisher:
+            <jms:publish
+              config-ref="JMS_Config"
+              destination="${jms.queue.target}"
+              doc:name="JMS Publish">
+              <jms:message><jms:body>#[output application/json --- payload]</jms:body></jms:message>
+            </jms:publish>
+    -->

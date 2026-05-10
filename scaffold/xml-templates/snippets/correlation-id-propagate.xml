@@ -1,0 +1,53 @@
+<!--
+    Snippet: Correlation ID Propagation
+    Use when making outbound HTTP calls to downstream systems.
+    The Mule runtime auto-propagates correlationId within a flow,
+    but you MUST set X-Correlation-ID on every outbound HTTP request.
+
+    Rules:
+      - correlationId is GENERATED ONCE at the Experience/Process API entry point
+      - Never generate a new correlationId mid-flow
+      - Always include in every log line (use flow logger templates — they already do this)
+      - Set as messageId on MQ publish (see MQ trigger templates)
+      - Never lose correlationId when crossing async boundaries
+
+    Usage:
+      1. For HTTP requests: add the set-variable + http:request with headers block below
+      2. For MQ publish: set messageId="#[correlationId]" on anypoint-mq:publish
+      3. For Kafka publish: set key as correlationId for partition locality
+-->
+
+        <!-- Outbound HTTP with correlation ID propagation -->
+        <http:request
+            config-ref="HTTP_Request_Config"
+            method="{{HTTP_METHOD}}"
+            path="{{HTTP_PATH}}"
+            doc:name="Call {{TARGET_SYSTEM}}">
+            <http:headers><![CDATA[#[{
+    "X-Correlation-ID": correlationId,
+    "Content-Type":     "application/json",
+    "Accept":           "application/json"
+}]]]></http:headers>
+            <!--
+                For async MQ publish, preserve correlationId explicitly:
+                <anypoint-mq:publish
+                    config-ref="Anypoint_MQ_Config"
+                    destination="${mq.queue.target}"
+                    messageId="#[correlationId]">
+                    ...
+                </anypoint-mq:publish>
+            -->
+        </http:request>
+
+        <!--
+            Inbound: extract correlationId from HTTP header (for Experience API entry point)
+
+            <set-variable
+                variableName="correlationId"
+                value="#[attributes.headers['X-Correlation-ID'] default correlationId]"
+                doc:name="Extract Inbound Correlation ID"/>
+
+            For MQ consumers: the correlationId is in attributes.messageId
+            For Kafka consumers: the correlationId is in attributes.headers['X-Correlation-ID']
+                                 or use partition+offset as unique identifier
+        -->

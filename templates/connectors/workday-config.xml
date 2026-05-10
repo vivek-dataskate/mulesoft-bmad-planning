@@ -1,0 +1,53 @@
+<!--
+    Connector: Workday
+    Registry key: workday
+    Connector: mule-workday-connector 16.4.0  (com.mulesoft.connectors)
+    Namespace: xmlns:workday="http://www.mulesoft.org/schema/mule/workday"
+    Schema:    http://www.mulesoft.org/schema/mule/workday/current/mule-workday.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-workday-connector/
+
+    Auth: Basic Auth with ISU (Integration System User)
+      1. Create Integration System User (ISU) in Workday
+      2. Assign Integration System Security Group with minimal permissions
+      3. Test connection with Workday Studio or Postman first
+
+    Workday SOAP API: connector exposes Web Services (Human Resources, Payroll, etc.)
+    Workday REST API: use HTTP connector (Workday's REST API is separate from connector)
+
+    Properties required in {env}.yaml:
+      workday.tenantName  → Workday tenant name (e.g. "acmecorp_impl2")
+      workday.username    → ISU username (format: username@tenant)
+      workday.password    → via Secrets Manager
+      workday.hostName    → "wd2-impl-services1.workday.com" (varies by tenant)
+-->
+
+    <workday:config
+        name="Workday_Config"
+        doc:name="Workday Config">
+        <workday:basic-connection
+            tenantName="${workday.tenantName}"
+            userName="${workday.username}@${workday.tenantName}"
+            password="${workday.password}"
+            hostName="${workday.hostName}"/>
+    </workday:config>
+
+    <!--
+        Usage in flows:
+          Get Workers:
+            <workday:human-resources
+              config-ref="Workday_Config"
+              operation="getWorkers"
+              doc:name="Get Workday Workers"/>
+
+          Put Worker (update):
+            <workday:human-resources
+              config-ref="Workday_Config"
+              operation="putWorker"
+              doc:name="Update Workday Worker">
+              <workday:content>#[payload]</workday:content>
+            </workday:human-resources>
+
+          Note: Workday operations use SOAP under the hood.
+          Response is XML — use DataWeave to transform to JSON canonical form.
+          Workday reference IDs (WIDs) are needed for related objects — pre-fetch and cache.
+    -->

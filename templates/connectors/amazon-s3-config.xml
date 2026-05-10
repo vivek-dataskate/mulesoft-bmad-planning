@@ -1,0 +1,71 @@
+<!--
+    Connector: Amazon S3
+    Registry key: amazon-s3
+    Connector: mule-amazon-s3-connector 5.10.0  (com.mulesoft.connectors)
+    Namespace: xmlns:s3="http://www.mulesoft.org/schema/mule/s3"
+    Schema:    http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-amazon-s3-connector/
+
+    Usage: Primary cloud storage for CloudHub 2.0 (local filesystem is ephemeral).
+    Claim Check pattern: store large payloads (> 1MB) before MQ publish.
+    File ETL: replace SFTP when running fully in AWS.
+
+    Auth options:
+      A. IAM Role (recommended for CloudHub 2.0 running in AWS VPC)
+         → Leave accessKey/secretKey blank — connector uses instance role
+      B. IAM User credentials (for non-AWS environments)
+         → Dedicated service account with least-privilege S3 policy
+
+    Bucket lifecycle policy: Set expiry on claim-check bucket = queue TTL + 24h buffer.
+    Encryption: Enable SSE-S3 or SSE-KMS on all buckets (compliance requirement).
+
+    Properties required in {env}.yaml:
+      s3.accessKey   → AWS access key (leave blank for IAM role; use Secrets Manager)
+      s3.secretKey   → AWS secret key (Secrets Manager)
+      s3.region      → "us-east-1" (or per decisions.json devops.region)
+      s3.bucket.*    → bucket names per use case (see property files)
+-->
+
+    <s3:config
+        name="Amazon_S3_Config"
+        doc:name="Amazon S3 Config">
+        <!-- Option A: IAM role (leave accessKey/secretKey blank) -->
+        <s3:basic-connection
+            accessKey="${s3.accessKey}"
+            secretKey="${s3.secretKey}"
+            region="${s3.region}"/>
+        <!--
+            Option B: IAM role with no credentials (comment out basic-connection):
+            <s3:role-connection region="${s3.region}"/>
+        -->
+    </s3:config>
+
+    <!--
+        Usage in flows:
+          Put object (upload):
+            <s3:put-object
+              config-ref="Amazon_S3_Config"
+              bucketName="${s3.bucket.payloads}"
+              key="#[vars.claimCheckKey]"
+              contentType="application/json">
+              <s3:content>#[output application/json --- payload]</s3:content>
+            </s3:put-object>
+
+          Get object (download):
+            <s3:get-object
+              config-ref="Amazon_S3_Config"
+              bucketName="${s3.bucket.payloads}"
+              key="#[vars.claimCheckKey]"/>
+
+          Delete object (cleanup after claim-check retrieve):
+            <s3:delete-object
+              config-ref="Amazon_S3_Config"
+              bucketName="${s3.bucket.payloads}"
+              key="#[vars.claimCheckKey]"/>
+
+          List objects (for batch file processing):
+            <s3:list-objects
+              config-ref="Amazon_S3_Config"
+              bucketName="${s3.bucket.inbound}"
+              prefix="${s3.prefix.inbound}"/>
+    -->

@@ -1,0 +1,69 @@
+<!--
+    Connector: SAP JCo (ABAP/BAPI/RFC)
+    Registry key: sap
+    Connector: mule-sap-connector 5.9.0  (com.mulesoft.connectors)
+    Namespace: xmlns:sap="http://www.mulesoft.org/schema/mule/sap"
+    Schema:    http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-sap-connector/
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    CRITICAL: SAP JCo connector REQUIRES A SEPARATE MULESOFT LICENSE.
+    Contact MuleSoft before including this connector in any project.
+    The license is NOT included in the standard MuleSoft subscription.
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    Also required: SAP JCo native libraries (platform-specific .so / .dll / .jnilib)
+    These CANNOT go in pom.xml — must be placed in:
+      CloudHub 2.0: Shared Libraries folder in Runtime Manager
+      On-prem/RTF: /opt/mule/lib/user or shared lib directory
+
+    Auth: SAP Logon / RFC connection
+      - System number, client, logon group
+
+    Properties required in {env}.yaml:
+      sap.jco.ashost   → SAP application server hostname (or use mshost for load balancing)
+      sap.jco.sysnr    → System number (e.g. "00")
+      sap.jco.client   → SAP client (e.g. "100")
+      sap.jco.user     → RFC service user
+      sap.jco.passwd   → via Secrets Manager
+      sap.jco.lang     → language code (e.g. "EN")
+
+    For SAP S/4HANA Cloud (no JCo):
+      Use HTTP connector + OData V4 API (see http-generic-config.xml)
+      Authentication: OAuth 2.0 Client Credentials (Communication Arrangement)
+-->
+
+    <!-- TODO: Confirm SAP JCo license before enabling this connector -->
+    <sap:outbound-config
+        name="SAP_Config"
+        doc:name="SAP Config">
+        <sap:simple-connection-provider
+            asHost="${sap.jco.ashost}"
+            systemNumber="${sap.jco.sysnr}"
+            client="${sap.jco.client}"
+            user="${sap.jco.user}"
+            passwd="${sap.jco.passwd}"
+            lang="${sap.jco.lang}"/>
+    </sap:outbound-config>
+
+    <!--
+        Usage in flows:
+          Execute BAPI/RFC function:
+            <sap:execute-qidoc
+              config-ref="SAP_Config"
+              functionName="BAPI_SALESORDER_CREATEFROMDAT2"
+              doc:name="Create SAP Sales Order">
+              <sap:content>#[output application/xml --- payload]</sap:content>
+            </sap:execute-qidoc>
+
+          IDocs:
+            <sap:send
+              config-ref="SAP_Config"
+              type="IDOC"
+              definition="#[payload]"
+              doc:name="Send IDoc to SAP"/>
+
+        Note: SAP field names use SAP naming conventions (all caps, underscores).
+        Build a canonical model and transform in DataWeave.
+        Never expose SAP field names directly to consumers.
+    -->
