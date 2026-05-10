@@ -1,0 +1,148 @@
+# MuleSoft BMAD — PM (John) team overrides
+# Applied on top of .claude/skills/bmad-agent-pm/customize.toml
+# Scalars override; arrays (persistent_facts, principles, activation_steps_*) append.
+
+[agent]
+
+# Load MuleSoft master context, field knowledge, and story template at session start.
+persistent_facts = [
+  "file:{project-root}/docs/PLANNING_CONTEXT.md",
+  "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
+  "file:{project-root}/templates/story-template.md",
+]
+
+# Executed before persona adoption and greeting — load context first.
+activation_steps_prepend = [
+  "Read docs/PLANNING_CONTEXT.md — specifically the Story Generation section (per-flow story count, global stories, acceptance criteria requirements) and the decisions.json schema (flows[] array structure, scaffold.profile, devops.cicd).",
+  "Read docs/FIELD_KNOWLEDGE.md. Note any entries tagged 'verified' or 'promoted-to-standard' that affect story generation for this project's patterns or systems. Apply verified entries as active guidance.",
+]
+
+# MuleSoft-specific principles appended to John's defaults.
+principles = [
+  "MuleSoft: Read decisions.json flows[] for the client. Generate ~5 stories per flow: (1) API spec creation, (2) flow XML implementation, (3) DataWeave transform (.dwl), (4) MUnit tests, (5) monitoring alerts.",
+
+  "MuleSoft: Read projects/{client}/architecture.md before generating per-flow stories. Extract for each flow: Field Mapping table, Business Rules section, and Open Items section. Story 3 (DataWeave) must list confirmed field mappings and include Open Item TODO lines. Story 2 (Flow Implementation) must list Open Items as 'Confirm with client before coding' items.",
+
+  "MuleSoft Coverage Floors by Pattern (apply to every Story 4 MUnit AC):\n  request-reply (A), api-aggregation (I):           80% minimum\n  event-driven (B), pubsub-fanout (M):               75% minimum\n  batch (C), data-migration (K):                     75% minimum\n  outbound-notification (N):                         60% minimum\n  all other patterns (D,E,F,G,H,J,L,O,P,Q,R):       80% minimum\n  Never use a floor not in this list.",
+
+  "MuleSoft Global Stories — generate these once per project:\n  Global 1: Configure global error handler + DLQ in error-handler.xml\n  Global 2: Set up Anypoint MQ queues with TTL and depth alerts (if async flows in decisions.json)\n  Global 3: Configure Secrets Manager\n  Global 4: Set up CI/CD pipeline (per decisions.json devops.cicd)\n  Global 5: Verify Anypoint Visualizer layer diagram\n  Global 6 (if scaffold.profile=enterprise or regulated): Wire Tap audit flow setup\n  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow\n  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup\n  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 client confirmation story",
+
+  "MuleSoft Scheduled-Sync flows (pattern D): always add a dedicated AC to Story 2 — 'watermarking configured using persistent Object Store (not in-memory); scheduling.watermarking=true in decisions.json.' Do not rely on the global error-handler story to cover this.",
+
+  "MuleSoft Story 1 API spec: use OAS 3.0 YAML as the default. If client's existing API platform uses RAML (noted in prd.md or decisions.json), generate RAML instead. Never assume — check first.",
+
+  "MuleSoft Security-tier stories: if decisions.json security.level=regulated or government, generate additional ACs in Story 2 (Flow Implementation) covering: mTLS configuration, JWT validation policy on Flex Gateway, field-level encryption for PII fields listed in architecture.md. These are not separate stories — they are ACs within the existing story.",
+
+  "MuleSoft: Decisions-first. All decisions are already in decisions.json and architecture.md. Do NOT ask the client clarifying questions — the upstream agents resolved them. If decisions.json is missing a required field, flag it as a blocker and tell the user to re-run the Architect agent.",
+
+  "MuleSoft: Apply FIELD_KNOWLEDGE.md verified entries as active guidance. Flag observation-status entries if situation matches — do not auto-apply.",
+]
+
+# MuleSoft-specific menu item added to John's standard menu.
+
+[[agent.menu]]
+code = "MS"
+description = "Generate MuleSoft sprint stories from decisions.json — per-flow + global stories"
+prompt = """
+Apply the MuleSoft BMAD PM story generation workflow from docs/PLANNING_CONTEXT.md — Story Generation section.
+Use templates/story-template.md for story structure and AC format.
+
+Pre-flight:
+- Confirm client folder (projects/{client}/) and that decisions.json and architecture.md are present.
+- Read decisions.json: note scaffold.profile, primaryPattern, all flows[], devops.cicd, errorHandling.invalidMessageChannel, scheduling.watermarking.
+- Read architecture.md: extract per-flow Field Mapping tables, Business Rules, and Open Items.
+- Note any FIELD_KNOWLEDGE.md verified entries affecting story generation.
+
+Story ID scheme: use {CLIENT}-{NNN} (e.g. LEOLABS-001, LEOLABS-002). Number globally across all stories sequentially.
+
+Per-flow stories (generate for each entry in decisions.json flows[]):
+
+  Story 1: Create API spec (OAS 3.0 YAML / RAML per client platform) + publish to Anypoint Exchange
+    AC: Spec covers all request/response schemas. X-Correlation-ID header defined. Published to Exchange.
+    AC: APIkit router generated from spec (not hand-coded). Tech lead reviewed and approved.
+
+  Story 2: Implement flow XML in src/main/mule/{domain}-flows.xml
+    AC: Correct API-Led layer (system/process/experience per decisions.json flows[].layer).
+    AC: Global error handler wired (global-error-handler from error-handler.xml).
+    AC: Naming follows {action}-{entity}-flow convention (kebab-case).
+    AC: X-Correlation-ID propagated; Mule correlationId set at entry; never regenerated mid-flow.
+    AC: Validation occurs BEFORE any downstream call. Validation failures route to invalid-message-channel, not DLQ.
+    AC: Confirm Open Items from architecture.md with client before coding (list each Open Item explicitly).
+    If pattern=D (scheduled-sync): AC: watermark using persistent Object Store configured.
+    If security.level=regulated or government: AC: mTLS, JWT validation, field encryption for PII fields.
+    If flow payload may exceed 1MB: AC: Claim Check stub implemented (write to S3/Blob, key=correlationId).
+
+  Story 3: Complete DataWeave transform in src/main/resources/dwl/{verb}-{source}-to-{target}.dwl
+    AC: All confirmed field mappings from architecture.md Field Mapping table implemented.
+    AC: Each Open Item field has: // TODO [OPEN ITEM]: {question} — confirm with client — best guess: {value}
+    AC: Business Rules from architecture.md encoded in transform.
+    AC: No inline DataWeave in flow XML — all logic in .dwl file.
+    AC: Input content-type declared. indent=false for large payload output.
+
+  Story 4: Write MUnit tests in src/test/munit/{flow-name}-test.xml
+    AC: Happy path: mock all connector operations; assert response shape and downstream call.
+    AC: Error scenario 1: downstream unavailable → verify retry-then-DLQ routing.
+    AC: Error scenario 2: invalid input → verify route to invalid-message-channel (NOT DLQ).
+    AC: Coverage meets floor for this pattern (see coverage table in principles).
+    AC: No live calls to external systems. CI/CD gate passes before story is closed.
+
+  Story 5: Configure Anypoint Monitoring alerts for this flow
+    AC: DLQ depth >0 → HIGH → page on-call.
+    AC: Error rate >5% in 5 min → HIGH.
+    AC: p95 latency >3s → MEDIUM.
+    AC: Memory >80% → MEDIUM.
+    AC: Auth refresh failure → HIGH.
+    AC: MQ queue depth >80% → MEDIUM (if async flow).
+    AC: MQ queue depth >90% → HIGH (if async flow).
+    AC: Alert channels configured (email/Slack/PagerDuty per decisions.json notifications.*).
+
+Global stories (generate once per project):
+
+  Global 1: Configure global error handler + DLQ
+    AC: error-handler.xml catches ANY exception. Error envelope: {correlationId, errorCode, message, timestamp, failingComponent}.
+    AC: DLQ routing works after max retries (per decisions.json errorHandling.maxRetries).
+    AC: Stack traces never exposed. Notification failures wrapped in on-error-continue.
+
+  Global 2: Set up Anypoint MQ queues with TTL and depth alerts (if async flows)
+    AC: All queues created per environment. TTL set per event category:
+      Critical business events → 7 days (168h). Standard events → 24h. Notification → 1h. CDC → 4h. Monitoring → 72h.
+    AC: DLQ paired with each queue ({queue-name}-dlq). maxConcurrency set on all subscribers.
+    AC: Monitoring alerts: >80% depth=MEDIUM, >90%=HIGH, 100%=CRITICAL (tail drop), DLQ>0=HIGH.
+    AC: Alert notification channels (email/Slack/PagerDuty) configured.
+
+  Global 3: Configure Secrets Manager
+    AC: All credentials reference Secrets Manager via ${secrets.*}. No hardcoded values in any properties file.
+    AC: Dev and prod secrets in separate namespaces.
+
+  Global 4: Set up CI/CD pipeline (per decisions.json devops.cicd)
+    AC: Pipeline runs on PR (test only) and push to main (test + deploy).
+    AC: Uses Java 17 + mule-maven-plugin. MUnit coverage gate fails pipeline if below floor.
+    AC: Deploys to CloudHub 2.0, region from decisions.json devops.region.
+    AC: Environments match decisions.json devops.environments. Prod requires manual approval.
+
+  Global 5: Verify Anypoint Visualizer layer diagram
+    AC: anypoint.platform.visualizer.layer property set in mule-artifact.json for each API application.
+    AC: system APIs=System, process APIs=Process, experience APIs=Experience.
+    AC: No cross-layer violations. Diagram reviewed; screenshot attached.
+
+  Global 6 (if scaffold.profile=enterprise or regulated): Wire Tap audit flow
+    AC: Async wire-tap publish to {domain}-audit-queue in error-handler.xml or global async block.
+    AC: Every primary flow routes a copy to audit queue — no impact on primary flow latency.
+
+  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow
+    AC: PII fields listed in architecture.md are encrypted at rest using Cryptography module.
+    AC: Audit-trail flow publishes to separate audit store on every mutation.
+    AC: Secrets Manager holds encryption keys — never in properties files.
+
+  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup
+    AC: {domain}-invalid-messages-queue created. Validation failures (structural, schema, missing required)
+        route here BEFORE any downstream call — never to DLQ.
+
+  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 contract confirmation
+    AC: Each Open Gap item in api-discovery/{system}-contract.md is answered by client by end of Sprint 1 Day 2.
+    AC: Developer updates {system}-contract.md with confirmed values. DWL Open Items resolved.
+
+Output to projects/{client}/stories.md.
+
+Which client should I generate stories for?
+"""

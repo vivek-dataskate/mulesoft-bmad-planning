@@ -154,12 +154,12 @@ mulesoft-bmad-planning/
   │     ├── PLANNING_CONTEXT.md       ← this file
   │     ├── CHUNK_PROGRESS.md
   │     └── PATTERNS_RESEARCH.md      ← required reading for Architect Agent
-  ├── .bmad/
-  ├── .claude/skills/
-  │     ├── bmad-agent-analyst/
-  │     ├── bmad-agent-architect/
-  │     ├── bmad-agent-pm/
-  │     └── bmad-agent-dev/
+  ├── _bmad/
+  │     └── custom/
+  │           ├── bmad-agent-analyst.toml   ← Analyst (Mary) team overrides
+  │           ├── bmad-agent-architect.toml ← Architect (Winston) team overrides
+  │           ├── bmad-agent-pm.toml        ← PM (John) team overrides
+  │           └── bmad-agent-dev.toml       ← Dev (Amelia) team overrides
   ├── standards/
   │     ├── MULESOFT_DESIGN_STANDARDS.md
   │     ├── decisions-schema.json
@@ -549,9 +549,17 @@ Every MQ consumer MUST implement idempotency. Duplicates will occur — guarante
 
 ```
 Key: {consumer-prefix}-{messageId}
-Store: Object Store (persistent), TTL = 24 hours (match or exceed message TTL)
+Store: Object Store (persistent)
+TTL: must EQUAL or EXCEED the queue's messageTtl (not a fixed 24h default)
+     critical events (messageTtl=168h)  → deduplicationTtlMinutes=10080 (7 days)
+     standard events (messageTtl=24h)   → deduplicationTtlMinutes=1440  (24 hours)
+     notification events (messageTtl=1h)→ deduplicationTtlMinutes=60    (1 hour)
+     CDC events (messageTtl=4h)         → deduplicationTtlMinutes=240   (4 hours)
 Action on duplicate: ACK and skip (do NOT re-process)
 ```
+
+**Architect MUST write decisions.json flowControl.deduplicationTtlMinutes = messageTtlHours × 60.**
+Never leave at the schema default of 60 minutes — that is shorter than every standard message TTL.
 
 Failure to implement idempotency in async flows is a P0 bug.
 
@@ -1441,21 +1449,26 @@ CHUNK 3 — Scenario Files             [ ] REDO
     - standards/scenarios/agentic-mcp-integration.md (R)
 
 CHUNK 4 — BMAD Agent Customizations  [ ] NOT STARTED
-  4 agent instruction files:
-    - .claude/skills/bmad-agent-analyst/
-        Must include: API Contract Discovery Protocol trigger logic
+  4 agent instruction files (BMAD team override location: _bmad/custom/):
+    - _bmad/custom/bmad-agent-analyst.toml
+        Must include: API Contract Discovery Protocol trigger logic (both conditions)
         Must include: reads docs/FIELD_KNOWLEDGE.md at session start
         Must include: produces api-discovery/{system}-contract.md per undocumented system
-    - .claude/skills/bmad-agent-architect/
+    - _bmad/custom/bmad-agent-architect.toml
         Must include: reads PATTERNS_RESEARCH.md before decision tree
         Must include: reads FIELD_KNOWLEDGE.md — applies verified entries
         Must include: checks FIELD_KNOWLEDGE.md entries for matched systems before Level 1
         Must include: writes scaffold.profile to decisions.json
-    - .claude/skills/bmad-agent-pm/
+        Must include: per-class TTL selection (critical=7d, standard=24h, notification=1h, CDC=4h, monitoring=72h)
+        Must include: compensation strategy decision rule (financial/provisioning/compliance → saga)
+        Must include: EDA fit assessment mandate when Messaging style selected
+    - _bmad/custom/bmad-agent-pm.toml
         Must include: reads FIELD_KNOWLEDGE.md at session start
-    - .claude/skills/bmad-agent-dev/
+        Must include: reads architecture.md for Field Mapping / Business Rules / Open Items per flow
+    - _bmad/custom/bmad-agent-dev.toml
         Must include: reads FIELD_KNOWLEDGE.md at session start
         Must include: references api-discovery/{system}-contract.md if present
+        Must include: idempotency TTL = max(messageTtlHours, 24) hours — never hardcoded 24h for critical queues
 
 CHUNK 5 — BMAD Templates             [ ] NOT STARTED
   templates/prd-template.md

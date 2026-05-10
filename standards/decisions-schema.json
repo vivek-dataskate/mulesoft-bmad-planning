@@ -8,16 +8,17 @@
   },
 
   "integration": {
-    "primaryPattern": "",
+    "integrationStyle": "messaging|rpc|file-transfer|shared-db|hybrid",
+    "primaryPattern": "request-reply|event-driven|batch|scheduled-sync|file-based-etl|cdc-streaming|b2b-edi|process-orchestration|api-aggregation|webhook-ingestion|data-migration|streaming-pipeline|pubsub-fanout|outbound-notification|hybrid|ai-augmented-flow|rag-data-pipeline|agentic-mcp-integration",
     "secondaryPatterns": [],
-    "direction": "unidirectional | bidirectional",
+    "direction": "unidirectional|bidirectional",
     "flows": [
       {
         "name": "",
-        "layer": "system | process | experience",
+        "layer": "system|process|experience",
         "source": "",
         "target": "",
-        "trigger": "http | scheduler | platform-event | mq-subscriber | cdc | sftp | db-poll",
+        "trigger": "http|scheduler|platform-event|mq-subscriber|cdc|sftp|db-poll",
         "description": ""
       }
     ]
@@ -33,7 +34,6 @@
 
   "systems": {
     "connectors": [],
-    "exchangeConnectors": {},
     "customSystems": {},
     "database": null,
     "nosql": null
@@ -50,20 +50,43 @@
   },
 
   "errorHandling": {
-    "strategy": "retry-then-dlq | fail-fast | retry-only",
+    "strategy": "retry-then-dlq|fail-fast|retry-only",
+    "compensationStrategy": "write-off|retry|compensating-transaction",
     "maxRetries": 3,
-    "backoff": "fixed | exponential",
+    "backoff": "fixed|exponential",
     "dlq": true,
     "dlqName": "",
     "retryQueueName": "",
+    "invalidMessageChannel": false,
+    "invalidMessageChannelName": "",
     "errorEnvelope": true
+  },
+
+  "flowControl": {
+    "direction": "push|pull|hybrid",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "queueDepthAlertPct": 80,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
+  },
+
+  "aiIntegration": {
+    "enabled": false,
+    "provider": "openai|anthropic|bedrock|gemini|azure-openai",
+    "model": "",
+    "useCase": "extraction|classification|semantic-routing|enrichment|embedding|generation",
+    "timeoutSeconds": 30,
+    "fallbackOnTimeout": true,
+    "storeEmbeddingsIn": "pinecone|weaviate|pgvector|opensearch|none"
   },
 
   "observability": {
     "anypointMonitoring": true,
     "customDashboard": false,
     "businessEvents": false,
-    "externalPlatform": "null | splunk | datadog | azure-monitor | opentelemetry",
+    "externalPlatform": "null|splunk|datadog|azure-monitor|opentelemetry",
     "logLevel": {
       "local": "DEBUG",
       "dev": "DEBUG",
@@ -84,10 +107,10 @@
 
   "scheduling": {
     "required": false,
-    "type": "cron | fixed-frequency",
+    "type": "cron|fixed-frequency",
     "expression": null,
     "watermarking": false,
-    "objectStore": "in-memory | persistent"
+    "objectStore": "in-memory|persistent"
   },
 
   "clientFacing": {
@@ -99,12 +122,12 @@
   },
 
   "devops": {
-    "cicd": "github-actions | azure-devops | jenkins | none",
+    "cicd": "github-actions|azure-devops|jenkins|none",
     "environments": ["dev", "prod"],
     "munitRequired": true,
     "munitCoverage": 80,
     "exchangePublish": false,
-    "deployment": "cloudhub2 | runtime-fabric | hybrid",
+    "deployment": "cloudhub2|runtime-fabric|hybrid",
     "region": "us-east-1"
   },
 
@@ -112,11 +135,14 @@
     "runtime": "4.8.0",
     "java": "17",
     "groupId": "com.yourcompany",
+    "profile": "minimal|standard|enterprise|regulated",
     "apiLedLayers": [],
     "generateMunit": true,
     "generateCicd": true,
     "generateNotifications": false,
     "generateScheduler": false,
-    "generateWatermark": false
+    "generateWatermark": false,
+    "generateFlowControl": false,
+    "generateInvalidMessageChannel": false
   }
 }
