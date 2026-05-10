@@ -1,8 +1,8 @@
 # Story Template: Configure Secrets Manager
 
 **Story Type:** Global Infrastructure / Security
-**When to include:** Always — every project, generated once
-**Priority:** P0 — required before any credentials are committed
+**When to include:** Always for `regulated` and `government` profiles (mandatory). Recommended for `internal` and `partner` — scaffold generates a commented-out template block; architect opts in by setting `decisions.json security.secretsManager = true`.
+**Priority:** P0 for regulated|government. P1 (recommended) for internal|partner.
 **Standard:** `standards/MULESOFT_DESIGN_STANDARDS.md → Security Tiers`
 **Scaffold Files:** `src/main/mule/global-config.xml`, `src/main/resources/properties/*.yaml`
 

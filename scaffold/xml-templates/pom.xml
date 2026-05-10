@@ -78,17 +78,37 @@
                     <coverage>
                         <runCoverage>true</runCoverage>
                         <failBuild>true</failBuild>
-                        <!-- Coverage floor set per pattern — see decisions.json scaffold.munitCoverage -->
+                        <!--
+                            Coverage floor set per primary pattern (decisions.json scaffold.munitCoverage):
+                              request-reply, api-aggregation:    80
+                              event-driven, pubsub-fanout:       75
+                              batch, data-migration:             75
+                              outbound-notification:             60
+                              all others:                        80
+                            For hybrid patterns: use the LOWEST floor of any included pattern.
+
+                            requiredApplicationCoverage = aggregate floor ({{munitCoverage}})
+                            requiredFlowCoverage        = per-flow floor — set 5pts below aggregate
+                                                          to allow some flows to be below the aggregate
+                                                          while still enforcing the overall standard.
+                            requiredResourceCoverage    = same as application floor (per XML file)
+
+                            What IS counted: DataWeave transforms, choice branches, retry paths,
+                                             idempotency check branches (both when/otherwise).
+                            What is EXCLUDED: connector operation calls (mocked in MUnit),
+                                              logger steps, error handler re-raise steps.
+                        -->
                         <requiredApplicationCoverage>{{munitCoverage}}</requiredApplicationCoverage>
                         <requiredResourceCoverage>{{munitCoverage}}</requiredResourceCoverage>
-                        <requiredFlowCoverage>{{munitCoverage}}</requiredFlowCoverage>
+                        <requiredFlowCoverage>{{munitCoveragePerFlow}}</requiredFlowCoverage>
                         <formats>
                             <format>console</format>
                             <format>html</format>
                         </formats>
-                        <!-- Connector operations are excluded from coverage — test logic, not connector -->
+                        <!-- Exclude global config flows and error handler from coverage (infrastructure, not logic) -->
                         <ignoreFlows>
                             <ignoreFlow>.*-config.*</ignoreFlow>
+                            <ignoreFlow>Global_Error_Handler</ignoreFlow>
                         </ignoreFlows>
                     </coverage>
                 </configuration>
