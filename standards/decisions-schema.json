@@ -1,0 +1,122 @@
+{
+  "project": {
+    "name": "",
+    "client": "",
+    "description": "",
+    "generatedAt": "",
+    "bmadVersion": "6.6.0"
+  },
+
+  "integration": {
+    "primaryPattern": "",
+    "secondaryPatterns": [],
+    "direction": "unidirectional | bidirectional",
+    "flows": [
+      {
+        "name": "",
+        "layer": "system | process | experience",
+        "source": "",
+        "target": "",
+        "trigger": "http | scheduler | platform-event | mq-subscriber | cdc | sftp | db-poll",
+        "description": ""
+      }
+    ]
+  },
+
+  "nfr": {
+    "volume": "low | medium | high | bulk",
+    "latency": "under-1s | under-3s | under-10s | async-ok",
+    "frequency": "real-time | scheduled | triggered | one-time",
+    "availability": "best-effort | 99.9 | 99.99",
+    "throughput": "low | medium | high | very-high"
+  },
+
+  "systems": {
+    "connectors": [],
+    "exchangeConnectors": {},
+    "customSystems": {},
+    "database": null,
+    "nosql": null
+  },
+
+  "security": {
+    "level": "internal | partner | regulated | government",
+    "apiAuth": "client-id | oauth2-client-credentials | jwt | mtls",
+    "gatewayPolicies": [],
+    "secretsManager": true,
+    "fieldEncryption": false,
+    "dataMasking": true,
+    "mtls": false
+  },
+
+  "errorHandling": {
+    "strategy": "retry-then-dlq | fail-fast | retry-only",
+    "maxRetries": 3,
+    "backoff": "fixed | exponential",
+    "dlq": true,
+    "dlqName": "",
+    "retryQueueName": "",
+    "errorEnvelope": true
+  },
+
+  "observability": {
+    "anypointMonitoring": true,
+    "customDashboard": false,
+    "businessEvents": false,
+    "externalPlatform": "null | splunk | datadog | azure-monitor | opentelemetry",
+    "logLevel": {
+      "local": "DEBUG",
+      "dev": "DEBUG",
+      "uat": "INFO",
+      "prod": "WARN"
+    },
+    "alerts": []
+  },
+
+  "notifications": {
+    "email": false,
+    "sms": false,
+    "slack": false,
+    "teams": false,
+    "slackWebhook": null,
+    "emailRecipients": []
+  },
+
+  "scheduling": {
+    "required": false,
+    "type": "cron | fixed-frequency",
+    "expression": null,
+    "watermarking": false,
+    "objectStore": "in-memory | persistent"
+  },
+
+  "clientFacing": {
+    "operationsDashboard": false,
+    "businessReporting": false,
+    "auditTrail": false,
+    "selfServicePortal": false,
+    "uxFrontend": false
+  },
+
+  "devops": {
+    "cicd": "github-actions | azure-devops | jenkins | none",
+    "environments": ["dev", "prod"],
+    "munitRequired": true,
+    "munitCoverage": 80,
+    "exchangePublish": false,
+    "deployment": "cloudhub2 | runtime-fabric | hybrid",
+    "region": "us-east-1"
+  },
+
+  "scaffold": {
+    "runtime": "4.8.0",
+    "java": "17",
+    "groupId": "com.yourcompany",
+    "apiLedLayers": [],
+    "generateMunit": true,
+    "generateCicd": true,
+    "generateNotifications": false,
+    "generateScheduler": false,
+    "generateWatermark": false
+  }
+}
