@@ -133,6 +133,23 @@ R. agentic-mcp-integration → MuleSoft APIs exposed as tools for AI agents (MCP
                             Agent is the caller; MuleSoft is the governed integration layer
                             Style: RPC (MuleSoft as server)
                             See: standards/scenarios/agentic-mcp-integration.md
+
+S. transactional-outbox   → guarantee DB write + event publish atomically
+                            MuleSoft polls outbox table; publishes to MQ; marks as published
+                            Solves dual-write problem when source app is NOT MuleSoft
+                            Style: Messaging
+                            See: standards/scenarios/transactional-outbox.md
+
+T. reverse-etl            → data warehouse enriched data → operational CRM/ERP
+                            ML scores, segments, KPIs from warehouse pushed to Salesforce/NetSuite
+                            Directional inverse of ETL (patterns E, C, K)
+                            Style: Messaging or RPC
+                            See: standards/scenarios/reverse-etl.md
+
+U. ai-gateway             → centralized LLM proxy: rate-limit, PII-redact, model-route, cost-track
+                            All AI traffic from all teams routes through a single governed endpoint
+                            Style: RPC (MuleSoft as proxy)
+                            See: standards/scenarios/ai-gateway.md
 ```
 
 ### Pattern Decision Guide
@@ -154,6 +171,9 @@ Just send an alert or email?            → N (outbound-notification)
 LLM/AI call inside a flow?              → P (ai-augmented-flow, as secondary pattern)
 Building knowledge base for AI?         → Q (rag-data-pipeline)
 AI agent calling your APIs as tools?    → R (agentic-mcp-integration)
+App writes to DB + must publish event?  → S (transactional-outbox)
+Warehouse scores/segments → CRM/ERP?   → T (reverse-etl)
+Multiple teams calling LLMs ungoverned? → U (ai-gateway)
 None fits cleanly?                      → O (hybrid — must list secondaryPatterns)
 ```
 
@@ -163,6 +183,7 @@ None fits cleanly?                      → O (hybrid — must list secondaryPat
 - `secondaryPatterns` is an array; list in data-flow sequence order.
 - If HYBRID, document which flows map to which secondary pattern in `integration.flows`.
 - Patterns P and Q are **always secondary** — they enhance a primary pattern, never replace one.
+- Pattern U (ai-gateway) is a primary pattern — it is a standalone governed service, not a secondary enhancement.
 
 ---
 

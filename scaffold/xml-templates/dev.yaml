@@ -9,9 +9,11 @@ http:
   port: "8081"
 
 # Scheduler
+# Cron expression is a literal here (dev default). Override per-environment in
+# Runtime Manager > Application Properties (key: scheduler.cron) for uat/prod.
 scheduler:
-  cron: "${scheduler.cron.dev}"           # Set in Runtime Manager app properties
-  frequencySeconds: "60"                  # Poll every 60s in dev
+  cron: "0 0/5 * * * ?"                  # Every 5 min in dev — override in Runtime Manager for prod
+  frequencySeconds: "60"                  # Poll every 60s in dev (db-poll trigger)
 
 # MQ Queue names — dev suffix on all queues
 mq:

@@ -117,26 +117,36 @@ CHUNK 6 — Story Library  [x] COMPLETE (2026-05-10)
                 munit-tests (coverage floors + pattern-specific extra test cases), monitoring-alerts
   Each file: conditions, priority, full AC set, pattern-conditional rows, implementation notes
 
-CHUNK 7 — XML+DWL Tmpl   [x] COMPLETE (2026-05-10)
+CHUNK 7 — XML+DWL Tmpl   [x] COMPLETE (2026-05-10) + AUDIT FIXED (2026-05-10)
   scaffold/xml-templates/ (13 core files):
     pom.xml, mule-artifact.json, global-config.xml, error-handler.xml,
     flows-base.xml, munit-base.xml, oas-spec.yaml, transform.dwl, deploy.yml,
     local.yaml, dev.yaml, uat.yaml, prod.yaml
-  scaffold/xml-templates/triggers/ (6 files — one per trigger type):
+  scaffold/xml-templates/triggers/ (6 original + 3 new = 9 trigger templates):
     http-listener.xml, scheduler.xml, mq-subscriber.xml,
     kafka-listener.xml, sftp-on-new-file.xml, db-poll.xml
+    [NEW] batch-scope.xml          — patterns B/C/K; scheduler + batch:job Steps 1+2 + on-complete watermark
+    [NEW] scatter-gather.xml       — pattern I (api-aggregation); per-route target vars + composition DWL
+    [NEW] process-orchestration.xml — pattern H (saga); 3 flows: initiate + process + status polling
   scaffold/xml-templates/snippets/ (6 cross-cutting pattern snippets):
     idempotency-check.xml, wire-tap.xml, invalid-message-channel-route.xml,
     claim-check-store.xml, claim-check-retrieve.xml, correlation-id-propagate.xml
-  templates/connectors/ (24 connector config stubs):
+  templates/connectors/ (24 original + 4 new = 28 connector config stubs):
     http-listener, http-generic, soap-generic, anypoint-mq, salesforce,
     netsuite, database (mysql/pg/mssql/oracle variants), object-store,
     sftp, amazon-s3, email, kafka, servicenow, workday, jira, sap,
     jms, amazon-sqs, azure-service-bus, azure-blob, mongodb,
     openai, anthropic, dynamics365
+    [NEW] slack-config.xml         — Slack Bot Token + HTTP webhook alternative for simple notifications
+    [NEW] redis-config.xml         — Redis non-cluster; token cache, rate-limit, cross-app idempotency
+    [NEW] amqp-config.xml          — AMQP/RabbitMQ plain + AMQPS (TLS); DLX config note
+    [NEW] ftp-config.xml           — Plain FTP + FTPS option; SFTP-preferred security warning
+  scaffold/check-registry-freshness.js [NEW]:
+    Node.js script; reads connector-registry.json; GREEN/YELLOW/RED by days since lastVerified;
+    exits 1 if any RED connector (>60d); referenced in PLANNING_CONTEXT.md monthly task
   Standards enforced in every template:
     - Idempotency TTL = messageTtlHours × 60 (never hardcoded 24h)
-    - Wire tap in async + on-error-continue (never affects primary flow)
+    - Wire tap in async + try + error-handler (FK-009: on-error-continue must be inside error-handler, not bare in async)
     - Email/notification send in async + on-error-continue
     - MANUAL ack mode on all MQ subscribers
     - Watermark stored in persistent Object Store (not in-memory)
@@ -144,6 +154,45 @@ CHUNK 7 — XML+DWL Tmpl   [x] COMPLETE (2026-05-10)
     - SAP JCo license warning in sap-config.xml
     - CloudHub 2.0 ephemeral filesystem note in sftp/file configs
     - AI API key must be in Secrets Manager (noted in openai/anthropic configs)
+
+  AUDIT FIXES (2026-05-10) — adversarial audit pass after initial chunk 7 commit:
+  CRITICAL fixes:
+    wire-tap.xml               — on-error-continue was bare child of async (invalid Mule 4 XML → FK-009)
+                                 Fixed: wrapped publish + error-handler in try scope
+                                 Also added real PII field masking DataWeave (was a comment placeholder)
+    munit-base.xml             — expectedErrorType="MULE:COMPOSITE_ROUTING" always fails when
+                                 Global_Error_Handler uses on-error-continue (FK-011)
+                                 Fixed: removed expectedErrorType; assert on vars.httpStatus + payload.errorCode
+    claim-check-retrieve.xml   — output application/java produces byte[] not JSON object (FK-012)
+                                 Fixed: changed to output application/json
+    dev.yaml                   — cron: "${scheduler.cron.dev}" self-referential property → startup failure
+                                 Fixed: literal cron "0 0/5 * * * ?" with Runtime Manager override note
+    uat.yaml                   — same self-referential cron → Fixed: "0 0 * * * ?" (hourly)
+    prod.yaml                  — self-referential cron AND frequencySeconds → Fixed: literal values
+  HIGH fixes:
+    http-listener.xml          — set-variable does not update Mule event correlationId (FK-010)
+                                 Fixed: replaced with set-correlation-id (Mule 4.6+ element)
+    global-config.xml          — no Secrets Manager block; regulated/government profile had no config
+                                 Fixed: added {{#if SECRETS_MANAGER_ENABLED}} conditional with AWS + Azure options
+    mule-artifact.json         — SECURE_PROPERTIES format undocumented; devs guess incorrectly
+                                 Fixed: added comment block with format rules and example values
+    oas-spec.yaml              — client_secret as path param violates OAS 3.0; no 500 response; missing clientSecretScheme
+                                 Fixed: complete rewrite with proper securitySchemes, 500 response, X-Correlation-ID headers
+    deploy.yml                 — project built twice (no artifact hand-off); no develop branch UAT trigger
+                                 Fixed: upload-artifact after build, download-artifact before deploy; added develop trigger
+    pom.xml                    — coverage floor doc incomplete; Global_Error_Handler not in ignoreFlows
+                                 Fixed: added {{munitCoveragePerFlow}} token; added Global_Error_Handler to ignoreFlows
+    invalid-message-channel-route.xml — bare on-error-continue context missing; PII masking absent
+                                 Fixed: complete rewrite with full usage diagram, correct flow wrapping context, PII masking
+  MEDIUM fixes:
+    error-handler.xml          — missing KAFKA:CONNECTIVITY, SFTP:CONNECTIVITY, FILE:FILE_NOT_FOUND error types
+                                 Fixed: added to connectivity/timeout handler type list
+    db-poll.xml                — foreach + watermark not wrapped in try; watermark could advance on partial failure (FK-007)
+                                 Fixed: wrapped foreach in try/error-handler; watermark only advances on clean exit
+    transform.dwl              — _correlationId field name (underscore prefix) rejected by MongoDB/Elasticsearch
+                                 Fixed: renamed to integrationCorrelationId
+    mq-subscriber.xml          — ACK/NACK behavior undocumented; devs omit NACK on error
+                                 Fixed: added full ACK/NACK behavior documentation with all three paths
 
 CHUNK 8 — Scaffold Gen   [ ] NOT STARTED
   File: scaffold/generate.js
@@ -206,5 +255,30 @@ CHUNK 10 — E2E Test      [ ] NOT STARTED
     - pom.xml has correct connector versions and TODO comments
     - deploy.yml generated (LeoLabs uses github-actions)
 
+PATTERN EXPANSION 2026-05-10 — Modern Integration Patterns (A-R → A-U):
+  Research: EIP-era patterns compared against microservices, data integration, and AI agent standards.
+  Added 3 new scenario files + updated all reference docs. NO full chunk re-runs required.
+
+  NEW SCENARIO FILES:
+    standards/scenarios/transactional-outbox.md   (S) — dual-write problem; DB+event atomicity
+    standards/scenarios/reverse-etl.md            (T) — warehouse enriched data → CRM/ERP
+    standards/scenarios/ai-gateway.md             (U) — centralized LLM proxy (rate-limit, PII-redact)
+
+  UPDATED: docs/PATTERNS_RESEARCH.md (Part 10), docs/PLANNING_CONTEXT.md (Level 1 tree, folder
+  structure, decision guide, decisions.json enum), standards/MULESOFT_DESIGN_STANDARDS.md
+  (pattern catalog + decision guide), standards/decisions-schema.json (primaryPattern enum).
+
+  DOCUMENTED AS AWARENESS (not actionable as MuleSoft scenarios):
+    CQRS (use B/F/M), Saga Choreography (use B per participant), Service Mesh (infra below Mule),
+    CloudEvents (add normalizer sub-flow), AsyncAPI (design-time governance only).
+
+  Chunks 8/9/10 not started — pick up new patterns naturally. Story library handles all patterns
+  via generic conditional ACs — no Chunk 6 re-run needed.
+
 NEW ARTIFACT 2026-05-10:
 docs/FIELD_KNOWLEDGE.md  [x] CREATED — architect training + lesson accumulation system
+                         [x] UPDATED — chunk 7 audit added FK-009 through FK-012:
+                             FK-009: on-error-continue bare in async = invalid Mule 4 XML
+                             FK-010: set-variable ≠ set-correlation-id (use Mule 4.6+ element)
+                             FK-011: expectedErrorType fails when on-error-continue consumes error
+                             FK-012: output application/java from S3 produces byte[], use application/json

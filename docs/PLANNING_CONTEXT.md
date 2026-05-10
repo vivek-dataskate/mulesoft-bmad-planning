@@ -182,7 +182,10 @@ mulesoft-bmad-planning/
   │           ├── hybrid.md                 (O: combination)
   │           ├── ai-augmented-flow.md      (P: LLM/AI mid-flow)
   │           ├── rag-data-pipeline.md      (Q: vector store ingestion)
-  │           └── agentic-mcp-integration.md (R: agent tool layer)
+  │           ├── agentic-mcp-integration.md (R: agent tool layer)
+  │           ├── transactional-outbox.md   (S: guaranteed DB+event atomicity)
+  │           ├── reverse-etl.md            (T: warehouse → operational system)
+  │           └── ai-gateway.md             (U: centralized LLM proxy)
   ├── templates/
   │     ├── prd-template.md
   │     ├── architecture-template.md
@@ -345,6 +348,23 @@ R. agentic-mcp-integration → MuleSoft APIs exposed as tools for AI agents (MCP
                             Agent is the caller; MuleSoft is the governed integration layer
                             Style: RPC (MuleSoft as server)
                             See: standards/scenarios/agentic-mcp-integration.md
+
+S. transactional-outbox   → guarantee DB write + event publish happen atomically
+                            MuleSoft polls outbox table; publishes to MQ; marks as published
+                            Solves dual-write problem when source app is NOT MuleSoft
+                            Style: Messaging
+                            See: standards/scenarios/transactional-outbox.md
+
+T. reverse-etl            → data warehouse enriched data → operational CRM/ERP
+                            ML scores, segments, KPIs computed in warehouse pushed to Salesforce/NetSuite
+                            Directional inverse of ETL (patterns E, C, K)
+                            Style: Messaging or RPC
+                            See: standards/scenarios/reverse-etl.md
+
+U. ai-gateway             → centralized LLM proxy: rate-limit, PII-redact, model-route, cost-track
+                            All AI traffic from all teams routes through a single governed endpoint
+                            Style: RPC (MuleSoft as proxy)
+                            See: standards/scenarios/ai-gateway.md
 ```
 
 **Decision guide — key differentiators:**
@@ -365,6 +385,9 @@ Just send an alert or email?            → N (outbound-notification)
 LLM/AI call inside a flow?              → P (ai-augmented-flow, as secondary pattern)
 Building knowledge base for AI?         → Q (rag-data-pipeline)
 AI agent calling your APIs as tools?    → R (agentic-mcp-integration)
+App writes to DB + must publish event?  → S (transactional-outbox)
+Warehouse scores/segments → CRM/ERP?   → T (reverse-etl)
+Multiple teams calling LLMs ungoverned? → U (ai-gateway)
 None fits cleanly?                      → O (hybrid — must list secondaryPatterns)
 ```
 
@@ -1060,7 +1083,7 @@ If > 6 months old, prints warning:
   },
   "integration": {
     "integrationStyle": "messaging|rpc|file-transfer|shared-db|hybrid",
-    "primaryPattern": "request-reply|event-driven|batch|scheduled-sync|file-based-etl|cdc-streaming|b2b-edi|process-orchestration|api-aggregation|webhook-ingestion|data-migration|streaming-pipeline|pubsub-fanout|outbound-notification|hybrid|ai-augmented-flow|rag-data-pipeline|agentic-mcp-integration",
+    "primaryPattern": "request-reply|event-driven|batch|scheduled-sync|file-based-etl|cdc-streaming|b2b-edi|process-orchestration|api-aggregation|webhook-ingestion|data-migration|streaming-pipeline|pubsub-fanout|outbound-notification|hybrid|ai-augmented-flow|rag-data-pipeline|agentic-mcp-integration|transactional-outbox|reverse-etl|ai-gateway",
     "secondaryPatterns": [],
     "direction": "unidirectional|bidirectional",
     "flows": [
@@ -1091,7 +1114,7 @@ If > 6 months old, prints warning:
     "level": "internal|partner|regulated|government",
     "apiAuth": "client-id|oauth2-client-credentials|jwt|mtls",
     "gatewayPolicies": [],
-    "secretsManager": true,
+    "secretsManager": true,        // mandatory for regulated|government; set false for internal|partner to skip auto-injection (template still generated as commented-out block)
     "fieldEncryption": false,
     "dataMasking": true,
     "mtls": false

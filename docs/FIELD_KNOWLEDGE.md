@@ -32,6 +32,10 @@
 | [FK-006](#fk-006) | Any paginated REST API requires a while-loop workaround in Mule 4 | Any paginated REST API | verified | 2026-05-10 | 2026-05-10 | 3+ |
 | [FK-007](#fk-007) | Watermark must advance AFTER processing confirms success, not before | pattern D / C / K / CDC | verified | 2026-05-10 | 2026-05-10 | 2 |
 | [FK-008](#fk-008) | Webhook idempotency: return 200 always, store event ID after success, DLQ for failures | pattern J / any webhook | verified | 2026-05-10 | 2026-05-10 | 1 |
+| [FK-009](#fk-009) | `on-error-continue` as direct child of `async` is invalid Mule 4 XML — wrap in `try` + `error-handler` | wire-tap / any async error isolation | verified | 2026-05-10 | 2026-05-10 | 1 |
+| [FK-010](#fk-010) | `set-variable` does not update the Mule event's `correlationId` — use `set-correlation-id` (Mule 4.6+) | HTTP listener / correlation ID propagation | verified | 2026-05-10 | 2026-05-10 | 1 |
+| [FK-011](#fk-011) | MUnit `expectedErrorType` must not be set when Global_Error_Handler uses `on-error-continue` | MUnit / error handler testing | verified | 2026-05-10 | 2026-05-10 | 1 |
+| [FK-012](#fk-012) | Claim-check S3 getObject returns InputStream — `output application/java` produces byte array, not JSON | claim-check pattern / S3 / Azure Blob | verified | 2026-05-10 | 2026-05-10 | 1 |
 
 ---
 
@@ -407,6 +411,233 @@ Applies to: Any flow triggered by an inbound webhook from a system that retries 
 
 Promotes to: standards/scenarios/webhook-ingestion.md — add full 5-step idempotency pattern
              and DLQ requirement. Scaffold generates this automatically for pattern J.
+
+---
+
+---
+
+## FK-009 — `on-error-continue` as direct child of `async` is invalid Mule 4 XML
+Date: 2026-05-10
+Project: general (found during chunk 7 scaffold template audit)
+Trigger: Developer adds error handling inside an `async` block to prevent wire-tap or
+         notification failures from surfacing to the primary flow.
+
+Scenario:
+  The intuitive pattern is to put `on-error-continue` directly inside `async` so any error
+  in the async block is silently consumed. This compiles in some tooling versions but fails
+  at runtime — or is rejected by the Mule schema validator during project load.
+  The correct parent element for `on-error-continue` is always `error-handler`, and
+  `error-handler` can only appear inside `try`, `flow`, or `sub-flow`.
+
+What failed:
+  ```xml
+  <!-- INVALID — on-error-continue cannot be a direct child of async -->
+  <async doc:name="Wire Tap">
+      <anypoint-mq:publish .../>
+      <on-error-continue type="ANY">
+          <logger level="WARN" .../>
+      </on-error-continue>
+  </async>
+  ```
+  Result: schema validation failure on project load; Mule Studio may show no error
+  but Runtime rejects it.
+
+What worked:
+  ```xml
+  <async doc:name="Wire Tap — Audit Capture">
+      <try doc:name="Wire Tap with Error Isolation">
+          <anypoint-mq:publish .../>
+          <error-handler>
+              <on-error-continue type="ANY">
+                  <logger level="WARN" .../>
+              </on-error-continue>
+          </error-handler>
+      </try>
+  </async>
+  ```
+  The `try` scope creates a valid error-handler attachment point inside the `async` block.
+  Errors in the publish are caught by the `on-error-continue` and consumed — the async
+  block exits cleanly and the primary flow is unaffected.
+
+Applies to: Any `async` block containing operations that can fail (MQ publish, HTTP request,
+            external notification). Wire-tap, Slack notification, audit trail publish — all
+            require this pattern. The outer `async` only provides the thread-fork boundary;
+            error isolation requires the inner `try`.
+
+Promotes to: scaffold/xml-templates/snippets/wire-tap.xml — FIXED in chunk 7 audit 2026-05-10
+
+---
+
+## FK-010 — `set-variable` does not update the Mule event's `correlationId`
+Date: 2026-05-10
+Project: general (found during chunk 7 scaffold template audit)
+Trigger: HTTP listener flow copies inbound X-Correlation-ID header to a flow variable
+         so it can be included in outbound calls and error payloads.
+
+Scenario:
+  Developers store the inbound correlation ID as a variable:
+    `<set-variable variableName="correlationId" value="#[attributes.headers['X-Correlation-ID'] default correlationId]"/>`
+  This makes `vars.correlationId` available in DataWeave transforms, but it does NOT
+  update the actual Mule event's built-in `correlationId`. The built-in `correlationId`
+  is what appears in default log output, what error handlers reference via
+  `#[correlationId]` (no `vars.` prefix), and what propagates to child flows.
+  If the variable name shadows the built-in, DataWeave expressions that use
+  `correlationId` (no prefix) will resolve to the variable in some contexts and
+  to the built-in Mule event property in others — creating inconsistency.
+
+What failed:
+  ```xml
+  <set-variable variableName="correlationId"
+                value="#[attributes.headers['X-Correlation-ID'] default correlationId]"/>
+  ```
+  This creates a flow variable, not a Mule event correlationId update. The Mule runtime
+  logging framework still uses the internally-generated UUID as the correlation ID
+  in all log output and error handler context.
+
+What worked:
+  ```xml
+  <set-correlation-id
+      value="#[attributes.headers['X-Correlation-ID'] default correlationId]"
+      doc:name="Adopt Inbound Correlation ID"/>
+  ```
+  `set-correlation-id` is a first-class Mule 4.6+ element that updates the Mule event's
+  actual correlation ID. After this call, `correlationId` in DataWeave expressions,
+  log output, error handler context, and all child flow invocations uses the adopted value.
+
+Key detail:
+  `set-correlation-id` was introduced in Mule 4.6.0. Projects targeting Mule < 4.6 must
+  use a flow variable with a unique name (e.g. `httpCorrelationId`) and never shadow
+  the built-in `correlationId` keyword. As of the BMAD system standard (Mule 4.8.0),
+  `set-correlation-id` is the correct and only approach.
+
+Applies to: Every HTTP listener flow that must adopt an inbound X-Correlation-ID.
+            Also applies to MQ subscriber flows that receive correlationId in message
+            properties — use `set-correlation-id` there too.
+
+Promotes to: scaffold/xml-templates/triggers/http-listener.xml — FIXED in chunk 7 audit 2026-05-10
+
+---
+
+## FK-011 — MUnit `expectedErrorType` must not be set when Global_Error_Handler consumes the error
+Date: 2026-05-10
+Project: general (found during chunk 7 scaffold template audit)
+Trigger: MUnit test for a connectivity failure scenario (e.g., HTTP target unavailable)
+         uses `expectedErrorType="MULE:COMPOSITE_ROUTING"` expecting the error to propagate
+         to the test.
+
+Scenario:
+  The Global_Error_Handler uses `on-error-continue` for all error categories. `on-error-continue`
+  consumes the error — the flow completes without propagating an exception. A MUnit test that
+  sets `expectedErrorType` on its event expects an exception to reach the test boundary. Since
+  the error handler consumed the error, no exception propagates, and the test fails with:
+    "Expected error of type X but no error was thrown."
+
+  This is especially confusing because the flow IS handling the error correctly — the test
+  setup is just wrong.
+
+What failed:
+  ```xml
+  <munit:test name="test-connectivity-failure" expectedErrorType="MULE:COMPOSITE_ROUTING">
+      <!-- trigger a connectivity error -->
+  </munit:test>
+  ```
+  The Global_Error_Handler's `on-error-continue` converts the error into a 503 response.
+  The test sees a successful flow execution (returning the error payload), not an exception.
+  Result: "Expected error but no error was thrown" — test always fails.
+
+What worked:
+  Remove `expectedErrorType`. Assert on the error response payload that the Global_Error_Handler
+  set instead:
+  ```xml
+  <munit:test name="test-connectivity-failure">
+      <!-- trigger a connectivity error -->
+      <munit:validation>
+          <munit-tools:assert-equals actual="#[vars.httpStatus]" expected="#[503]"/>
+          <munit-tools:assert-equals actual="#[payload.errorCode]" expected="#['SERVICE_UNAVAILABLE']"/>
+      </munit:validation>
+  </munit:test>
+  ```
+  Also ensure the test event includes all required attributes (method, requestPath,
+  X-Correlation-ID header) so the error handler can build a complete error envelope.
+
+Rule:
+  If the flow under test has an error handler that uses `on-error-continue`, NEVER set
+  `expectedErrorType` in the MUnit test. The error is consumed, not propagated.
+  Assert on the flow's output payload and variables instead.
+  Only use `expectedErrorType` when the flow uses `on-error-propagate` (error re-thrown)
+  or has no error handler (error propagates to MUnit framework).
+
+Applies to: Any MUnit test for a flow whose error handler uses `on-error-continue`.
+            In the BMAD system this means ALL flows — Global_Error_Handler always uses
+            `on-error-continue` by design.
+
+Promotes to: scaffold/xml-templates/munit-base.xml — FIXED in chunk 7 audit 2026-05-10
+
+---
+
+## FK-012 — Claim-check S3 getObject returns InputStream — `output application/java` produces byte array
+Date: 2026-05-10
+Project: general (found during chunk 7 scaffold template audit)
+Trigger: Claim-check retrieve step reads a JSON payload from S3 (or Azure Blob) using
+         the Amazon S3 connector's getObject operation.
+
+Scenario:
+  S3 getObject returns the object content as an InputStream wrapped in Mule's message payload.
+  The DataWeave transform after the retrieve step must convert this InputStream into a
+  usable data structure. The wrong output type causes the downstream flow to receive raw bytes
+  instead of a structured object.
+
+What failed:
+  ```xml
+  <ee:transform>
+      <ee:message>
+          <ee:set-payload><![CDATA[%dw 2.0
+  output application/java
+  ---
+  payload]]></ee:set-payload>
+      </ee:message>
+  </ee:transform>
+  ```
+  `output application/java` with an InputStream payload produces a raw `byte[]` Java object.
+  Subsequent DataWeave transforms cannot access fields on a byte array — they fail with
+  a type error. Even if the downstream connector accepts bytes, the original JSON structure
+  is lost.
+
+What worked:
+  ```xml
+  <ee:transform>
+      <ee:message>
+          <ee:set-payload><![CDATA[%dw 2.0
+  output application/json
+  ---
+  payload]]></ee:set-payload>
+      </ee:message>
+  </ee:transform>
+  ```
+  `output application/json` triggers Mule's DataWeave reader to parse the InputStream as
+  JSON and produce a structured object. Subsequent DataWeave expressions can access fields
+  normally (e.g., `payload.customerId`).
+
+Alternative (if original content type is unknown):
+  Use `output application/octet-stream` to pass bytes through unchanged, then let the next
+  transform determine the type. But for claim-check payloads (always JSON in the BMAD system),
+  `output application/json` is always correct.
+
+Additional note:
+  After reading and processing the retrieved payload, the original S3 object should be
+  deleted (or archived) to prevent re-processing and control storage costs:
+  ```xml
+  <s3:delete-object config-ref="S3_Config"
+      bucketName="${s3.claimCheck.bucket}"
+      key="#[vars.claimCheckKey]"
+      doc:name="Delete Claim Check Payload"/>
+  ```
+
+Applies to: Any claim-check retrieve step reading from S3, Azure Blob, or SFTP.
+            The output type mistake is easy to make because `application/java` looks like
+            "just pass through the Java object" but actually transforms to byte array.
+
+Promotes to: scaffold/xml-templates/snippets/claim-check-retrieve.xml — FIXED in chunk 7 audit 2026-05-10
 
 ---
 

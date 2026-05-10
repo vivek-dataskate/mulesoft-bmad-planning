@@ -19,21 +19,41 @@ servers:
         enum: ["dev", "uat", "prod"]
         default: "dev"
 
-# TODO: Define reusable security schemes
+# Security applied at operation level — Flex Gateway enforces at runtime.
+# client-id-enforcement policy validates client_id + client_secret pair.
 security:
-  - clientIdHeader: []
+  - clientIdScheme: []
 
 components:
   securitySchemes:
-    # internal tier: Client-ID + Client-Secret headers (Flex Gateway policy)
-    clientIdHeader:
+    # internal tier: Client-ID + Client-Secret headers (Flex Gateway client-id-enforcement policy)
+    # Both headers are required for all endpoints in the internal security tier.
+    clientIdScheme:
       type: apiKey
       in: header
       name: client_id
-      description: "Anypoint Platform client_id. Pair with client_secret header."
+      description: |
+        Anypoint Platform client_id. Must be paired with client_secret header.
+        Both are validated by Flex Gateway before the request reaches Mule.
+    clientSecretScheme:
+      type: apiKey
+      in: header
+      name: client_secret
+      description: "Anypoint Platform client_secret. Paired with client_id header."
+
+    # partner/regulated tier — OAuth 2.0 Client Credentials (uncomment if applicable)
+    # oauth2ClientCredentials:
+    #   type: oauth2
+    #   flows:
+    #     clientCredentials:
+    #       tokenUrl: "https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token"
+    #       scopes:
+    #         read: "Read access"
+    #         write: "Write access"
 
   schemas:
-    # ── Error Envelope ───────────────────────────────────────────────────
+    # ── Error Envelope ────────────────────────────────────────────────────
+    # This schema is common to all APIs in this system — keep it identical.
     ErrorEnvelope:
       type: object
       required: [correlationId, errorCode, message, timestamp]
@@ -41,7 +61,7 @@ components:
         correlationId:
           type: string
           format: uuid
-          description: "Trace ID — include in all support requests"
+          description: "Trace ID — include in all support requests. Echoed in X-Correlation-ID response header."
         errorCode:
           type: string
           enum:
@@ -51,7 +71,7 @@ components:
             - INTERNAL_ERROR
         message:
           type: string
-          description: "Human-readable error description. Never expose stack traces."
+          description: "Human-readable error description. Never contains stack traces or internal system details."
         timestamp:
           type: string
           format: date-time
@@ -59,37 +79,48 @@ components:
           type: string
           description: "Mule component that raised the error"
 
-    # ── TODO: Define request body schema ─────────────────────────────────
+    # ── TODO: Define request body schema ────────────────────────────────
+    # Copy field names from architecture.md Field Mapping table for this flow.
     # {{FLOW_NAME}}Request:
     #   type: object
-    #   required: []  # TODO: list required fields from architecture.md Field Mapping
+    #   required: []  # List required fields
     #   properties:
     #     id:
     #       type: string
     #       description: "TODO: describe field"
 
-    # ── TODO: Define response body schema ────────────────────────────────
+    # ── TODO: Define response body schema ──────────────────────────────
     # {{FLOW_NAME}}Response:
     #   type: object
     #   properties:
     #     id:
     #       type: string
 
+  parameters:
+    # Reusable correlation ID header parameter
+    correlationIdHeader:
+      name: "X-Correlation-ID"
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+      description: "Client-provided trace ID. If absent, the API generates one and returns it."
+
 paths:
   # ── TODO: Define API endpoints ─────────────────────────────────────────
-  # Replace {entity} with the actual resource name from decisions.json flows[]
+  # Replace {entity} with the actual resource name from decisions.json flows[].
+  # Add one path block per HTTP method needed (POST create, GET query, PUT update).
   "/{{RESOURCE_PATH}}":
     post:
       summary: "TODO: Describe this operation"
       operationId: "{{FLOW_NAME}}"
       tags:
         - "{{DOMAIN}}"
+      security:
+        - clientIdScheme: []
       parameters:
-        - name: "client_secret"
-          in: header
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/correlationIdHeader'
       requestBody:
         required: true
         content:
@@ -108,32 +139,74 @@ paths:
             X-Correlation-ID:
               schema:
                 type: string
-              description: "Correlation ID for tracing"
+              description: "Correlation ID for tracing — echo of inbound header or generated UUID"
           content:
             application/json:
               schema:
                 # TODO: $ref: '#/components/schemas/{{FLOW_NAME}}Response'
                 type: object
         "400":
-          description: "Validation error — check request body"
+          description: "Validation error — message is structurally or semantically invalid (not retryable)"
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
         "401":
-          description: "Missing or invalid client credentials"
+          description: "Missing or invalid client credentials (client_id / client_secret)"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        "500":
+          description: "Unexpected internal error — correlationId included for support reference"
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
         "503":
-          description: "Downstream system temporarily unavailable — retry with backoff"
+          description: "Downstream system temporarily unavailable — retry with exponential backoff"
           headers:
             Retry-After:
               schema:
                 type: integer
               description: "Seconds to wait before retry"
+            X-Correlation-ID:
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
+
+    # ── TODO: Add GET if this API supports querying ───────────────────────
+    # get:
+    #   summary: "TODO: Describe get/query operation"
+    #   operationId: "get-{{FLOW_NAME}}"
+    #   tags:
+    #     - "{{DOMAIN}}"
+    #   security:
+    #     - clientIdScheme: []
+    #   parameters:
+    #     - $ref: '#/components/parameters/correlationIdHeader'
+    #     - name: "id"
+    #       in: query
+    #       required: false
+    #       schema:
+    #         type: string
+    #   responses:
+    #     "200":
+    #       ...
+    #     "404":
+    #       description: "Resource not found"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: '#/components/schemas/ErrorEnvelope'

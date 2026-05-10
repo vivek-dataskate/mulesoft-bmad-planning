@@ -5,7 +5,8 @@
     Rules:
       - Every connector <config> element lives HERE, never in flow files.
       - Property references use ${property.name} — never hardcode values.
-      - Secrets Manager properties provider added when security=regulated|government.
+      - Secrets Manager properties provider: mandatory for security=regulated|government (auto-injected);
+        recommended for internal|partner (generated as commented-out block, opt in via decisions.json security.secretsManager=true).
 -->
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -37,6 +38,58 @@
         file="properties/local.yaml"
         doc:name="Local Overrides"
         ignore-error-if-missing="true"/>
+
+    {{#if SECRETS_MANAGER_ENABLED}}
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECRETS MANAGER PROPERTIES PROVIDER
+         Generated when: decisions.json security.secretsManager = true
+                         (profiles: regulated, government)
+
+         Option A: AWS Secrets Manager
+           Connector: mule-amazon-secrets-manager-properties-provider
+           pom.xml:   <artifactId>mule-amazon-secrets-manager-properties-provider</artifactId>
+                      <groupId>com.mulesoft.connectors</groupId>
+                      Add xmlns:aws-secrets-provider to mule root element.
+
+         Option B: Azure Key Vault
+           Connector: mule-azure-key-vault-properties-provider
+           pom.xml:   <artifactId>mule-azure-key-vault-properties-provider</artifactId>
+                      <groupId>com.mulesoft.connectors</groupId>
+                      Add xmlns:azure-key-vault-provider to mule root element.
+
+         After adding, reference secrets as: ${secrets::my-secret-name}
+         NEVER put actual secret values in property files.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- TODO: Uncomment one block below based on your cloud provider -->
+
+    <!--
+    OPTION A — AWS Secrets Manager:
+
+    <aws-secrets-manager-properties-provider:config
+        name="AWS_Secrets_Manager_Config"
+        doc:name="AWS Secrets Manager">
+        <aws-secrets-manager-properties-provider:basic-connection
+            region="${aws.secrets.region}"
+            accessKey="${aws.secrets.accessKey}"
+            secretKey="${aws.secrets.secretKey}"/>
+    </aws-secrets-manager-properties-provider:config>
+    -->
+
+    <!--
+    OPTION B — Azure Key Vault:
+
+    <azure-key-vault-provider:config
+        name="Azure_Key_Vault_Config"
+        doc:name="Azure Key Vault">
+        <azure-key-vault-provider:connection
+            vaultName="${azure.keyvault.name}"
+            clientId="${azure.keyvault.clientId}"
+            tenantId="${azure.keyvault.tenantId}"
+            clientSecret="${azure.keyvault.clientSecret}"/>
+    </azure-key-vault-provider:config>
+    -->
+    {{/if}}
 
     <!-- Persistent Object Store — shared by idempotency checks and watermarks -->
     <os:object-store

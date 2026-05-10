@@ -119,11 +119,17 @@
     <!-- ══════════════════════════════════════════════════════════════════
          TEST CASE 2: Error Scenario A — Connectivity Failure
          ══════════════════════════════════════════════════════════════════ -->
+    <!--
+        NOTE: Do NOT set expectedErrorType here. The Global_Error_Handler catches
+        HTTP:CONNECTIVITY via on-error-continue, converts it to a 503 payload, and
+        continues — the error does NOT propagate out of the flow. If expectedErrorType
+        is set, MUnit will expect the flow to throw, which it won't, and the test fails.
+        Assert on vars.httpStatus and payload.errorCode instead.
+    -->
     <munit:test
         name="{{FLOW_NAME}}-connectivity-error-test"
         doc:name="Error Scenario A — downstream connectivity failure returns 503"
-        description="Verifies error envelope and 503 response when downstream is unavailable"
-        expectedErrorType="MULE:COMPOSITE_ROUTING">
+        description="Verifies Global_Error_Handler converts HTTP:CONNECTIVITY to 503 error envelope">
 
         <munit:behavior>
             <munit-tools:mock-when
@@ -137,7 +143,7 @@
                 <munit-tools:then-throw>
                     <munit-tools:error
                         typeId="HTTP:CONNECTIVITY"
-                        description="Simulated connectivity failure"/>
+                        description="Simulated connectivity failure — downstream unavailable"/>
                 </munit-tools:then-throw>
             </munit-tools:mock-when>
         </munit:behavior>
@@ -148,23 +154,31 @@
                     <munit:payload
                         value='#[{ "id": "test-conn-fail-001" }]'
                         mediaType="application/json"/>
+                    <munit:attributes
+                        value='#[{ method: "POST", requestPath: "{{HTTP_PATH}}", headers: { "X-Correlation-ID": "test-correlation-conn-fail" } }]'/>
                 </munit:event>
             </munit:run-flow>
         </munit:execution>
 
         <munit:validation>
+            <!-- Global_Error_Handler handles HTTP:CONNECTIVITY with on-error-continue →
+                 flow finishes (no error propagation), payload is set to 503 error envelope -->
             <munit-tools:assert-that
-                expression="#[vars.httpStatus default 500]"
+                expression="#[vars.httpStatus]"
                 is="#[MunitTools::equalTo(503)]"
-                doc:name="Assert 503 on connectivity failure"/>
+                doc:name="Assert 503 status on connectivity failure"/>
             <munit-tools:assert-that
                 expression="#[payload.errorCode]"
                 is="#[MunitTools::equalTo('SERVICE_UNAVAILABLE')]"
-                doc:name="Assert error code"/>
+                doc:name="Assert SERVICE_UNAVAILABLE error code"/>
             <munit-tools:assert-that
                 expression="#[payload.correlationId != null]"
                 is="#[MunitTools::equalTo(true)]"
                 doc:name="Assert correlationId present in error envelope"/>
+            <munit-tools:assert-that
+                expression="#[payload.timestamp != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert timestamp present in error envelope"/>
         </munit:validation>
 
     </munit:test>

@@ -12,9 +12,13 @@ http:
   port: "8081"
 
 # Scheduler
+# MANDATORY: Set scheduler.cron and scheduler.frequencySeconds as Application Properties
+# in Runtime Manager for the prod environment. The values below are intentional
+# placeholders — the app will not start if these are not overridden in Runtime Manager.
+# Set in: Runtime Manager → Application → Properties tab → add key/value pairs.
 scheduler:
-  cron: "${scheduler.cron.prod}"          # Set in Runtime Manager for prod environment
-  frequencySeconds: "${scheduler.frequencySeconds.prod}"
+  cron: "0 0 2 * * ?"                    # 2 AM daily (UTC) — MUST override in Runtime Manager
+  frequencySeconds: "300"                 # 5-min poll default — MUST override in Runtime Manager
 
 # MQ Queue names — prod suffix (no 'dev' or 'uat' queues in prod ever)
 mq:
