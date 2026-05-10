@@ -1,0 +1,73 @@
+<!--
+    Trigger: HTTP Listener (request-reply / api-aggregation / webhook-ingestion)
+    Layer: {{API_LAYER}} (system | process | experience)
+    Naming: {action}-{entity}-flow
+    correlationId: generated here from inbound X-Correlation-ID header or new UUID — never downstream
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <http:listener
+            config-ref="HTTP_Listener_Config"
+            path="{{HTTP_PATH}}"
+            allowedMethods="{{HTTP_METHODS}}"
+            doc:name="HTTP Listener">
+            <!-- Return correlationId in response header for client tracing -->
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[{
+    "X-Correlation-ID": correlationId,
+    "Content-Type":     "application/json"
+}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:headers><![CDATA[#[{
+    "X-Correlation-ID": correlationId,
+    "Content-Type":     "application/json"
+}]]]></http:headers>
+                <http:body>#[payload]</http:body>
+            </http:error-response>
+        </http:listener>
+
+        <!-- Propagate inbound correlation ID or generate new UUID -->
+        <set-variable
+            variableName="correlationId"
+            value="#[attributes.headers['X-Correlation-ID'] default correlationId]"
+            doc:name="Set Correlation ID"/>
+
+        <logger
+            level="INFO"
+            message='#["[START] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | method=" ++ attributes.method ++ " | path=" ++ attributes.requestPath ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log Request Start"/>
+
+        <!--
+            TODO: Validate inbound payload BEFORE any downstream call.
+            Route validation failures to Invalid Message Channel, not DLQ.
+            Example:
+              <validation:is-not-null value="#[payload.orderId]" message="orderId is required"/>
+        -->
+
+        <!-- TODO: Implement {{FLOW_DESCRIPTION}} -->
+        <!-- Source: {{FLOW_SOURCE}} → Target: {{FLOW_TARGET}} -->
+
+        <ee:transform doc:name="Transform Response — {{FLOW_NAME}}">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+// TODO: move logic > 10 lines to resources/dwl/{{DWL_FILE_NAME}}.dwl
+---
+{
+    // TODO: implement {{FLOW_SOURCE}} → {{FLOW_TARGET}} mapping
+    correlationId: correlationId
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[200]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <logger
+            level="INFO"
+            message='#["[END] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | status=" ++ (vars.httpStatus default 200) as String]'
+            doc:name="Log Request End"/>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>

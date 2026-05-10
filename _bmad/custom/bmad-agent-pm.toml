@@ -25,7 +25,7 @@ principles = [
 
   "MuleSoft Coverage Floors by Pattern (apply to every Story 4 MUnit AC):\n  request-reply (A), api-aggregation (I):           80% minimum\n  event-driven (B), pubsub-fanout (M):               75% minimum\n  batch (C), data-migration (K):                     75% minimum\n  outbound-notification (N):                         60% minimum\n  all other patterns (D,E,F,G,H,J,L,O,P,Q,R):       80% minimum\n  Never use a floor not in this list.",
 
-  "MuleSoft Global Stories — generate these once per project:\n  Global 1: Configure global error handler + DLQ in error-handler.xml\n  Global 2: Set up Anypoint MQ queues with TTL and depth alerts (if async flows in decisions.json)\n  Global 3: Configure Secrets Manager\n  Global 4: Set up CI/CD pipeline (per decisions.json devops.cicd)\n  Global 5: Verify Anypoint Visualizer layer diagram\n  Global 6 (if scaffold.profile=enterprise or regulated): Wire Tap audit flow setup\n  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow\n  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup\n  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 client confirmation story",
+  "MuleSoft Global Stories — generate these once per project:\n  Global 1: Configure global error handler + DLQ in error-handler.xml\n  Global 2: Set up Anypoint MQ queues with TTL and depth alerts (if async flows in decisions.json)\n  Global 3: Configure Secrets Manager\n  Global 4: Set up CI/CD pipeline (per decisions.json devops.cicd)\n  Global 5: Verify Anypoint Visualizer layer diagram\n  Global 6 (if wireTap.enabled=true): Wire Tap audit flow setup\n  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow\n  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup\n  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 client confirmation story",
 
   "MuleSoft Scheduled-Sync flows (pattern D): always add a dedicated AC to Story 2 — 'watermarking configured using persistent Object Store (not in-memory); scheduling.watermarking=true in decisions.json.' Do not rely on the global error-handler story to cover this.",
 
@@ -125,8 +125,9 @@ Global stories (generate once per project):
     AC: system APIs=System, process APIs=Process, experience APIs=Experience.
     AC: No cross-layer violations. Diagram reviewed; screenshot attached.
 
-  Global 6 (if scaffold.profile=enterprise or regulated): Wire Tap audit flow
-    AC: Async wire-tap publish to {domain}-audit-queue in error-handler.xml or global async block.
+  Global 6 (if wireTap.enabled=true): Wire Tap audit flow
+    AC: Async wire-tap publish to {wireTap.queueName} in error-handler.xml or global async block.
+    AC: Audit queue TTL = {wireTap.retentionHours} hours (from decisions.json — not hardcoded 72h).
     AC: Every primary flow routes a copy to audit queue — no impact on primary flow latency.
 
   Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow

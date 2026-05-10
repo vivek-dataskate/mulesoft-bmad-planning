@@ -71,7 +71,26 @@ CHUNK 5 — BMAD Templates [x] COMPLETE (2026-05-10)
   Story: global stories (error handler, MQ queues, secrets, CI/CD, Visualizer),
          per-flow block (API spec, flow impl, DataWeave, MUnit, monitoring alerts),
          story index, coverage floors, MUnit test case table, open-item TODO format
-CHUNK 6 — Story Library  [ ] NOT STARTED
+CHUNK 6 — Story Library  [x] COMPLETE (2026-05-10)
+  Files: story-library/global-error-handler-dlq.md
+         story-library/global-mq-queues.md
+         story-library/global-secrets-manager.md
+         story-library/global-cicd-pipeline.md
+         story-library/global-visualizer.md
+         story-library/global-wire-tap.md
+         story-library/global-field-encryption.md
+         story-library/global-invalid-message-channel.md
+         story-library/global-contract-confirmation.md
+         story-library/global-ai-provider.md
+         story-library/flow-api-spec.md
+         story-library/flow-implementation.md
+         story-library/flow-dataweave.md
+         story-library/flow-munit-tests.md
+         story-library/flow-monitoring-alerts.md
+  Global (10): 5 always-on + 5 conditional (wire-tap, field-encryption, IMC, contract, AI)
+  Per-flow (5): api-spec, implementation (all 18 pattern conditional ACs), dataweave,
+                munit-tests (coverage floors + pattern-specific extra test cases), monitoring-alerts
+  Each file: conditions, priority, full AC set, pattern-conditional rows, implementation notes
 CHUNK 7 — XML+DWL Tmpl   [ ] NOT STARTED
 CHUNK 8 — Scaffold Gen   [ ] NOT STARTED
   SCOPE UPDATED 2026-05-10:

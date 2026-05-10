@@ -1,0 +1,56 @@
+<!--
+    Trigger: SFTP On New File (file-based-etl / b2b-edi / data-migration)
+    Inbound dir:   ${sftp.inbound.directory}
+    Processed dir: ${sftp.inbound.processedDirectory}  (move after pickup)
+    Poll frequency: ${sftp.poll.frequencySeconds} seconds
+    File pattern: {{FILE_PATTERN}}
+    NOTE: CloudHub 2.0 local filesystem is EPHEMERAL — use S3/SFTP/Azure Blob for persistence.
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <sftp:listener
+            config-ref="SFTP_Config"
+            directory="${sftp.inbound.directory}"
+            autoDelete="false"
+            moveToDirectory="${sftp.inbound.processedDirectory}"
+            doc:name="SFTP On New File — ${sftp.inbound.directory}">
+            <scheduling-strategy>
+                <fixed-frequency
+                    frequency="${sftp.poll.frequencySeconds}"
+                    timeUnit="SECONDS"/>
+            </scheduling-strategy>
+            <sftp:matcher
+                filenamePattern="{{FILE_PATTERN}}"
+                directories="EXCLUDE"/>
+        </sftp:listener>
+
+        <logger
+            level="INFO"
+            message='#["[START] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | file=" ++ attributes.fileName ++ " | size=" ++ attributes.size as String ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log File Received"/>
+
+        <!--
+            TODO: Parse file content.
+            Common parsers:
+              CSV   → DataWeave: payload read with "application/csv"
+              JSON  → DataWeave: payload read with "application/json"
+              XML   → DataWeave: payload read with "application/xml"
+              EDIFACT / X12 → use EDI module or B2B connector
+            Example:
+              <ee:transform>
+                <ee:message>
+                  <ee:set-payload>%dw 2.0 output application/java --- read(payload, "application/csv")</ee:set-payload>
+                </ee:message>
+              </ee:transform>
+        -->
+
+        <!-- TODO: Implement {{FLOW_DESCRIPTION}} -->
+        <!-- Source: {{FLOW_SOURCE}} (file: ${sftp.inbound.directory}) → Target: {{FLOW_TARGET}} -->
+
+        <logger
+            level="INFO"
+            message='#["[END] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | file=" ++ attributes.fileName]'
+            doc:name="Log File Processing End"/>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>
