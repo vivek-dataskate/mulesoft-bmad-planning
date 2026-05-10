@@ -1,0 +1,65 @@
+<!--
+    Connector: Anypoint MQ
+    Registry key: anypoint-mq
+    Connector: anypoint-mq-connector 4.0.7  (com.mulesoft.connectors)
+    Namespace: xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+    Schema:    http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/anypoint-mq-connector/
+
+    Required Anypoint Platform config:
+      1. Create queues per environment (dev/uat/prod suffix)
+      2. Set TTL per queue class:
+           Critical events:     7 days (10080 min)
+           Standard events:     24h (1440 min)
+           Notification events: 1h (60 min)
+           CDC events:          4h (240 min)
+           Audit (wire tap):    {{WIRE_TAP_RETENTION_HOURS}}h
+      3. Set depth alerts: 80% = MEDIUM, 90% = HIGH, 100% = CRITICAL page
+      4. DLQ count > 0 → HIGH → page on-call
+      5. Create dedicated Connected App with MQ permissions for this application
+
+    Properties required in {env}.yaml:
+      anypoint-mq.url         → e.g. "https://mq-us-east-1.qax.anypoint.mulesoft.com/api/v1"
+      anypoint-mq.clientId    → from Connected App (or Anypoint Platform client credentials)
+      anypoint-mq.clientSecret→ via Secrets Manager (regulated) or Runtime Manager app property
+      mq.queue.*              → queue names per environment (see property files)
+
+    Supported features used in this project:
+      - Standard queues
+      - FIFO queues (when ordering required)
+      - Message Exchanges (for pubsub-fanout pattern M)
+      - Circuit breaker (when downstream failure rate is high)
+      - Manual acknowledgement (MANUAL ack mode — always for critical flows)
+-->
+
+    <anypoint-mq:config
+        name="Anypoint_MQ_Config"
+        doc:name="Anypoint MQ Config">
+        <anypoint-mq:connection
+            url="${anypoint-mq.url}"
+            clientId="${anypoint-mq.clientId}"
+            clientSecret="${anypoint-mq.clientSecret}"/>
+    </anypoint-mq:config>
+
+    <!--
+        Subscriber usage (in flow files):
+          <anypoint-mq:subscriber
+            config-ref="Anypoint_MQ_Config"
+            destination="${mq.queue.target}"
+            acknowledgementMode="MANUAL"
+            maxConcurrency="4"/>
+
+        Publisher usage:
+          <anypoint-mq:publish
+            config-ref="Anypoint_MQ_Config"
+            destination="${mq.queue.target}"
+            messageId="#[correlationId]">
+            <anypoint-mq:body>#[output application/json --- payload]</anypoint-mq:body>
+          </anypoint-mq:publish>
+
+        ACK:
+          <anypoint-mq:ack ackToken="#[attributes.ackToken]" config-ref="Anypoint_MQ_Config"/>
+
+        NACK (puts back for retry):
+          <anypoint-mq:nack ackToken="#[attributes.ackToken]" config-ref="Anypoint_MQ_Config"/>
+    -->

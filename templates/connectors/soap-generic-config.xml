@@ -1,0 +1,61 @@
+<!--
+    Connector: SOAP / Web Services Consumer (custom SOAP system)
+    Registry key: custom-{system-name} → uses "soap" connector (mule-wsc-connector)
+    Connector: mule-wsc-connector 1.8.0
+    Namespace: xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+    Schema:    http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+
+    Prerequisites:
+      1. Place WSDL file at: src/main/resources/api/{system}.wsdl
+      2. Studio resolves operations from WSDL at design time
+      3. CloudHub 2.0: WSDL packaged with app — no external WSDL URL dependency
+
+    Properties required in {env}.yaml:
+      wsc.{system}.address       → SOAP endpoint URL
+      wsc.{system}.username      → basic auth username (if required)
+      wsc.{system}.password      → basic auth password (via Secrets Manager)
+-->
+
+    <!-- SOAP Web Services Consumer Config -->
+    <wsc:config
+        name="WSC_Config_{{system_key}}"
+        doc:name="SOAP Config — {{SYSTEM_NAME}}">
+        <wsc:connection
+            wsdlLocation="api/{{system_key}}.wsdl"
+            service="{{WSDL_SERVICE}}"
+            port="{{WSDL_PORT}}"
+            address="${wsc.{{system_key}}.address}">
+            <!--
+                TODO: Add auth if required. Options:
+                Basic auth:
+                  <wsc:custom-transport-configuration>
+                    <wsc:http-transport-configuration>
+                      <http:basic-authentication
+                        username="${wsc.{{system_key}}.username}"
+                        password="${wsc.{{system_key}}.password}"/>
+                    </wsc:http-transport-configuration>
+                  </wsc:custom-transport-configuration>
+
+                WS-Security (UsernameToken):
+                  <wsc:web-service-security>
+                    <wsc:username-token-security-strategy
+                      username="${wsc.{{system_key}}.wsUsername}"
+                      password="${wsc.{{system_key}}.wsPassword}"
+                      addCreated="true"
+                      addNonce="true"/>
+                  </wsc:web-service-security>
+            -->
+        </wsc:connection>
+    </wsc:config>
+
+    <!--
+        Usage in flows:
+          <wsc:consume
+            config-ref="WSC_Config_{{system_key}}"
+            operation="{{WSDLOperation}}"
+            doc:name="Call {{SYSTEM_NAME}}.{{WSDLOperation}}">
+            <wsc:message>
+              <wsc:body>#[output application/xml --- { ... }]</wsc:body>
+            </wsc:message>
+          </wsc:consume>
+    -->

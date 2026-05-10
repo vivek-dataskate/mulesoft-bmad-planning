@@ -1,0 +1,76 @@
+<!--
+    Snippet: Claim Check — Retrieve (consumer side)
+    Use after receiving a claim-check token message from MQ.
+    Pattern: read key from token → retrieve full payload from S3/Blob → delete from store.
+
+    Steps:
+      1. Read claim-check key from message token  (this snippet)
+      2. Retrieve full payload from S3/Blob
+      3. Delete from store after successful processing (prevent storage accumulation)
+      Consumer publishes to IMC on validation failure AFTER retrieving full payload.
+
+    Bucket/container: ${s3.bucket.payloads}
+-->
+
+        <!-- Claim Check Retrieve — restore full payload from store -->
+        <set-variable
+            variableName="claimCheckKey"
+            value="#[payload.claimCheckKey]"
+            doc:name="Extract Claim Check Key"/>
+
+        <logger
+            level="DEBUG"
+            message='#["[CLAIM CHECK RETRIEVE] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | key=" ++ (vars.claimCheckKey default "null")]'
+            doc:name="Log Claim Check Retrieve"/>
+
+        <!-- Option A: Amazon S3 -->
+        <s3:get-object
+            config-ref="Amazon_S3_Config"
+            bucketName="${s3.bucket.payloads}"
+            key="#[vars.claimCheckKey]"
+            doc:name="Retrieve Payload from S3"/>
+
+        <!--
+        Option B: Azure Blob Storage (uncomment if using Azure)
+        <azure-blob:download
+            config-ref="Azure_Blob_Config"
+            containerName="${blob.container.payloads}"
+            blobName="#[vars.claimCheckKey]"
+            doc:name="Retrieve Payload from Azure Blob"/>
+        -->
+
+        <!-- Restore full payload from storage response -->
+        <ee:transform doc:name="Parse Retrieved Payload">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!--
+            TODO: Implement processing on restored full payload
+        -->
+
+        <!-- Step 4: Delete from store after successful processing -->
+        <!-- Delete AFTER processing — if processing fails, DLQ retry can retrieve again -->
+        <s3:delete-object
+            config-ref="Amazon_S3_Config"
+            bucketName="${s3.bucket.payloads}"
+            key="#[vars.claimCheckKey]"
+            doc:name="Delete Claim Check from S3"/>
+
+        <!--
+        Option B: Azure Blob (uncomment if using Azure)
+        <azure-blob:delete
+            config-ref="Azure_Blob_Config"
+            containerName="${blob.container.payloads}"
+            blobName="#[vars.claimCheckKey]"
+            doc:name="Delete Claim Check from Azure Blob"/>
+        -->
+
+        <logger
+            level="DEBUG"
+            message='#["[CLAIM CHECK DELETED] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | key=" ++ (vars.claimCheckKey default "null")]'
+            doc:name="Log Claim Check Cleanup"/>

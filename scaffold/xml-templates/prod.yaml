@@ -1,0 +1,55 @@
+# prod.yaml — Production environment properties.
+# Loaded when mule.env=prod.
+# CRITICAL RULES for production:
+#   - Log level: WARN (never INFO/DEBUG — PII and volume risk)
+#   - No hardcoded credentials — ALL secrets via Secrets Manager
+#   - Wire logging: DISABLED
+#   - No debug endpoints exposed
+
+# HTTP listener
+http:
+  host: "0.0.0.0"
+  port: "8081"
+
+# Scheduler
+scheduler:
+  cron: "${scheduler.cron.prod}"          # Set in Runtime Manager for prod environment
+  frequencySeconds: "${scheduler.frequencySeconds.prod}"
+
+# MQ Queue names — prod suffix (no 'dev' or 'uat' queues in prod ever)
+mq:
+  queue:
+    target:           "{{domain}}-target-prod-queue"
+    dlq:              "{{domain}}-target-prod-queue-dlq"
+    invalid-messages: "{{domain}}-invalid-messages-prod-queue"
+    audit:            "{{domain}}-audit-prod-queue"
+
+# DB poll
+db:
+  poll:
+    batchSize: "1000"                     # Tune based on load testing results
+
+# SFTP
+sftp:
+  inbound:
+    directory:          "/inbound/prod"
+    processedDirectory: "/inbound/prod/processed"
+  poll:
+    frequencySeconds: "${sftp.poll.frequencySeconds.prod}"
+
+# S3 / Blob
+s3:
+  bucket:
+    payloads: "{{artifactId}}-claim-check-prod"
+
+# Logging — WARN only in production (never INFO/DEBUG)
+# JSON format for Splunk/Datadog ingestion
+logging:
+  level: "WARN"
+
+# All connector credentials sourced from Secrets Manager at runtime.
+# Properties below reference secret names — actual values never in this file.
+# Example (regulated tier with AWS Secrets Manager):
+# salesforce:
+#   consumerKey: "${salesforce.consumerKey}"        # resolved by Secrets Manager provider
+#   username: "${salesforce.username}"

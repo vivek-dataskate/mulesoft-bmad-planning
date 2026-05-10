@@ -1,0 +1,139 @@
+openapi: "3.0.3"
+info:
+  title: "{{API_TITLE}}"
+  description: |
+    {{API_DESCRIPTION}}
+
+    Generated stub — developer completes field-level schema before publishing to Exchange.
+    Layer: {{API_LAYER}} (system | process | experience)
+    Source: {{FLOW_SOURCE}} → Target: {{FLOW_TARGET}}
+  version: "1.0.0"
+  contact:
+    name: "{{PROJECT_TEAM}}"
+
+servers:
+  - url: "https://{environment}.{{base_url}}/api/v1"
+    description: "CloudHub 2.0 — environment-specific"
+    variables:
+      environment:
+        enum: ["dev", "uat", "prod"]
+        default: "dev"
+
+# TODO: Define reusable security schemes
+security:
+  - clientIdHeader: []
+
+components:
+  securitySchemes:
+    # internal tier: Client-ID + Client-Secret headers (Flex Gateway policy)
+    clientIdHeader:
+      type: apiKey
+      in: header
+      name: client_id
+      description: "Anypoint Platform client_id. Pair with client_secret header."
+
+  schemas:
+    # ── Error Envelope ───────────────────────────────────────────────────
+    ErrorEnvelope:
+      type: object
+      required: [correlationId, errorCode, message, timestamp]
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+          description: "Trace ID — include in all support requests"
+        errorCode:
+          type: string
+          enum:
+            - VALIDATION_ERROR
+            - SERVICE_UNAVAILABLE
+            - AUTHORIZATION_ERROR
+            - INTERNAL_ERROR
+        message:
+          type: string
+          description: "Human-readable error description. Never expose stack traces."
+        timestamp:
+          type: string
+          format: date-time
+        failingComponent:
+          type: string
+          description: "Mule component that raised the error"
+
+    # ── TODO: Define request body schema ─────────────────────────────────
+    # {{FLOW_NAME}}Request:
+    #   type: object
+    #   required: []  # TODO: list required fields from architecture.md Field Mapping
+    #   properties:
+    #     id:
+    #       type: string
+    #       description: "TODO: describe field"
+
+    # ── TODO: Define response body schema ────────────────────────────────
+    # {{FLOW_NAME}}Response:
+    #   type: object
+    #   properties:
+    #     id:
+    #       type: string
+
+paths:
+  # ── TODO: Define API endpoints ─────────────────────────────────────────
+  # Replace {entity} with the actual resource name from decisions.json flows[]
+  "/{{RESOURCE_PATH}}":
+    post:
+      summary: "TODO: Describe this operation"
+      operationId: "{{FLOW_NAME}}"
+      tags:
+        - "{{DOMAIN}}"
+      parameters:
+        - name: "client_secret"
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              # TODO: $ref: '#/components/schemas/{{FLOW_NAME}}Request'
+              type: object
+              description: "TODO: Replace with {{FLOW_NAME}}Request schema"
+            example:
+              id: "example-001"
+              # TODO: add realistic example fields from architecture.md Field Mapping table
+      responses:
+        "200":
+          description: "Success"
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
+              description: "Correlation ID for tracing"
+          content:
+            application/json:
+              schema:
+                # TODO: $ref: '#/components/schemas/{{FLOW_NAME}}Response'
+                type: object
+        "400":
+          description: "Validation error — check request body"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        "401":
+          description: "Missing or invalid client credentials"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        "503":
+          description: "Downstream system temporarily unavailable — retry with backoff"
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: "Seconds to wait before retry"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'

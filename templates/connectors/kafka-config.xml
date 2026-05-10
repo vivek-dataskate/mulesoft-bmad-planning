@@ -1,0 +1,95 @@
+<!--
+    Connector: Apache Kafka
+    Registry key: kafka
+    Connector: mule-kafka-connector 4.8.0  (com.mulesoft.connectors)
+    Namespace: xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+    Schema:    http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-kafka-connector/
+
+    Use Kafka (not Anypoint MQ) when:
+      □ Message replay required (rewind to past state)
+      □ Throughput > 100K messages/day
+      □ Consumer count > 10
+      □ Publisher and consumer teams evolve independently
+      □ Log-based CDC (Debezium-style)
+
+    Auth options:
+      A. No auth (dev/local testing only — never prod)
+      B. SASL/PLAIN (username + password)
+      C. SASL/SCRAM-SHA-256 or SHA-512 (Confluent Cloud)
+      D. mTLS (Kafka with TLS client certificates)
+
+    Confluent Cloud: Use SASL/PLAIN with API key + secret.
+    Confluent Schema Registry: Add Confluent Schema Registry connector for Avro.
+
+    Properties required in {env}.yaml:
+      kafka.bootstrap.servers    → "broker1:9092,broker2:9092"
+      kafka.consumer.groupId     → "{artifactId}-{env}" (unique per app+env)
+      kafka.sasl.username        → API key (Confluent) or username
+      kafka.sasl.password        → API secret / password (via Secrets Manager)
+      kafka.topics.*             → topic names per use case
+-->
+
+    <!-- ── Kafka Consumer Config ──────────────────────────────────────── -->
+    <kafka:consumer-config
+        name="Kafka_Consumer_Config"
+        doc:name="Kafka Consumer Config">
+        <!-- Option B: SASL/PLAIN (Confluent Cloud / managed Kafka) -->
+        <kafka:consumer-plaintext-sasl-connection
+            bootstrapServers="${kafka.bootstrap.servers}"
+            username="${kafka.sasl.username}"
+            password="${kafka.sasl.password}"
+            saslMechanism="PLAIN">
+            <kafka:consumer-partitions/>
+            <kafka:topic-patterns/>
+            <kafka:additional-properties>
+                <kafka:additional-property
+                    key="group.id"
+                    value="${kafka.consumer.groupId}"/>
+                <kafka:additional-property
+                    key="auto.offset.reset"
+                    value="latest"/>
+                <kafka:additional-property
+                    key="enable.auto.commit"
+                    value="false"/>
+            </kafka:additional-properties>
+        </kafka:consumer-plaintext-sasl-connection>
+    </kafka:consumer-config>
+
+    <!-- ── Kafka Producer Config ──────────────────────────────────────── -->
+    <kafka:producer-config
+        name="Kafka_Producer_Config"
+        doc:name="Kafka Producer Config">
+        <kafka:producer-plaintext-sasl-connection
+            bootstrapServers="${kafka.bootstrap.servers}"
+            username="${kafka.sasl.username}"
+            password="${kafka.sasl.password}"
+            saslMechanism="PLAIN">
+            <kafka:additional-properties>
+                <kafka:additional-property
+                    key="acks"
+                    value="all"/>
+                <kafka:additional-property
+                    key="retries"
+                    value="3"/>
+                <kafka:additional-property
+                    key="enable.idempotence"
+                    value="true"/>
+            </kafka:additional-properties>
+        </kafka:producer-plaintext-sasl-connection>
+    </kafka:producer-config>
+
+    <!--
+        Usage in flows:
+          Consumer (trigger): see triggers/kafka-listener.xml
+
+          Producer (publish):
+            <kafka:publish
+              config-ref="Kafka_Producer_Config"
+              topic="${kafka.topics.output}"
+              key="#[correlationId]"
+              doc:name="Publish to Kafka">
+              <kafka:message>#[output application/json --- payload]</kafka:message>
+              <kafka:headers>#[{ "X-Correlation-ID": correlationId }]</kafka:headers>
+            </kafka:publish>
+    -->

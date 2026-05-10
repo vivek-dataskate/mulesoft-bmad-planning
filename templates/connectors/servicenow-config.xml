@@ -1,0 +1,73 @@
+<!--
+    Connector: ServiceNow
+    Registry key: servicenow
+    Connector: mule-servicenow-connector 6.18.0  (com.mulesoft.connectors)
+    Namespace: xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
+    Schema:    http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-servicenow-connector/
+
+    CRITICAL: Metadata resolution (table/field discovery in Studio) does NOT work with
+    OAuth 2.0 Authorization Code. Use Basic Auth for metadata resolution in Anypoint Studio,
+    then switch to OAuth 2.0 for deployment. Or use Basic Auth throughout (simpler for ITSM).
+
+    Auth options:
+      A. Basic Auth — username + password (dev and Studio metadata resolution)
+      B. OAuth 2.0 Client Credentials — for automated server-to-server flows
+
+    ServiceNow instance URL format: https://{instance}.service-now.com
+
+    Properties required in {env}.yaml:
+      servicenow.instanceUrl  → "https://yourinstance.service-now.com"
+      servicenow.username     → service account username (Basic) or client ID (OAuth2)
+      servicenow.password     → via Secrets Manager
+      servicenow.clientId     → OAuth2 client ID (if using OAuth2)
+      servicenow.clientSecret → OAuth2 client secret (via Secrets Manager)
+-->
+
+    <!-- Option A: Basic Auth (simpler; works for all operations including metadata) -->
+    <servicenow:config
+        name="ServiceNow_Config"
+        doc:name="ServiceNow Config">
+        <servicenow:basic-connection
+            instanceUrl="${servicenow.instanceUrl}"
+            username="${servicenow.username}"
+            password="${servicenow.password}"/>
+    </servicenow:config>
+
+    <!--
+        Option B: OAuth 2.0 Client Credentials (uncomment for prod OAuth2):
+        <servicenow:config name="ServiceNow_Config" doc:name="ServiceNow Config">
+            <servicenow:oauth-client-credentials-connection
+                instanceUrl="${servicenow.instanceUrl}"
+                clientId="${servicenow.clientId}"
+                clientSecret="${servicenow.clientSecret}"
+                tokenUrl="${servicenow.instanceUrl}/oauth_token.do"/>
+        </servicenow:config>
+    -->
+
+    <!--
+        Usage in flows:
+          Create incident:
+            <servicenow:invoke
+              config-ref="ServiceNow_Config"
+              service="incident"
+              operation="insertRecord"
+              doc:name="Create ServiceNow Incident">
+              <servicenow:body>#[output application/xml --- {
+                incident: {
+                  short_description: payload.summary,
+                  description: payload.description,
+                  urgency: "2",
+                  impact: "2",
+                  caller_id: payload.callerId
+                }
+              }]</servicenow:body>
+            </servicenow:invoke>
+
+          Query incidents:
+            <servicenow:invoke
+              config-ref="ServiceNow_Config"
+              service="incident"
+              operation="getRecords"
+              doc:name="Query ServiceNow Incidents"/>
+    -->
