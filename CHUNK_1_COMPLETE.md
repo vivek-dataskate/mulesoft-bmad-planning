@@ -21,7 +21,7 @@ Completed: 2026-05-10
 - `scaffold/create-client-repo.sh` — placeholder (CHUNK 8)
 
 ### Projects
-- `projects/leolabs/intake/` — ready for LeoLabs discovery docs
+- `projects/leo-labs/intake/` — ready for LeoLabs discovery docs
 - `projects/new-client/intake/` — template folder for any new client
 
 ### Repo Config

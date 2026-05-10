@@ -99,7 +99,7 @@ Batch process-records step
     "connectors": ["anypoint-mq"]
   },
   "devops": {
-    "munitCoverage": 75
+    "munitCoverage": 80
   }
 }
 ```

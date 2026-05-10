@@ -88,7 +88,7 @@ SFTP / S3 / Azure Blob / FTP
     "objectStore": "persistent"
   },
   "devops": {
-    "munitCoverage": 75
+    "munitCoverage": 80
   }
 }
 ```

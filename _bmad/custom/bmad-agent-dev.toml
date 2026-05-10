@@ -1,0 +1,113 @@
+# MuleSoft BMAD — Dev (Amelia) team overrides
+# Applied on top of .claude/skills/bmad-agent-dev/customize.toml
+# Scalars override; arrays (persistent_facts, principles, activation_steps_*) append.
+
+[agent]
+
+# Load MuleSoft master context, standards, and field knowledge at session start.
+persistent_facts = [
+  "file:{project-root}/docs/PLANNING_CONTEXT.md",
+  "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
+  "file:{project-root}/standards/MULESOFT_DESIGN_STANDARDS.md",
+]
+
+# Executed before persona adoption and greeting — load context first.
+activation_steps_prepend = [
+  "Read docs/PLANNING_CONTEXT.md — specifically: Generated Client Project Structure (file layout), API-Led Connectivity standards (3 layers, naming), Error Handling (global handler, error envelope format), DataWeave rules, MUnit Coverage by Pattern table, Retry Table, Logging standards, and all Cross-Cutting Patterns.",
+  "Read docs/FIELD_KNOWLEDGE.md. Note any entries tagged 'verified' or 'promoted-to-standard' that match this project's systems or patterns. Apply verified entries as active guidance.",
+  "Check if projects/{client}/api-discovery/ directory exists. If it does, list all contract files present (e.g., {system}-contract.md). Hold these as active reference — confirmed field inventory and working curls from contracts override generic connector docs.",
+]
+
+# MuleSoft-specific principles appended to Amelia's defaults.
+principles = [
+  "MuleSoft: Before implementing any flow — read the relevant scenario file at standards/scenarios/{pattern}.md (pattern from decisions.json flows[].trigger + primaryPattern). The scenario file is the reference architecture for that pattern — do not rely on memory.",
+
+  "MuleSoft: Before implementing any flow — check projects/{client}/api-discovery/{system}-contract.md. If present, its confirmed field inventory and working curl are the source of truth for that system's write operations, not generic connector docs.",
+
+  "MuleSoft: Follow the scaffold file layout exactly:\n  global-config.xml: connector config elements ONLY — never put flows here.\n  error-handler.xml: global error handler ONLY.\n  {domain}-flows.xml: flows ONLY — named per decisions.json flows[].name (kebab-case).\n  dwl/{verb}-{source}-to-{target}.dwl: any DataWeave transform >10 lines — never inline.\n  properties/{env}.yaml: all environment config — no hardcoded values anywhere.",
+
+  "MuleSoft MUnit Coverage Floors (apply per pattern — never use 100% as the target):\n  request-reply (A), api-aggregation (I):           80% minimum\n  event-driven (B), pubsub-fanout (M):               75% minimum\n  batch (C), data-migration (K):                     75% minimum\n  outbound-notification (N):                         60% minimum\n  all other patterns (D,E,F,G,H,J,L,O,P,Q,R):       80% minimum\n  Connector calls are excluded from coverage measurement.\n  CI/CD gate must pass before any deploy.",
+
+  "MuleSoft Idempotency — MANDATORY on all async MQ consumers (no exceptions):\n  Key: {consumer-prefix}-${attributes.messageId}\n  Store: Object Store persistent (not in-memory)\n  TTL: MUST equal or exceed the queue's messageTtlHours × 60 minutes. Never hardcode 24h.\n    Critical queue (messageTtlHours=168)  → deduplicationTtlMinutes=10080\n    Standard queue (messageTtlHours=24)   → deduplicationTtlMinutes=1440\n    CDC queue (messageTtlHours=4)         → deduplicationTtlMinutes=240\n    Notification queue (messageTtlHours=1)→ deduplicationTtlMinutes=60\n  Action on duplicate: ACK + skip. Do NOT re-process.\n  Read decisions.json flowControl.messageTtlHours to determine the correct TTL.",
+
+  "MuleSoft Error Envelope — MANDATORY on every error path:\n  Format: {correlationId, errorCode, message, timestamp, failingComponent}\n  Never expose Java stack traces in any error response or log at WARN or above.\n  Global error handler in error-handler.xml handles this — do not duplicate in flow XML.",
+
+  "MuleSoft Retry Rules (apply from the Retry Table — do not invent values):\n  Sync API timeout       → 3 retries, 5s fixed, return 503 + Retry-After header\n  Async MQ failure       → 3 retries, exponential 30s/90s/270s, then DLQ (MANUAL ack)\n  Batch record failure   → 1 retry, continue batch, report failures at end\n  Auth token expiry      → 1 refresh attempt, halt + alert on failure\n  Notification failure   → 2-3 retries, fixed 2-5s interval, log WARN on fail, ALWAYS continue (on-error-continue)",
+
+  "MuleSoft Claim Check — implement when payload may exceed 1MB:\n  1. Write full payload to S3/Azure Blob with key = correlationId\n  2. Publish MQ message with key only (claim-check token)\n  3. Consumer reads key, retrieves full payload from store\n  4. Consumer DELETES payload from store after successful processing (or TTL expires)\n  Never skip step 4 — orphaned blobs accumulate silently.",
+
+  "MuleSoft Logging (every log line must include ALL of these):\n  correlationId, flowName, timestamp, payloadSize, environment\n  Log levels by environment:\n    local: DEBUG (wire logging allowed)\n    dev:   DEBUG (wire logging allowed)\n    uat:   INFO  (no wire logging)\n    prod:  WARN  (no wire logging, no raw payloads)\n  Never log: credentials, PII, raw payloads at INFO or above, full Java stack traces.",
+
+  "MuleSoft Validation rule: VALIDATE BEFORE any downstream call. Structural and schema failures route to invalid-message-channel (not DLQ). DLQ is for delivery failures only — not for validation failures that will fail on every retry.",
+
+  "MuleSoft: Apply FIELD_KNOWLEDGE.md verified entries as active guidance. Flag observation-status entries if situation matches — do not auto-apply.",
+
+  "MuleSoft: Decisions-first. Apply all standards defaults. Max 3 clarifying questions per run.",
+]
+
+# MuleSoft-specific menu item added to Amelia's standard menu.
+
+[[agent.menu]]
+code = "MI"
+description = "Implement a MuleSoft flow from a story — uses decisions.json + scenario file + api-discovery contracts"
+prompt = """
+Implement the specified MuleSoft flow following the standards in docs/PLANNING_CONTEXT.md and standards/MULESOFT_DESIGN_STANDARDS.md.
+
+Pre-flight:
+1. Read projects/{client}/decisions.json — find this flow's spec (name, layer, source, target, trigger, pattern).
+2. Read standards/scenarios/{pattern}.md for this flow's pattern. Use its reference architecture and MUnit checklist.
+3. Check projects/{client}/api-discovery/ for a contract file matching the flow's target system.
+   If found: use confirmed field inventory and working curl. Do not use generic connector docs.
+4. Read the relevant story from projects/{client}/stories.md for acceptance criteria.
+5. Read projects/{client}/architecture.md — find this flow's Field Mapping table, Business Rules, and Open Items.
+
+File layout (enforce strictly — never deviate):
+- global-config.xml: add connector config elements here ONLY. Never put connector config in flow files.
+- error-handler.xml: global error handler wired per error handling standards.
+- {domain}-flows.xml: place the flow here. Named per decisions.json flows[].name (kebab-case).
+- dwl/{verb}-{source}-to-{target}.dwl: all DataWeave transforms >10 lines. Never inline.
+- properties/{env}.yaml: all environment config. No hardcoded values anywhere.
+
+Flow implementation:
+- Correct API-Led layer (system | process | experience) as per decisions.json flows[].layer.
+- Correlate via Mule correlationId — never generate mid-flow, never lose across async boundary.
+- VALIDATE BEFORE any downstream call. Validation failures → invalid-message-channel (not DLQ).
+- Log at entry, pre-call, post-call, exit — always include correlationId, flowName, payloadSize, environment.
+- Log level per environment: local/dev=DEBUG, uat=INFO, prod=WARN. Never log credentials or PII.
+- Error envelope on every error path: {correlationId, errorCode, message, timestamp, failingComponent}. Never expose stack traces.
+
+If async MQ consumer:
+- Idempotency check (Object Store persistent, key={consumer-prefix}-${attributes.messageId}).
+  TTL = decisions.json flowControl.messageTtlHours × 60 minutes. Action on duplicate: ACK + skip.
+- MANUAL acknowledgement mode — ACK only after successful processing.
+
+If payload may exceed 1MB:
+- Claim Check: write payload to S3/Blob (key=correlationId), publish token to MQ, consumer retrieves and DELETES after processing.
+
+Notification failures (Slack/email/SMS):
+- Retry 2-3 times with fixed 2-5s interval. Log WARN on final failure. Always on-error-continue — never break primary flow.
+
+DLQ routing:
+- Async flows: 3 retries, exponential 30s/90s/270s, then publish to {queue-name}-dlq. DLQ routing in error-handler.xml.
+- Sync APIs: 3 retries, 5s fixed, return 503 + Retry-After header.
+- Never put retry logic in the flow itself — delegate to global error handler.
+
+DataWeave transforms:
+- Input content-type always declared.
+- Implement all confirmed field mappings from architecture.md Field Mapping table.
+- Encode Business Rules from architecture.md in the transform.
+- Open Items → // TODO [OPEN ITEM]: {question} — confirm with client — best guess: {value}
+- indent=false for large payload outputs.
+
+MUnit tests in src/test/munit/{flow-name}-test.xml:
+- Happy path: mock ALL connector operations; assert response shape, status, and downstream call made.
+- Error scenario 1: downstream system unavailable → mock throws exception → verify retry then DLQ.
+- Error scenario 2: invalid input → verify route to invalid-message-channel (NOT DLQ).
+- Coverage floor per pattern:
+    request-reply/api-aggregation=80%, event-driven/pubsub-fanout/batch/data-migration=75%,
+    outbound-notification=60%, all other patterns=80%.
+  Connector calls excluded from coverage. CI/CD gate must pass.
+- correlationId present in all log assertions.
+
+Which client and flow/story should I implement?
+"""
