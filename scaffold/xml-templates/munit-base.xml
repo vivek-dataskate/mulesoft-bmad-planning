@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    MUnit test file for: {{FLOW_NAME}}
+    Pattern: {{PRIMARY_PATTERN}}
+    Coverage floor: {{MUNIT_COVERAGE}}% (enforced by munit-maven-plugin in pom.xml)
+
+    Required test cases (minimum):
+      1. Happy path — nominal input → expected output
+      2. Error scenario A — connectivity failure (HTTP:CONNECTIVITY / MQ:CONNECTIVITY)
+      3. Error scenario B — validation failure (missing required field)
+
+    Rules:
+      - Mock ALL connector operations (never call real systems in unit tests)
+      - Do NOT mock DataWeave transforms (test the transform logic)
+      - Assert on specific field values, not just status codes
+      - Coverage floor: {{MUNIT_COVERAGE}}% — connector calls excluded from coverage
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/munit
+          http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+        http://www.mulesoft.org/schema/mule/munit-tools
+          http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <munit:config name="{{FLOW_NAME}}-test" doc:name="MUnit Config">
+        <munit:parameterizations/>
+    </munit:config>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TEST CASE 1: Happy Path
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-happy-path-test"
+        doc:name="Happy Path — nominal input produces expected output"
+        description="Verifies {{FLOW_DESCRIPTION}} with valid input">
+
+        <munit:behavior>
+            <!--
+                Mock all connector operations.
+                Mock name = processor attribute + config-ref to uniquely identify.
+                Example mocks below — replace with actual connectors for this flow.
+            -->
+
+            <!-- Mock: HTTP requester (if flow calls downstream HTTP) -->
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock HTTP Request — {{FLOW_TARGET}}">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute
+                        attributeName="config-ref"
+                        whereValue="HTTP_Request_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload
+                        value='#[{ "id": "mock-id-001", "status": "SUCCESS" }]'
+                        mediaType="application/json"/>
+                    <munit-tools:attributes
+                        value='#[{ statusCode: 200, reasonPhrase: "OK", headers: {} }]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+
+            <!-- TODO: Add mocks for other connectors used in this flow -->
+            <!-- Connector mock templates:
+                 Salesforce:    processor="salesforce:create" or "salesforce:query"
+                 Anypoint MQ:  processor="anypoint-mq:publish" or "anypoint-mq:ack"
+                 Database:     processor="db:select" or "db:insert"
+                 Object Store: processor="os:retrieve" or "os:store"
+                 Amazon S3:    processor="s3:put-object" or "s3:get-object"
+            -->
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <!-- TODO: Replace with realistic test payload for {{FLOW_SOURCE}} -->
+                    <munit:payload
+                        value='#[{
+    "id":   "test-001",
+    "name": "Test Record"
+}]'
+                        mediaType="application/json"/>
+                    <munit:attributes
+                        value='#[{
+    method:      "POST",
+    requestPath: "{{HTTP_PATH}}",
+    headers:     { "X-Correlation-ID": "test-correlation-001" }
+}]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- TODO: Assert on specific business fields, not just status -->
+            <munit-tools:assert-that
+                expression="#[vars.httpStatus default 200]"
+                is="#[MunitTools::equalTo(200)]"
+                doc:name="Assert HTTP 200"/>
+            <munit-tools:assert-that
+                expression="#[payload != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert payload not null"/>
+            <!-- TODO: Add field-level assertions -->
+            <!-- Example: <munit-tools:assert-that expression="#[payload.status]" is="#[MunitTools::equalTo('SUCCESS')]"/> -->
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TEST CASE 2: Error Scenario A — Connectivity Failure
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-connectivity-error-test"
+        doc:name="Error Scenario A — downstream connectivity failure returns 503"
+        description="Verifies error envelope and 503 response when downstream is unavailable"
+        expectedErrorType="MULE:COMPOSITE_ROUTING">
+
+        <munit:behavior>
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock HTTP Connectivity Failure">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute
+                        attributeName="config-ref"
+                        whereValue="HTTP_Request_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error
+                        typeId="HTTP:CONNECTIVITY"
+                        description="Simulated connectivity failure"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload
+                        value='#[{ "id": "test-conn-fail-001" }]'
+                        mediaType="application/json"/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that
+                expression="#[vars.httpStatus default 500]"
+                is="#[MunitTools::equalTo(503)]"
+                doc:name="Assert 503 on connectivity failure"/>
+            <munit-tools:assert-that
+                expression="#[payload.errorCode]"
+                is="#[MunitTools::equalTo('SERVICE_UNAVAILABLE')]"
+                doc:name="Assert error code"/>
+            <munit-tools:assert-that
+                expression="#[payload.correlationId != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert correlationId present in error envelope"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TEST CASE 3: Error Scenario B — Validation Failure (missing field)
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-validation-error-test"
+        doc:name="Error Scenario B — missing required field returns 400"
+        description="Verifies validation error routing to Invalid Message Channel (not DLQ)">
+
+        <munit:behavior>
+            <!-- No mocks needed — validation fires before any connector call -->
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <!-- Intentionally missing required fields to trigger validation -->
+                    <munit:payload
+                        value='#[{}]'
+                        mediaType="application/json"/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that
+                expression="#[vars.httpStatus default 500]"
+                is="#[MunitTools::equalTo(400)]"
+                doc:name="Assert 400 on validation failure"/>
+            <munit-tools:assert-that
+                expression="#[payload.errorCode]"
+                is="#[MunitTools::equalTo('VALIDATION_ERROR')]"
+                doc:name="Assert validation error code"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TODO: Add pattern-specific test cases
+         See: story-library/flow-munit-tests.md for extended scenarios
+         ══════════════════════════════════════════════════════════════════ -->
+
+</mule>

@@ -1,0 +1,62 @@
+<!--
+    Connector: MongoDB
+    Registry key: mongodb
+    Connector: mule-mongodb-connector 6.3.5  (com.mulesoft.connectors)
+    Namespace: xmlns:mongodb="http://www.mulesoft.org/schema/mule/mongodb"
+    Schema:    http://www.mulesoft.org/schema/mule/mongodb/current/mule-mongodb.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-mongodb-connector/
+
+    Auth: Username + Password (MongoDB Atlas: connection string contains credentials)
+    Always use TLS in production (MongoDB Atlas enforces TLS by default).
+
+    Properties required in {env}.yaml:
+      mongodb.host      → MongoDB hostname or Atlas cluster hostname
+      mongodb.port      → "27017" (Atlas: use SRV connection string instead)
+      mongodb.database  → database name
+      mongodb.username  → MongoDB username (via Secrets Manager for prod)
+      mongodb.password  → via Secrets Manager
+
+    For MongoDB Atlas:
+      Use generic connection with full SRV URI:
+      url: "mongodb+srv://${mongodb.username}:${mongodb.password}@${mongodb.host}/${mongodb.database}"
+-->
+
+    <mongodb:config
+        name="MongoDB_Config"
+        doc:name="MongoDB Config">
+        <mongodb:connection
+            host="${mongodb.host}"
+            port="${mongodb.port}"
+            database="${mongodb.database}"
+            username="${mongodb.username}"
+            password="${mongodb.password}"
+            ssl="true"/>
+    </mongodb:config>
+
+    <!--
+        Usage in flows:
+          Find documents:
+            <mongodb:find-one-document
+              config-ref="MongoDB_Config"
+              collection="${mongodb.collection.orders}"
+              doc:name="Find Order">
+              <mongodb:query-attributes>#[output application/json --- { "orderId": payload.orderId }]</mongodb:query-attributes>
+            </mongodb:find-one-document>
+
+          Insert document (use upsert for idempotency):
+            <mongodb:insert-document
+              config-ref="MongoDB_Config"
+              collection="${mongodb.collection.orders}"
+              doc:name="Insert Order">
+              <mongodb:document>#[output application/json --- payload]</mongodb:document>
+            </mongodb:insert-document>
+
+          Update document:
+            <mongodb:update-documents-by-function
+              config-ref="MongoDB_Config"
+              collection="${mongodb.collection.orders}"
+              doc:name="Update Order">
+              <mongodb:query>#[output application/json --- { "orderId": payload.orderId }]</mongodb:query>
+              <mongodb:content>#[output application/json --- { "$set": payload }]</mongodb:content>
+            </mongodb:update-documents-by-function>
+    -->

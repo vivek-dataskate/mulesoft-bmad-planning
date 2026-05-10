@@ -1,0 +1,102 @@
+<!--
+    Connector: Database (generic — covers MySQL, PostgreSQL, MSSQL, Oracle, MariaDB)
+    Registry key: database (or mysql / postgresql / mssql / oracle-db)
+    Connector: mule-db-connector 1.14.0  (org.mule.connectors)
+    Namespace: xmlns:db="http://www.mulesoft.org/schema/mule/db"
+    Schema:    http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-db-connector/
+
+    DRIVER NOTES by database:
+      MySQL:      com.mysql.cj.jdbc.Driver   (add mysql-connector-j to pom.xml)
+      PostgreSQL: org.postgresql.Driver       (add postgresql to pom.xml)
+      MSSQL:      com.microsoft.sqlserver.jdbc.SQLServerDriver (add mssql-jdbc to pom.xml)
+      Oracle:     oracle.jdbc.OracleDriver    ← CANNOT go in pom.xml (Oracle license)
+                  Place ojdbc11.jar in shared lib folder on CloudHub 2.0
+      MariaDB:    org.mariadb.jdbc.Driver     (add mariadb-java-client to pom.xml)
+
+    Properties required in {env}.yaml:
+      db.host      → database hostname
+      db.port      → port (MySQL: 3306, PG: 5432, MSSQL: 1433, Oracle: 1521)
+      db.name      → database/schema name
+      db.user      → service account username (via Secrets Manager for prod)
+      db.password  → via Secrets Manager (never in property files for prod)
+
+    Connection pool: Default pool is 5 connections — tune for production load.
+    Always use prepared statements (parameterized queries) — no string concatenation (SQL injection).
+-->
+
+    <!-- TODO: Uncomment the block matching your database type -->
+
+    <!-- ── MySQL ─────────────────────────────────────────────────────── -->
+    <!--
+    <db:config name="Database_Config" doc:name="Database Config — MySQL">
+        <db:my-sql-connection
+            host="${db.host}"
+            port="${db.port}"
+            database="${db.name}"
+            user="${db.user}"
+            password="${db.password}"/>
+    </db:config>
+    -->
+
+    <!-- ── PostgreSQL ────────────────────────────────────────────────── -->
+    <!--
+    <db:config name="Database_Config" doc:name="Database Config — PostgreSQL">
+        <db:generic-connection
+            driverClassName="org.postgresql.Driver"
+            url="jdbc:postgresql://${db.host}:${db.port}/${db.name}"
+            user="${db.user}"
+            password="${db.password}"/>
+    </db:config>
+    -->
+
+    <!-- ── Microsoft SQL Server ──────────────────────────────────────── -->
+    <!--
+    <db:config name="Database_Config" doc:name="Database Config — MSSQL">
+        <db:generic-connection
+            driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+            url="jdbc:sqlserver://${db.host}:${db.port};databaseName=${db.name};encrypt=true;trustServerCertificate=false"
+            user="${db.user}"
+            password="${db.password}"/>
+    </db:config>
+    -->
+
+    <!-- ── Oracle ────────────────────────────────────────────────────── -->
+    <!-- REQUIRES ojdbc11.jar in CloudHub 2.0 shared lib (not in pom.xml) -->
+    <!--
+    <db:config name="Database_Config" doc:name="Database Config — Oracle">
+        <db:generic-connection
+            driverClassName="oracle.jdbc.OracleDriver"
+            url="jdbc:oracle:thin:@${db.host}:${db.port}:${db.serviceName}"
+            user="${db.user}"
+            password="${db.password}"/>
+    </db:config>
+    -->
+
+    <!-- ── Active config placeholder (replace with one of the above) ── -->
+    <db:config name="Database_Config" doc:name="Database Config">
+        <!-- TODO: Replace with the correct database connection block above -->
+        <db:generic-connection
+            driverClassName="${db.driverClass}"
+            url="${db.url}"
+            user="${db.user}"
+            password="${db.password}"/>
+    </db:config>
+
+    <!--
+        Usage in flows (always use parameterized queries):
+          Select:
+            <db:select config-ref="Database_Config" doc:name="Select Records">
+              <db:sql>SELECT * FROM orders WHERE status = :status AND created_at > :since</db:sql>
+              <db:input-parameters>#[{ status: "OPEN", since: vars.watermark }]</db:input-parameters>
+            </db:select>
+
+          Insert:
+            <db:insert config-ref="Database_Config" doc:name="Insert Record">
+              <db:sql>INSERT INTO orders (id, customer_id, total) VALUES (:id, :customerId, :total)</db:sql>
+              <db:input-parameters>#[{ id: payload.id, customerId: payload.customerId, total: payload.total }]</db:input-parameters>
+            </db:insert>
+
+          Upsert (idempotent — preferred for integrations):
+            Use INSERT ... ON CONFLICT UPDATE (PG) or MERGE (Oracle/MSSQL)
+    -->

@@ -1,0 +1,52 @@
+<!--
+    Connector: Azure Blob Storage
+    Registry key: azure-blob
+    Connector: mule-azure-blob-storage-connector 1.3.0  (com.mulesoft.connectors)
+    Namespace: xmlns:azure-blob="http://www.mulesoft.org/schema/mule/azure-blob"
+    Schema:    http://www.mulesoft.org/schema/mule/azure-blob/current/mule-azure-blob.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-azure-blob-storage-connector/
+
+    Use when: Client is Azure-native; use instead of Amazon S3 for claim-check and file storage.
+    CRITICAL (CloudHub 2.0): Local filesystem is EPHEMERAL — always use external blob storage.
+
+    Auth: Connection string (Storage Account → Access keys)
+    Encryption: Enable at-rest encryption in Azure Storage Account settings.
+
+    Properties required in {env}.yaml:
+      blob.connectionString     → via Secrets Manager
+      blob.container.payloads   → claim-check container name (per env)
+      blob.container.inbound    → inbound file container name
+-->
+
+    <azure-blob:config
+        name="Azure_Blob_Config"
+        doc:name="Azure Blob Storage Config">
+        <azure-blob:connection-string-connection
+            connectionString="${blob.connectionString}"/>
+    </azure-blob:config>
+
+    <!--
+        Usage in flows:
+          Upload:
+            <azure-blob:upload
+              config-ref="Azure_Blob_Config"
+              containerName="${blob.container.payloads}"
+              blobName="#[vars.claimCheckKey]"
+              doc:name="Upload to Azure Blob">
+              <azure-blob:blob-content>#[output application/json --- payload]</azure-blob:blob-content>
+            </azure-blob:upload>
+
+          Download:
+            <azure-blob:download
+              config-ref="Azure_Blob_Config"
+              containerName="${blob.container.payloads}"
+              blobName="#[vars.claimCheckKey]"
+              doc:name="Download from Azure Blob"/>
+
+          Delete:
+            <azure-blob:delete
+              config-ref="Azure_Blob_Config"
+              containerName="${blob.container.payloads}"
+              blobName="#[vars.claimCheckKey]"
+              doc:name="Delete from Azure Blob"/>
+    -->

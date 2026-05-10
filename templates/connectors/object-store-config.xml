@@ -1,0 +1,62 @@
+<!--
+    Connector: Object Store v2
+    Registry key: object-store (built into Mule runtime — no separate dependency)
+    Namespace: xmlns:os="http://www.mulesoft.org/schema/mule/os"
+    Schema:    http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+
+    NOTE: Persistent_Object_Store is already declared in global-config.xml.
+    This template is for reference — do not duplicate the store declaration.
+
+    CloudHub 2.0: Object Store V2 is automatically provisioned.
+    Enable in pom.xml cloudhub2Deployment section:
+      <objectStoreV2><enabled>true</enabled></objectStoreV2>
+
+    In-memory vs Persistent:
+      - ALWAYS use persistent=true for watermarks (survives app restarts/redeployments)
+      - ALWAYS use persistent=true for idempotency keys (must survive across all replicas)
+      - In-memory acceptable only for transient session data within a single request
+
+    Default TTL policy — set TTL equal to or greater than message TTL:
+      Critical events (7d TTL)    → deduplicationTtlMinutes=10080
+      Standard events (24h TTL)   → deduplicationTtlMinutes=1440
+      Notification events (1h TTL)→ deduplicationTtlMinutes=60
+      CDC events (4h TTL)         → deduplicationTtlMinutes=240
+-->
+
+    <!--
+        Already declared in global-config.xml — do not duplicate:
+        <os:object-store
+            name="Persistent_Object_Store"
+            persistent="true"
+            doc:name="Persistent Object Store"/>
+    -->
+
+    <!-- Additional Object Store for specific use cases (if needed) -->
+    <!--
+    <os:object-store
+        name="Session_Object_Store"
+        persistent="false"
+        maxEntries="1000"
+        entryTtl="3600"
+        entryTtlUnit="SECONDS"
+        doc:name="Session Store (in-memory)"/>
+    -->
+
+    <!--
+        Usage in flows:
+          Store:
+            <os:store key="#[vars.key]" objectStore="Persistent_Object_Store" ttl="1440" ttlUnit="MINUTES">
+              <os:value>#[payload]</os:value>
+            </os:store>
+
+          Retrieve:
+            <os:retrieve key="#[vars.key]" objectStore="Persistent_Object_Store" target="storedValue">
+              <os:default-value>#[null]</os:default-value>
+            </os:retrieve>
+
+          Contains:
+            <os:contains key="#[vars.key]" objectStore="Persistent_Object_Store" target="exists"/>
+
+          Remove:
+            <os:remove key="#[vars.key]" objectStore="Persistent_Object_Store"/>
+    -->

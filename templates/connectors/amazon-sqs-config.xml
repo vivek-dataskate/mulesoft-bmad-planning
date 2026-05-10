@@ -1,0 +1,52 @@
+<!--
+    Connector: Amazon SQS
+    Registry key: amazon-sqs
+    Connector: mule-amazon-sqs-connector 5.11.0  (com.mulesoft.connectors)
+    Namespace: xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs"
+    Schema:    http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-amazon-sqs-connector/
+
+    Use when: Client is AWS-native and mandates SQS over Anypoint MQ.
+    For new MuleSoft projects: prefer Anypoint MQ (better Studio integration, simpler config).
+
+    Auth: IAM User credentials or IAM Role (same as Amazon S3).
+    SQS FIFO queues: append .fifo to queue name; add MessageGroupId on publish.
+
+    Properties required in {env}.yaml:
+      sqs.accessKey   → IAM access key (leave blank for IAM role)
+      sqs.secretKey   → via Secrets Manager
+      sqs.region      → "us-east-1"
+      sqs.queue.url   → full SQS queue URL
+-->
+
+    <sqs:config name="Amazon_SQS_Config" doc:name="Amazon SQS Config">
+        <sqs:basic-connection
+            accessKey="${sqs.accessKey}"
+            secretKey="${sqs.secretKey}"
+            region="${sqs.region}"
+            url="${sqs.queue.url}"/>
+    </sqs:config>
+
+    <!--
+        Usage in flows:
+          Consumer (trigger):
+            <sqs:receive-messages
+              config-ref="Amazon_SQS_Config"
+              doc:name="SQS Receive">
+              <scheduling-strategy>
+                <fixed-frequency frequency="10" timeUnit="SECONDS"/>
+              </scheduling-strategy>
+            </sqs:receive-messages>
+
+          Publisher:
+            <sqs:send-message
+              config-ref="Amazon_SQS_Config"
+              messageBody="#[output application/json --- payload]"
+              doc:name="SQS Send"/>
+
+          Delete (ACK):
+            <sqs:delete-message
+              config-ref="Amazon_SQS_Config"
+              receiptHandle="#[attributes.receiptHandle]"
+              doc:name="SQS Delete (ACK)"/>
+    -->

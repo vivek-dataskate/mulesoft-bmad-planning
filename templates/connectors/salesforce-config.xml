@@ -1,0 +1,70 @@
+<!--
+    Connector: Salesforce
+    Registry key: salesforce
+    Connector: mule-salesforce-connector 11.4.0  (com.mulesoft.connectors)
+    Namespace: xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+    Schema:    http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-salesforce-connector/
+
+    Auth: JWT OAuth (recommended for server-to-server)
+      1. Create Connected App in Salesforce (digital certificate required)
+      2. Set Consumer Key in property/Secrets Manager
+      3. Private key (JKS or PEM) — store securely, never in source code
+      4. Set permissionSetName or profile on the integration user
+
+    Auth options:
+      - JWT (server-to-server, no user interaction) — RECOMMENDED
+      - OAuth 2.0 Client Credentials (if Salesforce org supports it)
+      - Username-Password (DEPRECATED — avoid for new projects)
+
+    Properties required in {env}.yaml:
+      salesforce.consumerKey   → from Connected App
+      salesforce.keyStorePath  → path to JKS in Secrets Manager or deployment package
+      salesforce.storePassword → JKS password (via Secrets Manager)
+      salesforce.principal     → integration user email (e.g. integration@yourcompany.com)
+      salesforce.tokenEndpoint → "https://login.salesforce.com/services/oauth2/token"
+                                  (sandbox: "https://test.salesforce.com/services/oauth2/token")
+      salesforce.audience      → "https://login.salesforce.com" (same for sandbox)
+
+    Platform Event subscription:
+      Use <salesforce:subscribe-channel> for streaming (CometD).
+      Resume from replay ID on reconnect (see Salesforce streaming docs).
+-->
+
+    <salesforce:config
+        name="Salesforce_Config"
+        doc:name="Salesforce Config">
+        <!-- JWT OAuth — recommended for all Salesforce integrations -->
+        <salesforce:jwt-connection
+            consumerKey="${salesforce.consumerKey}"
+            keyStorePath="${salesforce.keyStorePath}"
+            storePassword="${salesforce.storePassword}"
+            principal="${salesforce.principal}"
+            tokenEndpoint="${salesforce.tokenEndpoint}"
+            audience="${salesforce.audience}"/>
+    </salesforce:config>
+
+    <!--
+        Usage examples in flows:
+          Query:
+            <salesforce:query config-ref="Salesforce_Config" doc:name="SOQL Query">
+              <salesforce:salesforce-query>SELECT Id, Name FROM Account WHERE Id = ':id'</salesforce:salesforce-query>
+              <salesforce:parameters>#[{ "id": vars.accountId }]</salesforce:parameters>
+            </salesforce:query>
+
+          Create:
+            <salesforce:create config-ref="Salesforce_Config" type="Account" doc:name="Create Account">
+              <salesforce:records>#[[{ "Name": payload.name, "BillingCity": payload.city }]]</salesforce:records>
+            </salesforce:create>
+
+          Upsert (idempotent write):
+            <salesforce:upsert config-ref="Salesforce_Config" type="Account" externalIdFieldName="External_Id__c">
+              <salesforce:records>#[[payload]]</salesforce:records>
+            </salesforce:upsert>
+
+          Platform Event subscribe (CDC):
+            <salesforce:subscribe-channel-listener
+              config-ref="Salesforce_Config"
+              channel="/event/Order__e"
+              replayId="-2"/>
+    -->

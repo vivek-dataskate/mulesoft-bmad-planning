@@ -1,0 +1,65 @@
+<!--
+    Connector: NetSuite
+    Registry key: netsuite
+    Connector: mule-netsuite-connector 11.11.0  (com.mulesoft.connectors)
+    Namespace: xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite"
+    Schema:    http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-netsuite-connector/
+
+    CRITICAL: NetSuite connector 11.0+ does NOT support REST API.
+      - SOAP operations (create, search, update, delete) → use netsuite connector below
+      - REST API (SuiteQL, REST Records) → use HTTP connector with PS256 JWT via Nimbus JOSE
+        See: templates/connectors/http-generic-config.xml + NetSuite REST auth guide
+
+    Auth: OAuth 2.0 Client Credentials (TBA + Token-Based Auth)
+      1. Enable TBA in NetSuite: Setup → Company → Enable Features → SuiteCloud → TBA
+      2. Create integration record in NetSuite → get Consumer Key + Consumer Secret
+      3. Create access token for the integration user → get Token ID + Token Secret
+      4. Account ID from Setup → Company Information
+
+    Properties required in {env}.yaml:
+      netsuite.account         → "TSTDRV1234567" (account ID, uppercase)
+      netsuite.consumerKey     → from integration record (via Secrets Manager)
+      netsuite.consumerSecret  → from integration record (via Secrets Manager)
+      netsuite.tokenId         → from token record (via Secrets Manager)
+      netsuite.tokenSecret     → from token record (via Secrets Manager)
+-->
+
+    <netsuite:config
+        name="NetSuite_Config"
+        doc:name="NetSuite Config">
+        <!-- OAuth 2.0 / Token-Based Authentication -->
+        <netsuite:token-based-authentication-connection
+            consumerKey="${netsuite.consumerKey}"
+            consumerSecret="${netsuite.consumerSecret}"
+            tokenId="${netsuite.tokenId}"
+            tokenSecret="${netsuite.tokenSecret}"
+            account="${netsuite.account}"/>
+    </netsuite:config>
+
+    <!--
+        Usage examples in flows (SOAP operations only):
+          Search:
+            <netsuite:search config-ref="NetSuite_Config" doc:name="Search Customer">
+              <netsuite:search-record>
+                <netsuite-types:CustomerSearch xmlns:netsuite-types="...">
+                  <basic>
+                    <email operator="is"><searchValue>#[payload.email]</searchValue></email>
+                  </basic>
+                </netsuite-types:CustomerSearch>
+              </netsuite:search-record>
+            </netsuite:search>
+
+          Create:
+            <netsuite:create config-ref="NetSuite_Config" doc:name="Create Sales Order"/>
+
+          Update:
+            <netsuite:update config-ref="NetSuite_Config" doc:name="Update Customer"/>
+
+          Upsert (idempotent):
+            <netsuite:upsert config-ref="NetSuite_Config" doc:name="Upsert Customer"/>
+
+        For NetSuite REST API (SuiteQL):
+          Use HTTP connector with PS256 JWT — see connector-registry notes.
+          Nimbus JOSE library required as a shared library (cannot go in pom.xml).
+    -->

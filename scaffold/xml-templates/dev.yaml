@@ -1,0 +1,54 @@
+# dev.yaml — Development environment properties.
+# Loaded when mule.env=dev (set via -Dmule.env=dev or CloudHub 2.0 app property).
+# Connector credentials sourced from Secrets Manager at runtime (regulated/partner tier)
+# or directly from Anypoint Platform Runtime Manager app properties (internal tier).
+
+# HTTP listener
+http:
+  host: "0.0.0.0"
+  port: "8081"
+
+# Scheduler
+scheduler:
+  cron: "${scheduler.cron.dev}"           # Set in Runtime Manager app properties
+  frequencySeconds: "60"                  # Poll every 60s in dev
+
+# MQ Queue names — dev suffix on all queues
+mq:
+  queue:
+    # TODO: Replace with actual queue names from decisions.json (pattern: {domain}-{action}-dev-queue)
+    target:           "{{domain}}-target-dev-queue"
+    dlq:              "{{domain}}-target-dev-queue-dlq"
+    invalid-messages: "{{domain}}-invalid-messages-dev-queue"
+    audit:            "{{domain}}-audit-dev-queue"            # wire tap (if enabled)
+
+# DB poll
+db:
+  poll:
+    batchSize: "100"
+
+# SFTP
+sftp:
+  inbound:
+    directory:          "/inbound/dev"
+    processedDirectory: "/inbound/dev/processed"
+  poll:
+    frequencySeconds: "60"
+
+# S3 / Blob (claim check storage)
+s3:
+  bucket:
+    payloads: "{{artifactId}}-claim-check-dev"
+
+# Logging — verbose in dev
+logging:
+  level: "DEBUG"
+
+# Connector-specific properties — credentials via Secrets Manager or Runtime Manager
+# salesforce:
+#   username: "${salesforce.username}"          # from secrets or app props
+#   consumerKey: "${salesforce.consumerKey}"
+#   tokenEndpoint: "https://login.salesforce.com/services/oauth2/token"
+#   audience: "https://login.salesforce.com"
+
+# TODO: Add connector-specific properties for each connector in decisions.json

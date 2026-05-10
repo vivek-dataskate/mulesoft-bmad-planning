@@ -1,0 +1,56 @@
+<!--
+    Snippet: Claim Check — Store (publisher side)
+    Use when payload > 1MB to avoid MQ message size limits and broker memory pressure.
+    Pattern: store full payload in S3/Blob → publish message with reference key only.
+
+    Implementation:
+      1. Write payload to S3 with key = correlationId  (this snippet)
+      2. Replace payload with claim-check token (reference key)
+      3. Publish token-only message to MQ
+      Consumer side: see snippets/claim-check-retrieve.xml
+
+    Bucket/container: ${s3.bucket.payloads}  (or ${blob.container.payloads})
+    Key format:       {correlationId}/{flowName}/{timestamp}
+    TTL:              Handled by S3 lifecycle policy — set to match queue TTL + buffer
+-->
+
+        <!-- Claim Check Store — save large payload before publishing to MQ -->
+        <set-variable
+            variableName="claimCheckKey"
+            value='#[correlationId ++ "/" ++ flow.name ++ "/" ++ (now() as Number as String)]'
+            doc:name="Generate Claim Check Key"/>
+
+        <!-- TODO: Choose storage based on your cloud provider -->
+
+        <!-- Option A: Amazon S3 -->
+        <s3:put-object
+            config-ref="Amazon_S3_Config"
+            bucketName="${s3.bucket.payloads}"
+            key="#[vars.claimCheckKey]"
+            contentType="application/json"
+            doc:name="Store Payload in S3">
+            <s3:content>#[output application/json --- payload]</s3:content>
+        </s3:put-object>
+
+        <!--
+        Option B: Azure Blob Storage (uncomment if using Azure)
+        <azure-blob:upload
+            config-ref="Azure_Blob_Config"
+            containerName="${blob.container.payloads}"
+            blobName="#[vars.claimCheckKey]"
+            doc:name="Store Payload in Azure Blob">
+            <azure-blob:blob-content>#[output application/json --- payload]</azure-blob:blob-content>
+        </azure-blob:upload>
+        -->
+
+        <!-- Replace full payload with claim check token -->
+        <set-payload
+            value='#[{ "claimCheckKey": vars.claimCheckKey, "correlationId": correlationId, "storedAt": now() as String }]'
+            doc:name="Replace Payload with Claim Check Token"/>
+
+        <logger
+            level="DEBUG"
+            message='#["[CLAIM CHECK STORED] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | key=" ++ vars.claimCheckKey]'
+            doc:name="Log Claim Check Store"/>
+
+        <!-- Now publish the token-only message to MQ -->

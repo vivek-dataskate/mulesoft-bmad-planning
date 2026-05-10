@@ -1,0 +1,70 @@
+<!--
+    Connector: SFTP
+    Registry key: sftp
+    Connector: mule-sftp-connector 2.3.0  (org.mule.connectors)
+    Namespace: xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+    Schema:    http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-sftp-connector/
+
+    CRITICAL (CloudHub 2.0): Local filesystem is EPHEMERAL — do not write to local paths.
+    Always use SFTP (external server), Amazon S3, or Azure Blob for persistent file storage.
+
+    Auth options:
+      A. Username + Password (basic — avoid for prod)
+      B. Username + Private Key (preferred for prod)
+         - Generate RSA key pair; store private key in Secrets Manager
+         - Add public key to authorized_keys on SFTP server
+         - Private key path: reference from Secrets Manager property, not local file
+
+    Properties required in {env}.yaml:
+      sftp.host                        → SFTP server hostname
+      sftp.port                        → "22" (default)
+      sftp.username                    → service account username
+      sftp.password                    → via Secrets Manager (if using password auth)
+      sftp.privateKeyPath              → path to private key file (if using key auth)
+      sftp.privateKeyPassphrase        → via Secrets Manager (if key is passphrase-protected)
+      sftp.inbound.directory           → inbound file drop directory
+      sftp.inbound.processedDirectory  → move-to directory after successful pickup
+      sftp.poll.frequencySeconds       → poll interval (e.g. "60")
+-->
+
+    <!-- SFTP Config — Option A: Username + Private Key (recommended for production) -->
+    <sftp:config
+        name="SFTP_Config"
+        doc:name="SFTP Config">
+        <sftp:connection
+            host="${sftp.host}"
+            port="${sftp.port}"
+            username="${sftp.username}"
+            identityFile="${sftp.privateKeyPath}"
+            passphrase="${sftp.privateKeyPassphrase}"/>
+    </sftp:config>
+
+    <!--
+        Option B: Username + Password (uncomment if not using key auth):
+        <sftp:config name="SFTP_Config" doc:name="SFTP Config">
+            <sftp:connection
+                host="${sftp.host}"
+                port="${sftp.port}"
+                username="${sftp.username}"
+                password="${sftp.password}"/>
+        </sftp:config>
+    -->
+
+    <!--
+        Usage in flows:
+          Listener (trigger):  see triggers/sftp-on-new-file.xml
+
+          Read specific file:
+            <sftp:read config-ref="SFTP_Config" path="${sftp.inbound.directory}/filename.csv"/>
+
+          Write file:
+            <sftp:write config-ref="SFTP_Config" path="${sftp.outbound.directory}/output.json">
+              <sftp:content>#[output application/json --- payload]</sftp:content>
+            </sftp:write>
+
+          List files:
+            <sftp:list config-ref="SFTP_Config" directoryPath="${sftp.inbound.directory}">
+              <sftp:matcher filenamePattern="*.csv"/>
+            </sftp:list>
+    -->
