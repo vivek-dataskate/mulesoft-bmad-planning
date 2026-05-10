@@ -1,0 +1,59 @@
+<!--
+    Snippet: Invalid Message Channel routing (validation failure handler)
+    Use in on-error-continue within a flow-level error handler, or
+    reference Global_Error_Handler which includes VALIDATION:* routing.
+
+    CRITICAL DISTINCTION:
+      Invalid Message Channel → validation failures (structural/semantic errors)
+                                NEVER retried — message is wrong and will fail again
+      Dead Letter Queue (DLQ) → delivery failures (downstream unavailable)
+                                Retried when the system recovers
+
+    Insert validation BEFORE any downstream call — route to IMC early.
+    Never put a validation failure in the DLQ; it consumes retry budget forever.
+
+    Queue: ${mq.queue.invalid-messages}
+    Generated when: decisions.json errorHandling.invalidMessageChannel = true
+-->
+
+        <!-- Validate BEFORE any downstream call -->
+        <!--
+            TODO: Add validation assertions for required fields.
+            Example validations:
+              <validation:is-not-null value="#[payload.orderId]" message="orderId is required"/>
+              <validation:matches-regex value="#[payload.email]" regex="^[^@]+@[^@]+$" message="Invalid email"/>
+              <validation:is-not-empty-collection values="#[payload.lineItems]" message="lineItems must not be empty"/>
+        -->
+
+        <!-- Place this block in your flow-level error handler for VALIDATION:* -->
+        <on-error-continue
+            type="VALIDATION:INVALID_VALUE,VALIDATION:NULL,VALIDATION:EMPTY_COLLECTION,VALIDATION:EXPRESSION"
+            logException="false"
+            doc:name="Route Validation Failure to IMC">
+            <ee:transform doc:name="Build IMC Envelope">
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:    correlationId,
+    errorCode:        "VALIDATION_ERROR",
+    validationError:  error.description,
+    failingComponent: error.failingComponent,
+    receivedAt:       now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    originalPayload:  payload
+    // NOTE: Mask any PII in originalPayload before publishing
+}]]></ee:set-payload>
+                </ee:message>
+            </ee:transform>
+            <anypoint-mq:publish
+                config-ref="Anypoint_MQ_Config"
+                destination="${mq.queue.invalid-messages}"
+                doc:name="Publish to Invalid Message Channel">
+                <anypoint-mq:body>#[output application/json --- payload]</anypoint-mq:body>
+            </anypoint-mq:publish>
+            <logger
+                level="WARN"
+                message='#["[INVALID MESSAGE] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | error=" ++ error.description]'
+                doc:name="Log Validation Failure"/>
+        </on-error-continue>

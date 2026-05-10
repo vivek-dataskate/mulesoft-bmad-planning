@@ -1,0 +1,38 @@
+# local.yaml — Developer workstation overrides.
+# This file is picked up ONLY when present; ignored on CloudHub 2.0.
+# Never commit credentials. Add to .gitignore if placing real values here.
+# Copy from dev.yaml and override for your local environment.
+
+# HTTP listener (override if port 8081 conflicts locally)
+http:
+  host: "0.0.0.0"
+  port: "8081"
+
+# Scheduler — disable or slow down locally
+scheduler:
+  cron: "0 0/30 * * * ?"      # Every 30 min locally (dev: every 5 min, prod: per schedule)
+  frequencySeconds: "300"
+
+# Log level — verbose locally for debugging
+logging:
+  level: "DEBUG"
+
+# Database — local/sandbox instance
+# db:
+#   host: "localhost"
+#   port: "5432"
+#   name: "your_db_local"
+#   user: "your_user"
+#   password: "your_password"
+
+# Connector credentials — use sandbox/dev credentials locally
+# Do NOT commit real values. Use env vars or a secrets manager.
+# Example:
+# salesforce:
+#   consumerKey: "YOUR_LOCAL_CONSUMER_KEY"
+#   username: "your.name@sandbox.com"
+
+# MQ — local override (Anypoint MQ is cloud-based; use same dev queues locally)
+# mq:
+#   queue:
+#     target: "{{domain}}-target-dev-queue"

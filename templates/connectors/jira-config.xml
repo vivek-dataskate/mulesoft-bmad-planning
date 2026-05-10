@@ -1,0 +1,61 @@
+<!--
+    Connector: Jira
+    Registry key: jira
+    Connector: mule-jira-connector 1.4.0  (com.mulesoft.connectors)
+    Namespace: xmlns:jira="http://www.mulesoft.org/schema/mule/jira"
+    Schema:    http://www.mulesoft.org/schema/mule/jira/current/mule-jira.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-jira-connector/
+
+    Auth: Basic Auth with API Token (Jira Cloud — passwords disabled, token required)
+      1. Generate API token: Atlassian Account → Security → API tokens
+      2. Username = Atlassian account email
+      3. Token stored in Secrets Manager (never in property files for prod)
+
+    Jira Cloud URL format: https://{your-domain}.atlassian.net
+
+    Properties required in {env}.yaml:
+      jira.url      → "https://yourcompany.atlassian.net"
+      jira.username → Jira account email
+      jira.apiToken → via Secrets Manager (use as password in basic auth)
+-->
+
+    <jira:config
+        name="Jira_Config"
+        doc:name="Jira Config">
+        <jira:basic-connection
+            baseUrl="${jira.url}"
+            username="${jira.username}"
+            apiToken="${jira.apiToken}"/>
+    </jira:config>
+
+    <!--
+        Usage in flows:
+          Create issue:
+            <jira:create-issue config-ref="Jira_Config" doc:name="Create Jira Issue">
+              <jira:issue>
+                #[output application/json --- {
+                  fields: {
+                    project: { key: vars.projectKey },
+                    summary: payload.title,
+                    description: payload.description,
+                    issuetype: { name: "Bug" },
+                    priority: { name: "High" }
+                  }
+                }]
+              </jira:issue>
+            </jira:create-issue>
+
+          Get issue:
+            <jira:get-issue
+              config-ref="Jira_Config"
+              issueIdOrKey="#[vars.issueKey]"
+              doc:name="Get Jira Issue"/>
+
+          Add comment:
+            <jira:add-comment
+              config-ref="Jira_Config"
+              issueIdOrKey="#[vars.issueKey]"
+              doc:name="Add Jira Comment">
+              <jira:comment>#[output application/json --- { body: payload.comment }]</jira:comment>
+            </jira:add-comment>
+    -->

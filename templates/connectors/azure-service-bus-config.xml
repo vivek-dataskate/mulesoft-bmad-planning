@@ -1,0 +1,44 @@
+<!--
+    Connector: Azure Service Bus
+    Registry key: azure-service-bus
+    Connector: mule-azure-service-bus-connector 2.3.0  (com.mulesoft.connectors)
+    Namespace: xmlns:azure-service-bus="http://www.mulesoft.org/schema/mule/azure-service-bus"
+    Schema:    http://www.mulesoft.org/schema/mule/azure-service-bus/current/mule-azure-service-bus.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-azure-service-bus-connector/
+
+    Use when: Client is Azure-native and mandates Service Bus over Anypoint MQ.
+    For new MuleSoft projects: prefer Anypoint MQ.
+
+    Auth: Connection string (from Azure Portal → Service Bus → Shared access policies)
+    TTL: Set message TTL on Service Bus queue/topic (same rules as Anypoint MQ TTL policy).
+
+    Properties required in {env}.yaml:
+      azure-service-bus.connectionString → via Secrets Manager (contains SAS token)
+      azure-service-bus.queue            → queue or topic name
+-->
+
+    <azure-service-bus:config
+        name="Azure_Service_Bus_Config"
+        doc:name="Azure Service Bus Config">
+        <azure-service-bus:connection-string-connection
+            connectionString="${azure-service-bus.connectionString}"/>
+    </azure-service-bus:config>
+
+    <!--
+        Usage in flows:
+          Consumer:
+            <azure-service-bus:message-listener
+              config-ref="Azure_Service_Bus_Config"
+              sourceType="QUEUE"
+              entityPath="${azure-service-bus.queue}"
+              doc:name="Azure Service Bus Listener"/>
+
+          Publisher:
+            <azure-service-bus:send
+              config-ref="Azure_Service_Bus_Config"
+              destinationType="QUEUE"
+              entityPath="${azure-service-bus.queue}"
+              doc:name="Azure Service Bus Send">
+              <azure-service-bus:message>#[output application/json --- payload]</azure-service-bus:message>
+            </azure-service-bus:send>
+    -->

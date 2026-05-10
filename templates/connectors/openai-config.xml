@@ -1,0 +1,66 @@
+<!--
+    Connector: OpenAI
+    Registry key: openai
+    Connector: mule-openai-connector 1.0.0  (VERIFY on Exchange — new Winter 2026)
+    Namespace: xmlns:openai="http://www.mulesoft.org/schema/mule/openai"
+    Schema:    http://www.mulesoft.org/schema/mule/openai/current/mule-openai.xsd
+    TODO: Verify exact version and availability at https://anypoint.mulesoft.com/exchange/
+    NOTE: If connector not on Exchange, use HTTP connector with OpenAI REST API directly.
+
+    Used in patterns: P (ai-augmented-flow), Q (rag-data-pipeline), R (agentic-mcp-integration)
+    Always secondary to a primary integration pattern — never a standalone flow.
+
+    Auth: API Key (Bearer token)
+    CRITICAL:
+      - API key MUST be in Secrets Manager — never in property files
+      - Set a timeout (decisions.json aiIntegration.timeoutSeconds) — LLM calls can be slow
+      - Always implement fallback on timeout (decisions.json aiIntegration.fallbackOnTimeout)
+      - Log only input/output token counts — NEVER log the full prompt/completion (may contain PII)
+      - Rate limit awareness: implement retry with exponential backoff on 429 responses
+
+    Properties required in {env}.yaml:
+      openai.apiKey      → via Secrets Manager ONLY
+      openai.model       → "gpt-4o" | "gpt-4o-mini" | "gpt-4-turbo" (from decisions.json)
+      openai.timeoutSec  → "30" (from decisions.json aiIntegration.timeoutSeconds)
+-->
+
+    <!-- If using dedicated OpenAI connector (verify on Exchange first) -->
+    <openai:config
+        name="OpenAI_Config"
+        doc:name="OpenAI Config">
+        <openai:connection
+            apiKey="${openai.apiKey}"
+            timeoutSeconds="${openai.timeoutSec}"/>
+    </openai:config>
+
+    <!--
+        If OpenAI connector unavailable — use HTTP connector directly:
+
+        <http:request-config name="OpenAI_HTTP_Config" doc:name="OpenAI HTTP Config"
+            basePath="/v1">
+            <http:request-connection host="api.openai.com" port="443" protocol="HTTPS"/>
+        </http:request-config>
+
+        In flow:
+        <http:request config-ref="OpenAI_HTTP_Config" method="POST" path="/chat/completions">
+          <http:headers>#[{ "Authorization": "Bearer " ++ p("openai.apiKey"), "Content-Type": "application/json" }]</http:headers>
+          <http:body>#[output application/json --- {
+            model: p("openai.model"),
+            messages: [{ role: "user", content: payload.prompt }],
+            max_tokens: 1000,
+            temperature: 0.1
+          }]</http:body>
+          <http:response-timeout value="${openai.timeoutSec}" unit="SECONDS"/>
+        </http:request>
+
+        Fallback pattern:
+        <try doc:name="AI Call with Fallback">
+          <http:request ... />  <!-- AI call
+          <error-handler>
+            <on-error-continue type="HTTP:TIMEOUT, HTTP:CONNECTIVITY">
+              <logger level="WARN" message="AI call failed — using fallback"/>
+              <set-payload value="#[vars.fallbackValue]"/>  <!-- use cached/default
+            </on-error-continue>
+          </error-handler>
+        </try>
+    -->

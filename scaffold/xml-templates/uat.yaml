@@ -1,0 +1,48 @@
+# uat.yaml — UAT (User Acceptance Testing) environment properties.
+# Loaded when mule.env=uat.
+# UAT connects to client UAT/staging systems — never production.
+# Log level: INFO (not DEBUG — avoids PII exposure in shared UAT logs).
+
+# HTTP listener
+http:
+  host: "0.0.0.0"
+  port: "8081"
+
+# Scheduler
+scheduler:
+  cron: "${scheduler.cron.uat}"           # Set in Runtime Manager for UAT environment
+  frequencySeconds: "120"
+
+# MQ Queue names — uat suffix
+mq:
+  queue:
+    target:           "{{domain}}-target-uat-queue"
+    dlq:              "{{domain}}-target-uat-queue-dlq"
+    invalid-messages: "{{domain}}-invalid-messages-uat-queue"
+    audit:            "{{domain}}-audit-uat-queue"
+
+# DB poll
+db:
+  poll:
+    batchSize: "500"
+
+# SFTP
+sftp:
+  inbound:
+    directory:          "/inbound/uat"
+    processedDirectory: "/inbound/uat/processed"
+  poll:
+    frequencySeconds: "120"
+
+# S3 / Blob
+s3:
+  bucket:
+    payloads: "{{artifactId}}-claim-check-uat"
+
+# Logging — INFO in UAT (no DEBUG — prevents PII in shared logs)
+logging:
+  level: "INFO"
+
+# TODO: Add connector-specific UAT endpoints/credentials
+# All credentials should be stored in Secrets Manager (regulated) or
+# Anypoint Runtime Manager app properties (internal/partner)

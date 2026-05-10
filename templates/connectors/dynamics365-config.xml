@@ -1,0 +1,64 @@
+<!--
+    Connector: Microsoft Dynamics 365
+    Registry key: dynamics365
+    Connector: mule-microsoft-dynamics-365-connector 3.1.0  (com.mulesoft.connectors)
+    Namespace: xmlns:dynamics365="http://www.mulesoft.org/schema/mule/dynamics365"
+    Schema:    http://www.mulesoft.org/schema/mule/dynamics365/current/mule-dynamics365.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-microsoft-dynamics-365-connector/
+
+    Covers: Dynamics 365 CE, Sales, Customer Service, Field Service
+    For Dynamics 365 Business Central: use http-generic-config.xml (OData V4 API)
+    For Dynamics 365 F&O: use http-generic-config.xml (OData V4 API or batch endpoint)
+
+    Auth: OAuth 2.0 Client Credentials (Azure AD App Registration)
+      1. Register app in Azure AD (Entra ID)
+      2. Add API permission: Dynamics CRM → user_impersonation
+      3. Create client secret (store in Secrets Manager)
+      4. Grant app access in Dynamics 365 as Application User
+
+    Properties required in {env}.yaml:
+      dynamics365.serviceUrl      → "https://yourorg.crm.dynamics.com/"
+      dynamics365.tenantId        → Azure AD tenant ID
+      dynamics365.clientId        → Azure AD app registration client ID
+      dynamics365.clientSecret    → via Secrets Manager
+-->
+
+    <dynamics365:config
+        name="Dynamics365_Config"
+        doc:name="Dynamics 365 Config">
+        <dynamics365:oauth-client-credentials-connection
+            serviceUrl="${dynamics365.serviceUrl}"
+            tenantId="${dynamics365.tenantId}"
+            clientId="${dynamics365.clientId}"
+            clientSecret="${dynamics365.clientSecret}"/>
+    </dynamics365:config>
+
+    <!--
+        Usage in flows:
+          Create record:
+            <dynamics365:create
+              config-ref="Dynamics365_Config"
+              logicalName="account"
+              doc:name="Create D365 Account">
+              <dynamics365:attributes>#[output application/json --- {
+                name: payload.companyName,
+                telephone1: payload.phone,
+                emailaddress1: payload.email
+              }]</dynamics365:attributes>
+            </dynamics365:create>
+
+          Query (OData):
+            <dynamics365:retrieve-multiple-by-query
+              config-ref="Dynamics365_Config"
+              query="accounts?$filter=statecode eq 0&$top=100"
+              doc:name="Get Active D365 Accounts"/>
+
+          Update:
+            <dynamics365:update
+              config-ref="Dynamics365_Config"
+              logicalName="account"
+              attributeId="#[payload.accountId]"
+              doc:name="Update D365 Account">
+              <dynamics365:attributes>#[output application/json --- { telephone1: payload.phone }]</dynamics365:attributes>
+            </dynamics365:update>
+    -->

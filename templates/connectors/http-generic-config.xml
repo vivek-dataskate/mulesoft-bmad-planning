@@ -1,0 +1,53 @@
+<!--
+    Connector: HTTP Generic (custom REST system with no dedicated connector)
+    Registry key: custom-{system-name} → uses "http" connector
+    Connector: mule-http-connector 1.9.0
+    Namespace: xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    Schema:    http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+
+    Use for: Any REST API without a dedicated MuleSoft connector.
+    Auth: Add headers/query-params per call (Bearer token, API key, etc.)
+          For OAuth2: add <oauth2:client-credentials> block (see MuleSoft docs)
+
+    Properties required in {env}.yaml:
+      http.{system}.host      → target host (no https://, no trailing slash)
+      http.{system}.port      → "443" for HTTPS, "80" for HTTP
+      http.{system}.protocol  → "HTTPS" or "HTTP"
+      http.{system}.basePath  → "/api/v1" (or whatever the API base path is)
+
+    API Contract: Confirm write endpoints with API Contract Discovery before implementing.
+    Spec file:    resources/api/{system}-api.yaml or .wsdl
+-->
+
+    <!-- TODO: Rename HTTP_Request_{System}_Config to match your target system -->
+    <http:request-config
+        name="HTTP_Request_Config"
+        doc:name="HTTP Requester — {{SYSTEM_NAME}}"
+        basePath="${http.{{system_key}}.basePath}">
+        <http:request-connection
+            host="${http.{{system_key}}.host}"
+            port="${http.{{system_key}}.port}"
+            protocol="${http.{{system_key}}.protocol}"/>
+    </http:request-config>
+
+    <!--
+        Auth options — add inside <http:request-config> as appropriate:
+
+        Option A: Bearer token (added per-request via header)
+          → Add to each http:request call:
+            <http:headers>#[{ "Authorization": "Bearer " ++ vars.accessToken }]</http:headers>
+            Obtain token via separate OAuth2 token flow and cache in Object Store.
+
+        Option B: API Key (added per-request)
+          → Add header: "X-API-Key": "${http.{{system_key}}.apiKey}"
+
+        Option C: Basic Auth
+          <http:authentication>
+            <http:basic-authentication
+              username="${http.{{system_key}}.username}"
+              password="${http.{{system_key}}.password}"/>
+          </http:authentication>
+
+        For any new system: run API Contract Discovery Protocol (see PLANNING_CONTEXT.md)
+        before implementing POST/PUT/DELETE operations.
+    -->

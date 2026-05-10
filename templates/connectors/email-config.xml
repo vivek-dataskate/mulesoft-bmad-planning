@@ -1,0 +1,61 @@
+<!--
+    Connector: Email (SMTP)
+    Registry key: email
+    Connector: mule-email-connector 1.7.0  (org.mule.connectors)
+    Namespace: xmlns:email="http://www.mulesoft.org/schema/mule/email"
+    Schema:    http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-email-connector/
+
+    CRITICAL: Email notification failures MUST NEVER break the primary flow.
+    Always wrap email sends in <async><on-error-continue> block.
+    Retry policy for notifications: 2-3 retries, fixed 2-5s, log WARN on fail, continue.
+
+    Auth options:
+      A. SMTP with TLS (Office 365, SendGrid, AWS SES, etc.)
+      B. Gmail SMTP (use gmail connector or OAuth2 — basic auth disabled by Google)
+
+    Properties required in {env}.yaml:
+      email.smtp.host     → SMTP server hostname (e.g. "smtp.office365.com")
+      email.smtp.port     → "587" (TLS/STARTTLS) or "465" (SSL)
+      email.smtp.username → sender email address
+      email.smtp.password → app password or API key (via Secrets Manager)
+      email.from          → From address (e.g. "integration@yourcompany.com")
+      email.recipients    → comma-separated To addresses (or from Secrets Manager)
+-->
+
+    <email:smtp-config
+        name="Email_SMTP_Config"
+        doc:name="Email SMTP Config">
+        <email:smtp-connection
+            host="${email.smtp.host}"
+            port="${email.smtp.port}"
+            user="${email.smtp.username}"
+            password="${email.smtp.password}"
+            tlsEnabled="true"/>
+    </email:smtp-config>
+
+    <!--
+        Usage in flows (always wrap in async + on-error-continue):
+
+          <async doc:name="Send Notification Async">
+            <on-error-continue type="ANY">
+              <logger level="WARN" message='#["[NOTIFICATION FAILED] " ++ error.description]'/>
+            </on-error-continue>
+            <email:send
+              config-ref="Email_SMTP_Config"
+              fromAddress="${email.from}"
+              subject="#['[' ++ p('mule.env') ++ '] Integration Notification — ' ++ flow.name]"
+              doc:name="Send Email Notification">
+              <email:to-addresses>
+                <email:to-address value="${email.recipients}"/>
+              </email:to-addresses>
+              <email:body contentType="text/html">
+                <email:content>#[output text/plain --- "Correlation ID: " ++ correlationId ++ "\n" ++ payload.message]</email:content>
+              </email:body>
+            </email:send>
+          </async>
+
+        DLQ Alert template (triggered by monitoring alert, not inline):
+          Subject: [ALERT][{env}] DLQ messages detected — {queue} — {count} messages
+          Body: correlationId, queue name, message count, timestamp, on-call link
+    -->

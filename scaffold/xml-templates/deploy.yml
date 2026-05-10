@@ -1,0 +1,124 @@
+name: "Deploy {{artifactId}} to CloudHub 2.0"
+
+on:
+  push:
+    branches:
+      - main        # production deploy on merge to main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "dev"
+        type: choice
+        options: [dev, uat, prod]
+
+env:
+  # Mule runtime version — must match app.runtime in pom.xml
+  MULE_RUNTIME: "4.8.0"
+  JAVA_VERSION: "17"
+  APP_NAME: "{{artifactId}}"
+
+jobs:
+  # ── Job 1: Build + Test ──────────────────────────────────────────────
+  build-and-test:
+    name: "Build and MUnit Test"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Set up JDK ${{ env.JAVA_VERSION }}"
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+
+      - name: "Cache Maven packages"
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: "Configure Maven Settings (Anypoint Exchange)"
+        uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [
+              {
+                "id": "anypoint-exchange-v3",
+                "username": "~~~Client~~~",
+                "password": "${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_ID }}~?~${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_SECRET }}"
+              }
+            ]
+
+      - name: "Build and Run MUnit Tests"
+        run: mvn clean test --batch-mode --no-transfer-progress
+        env:
+          MULE_ENV: "dev"   # MUnit always runs against dev config
+
+      - name: "Upload MUnit Coverage Report"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "munit-coverage-report"
+          path: target/site/munit/coverage/
+
+  # ── Job 2: Deploy ────────────────────────────────────────────────────
+  deploy:
+    name: "Deploy to CloudHub 2.0 (${{ github.event.inputs.environment || 'dev' }})"
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    # Protect prod: require approval in GitHub Environments settings
+    # for prod environment, enable required reviewers
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Set up JDK ${{ env.JAVA_VERSION }}"
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+
+      - name: "Cache Maven packages"
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: "Configure Maven Settings (Anypoint Exchange)"
+        uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [
+              {
+                "id": "anypoint-exchange-v3",
+                "username": "~~~Client~~~",
+                "password": "${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_ID }}~?~${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_SECRET }}"
+              }
+            ]
+
+      - name: "Deploy to CloudHub 2.0"
+        run: |
+          mvn deploy -DmuleDeploy \
+            --batch-mode \
+            --no-transfer-progress \
+            -DskipTests \
+            -Danypoint.connectedApp.clientId=${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_ID }} \
+            -Danypoint.connectedApp.clientSecret=${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_SECRET }} \
+            -Danypoint.environment=${{ github.event.inputs.environment || 'dev' }} \
+            -Dmule.env=${{ github.event.inputs.environment || 'dev' }}
+        env:
+          # Required secrets (set in GitHub repo Settings → Secrets):
+          #   ANYPOINT_CONNECTED_APP_CLIENT_ID
+          #   ANYPOINT_CONNECTED_APP_CLIENT_SECRET
+          # Required variables (set in GitHub repo Settings → Variables per environment):
+          #   ANYPOINT_ENVIRONMENT (dev | uat | prod)
+          ANYPOINT_CONNECTED_APP_CLIENT_ID: ${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_ID }}
+          ANYPOINT_CONNECTED_APP_CLIENT_SECRET: ${{ secrets.ANYPOINT_CONNECTED_APP_CLIENT_SECRET }}
