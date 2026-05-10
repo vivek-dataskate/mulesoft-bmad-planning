@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<configuration-properties doc:name="Configuration properties" doc:id="e4f53959-2554-4b31-a3c8-a312954f12d9" file="config\mule-${mule.env}.yaml" doc:description="Configuration Properties File for Zyris"/>
+	<global-property doc:name="Global Property" doc:id="e94641da-2c9d-4e5a-8c60-2ae32d674987" name="mule.env" value="local" doc:description="Global Env Property"/>
+<!-- 	<dynamics365ForOperations:dynamics-365-for-operations-config name="Dynamics_365_For_Operations_Config" doc:name="Dynamics 365 For Operations Config" doc:description="Zyris Dynamics Connector Config"> -->
+<!-- 		<dynamics365ForOperations:oauth-client-credentials-connection resource="${d365.resource}" > -->
+<!-- 			<reconnection > -->
+<!-- 				<reconnect count="3" /> -->
+<!-- 			</reconnection> -->
+<!-- 			<dynamics365ForOperations:oauth-client-credentials clientId="${d365.client.id}" clientSecret="${d365.client.secret}" tokenUrl="${d365.token.url}" scopes="${d365.scopes}"/> -->
+<!-- 		</dynamics365ForOperations:oauth-client-credentials-connection> -->
+<!-- 	</dynamics365ForOperations:dynamics-365-for-operations-config> -->
+	<http:request-config name="HubSpot_HTTP_Request_Config" doc:name="HTTP Request configuration" doc:description="HubSpot HTTP Request">
+		<http:request-connection protocol="HTTPS" host="${hubspot.host}" />
+	</http:request-config>
+	<os:object-store name="Watermark_Object_Store" doc:name="Object store" doc:id="8f3c4c42-a03f-4d24-ac47-56db00a7f1a8" maxEntries="1000" config-ref="Watermark_Object_Store_Config" doc:description="Zyris_UC3_Watermark_Object_Store"/>
+	<os:config name="Watermark_Object_Store_Config" doc:name="ObjectStore Config" doc:id="40e0c58b-ae95-43c2-9731-d33c08a548d6" doc:description="Zyris_UC3_Watermark_Object_Store_Config">
+		<os:connection />
+	</os:config>
+	<http:request-config name="D365FO_HTTP_Request_config" doc:name="HTTP Request config" doc:id="eb759d8d-6ee0-47e2-b700-81c49c99f45a" doc:description="Zyris D365FO HTTP Request">
+		<http:request-connection protocol="HTTPS" host="${d365.resource}" port="443"/>
+	</http:request-config>
+	<error-handler name="global-Error_Handler" doc:id="e608d392-97e9-42dd-b7cb-4bf75425583a" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="defb78e3-99fc-44cc-b1c9-50e7955c4432" type="ANY">
+			<ee:transform doc:name="Error Log" doc:id="e6ab7b36-9f0f-43ef-864b-435c1da54a32" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Error Message": error.errorMessage,
+	"Error Description": error.detailedDescription
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Print Error" doc:id="db5891e6-0267-4f67-ad99-07be825e85fc" message="#[payload]"/>
+		</on-error-propagate>
+	</error-handler>
+</mule>

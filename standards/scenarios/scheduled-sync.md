@@ -43,6 +43,7 @@ Scheduler (cron)
 ```json
 {
   "integration": {
+    "integrationStyle": "rpc",
     "primaryPattern": "scheduled-sync",
     "direction": "unidirectional"
   },
@@ -53,10 +54,19 @@ Scheduler (cron)
   },
   "errorHandling": {
     "strategy": "retry-only",
+    "compensationStrategy": "retry",
     "maxRetries": 3,
     "backoff": "exponential",
     "dlq": false,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "pull",
+    "messageTtlHours": null,
+    "maxConcurrency": 1,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": false
   },
   "scheduling": {
     "required": true,
@@ -65,7 +75,7 @@ Scheduler (cron)
     "objectStore": "persistent"
   },
   "devops": {
-    "munitCoverage": 70
+    "munitCoverage": 80
   }
 }
 ```

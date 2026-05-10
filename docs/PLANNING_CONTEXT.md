@@ -31,7 +31,19 @@ BMAD ANALYST AGENT
   Reads all intake docs
   Extracts: systems, flows, pain points, NFRs,
             constraints, budget, timeline, stakeholders
+  Checks connector-registry.json for every identified system
+  Triggers API Contract Discovery for any system with no spec
   Output → projects/{client}/prd.md
+         + projects/{client}/api-discovery/ (per undocumented system)
+        ↓
+API CONTRACT DISCOVERY  [runs when Analyst flags a system as spec-unknown]
+  For each system without a complete API spec:
+    GET-first: probe all known GET endpoints, capture response shapes
+    Classify fields: server-generated vs required-on-create vs optional
+    Try minimal POST: iterate curl attempts, log each error response
+    Document: working curl, confirmed fields, ambiguous fields
+    Gap list: specific best-guess questions only — never open-ended asks
+  Output → projects/{client}/api-discovery/{system}-contract.md
         ↓
 BMAD ARCHITECT AGENT
   Reads prd.md + standards/MULESOFT_DESIGN_STANDARDS.md
@@ -49,6 +61,7 @@ BMAD PM AGENT
 SCAFFOLD GENERATOR (Node.js)
   Reads decisions.json + standards/connector-registry.json
   Reads XML templates from scaffold/xml-templates/
+  Selects scaffold profile from decisions.json (see SCAFFOLD PROFILE SELECTION)
   Generates complete valid Mule project code
   Warns if any connector lastVerified > 6 months
   Output → /tmp/{client}-mule/ (temporary)
@@ -846,7 +859,7 @@ All use: mule-db-connector 1.14.0 | org.mule.connectors
 
 ```
 Step 1 — Check connector-registry.json
-  Found → Use it. Done.
+  Found → Check lastVerified. If > 30 days: call MCP search_asset to verify. Then use.
 
 Step 2 — Not found → Call MuleSoft MCP tool: search_asset
   query: "{system name} connector"
@@ -860,11 +873,16 @@ Step 2 — Not found → Call MuleSoft MCP tool: search_asset
 
   Not on Exchange — classify:
 
-    Has REST API + OpenAPI/Swagger spec:
+    Has REST API + complete OpenAPI/Swagger spec:
       → Add to registry as key "custom-{system-name}"
       → Use http connector (mule-http-connector)
       → configTemplate: templates/connectors/http-generic-config.xml
       → Note: "Custom REST - spec at {url}"
+      → STILL run API Contract Discovery — specs are often incomplete on write endpoints
+
+    Has REST API but NO spec or incomplete spec:
+      → Trigger API Contract Discovery Protocol (see below)
+      → Do NOT flag as blocker yet — investigate first
 
     Has SOAP/WSDL:
       → Add to registry as key "custom-{system-name}"
@@ -873,12 +891,141 @@ Step 2 — Not found → Call MuleSoft MCP tool: search_asset
       → Store WSDL in resources/api/{system}.wsdl
       → Note: "Custom SOAP - WSDL at {url}"
 
-    Truly unknown (no docs, no spec):
+    Truly unknown (no docs, no spec, no public API surface):
       → Flag in prd.md as OPEN ITEM — BLOCKER
       → "System {X}: API type and auth unknown.
          Need: API docs URL, auth type, sample payload.
          Cannot proceed to architecture until resolved."
 ```
+
+---
+
+## API CONTRACT DISCOVERY PROTOCOL
+
+**Trigger:** Any system where connector-registry has `"via-http"` AND intake docs contain no
+OpenAPI/Swagger/Postman collection for write operations, OR where a spec exists but POST/PUT
+body schemas are missing or described as "see examples."
+
+**Philosophy:** Arrive with evidence, not questions. Test everything testable first.
+Only ask the client about what cannot be determined by testing.
+
+### Step 1 — GET First
+
+Probe all discoverable GET endpoints. Capture full response bodies.
+```
+GET /api/v1/{entity}          — collection shape
+GET /api/v1/{entity}/{id}     — single record shape
+GET /api/v1/{entity}/schema   — if schema endpoint exists (some ERPs)
+GET /api/v1/metadata          — if metadata endpoint exists
+```
+
+From each GET response, extract and document the full field inventory.
+
+### Step 2 — Classify Fields
+
+For every field in the GET response, classify:
+```
+SERVER_GENERATED   — IDs, created/modified timestamps, computed status fields, audit fields
+                     POST will ignore or reject these; never include in write payload
+REQUIRED_ON_CREATE — non-nullable, no obvious default, business-key fields
+                     These MUST be in POST body
+OPTIONAL_ON_CREATE — nullable, has default, or conditional on other fields
+                     Include if known; omit to discover defaults
+ENUM_UNKNOWN       — field present, value is a string, but valid values are undocumented
+                     Try known values; capture what the API rejects
+```
+
+### Step 3 — Minimal POST Then Expand
+
+Start with the smallest possible POST — only REQUIRED_ON_CREATE fields.
+Read every error response literally. A `400` or `422` with a validation message is information.
+```
+Attempt 1: Minimal body (required fields only)
+  → Success: record what worked
+  → 400/422: read validation errors, add missing fields, retry
+  → 401/403: auth issue — document and flag for client
+  → 404: wrong endpoint — try path variants
+
+Attempt 2: Add OPTIONAL fields one group at a time
+  → Isolates which optional fields cause unexpected rejections
+  → Reveals undocumented field constraints (format, max length, enum values)
+
+Attempt 3: Test enum values
+  → For ENUM_UNKNOWN fields, try values seen in GET responses on other records
+  → Try obvious values (ACTIVE, INACTIVE, PENDING, OPEN, CLOSED, etc.)
+  → Each rejection response usually lists valid values
+```
+
+### Step 4 — Document Confirmed Contract
+
+Produce `projects/{client}/api-discovery/{system}-contract.md`:
+```markdown
+## {System} Write Contract — Confirmed {date}
+
+### Confirmed Working Endpoints
+- POST /api/v1/orders — create order
+  Working curl: [exact curl that succeeded]
+  Confirmed required: orderId(server), customerId(required), lines[](required), ...
+  Confirmed optional: notes, referenceNumber, ...
+  Server-generated: id, createdAt, status, ...
+
+### Enum Values Confirmed
+- status: OPEN, CLOSED, PENDING (DRAFT rejected — not a valid value)
+- fulfillmentType: SHIP, PICKUP (DELIVERY not tested)
+
+### Open Gaps — Client Input Required
+1. taxCode: field accepted but meaning unclear.
+   Best guess: maps to tax schedule code in {system} config.
+   Options: (a) leave null and let system default, (b) pass your standard code.
+   Please confirm which applies to your setup.
+
+2. warehouseId: required in our test instance but may vary.
+   We used "WH001" — please confirm correct value for your environment.
+
+### Not Tested (needs credentials or specific data)
+- DELETE /api/v1/orders/{id} — confirm if soft delete or hard delete
+```
+
+### Step 5 — Targeted Client Questions Only
+
+Client communication template:
+```
+Subject: {System} API — we've tested what we can, 3 specific questions
+
+We tested the {System} API and have confirmed the write contract for {entity}.
+We identified 3 points we can't determine from testing alone:
+
+1. [Specific question with best-guess answer and options]
+2. [Specific question with best-guess answer and options]
+3. [Specific question with best-guess answer and options]
+
+For each, please confirm our best guess or choose the correct option.
+If none fit, give us the correct value and we'll update accordingly.
+```
+
+**Never ask:** "Can you share the API documentation?" or "What is the data structure?"
+**Always ask:** Specific, testable questions with a best guess already provided.
+
+---
+
+## SCAFFOLD PROFILE SELECTION
+
+The scaffold generator selects one of four profiles automatically from `decisions.json`.
+The profile determines which templates and cross-cutting components are generated.
+
+| Profile | Trigger conditions from decisions.json | What it generates |
+|---------|----------------------------------------|-------------------|
+| **minimal** | security=internal, availability=best-effort, pattern=outbound-notification only | HTTP listener, basic error handler, 1 flow file, MUnit stubs |
+| **standard** | security=internal or partner, availability=99.9, any async pattern | Global error handler, DLQ, env properties, logging config, MUnit stubs, idempotency check if async |
+| **enterprise** | availability=99.99, OR customDashboard=true, OR compensationStrategy=compensating-transaction | All of standard + retry framework, wire tap, Anypoint Monitoring alerts, custom dashboard config, backpressure config, claim-check if payload>1MB indicated |
+| **regulated** | security=regulated or government | All of enterprise + field encryption, Secrets Manager config, mTLS config, audit trail flow, compliance logging, invalid-message-channel always generated |
+
+Profile is written to `decisions.json` as `scaffold.profile` by the Architect agent.
+If not set, scaffold generator computes it from the rules above before generating.
+
+**Profile does NOT override decisions.json flags.** If `generateWatermark=false` but the
+pattern is `scheduled-sync`, the generator warns and generates the watermark anyway —
+the pattern requirement takes precedence over the profile flag.
 
 ### Version Staleness Warning
 Scaffold generator checks lastVerified on every connector.
@@ -1185,6 +1332,84 @@ The architect walks all 6 levels in order. At each level:
 
 ---
 
+## FIELD KNOWLEDGE SYSTEM
+
+**Problem:** Every MuleSoft project surfaces edge cases not covered by standards. Without a capture
+mechanism, the same hard-won lesson gets rediscovered on the next project.
+
+**Solution:** A living append-only log at `docs/FIELD_KNOWLEDGE.md`. The architect adds entries
+after any project where something unexpected occurred — and agents read it before every session.
+
+### When to add an entry
+
+Add an entry to FIELD_KNOWLEDGE.md whenever:
+- A system behaved differently than the standard scenario file predicted
+- An API contract discovery revealed a non-obvious pattern (missing POST schema, undocumented enum, auth quirk)
+- A scaffold profile didn't match what the client actually needed and had to be adjusted
+- An MUnit coverage target was wrong for the actual flow complexity
+- A client question was asked that should have been anticipated and pre-answered
+
+Do NOT add entries for:
+- Things already covered by a scenario file or standard
+- One-off mistakes with no recurring pattern
+- Client-specific data (anonymize or exclude)
+
+### Entry format
+
+```markdown
+## FK-{NNN} — {Short title}
+Date: YYYY-MM-DD
+Project: {anonymized or "general"}
+Trigger: {what condition activates this knowledge}
+Scenario: {what happened}
+What worked: {the correct approach}
+What failed: {what was tried first that didn't work, if relevant}
+Client question used: {exact phrasing if a targeted question was needed}
+Status: observation | verified | promoted-to-standard
+Promotes to: {which file to update when status = promote}
+```
+
+### Status lifecycle
+
+```
+observation  → seen once; worth capturing but not yet a pattern
+verified     → seen 2+ times across different clients; reliable
+promoted-to-standard → incorporated into scenario file or standard; entry kept for history
+```
+
+**When an entry reaches `verified` status,** the architect evaluates whether it belongs in:
+- A scenario file (`standards/scenarios/*.md`) — if it changes the reference architecture
+- `MULESOFT_DESIGN_STANDARDS.md` — if it changes a decision rule or default
+- `PLANNING_CONTEXT.md` — if it changes agent behavior or the discovery protocol
+- Stays in FIELD_KNOWLEDGE.md — if it's too client-specific to generalize
+
+### How agents use it
+
+Every BMAD agent reads `docs/FIELD_KNOWLEDGE.md` at session start (same as PLANNING_CONTEXT.md).
+Agents apply `verified` and `promoted-to-standard` entries as active guidance.
+Agents treat `observation` entries as awareness — flag if the situation matches, don't auto-apply.
+
+The Architect agent checks FIELD_KNOWLEDGE.md entries tagged with relevant systems or patterns
+before walking the decision tree. If a verified entry matches the current project's system or
+integration type, it takes precedence over the generic scenario file default.
+
+### Architect training workflow
+
+```
+After each project:
+1. Open docs/FIELD_KNOWLEDGE.md
+2. Add one entry per non-obvious finding (use FK-NNN numbering)
+3. Set status = observation
+4. After second occurrence on a different project: update status = verified
+5. After third occurrence or when generalization is clear:
+   - Update the relevant standard/scenario file
+   - Set status = promoted-to-standard
+   - Add "Promotes to: {file}" so the trail is traceable
+6. Commit: "field-knowledge: Add FK-{NNN} [{system or pattern}]"
+```
+
+---
+
 ## CHUNK PLAN (RESET — May 2026)
 
 ```
@@ -1218,13 +1443,36 @@ CHUNK 3 — Scenario Files             [ ] REDO
 CHUNK 4 — BMAD Agent Customizations  [ ] NOT STARTED
   4 agent instruction files:
     - .claude/skills/bmad-agent-analyst/
-    - .claude/skills/bmad-agent-architect/  (must include: read PATTERNS_RESEARCH.md)
+        Must include: API Contract Discovery Protocol trigger logic
+        Must include: reads docs/FIELD_KNOWLEDGE.md at session start
+        Must include: produces api-discovery/{system}-contract.md per undocumented system
+    - .claude/skills/bmad-agent-architect/
+        Must include: reads PATTERNS_RESEARCH.md before decision tree
+        Must include: reads FIELD_KNOWLEDGE.md — applies verified entries
+        Must include: checks FIELD_KNOWLEDGE.md entries for matched systems before Level 1
+        Must include: writes scaffold.profile to decisions.json
     - .claude/skills/bmad-agent-pm/
+        Must include: reads FIELD_KNOWLEDGE.md at session start
     - .claude/skills/bmad-agent-dev/
+        Must include: reads FIELD_KNOWLEDGE.md at session start
+        Must include: references api-discovery/{system}-contract.md if present
 
 CHUNK 5 — BMAD Templates             [ ] NOT STARTED
   templates/prd-template.md
-  templates/architecture-template.md  (must include: semantic dissonance table)
+  templates/architecture-template.md
+    Must include: semantic dissonance table
+    Must include: per-flow Field Mapping table
+      Columns: Source Field | Source System | Target Field | Target System | Transform Rule
+      One table per flow in decisions.json flows[]
+      Purpose: scaffold generator reads these tables to generate actionable TODO comments
+               in .dwl stubs (field-level, not generic "implement transformation here")
+    Must include: per-flow Business Rules section
+      Free-text. Client-confirmed constants, conditional logic, lookup values.
+      Developer copies these directly into DWL comments.
+    Must include: per-flow Open Items section
+      Fields or rules architect could not determine from intake docs alone.
+      Developer resolves with client during sprint 1.
+      Format: [ ] OPEN ITEM: {question} — best guess: {value}
   templates/story-template.md
 
 CHUNK 6 — Story Library              [ ] NOT STARTED
@@ -1240,13 +1488,25 @@ CHUNK 7 — XML + DWL Templates        [ ] NOT STARTED
 CHUNK 8 — Scaffold Generator         [ ] NOT STARTED
   scaffold/generate.js
   Reads decisions.json, generates full Mule project:
+    - Computes scaffold.profile if not set (minimal/standard/enterprise/regulated)
     - pom.xml with correct connectors + TODO for exact versions
     - global config (error handler, properties, logging)
     - flow XML per decisions.json flows[]
-    - MUnit test stubs
+    - MUnit test stubs — pre-scaffolded with happy path + 2 error scenarios per flow
+    - Coverage floor enforced per pattern (80%/75%/60%) — NOT 100%; connector calls excluded
     - Checks connector version staleness (> 30 days → MCP verify required)
     - Generates flow control config when flowControl.backpressureEnabled=true
     - Generates idempotency check when pattern is async
+    - Generates wire-tap when profile=enterprise or regulated
+    - Generates invalid-message-channel when errorHandling.invalidMessageChannel=true
+    - Generates claim-check stub when any flow may carry payload > 1MB
+    - Profile-specific: regulated profile always generates field-encryption + audit-trail flow
+    - Reads projects/{client}/architecture.md Field Mapping tables to generate TODO comments:
+        .dwl stubs: each confirmed mapping → one-line DWL comment with source→target + rule
+        .dwl stubs: each Open Item → // TODO [OPEN ITEM]: {question} — confirm with client
+        flow XML: business rule conditions → // TODO [BUSINESS RULE]: {rule text}
+        If architecture.md has no Field Mapping table for a flow → generic TODO only
+        Purpose: developer should never see a blank "implement transformation here" TODO
 
 CHUNK 9 — Create Client Repo Script  [ ] NOT STARTED
   scaffold/create-client-repo.sh

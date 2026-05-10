@@ -43,6 +43,7 @@ Both paths share:
 ```json
 {
   "integration": {
+    "integrationStyle": "hybrid",
     "primaryPattern": "hybrid",
     "secondaryPatterns": ["real-time", "scheduled-sync"]
   },
@@ -52,10 +53,21 @@ Both paths share:
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 3,
     "backoff": "exponential",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{domain}-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "hybrid",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
   },
   "devops": {
     "munitCoverage": 80

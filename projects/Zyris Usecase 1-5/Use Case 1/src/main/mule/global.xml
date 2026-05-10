@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:dynamics365ForOperations="http://www.mulesoft.org/schema/mule/dynamics365ForOperations"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+		http://www.mulesoft.org/schema/mule/dynamics365ForOperations http://www.mulesoft.org/schema/mule/dynamics365ForOperations/current/mule-dynamics365ForOperations.xsd
+		http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+		http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config">
+		<http:listener-connection host="${http.listener.host}" port="${http.listener.port}" />
+	</http:listener-config>
+
+	<os:object-store name="${watermark.object.store.name}" doc:name="Object store" persistent="${watermark.object.store.persistent}"/>
+
+	<dynamics365ForOperations:dynamics-365-for-operations-config name="Dynamics_365_For_Operations_Config" doc:name="Dynamics 365 For Operations Config">
+		<dynamics365ForOperations:oauth-client-credentials-connection resource="${d365.resource.url}" >
+			<reconnection >
+				<reconnect count="${d365.reconnect.count}" />
+			</reconnection>
+			<dynamics365ForOperations:oauth-client-credentials clientId="${d365.client.id}" clientSecret="${d365.client.secret}" tokenUrl="${d365.token.url}" scopes="${d365.scopes}"/>
+		</dynamics365ForOperations:oauth-client-credentials-connection>
+	</dynamics365ForOperations:dynamics-365-for-operations-config>
+
+	<http:request-config name="HubSpot_HTTP_Request_Config" doc:name="HTTP Request configuration">
+		<http:request-connection protocol="${hubspot.http.protocol}" host="${hubspot.http.host}" />
+	</http:request-config>
+
+	<configuration defaultErrorHandler-ref="Global_Error_Handler" doc:name="Mule App Configuration"/>
+	
+	<configuration-properties file="config\application.properties" doc:name="Configuration properties"/>
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="f5bc98e9-34e2-4bcd-a7d9-2178cfba8e72" />
+
+	
+</mule>

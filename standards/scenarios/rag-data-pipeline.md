@@ -70,6 +70,7 @@ User query
 ```json
 {
   "integration": {
+    "integrationStyle": "messaging",
     "primaryPattern": "rag-data-pipeline",
     "direction": "unidirectional"
   },
@@ -80,10 +81,19 @@ User query
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 3,
     "backoff": "exponential",
     "dlq": true,
+    "invalidMessageChannel": false,
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "pull",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": false
   },
   "scheduling": {
     "required": true,
@@ -95,7 +105,7 @@ User query
     "connectors": ["amazon-s3"]
   },
   "devops": {
-    "munitCoverage": 70
+    "munitCoverage": 80
   }
 }
 ```

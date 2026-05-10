@@ -54,6 +54,7 @@ SFTP / S3 / Azure Blob / FTP
 ```json
 {
   "integration": {
+    "integrationStyle": "file-transfer",
     "primaryPattern": "file-based-etl",
     "direction": "unidirectional"
   },
@@ -64,10 +65,21 @@ SFTP / S3 / Azure Blob / FTP
   },
   "errorHandling": {
     "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
     "maxRetries": 2,
     "backoff": "fixed",
     "dlq": true,
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "{domain}-invalid-messages-queue",
     "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": null,
+    "maxConcurrency": 4,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 10080
   },
   "scheduling": {
     "required": false,
@@ -76,7 +88,7 @@ SFTP / S3 / Azure Blob / FTP
     "objectStore": "persistent"
   },
   "devops": {
-    "munitCoverage": 70
+    "munitCoverage": 75
   }
 }
 ```
