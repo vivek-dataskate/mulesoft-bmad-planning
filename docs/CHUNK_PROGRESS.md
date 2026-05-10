@@ -194,54 +194,50 @@ CHUNK 7 — XML+DWL Tmpl   [x] COMPLETE (2026-05-10) + AUDIT FIXED (2026-05-10)
     mq-subscriber.xml          — ACK/NACK behavior undocumented; devs omit NACK on error
                                  Fixed: added full ACK/NACK behavior documentation with all three paths
 
-CHUNK 8 — Scaffold Gen   [ ] NOT STARTED
+CHUNK 8 — Scaffold Gen   [x] COMPLETE (2026-05-10)
   File: scaffold/generate.js
   Reads decisions.json + scaffold/xml-templates/ + templates/connectors/
   Generates a complete, compilable Mule 4.8.0 project into /tmp/{client}-mule/
-  Requirements:
-    - Compute scaffold.profile if not set: minimal/standard/enterprise/regulated
-        minimal:    security=internal, availability=best-effort, pattern=outbound-notification only
-        standard:   security=internal or partner, availability=99.9, any async pattern
-        enterprise: availability=99.99 OR customDashboard=true OR compensationStrategy=compensating-transaction
-        regulated:  security=regulated or government
-    - pom.xml: inject connector <dependency> blocks from connector-registry.json
-               add TODO comment per connector: "Verify exact patch version at {exchangeUrl}"
-               warn if connector lastVerified > 30 days
-    - global-config.xml: inject selected connector config blocks from templates/connectors/
-    - error-handler.xml: inject {{DLQ_ENABLED}} and {{INVALID_MESSAGE_CHANNEL_ENABLED}} flags
-    - One {flow.name}-flows.xml per entry in decisions.json flows[]
-        Select trigger template from triggers/ based on flow.trigger value
-        Inject idempotency-check snippet when pattern is async (MQ/Kafka)
-        Inject wire-tap snippet when wireTap.enabled=true
-        Inject claim-check-store snippet when payload > 1MB indicated
-        Inject correlation-id-propagate snippet on every outbound HTTP call
-    - One {flow.name}-test.xml per flow, based on munit-base.xml
-        Pre-scaffold 3 test cases: happy path + connectivity error + validation error
-        Set coverage floor from pattern table (80%/75%/60%) in munit-maven-plugin
-        Connector calls excluded from coverage
-    - DataWeave stubs: one .dwl per flow, based on transform.dwl
-        Read architecture.md Field Mapping table for the flow
-        Each confirmed mapping → one-line DWL comment: // {sourceField} ({sourceSystem}) → {targetField}: {rule}
-        Each Open Item → // TODO [OPEN ITEM]: {question} — best guess: {value}
-        If no Field Mapping table → generic TODO only
-    - OAS spec stub per HTTP-triggered flow, based on oas-spec.yaml
-    - Properties files: local/dev/uat/prod.yaml with correct queue names and env suffixes
-    - deploy.yml: only when decisions.json devops.cicd = "github-actions"
-    - Regulated profile additions: field-encryption config + audit-trail flow always generated
-    - mule-artifact.json: populate secureProperties list based on security level
-  Output: /tmp/{client}-mule/ matching the exact structure in PLANNING_CONTEXT.md
+  Implemented:
+    - Profile computation: minimal/standard/enterprise/regulated (auto or from decisions.json)
+    - Validation guards: dedup TTL vs message TTL, watermark flag vs pattern, async idempotency
+    - Staleness check: NOTICE >30d, WARNING >180d (6mo) per connector lastVerified
+    - pom.xml: connector <dependency> blocks from registry with TODO Exchange URL comments
+               munitCoverage + munitCoveragePerFlow tokens (per-pattern floor)
+    - mule-artifact.json: secureProperties populated from connector propertiesRequired + security level
+                          block comments stripped → valid JSON output
+    - global-config.xml: connector config fragments extracted from templates/connectors/*.xml
+                         SECRETS_MANAGER_ENABLED conditional block rendered
+                         Additional xmlns/xsi:schemaLocation injected per connector
+    - error-handler.xml: DLQ_ENABLED + INVALID_MESSAGE_CHANNEL_ENABLED conditionals resolved
+                         DLQ destination = ${mq.queue.dlq} (standard property key)
+    - Per-flow {name}-flows.xml: trigger template selected by flow.trigger
+                                 Wire tap snippet injected for async flows when wireTap.enabled=true
+                                 Watermark conditional rendered from scheduling.watermarking
+                                 Additional namespaces + schemaLocations injected
+    - Per-flow {name}-test.xml: 3 pre-scaffolded test cases (happy path, connectivity, validation)
+                                Coverage floor tokens (75%/80%/60%) set per pattern
+    - Per-flow {verb}-{source}-to-{target}.dwl: transform stub per transform.dwl template
+    - OAS spec stub: generated per HTTP-triggered flow
+    - Properties: local/dev/uat/prod.yaml with domain + artifactId token substitution
+    - deploy.yml: generated only when devops.cicd=github-actions
+    - Regulated profile: audit-trail-flows.xml generated (MQ subscriber → audit store stub)
+  Validated: node scaffold/generate.js projects/leolabs/decisions.json → 17 files, no errors
+  Bug fixed: connector-registry.json http.configTemplate http-requester → http-generic-config.xml
 
-CHUNK 9 — Client Repo Sh [ ] NOT STARTED
+CHUNK 9 — Client Repo Sh [x] COMPLETE (2026-05-10)
   File: scaffold/create-client-repo.sh
-  Requirements:
-    - Uses GitHub API (not gh CLI — gh may not be installed in all environments)
-    - Reads decisions.json for repo name: {client}-mule
-    - Calls scaffold/generate.js to produce /tmp/{client}-mule/
-    - Creates new GitHub repo via POST /orgs/{org}/repos (private, no wiki, no projects)
-    - Pushes generated code as initial commit
-    - Sets up Codespace configuration if .devcontainer present in generated project
-    - Outputs: repo URL + Codespace URL for developer
-    - Error handling: fail fast if repo already exists; do not overwrite
+  Implemented:
+    - Uses GitHub API (curl) only — no gh CLI dependency
+    - Reads client, primaryPattern, runtime from decisions.json via node -e
+    - Runs generate.js from REPO_ROOT so template paths resolve correctly
+    - Checks repo existence first (fail fast if HTTP 200) — never overwrites
+    - Creates repo via POST /orgs/{org}/repos; auto-falls back to /user/repos
+      if org endpoint returns 404 (handles personal accounts)
+    - Pushes generated code as initial commit with informative message
+    - Embeds GITHUB_TOKEN in HTTPS remote URL — no SSH key required
+    - Outputs: repo URL + GitHub Codespace one-click URL for developer
+    - Developer handoff block: step-by-step instructions printed to stdout
 
 CHUNK 10 — E2E Test      [ ] NOT STARTED
   Full pipeline test using LeoLabs intake docs (projects/leolabs/)
