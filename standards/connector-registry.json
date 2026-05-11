@@ -1534,6 +1534,42 @@
           "lastAddedDate": "2026-05-11",
           "lastVerifiedBy": "scout-stub",
           "licenseRequired": false
+        },
+        "hd-portal": {
+          "displayName": "HD Portal (Home Depot Service Center)",
+          "groupId": "custom",
+          "artifactId": "custom-hd-portal",
+          "docVersion": "via-http",
+          "type": "via-http",
+          "auth": "api-key",
+          "authOptions": ["api-key"],
+          "configTemplate": "scaffold/connectors/http-generic-config.xml",
+          "propertiesRequired": ["hdportal.baseUrl", "hdportal.apiKey"],
+          "docsUrl": null,
+          "notes": "stub — Home Depot Service Center (HD Portal) is HD's proprietary lead management and contract system for Pro contractor partners. No MuleSoft native connector. Use HTTP connector with API key auth. GET endpoints confirmed (Apr 2026, Peerless engagement). Write endpoints (POST/PATCH) not yet tested — required for Salesforce→HD Portal sync flow. Document download endpoint (299A/299B PDFs) not yet confirmed. API access brokered through client's HD partner contact. Created for Peerless engagement 2026-05-11. See playbooks/hd-portal/PLAYBOOK.md.",
+          "category": "crm_marketing",
+          "lastVerified": "2026-05-11",
+          "lastAddedDate": "2026-05-11",
+          "lastVerifiedBy": "scout-stub",
+          "licenseRequired": false
+        },
+        "computerease": {
+          "displayName": "ComputerEase (Deltek — specialty contractor ERP)",
+          "groupId": "custom",
+          "artifactId": "custom-computerease",
+          "docVersion": "via-http",
+          "type": "via-http",
+          "auth": "unknown — to be confirmed via Deltek support",
+          "authOptions": ["basic", "api-key"],
+          "configTemplate": "scaffold/connectors/http-generic-config.xml",
+          "propertiesRequired": ["computerease.baseUrl", "computerease.apiUser", "computerease.apiPassword", "computerease.companyId"],
+          "docsUrl": "https://help.deltek.com/",
+          "notes": "stub — ComputerEase by Deltek is a Windows-based job costing and accounting system for specialty/trade contractors (fencing, roofing, HVAC, etc.). NOT the same as Deltek Costpoint or Vantagepoint (see 'deltek' entry — that is for govt contractors). No MuleSoft native connector. CRITICAL: API does NOT expose endpoints directly to internet — traffic routes through Deltek CE Live Service installed on client VM → Deltek routing servers → CE application. CE Live Service must be installed by Deltek support before any development begins. API not available in sandbox (P3) — production API only. Hosted on client GCP VM (Windows). v1.00. Created for Peerless engagement 2026-05-11. See playbooks/computerease/PLAYBOOK.md.",
+          "category": "crm_marketing",
+          "lastVerified": "2026-05-11",
+          "lastAddedDate": "2026-05-11",
+          "lastVerifiedBy": "scout-stub",
+          "licenseRequired": false
         }
       }
     },
