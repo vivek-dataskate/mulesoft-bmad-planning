@@ -1,0 +1,56 @@
+{
+  "name": "{{CLIENT_DISPLAY_NAME}} — MuleSoft Integration",
+  "image": "mcr.microsoft.com/devcontainers/java:17-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "jdkDistro": "ms",
+      "installMaven": "true",
+      "mavenVersion": "3.9"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "salesforce.mule-dx-agentforce-extension-pack",
+        "salesforce.mule-dx-agentforce-vscode",
+        "salesforce.mule-dx-agentforce-dependencies",
+        "salesforce.mule-dx-agentforce-api-component",
+        "ArthurSpark.vs-code-ext-mule-munit-helper",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "GitHub.vscode-pull-request-github",
+        "anthropic.claude-code",
+        "rdudiver.bmad-viewer-vscode",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-json"
+      ],
+      "settings": {
+        "editor.formatOnSave": false,
+        "editor.tabSize": 4,
+        "files.associations": {
+          "*.xml": "xml",
+          "*.dwl": "plaintext",
+          "*.raml": "yaml"
+        },
+        "xml.format.enabled": false,
+        "java.compile.nullAnalysis.mode": "disabled"
+      }
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh 2>&1 | tee /tmp/devcontainer-setup.log && echo 'Setup complete — see /tmp/devcontainer-setup.log'",
+  "remoteUser": "vscode",
+  "forwardPorts": [8081],
+  "portsAttributes": {
+    "8081": {
+      "label": "Mule HTTP Listener",
+      "onAutoForward": "notify"
+    }
+  }
+}

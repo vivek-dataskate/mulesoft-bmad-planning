@@ -6,12 +6,15 @@
 > Status: observation → verified → promoted-to-standard
 >
 > HOW TO ADD AN ENTRY:
->   1. Add a row to the Index table (status=observation, Times=1, Added=today, Last Seen=today)
->   2. Add the full detail entry below
->   3. On each recurrence: increment Times, update Last Seen, update status if threshold reached
->      observation → verified at 2 occurrences on different clients
->      verified → promoted-to-standard: update the target file, keep entry for traceability
->   4. Commit: "field-knowledge: Add FK-NNN [{system or pattern}]"
+>   Invoke the Architect Debrief agent — _bmad/custom/bmad-agent-architect-debrief.toml — and select DK.
+>   The agent asks 6 questions and writes the index row, full detail entry, and commit message.
+>   No client names are stored — counts only.
+>
+>   To promote a verified entry to standard: select PK from the same agent.
+>
+> STATUS LADDER:
+>   observation → verified at 2+ occurrences across multiple engagements
+>   verified → promoted-to-standard: agent drafts the target file change; update the target file, keep entry for traceability
 >
 > HOW AGENTS USE THIS FILE:
 >   - observation entries: flag if situation matches current project; do not auto-apply

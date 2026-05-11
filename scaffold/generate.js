@@ -40,6 +40,7 @@ const TMPL_DIR     = path.join(__dirname, 'xml-templates');
 const CONN_TMPL    = path.join(REPO_ROOT, 'templates', 'connectors');
 const REGISTRY_F   = path.join(REPO_ROOT, 'standards', 'connector-registry.json');
 const SNIPPET_REG_F = path.join(REPO_ROOT, 'standards', 'snippet-registry.json');
+const DEVCONTAINER_TMPL_DIR = path.join(__dirname, 'devcontainer-templates');
 
 // Commons library version — read from commons/pom.xml when available
 function readCommonsVersion() {
@@ -216,11 +217,21 @@ function checkStaleness(key, conn) {
 }
 
 // Build a <dependency> block for pom.xml injection.
+// Registry stores docVersion (major.minor from docs page title, e.g. "11.4").
+// Maven needs an exact version (e.g. "11.4.0"). Developers MUST visit Exchange
+// to find the current patch version before running mvn compile.
+// The TODO comment is intentional — do not remove it.
 function connectorDepXml(key, conn) {
-  const version     = conn.version ?? conn.docVersion ?? 'VERIFY_ON_EXCHANGE';
+  const rawVersion  = conn.version ?? conn.docVersion ?? 'VERIFY_ON_EXCHANGE';
   const exchangeUrl = conn.exchangeUrl ?? 'https://anypoint.mulesoft.com/exchange/';
+  // If version looks like major.minor (no patch component), append .x as a reminder
+  const hasExactVersion = /^\d+\.\d+\.\d+/.test(rawVersion);
+  const version = hasExactVersion ? rawVersion : rawVersion;  // keep as-is; TODO comment handles it
+  const todoNote = hasExactVersion
+    ? `<!-- Version ${version} — verify latest patch at ${exchangeUrl} -->`
+    : `<!-- TODO: Replace "${version}" with exact patch version from Exchange: ${exchangeUrl} -->`;
   return [
-    `        <!-- TODO: Verify exact patch version at ${exchangeUrl} -->`,
+    `        ${todoNote}`,
     `        <dependency>`,
     `            <groupId>${conn.groupId}</groupId>`,
     `            <artifactId>${conn.artifactId}</artifactId>`,
@@ -859,6 +870,48 @@ output application/json
   writeFile(path.join(outDir, 'src/main/mule/audit-trail-flows.xml'), content);
 }
 
+// ─── .devcontainer ────────────────────────────────────────────────────────────
+
+// Generate .devcontainer/devcontainer.json and .devcontainer/post-create.sh
+// from the templates in scaffold/devcontainer-templates/.
+// The post-create.sh runs silently on first Codespace open:
+//   - installs MuleSoft MCP server
+//   - configures Claude Code MCP
+//   - installs BMAD developer skills
+//   - writes Maven settings.xml (Anypoint Exchange repos)
+//   - pre-warms Maven dependency cache in background
+function genDevContainer(d, outDir) {
+  const client       = d.project?.client ?? 'client';
+  const domain       = client.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const artifactId   = `${domain}-mule`;
+  // Produce a readable display name: "leolabs" → "LeoLabs", "my-client" → "My Client"
+  const displayName  = client
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+
+  const tokens = {
+    CLIENT_DISPLAY_NAME: displayName,
+    ARTIFACT_ID:         artifactId,
+  };
+
+  const dcTmplPath   = path.join(DEVCONTAINER_TMPL_DIR, 'devcontainer.json');
+  const pcTmplPath   = path.join(DEVCONTAINER_TMPL_DIR, 'post-create.sh');
+
+  if (!fs.existsSync(dcTmplPath) || !fs.existsSync(pcTmplPath)) {
+    console.warn('  ⚠  devcontainer templates missing in scaffold/devcontainer-templates/ — skipping .devcontainer generation');
+    return;
+  }
+
+  writeFile(
+    path.join(outDir, '.devcontainer/devcontainer.json'),
+    sub(readFile(dcTmplPath), tokens)
+  );
+  writeFile(
+    path.join(outDir, '.devcontainer/post-create.sh'),
+    sub(readFile(pcTmplPath), tokens)
+  );
+}
+
 // ─── Validation Guards ────────────────────────────────────────────────────────
 
 // Log override warnings when decisions.json flags conflict with pattern requirements.
@@ -880,10 +933,15 @@ function validateDecisions(d) {
     console.warn('\n⚠  WARNING: Async pattern selected but flowControl.deduplicationEnabled is false — idempotency is MANDATORY for all async consumers');
   }
 
-  const ttlHours  = d.flowControl?.messageTtlHours ?? 24;
-  const dedupMins = d.flowControl?.deduplicationTtlMinutes ?? (ttlHours * 60);
-  if (dedupMins < ttlHours * 60) {
-    console.warn(`\n⚠  WARNING: deduplicationTtlMinutes (${dedupMins}) < messageTtlHours×60 (${ttlHours * 60}) — dedup window must be ≥ message TTL`);
+  const ttlHours       = d.flowControl?.messageTtlHours ?? 24;
+  const requiredDedup  = ttlHours * 60;
+  const configuredDedup = d.flowControl?.deduplicationTtlMinutes;
+  if (configuredDedup !== undefined && configuredDedup < requiredDedup) {
+    console.warn(`\n⚠  AUTO-CORRECTING: deduplicationTtlMinutes was ${configuredDedup} but messageTtlHours×60 = ${requiredDedup}.`);
+    console.warn(`   Idempotency window MUST be ≥ message TTL. Setting deduplicationTtlMinutes = ${requiredDedup}.`);
+    console.warn(`   Fix decisions.json flowControl.deduplicationTtlMinutes = ${requiredDedup} to suppress this warning.`);
+    if (!d.flowControl) d.flowControl = {};
+    d.flowControl.deduplicationTtlMinutes = requiredDedup;
   }
 }
 
@@ -950,14 +1008,22 @@ function main() {
   const registry = JSON.parse(readFile(REGISTRY_F));
   const lookup   = buildRegistryLookup(registry);
 
-  // Load all snippets once
+  // Load snippets that are actively injected into generated flow files.
+  //
+  // Snippet injection map:
+  //   wire-tap.xml                  → injected into async flows when wireTap.enabled=true (genFlowFile)
+  //
+  // Snippets NOT loaded here because they live inline in their trigger templates:
+  //   idempotency-check.xml         → inline in mq-subscriber.xml and kafka-listener.xml
+  //   correlation-id-propagate.xml  → inline in http-listener.xml (set-correlation-id) and mq-subscriber.xml
+  //
+  // Snippets available in scaffold/xml-templates/snippets/ for developer reference but not
+  // auto-injected (patterns that require per-flow configuration decisions):
+  //   claim-check-store.xml         → inject manually when payload > 1MB (per-flow decision)
+  //   claim-check-retrieve.xml      → inject manually at consumer side
+  //   invalid-message-channel-route.xml → inject manually before downstream calls requiring strict validation
   const SNIPPET_NAMES = [
     'wire-tap.xml',
-    'idempotency-check.xml',
-    'claim-check-store.xml',
-    'claim-check-retrieve.xml',
-    'correlation-id-propagate.xml',
-    'invalid-message-channel-route.xml',
   ];
   const snippets = {};
   for (const name of SNIPPET_NAMES) {
@@ -980,6 +1046,7 @@ function main() {
   genErrorHandler(d, outDir);
   genProperties(d, outDir);
   genDeployYml(d, outDir);
+  genDevContainer(d, outDir);
 
   // ── Regulated/government extras ──────────────────────────────────────────
   const profile = d.scaffold?.profile;
@@ -1012,9 +1079,28 @@ function main() {
   const flowCount  = flows.filter(f => f.name).length;
   const httpFlows  = flows.filter(f => (f.trigger ?? 'http') === 'http' && f.name).length;
   const totalFiles = 6 + (profile === 'regulated' ? 1 : 0)  // project-level
+                   + 2                                        // .devcontainer files
                    + flowCount * 3                            // flows + munit + dwl
                    + httpFlows                                // OAS specs
                    + (d.devops?.cicd === 'github-actions' ? 1 : 0);
+
+  // Warn about connectors whose registry version is not a full semver (no patch component).
+  // Maven requires exact versions — major.minor versions will fail to resolve on Exchange.
+  const approxVersions = [];
+  for (const key of d.systems?.connectors ?? []) {
+    const conn = lookup[key];
+    if (!conn) continue;
+    const v = conn.version ?? conn.docVersion ?? '';
+    if (v && !/^\d+\.\d+\.\d+/.test(v)) approxVersions.push({ key, v, url: conn.exchangeUrl ?? '' });
+  }
+  if (approxVersions.length > 0) {
+    console.log('');
+    console.log('⚠  BEFORE RUNNING mvn compile — verify exact patch versions on Exchange:');
+    for (const { key, v, url } of approxVersions) {
+      console.log(`   ${key}: "${v}" is approximate → visit ${url || 'Anypoint Exchange'}`);
+    }
+    console.log('   Update pom.xml with exact versions (e.g. 11.4.0) before compiling.');
+  }
 
   console.log('');
   console.log(`✅ Generation complete — ${totalFiles} files`);
