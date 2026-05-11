@@ -41,6 +41,8 @@
 | [FK-012](#fk-012) | Claim-check S3 getObject returns InputStream — `output application/java` produces byte array, not JSON | claim-check pattern / S3 / Azure Blob | verified | 2026-05-10 | 2026-05-10 | 1 |
 | [FK-013](#fk-013) | HubSpot connector registry vs. sales call divergence — verify Exchange before committing | HubSpot / connector selection | observation | 2026-05-11 | 2026-05-11 | 1 |
 | [FK-014](#fk-014) | Multi-instance SaaS: two Shopify stores require separate connector configs in global-config.xml | Shopify / multi-tenant connector design | observation | 2026-05-11 | 2026-05-11 | 1 |
+| [FK-015](#fk-015) | ComputerEase (Deltek) API requires CE Live Service relay — not directly internet-accessible | ComputerEase / legacy on-prem ERP connectivity | observation | 2026-05-11 | 2026-05-11 | 1 |
+| [FK-016](#fk-016) | HD Portal (Home Depot) is a proprietary contractor-partner API — write endpoints must be explicitly confirmed before scoping write flows | HD Portal / custom API discovery | observation | 2026-05-11 | 2026-05-11 | 1 |
 
 ---
 
@@ -718,6 +720,67 @@ Applies to: Any client with multiple instances of the same SaaS platform (Shopif
             multi-subsidiary businesses.
 
 Promotes to: standards/DESIGN_STANDARDS.md — add multi-instance connector note when verified on second client
+
+---
+
+## FK-015 — ComputerEase (Deltek) API requires CE Live Service relay — not directly internet-accessible
+Date: 2026-05-11
+Project: Peerless (scoping analysis)
+Trigger: Client uses ComputerEase (Deltek specialty contractor ERP). Architect or developer attempts to call ComputerEase API directly from MuleSoft CloudHub.
+
+Scenario:
+  ComputerEase is a Windows-based legacy application hosted on a client-managed server (GCP VM in Peerless case).
+  Unlike modern SaaS, the CE API does NOT expose endpoints directly to the internet.
+  Traffic must route through Deltek's "CE Live Service" — a Windows service installed on the same VM as ComputerEase —
+  which then routes requests through Deltek's servers back to the CE application.
+  This is a non-standard relay architecture unique to Deltek's legacy product line.
+
+  Additionally: the API is NOT available in the ComputerEase sandbox (practice) environment.
+  All development and testing requires controlled access to the production environment.
+  GCP firewall rules must be configured to allow inbound traffic from MuleSoft CloudHub 2.0 static IPs.
+
+What to do:
+  1. Confirm CE Live Service is installed and configured by Deltek support BEFORE starting architecture.
+     This is a critical path blocker — architecture cannot be finalized without knowing the API endpoint format.
+  2. Obtain the CE API base URL format from Deltek support (expected: routes through Deltek relay endpoint,
+     not directly to the client's GCP IP).
+  3. Configure GCP firewall rule: allow inbound TCP/443 from MuleSoft CloudHub 2.0 static IP ranges.
+  4. Create a dedicated CE API user (pw-mate pattern + API access group) — must be done via maintenance login, not regular CE UI.
+  5. Plan for production-only testing with strict GET-only access until UAT sign-off.
+
+What failed:
+  Assuming ComputerEase API is a standard REST API accessible directly by IP:port.
+  Direct telnet to GCP external IP confirmed no service listening on 443 or 8081 — the service is not directly exposed.
+  CE Live Service must mediate all connections.
+
+Status: observation
+Promotes to: playbooks/computerease/PLAYBOOK.md (once verified on second client, promote connectivity model to this entry)
+
+---
+
+## FK-016 — HD Portal (Home Depot) is a proprietary partner API — write endpoints must be confirmed before scoping write flows
+Date: 2026-05-11
+Project: Peerless (scoping analysis)
+Trigger: Client is a Home Depot Pro contractor partner. Architect needs to assess HD Portal API scope for a Salesforce → HD Portal correction sync flow.
+
+Scenario:
+  HD Portal (Home Depot Service Center) is a proprietary system accessed by HD Pro contractor partners.
+  API access is not self-service — credentials are brokered through the client's HD partner contact (not a developer portal).
+  GET operations were confirmed during discovery calls (Apr 2026) — leads, quotes, and order data can be read.
+  Write operations (POST/PATCH — needed for bidirectional sync back to HD) were NOT tested during discovery.
+  It is unknown whether HD Portal exposes write endpoints to contractor partners at all, or under what conditions.
+
+What to do:
+  1. Before scoping any flow that writes to HD Portal: explicitly confirm write endpoints exist and are available to the client's API credentials.
+  2. Ask the client to verify with their HD partner contact (Greg) which entities can be written to via API.
+  3. If write endpoints are unavailable: scope the Salesforce → HD Portal sync as a notification/alert flow only (not a data write).
+  4. Document download endpoint (PDF contracts 299A/299B) must also be explicitly confirmed — not assumed.
+
+What failed:
+  Assuming API key access implies full CRUD. Many partner APIs are intentionally read-only from the partner side.
+
+Status: observation
+Promotes to: playbooks/hd-portal/PLAYBOOK.md (once write endpoint status confirmed, update playbook)
 
 *Last updated: 2026-05-11*
 *Next review: after first project using Chunk 4+ agents*
