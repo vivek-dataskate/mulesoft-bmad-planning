@@ -21,25 +21,43 @@
 
 ---
 
-## Anypoint IDP API Reference
+## Anypoint IDP API Reference (verified May 2026)
 
 ```
-Base URL:  https://anypoint.mulesoft.com/idp/api/v1/
+Base URL:  https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/
+           Regions: us-east-1 | eu-central-1
 Auth:      OAuth 2.0 client credentials (Anypoint Connected App)
 Token URL: https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token
-Scope:     urn:anypoint:idp
+Scope:     EMPTY — access controlled by Connected App "Execute Published Actions" permission
+           (DO NOT pass urn:anypoint:idp — it will cause invalid_scope)
 
 Submit execution:
   POST /organizations/{orgId}/actions/{actionId}/versions/{versionId}/executions
   Content-Type: application/json
-  Body: { "document": { "content": "<base64>", "mimeType": "application/pdf" } }
-  → 202 Accepted: { "id": "<executionId>", "status": "IN_PROGRESS" }
+  Body: { "file": "<base64>", "fileName": "<name.pdf>" }
+        (field is "file" NOT "content"; companion is "fileName" NOT "mimeType")
+        Alternative: multipart/form-data — `file` binary part + optional `callback` JSON part
+  → 200/202: { "id": "<executionId>", "documentName": "<name.pdf>" }
 
-Poll result:
-  GET /organizations/{orgId}/executions/{executionId}
-  → { "status": "COMPLETED|FAILED|IN_PROGRESS", "result": { ... extracted fields ... } }
+Poll result (NOTE: /v2 suffix is REQUIRED):
+  GET /organizations/{orgId}/actions/{actionId}/versions/{versionId}/executions/{id}/v2
+  → { "status": "...", "pages": [{ "page": 1,
+        "fields": { "fieldLabel": { "value": "...", "confidence": 0.98 } },
+        "tables": {},
+        "prompts": { "name": { "answer": { "value": "..." } } }
+      }] }
 
-Supported MIME types: application/pdf | image/png | image/jpeg | image/tiff
+Terminal statuses: SUCCEEDED | FAILED | PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED
+Non-terminal:      ACKNOWLEDGED | IN_PROGRESS | RESULTS_PENDING
+Result path:       pages[0].fields.{fieldLabel}.value  (NOT result.{field})
+Min polling:       10 seconds (IDP quota docs — faster polling may be rate-limited)
+P50 latency: 7.6s | P99: 13.4s | Max file: 10MB | Max pages: 50
+
+Callback alternative (eliminates polling):
+  Submit with `callback` field: { "noAuthUrl": "https://your-mule-endpoint/idp/callback" }
+  IDP sends PATCH to callback with executionId. Then GET /executions/{id}/v2 for result.
+
+Supported file types: application/pdf | image/png | image/jpeg | image/tiff
 ```
 
 ---
@@ -61,7 +79,7 @@ Client → POST /documents/process (multipart/form-data)
   ├── Base64 encode document bytes
   ├── POST to IDP execution endpoint → executionId
   ├── Poll GET /executions/{executionId} (every 3s, max 10 attempts)
-  │     ├── COMPLETED → extract result fields → continue
+  │     ├── SUCCEEDED → extract result fields → continue
   │     ├── IN_PROGRESS → wait → retry
   │     └── FAILED / timeout → → manual-review-queue + alert
   ├── DataWeave: IDP result → canonical {entity} schema
@@ -78,7 +96,7 @@ S3 PutObject event / Azure Blob trigger
   ├── Download file bytes from S3/Blob using correlationId from event
   ├── Base64 encode bytes
   ├── POST to IDP → executionId
-  ├── Poll until COMPLETED or timeout
+  ├── Poll until SUCCEEDED or timeout
   ├── DataWeave: IDP result → canonical schema
   └── → {target}-sys-api
 ```
@@ -93,7 +111,7 @@ SFTP listener (poll every 30s on /inbound/{docType}/)
   ├── Read file bytes (attributes.fileName drives docType routing)
   ├── Route by file extension / subfolder → select IDP actionId
   ├── Base64 encode → POST to IDP → executionId
-  ├── Poll until COMPLETED or timeout
+  ├── Poll until SUCCEEDED or timeout
   ├── Move file to /processed/ or /failed/ based on outcome
   └── → {target}-sys-api
 ```
@@ -108,7 +126,7 @@ IMAP listener (poll every 60s on inbox folder)
   ├── For each attachment (PDF/image only — skip others)
   ├── Base64 encode attachment bytes
   ├── POST to IDP → executionId
-  ├── Poll until COMPLETED or timeout
+  ├── Poll until SUCCEEDED or timeout
   ├── DataWeave: IDP result → canonical schema
   └── → {target}-sys-api
 ```
@@ -172,36 +190,38 @@ IMAP listener (poll every 60s on inbox folder)
 
 ---
 
-## Connector Configuration
+## Connector Selection
 
-The IDP connection uses two HTTP connector configs:
+**Preferred: MuleSoft Forge IDP Connector** (`mulesoft-forge-idp` in registry)
+- Universal connector — works across all action versions without connector sprawl
+- Typed operations: Submit + Retrieve
+- Available on Maven Central: `io.github.mulesoft-forge:mule-idp-connector:1.0.6`
+- Requires adding Maven Central repo to pom.xml (not on Anypoint Exchange)
+- See: `templates/connectors/idp-forge-config.xml`
 
-1. **Anypoint token config** — fetches OAuth bearer token from Anypoint Platform
-2. **IDP API config** — calls the IDP REST API with the bearer token
+**Fallback: Raw HTTP** (`anypoint-idp` in registry)
+- Use when Forge connector cannot be used (org policy restricts Maven Central)
+- See: `templates/connectors/idp-http-config.xml`
 
 ```xml
-<!-- In global-config.xml -->
-
-<!-- 1. Token provider (Anypoint Connected App) -->
-<http:request-config name="Anypoint_Token_Config" doc:name="Anypoint Token Config">
-  <http:request-connection protocol="HTTPS"
-    host="anypoint.mulesoft.com"
-    port="443"/>
-</http:request-config>
-
-<!-- 2. IDP API config -->
-<http:request-config name="IDP_API_Config" doc:name="IDP API Config">
-  <http:request-connection protocol="HTTPS"
-    host="anypoint.mulesoft.com"
-    port="443">
-    <http:authentication>
-      <http:oauth-client-credentials-grant-type
-        clientId="${anypoint.client.id}"
-        clientSecret="${anypoint.client.secret}"
-        tokenUrl="https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token"
-        scopes="urn:anypoint:idp"/>
-    </http:authentication>
-  </http:request-connection>
+<!-- HTTP fallback config — generated into global-config.xml -->
+<!-- CORRECT host: idp-rt.{region}.anypoint.mulesoft.com (NOT anypoint.mulesoft.com/idp) -->
+<http:request-config
+    name="IDP_API_Config"
+    doc:name="Anypoint IDP API Config"
+    basePath="/api/v1">
+    <http:request-connection
+        protocol="HTTPS"
+        host="idp-rt.${anypoint.idp.region}.anypoint.mulesoft.com"
+        port="443">
+        <http:authentication>
+            <!-- Scope intentionally EMPTY — access controlled by Connected App permissions -->
+            <http:oauth-client-credentials-grant-type
+                clientId="${anypoint.client.id}"
+                clientSecret="${anypoint.client.secret}"
+                tokenUrl="https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token"/>
+        </http:authentication>
+    </http:request-connection>
 </http:request-config>
 ```
 
@@ -209,170 +229,47 @@ The IDP connection uses two HTTP connector configs:
 
 ## Flow Structure
 
-### Core IDP Sub-Flow (shared across all document sources)
+> **Authoritative generated XML:** `scaffold/xml-templates/idp-document-flow.xml`
+> The scaffold generates `idp-document-flows.xml` containing the sub-flows below.
+> Source-specific trigger flows are generated separately per `decisions.json flows[]`.
+
+### Key implementation notes
+
+**Polling pattern:** Use `until-successful`, NOT `foreach`. Mule 4 `foreach` has no sleep/break.
 
 ```xml
-<!-- idp-document-flows.xml -->
+<!-- CORRECT: until-successful polls every 10s (IDP minimum), retries up to 18× (~3 min) -->
+<until-successful maxRetries="18" millisBetweenRetries="10000">
+    <!-- GET with /v2 suffix — required for current poll endpoint -->
+    <http:request method="GET" config-ref="IDP_API_Config"
+        path="#['/organizations/' ++ p('anypoint.idp.orgId') ++ '/actions/' ++ p('anypoint.idp.actionId')
+                ++ '/versions/' ++ p('anypoint.idp.actionVersionId')
+                ++ '/executions/' ++ vars.idpExecutionId ++ '/v2']"/>
+    <set-variable variableName="idpStatus" value="#[payload.status]"/>
+    <set-variable variableName="idpPages"  value="#[payload.pages default []]"/>
+    <!-- Throw to retry when not yet terminal -->
+    <validation:is-true
+        expression="#[['SUCCEEDED','FAILED','PARTIAL_SUCCESS','MANUAL_VALIDATION_REQUIRED'] contains vars.idpStatus]"
+        message="#['IDP not yet terminal: ' ++ vars.idpStatus]"/>
+</until-successful>
+```
 
-<!-- Sub-flow: submit document to IDP and poll for result -->
-<!-- Input variable: vars.documentBase64 (String), vars.documentMimeType (String) -->
-<!-- Output variable: vars.idpResult (Object - extracted fields) -->
-<sub-flow name="idp-execute-and-poll-subflow">
+**Submit body:** Field name is `file` (NOT `content`), companion is `fileName` (NOT `mimeType`):
 
-  <!-- Submit execution -->
-  <http:request method="POST" config-ref="IDP_API_Config"
-    path="/idp/api/v1/organizations/${anypoint.idp.orgId}/actions/${anypoint.idp.actionId}/versions/${anypoint.idp.actionVersionId}/executions">
-    <http:body>
-      #[output application/json ---
-        { document: { content: vars.documentBase64, mimeType: vars.documentMimeType } }]
-    </http:body>
-    <http:response-validator>
-      <http:success-status-code-validator values="202"/>
-    </http:response-validator>
-  </http:request>
+```json
+{ "file": "<base64>", "fileName": "invoice-2026.pdf" }
+```
 
-  <set-variable variableName="idpExecutionId" value="#[payload.id]"/>
-  <set-variable variableName="idpPollAttempt" value="#[0]"/>
-  <set-variable variableName="idpStatus" value="#['IN_PROGRESS']"/>
+**Input/output variables for `idp-execute-and-poll-subflow`:**
+```
+Input:   vars.documentBase64    (String) — base64-encoded bytes
+         vars.documentFileName  (String) — filename with extension (e.g. "invoice.pdf")
+         vars.idpActionId       (String, optional) — override for multi-action routing
+         vars.idpActionVersionId (String, optional)
 
-  <!-- Poll loop (max 10 attempts × 3s = 30s timeout) -->
-  <foreach collection="#[1 to ${anypoint.idp.pollingMaxAttempts}]"
-    counterVariableName="idpPollAttempt">
-    <choice>
-      <when expression="#[vars.idpStatus != 'COMPLETED' and vars.idpStatus != 'FAILED']">
-        <scheduler doc:name="Poll Delay">
-          <scheduling-strategy>
-            <fixed-frequency frequency="${anypoint.idp.pollingIntervalSeconds}" timeUnit="SECONDS" startDelay="3"/>
-          </scheduling-strategy>
-        </scheduler>
-        <http:request method="GET" config-ref="IDP_API_Config"
-          path="/idp/api/v1/organizations/${anypoint.idp.orgId}/executions/#[vars.idpExecutionId]"/>
-        <set-variable variableName="idpStatus" value="#[payload.status]"/>
-        <set-variable variableName="idpResult" value="#[payload.result default {}]"/>
-      </when>
-    </choice>
-  </foreach>
-
-  <!-- Route on terminal status -->
-  <choice>
-    <when expression="#[vars.idpStatus == 'COMPLETED']">
-      <!-- idpResult is set — caller proceeds -->
-    </when>
-    <otherwise>
-      <!-- FAILED or timed out (still IN_PROGRESS after max attempts) -->
-      <logger level="ERROR"
-        message="#['IDP execution ' ++ vars.idpExecutionId ++ ' ended with status ' ++ vars.idpStatus ++ ' after ' ++ vars.idpPollAttempt ++ ' attempts. correlationId=' ++ correlationId]"/>
-      <flow-ref name="idp-manual-review-route-subflow"/>
-      <raise-error type="IDP:EXTRACTION_FAILED" description="#['IDP extraction failed: ' ++ vars.idpStatus]"/>
-    </otherwise>
-  </choice>
-
-  <error-handler ref="global-error-handler"/>
-</sub-flow>
-
-<!-- Sub-flow: route to manual review queue on IDP failure -->
-<sub-flow name="idp-manual-review-route-subflow">
-  <async>
-    <anypoint-mq:publish config-ref="Anypoint_MQ_Config"
-      destination="${domain}-idp-manual-review-${env}-queue"
-      messageId="#[correlationId]">
-      <anypoint-mq:body>
-        #[output application/json ---
-          {
-            correlationId: correlationId,
-            executionId: vars.idpExecutionId default 'unknown',
-            status: vars.idpStatus default 'unknown',
-            documentMimeType: vars.documentMimeType default 'unknown',
-            failedAt: now() as String,
-            originalPayload: payload
-          }]
-      </anypoint-mq:body>
-    </anypoint-mq:publish>
-  </async>
-</sub-flow>
-
-<!-- Main flow: HTTP multipart document ingestion -->
-<flow name="http-receive-document-flow">
-  <http:listener config-ref="HTTP_Listener_Config" path="/documents/process" allowedMethods="POST"/>
-
-  <!-- Validate content type -->
-  <validation:is-true expression="#[attributes.headers.'content-type' contains 'multipart']"
-    message="Request must be multipart/form-data"/>
-
-  <!-- Extract document part -->
-  <set-variable variableName="documentBase64"
-    value="#[output application/java --- payload.parts.document.content as Binary {base64: true} as String]"/>
-  <set-variable variableName="documentMimeType"
-    value="#[payload.parts.document.headers.'Content-Type' default 'application/pdf']"/>
-
-  <!-- Validate MIME type -->
-  <validation:is-true
-    expression="#[['application/pdf','image/png','image/jpeg','image/tiff'] contains vars.documentMimeType]"
-    message="#['Unsupported document type: ' ++ vars.documentMimeType]"/>
-
-  <!-- Async: publish to processing queue; return 202 immediately -->
-  <async>
-    <anypoint-mq:publish config-ref="Anypoint_MQ_Config"
-      destination="${domain}-idp-inbound-${env}-queue"
-      messageId="#[correlationId]">
-      <anypoint-mq:body>
-        #[output application/json ---
-          { documentBase64: vars.documentBase64, documentMimeType: vars.documentMimeType, correlationId: correlationId }]
-      </anypoint-mq:body>
-    </anypoint-mq:publish>
-  </async>
-
-  <set-payload value="#[output application/json --- { correlationId: correlationId, status: 'ACCEPTED' }]"/>
-  <http:response statusCode="202"/>
-
-  <error-handler ref="global-error-handler"/>
-</flow>
-
-<!-- Consumer: process document from queue -->
-<flow name="mq-process-document-flow">
-  <anypoint-mq:subscriber config-ref="Anypoint_MQ_Config"
-    destination="${domain}-idp-inbound-${env}-queue"
-    acknowledgementMode="MANUAL"
-    maxConcurrency="2"/>
-
-  <!-- Idempotency check -->
-  <os:retrieve key="#['idp-' ++ attributes.messageId]" target="alreadyProcessed" objectStore="idempotency-store"/>
-  <choice>
-    <when expression="#[vars.alreadyProcessed != null]">
-      <anypoint-mq:ack config-ref="Anypoint_MQ_Config" ackToken="#[attributes.ackToken]"/>
-      <logger level="INFO" message="#['IDP duplicate skipped: ' ++ attributes.messageId]"/>
-    </when>
-    <otherwise>
-      <set-variable variableName="documentBase64" value="#[payload.documentBase64]"/>
-      <set-variable variableName="documentMimeType" value="#[payload.documentMimeType]"/>
-
-      <!-- Call IDP execute + poll sub-flow -->
-      <flow-ref name="idp-execute-and-poll-subflow"/>
-
-      <!-- TODO: DataWeave transform — map vars.idpResult fields to your canonical {entity} schema -->
-      <!-- See: src/main/resources/dwl/map-idp-result-to-{entity}.dwl -->
-      <ee:transform>
-        <ee:set-payload resource="dwl/map-idp-result-to-${idp.outputEntity}.dwl"/>
-      </ee:transform>
-
-      <!-- Write to target system -->
-      <!-- TODO: replace with actual target system API call -->
-      <flow-ref name="${idp.outputEntity}-create-flow"/>
-
-      <!-- Mark processed -->
-      <os:store key="#['idp-' ++ attributes.messageId]" value="#[true]"
-        objectStore="idempotency-store" entryTtl="1440" entryTtlUnit="MINUTES"/>
-
-      <anypoint-mq:ack config-ref="Anypoint_MQ_Config" ackToken="#[attributes.ackToken]"/>
-
-      <error-handler>
-        <on-error-propagate>
-          <anypoint-mq:nack config-ref="Anypoint_MQ_Config" ackToken="#[attributes.ackToken]"/>
-        </on-error-propagate>
-      </error-handler>
-    </otherwise>
-  </choice>
-</flow>
+Output:  vars.idpPages          (Array)  — pages[].fields / pages[].tables / pages[].prompts
+         vars.idpExecutionId    (String)
+         vars.idpStatus         (String) — SUCCEEDED | PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED
 ```
 
 ---
@@ -384,24 +281,32 @@ File: `src/main/resources/dwl/map-idp-result-to-{entity}.dwl`
 ```dataweave
 %dw 2.0
 output application/json
+// IDP API response structure: payload.pages[].fields.{fieldLabel}.value
+// vars.idpPages = payload.pages default [] (set by idp-execute-and-poll-subflow)
+// Field labels match the names defined in your IDP action in Anypoint IDP UI.
 ---
-{
-  // TODO: map IDP extracted fields to your canonical schema
-  // vars.idpResult contains the raw IDP extraction output
-  // Field names match your IDP action schema definition
+do {
+  var page = (vars.idpPages default [])[0].fields default {}
+  ---
+  {
+    // TODO: map IDP extracted fields to your canonical schema
+    // Each extracted field: page.{fieldLabel}.value
+    // Confidence per field: page.{fieldLabel}.confidence (0.0–1.0)
 
-  // Example for invoice:
-  // invoiceNumber:  vars.idpResult.invoice_number.value default "",
-  // vendorName:     vars.idpResult.vendor_name.value default "",
-  // totalAmount:    vars.idpResult.total_amount.value as Number default 0,
-  // invoiceDate:    vars.idpResult.invoice_date.value as Date {format: "MM/dd/yyyy"} default now() as Date,
-  // lineItems:      (vars.idpResult.line_items default []) map (item) -> {
-  //   description: item.description.value default "",
-  //   quantity:    item.quantity.value as Number default 0,
-  //   unitPrice:   item.unit_price.value as Number default 0
-  // },
-  // confidence:     vars.idpResult.confidence default 0,
-  correlationId:  correlationId
+    // Example for invoice:
+    // invoiceNumber:  page."Invoice Number".value  default "",
+    // vendorName:     page."Vendor Name".value     default "",
+    // totalAmount:    page."Total Amount".value as Number default 0,
+    // invoiceDate:    page."Invoice Date".value as Date {format: "MM/dd/yyyy"} default null,
+    // lineItems:      (vars.idpPages flatMap (pg) -> pg.fields."Line Items".value default []) map (item) -> {
+    //   description: item."Description".value default "",
+    //   quantity:    item."Quantity".value as Number default 0,
+    //   unitPrice:   item."Unit Price".value as Number default 0
+    // },
+    correlationId:   correlationId,
+    idpExecutionId:  vars.idpExecutionId,
+    idpStatus:       vars.idpStatus
+  }
 }
 ```
 
@@ -544,7 +449,7 @@ When documents arrive via SFTP in typed subfolders, route to different IDP actio
 
 Log for every IDP execution:
 - `correlationId`, `executionId`, `documentMimeType`, `docType` (if multi-type routing)
-- `pollingAttempts`, `idpStatus`, `latencyMs` (from submit to COMPLETED)
+- `pollingAttempts`, `idpStatus`, `latencyMs` (from submit to SUCCEEDED)
 - `confidence` if returned by IDP action
 - Never log `documentBase64` — documents contain PII
 
@@ -557,8 +462,8 @@ Alert thresholds:
 
 ## MUnit Test Coverage (80% minimum)
 
-- [ ] Happy path — valid PDF submitted → IDP returns COMPLETED → extracted fields mapped → target system called
-- [ ] IDP polling — first 2 polls return IN_PROGRESS, 3rd returns COMPLETED → flow succeeds
+- [ ] Happy path — valid PDF submitted → IDP returns SUCCEEDED → extracted fields mapped → target system called
+- [ ] IDP polling — first 2 polls return IN_PROGRESS, 3rd returns SUCCEEDED → flow succeeds
 - [ ] IDP FAILED status — execution fails → manual-review-queue populated → error raised; target NOT called
 - [ ] IDP polling timeout — 10 polls all return IN_PROGRESS → manual-review-queue populated → error raised
 - [ ] Unsupported MIME type — validation fails → Invalid Message Channel populated; IDP NOT called

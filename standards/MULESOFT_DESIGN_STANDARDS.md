@@ -27,6 +27,20 @@ Select the integration style **before** selecting a pattern. The style constrain
 | **Remote Procedure Invocation (RPC)** | Synchronous API call — caller waits for response | Real-time queries; user-facing APIs; < 10s acceptable latency | Mule as API gateway or orchestrator |
 | **File Transfer** | Batch files exchanged on schedule | Large data volumes; partner integrations; legacy systems without APIs | Mule as file processor (SFTP/S3/FTP) |
 | **Shared Database** | Multiple applications read/write the same DB | **Avoid in new designs.** Only when integrating legacy monoliths with no API surface | Mule as DB poller or writer — tightly coupled |
+| **Event Streaming** | Persistent, replayable event log (Kafka / Kinesis) | High throughput (> 100K/day); multiple independent consumers; late-joining consumers need replay; audit trails | Mule as Kafka/Kinesis producer or consumer |
+| **CDC (Change Data Capture)** | DB-level change stream via Debezium or Salesforce Platform Events | Near-real-time propagation from legacy DBs or SaaS without polling; no API surface required on source | Mule as CDC consumer routing change events downstream |
+| **Document Processing** | Extract structured data from unstructured documents (PDF/image) via AI/OCR | Source is a document, not an API or structured file; field positions vary per document; human review fallback needed | Mule as IDP orchestrator — submit document, poll for result, map extracted fields |
+| **UI Automation (RPA)** | Interact with a system through its screen UI — no API or DB access possible | Target system is legacy (mainframe, desktop app, web app without API); screen scraping / form filling | Mule as RPA orchestrator — invoke bot, poll for completion, process output |
+| **Agentic** | AI agent calls MuleSoft APIs as governed tools (MCP or OpenAPI) | AI agent needs access to enterprise data or actions; MuleSoft provides governed, rate-limited, auditable tool layer | Mule as tool server — agent is the caller, Mule enforces policy and routes to backend |
+
+**Event Streaming vs. Messaging distinction:**
+
+| | Messaging (Anypoint MQ) | Event Streaming (Kafka) |
+|---|---|---|
+| Message retention | Consumed and deleted | Retained; offset-based replay |
+| Late-joining consumer | Misses past messages | Can replay from offset 0 |
+| Throughput ceiling | ~10K/day per queue | Millions/day |
+| MuleSoft connector | Anypoint MQ connector | Kafka connector |
 
 ### Selection Rules
 
@@ -34,6 +48,11 @@ Select the integration style **before** selecting a pattern. The style constrain
 - Decoupled, async, or multi-consumer → **Messaging**
 - Partner drops a file or batch is large → **File Transfer**
 - Legacy system has no API, only a DB → **Shared Database** (last resort; document why in `architecture.md`)
+- Events must be replayable, or throughput > 100K/day, or > 10 independent consumers → **Event Streaming**
+- DB-level changes must propagate without polling → **CDC**
+- Source is a document (PDF/image) requiring field extraction → **Document Processing**
+- Target system has no API or DB access — only a UI → **UI Automation (RPA)**
+- AI agent is the caller and needs governed enterprise access → **Agentic**
 - Multiple styles needed → **Messaging + RPC** is the most common combination (use Hybrid pattern O)
 
 Write the selected style into `decisions.json` as `integration.integrationStyle`.
@@ -46,7 +65,7 @@ Write the selected style into `decisions.json` as `integration.integrationStyle`
 
 Select **one** primary pattern. Each pattern has a dedicated scenario file in `standards/scenarios/` with reference architecture, `decisions.json` defaults, XML templates, error handling, and MUnit checklist.
 
-### All 18 Patterns
+### All 23 Patterns (A–W)
 
 ```
 A. request-reply          → caller waits, HTTP sync response (< 10s)
@@ -134,7 +153,7 @@ R. agentic-mcp-integration → MuleSoft APIs exposed as tools for AI agents (MCP
                             Style: RPC (MuleSoft as server)
                             See: standards/scenarios/agentic-mcp-integration.md
 
-S. transactional-outbox   → guarantee DB write + event publish atomically
+S. transactional-outbox   → guarantee DB write + event publish happen atomically
                             MuleSoft polls outbox table; publishes to MQ; marks as published
                             Solves dual-write problem when source app is NOT MuleSoft
                             Style: Messaging
@@ -150,6 +169,23 @@ U. ai-gateway             → centralized LLM proxy: rate-limit, PII-redact, mod
                             All AI traffic from all teams routes through a single governed endpoint
                             Style: RPC (MuleSoft as proxy)
                             See: standards/scenarios/ai-gateway.md
+
+V. idp-document-processing → extract structured data from unstructured documents (PDF/image)
+                            Anypoint IDP (Intelligent Document Processing) via Forge connector or HTTP
+                            Sources: HTTP multipart upload | S3/Azure Blob | SFTP | Email attachment (IMAP)
+                            Auth: Anypoint Connected App (OAuth 2.0 client credentials) — scope MUST be EMPTY
+                            Async: POST execution → poll GET /v2 until terminal status (SUCCEEDED / FAILED / PARTIAL_SUCCESS / MANUAL_VALIDATION_REQUIRED)
+                            Always generates: IDP sub-flow + manual-review queue + DWL skeleton
+                            Prerequisite: IDP action must be published in Anypoint IDP UI before development starts
+                            Style: Messaging (async — IDP processing takes 5–60s)
+                            See: standards/scenarios/idp-document-processing.md
+
+W. rpa-orchestration      → invoke Anypoint RPA bot; poll for completion; process output
+                            No dedicated connector JAR — HTTP connector against RPA REST API v2
+                            Auth: OAuth 2.0 Connected App (scopes: RPA Integrator + RPA Invocable Process)
+                            Use ONLY when target system has NO REST/SOAP API (legacy UI automation)
+                            Style: Messaging (fire-and-poll async)
+                            See: standards/scenarios/rpa-orchestration.md
 ```
 
 ### Pattern Decision Guide
@@ -174,6 +210,8 @@ AI agent calling your APIs as tools?    → R (agentic-mcp-integration)
 App writes to DB + must publish event?  → S (transactional-outbox)
 Warehouse scores/segments → CRM/ERP?   → T (reverse-etl)
 Multiple teams calling LLMs ungoverned? → U (ai-gateway)
+Extracting data from PDFs/images?       → V (idp-document-processing)
+Target system has no API (legacy UI)?   → W (rpa-orchestration)
 None fits cleanly?                      → O (hybrid — must list secondaryPatterns)
 ```
 
@@ -184,6 +222,8 @@ None fits cleanly?                      → O (hybrid — must list secondaryPat
 - If HYBRID, document which flows map to which secondary pattern in `integration.flows`.
 - Patterns P and Q are **always secondary** — they enhance a primary pattern, never replace one.
 - Pattern U (ai-gateway) is a primary pattern — it is a standalone governed service, not a secondary enhancement.
+- Pattern V (idp-document-processing) requires an IDP action to be published in the Anypoint IDP UI **before** development starts. Flag as `OPEN ITEM — BLOCKER` in `architecture.md` if the action is not yet defined. Use V only when documents are unstructured/semi-structured (PDF, image); for structured files (CSV, XML, JSON) use E or C instead.
+- Pattern W (rpa-orchestration) requires confirming that the target system truly has no API before selection. If the target system has a REST or SOAP API, use the appropriate connector — never use RPA as a workaround for connector unavailability.
 
 ---
 
@@ -230,6 +270,9 @@ Write all connectors to `decisions.json systems.connectors[]`.
 - **ServiceNow:** OAuth 2.0 Authorization Code does not work with metadata. Use basic auth for Studio metadata resolution.
 - **File connector on CloudHub 2.0:** Local filesystem is ephemeral. Use S3, SFTP, or Azure Blob for persistence.
 - **Oracle JDBC driver:** `ojdbc11.jar` cannot be in `pom.xml` (Oracle license). Place in shared lib on CloudHub 2.0.
+- **Anypoint IDP:** Preferred connector: MuleSoft Forge `io.github.mulesoft-forge:mule-idp-connector:1.0.6` (Maven Central — NOT Exchange). Fallback: HTTP connector. Base URL: `https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/` (NOT `anypoint.mulesoft.com/idp/...`). OAuth scope MUST BE EMPTY — do not pass `urn:anypoint:idp` (causes `invalid_scope`). Poll endpoint needs `/v2` suffix: `GET .../executions/{id}/v2`. Terminal statuses: `SUCCEEDED | FAILED | PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED` (NOT "COMPLETED"). Submit body field is `"file"` not `"content"`. Min poll interval: 10s (`until-successful`, NOT `foreach`). See: `standards/scenarios/idp-document-processing.md`.
+- **Anypoint RPA:** No dedicated `mule-anypoint-rpa-connector` on Exchange. Use HTTP connector against RPA REST API v2: `https://{tenant}.rpa.mulesoft.com/rpa/api/v2`. Auth: OAuth 2.0 Connected App (scopes: `RPA Integrator` + `RPA Invocable Process`) — never API key in production (user-scoped, expires). `PUT /executions/startProcess` is idempotent (returns 201 first call, 204 on duplicate — accept both). Status values are lowercase: `"success"` not `"SUCCESS"`. See: `standards/scenarios/rpa-orchestration.md`.
+- **AI Connectors (openai, anthropic):** `mule-openai-connector` and `mule-anthropic-connector` are available but must be VERIFIED on Exchange before use — versions change frequently. For governed multi-team LLM access, use pattern U (ai-gateway) rather than embedding connectors in individual flows. Always store API keys in Secrets Manager; never hardcode.
 
 ---
 
@@ -253,6 +296,7 @@ Multi-select. Check every box that applies. Each selection adds to `decisions.js
 □ data-masking-in-logs                 → for any data touching PII
 □ flow-control                         → rate-limiting + backpressure (all high-volume)
 □ invalid-message-channel              → separate from DLQ — for validation failures
+□ wire-tap                             → non-intrusive async copy of every message to audit queue (set retentionHours in decisions.json wireTap.retentionHours)
 ```
 
 **Standard defaults** (apply when prd.md is silent):
@@ -413,9 +457,19 @@ Every MQ consumer MUST implement idempotency. Duplicates will occur — guarante
 
 ```
 Key:    {consumer-prefix}-{messageId}
-Store:  Object Store (persistent), TTL = 24 hours (match or exceed message TTL)
+Store:  Object Store (persistent)
+TTL:    MUST equal or exceed the queue's messageTtlHours — never a flat default
+
+  Critical business events (messageTtlHours=168)   → deduplicationTtlMinutes=10080  (7 days)
+  Standard integration events (messageTtlHours=24) → deduplicationTtlMinutes=1440   (24 hours)
+  Notification events (messageTtlHours=1)          → deduplicationTtlMinutes=60     (1 hour)
+  CDC events (messageTtlHours=4)                   → deduplicationTtlMinutes=240    (4 hours)
+
 Action: On duplicate → ACK and skip (do NOT re-process)
 ```
+
+**Architect MUST write `decisions.json flowControl.deduplicationTtlMinutes = messageTtlHours × 60`.**
+Never leave at the schema default of 60 minutes — that is shorter than every standard message TTL.
 
 Failure to implement idempotency in async flows is a P0 bug.
 
@@ -753,5 +807,5 @@ Claim Check:          required for payloads > 1 MB
 
 ---
 
-*Updated: May 2026 — full rewrite incorporating EIP, flow control, compensation, and all 18 patterns (A–R)*
+*Updated: May 2026 — overhaul: 9 integration styles (added Event Streaming, CDC, Document Processing, UI Automation, Agentic); 23 patterns (A–W); IDP/RPA/AI connector critical notes; wire-tap operational checkbox; idempotency TTL table aligned to messageTtl*
 *Do not edit manually — update via Claude Code sessions only*

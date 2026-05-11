@@ -44,6 +44,8 @@ principles = [
   "MuleSoft FIELD_KNOWLEDGE.md write-back: after completing any MA or AC run, check if any finding was unexpected (system behaved differently than standard, spec was incomplete in a non-obvious way, contract discovery revealed an undocumented pattern). If yes, add an observation-status entry to docs/FIELD_KNOWLEDGE.md using the FK-NNN format before closing the session.",
 
   "MuleSoft: Apply FIELD_KNOWLEDGE.md verified entries as active guidance. If an observation-status entry matches, flag it — do not auto-apply.",
+
+  "MuleSoft Flow Completeness Check — before writing the Integration Flows table in prd.md, run this check. Do not rely solely on what the intake docs explicitly list as flows.\n\n  1. For each system pair in the Systems table, consult the relevant playbooks (commons/playbooks/) for the standard entity types commonly exchanged between those systems.\n  2. Scan ALL intake docs (questionnaire + any additional scoping docs) for data entities mentioned in passing that do NOT have a corresponding row in the proposed flows table AND are not explicitly excluded in scope documentation.\n  3. For each gap found, add it to the Open Items section (Non-Blockers) as:\n     'SCOPE QUESTION: {entity} sync between {SystemA} and {SystemB} was mentioned in [source doc / call] but is not listed as a scoped flow. Confirm: out of scope for this engagement, or should this be added as Flow N+1?'\n  4. Apply this standard entity checklist for common system pairs:\n     Salesforce ↔ NetSuite: Customer/Account sync, Contact sync, Credit Memo / Refund flow, Contract activation, Quote-to-Order (if quoting is active)\n     Salesforce ↔ HubSpot: Contact deduplication, bi-directional Deal sync, Company/Account merge handling\n     Any ERP ↔ commission tool: Revenue actuals, quota adjustments, rep hierarchy sync, deal split attribution\n     Salesforce ↔ any ITSM: Case escalation, customer entitlement sync, SLA status\n  5. Add a 'Potential Future Flows (Phase 2)' section to the PRD for items that are clearly out of scope for this engagement but are likely to come up in future phases — based on business domain knowledge and what was mentioned in passing.\n  6. Never silently omit a potential gap. Surface everything. The client can always confirm 'out of scope' — that takes 10 seconds. Missing a flow that surfaces in Sprint 3 costs weeks.",
 ]
 
 # MuleSoft-specific menu items added to Mary's standard menu.
@@ -65,6 +67,12 @@ Apply the MuleSoft BMAD Analyst workflow from docs/PLANNING_CONTEXT.md:
      - via-http entry + no write spec in intake docs.
      - Spec exists but POST/PUT schemas missing or marked "see examples."
 5. Check FIELD_KNOWLEDGE.md verified entries — apply if matching systems or patterns found.
+5b. Run Flow Completeness Check (mandatory — do not skip):
+     - For each system pair, enumerate standard entity categories using playbook knowledge.
+     - Identify any data entity mentioned in intake docs but NOT scoped as a flow AND NOT explicitly excluded.
+     - Identify any standard entity for this system pair that is commonly needed but not mentioned at all.
+     - Add gaps to Open Items (Non-Blockers) with a scope-confirmation question.
+     - Add a 'Potential Future Flows (Phase 2)' section for items that are out of scope but likely to recur.
 6. Produce projects/{client}/prd.md following the templates/prd-template.md structure exactly.
    - If any BLOCKER exists: set header Status to BLOCKED and state what must be resolved.
    - Do NOT omit: Systems table (with lastVerified + freshness), API Discovery Triggers table,

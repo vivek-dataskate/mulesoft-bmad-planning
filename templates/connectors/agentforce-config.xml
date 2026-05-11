@@ -2,100 +2,213 @@
     Connector: Agentforce
     Registry key: agentforce
     Connector: mule4-agentforce-connector 1.3  (com.mulesoft.connectors)
-    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule4-agentforce-connector/
-    Namespace: xmlns:agentforce="http://www.mulesoft.org/schema/mule/agentforce"
-    Schema:    http://www.mulesoft.org/schema/mule/agentforce/current/mule-agentforce.xsd
+    Namespace prefix: ms-agentforce
+    Namespace URI:    http://www.mulesoft.org/schema/mule/ms-agentforce
+    Schema:           http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd
+    This file is a generator-injected fragment included into global-config.xml.
+    The doc: and ms-agentforce: namespaces are declared in global-config.xml's <mule> root.
+
+    VERIFIED against official MuleSoft docs (2026-05-11):
+      - Namespace prefix is ms-agentforce (NOT agentforce)
+      - OAuth connection: ms-agentforce:oauth-client-credentials-connection
+        with child ms-agentforce:oauth-client-credentials (clientId, clientSecret)
+      - There is NO invoke-agent operation. Session lifecycle is always explicit:
+          start-agent-conversation → send-message-sync → end-agent-conversation
+      - continue-agent-conversation is DEPRECATED as of v1.3 — do not use
+      - Agent ID attribute is named "agent" (NOT agentId)
+      - Error type prefix is MS-AGENTFORCE: (not AGENTFORCE:)
+    Sources: docs.mulesoft.com/agentforce-connector/latest/
+
+    STILL UNVERIFIED — resolve before first client use:
+      VERIFY-A: Child element / attribute for passing context variables to send-message-sync
+                beyond the message string (Salesforce Agent API needs [{name,value,type}] —
+                unknown whether connector maps a flat DataWeave map automatically).
+      VERIFY-B: Response object field path from send-message-sync to extract agent reply.
+      VERIFY-C: Session ID field path from start-agent-conversation response.
+                See agentforce-invoke.xml — handled defensively via agentforceSessionId normalisation.
+      VERIFY-D: (a) Whether responseTimeout / responseTimeoutUnit are valid on the connection element.
+                (b) Whether instanceUrl is the correct attribute name — may be salesforceUrl or orgUrl.
+                (c) Whether instanceUrl belongs on the connection child or on ms-agentforce:config itself.
+      VERIFY-E: Exact patch version — check Exchange for latest 1.3.x patch.
+                Update connector-registry.json version field once confirmed.
 
     Used in patterns: R (agentic-mcp-integration), P (ai-augmented-flow), O (hybrid)
-    MuleSoft invokes a Salesforce Agentforce agent synchronously — caller waits for the
-    agent's structured response. Always secondary to another primary pattern.
+    Always secondary to another primary pattern — never a standalone flow trigger.
 
     Auth: OAuth 2.0 Client Credentials
+
     CRITICAL:
-      - clientId + clientSecret MUST be in Secrets Manager — never in property files
-      - Set a response timeout — agent invocations can take 5–30s depending on agent complexity
-      - Always implement fallback on timeout (decisions.json aiIntegration.fallbackOnTimeout=true)
-      - Log only session ID and status — NEVER log full agent response (may contain PII/business data)
-      - One session per invocation unless stateful conversation is explicitly required
-      - Use mule-mcp-connector alongside this connector when Agentforce is the caller (pattern R inverted)
-      - Use mule4-a2a-connector for agent-to-agent orchestration across Agentforce agents
+      - clientId + clientSecret MUST be in Secrets Manager, not plain property files.
+        ${agentforce.clientId} resolves from properties; back those keys with the
+        AWS/Azure Key Vault Secrets Manager provider at runtime. The generator does not
+        enforce this — manual review is required for production deployments.
+      - Always call end-agent-conversation on every exit path (success AND error).
+        Failure leaks server-side sessions and exhausts concurrent session limits.
+        Use the guard pattern in agentforce-invoke.xml — end-agent-conversation must be
+        wrapped so it does not throw when no session was opened.
+      - Agent calls are NOT guaranteed idempotent if the agent has write side-effects.
+        Document the idempotency contract for each agent; disable retry for write-effect agents.
+      - Log session ID and status only — NEVER log agent input/output (PII risk).
+      - For Gov Cloud / FedRAMP orgs, instanceUrl uses .my.salesforce.mil domain — not .salesforce.com.
 
     Properties required in {env}.yaml:
       agentforce.clientId      → Connected App Consumer Key (via Secrets Manager)
       agentforce.clientSecret  → Connected App Consumer Secret (via Secrets Manager)
-      agentforce.instanceUrl   → "https://yourorg.my.salesforce.com"
-      agentforce.agentId       → API name of the Agentforce agent (e.g. "My_Integration_Agent")
-      agentforce.timeoutSec    → "30" (from decisions.json aiIntegration.timeoutSeconds)
+      agentforce.instanceUrl   → "https://yourorg.my.salesforce.com" (My Domain URL, not login.sf.com)
+      agentforce.agentId       → Agent ID used as "agent" attribute on start-agent-conversation
+      (timeout is connector-level — add agentforce.timeoutSec once VERIFY-D confirms attribute name)
 
     Salesforce setup:
-      1. Create Connected App in Salesforce with OAuth 2.0 Client Credentials enabled
-      2. Assign the Connected App to the Agentforce agent's permission set
-      3. Set agentforce.instanceUrl to your My Domain URL (not login.salesforce.com)
-      4. Confirm agentId matches the API name in the Agentforce agent definition
+      1. Create Connected App with OAuth 2.0 Client Credentials flow enabled
+      2. Grant the Connected App access to the Agentforce agent's permission set
+      3. Use your My Domain URL for instanceUrl (Gov Cloud: use .my.salesforce.mil domain)
+      4. Confirm the value for agentforce.agentId matches the agent ID shown in Salesforce
 -->
 
-    <agentforce:config
+    <!-- VERIFY-D: confirm connection element name, attribute names, and timeout placement -->
+    <ms-agentforce:config
         name="Agentforce_Config"
         doc:name="Agentforce Config">
-        <agentforce:oauth2-client-credentials-connection
-            clientId="${agentforce.clientId}"
-            clientSecret="${agentforce.clientSecret}"
-            instanceUrl="${agentforce.instanceUrl}"
-            responseTimeout="${agentforce.timeoutSec}"
-            responseTimeoutUnit="SECONDS"/>
-    </agentforce:config>
+        <ms-agentforce:oauth-client-credentials-connection>
+            <ms-agentforce:oauth-client-credentials
+                clientId="${agentforce.clientId}"
+                clientSecret="${agentforce.clientSecret}"
+                instanceUrl="${agentforce.instanceUrl}"/>
+            <!-- VERIFY-D: add responseTimeout once attribute name confirmed -->
+        </ms-agentforce:oauth-client-credentials-connection>
+    </ms-agentforce:config>
 
     <!--
-        Usage examples in flows:
+        USAGE — SESSION LIFECYCLE
 
-          Invoke agent (new session per call):
-            <agentforce:invoke-agent
-                config-ref="Agentforce_Config"
-                agentId="${agentforce.agentId}"
-                doc:name="Invoke Agentforce Agent">
-                <agentforce:input-variables>#[{
-                    "customerContext": payload.customerData,
-                    "requestType": vars.requestType
-                }]</agentforce:input-variables>
-            </agentforce:invoke-agent>
+        No single invoke-agent operation exists. Every call follows three steps.
+        ALWAYS wrap in <try> — end-agent-conversation must run on every exit path.
+        Use agentforce-invoke.xml snippet for complete session management boilerplate.
 
-          Stateful conversation (multi-turn):
-            <!-- Step 1 — create session -->
-            <agentforce:create-session
-                config-ref="Agentforce_Config"
-                agentId="${agentforce.agentId}"
-                target="agentSession"
-                doc:name="Create Agent Session"/>
+        STATELESS PATTERN (preferred for single-message calls):
 
-            <!-- Step 2 — send message within session -->
-            <agentforce:send-message
-                config-ref="Agentforce_Config"
-                sessionId="#[vars.agentSession.sessionId]"
-                doc:name="Send Message to Agent">
-                <agentforce:message>#[payload.userMessage]</agentforce:message>
-            </agentforce:send-message>
+            <try doc:name="Agentforce: [Purpose]">
 
-            <!-- Step 3 — end session when done -->
-            <agentforce:end-session
-                config-ref="Agentforce_Config"
-                sessionId="#[vars.agentSession.sessionId]"
-                doc:name="End Agent Session"/>
-
-        Timeout + fallback pattern (REQUIRED per standards):
-            <try doc:name="Agentforce Call with Fallback">
-                <agentforce:invoke-agent
+                <!-- Step 1: open session; target writes to vars.agentSession -->
+                <ms-agentforce:start-agent-conversation
                     config-ref="Agentforce_Config"
-                    agentId="${agentforce.agentId}"
-                    doc:name="Invoke Agentforce Agent">
-                    <agentforce:input-variables>#[{ "context": payload }]</agentforce:input-variables>
-                </agentforce:invoke-agent>
+                    agent="${agentforce.agentId}"
+                    target="agentSession"
+                    doc:name="Start Agent Session"/>
+
+                <!-- VERIFY-C: normalise session ID defensively -->
+                <set-variable variableName="agentforceSessionId"
+                    value="#[(vars.agentSession.sessionId default vars.agentSession) as String]"
+                    doc:name="Normalise Session ID"/>
+
+                <!-- Step 2: send message; VERIFY-A: confirm ms-agentforce:message element -->
+                <ms-agentforce:send-message-sync
+                    config-ref="Agentforce_Config"
+                    sessionId="#[vars.agentforceSessionId]"
+                    target="agentforceResponse"
+                    doc:name="Send Message to Agent">
+                    <ms-agentforce:message>#[vars.agentforceInput]</ms-agentforce:message>
+                </ms-agentforce:send-message-sync>
+
+                <!-- Step 3: always close session immediately -->
+                <ms-agentforce:end-agent-conversation
+                    config-ref="Agentforce_Config"
+                    sessionId="#[vars.agentforceSessionId]"
+                    doc:name="End Agent Session"/>
+
                 <error-handler>
-                    <on-error-continue type="AGENTFORCE:TIMEOUT, AGENTFORCE:CONNECTIVITY">
-                        <logger level="WARN"
-                            message='#["[AGENTFORCE FALLBACK] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId]'
-                            doc:name="Log Agentforce Fallback"/>
-                        <set-payload value="#[vars.agentforceFallbackValue]" doc:name="Use Fallback Value"/>
+                    <on-error-continue type="ANY">
+                        <!-- Guard: only close if session was actually opened -->
+                        <choice doc:name="Close Session If Opened">
+                            <when expression="#[vars.agentforceSessionId != null]">
+                                <try doc:name="Safe Session Close">
+                                    <ms-agentforce:end-agent-conversation
+                                        config-ref="Agentforce_Config"
+                                        sessionId="#[vars.agentforceSessionId]"
+                                        doc:name="End Session on Error"/>
+                                    <error-handler>
+                                        <on-error-continue type="ANY">
+                                            <logger level="WARN"
+                                                message='#["[AGENTFORCE SESSION CLOSE FAILED] sessionId=" ++ vars.agentforceSessionId ++ " | correlationId=" ++ correlationId]'/>
+                                        </on-error-continue>
+                                    </error-handler>
+                                </try>
+                            </when>
+                        </choice>
+                        <logger level="ERROR"
+                            message='#["[AGENTFORCE SESSION CLOSED ON ERROR] sessionId=" ++ (vars.agentforceSessionId default "none") ++ " | correlationId=" ++ correlationId ++ " | env=" ++ p("mule.env") ++ " | error=" ++ ((error.description default "unknown") as String)[0..200]]'
+                            doc:name="Log Session Close on Error"/>
                     </on-error-continue>
                 </error-handler>
+
             </try>
+
+        MULTI-TURN STATEFUL PATTERN (multi-message conversation):
+
+            CAUTION: In multi-turn flows, the session must be closed on every exit path.
+            Wrap the entire conversation lifecycle in a single <try> block.
+            Use a flow-level variable to hold sessionId and reference it everywhere.
+
+            <try doc:name="Agentforce Multi-Turn Conversation">
+
+                <!-- Open session once -->
+                <ms-agentforce:start-agent-conversation
+                    config-ref="Agentforce_Config"
+                    agent="${agentforce.agentId}"
+                    target="agentSession"
+                    doc:name="Start Agent Session"/>
+
+                <set-variable variableName="agentforceSessionId"
+                    value="#[(vars.agentSession.sessionId default vars.agentSession) as String]"
+                    doc:name="Normalise Session ID"/>
+
+                <!-- Send each message in turn -->
+                <ms-agentforce:send-message-sync
+                    config-ref="Agentforce_Config"
+                    sessionId="#[vars.agentforceSessionId]"
+                    target="agentforceResponse"
+                    doc:name="Send Message 1">
+                    <ms-agentforce:message>#[vars.agentforceInput]</ms-agentforce:message>
+                </ms-agentforce:send-message-sync>
+
+                <!-- Add more send-message-sync calls here for additional turns -->
+
+                <!-- Always close when done -->
+                <ms-agentforce:end-agent-conversation
+                    config-ref="Agentforce_Config"
+                    sessionId="#[vars.agentforceSessionId]"
+                    doc:name="End Agent Session"/>
+
+                <error-handler>
+                    <on-error-continue type="ANY">
+                        <choice doc:name="Close Session If Opened">
+                            <when expression="#[vars.agentforceSessionId != null]">
+                                <try doc:name="Safe Session Close">
+                                    <ms-agentforce:end-agent-conversation
+                                        config-ref="Agentforce_Config"
+                                        sessionId="#[vars.agentforceSessionId]"
+                                        doc:name="End Session on Error"/>
+                                    <error-handler>
+                                        <on-error-continue type="ANY">
+                                            <logger level="WARN"
+                                                message='#["[AGENTFORCE SESSION CLOSE FAILED] sessionId=" ++ vars.agentforceSessionId]'/>
+                                        </on-error-continue>
+                                    </error-handler>
+                                </try>
+                            </when>
+                        </choice>
+                        <logger level="ERROR"
+                            message='#["[AGENTFORCE MULTI-TURN ERROR] sessionId=" ++ (vars.agentforceSessionId default "none") ++ " | correlationId=" ++ correlationId ++ " | error=" ++ ((error.description default "unknown") as String)[0..200]]'/>
+                    </on-error-continue>
+                </error-handler>
+
+            </try>
+
+        CONFIRMED ERROR TYPES (MS-AGENTFORCE: prefix):
+            MS-AGENTFORCE:CONNECTIVITY             — network / connection failure (transient, may retry)
+            MS-AGENTFORCE:AGENT_API_ERROR          — Salesforce Agent API returned an error
+            MS-AGENTFORCE:AGENT_OPERATIONS_FAILURE — agent operation execution failure
+            MS-AGENTFORCE:AGENT_METADATA_FAILURE   — metadata retrieval failure
+            MS-AGENTFORCE:INVALID_CONNECTION       — auth / connection validation failed
+            MS-AGENTFORCE:RETRY_EXHAUSTED          — requires reconnection strategy on connection element
     -->

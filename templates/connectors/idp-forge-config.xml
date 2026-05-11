@@ -1,0 +1,54 @@
+<!--
+    Connector: MuleSoft Forge IDP Connector (PREFERRED)
+    Registry key: mulesoft-forge-idp
+    GroupId: io.github.mulesoft-forge | ArtifactId: mule-idp-connector | Version: 1.0.6
+    Source: Maven Central (NOT Anypoint Exchange) — requires mavenCentral() in pom.xml
+    Released: September 7, 2025 | Requires: Mule 4.6+
+    Docs: https://docs.mulesoftforge.com/connectors/mule-idp-connector
+
+    WHY use this over raw HTTP:
+      - Universal connector — works across all action versions without connector sprawl
+      - Typed operations: `postDocumentActionExecution`, `getDocumentActionExecution`
+      - Handles multipart form-data upload natively (no manual base64 encoding)
+      - Review task management operations included
+      - Auto-handles OAuth token lifecycle
+
+    Auth: Anypoint Connected App (OAuth 2.0 client credentials)
+    Scope: LEAVE EMPTY — access controlled by Connected App "Execute Published Actions" permission.
+           Grant in: Access Management → Connected Apps → Document Actions.
+
+    pom.xml: Add Maven Central repository + dependency:
+      <repositories>
+        <repository>
+          <id>maven-central</id>
+          <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+      </repositories>
+      <dependency>
+        <groupId>io.github.mulesoft-forge</groupId>
+        <artifactId>mule-idp-connector</artifactId>
+        <version>1.0.6</version>
+        <classifier>mule-plugin</classifier>
+      </dependency>
+
+    Properties required in {env}.yaml:
+      anypoint.idp.region          → us-east-1 or eu-central-1
+      anypoint.idp.orgId           → Anypoint org ID
+      anypoint.idp.actionId        → IDP action ID
+      anypoint.idp.actionVersionId → IDP action version ID
+      anypoint.client.id           → Connected App client ID (Secrets Manager)
+      anypoint.client.secret       → Connected App client secret (Secrets Manager)
+-->
+
+    <!-- MuleSoft Forge IDP Connector config -->
+    <!-- TODO: Verify exact config element name from Forge connector schema before deploying -->
+    <!-- See: https://docs.mulesoftforge.com/connectors/mule-idp-connector/set-up -->
+    <idp:config
+        name="IDP_Forge_Config"
+        doc:name="MuleSoft Forge IDP Config">
+        <idp:connection
+            orgId="${anypoint.idp.orgId}"
+            region="${anypoint.idp.region}"
+            clientId="${anypoint.client.id}"
+            clientSecret="${anypoint.client.secret}"/>
+    </idp:config>

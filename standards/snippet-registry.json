@@ -78,6 +78,40 @@
       "version": "1.0.0",
       "lastVerified": "2026-05-11",
       "usedBy": []
+    },
+    "agentforce-invoke": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/agentforce-invoke.xml",
+      "description": "Invoke a Salesforce Agentforce agent with fallback; preserves primary payload; catch-all prevents flow breakage",
+      "injectOn": "Manual only. Use when aiIntegration.enabled is true in decisions.json and agentforce is in systems.connectors array.",
+      "patterns": ["P", "R", "O"],
+      "autoInject": false,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "rpa-invoke-and-poll": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/rpa-invoke-and-poll.xml",
+      "description": "Full RPA orchestration block: generate executionId → PUT startProcess (idempotent) → persist executionId → poll status via until-successful → branch on success/error → error handler with DLQ + notifications",
+      "injectOn": "Auto-injected by scaffold/generate.js when primaryPattern=rpa-orchestration",
+      "patterns": ["W"],
+      "autoInject": true,
+      "tokens": {
+        "RPA_POLL_RETRIES": "from decisions.json rpa.pollRetries; default 60",
+        "RPA_POLL_INTERVAL": "from decisions.json rpa.pollIntervalMs; default 30000",
+        "RPA_DLQ_QUEUE": "from decisions.json errorHandling.dlqName; default mq.queue.rpa-dlq"
+      },
+      "prerequisites": [
+        "Anypoint_RPA_Config in global-config.xml",
+        "Anypoint_MQ_Config in global-config.xml",
+        "persistent-store Object Store in global-config.xml",
+        "common-dispatch-notification-subflow from commons library",
+        "common-route-to-dlq-subflow from commons library"
+      ],
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
     }
   },
 

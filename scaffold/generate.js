@@ -141,13 +141,15 @@ function computeProfile(d) {
 // ─── MUnit Coverage Floors ────────────────────────────────────────────────────
 
 const COVERAGE_MAP = {
-  'request-reply':         80,
-  'api-aggregation':       80,
-  'event-driven':          75,
-  'pubsub-fanout':         75,
-  'batch':                 75,
-  'data-migration':        75,
-  'outbound-notification': 60,
+  'request-reply':            80,
+  'api-aggregation':          80,
+  'event-driven':             75,
+  'pubsub-fanout':            75,
+  'batch':                    75,
+  'data-migration':           75,
+  'outbound-notification':    60,
+  'idp-document-processing':  80,
+  'rpa-orchestration':        80,
 };
 
 // For hybrid patterns: use the lowest floor of any included pattern.
@@ -163,7 +165,7 @@ function getCoverageFloor(primary, secondary = []) {
 const ASYNC_PATTERNS = new Set([
   'event-driven', 'pubsub-fanout', 'cdc-streaming',
   'transactional-outbox', 'streaming-pipeline', 'b2b-edi',
-  'process-orchestration',
+  'process-orchestration', 'idp-document-processing',
 ]);
 
 // Trigger types that indicate an async consumer (need idempotency).
@@ -273,6 +275,8 @@ const NS_REGISTRY = {
   jms:                 { prefix: 'jms',             uri: 'http://www.mulesoft.org/schema/mule/jms'               },
   amqp:                { prefix: 'amqp',            uri: 'http://www.mulesoft.org/schema/mule/amqp'              },
   dynamics365:         { prefix: 'dynamics365',     uri: 'http://www.mulesoft.org/schema/mule/dynamics365'        },
+  agentforce:          { prefix: 'ms-agentforce',   uri: 'http://www.mulesoft.org/schema/mule/ms-agentforce'       },
+  // einstein-ai omitted — no config template, no connector-registry entry yet
 };
 
 // Build the xmlns and xsi:schemaLocation additions for a set of connector keys.
@@ -315,6 +319,9 @@ const TRIGGER_TEMPLATE_MAP = {
   'batch-scope':           'batch-scope.xml',
   'scatter-gather':        'scatter-gather.xml',
   'process-orchestration': 'process-orchestration.xml',
+  'email-imap':            'email-imap.xml',
+  's3-event':              's3-event.xml',
+  'blob-event':            's3-event.xml',  // Azure Blob uses same template structure; devs swap connector
 };
 
 // Connector namespaces implicitly required by each trigger type.
@@ -328,6 +335,9 @@ const TRIGGER_CONNECTOR_MAP = {
   'sftp':                  ['sftp'],
   'db-poll':               ['db'],
   'process-orchestration': ['anypoint-mq'],
+  'email-imap':            ['email'],
+  's3-event':              ['amazon-s3'],
+  'blob-event':            ['azure-blob'],
   // http, scheduler, batch-scope, scatter-gather: no additional connector namespace needed
 };
 
@@ -456,6 +466,11 @@ function genPom(d, lookup, outDir) {
     const conn = lookup[key];
     if (!conn) {
       if (key !== 'http') console.warn(`  ⚠  Connector "${key}" not found in registry — skipping dependency`);
+      continue;
+    }
+    // skipMavenDependency=true means the connector shares another entry's artifact (e.g. anypoint-idp uses mule-http-connector)
+    if (conn.skipMavenDependency) {
+      console.log(`  ℹ  ${key}: skipMavenDependency=true — no separate Maven dep added (uses shared artifact)`);
       continue;
     }
     checkStaleness(key, conn);
@@ -723,6 +738,28 @@ function genFlowFile(flow, d, snippets, outDir, coverageFloor) {
     }
   }
 
+  // 2b. Inject RPA invoke-and-poll snippet when primaryPattern=rpa-orchestration
+  if (d.integration?.primaryPattern === 'rpa-orchestration' && snippets['rpa-invoke-and-poll.xml']) {
+    const rpa = d.rpa ?? {};
+    const rpaTokens = {
+      ...tokens,
+      RPA_POLL_RETRIES:  rpa.pollRetries   ?? 60,
+      RPA_POLL_INTERVAL: rpa.pollIntervalMs ?? 30000,
+      RPA_DLQ_QUEUE:     d.errorHandling?.dlqName
+                           ? `\${${d.errorHandling.dlqName}}`
+                           : '${mq.queue.rpa-dlq}',
+    };
+    const rpaXml  = sub(snippets['rpa-invoke-and-poll.xml'], rpaTokens);
+    const ANCHOR  = '<!-- TODO: Add flow implementation here -->';
+    if (!flowContent.includes(ANCHOR)) {
+      // Fallback: append before closing </flow> tag
+      flowContent = flowContent.replace('</flow>', rpaXml.trim() + '\n\n</flow>');
+      console.warn(`  ℹ  rpa-invoke-and-poll appended (anchor "${ANCHOR}" not found) for ${flow.name}`);
+    } else {
+      flowContent = flowContent.replace(ANCHOR, rpaXml.trim());
+    }
+  }
+
   // 3. Build namespace additions for ONLY the connectors this trigger type requires.
   // Using all project connectors (connKeys) would add unnecessary xmlns declarations to every
   // flow file. Developers add target-connector namespaces manually when implementing TODOs.
@@ -816,6 +853,36 @@ function genProperties(d, outDir) {
         return nested;
       });
       content += `\n# Per-flow scheduler cron — matches \${scheduler.{flowKey}.cron} in flows.xml\nscheduler:\n${flowLines.join('\n')}\n`;
+    }
+
+    // IDP properties — generated when idp.enabled or primaryPattern=idp-document-processing
+    const isIdp = d.idp?.enabled || d.integration?.primaryPattern === 'idp-document-processing';
+    if (isIdp) {
+      const idp = d.idp ?? {};
+      const isProd = env === 'prod' || env === 'uat';
+      content += `
+# Anypoint IDP (Intelligent Document Processing)
+anypoint:
+  idp:
+    orgId: "${idp.orgId || 'TODO: your-anypoint-org-id'}"
+    actionId: "${idp.actionId || 'TODO: your-idp-action-id'}"
+    actionVersionId: "${idp.actionVersionId || 'TODO: your-idp-action-version-id'}"
+    pollingIntervalSeconds: ${idp.pollingIntervalSeconds ?? 3}
+    pollingMaxAttempts: ${idp.pollingMaxAttempts ?? 10}
+    maxConcurrency: ${isProd ? 4 : 2}
+  client:
+    id: "TODO: anypoint-connected-app-client-id"     # Store in Secrets Manager
+    secret: "TODO: anypoint-connected-app-client-secret" # Store in Secrets Manager
+idp:
+  outputEntity: "${idp.outputEntity || 'TODO: target-entity-name'}"
+`;
+      if (idp.documentSource === 'sftp' && idp.multiActionRouting) {
+        content += `  # Multi-action routing — add one block per document type
+  # invoices:
+  #   actionId: "TODO: invoice-action-id"
+  #   actionVersionId: "TODO: invoice-action-version-id"
+`;
+      }
     }
 
     writeFile(path.join(outDir, `src/main/resources/properties/${env}.yaml`), content);
@@ -965,7 +1032,115 @@ function genDevContainer(d, outDir) {
   );
 }
 
+// ─── IDP Flow Generator ───────────────────────────────────────────────────────
+
+/**
+ * Generate idp-document-flows.xml — the IDP execute+poll sub-flows shared across
+ * all document source triggers.
+ *
+ * For documentSource=http-multipart, also generates the MQ consumer flow
+ * (IDP_MQ_CONSUMER flag = true). For sftp/s3/email, source-specific trigger flows
+ * call the sub-flow directly — no MQ consumer generated here.
+ */
+function genIdpFlow(d, outDir) {
+  const idp       = d.idp ?? {};
+  const client    = d.project?.client ?? 'client';
+  const domain    = client.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const src       = idp.documentSource ?? 'http-multipart';
+  const ttlHours  = d.flowControl?.messageTtlHours ?? 24;
+
+  const tmplPath = path.join(TMPL_DIR, 'idp-document-flow.xml');
+  if (!fs.existsSync(tmplPath)) {
+    console.warn('  ⚠  IDP template not found: idp-document-flow.xml — skipping IDP flow generation');
+    return;
+  }
+
+  const tokens = {
+    CLIENT:             client,
+    IDP_OUTPUT_ENTITY:  idp.outputEntity || 'document',
+    MESSAGE_TTL_HOURS:  ttlHours,
+    domain,
+  };
+  const flags = {
+    IDP_MQ_CONSUMER: src === 'http-multipart',
+  };
+
+  const tmpl   = readFile(tmplPath);
+  const result = render(tmpl, tokens, flags);
+  writeFile(path.join(outDir, 'src/main/mule/idp-document-flows.xml'), result);
+}
+
+/**
+ * Generate the DataWeave IDP result → canonical schema skeleton.
+ * One file per IDP output entity (not per flow — the entity type drives the mapping).
+ */
+function genIdpDwlTransform(d, outDir) {
+  const idp    = d.idp ?? {};
+  const entity = idp.outputEntity || 'document';
+  const dwlName = `map-idp-result-to-${entity}`;
+
+  const content = `%dw 2.0
+output application/json
+// IDP result → canonical ${entity} schema
+// IDP API response structure: payload.pages[].fields.{fieldLabel}.value
+// vars.idpPages = payload.pages default [] (set by idp-execute-and-poll-subflow)
+// Field labels match the field names defined in your IDP action in Anypoint IDP UI.
+// correlationId is always available as a top-level DataWeave variable.
+---
+do {
+    var page = (vars.idpPages default [])[0].fields default {}
+    ---
+    {
+        // TODO: Map extracted IDP fields to your ${entity} canonical schema.
+        // Each extracted field: page.{fieldLabel}.value
+        // Confidence per field: page.{fieldLabel}.confidence (0.0–1.0)
+        //
+        // Example for invoice entity:
+        //   invoiceNumber: page."Invoice Number".value  default "",
+        //   vendorName:    page."Vendor Name".value     default "",
+        //   totalAmount:   page."Total Amount".value as Number default 0,
+        //   invoiceDate:   page."Invoice Date".value as Date { format: "MM/dd/yyyy" } default null,
+        //   lineItems: (vars.idpPages flatMap (pg) -> pg.fields."Line Items".value default []) map (item) -> {
+        //     description: item."Description".value default "",
+        //     quantity:    item."Quantity".value as Number default 0,
+        //     unitPrice:   item."Unit Price".value as Number default 0
+        //   },
+
+        correlationId: correlationId,
+        idpExecutionId: vars.idpExecutionId,
+        idpStatus: vars.idpStatus
+    }
+}
+`;
+  writeFile(path.join(outDir, `src/main/resources/dwl/${dwlName}.dwl`), content);
+}
+
 // ─── Validation Guards ────────────────────────────────────────────────────────
+
+// Load snippet registry and warn when a manual snippet applies to this project's patterns.
+function warnApplicableSnippets(d) {
+  let snippetReg;
+  try { snippetReg = JSON.parse(fs.readFileSync(SNIPPET_REG_F, 'utf8')); } catch { return; }
+  const patterns = [
+    d.integration?.primaryPattern,
+    ...(d.integration?.secondaryPatterns ?? []),
+  ].filter(Boolean);
+  const connKeys = d.systems?.connectors ?? [];
+
+  for (const [key, snippet] of Object.entries(snippetReg.tier1_snippets ?? {})) {
+    if (snippet.autoInject) continue; // auto-injected snippets are handled elsewhere
+    const matches = (snippet.patterns ?? []).some(p =>
+      p === 'all' || patterns.some(ap => ap.startsWith(p.toLowerCase()) || p === ap)
+    );
+    if (!matches) continue;
+    // Connector-specific snippets: only warn when that connector is selected
+    if (key === 'agentforce-invoke' && !connKeys.includes('agentforce')) continue;
+    console.warn(`\n⚠  MANUAL SNIPPET APPLICABLE: "${key}"`);
+    console.warn(`   File: ${snippet.file}`);
+    console.warn(`   ${snippet.description}`);
+    console.warn(`   This snippet must be manually added — copy into the relevant flow file.`);
+  }
+}
 
 // Log override warnings when decisions.json flags conflict with pattern requirements.
 function validateDecisions(d) {
@@ -984,6 +1159,65 @@ function validateDecisions(d) {
 
   if (isAsyncPattern(d) && d.flowControl?.deduplicationEnabled === false) {
     console.warn('\n⚠  WARNING: Async pattern selected but flowControl.deduplicationEnabled is false — idempotency is MANDATORY for all async consumers');
+  }
+
+  // IDP guards
+  if (pattern === 'idp-document-processing') {
+    const idp = d.idp ?? {};
+    if (!idp.enabled) {
+      console.warn('\n⚠  AUTO-ENABLING: primaryPattern=idp-document-processing but idp.enabled is not set — enabling IDP generation');
+      if (!d.idp) d.idp = {};
+      d.idp.enabled = true;
+    }
+    if (!idp.actionId) {
+      console.warn('\n⚠  WARNING: idp.actionId not set in decisions.json — generated config will use property placeholder ${anypoint.idp.actionId}. Set before deploy.');
+    }
+    if (!idp.orgId) {
+      console.warn('\n⚠  WARNING: idp.orgId not set in decisions.json — generated config will use property placeholder ${anypoint.idp.orgId}. Set before deploy.');
+    }
+    const src = idp.documentSource ?? '';
+    if (!['http-multipart', 's3', 'sftp', 'email'].includes(src)) {
+      console.warn(`\n⚠  WARNING: idp.documentSource="${src}" is unrecognised. Expected: http-multipart | s3 | sftp | email`);
+    }
+    // Ensure anypoint-idp connector is in systems.connectors
+    if (!d.systems) d.systems = {};
+    if (!d.systems.connectors) d.systems.connectors = [];
+    if (!d.systems.connectors.includes('anypoint-idp')) {
+      d.systems.connectors.push('anypoint-idp');
+      console.log('\n  ℹ  Auto-added anypoint-idp to systems.connectors for IDP pattern');
+    }
+    // IDP MQ consumer needs anypoint-mq
+    if (src === 'http-multipart' && !d.systems.connectors.includes('anypoint-mq')) {
+      d.systems.connectors.push('anypoint-mq');
+      console.log('\n  ℹ  Auto-added anypoint-mq to systems.connectors for http-multipart IDP source');
+    }
+  }
+
+  // RPA guards
+  if (pattern === 'rpa-orchestration') {
+    const rpa = d.rpa ?? {};
+    if (!rpa.tenant && !d.systems?.connectors?.includes('anypoint-rpa')) {
+      console.warn('\n⚠  WARNING: primaryPattern=rpa-orchestration but rpa.tenant is not set in decisions.json — generated config will use ${rpa.tenant} placeholder');
+    }
+    // Auto-add anypoint-rpa to connectors so the config template is included
+    if (!d.systems) d.systems = {};
+    if (!d.systems.connectors) d.systems.connectors = [];
+    if (!d.systems.connectors.includes('anypoint-rpa')) {
+      d.systems.connectors.push('anypoint-rpa');
+      console.log('\n  ℹ  Auto-added anypoint-rpa to systems.connectors for rpa-orchestration pattern');
+    }
+    // anypoint-mq is required for DLQ
+    if (!d.systems.connectors.includes('anypoint-mq')) {
+      d.systems.connectors.push('anypoint-mq');
+      console.log('\n  ℹ  Auto-added anypoint-mq to systems.connectors for rpa-orchestration DLQ');
+    }
+    const pollRetries = rpa.pollRetries ?? 60;
+    const pollInterval = rpa.pollIntervalMs ?? 30000;
+    const maxMinutes = Math.round((pollRetries * pollInterval) / 60000);
+    console.log(`\n  [RPA] Poll config: ${pollRetries} retries × ${pollInterval}ms = ${maxMinutes} min max wait`);
+    if (!d.errorHandling?.dlqName) {
+      console.warn('\n⚠  WARNING: rpa-orchestration requires errorHandling.dlqName — defaulting to mq.queue.rpa-dlq property reference');
+    }
   }
 
   const ttlHours       = d.flowControl?.messageTtlHours ?? 24;
@@ -1057,6 +1291,7 @@ function main() {
   console.log('');
 
   validateDecisions(d);
+  warnApplicableSnippets(d);
 
   // Load connector registry
   if (!fs.existsSync(REGISTRY_F)) {
@@ -1070,6 +1305,7 @@ function main() {
   //
   // Snippet injection map:
   //   wire-tap.xml                  → injected into async flows when wireTap.enabled=true (genFlowFile)
+  //   rpa-invoke-and-poll.xml       → injected into all flows when primaryPattern=rpa-orchestration (genFlowFile)
   //
   // Snippets NOT loaded here because they live inline in their trigger templates:
   //   idempotency-check.xml         → inline in mq-subscriber.xml and kafka-listener.xml
@@ -1082,6 +1318,7 @@ function main() {
   //   invalid-message-channel-route.xml → inject manually before downstream calls requiring strict validation
   const SNIPPET_NAMES = [
     'wire-tap.xml',
+    'rpa-invoke-and-poll.xml',
   ];
   const snippets = {};
   for (const name of SNIPPET_NAMES) {
@@ -1110,6 +1347,14 @@ function main() {
   const profile = d.scaffold?.profile;
   if (profile === 'regulated') {
     genAuditTrailFlow(d, outDir);
+  }
+
+  // ── IDP extras ───────────────────────────────────────────────────────────
+  const isIdp = d.idp?.enabled || d.integration?.primaryPattern === 'idp-document-processing';
+  if (isIdp) {
+    console.log('\n  [IDP] Generating Anypoint IDP sub-flows and DWL transform skeleton...');
+    genIdpFlow(d, outDir);
+    genIdpDwlTransform(d, outDir);
   }
 
   // ── Per-flow files ───────────────────────────────────────────────────────

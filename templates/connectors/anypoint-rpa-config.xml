@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Anypoint RPA — HTTP Connector Config
+  =====================================
+  MuleSoft's Anypoint RPA product does NOT ship a standalone Mule connector JAR.
+  Integration is achieved via the HTTP connector against the Anypoint RPA REST API v2.
+
+  Two auth approaches:
+    Production:   OAuth 2.0 Client Credentials (Connected App) — ALWAYS use this in prod
+    Development:  API key via x-apikey header — quick testing only; user-scoped; expires
+
+  Setup checklist (RPA team responsibility before dev starts):
+    1. Build automation in Anypoint RPA Builder
+    2. Deploy to Production phase in RPA Manager
+    3. Create an Invokable Run Configuration for the deployment
+    4. Create a Connected App in Anypoint Platform:
+         → Access Management → Connected Apps → Create App
+         → Type: "App acts on its own behalf (client credentials)"
+         → Add scopes: "RPA Integrator" AND "RPA Invocable Process"
+         → Store Client ID + Client Secret in Secrets Manager immediately
+    5. Find your RPA tenant subdomain in RPA Manager URL:
+         https://{tenant}.rpa.mulesoft.com
+
+  Property keys (add to all env YAML files):
+    rpa.tenant:            your-org
+    rpa.process.api.base:  /rpa/api/v2
+    rpa.token.url:         https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token
+    rpa.poll.retries:      60
+    rpa.poll.interval.ms:  30000
+    mq.queue.rpa-dlq:      rpa-orchestration-dlq-{env}-queue
+
+  Secure properties (Secrets Manager — never in plain YAML):
+    rpa.client.id:     Connected App Client ID
+    rpa.client.secret: Connected App Client Secret
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http  http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+  <!--
+    ════════════════════════════════════════════════════════════════════
+    OPTION A — OAuth 2.0 Client Credentials (Production — use this)
+    ════════════════════════════════════════════════════════════════════
+    Connected App must have scopes: "RPA Integrator" + "RPA Invocable Process"
+    Token endpoint differs by control plane region:
+      US:  https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token
+      EU:  https://eu1.anypoint.mulesoft.com/accounts/api/v2/oauth2/token
+    The HTTP requester handles token acquisition and refresh automatically.
+  -->
+  <http:request-config name="Anypoint_RPA_Config"
+    doc:name="Anypoint RPA HTTP Config (OAuth2)"
+    basePath="${rpa.process.api.base}">
+    <http:request-connection
+      host="${rpa.tenant}.rpa.mulesoft.com"
+      port="443"
+      protocol="HTTPS">
+      <http:authentication>
+        <http:oauth-client-credentials-grant-type
+          clientId="${secure::rpa.client.id}"
+          clientSecret="${secure::rpa.client.secret}"
+          tokenUrl="${rpa.token.url}"
+          scopes="RPA Integrator RPA Invocable Process"/>
+      </http:authentication>
+      <http:client-socket-properties>
+        <!-- RPA bots take 30s–30min to complete; this timeout covers the HTTP handshake only, not bot execution -->
+        <http:tcp-client-socket-properties connectionTimeout="10000" responseTimeout="30000"/>
+      </http:client-socket-properties>
+    </http:request-connection>
+  </http:request-config>
+
+  <!--
+    ════════════════════════════════════════════════════════════════════
+    OPTION B — API Key (Development / quick testing only)
+    ════════════════════════════════════════════════════════════════════
+    NEVER use in production. API key is user-scoped and expires.
+    If the issuing user account is deactivated, all integrations using this
+    key fail immediately — with no warning until a live call fails.
+
+    To use: swap config-ref to "Anypoint_RPA_ApiKey_Config" on all http:request
+    elements. Remove the OAuth config above and uncomment below.
+    API base path for API key auth is /rpa/api/v1 (not v2).
+
+  <http:request-config name="Anypoint_RPA_ApiKey_Config"
+    doc:name="Anypoint RPA HTTP Config (API Key — DEV ONLY)"
+    basePath="/rpa/api/v1">
+    <http:request-connection
+      host="${rpa.tenant}.rpa.mulesoft.com"
+      port="443"
+      protocol="HTTPS"/>
+    <http:default-headers>
+      <http:header key="x-apikey" value="${secure::rpa.api.key}"/>
+    </http:default-headers>
+  </http:request-config>
+  -->
+
+</mule>
