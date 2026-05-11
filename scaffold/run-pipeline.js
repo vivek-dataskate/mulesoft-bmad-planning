@@ -100,21 +100,45 @@ function writeOutput(filePath, content) {
   ok(`Wrote ${path.relative(REPO_ROOT, filePath)}`);
 }
 
-function readIntakeFiles() {
+const TEXT_EXTS = new Set(['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.html', '.htm', '.rst']);
+
+async function extractFileContent(fullPath, filename) {
+  const ext = path.extname(filename).toLowerCase();
+
+  if (TEXT_EXTS.has(ext)) return fs.readFileSync(fullPath, 'utf8');
+
+  if (ext === '.pdf') {
+    try {
+      const pdfParse = require('pdf-parse');
+      const data = await pdfParse(fs.readFileSync(fullPath));
+      return data.text?.trim() || '[PDF — no text layer found]';
+    } catch (e) {
+      if (e.code === 'MODULE_NOT_FOUND') return '[PDF — run: npm install pdf-parse]';
+      return `[PDF — extraction failed: ${e.message}]`;
+    }
+  }
+
+  if (ext === '.docx') {
+    try {
+      const mammoth = require('mammoth');
+      const result = await mammoth.extractRawText({ path: fullPath });
+      return result.value?.trim() || '[DOCX — no text extracted]';
+    } catch (e) {
+      if (e.code === 'MODULE_NOT_FOUND') return '[DOCX — run: npm install mammoth]';
+      return `[DOCX — extraction failed: ${e.message}]`;
+    }
+  }
+
+  return `[Binary file — ${fs.statSync(fullPath).size} bytes — not included in context]`;
+}
+
+async function readIntakeFiles() {
   const files = fs.readdirSync(INTAKE_DIR).filter(f => !f.startsWith('.'));
   const contents = [];
   for (const f of files) {
     const fullPath = path.join(INTAKE_DIR, f);
-    const stat = fs.statSync(fullPath);
-    if (!stat.isFile()) continue;
-    // Skip binary files (PDFs etc) — include text only
-    const ext = path.extname(f).toLowerCase();
-    const textExts = ['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.html', '.htm', '.rst'];
-    if (textExts.includes(ext)) {
-      contents.push(`\n\n=== ${f} ===\n${fs.readFileSync(fullPath, 'utf8')}`);
-    } else {
-      contents.push(`\n\n=== ${f} ===\n[Binary file — ${stat.size} bytes — not included in context]`);
-    }
+    if (!fs.statSync(fullPath).isFile()) continue;
+    contents.push(`\n\n=== ${f} ===\n${await extractFileContent(fullPath, f)}`);
   }
   return contents.join('\n');
 }
@@ -167,7 +191,7 @@ async function callAgent(stepName, systemCtx, userPrompt, outputPath) {
 async function runAnalyst(sysCtx, extraContext = '') {
   sep();
   info('PASS 1 — BMAD Analyst Agent (Mary)');
-  const intakeContent = readIntakeFiles();
+  const intakeContent = await readIntakeFiles();
   const prompt = `You are the BMAD Analyst Agent (Mary). A client named "${client}" needs a MuleSoft integration.
 
 Their discovery documents are below. Read everything carefully, then produce a complete PRD following the analyst agent guidelines in PLANNING_CONTEXT.md.
