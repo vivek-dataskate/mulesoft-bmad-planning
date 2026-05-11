@@ -1,0 +1,101 @@
+<!--
+    Connector: Agentforce
+    Registry key: agentforce
+    Connector: mule4-agentforce-connector 1.3  (com.mulesoft.connectors)
+    TODO: Verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule4-agentforce-connector/
+    Namespace: xmlns:agentforce="http://www.mulesoft.org/schema/mule/agentforce"
+    Schema:    http://www.mulesoft.org/schema/mule/agentforce/current/mule-agentforce.xsd
+
+    Used in patterns: R (agentic-mcp-integration), P (ai-augmented-flow), O (hybrid)
+    MuleSoft invokes a Salesforce Agentforce agent synchronously — caller waits for the
+    agent's structured response. Always secondary to another primary pattern.
+
+    Auth: OAuth 2.0 Client Credentials
+    CRITICAL:
+      - clientId + clientSecret MUST be in Secrets Manager — never in property files
+      - Set a response timeout — agent invocations can take 5–30s depending on agent complexity
+      - Always implement fallback on timeout (decisions.json aiIntegration.fallbackOnTimeout=true)
+      - Log only session ID and status — NEVER log full agent response (may contain PII/business data)
+      - One session per invocation unless stateful conversation is explicitly required
+      - Use mule-mcp-connector alongside this connector when Agentforce is the caller (pattern R inverted)
+      - Use mule4-a2a-connector for agent-to-agent orchestration across Agentforce agents
+
+    Properties required in {env}.yaml:
+      agentforce.clientId      → Connected App Consumer Key (via Secrets Manager)
+      agentforce.clientSecret  → Connected App Consumer Secret (via Secrets Manager)
+      agentforce.instanceUrl   → "https://yourorg.my.salesforce.com"
+      agentforce.agentId       → API name of the Agentforce agent (e.g. "My_Integration_Agent")
+      agentforce.timeoutSec    → "30" (from decisions.json aiIntegration.timeoutSeconds)
+
+    Salesforce setup:
+      1. Create Connected App in Salesforce with OAuth 2.0 Client Credentials enabled
+      2. Assign the Connected App to the Agentforce agent's permission set
+      3. Set agentforce.instanceUrl to your My Domain URL (not login.salesforce.com)
+      4. Confirm agentId matches the API name in the Agentforce agent definition
+-->
+
+    <agentforce:config
+        name="Agentforce_Config"
+        doc:name="Agentforce Config">
+        <agentforce:oauth2-client-credentials-connection
+            clientId="${agentforce.clientId}"
+            clientSecret="${agentforce.clientSecret}"
+            instanceUrl="${agentforce.instanceUrl}"
+            responseTimeout="${agentforce.timeoutSec}"
+            responseTimeoutUnit="SECONDS"/>
+    </agentforce:config>
+
+    <!--
+        Usage examples in flows:
+
+          Invoke agent (new session per call):
+            <agentforce:invoke-agent
+                config-ref="Agentforce_Config"
+                agentId="${agentforce.agentId}"
+                doc:name="Invoke Agentforce Agent">
+                <agentforce:input-variables>#[{
+                    "customerContext": payload.customerData,
+                    "requestType": vars.requestType
+                }]</agentforce:input-variables>
+            </agentforce:invoke-agent>
+
+          Stateful conversation (multi-turn):
+            <!-- Step 1 — create session -->
+            <agentforce:create-session
+                config-ref="Agentforce_Config"
+                agentId="${agentforce.agentId}"
+                target="agentSession"
+                doc:name="Create Agent Session"/>
+
+            <!-- Step 2 — send message within session -->
+            <agentforce:send-message
+                config-ref="Agentforce_Config"
+                sessionId="#[vars.agentSession.sessionId]"
+                doc:name="Send Message to Agent">
+                <agentforce:message>#[payload.userMessage]</agentforce:message>
+            </agentforce:send-message>
+
+            <!-- Step 3 — end session when done -->
+            <agentforce:end-session
+                config-ref="Agentforce_Config"
+                sessionId="#[vars.agentSession.sessionId]"
+                doc:name="End Agent Session"/>
+
+        Timeout + fallback pattern (REQUIRED per standards):
+            <try doc:name="Agentforce Call with Fallback">
+                <agentforce:invoke-agent
+                    config-ref="Agentforce_Config"
+                    agentId="${agentforce.agentId}"
+                    doc:name="Invoke Agentforce Agent">
+                    <agentforce:input-variables>#[{ "context": payload }]</agentforce:input-variables>
+                </agentforce:invoke-agent>
+                <error-handler>
+                    <on-error-continue type="AGENTFORCE:TIMEOUT, AGENTFORCE:CONNECTIVITY">
+                        <logger level="WARN"
+                            message='#["[AGENTFORCE FALLBACK] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId]'
+                            doc:name="Log Agentforce Fallback"/>
+                        <set-payload value="#[vars.agentforceFallbackValue]" doc:name="Use Fallback Value"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+    -->

@@ -1,6 +1,6 @@
 # MuleSoft BMAD Planning System
 
-> For tech leads and architects. Developers never touch this repo — they receive a generated GitHub repo they open in a Codespace.
+> For tech leads and architects. Developers never touch this repo — they receive a generated GitHub repo they open in a Codespace and implement flows using Anypoint Studio.
 
 ---
 
@@ -26,9 +26,14 @@ or
 Talk to Scout (the scoping analyst). Run SQ for projects/{client}/
 ```
 
-Scout reads the scoping notes, infers which systems are involved (explicit and implied), cross-checks every detected system against the connector registry for known quirks, and produces:
+Scout reads the scoping notes, infers which systems are involved (explicit and implied), cross-checks every detected system against the connector registry and existing playbooks, and produces:
 
-- `projects/{client}/intake-questionnaire.md` — a tailored questionnaire with base questions + system-specific gotcha questions generated dynamically per detected system
+- `projects/{client}/intake/intake-questionnaire.md` — tailored questionnaire with pre-filled understandings from the scoping notes, base questions, and system-specific gotcha questions generated dynamically per detected system
+
+Scout also automatically registers every detected system in three commons artifacts (creating stubs if none exist):
+- `commons/playbooks/{system}/PLAYBOOK.md` — stub created on first detection, enriched as the project progresses
+- `standards/connector-registry.json` — stub entry with auth type to be confirmed
+- `standards/intake-checklist.json` — baseline autoWarning so the next project sees this system flagged immediately
 
 **Send the intake questionnaire to the client. Wait for their responses before proceeding to Step 1.**
 
@@ -44,8 +49,6 @@ Drop the client's completed intake questionnaire responses plus any supporting d
 
 ### Step 2: Run the Analyst
 
-In this Claude Code chat, send:
-
 ```
 /bmad-agent-analyst
 ```
@@ -57,6 +60,8 @@ Talk to Mary (the analyst). Analyse all docs in projects/{client}/intake/ and pr
 The Analyst produces:
 - `projects/{client}/prd.md` — structured requirements
 - `projects/{client}/api-discovery/{system}-contract.md` — one per undocumented system (curl-verified field contracts + targeted gap questions)
+
+The Analyst also enriches the commons stubs Scout created — confirming auth types, object types, and known constraints from the intake documents.
 
 **Do not proceed to Step 3 until you have sent the gap questions to the client and received confirmation.** The Architect needs confirmed field contracts, not guesses.
 
@@ -70,7 +75,7 @@ or
 Talk to Winston (the architect). Read projects/{client}/prd.md. Walk the 6-level decision tree. Produce projects/{client}/architecture.md and projects/{client}/decisions.json
 ```
 
-The Architect reads `docs/FIELD_KNOWLEDGE.md` before the decision tree and applies any verified lessons that match the project's systems or patterns.
+The Architect reads `docs/FIELD_KNOWLEDGE.md` and all existing `commons/playbooks/*/PLAYBOOK.md` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
 
 **Validate before proceeding:**
 ```bash
@@ -88,6 +93,8 @@ The three decisions a tech lead must personally review in `decisions.json`:
 - `security.tier` — does the data classification match the security controls selected?
 
 Everything else the Architect decides autonomously.
+
+The Architect enriches all commons stubs before completing the MD run — playbook PLAYBOOK.md updated with design-confirmed auth and objects, connector-registry updated with confirmed auth type, intake-checklist updated with any specific gotchas found during architecture.
 
 ### Step 4: Run the PM
 
@@ -115,21 +122,38 @@ The script creates `github.com/{org}/{client}-mule`, pushes code, and prints a o
 
 **Total time: discovery docs → developer writing code, under an hour.**
 
-### Step 6: Debrief after any milestone
+### Step 6: Developer implements using Anypoint Studio
 
-Any time during or after the engagement — mid-architecture, post-UAT, post-production — if you learned something worth keeping, capture it:
+The developer opens the Codespace URL. The scaffold compiles immediately. They work through `projects/{client}/stories.md` story by story, implementing business logic in Anypoint Studio, confirming field mappings against the systems, and running MUnit tests until all coverage floors pass.
+
+No BMAD agent is involved in this step. The developer uses the MuleSoft platform directly. The architect does not need to be in the client repo. When the developer confirms stories are done, the engagement is ready for close-out.
+
+### Step 7: Run the close-out
+
+After the developer confirms stories are done — come back to this planning repo and run the close-out. **This is mandatory, not optional.** It is the mechanism by which every project makes the next project faster.
 
 ```
 /bmad-agent-architect-debrief
 ```
-or
-```
-Talk to the Architect Debrief agent. Select DK.
-```
+Then select `CO` and specify the client.
 
-Describe what you observed in plain language. The agent asks 6 questions and writes the field knowledge entry. No code needed, no client names recorded — counts only.
+The close-out reads every internal flag from the intake questionnaire, every open item from architecture.md, every story that was built, and every system involved. It interviews the architect question by question — per system (auth, connector behaviour, field mapping surprises), per internal flag (was it resolved? how?), per architecture open item, and per cross-cutting pattern. Based on the answers it automatically updates:
 
-When a finding has been confirmed on a second engagement, run `PK` to promote it: the agent drafts the exact change to the target file (scenario, standards doc, playbook, or commons DWL) and applies it. That learning then travels to every future project automatically.
+- `docs/FIELD_KNOWLEDGE.md` — new FK entries for any non-obvious finding
+- `commons/playbooks/{system}/` — implementation learnings, confirmed DWL mappings, maturity update
+- `standards/intake-checklist.json` — new or updated autoWarnings so the next project sees these issues at intake time
+- `standards/connector-registry.json` — confirmed auth types, versions, and any new connectors used
+
+### Step 8: Ad-hoc debrief (any time)
+
+Any time during the engagement — mid-architecture, mid-implementation, post-UAT — if a specific finding is worth capturing immediately without waiting for close-out:
+
+```
+/bmad-agent-architect-debrief
+```
+Then select `DK`.
+
+Describe what you observed in plain language. The agent asks focused questions and writes the field knowledge entry. Run `PK` when a finding has been confirmed on a second engagement — the agent promotes it to the target commons file automatically.
 
 ---
 
@@ -139,6 +163,7 @@ For every client engagement:
 
 | Artifact | Who uses it | Where |
 |----------|-------------|-------|
+| Intake questionnaire | Sent to client | `projects/{client}/intake/intake-questionnaire.md` |
 | PRD | Tech lead review, client sign-off | `projects/{client}/prd.md` |
 | API contract files | Send gap questions to client | `projects/{client}/api-discovery/` |
 | Architecture doc | Tech lead approval | `projects/{client}/architecture.md` |
@@ -146,6 +171,15 @@ For every client engagement:
 | Sprint stories | Developer task board | `projects/{client}/stories.md` |
 | Compiling Mule project | Developer codes against it | `github.com/{org}/{client}-mule` |
 | Codespace URL | Developer opens it, done | Printed by `create-client-repo.sh` |
+
+After close-out, every project also contributes to the commons:
+
+| Commons artifact | Updated by | What grows |
+|-----------------|-----------|-----------|
+| `docs/FIELD_KNOWLEDGE.md` | Architect (DK / CO) | FK entries — lessons from every project |
+| `commons/playbooks/{system}/` | Scout (stub) → Architect (design) → CO (implementation) | Auth, DWL mappings, known quirks per system |
+| `standards/intake-checklist.json` | Scout (stub) → Architect Debrief Q6 / CO | autoWarnings — every system ever seen gets an entry |
+| `standards/connector-registry.json` | Scout (stub) → Analyst → Architect → CO | Confirmed auth, versions, staleness |
 
 ---
 
@@ -161,7 +195,7 @@ Three specific problems it solves:
 
 2. **Speed** — the Analyst, Architect, and PM agents each take minutes. Code generation takes seconds. The bottleneck becomes client response time, not internal setup time.
 
-3. **Accumulation** — every new project teaches the system something. Lessons go into `docs/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `commons/playbooks/` grow with each system touched.
+3. **Accumulation** — every new project teaches the system something. Lessons go into `docs/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `commons/playbooks/` grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.
 
 ---
 
@@ -171,16 +205,18 @@ Three specific problems it solves:
 mulesoft-bmad-planning/
 ├── _bmad/                          BMAD agent definitions
 │   └── custom/
-│       ├── bmad-agent-analyst.toml          Mary: PRD + API contract discovery
-│       ├── bmad-agent-architect.toml        Winston: 6-level decision tree → decisions.json
-│       ├── bmad-agent-architect-debrief.toml  DK: capture field knowledge; PK: promote to standard
-│       ├── bmad-agent-pm.toml               John: decisions.json → sprint stories
-│       └── bmad-agent-dev.toml              Dev agent: standards enforcer during coding
+│       ├── bmad-agent-scout.toml            Scout: scoping notes → intake questionnaire + commons stubs
+│       ├── bmad-agent-analyst.toml          Mary: intake docs → prd.md + stub enrichment
+│       ├── bmad-agent-architect.toml        Winston: 6-level decision tree → decisions.json + stub enrichment
+│       ├── bmad-agent-architect-debrief.toml  CO: post-delivery close-out; DK: ad-hoc FK capture; PK: promote to standard
+│       └── bmad-agent-pm.toml               John: decisions.json → sprint stories
+│           (bmad-agent-dev.toml is NOT used — developers use Anypoint Studio directly)
 │
 ├── standards/
 │   ├── MULESOFT_DESIGN_STANDARDS.md   The constitution — all pattern decisions flow from here
 │   ├── decisions-schema.json           Schema + empty template for decisions.json
-│   ├── connector-registry.json         All known connectors: versions, Maven coords, required props
+│   ├── connector-registry.json         All known connectors: versions, Maven coords, auth types
+│   ├── intake-checklist.json           Mandatory checks + autoWarnings per system (grows with every project)
 │   ├── snippet-registry.json           Three-tier registry of all reusable code assets
 │   └── scenarios/                      One reference file per integration pattern (A–U)
 │
@@ -219,20 +255,22 @@ mulesoft-bmad-planning/
 │   │   ├── canonical-order.yaml
 │   │   ├── canonical-customer.yaml
 │   │   └── canonical-invoice.yaml
-│   └── playbooks/                      System-specific reusable code (grows with each project)
-│       ├── salesforce/                 See: Playbooks section below
-│       └── netsuite/
+│   └── playbooks/                      System-specific reusable code (grows with every project)
+│       ├── salesforce/                 Verified: auth, account, contact, opportunity
+│       ├── netsuite/                   Verified: PS256 auth, customer, sales-order, invoice
+│       └── {system}/                   Stub created by Scout on first detection; enriched by CO
 │
 ├── docs/
 │   ├── PLANNING_CONTEXT.md            Master system context — read before every session
 │   ├── FIELD_KNOWLEDGE.md             Lessons from real projects; agents apply verified entries
 │   ├── PATTERNS_RESEARCH.md           Research reference: EIP, flow control, coupling, compensation
-│   ├── CHUNK_PROGRESS.md              Build progress log
-│   └── capabilities/index.html        Generated capabilities portal (auto-updated by GitHub Actions)
+│   └── CHUNK_PROGRESS.md              Build progress log
 │
 └── projects/
     └── {client}/
-        ├── intake/                     Drop raw discovery docs here
+        ├── scoping/                    Drop raw scoping call notes here (Step 0)
+        ├── intake/                     Drop completed intake questionnaire responses here (Step 1)
+        │   └── intake-questionnaire.md  Generated by Scout — send to client
         ├── api-discovery/              API contract files (Analyst output)
         ├── prd.md
         ├── architecture.md
@@ -253,7 +291,7 @@ The Architect walks 6 decisions in order. Every decision has a schema constraint
 | 3 | Error handling model | DLQ + retry-queue for async; 4xx/5xx mapping for sync |
 | 4 | Security tier | Determines connector config, property encryption, Flex Gateway requirement |
 | 5 | Deployment profile | minimal / standard / enterprise / regulated — drives which sub-flows are generated |
-| 6 | Connector selection | Registry lookup, version pinning, staleness check (>60d = warning) |
+| 6 | Connector selection | Registry lookup, version pinning, playbook lookup, staleness check (>60d = warning) |
 
 The 21 integration patterns (A–U) are in `standards/scenarios/`. Each scenario file specifies the integration style, compensation strategy, flow control config, and EDA fit assessment so the Architect isn't deriving them from first principles every time.
 
@@ -305,6 +343,16 @@ No new code needed. The full field mapping, null handling, and status enum trans
 
 **When a second client needs Salesforce ↔ NetSuite:** the infrastructure is already here. Only the business-rule customizations (`// CLIENT TODO` blocks) need to change.
 
+### How playbooks grow
+
+| Stage | Who | What happens |
+|-------|-----|-------------|
+| Scout run | Scout | Stub PLAYBOOK.md created on first detection — marks system as known |
+| Analyst run | Analyst | Stub enriched with auth type and object types confirmed from intake |
+| Architect MD run | Architect | Stub enriched with design-confirmed auth, objects needed, and known quirks |
+| CO run (post-delivery) | Architect | Real implementation learnings added — confirmed DWL mappings, maturity updated, gotchas documented |
+| Second client | CO run | Maturity advances from `observation` to `verified` — Architect applies it automatically |
+
 ### Known critical quirks encoded in the playbooks
 
 | System | Quirk | Where it's handled |
@@ -321,41 +369,42 @@ No new code needed. The full field mapping, null handling, and status enum trans
 
 | Status | Meaning | Agent behaviour |
 |--------|---------|----------------|
-| `observation` | Seen once (one client) | Available but not auto-applied |
-| `verified` | Seen on 2+ clients | Applied automatically by Architect |
+| `stub` | Detected by Scout, not yet implemented | Architect flags "New Playbook Required" open item |
+| `observation` | Implemented on one client | Available but not auto-applied |
+| `verified` | Confirmed on 2+ clients | Applied automatically by Architect |
 | `promoted-to-standard` | Clear universal pattern | Moved into `MULESOFT_DESIGN_STANDARDS.md` |
 
 ---
 
 ## How Field Knowledge Accumulates
 
-`docs/FIELD_KNOWLEDGE.md` is the architect's lesson log. When any engagement surfaces something not covered by existing standards — during analysis, architecture, coding, UAT, or production — it goes here.
+`docs/FIELD_KNOWLEDGE.md` is the architect's lesson log. When any engagement surfaces something not covered by existing standards — during analysis, architecture, UAT, or production — it goes here.
 
 All agents read this file at the start of every session and apply `verified` entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.
-
-**To add or update an entry:** invoke the Architect Debrief agent and select `DK`. Six questions, plain language, no code required. The agent handles numbering, formatting, and status promotion logic.
-
-```
-Talk to the Architect Debrief agent. Select DK.
-```
 
 **How a finding travels from a project to a system improvement:**
 
 ```
-Architect observes something unexpected (any time — discovery, arch, code, or prod)
+Scout detects a system for the first time
         ↓
-Opens Architect Debrief agent → DK → describes it in plain language
+Stub created in playbooks/, connector-registry, intake-checklist
         ↓
-Agent mints FK-NNN (status: observation, Times: 1)
+Analyst + Architect enrich the stubs with design knowledge
         ↓
-Second engagement hits the same thing → DK again → agent increments to verified
+Developer implements using Anypoint Studio (client Codespace)
+        ↓
+Architect runs CO → answers questions per system, per internal flag, per open item
+        ↓
+Agent mints FK-NNN (status: observation), enriches playbook, updates autoWarnings
+        ↓
+Second engagement hits the same system → CO again → status promoted to verified
         Agents now apply it automatically on future projects
         ↓
 Architect decides it's universal → PK command → agent drafts the target file change
         Promoted to scenario file, standards doc, or commons playbook
 ```
 
-No client names are stored — counts only. Current verified entries: PS256 JWT (NetSuite), `set-correlation-id` vs `set-variable`, `on-error-continue` inside async scope, byte[] from S3 claim-check, MUnit `expectedErrorType` with `on-error-continue`.
+No client names are stored — counts only.
 
 ---
 
@@ -363,10 +412,10 @@ No client names are stored — counts only. Current verified entries: PS256 JWT 
 
 A generated HTML portal at `docs/capabilities/index.html` shows every registered capability:
 
-- **Connectors** — all 28 connectors, versions, staleness badges (green/yellow/red by days since verified)
+- **Connectors** — all connectors, versions, staleness badges (green/yellow/red by days since verified)
 - **Code Assets** — all three tiers: snippets, commons sub-flows/DWL, Exchange schemas
-- **System Playbooks** — all objects per system, maturity status, clients using each
-- **Client Usage** — per-client pattern, security tier, connector profile
+- **System Playbooks** — all objects per system, maturity status, client count
+- **Intake Warnings** — all autoWarnings in intake-checklist.json with trigger keywords and severity
 
 GitHub Actions auto-regenerates this on every push that touches a registry file or decisions.json. To regenerate manually:
 
@@ -411,68 +460,56 @@ Three-layer naming enforced by all generated projects:
 
 ## How to Use — Adding a Capability
 
-### Capture a field knowledge observation (any time)
+### Close out a completed project (CO)
 
-Something non-obvious happened on a project — a connector quirk, a Mule XML gotcha, a pattern that didn't fit. Capture it before it's forgotten:
+After the developer confirms delivery — run the full close-out. This updates all commons artifacts in one structured interview:
 
 ```
-/bmad-agent-architect-debrief
-```
-or
-```
-Talk to the Architect Debrief agent. Select DK.
+/bmad-agent-architect-debrief → CO
 ```
 
-Describe what you observed in plain language. Six questions, done. The agent writes the FK entry, updates the index, and suggests the commit message. No client names — counts only.
+The agent reads all project artifacts, builds a question list from every registered internal flag, open item, and system, then asks one question at a time. All commons updates are written automatically based on the answers.
 
-When the same thing happens on a second engagement: run `DK` again. The agent finds the existing entry and promotes it to `verified`. All agents then apply it automatically on future projects.
+### Capture an ad-hoc finding (DK)
+
+Something non-obvious happened — capture it immediately without waiting for close-out:
+
+```
+/bmad-agent-architect-debrief → DK
+```
+
+Six questions, plain language, done. When the same thing happens on a second engagement: run `DK` again. The agent promotes it to `verified` — all agents then apply it automatically.
 
 ### Promote a verified finding to standard (PK)
 
-When a `verified` finding is clearly universal — not just a pattern for one system type — bake it into the target file so no agent has to read the FK entry to know it:
+When a `verified` finding is clearly universal — bake it into the target file:
 
 ```
-/bmad-agent-architect-debrief
-```
-or
-```
-Talk to the Architect Debrief agent. Select PK.
+/bmad-agent-architect-debrief → PK
 ```
 
-The agent lists verified entries, you pick one, it drafts the exact change to the target file (scenario file, standards doc, playbook, or commons DWL), applies it, and updates the FK status to `promoted-to-standard`.
+The agent lists verified entries, you pick one, it drafts the exact change to the target file (scenario, standards doc, playbook, or commons DWL), applies it, and updates the FK status to `promoted-to-standard`.
 
-### Add a new connector
+### Add a new connector (NC)
 
 ```
-/bmad-agent-architect-debrief
-```
-or
-```
-Talk to the Architect Debrief agent. Select NC.
+/bmad-agent-architect-debrief → NC
 ```
 
 The agent asks for the connector name, Exchange coordinates, auth type, and required properties. It writes the `connector-registry.json` entry, creates the XML config stub in `templates/connectors/`, runs the freshness check, and suggests the commit message.
 
-### Add a new integration pattern
+### Add a new integration pattern (NP)
 
 ```
-/bmad-agent-architect-debrief
-```
-or
-```
-Talk to the Architect Debrief agent. Select NP.
+/bmad-agent-architect-debrief → NP
 ```
 
 The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `standards/scenarios/`, adds the enum value to `decisions-schema.json`, and adds the catalog row to `MULESOFT_DESIGN_STANDARDS.md`.
 
-### Add a new system playbook
+### Add a new system playbook (NB)
 
 ```
-/bmad-agent-architect-debrief
-```
-or
-```
-Talk to the Architect Debrief agent. Select NB.
+/bmad-agent-architect-debrief → NB
 ```
 
 The agent asks for the system name, auth method, objects needing DWL transforms, and any known quirks. It scaffolds the full folder structure under `commons/playbooks/{system}/`, writes skeleton auth/query/upsert sub-flows and bidirectional DWL transforms, registers the assets in `snippet-registry.json`, and regenerates the capabilities portal.

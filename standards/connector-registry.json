@@ -3886,6 +3886,34 @@
           "category": "ai_ml",
           "lastVerified": "2026-05",
           "licenseRequired": false
+        },
+        "anypoint-idp": {
+          "displayName": "Anypoint IDP (Intelligent Document Processing)",
+          "groupId": "org.mule.connectors",
+          "artifactId": "mule-http-connector",
+          "docVersion": "via-http",
+          "auth": "oauth2-client-credentials",
+          "authOptions": [
+            "oauth2-client-credentials"
+          ],
+          "configTemplate": "templates/connectors/idp-http-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/anypoint-datagraph/latest/idp-overview",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/idp/idp-release-notes",
+          "propertiesRequired": [
+            "anypoint.idp.baseUrl",
+            "anypoint.idp.orgId",
+            "anypoint.idp.actionId",
+            "anypoint.idp.actionVersionId",
+            "anypoint.client.id",
+            "anypoint.client.secret"
+          ],
+          "notes": "Anypoint IDP has no dedicated Mule connector — call via HTTP connector against the Anypoint Platform IDP REST API. Auth: Anypoint Connected App (OAuth 2.0 client credentials). API is async: POST execution → poll GET until COMPLETED. Token URL: https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token. Base URL: https://anypoint.mulesoft.com/idp/api/v1/. Polling: check every 3s, max 10 attempts (~30s timeout). Supported MIME types: application/pdf, image/png, image/jpeg, image/tiff.",
+          "category": "ai_ml",
+          "lastVerified": "2026-05",
+          "lastAddedDate": "2026-05-11",
+          "lastVerifiedBy": "manual",
+          "licenseRequired": false,
+          "exchangeUrl": "https://www.mulesoft.com/exchange/org.mule.connectors/mule-http-connector/"
         }
       }
     },

@@ -11,6 +11,8 @@ persistent_facts = [
   "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
   "file:{project-root}/standards/MULESOFT_DESIGN_STANDARDS.md",
   "file:{project-root}/standards/connector-registry.json",
+  "file:{project-root}/standards/intake-checklist.json",
+  "file:{project-root}/commons/playbooks/*/PLAYBOOK.md",
   "file:{project-root}/templates/prd-template.md",
 ]
 
@@ -73,7 +75,14 @@ Apply the MuleSoft BMAD Analyst workflow from docs/PLANNING_CONTEXT.md:
 8. Flag all OPEN ITEMs clearly. Maximum 3 questions to the client — each specific, with best-guess
    options already provided. Never ask "Can you share the API documentation?"
 
-After completing: check for unexpected findings → add FK-NNN entry to docs/FIELD_KNOWLEDGE.md if applicable.
+After completing prd.md — run commons stub enrichment (mandatory):
+
+For every system identified in the prd.md Systems table:
+1. commons/playbooks/{slug}/PLAYBOOK.md — if stub exists: add any auth type or object types now known from intake docs. If no stub: Scout should have created one — flag missing stub as an error.
+2. standards/connector-registry.json — if entry is a stub (lastVerifiedBy=scout-stub): enrich with any auth type or connector type confirmed by intake docs or API Contract Discovery. Update lastVerifiedBy to analyst.
+3. standards/intake-checklist.json — if entry is a baseline stub: enrich warning text with any specific gotcha confirmed in intake docs or FIELD_KNOWLEDGE.md verified entries.
+
+Then: check for unexpected findings → add FK-NNN entry to docs/FIELD_KNOWLEDGE.md if applicable.
 
 If client folder is not yet confirmed, ask now. Then begin.
 """

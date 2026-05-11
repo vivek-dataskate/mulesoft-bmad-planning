@@ -39,6 +39,14 @@ Planning repo will be made private once all 10 chunks are complete.
 
 ---
 
+## Pipeline
+
+Scout → Analyst → Architect (MD) → PM → Scaffold → **Developer uses Anypoint Studio** → Architect (CO)
+
+The Dev agent (`bmad-agent-dev`) is NOT used. Developers implement flows directly in Anypoint Studio against the generated scaffold. The planning repo is only used by the tech lead / architect.
+
+---
+
 ## Commons Structure
 
 - `commons/playbooks/{system}/` — the authoritative source for system-specific field knowledge. Each playbook contains PLAYBOOK.md (quirks, auth, supported objects, maturity log) + DataWeave mapping files (canonical ↔ system) + reusable Mule XML sub-flows. Field knowledge lives here, not in `standards/`.

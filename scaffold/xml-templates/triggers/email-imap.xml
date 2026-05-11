@@ -1,0 +1,63 @@
+<!--
+    Trigger: IMAP Email Listener (idp-document-processing / outbound-notification)
+    Polls inbox folder every 60s. Processes each attachment as a separate document.
+    Non-document attachments (HTML, plaintext) are skipped automatically.
+    NOTE: IMAP polling deletes or marks messages as read per connector config.
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <email:listener-imap
+            config-ref="Email_IMAP_Config"
+            doc:name="IMAP Listener — Inbound Attachments">
+            <scheduling-strategy>
+                <fixed-frequency
+                    frequency="${email.poll.frequencySeconds}"
+                    timeUnit="SECONDS"/>
+            </scheduling-strategy>
+        </email:listener-imap>
+
+        <logger
+            level="INFO"
+            message='#["[START] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | from=" ++ (attributes.headers.from default "unknown") ++ " | attachments=" ++ (attributes.attachments.keySet() joinBy ",") ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log Email Received"/>
+
+        <!--
+            TODO: Implement {{FLOW_DESCRIPTION}}
+            Source: email inbox (${email.imap.host}) → Target: {{FLOW_TARGET}}
+
+            For each attachment:
+              - Check MIME type before processing
+              - Skip non-document types (text/html, text/plain, image/gif, etc.)
+              - Process supported types (application/pdf, image/png, image/jpeg, image/tiff)
+        -->
+
+        <foreach collection="#[(attributes.attachments pluck (v, k) -> {name: k, content: v.content, mimeType: (v.headers.'Content-Type' default 'application/octet-stream')})]">
+
+            <choice>
+                <when expression="#[['application/pdf','image/png','image/jpeg','image/tiff'] contains payload.mimeType]">
+                    <!-- TODO: Process document attachment -->
+                    <!-- vars.documentBase64 = payload.content as Binary {base64: true} as String -->
+                    <!-- vars.documentMimeType = payload.mimeType -->
+                    <logger
+                        level="INFO"
+                        message='#["[ATTACHMENT] name=" ++ payload.name ++ " | mimeType=" ++ payload.mimeType]'
+                        doc:name="Log Attachment"/>
+                    <!-- TODO: Call IDP sub-flow or other processing -->
+                </when>
+                <otherwise>
+                    <logger
+                        level="DEBUG"
+                        message='#["[SKIP] attachment=" ++ payload.name ++ " mimeType=" ++ payload.mimeType ++ " not a supported document type"]'
+                        doc:name="Log Skipped Attachment"/>
+                </otherwise>
+            </choice>
+
+        </foreach>
+
+        <logger
+            level="INFO"
+            message='#["[END] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId]'
+            doc:name="Log Processing End"/>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>

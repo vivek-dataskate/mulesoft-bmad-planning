@@ -1,10 +1,12 @@
 # MuleSoft BMAD — Dev (Amelia) team overrides
+# NOT USED in this workflow. Developers use Anypoint Studio and the MuleSoft platform directly.
+# The scaffold generator produces the client repo; developers implement flows against the generated
+# scaffold without a BMAD agent. This file is retained as part of the base BMAD framework but
+# is never invoked in the planning repo.
 # Applied on top of .claude/skills/bmad-agent-dev/customize.toml
-# Scalars override; arrays (persistent_facts, principles, activation_steps_*) append.
 
 [agent]
 
-# Load MuleSoft master context, standards, and field knowledge at session start.
 persistent_facts = [
   "file:{project-root}/docs/PLANNING_CONTEXT.md",
   "file:{project-root}/docs/FIELD_KNOWLEDGE.md",

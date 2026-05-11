@@ -1,0 +1,74 @@
+<!--
+    Snippet: Agentforce Agent Invocation
+    Pattern: R (agentic-mcp-integration), P (ai-augmented-flow), O (hybrid)
+    Always secondary to another primary pattern — never the sole flow trigger.
+
+    CRITICAL RULES (from standards):
+      1. Always wrap in <try> with on-error-continue — agent failures MUST NOT break the primary flow
+         UNLESS this snippet is itself the primary business operation (then use on-error-propagate)
+      2. Always set timeoutSec — agent calls can take 5–30s
+      3. Log session ID and status only — never log full agent input/output (may contain PII)
+      4. agentId comes from properties, not hardcoded — different agents per environment is common
+      5. Fallback value must be set in vars.agentforceFallbackValue BEFORE this snippet
+
+    Token: {{AGENTFORCE_PURPOSE}} — short label for doc:name (e.g. "Classify Ticket", "Enrich Lead")
+-->
+
+        <!-- Preserve primary payload before agent call -->
+        <set-variable variableName="primaryPayload" value="#[payload]" doc:name="Save Primary Payload"/>
+
+        <!-- Set fallback value before the try block -->
+        <set-variable variableName="agentforceFallbackValue" value="#[null]"
+            doc:name="Set Agentforce Fallback Value"/>
+        <!-- TODO: Replace null with a meaningful default (e.g. vars.primaryPayload, a cached result, or a default classification) -->
+
+        <try doc:name="Agentforce: {{AGENTFORCE_PURPOSE}}">
+
+            <agentforce:invoke-agent
+                config-ref="Agentforce_Config"
+                agentId="${agentforce.agentId}"
+                doc:name="Invoke Agentforce: {{AGENTFORCE_PURPOSE}}">
+                <agentforce:input-variables>#[{
+                    <!-- TODO: Map fields from vars.primaryPayload to the agent's expected input variables -->
+                    "context": vars.primaryPayload
+                }]</agentforce:input-variables>
+            </agentforce:invoke-agent>
+
+            <!-- Store agent response before it is overwritten -->
+            <set-variable variableName="agentforceResponse" value="#[payload]"
+                doc:name="Capture Agentforce Response"/>
+
+            <logger
+                level="INFO"
+                message='#["[AGENTFORCE] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | correlationId=" ++ correlationId ++ " | status=success"]'
+                doc:name="Log Agentforce Success"/>
+
+            <error-handler>
+                <on-error-continue type="AGENTFORCE:TIMEOUT, AGENTFORCE:CONNECTIVITY, AGENTFORCE:SERVICE_UNAVAILABLE">
+                    <logger
+                        level="WARN"
+                        message='#["[AGENTFORCE FALLBACK] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | correlationId=" ++ correlationId ++ " | error=" ++ (error.description default "unknown")]'
+                        doc:name="Log Agentforce Fallback"/>
+                    <!-- Restore primary payload so the flow can continue -->
+                    <set-payload value="#[vars.primaryPayload]" doc:name="Restore Primary Payload"/>
+                    <set-variable variableName="agentforceResponse" value="#[vars.agentforceFallbackValue]"
+                        doc:name="Use Fallback Value"/>
+                </on-error-continue>
+
+                <on-error-continue type="AGENTFORCE:INVALID_INPUT">
+                    <!-- Bad input — not a transient error; log at ERROR, do not retry -->
+                    <logger
+                        level="ERROR"
+                        message='#["[AGENTFORCE INVALID INPUT] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | correlationId=" ++ correlationId ++ " | error=" ++ (error.description default "unknown")]'
+                        doc:name="Log Agentforce Invalid Input"/>
+                    <set-payload value="#[vars.primaryPayload]" doc:name="Restore Primary Payload"/>
+                    <set-variable variableName="agentforceResponse" value="#[vars.agentforceFallbackValue]"
+                        doc:name="Use Fallback Value on Bad Input"/>
+                </on-error-continue>
+            </error-handler>
+
+        </try>
+
+        <!-- vars.agentforceResponse is now set (agent result or fallback) -->
+        <!-- vars.primaryPayload holds the original payload for downstream steps -->
+        <!-- TODO: Map vars.agentforceResponse fields into your downstream payload/variables -->

@@ -39,6 +39,10 @@ principles = [
 
   "MuleSoft Scout — output discipline:\n  Prefix every inferred system with: [INFERRED from: '{exact phrase from scoping text}'].\n  Prefix every system-specific question with: [SYSTEM: {SystemName}].\n  Prefix every conditional question with: [TRIGGERED BY: '{signal phrase}'].\n  This labelling lets the tech lead see exactly why each question was generated and remove any that don't apply.\n  Max 3 questions per system-specific section — prioritise the ones that are hard blockers if unanswered.\n  Do NOT include questions already answered in the scoping notes.",
 
+  "MuleSoft Scout — commons/playbooks is a living library. After every scoping run, for every detected system with no playbook in commons/playbooks/{slug}/, create a stub PLAYBOOK.md automatically. The stub marks the system as known and signals the Architect Debrief NP workflow to populate it after first delivery. Never leave a detected system unregistered.",
+
+  "MuleSoft Scout — intake-checklist.json is a living document. After every scoping run, automatically check standards/intake-checklist.json autoWarnings[]. For every detected system with no matching trigger entry, add a baseline entry (severity=medium, generic warning). Specific gotchas are enriched later by the Architect Debrief — Scout's job is to ensure the system is registered.",
+
   "MuleSoft Scout — FIELD_KNOWLEDGE.md write-back: after completing any SQ run, check if the scoping notes surfaced anything unexpected about a system not yet captured in FIELD_KNOWLEDGE.md. If yes, add an observation-status FK-NNN entry before closing the session.",
 
   "MuleSoft Scout — Proactive Field Mapping: for any system detected in the scoping notes that has a playbook in commons/playbooks/, do NOT ask open-ended field mapping questions. Instead:\n  1. State the standard field mappings we already know from the playbook's DWL files and PLAYBOOK.md.\n  2. List only the gaps that require client input — custom fields, external ID field names, status code mapping tables, anything marked as a known quirk or open question in the playbook.\n  3. Phrase gap questions as specific, answerable questions — never 'do you have field mapping documents?' when we already have a playbook for that system.\n  Apply this rule to Section 3 (Data and Field Mapping) and to any UC-level mapping questions in Section 1.",
@@ -95,6 +99,43 @@ Write projects/{client}/intake/intake-questionnaire.md using the output format f
 - Section 10: System-Specific Details (one sub-section per detected system)
 - Internal Flags (never send to client)
 
-Step 7 — FIELD_KNOWLEDGE write-back.
+Step 7 — Stub creation for all commons artifacts (automatic).
+For every system detected in Step 2, create or update three stubs:
+
+A. commons/playbooks/{slug}/PLAYBOOK.md
+   - Derive slug (lowercase, hyphens: 'hubspot', 'd365fo', 'shopify').
+   - If no playbook exists: create stub with directories objects/ and system/:
+       # {System} System Playbook
+       **System:** {full system name}
+       **Maturity:** stub — not yet implemented
+       **Last updated:** {today}
+       **Clients using this playbook:** {client}
+       ---
+       ## Status
+       Stub created by Scout. Enriched by Architect after design, completed by CO after delivery.
+       ## Known quirks (pre-design)
+       None yet — populated by Architect during MD run.
+       ## Supported objects
+       None yet — populated by Architect during MD run.
+       ## Maturity log
+       | Date | Client count | Knowledge added | Status |
+       |------|-------------|-----------------|--------|
+       | {today} | 1 | Initial stub created by Scout | stub |
+   - If playbook exists: increment client count in maturity log, add a new log row.
+
+B. standards/connector-registry.json
+   - If no entry exists for this system: add a stub entry:
+       key: {slug}, displayName: {full name}, type: unknown — to be confirmed by Architect,
+       authType: unknown, propertiesRequired: [], notes: "stub — verify connector type and auth",
+       lastVerified: {today}, lastVerifiedBy: scout-stub
+   - If entry exists: leave it unchanged.
+
+C. standards/intake-checklist.json autoWarnings
+   - If no entry exists for this system: add a baseline entry:
+       id: {slug}_new, trigger: {slug keyword}, severity: medium,
+       warning: "New system — verify connector type, auth method, and sandbox availability before architecture."
+   - If entry exists: leave it unchanged.
+
+Step 8 — FIELD_KNOWLEDGE write-back.
 If anything unexpected surfaced about a system: add FK-NNN observation entry to docs/FIELD_KNOWLEDGE.md.
 """

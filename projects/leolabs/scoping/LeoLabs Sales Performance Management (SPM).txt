@@ -1,0 +1,35 @@
+LeoLabs Sales Performance Management (SPM) 
+Customer Context: LeoLabs is a high-growth aerospace startup (40% YoY growth) moving 
+from manual spreadsheets to Salesforce Spiff. They are currently managing ~30 reps but face 
+increasing complexity with US Government (USG) and International deals. 
+The "State of Play" 
+● CRM: Salesforce (Source of Bookings & Territory data). 
+● ERP: NetSuite (Source of Revenue, Backlog, and Margin data). 
+● The Problem: The "Middle" is currently a manual Excel nightmare. Data is exported 
+from NetSuite/SFDC and manually merged to calculate tiers, splits, and 
+margin-based "kickers." 
+Technical Scope for Implementation 
+● Phase 1 (Immediate): Stand up Spiff to handle core commission logic 
+(Individual/Team quotas, tiered multipliers from 0.75x to 2.0x+). 
+● Phase 2 (Crucial): Automated integration via MuleSoft (or Spiff’s native connectors) 
+to pull NetSuite Revenue and Salesforce Bookings. 
+● The "Kicker" Logic: Implementation must handle a 50% Margin Rule—if a deal's 
+margin is $<50\%$, the commission rate is automatically cut in half. 
+● Complexity: Must support multi-party Split Credits and "Mission-based" USG 
+territory assignments (shifting away from simple geography). 
+Key Success Criteria 
+1. Eliminate "Human API" Work: Claudia (Sales Ops) must stop manual CSV uploads 
+from NetSuite. 
+2. Real-Time Rep Visibility: Move from quarterly "spreadsheet excerpts" to daily 
+visibility via a nightly sync. 
+3. Admin Self-Service: The system must be configurable so Ops can change 
+tiers/rates in minutes without coding or tickets. 
+ 
+ 
+Implementation Partner "Watch-Outs" 
+Budget Sensitivity: The customer is a smaller organization and is wary of "Xactly-sized" 
+implementation fees. They are looking for a phased, agile approach rather than a massive 
+6-month "big bang" rollout. 
+Data Cleanliness: The Core AE (Jake) is currently working with the accounting team to "beef 
+up" NetSuite to better identify Salesforce-originated deals. The IP will need to coordinate on 
+these field mappings.
