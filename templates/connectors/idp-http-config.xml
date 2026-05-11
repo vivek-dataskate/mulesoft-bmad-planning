@@ -1,0 +1,60 @@
+<!--
+    Connector: Anypoint IDP via HTTP (fallback — prefer mulesoft-forge-idp connector)
+    Registry key: anypoint-idp
+    Underlying connector: mule-http-connector (no dedicated IDP connector via HTTP approach)
+
+    CORRECT base URL (verified May 2026):
+      https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/
+      Regions: us-east-1 | eu-central-1
+
+    Auth: OAuth 2.0 client credentials (Anypoint Connected App)
+    Token URL: https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token
+    Scope: LEAVE EMPTY — access is controlled by the Connected App's assigned permissions.
+           The "Execute Published Actions" permission must be granted in Access Management.
+           Do NOT pass `urn:anypoint:idp` or any scope string — it will cause invalid_scope.
+
+    Connected App setup (Access Management → Connected Apps):
+      1. Create app → grant "Execute Published Actions" under Document Actions
+      2. Copy client ID and secret → store in Secrets Manager (never in plain YAML for prod)
+
+    Key API facts (verified May 2026):
+      POST submit:  Content-Type: multipart/form-data, field: `file` (binary) OR
+                    Content-Type: application/json, body: { "file": "<base64>", "fileName": "<name.pdf>" }
+      GET poll:     /organizations/{orgId}/actions/{actionId}/versions/{versionId}/executions/{id}/v2
+                    (note: /v2 suffix is REQUIRED — without it you hit the deprecated v1 poll endpoint)
+      Status values: ACKNOWLEDGED | IN_PROGRESS | RESULTS_PENDING | SUCCEEDED | FAILED |
+                     PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED
+      Result structure: response.pages[].fields.{fieldLabel}.value  (NOT response.result)
+      Min poll interval: 10 seconds (per IDP quota docs — faster polling may be rate-limited)
+      P50 latency: 7.6s | P99: 13.4s | Max file: 10MB | Max pages: 50
+
+    See: https://docs.mulesoft.com/idp/automate-document-processing-with-the-idp-api
+
+    Properties required in {env}.yaml:
+      anypoint.idp.region          → us-east-1 or eu-central-1
+      anypoint.idp.orgId           → Anypoint org ID
+      anypoint.idp.actionId        → IDP action ID (from Anypoint IDP UI)
+      anypoint.idp.actionVersionId → IDP action version ID
+      anypoint.client.id           → Connected App client ID (Secrets Manager)
+      anypoint.client.secret       → Connected App client secret (Secrets Manager)
+-->
+
+    <!-- IDP API HTTP config — region-specific base URL with OAuth 2.0 auto-managed token -->
+    <http:request-config
+        name="IDP_API_Config"
+        doc:name="Anypoint IDP API Config"
+        basePath="/api/v1">
+        <http:request-connection
+            protocol="HTTPS"
+            host="idp-rt.${anypoint.idp.region}.anypoint.mulesoft.com"
+            port="443">
+            <http:authentication>
+                <!-- Scope intentionally empty — access controlled by Connected App permissions -->
+                <http:oauth-client-credentials-grant-type
+                    clientId="${anypoint.client.id}"
+                    clientSecret="${anypoint.client.secret}"
+                    tokenUrl="https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token"
+                    doc:name="Anypoint Connected App OAuth"/>
+            </http:authentication>
+        </http:request-connection>
+    </http:request-config>

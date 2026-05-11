@@ -211,6 +211,55 @@ Answer:
 
 ---
 
+---
+
+## Potential Additional Flows — Scope Confirmation
+
+*The 5 flows in the MuleSoft scope deck cover the explicitly discussed integrations. The following data movements were NOT listed as flows but are standard for a Salesforce ↔ NetSuite integration and may be needed. Please confirm: in scope, out of scope, or future phase.*
+
+---
+
+### [POTENTIAL FLOW A] — NetSuite Customer Creation from Salesforce Account
+
+**We noticed:** Flow 1 (Sales Order Creation) requires a matching NetSuite Customer for every Salesforce Account. The 5-flow scope does not include a flow that creates or updates NetSuite Customers when Salesforce Accounts are created or modified.
+
+**Today:** Are NetSuite Customers created manually by Christine when a new Account is added to Salesforce? Or does a Customer record already exist in NetSuite for every active LeoLabs account?
+
+**PFQA-1 — Confirm scope:**
+- A) **This flow IS needed** — add as Flow 6: Salesforce Account created/updated → create or upsert NetSuite Customer record (prerequisite for Flow 1 accuracy)
+- B) **Not needed** — NetSuite Customers are created manually and we will maintain that process
+- C) **Already handled** — NetSuite already has a Customer for every Salesforce Account; no automation needed
+
+Answer:
+
+---
+
+### [POTENTIAL FLOW B] — Contact Sync (Salesforce Contact → NetSuite)
+
+**We noticed:** The scope covers Accounts and Orders but not Contacts. NetSuite uses Contact records for invoice billing addresses and customer communications.
+
+**PFQB-1 — Confirm scope:**
+- A) **Not needed** — LeoLabs does not use Contact-level billing in NetSuite; Account-level is sufficient
+- B) **Needed** — when a Contact is added to a Salesforce Account, create a linked Contact in NetSuite
+- C) **Future phase** — not for this engagement
+
+Answer:
+
+---
+
+### [POTENTIAL FLOW C] — Credit Memo / Refund (NetSuite → Salesforce)
+
+**We noticed:** The scope covers invoices (Flow 4) and payment updates (Flow 5) but not credits or refunds. If LeoLabs issues a partial credit or service adjustment in NetSuite, Salesforce would not reflect it — which could affect commission calculations in Spiff (net revenue vs. gross bookings).
+
+**PFQC-1 — Confirm scope:**
+- A) **Not needed** — LeoLabs does not issue credits or refunds against existing orders
+- B) **Needed** — credit memos in NetSuite should flow back to Salesforce (alongside invoices in Flow 4)
+- C) **Future phase** — not for this engagement; will revisit when Spiff is in scope
+
+Answer:
+
+---
+
 ## Section 2: Systems and Access
 
 **Q2.1:** Both Salesforce and NetSuite are cloud SaaS. Confirm?

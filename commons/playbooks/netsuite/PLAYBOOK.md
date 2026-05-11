@@ -102,3 +102,4 @@ netsuite.subsidiary.id: 1
 | Date | Client | Knowledge added | Status |
 |------|--------|----------------|--------|
 | 2026-05-11 | leolabs | Auth (PS256 discovery), SuiteQL pagination, SO + Invoice + Customer objects | observation |
+| 2026-05-11 | leolabs (Analyst) | Confirmed: REST API + HTTP connector used for all 5 flows. SOAP connector not used. OneWorld/subsidiary.id status open (NS-Q2 blocker). Item internal ID mapping dependency confirmed (Flow 2 → Flow 1). TBA credentials pending. | observation |

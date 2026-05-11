@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  RPA Invoke-and-Poll Snippet
+  ============================
+  Injects the full Anypoint RPA orchestration block into a Mule flow:
+    1. Generate idempotent executionId
+    2. Build RPA inputArguments from payload
+    3. PUT /executions/startProcess (idempotent — safe to retry)
+    4. Persist executionId to Object Store (survive restart during long poll)
+    5. Poll for completion via until-successful (30s × retries)
+    6. Branch on success/error status
+    7. Error handler: timeout → DLQ + notify; auth failure → notify
+
+  Usage:
+    Injected by scaffold/generate.js when primaryPattern=rpa-orchestration.
+    The snippet replaces the <!-- RPA_INVOKE_AND_POLL --> marker in flow XML.
+
+  Prerequisites:
+    - Anypoint_RPA_Config defined in global-config.xml (see templates/connectors/anypoint-rpa-config.xml)
+    - Anypoint_MQ_Config defined in global-config.xml (for DLQ publish)
+    - persistent-store Object Store defined in global-config.xml
+    - common-dispatch-notification-subflow available from commons library
+    - common-route-to-dlq-subflow available from commons library
+
+  Token substitutions applied by generate.js:
+    {{DOMAIN}}              — flow domain name (e.g. "loan-document")
+    {{RPA_POLL_RETRIES}}    — from decisions.json rpa.pollRetries (default 60)
+    {{RPA_POLL_INTERVAL}}   — from decisions.json rpa.pollIntervalMs (default 30000)
+    {{RPA_DLQ_QUEUE}}       — from decisions.json errorHandling.dlqName + "-rpa"
+-->
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STEP 1 — Generate idempotent executionId (UUID)
+       ═══════════════════════════════════════════════════════════════ -->
+  <set-variable variableName="rpaExecutionId"
+    value="#[java!java::util::UUID::randomUUID() as String]"
+    doc:name="Generate RPA Execution ID"/>
+
+  <logger level="INFO"
+    message="#['RPA invocation start. executionId=' ++ vars.rpaExecutionId ++ ' correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"
+    doc:name="Log RPA Start"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STEP 2 — Build RPA inputArguments
+       Developer must map payload fields to process-specific parameters.
+       Parameter names must match the Invokable Run Configuration in RPA Manager.
+       ═══════════════════════════════════════════════════════════════ -->
+  <ee:transform doc:name="Build RPA Input Arguments">
+    <ee:set-variable variableName="rpaInvokeBody">
+      <![CDATA[%dw 2.0
+      output application/json
+      ---
+      {
+        executionId: vars.rpaExecutionId,
+        inputArguments: {
+          // TODO: Replace with actual parameter names from the Invokable Run Configuration
+          // Parameter names are case-sensitive and must match exactly as defined in RPA Manager
+          // Example:
+          // customerName: payload.customer.name,
+          // orderNumber:  payload.order.id,
+          // amount:       payload.order.total as String
+        }
+      }
+      ]]>
+    </ee:set-variable>
+  </ee:transform>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STEP 3 — Invoke RPA process (idempotent PUT)
+       Returns 201 on first execution, 204 if same executionId already submitted.
+       Both are success — validator accepts both.
+       ═══════════════════════════════════════════════════════════════ -->
+  <try doc:name="Start RPA Process">
+    <http:request config-ref="Anypoint_RPA_Config"
+      path="/executions/startProcess"
+      method="PUT"
+      doc:name="PUT startProcess">
+      <http:body>#[vars.rpaInvokeBody]</http:body>
+      <http:headers><![CDATA[#[{
+        'Content-Type':    'application/json',
+        'X-Correlation-ID': correlationId
+      }]]]></http:headers>
+      <http:response-validator>
+        <!-- 201 = new execution created; 204 = duplicate executionId (idempotent — safe) -->
+        <http:success-status-code-validator values="201,204"/>
+      </http:response-validator>
+    </http:request>
+
+    <error-handler>
+      <on-error-propagate type="HTTP:UNAUTHORIZED, HTTP:FORBIDDEN">
+        <logger level="ERROR"
+          message="#['RPA auth failure on startProcess. Check Connected App scopes (RPA Integrator + RPA Invocable Process). correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"/>
+        <flow-ref name="common-dispatch-notification-subflow" doc:name="Alert Ops: Auth Failure"/>
+        <raise-error type="RPA:AUTH_FAILURE"
+          description="RPA Connected App auth failed — check Secrets Manager and Connected App scope configuration"/>
+      </on-error-propagate>
+      <on-error-propagate type="HTTP:CONNECTIVITY, HTTP:TIMEOUT">
+        <logger level="ERROR"
+          message="#['RPA Manager unreachable on startProcess. executionId=' ++ vars.rpaExecutionId ++ ' correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"/>
+        <raise-error type="RPA:CONNECTIVITY"
+          description="Could not reach Anypoint RPA Manager — verify tenant URL and network connectivity"/>
+      </on-error-propagate>
+    </error-handler>
+  </try>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STEP 4 — Persist executionId (survive Mule restart during poll)
+       TTL matches until-successful duration + buffer:
+         {{RPA_POLL_RETRIES}} retries × {{RPA_POLL_INTERVAL}}ms + 10 min buffer
+       ═══════════════════════════════════════════════════════════════ -->
+  <os:store key="#['rpa-exec-' ++ vars.rpaExecutionId]"
+    value="#[vars.rpaExecutionId]"
+    ttl="2" ttlUnit="HOURS"
+    objectStore="persistent-store"
+    doc:name="Persist Execution ID"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STEP 5 — Poll for completion
+       Default: 30s × 60 retries = 30 minutes max wait time.
+       until-successful retries on ANY exception from its body.
+       The validation:is-true throws when status is not yet terminal,
+       causing until-successful to wait and retry.
+       ═══════════════════════════════════════════════════════════════ -->
+  <until-successful maxRetries="{{RPA_POLL_RETRIES}}"
+    millisBetweenRetries="{{RPA_POLL_INTERVAL}}"
+    doc:name="Poll RPA Status">
+
+    <http:request config-ref="Anypoint_RPA_Config"
+      path="#['/executions/' ++ vars.rpaExecutionId ++ '/getProcessExecutionStatus']"
+      method="GET"
+      doc:name="GET Process Status">
+      <http:headers><![CDATA[#[{ 'X-Correlation-ID': correlationId }]]]></http:headers>
+    </http:request>
+
+    <!-- Store status; keep full response for output extraction in Step 6 -->
+    <ee:transform doc:name="Extract Status">
+      <ee:set-variable variableName="rpaStatus">
+        <![CDATA[%dw 2.0
+        output application/java
+        ---
+        payload.status default "unknown"
+        ]]>
+      </ee:set-variable>
+      <ee:set-variable variableName="rpaStatusResponse">
+        <![CDATA[%dw 2.0
+        output application/java
+        ---
+        payload
+        ]]>
+      </ee:set-variable>
+    </ee:transform>
+
+    <!-- Throw to continue polling while status is non-terminal.
+         until-successful catches the exception and retries after millisBetweenRetries. -->
+    <validation:is-true
+      expression="#[vars.rpaStatus == 'success' or vars.rpaStatus == 'error']"
+      message="#['RPA still running. Status: ' ++ vars.rpaStatus ++ ' executionId=' ++ vars.rpaExecutionId]"/>
+
+  </until-successful>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STEP 6 — Branch on terminal status
+       ═══════════════════════════════════════════════════════════════ -->
+  <choice doc:name="Route on RPA Result">
+
+    <when expression="#[vars.rpaStatus == 'success']">
+      <logger level="INFO"
+        message="#['RPA process completed. executionId=' ++ vars.rpaExecutionId ++ ' correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"/>
+
+      <!-- Extract output arguments — available for downstream use as vars.rpaOutput -->
+      <ee:transform doc:name="Extract RPA Output">
+        <ee:set-variable variableName="rpaOutput">
+          <![CDATA[%dw 2.0
+          output application/java
+          ---
+          vars.rpaStatusResponse.outputArguments default {}
+          ]]>
+        </ee:set-variable>
+      </ee:transform>
+
+      <!-- Clean up Object Store (process complete — executionId no longer needed) -->
+      <os:remove key="#['rpa-exec-' ++ vars.rpaExecutionId]"
+        objectStore="persistent-store"
+        doc:name="Cleanup Execution ID"/>
+
+      <!-- TODO: Add downstream system call here using vars.rpaOutput -->
+      <!-- Example: update Salesforce, write to database, publish to MQ -->
+
+    </when>
+
+    <otherwise>
+      <!-- RPA bot returned "error" status (not a connectivity issue — bot itself failed) -->
+      <logger level="ERROR"
+        message="#['RPA bot execution failed. executionId=' ++ vars.rpaExecutionId ++ ' status=' ++ vars.rpaStatus ++ ' correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"/>
+      <raise-error type="RPA:PROCESS_FAILED"
+        description="#['RPA bot returned error status. executionId=' ++ vars.rpaExecutionId ++ '. Check RPA Manager Activity dashboard for details.']"/>
+    </otherwise>
+
+  </choice>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STEP 7 — Error handler for this snippet's scope
+       ═══════════════════════════════════════════════════════════════ -->
+  <error-handler>
+
+    <!-- Polling timeout: all retries exhausted — bot took longer than configured max -->
+    <on-error-continue type="MULE:RETRY_EXHAUSTED">
+      <logger level="ERROR"
+        message="#['RPA polling timeout. Bot did not complete within configured window. executionId=' ++ vars.rpaExecutionId ++ ' retries={{RPA_POLL_RETRIES}} intervalMs={{RPA_POLL_INTERVAL}} correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"/>
+      <flow-ref name="common-dispatch-notification-subflow" doc:name="Alert Ops: RPA Timeout"/>
+      <ee:transform doc:name="Build Timeout DLQ Payload">
+        <ee:set-payload><![CDATA[%dw 2.0
+        output application/json
+        ---
+        {
+          errorType:    "RPA_TIMEOUT",
+          executionId:  vars.rpaExecutionId,
+          correlationId: correlationId,
+          maxRetries:   "{{RPA_POLL_RETRIES}}",
+          intervalMs:   "{{RPA_POLL_INTERVAL}}",
+          message:      "RPA bot did not complete within polling window. Check RPA Manager Activity dashboard.",
+          ts:           now() as String
+        }
+        ]]></ee:set-payload>
+      </ee:transform>
+      <anypoint-mq:publish config-ref="Anypoint_MQ_Config"
+        destination="${{{{RPA_DLQ_QUEUE}}}"
+        messageId="#[correlationId ++ '-timeout']"
+        doc:name="Publish Timeout to DLQ"/>
+    </on-error-continue>
+
+    <!-- Bot execution failed (raised by raise-error above in the otherwise branch) -->
+    <on-error-continue type="RPA:PROCESS_FAILED">
+      <flow-ref name="common-route-to-dlq-subflow" doc:name="Route Bot Failure to DLQ"/>
+    </on-error-continue>
+
+    <!-- Auth failure during startProcess -->
+    <on-error-continue type="RPA:AUTH_FAILURE">
+      <logger level="ERROR"
+        message="#['RPA auth failure — manual intervention required. correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"/>
+    </on-error-continue>
+
+    <!-- RPA Manager connectivity issues -->
+    <on-error-continue type="RPA:CONNECTIVITY">
+      <logger level="ERROR"
+        message="#['RPA Manager connectivity failure — check network and tenant URL. correlationId=' ++ correlationId ++ ' env=' ++ p('mule.env')]"/>
+      <flow-ref name="common-route-to-dlq-subflow" doc:name="Route Connectivity Failure to DLQ"/>
+    </on-error-continue>
+
+  </error-handler>

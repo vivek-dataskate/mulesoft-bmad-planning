@@ -200,7 +200,9 @@ mulesoft-bmad-planning/
   │           ├── agentic-mcp-integration.md (R: agent tool layer)
   │           ├── transactional-outbox.md   (S: guaranteed DB+event atomicity)
   │           ├── reverse-etl.md            (T: warehouse → operational system)
-  │           └── ai-gateway.md             (U: centralized LLM proxy)
+  │           ├── ai-gateway.md             (U: centralized LLM proxy)
+  │           ├── idp-document-processing.md (V: PDF/image data extraction)
+  │           └── rpa-orchestration.md      (W: RPA bot invoke-and-poll)
   ├── templates/
   │     ├── prd-template.md
   │     ├── architecture-template.md
@@ -380,6 +382,25 @@ U. ai-gateway             → centralized LLM proxy: rate-limit, PII-redact, mod
                             All AI traffic from all teams routes through a single governed endpoint
                             Style: RPC (MuleSoft as proxy)
                             See: standards/scenarios/ai-gateway.md
+
+V. idp-document-processing → extract structured data from unstructured documents (PDF/image)
+                            Anypoint IDP (Intelligent Document Processing) via HTTP connector
+                            Sources: HTTP multipart upload | S3/Azure Blob | SFTP | Email attachment
+                            Auth: Anypoint Connected App (OAuth 2.0 client credentials)
+                            Async: POST execution → poll GET until COMPLETED (~3s × 10 attempts)
+                            Always generates: IDP sub-flow + manual-review queue + DWL skeleton
+                            Style: Messaging (async by nature — IDP processing takes 5–60s)
+                            See: standards/scenarios/idp-document-processing.md
+
+W. rpa-orchestration      → invoke Anypoint RPA bot from a Mule flow; poll for completion
+                            No dedicated connector JAR — uses HTTP connector against RPA REST API v2
+                            Auth: OAuth 2.0 Connected App (scopes: RPA Integrator + RPA Invocable Process)
+                            Pattern: PUT startProcess (idempotent) → poll GET status (30s × 60 = 30 min max)
+                            Prerequisite: RPA team must publish Invokable Run Configuration to Exchange first
+                            Use for: legacy UI automation (mainframe, desktop app) with no REST/SOAP API
+                            Do NOT use when target system has an API — use the appropriate connector directly
+                            Style: Messaging (fire-and-poll async; bot takes seconds to tens of minutes)
+                            See: standards/scenarios/rpa-orchestration.md
 ```
 
 **Decision guide — key differentiators:**
@@ -403,6 +424,8 @@ AI agent calling your APIs as tools?    → R (agentic-mcp-integration)
 App writes to DB + must publish event?  → S (transactional-outbox)
 Warehouse scores/segments → CRM/ERP?   → T (reverse-etl)
 Multiple teams calling LLMs ungoverned? → U (ai-gateway)
+Extracting data from PDFs/images?       → V (idp-document-processing)
+Target system has no API (legacy UI)?   → W (rpa-orchestration)
 None fits cleanly?                      → O (hybrid — must list secondaryPatterns)
 ```
 
@@ -822,6 +845,7 @@ finalising the decision. Update `lastVerified` after the check.
 - **ServiceNow:** Metadata does NOT work with OAuth 2.0 Authorization Code. Use basic auth for metadata resolution in Studio.
 - **File connector on CloudHub 2.0:** Local filesystem is ephemeral. Use S3, SFTP, or Azure Blob for persistence.
 - **Oracle JDBC driver:** ojdbc11.jar cannot be in pom.xml (Oracle license). Must be placed in shared lib folder on CloudHub 2.0.
+- **Anypoint IDP:** PREFERRED: MuleSoft Forge connector `io.github.mulesoft-forge:mule-idp-connector:1.0.6` (Maven Central, NOT Exchange). FALLBACK: HTTP connector. Base URL: `https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/` (NOT `anypoint.mulesoft.com/idp/...`). Auth: Anypoint Connected App (OAuth 2.0 client credentials) — scope MUST BE EMPTY (NOT `urn:anypoint:idp`); access controlled by "Execute Published Actions" permission in Access Management. Submit: POST multipart or `{ "file": "<base64>", "fileName": "name.pdf" }`. Poll: GET `.../executions/{id}/v2` (v2 suffix required). Terminal statuses: SUCCEEDED | FAILED | PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED (NOT "COMPLETED"). Result path: `pages[0].fields.{fieldLabel}.value`. Min poll interval: 10s. Use `until-successful` (NOT foreach) for polling. See: standards/scenarios/idp-document-processing.md.
 
 ### VERIFIED VERSIONS (May 2026 — see registry for full detail)
 
@@ -1098,7 +1122,7 @@ If > 6 months old, prints warning:
   },
   "integration": {
     "integrationStyle": "messaging|rpc|file-transfer|shared-db|hybrid",
-    "primaryPattern": "request-reply|event-driven|batch|scheduled-sync|file-based-etl|cdc-streaming|b2b-edi|process-orchestration|api-aggregation|webhook-ingestion|data-migration|streaming-pipeline|pubsub-fanout|outbound-notification|hybrid|ai-augmented-flow|rag-data-pipeline|agentic-mcp-integration|transactional-outbox|reverse-etl|ai-gateway",
+    "primaryPattern": "request-reply|event-driven|batch|scheduled-sync|file-based-etl|cdc-streaming|b2b-edi|process-orchestration|api-aggregation|webhook-ingestion|data-migration|streaming-pipeline|pubsub-fanout|outbound-notification|hybrid|ai-augmented-flow|rag-data-pipeline|agentic-mcp-integration|transactional-outbox|reverse-etl|ai-gateway|idp-document-processing|rpa-orchestration",
     "secondaryPatterns": [],
     "direction": "unidirectional|bidirectional",
     "flows": [
@@ -1233,7 +1257,7 @@ If > 6 months old, prints warning:
 
 ## STORY GENERATION
 
-PM agent reads decisions.json flows array.
+PM agent reads `decisions.json` flows array and `story-library/` templates.
 Per flow generates ~5 stories:
 1. Create API spec (OAS/RAML) + publish to Exchange
 2. Implement flow XML (correct layer, naming, error handler)
@@ -1252,6 +1276,78 @@ Every story:
 - References exact scaffold file name
 - Has MuleSoft-specific acceptance criteria
 - Specifies which standard applies
+
+**Story generation order:** For each story type, check `story-library/` first. If a matching
+template exists, use it as the base and substitute client-specific values (flow names, connector
+names, AC thresholds from decisions.json). If no template exists, generate from the rules below
+and flag the new type for story-library addition after this run.
+
+---
+
+## STORY LIBRARY MAINTENANCE
+
+**File:** `story-library/`
+
+The story library is the PM agent's reusable template bank. It grows with each project — the
+same lifecycle as FIELD_KNOWLEDGE.md but for story patterns.
+
+### When to add a story template
+
+Add a new file to `story-library/` whenever:
+- A story type was generated that doesn't have a matching template yet
+- An existing template produced wrong or incomplete ACs and was manually corrected
+- A new global story type was added (e.g., a new `decisions.json` flag introduced a new infra concern)
+
+Do NOT add templates for:
+- Client-specific story content (names, system credentials, project-specific rules)
+- Stories fully covered by an existing template with minor wording differences
+- One-off stories unlikely to recur across projects
+
+### Template format
+
+```markdown
+# Story Template: {Title}
+
+**Story Type:** Per-Flow | Global Infrastructure | Global Config
+**When to include:** {condition from decisions.json}
+**Priority:** P0 | P1 | P2
+**Standard:** `{standards file} → {section}`
+**Scaffold File:** `{path in generated project}`
+
+---
+
+## Acceptance Criteria
+
+- [ ] {AC 1}
+- [ ] {AC 2}
+
+---
+
+## Implementation Notes
+
+- {note}
+```
+
+### Naming convention
+
+| Story type | Filename |
+|-----------|----------|
+| Per-flow stories (1–5) | `flow-{slug}.md` (e.g. `flow-api-spec.md`) |
+| Global infrastructure | `global-{slug}.md` (e.g. `global-mq-queues.md`) |
+
+### Update protocol (PM agent, after each project run)
+
+```
+After generating stories for a client:
+1. Review which story types had no matching template in story-library/
+2. For each: extract the generated ACs (strip client-specific values, make generic with {placeholder})
+3. Create story-library/{type}-{slug}.md using the template format above
+4. git commit -m "story-library: Add {title} template"
+
+For existing templates that needed correction:
+1. Update the template file directly
+2. git commit -m "story-library: Update {filename} — {reason for correction}"
+```
 
 ---
 

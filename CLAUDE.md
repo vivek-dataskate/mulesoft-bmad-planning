@@ -35,7 +35,7 @@ Planning repo will be made private once all 10 chunks are complete.
 
 ## Scout Output Path
 
-- `intake-questionnaire.md` is always written to `projects/{client}/intake/intake-questionnaire.md` — never to the client root folder.
+- The intake questionnaire is always written to `projects/{client}/intake/intake-questionnaire-{client}.md` — client name appended to the filename for easy sharing. Never written to the client root folder.
 
 ---
 
