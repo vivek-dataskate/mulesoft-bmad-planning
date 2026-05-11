@@ -528,4 +528,38 @@ Only the **extracted finding** crosses into this planning repo — not the clien
 
 ---
 
+## MuleSoft Product Coverage
+
+This system automates the **integration runtime pipeline** — the path from discovery to a running Mule application. It does not cover MuleSoft products that are UI-configured, developer tooling for building connectors, or products outside the integration runtime.
+
+### Handled
+
+| Product | How |
+|---------|-----|
+| **Mule Runtime 4.8.0** | Core output — all flow XML, pom.xml, properties files generated |
+| **Anypoint Studio / Code Builder** | Target IDE — generated projects compile immediately when opened in Codespace |
+| **CloudHub 2.0** | Default deployment target — `deploy.yml` generated per project |
+| **Runtime Fabric (RTF)** | Available as `devops.deployment` option in `decisions.json` |
+| **API Manager + API Gateway** | OAS 3.0 specs generated per HTTP flow; security policies (client-id, OAuth2, mTLS) driven from `decisions.json` security tier |
+| **Anypoint Exchange** | Connector versions pinned from Exchange; `commons/publish.sh` publishes the shared library |
+| **Anypoint Connectors** | 28 connector config stubs in `templates/connectors/`; 150+ entries in `connector-registry.json` with auth types, versions, and Maven coordinates |
+| **Anypoint MQ** | Subscriber and publisher configs generated; queue setup, DLQ, TTL, and depth alert stories generated per async flow |
+| **Anypoint Monitoring** | Alert configs and custom dashboard stories generated; mandatory in all non-minimal scaffold profiles |
+| **Anypoint Visualizer** | API-led layer tags written into `mule-artifact.json`; a dedicated Visualizer verification story is generated per project |
+| **Anypoint IDP** | Pattern V (`idp-document-processing`) — scenario file, trigger template, and manual-review queue generated |
+| **MuleSoft AI Chain** | Registered in `connector-registry.json` (`ai_ml` category); usable via Pattern P (`ai-augmented-flow`) |
+| **Agentforce** | Config stub and invocation snippet generated; marked `verifyBeforeUse=true` until confirmed against Exchange |
+| **Anypoint RPA** | Pattern W (`rpa-orchestration`) — full invoke-and-poll lifecycle via HTTP connector against RPA REST API v2. OAuth 2.0 Connected App auth. Scenario file, connector config template, invoke-and-poll snippet, and scaffold generator injection all included. |
+
+### Not Handled
+
+| Product | Why not |
+|---------|---------|
+| **Anypoint Design Center** | This system generates OAS specs that go directly into Studio and Exchange. Design Center is a browser-based design alternative to Studio — it is bypassed, not integrated. |
+| **Anypoint DataGraph** | DataGraph is a GraphQL federation layer configured in Anypoint Platform — not a flow-level concern. It sits above the APIs this system generates, and requires its own governance tooling. |
+| **Connector DevKit / PDK** | This system consumes connectors from Exchange. Building custom connectors is a separate Java/SDK discipline outside the planning pipeline. |
+| **CloudHub 1.0** | Deprecated. Explicitly excluded — all generated projects target CloudHub 2.0 only. |
+
+---
+
 *Mule 4.8.0 / Java 17 / CloudHub 2.0 — System built May 2026*

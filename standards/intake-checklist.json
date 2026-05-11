@@ -3,7 +3,6 @@
     "description": "Minimum viable intake checklist. Validated by scaffold/validate-intake.js before any intake is committed to GitHub.",
     "version": "1.0.0"
   },
-
   "mandatory": [
     {
       "id": "systems_named",
@@ -14,17 +13,16 @@
     {
       "id": "business_problem",
       "label": "Business problem or pain point",
-      "description": "The documents must describe WHAT is broken, slow, manual, or at risk today — not just what the solution should do.",
+      "description": "The documents must describe WHAT is broken, slow, manual, or at risk today \u2014 not just what the solution should do.",
       "failMessage": "No business problem identified. Without understanding the pain point, the architect cannot make the right integration pattern choice."
     },
     {
       "id": "data_direction",
       "label": "Data flow direction",
       "description": "At least one data flow must be described: what data moves, from where, to where, and roughly when (real-time / batch / triggered).",
-      "failMessage": "No data flow direction found. We need at least one source → target flow described to begin architecture."
+      "failMessage": "No data flow direction found. We need at least one source \u2192 target flow described to begin architecture."
     }
   ],
-
   "recommended": [
     {
       "id": "volume_frequency",
@@ -36,12 +34,12 @@
       "id": "timeline",
       "label": "Go-live date or project deadline",
       "description": "Any stated deadline, sprint target, or go-live date.",
-      "missingImpact": "No timeline constraint — architect will not factor urgency into complexity trade-offs."
+      "missingImpact": "No timeline constraint \u2014 architect will not factor urgency into complexity trade-offs."
     },
     {
       "id": "auth_credentials",
       "label": "API auth type or credentials hint",
-      "description": "OAuth, API key, basic auth, SAML — any mention of how target systems are accessed.",
+      "description": "OAuth, API key, basic auth, SAML \u2014 any mention of how target systems are accessed.",
       "missingImpact": "Architect will flag all undocumented systems for API Contract Discovery. Adds 1-2 days per unknown system."
     },
     {
@@ -63,12 +61,11 @@
       "missingImpact": "Open items may stall if no named owner per system."
     }
   ],
-
   "autoWarnings": [
     {
       "id": "netsuite_rest",
       "trigger": "netsuite",
-      "warning": "NetSuite REST API requires PS256 JWT via Nimbus JOSE helper — the standard NetSuite connector does NOT support REST. Factor in an extra story for the JWT sub-flow.",
+      "warning": "NetSuite REST API requires PS256 JWT via Nimbus JOSE helper \u2014 the standard NetSuite connector does NOT support REST. Factor in an extra story for the JWT sub-flow.",
       "severity": "high"
     },
     {
@@ -92,7 +89,7 @@
     {
       "id": "real_time_volume",
       "trigger": "real-time|real time|synchronous|sub-second|millisecond",
-      "warning": "Sub-second latency requirement detected. Verify downstream systems can respond within SLA before selecting request-reply pattern — SAP, NetSuite, and legacy ERPs often cannot.",
+      "warning": "Sub-second latency requirement detected. Verify downstream systems can respond within SLA before selecting request-reply pattern \u2014 SAP, NetSuite, and legacy ERPs often cannot.",
       "severity": "high"
     },
     {
@@ -120,6 +117,12 @@
       "severity": "medium"
     },
     {
+      "id": "anypoint_idp",
+      "trigger": "idp|intelligent document|document processing|document extraction|invoice scan|invoice processing|pdf extract|pdf parsing|ocr|form digitization|contract extraction|anypoint idp",
+      "warning": "Anypoint IDP (Intelligent Document Processing) detected. IDP has no dedicated Mule connector — it is called via HTTP connector against the Anypoint Platform IDP REST API. The call is async: POST execution → poll GET until COMPLETED (default 10 attempts × 3s = 30s timeout). Auth: Anypoint Connected App (OAuth 2.0 client credentials). Required intake: (1) IDP action ID + version ID from Anypoint IDP UI, (2) Anypoint org ID, (3) document source type (HTTP upload / S3 / SFTP / email attachment), (4) output entity name and target system. Budget one story for the IDP sub-flow + one story for the DataWeave result mapping. Add an IDP manual-review queue — all failed extractions route there.",
+      "severity": "high"
+    },
+    {
       "id": "d365fo_patch",
       "trigger": "d365|dynamics 365|dynamics fo|finance and operations|d365 fo|dynamics finance",
       "warning": "D365 Finance & Operations connector does NOT support PATCH on OData entities (FK-005). Any update operation requires a raw HTTP PATCH with manually managed OAuth token (fetch, cache in ObjectStore at 55-min TTL, evict on 401) plus If-Match ETag header. Budget 1-2 extra story points per flow that writes to D365 FO.",
@@ -128,13 +131,19 @@
     {
       "id": "hubspot_pagination",
       "trigger": "hubspot",
-      "warning": "HubSpot search API uses cursor-based pagination (paging.next.after). Mule 4 has no native while-loop — use recursive sub-flow under 1,000 records, batch scope with page-aware iterator above that (FK-006). Also: webhook flows (e.g. contact.merge) require Professional tier or higher and must always return HTTP 200 — non-2xx triggers HubSpot retry storms (FK-008).",
+      "warning": "HubSpot search API uses cursor-based pagination (paging.next.after). Mule 4 has no native while-loop \u2014 use recursive sub-flow under 1,000 records, batch scope with page-aware iterator above that (FK-006). Also: webhook flows (e.g. contact.merge) require Professional tier or higher and must always return HTTP 200 \u2014 non-2xx triggers HubSpot retry storms (FK-008).",
       "severity": "medium"
     },
     {
       "id": "shopify_fulfillment",
       "trigger": "shopify",
-      "warning": "Shopify connector has partial coverage for fulfillment write operations (FK-005). If the project requires updating fulfillment status or tracking in Shopify, raw HTTP calls with a manual token sub-flow will be needed. Also: Shopify tag updates replace the entire tag string — MuleSoft must read-merge-write to avoid deleting non-integration tags.",
+      "warning": "Shopify connector has partial coverage for fulfillment write operations (FK-005). If the project requires updating fulfillment status or tracking in Shopify, raw HTTP calls with a manual token sub-flow will be needed. Also: Shopify tag updates replace the entire tag string \u2014 MuleSoft must read-merge-write to avoid deleting non-integration tags.",
+      "severity": "medium"
+    },
+    {
+      "id": "spiff_new",
+      "trigger": "spiff",
+      "warning": "Spiff (Sales Performance Management) has no confirmed MuleSoft native connector as of 2026-05-11. Integration requires HTTP connector via Spiff REST API. Confirm API availability, auth type, and sandbox access before architecture begins. This is a scope blocker.",
       "severity": "medium"
     }
   ]

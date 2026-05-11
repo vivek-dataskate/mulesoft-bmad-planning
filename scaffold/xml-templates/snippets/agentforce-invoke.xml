@@ -1,74 +1,197 @@
 <!--
-    Snippet: Agentforce Agent Invocation
+    Snippet: Agentforce Agent Invocation (stateless — single message per session)
     Pattern: R (agentic-mcp-integration), P (ai-augmented-flow), O (hybrid)
-    Always secondary to another primary pattern — never the sole flow trigger.
+    Connector prefix: ms-agentforce (NOT agentforce — common mistake)
+    Always secondary to another primary pattern — never a standalone flow trigger.
+    This snippet is MANUAL-ONLY — not auto-injected by generate.js.
 
-    CRITICAL RULES (from standards):
-      1. Always wrap in <try> with on-error-continue — agent failures MUST NOT break the primary flow
-         UNLESS this snippet is itself the primary business operation (then use on-error-propagate)
-      2. Always set timeoutSec — agent calls can take 5–30s
-      3. Log session ID and status only — never log full agent input/output (may contain PII)
-      4. agentId comes from properties, not hardcoded — different agents per environment is common
-      5. Fallback value must be set in vars.agentforceFallbackValue BEFORE this snippet
+    VERIFIED against official MuleSoft docs (2026-05-11):
+      - No single invoke-agent operation exists. Session lifecycle is always explicit:
+          start-agent-conversation → send-message-sync → end-agent-conversation
+      - Agent ID attribute is named "agent" (NOT agentId)
+      - Error types use MS-AGENTFORCE: prefix (not AGENTFORCE:)
+      - continue-agent-conversation is DEPRECATED — do not use
 
-    Token: {{AGENTFORCE_PURPOSE}} — short label for doc:name (e.g. "Classify Ticket", "Enrich Lead")
+    STILL UNVERIFIED:
+      VERIFY-A: Child element/attribute name and structure for passing context variables
+                to send-message-sync (currently uses ms-agentforce:message — confirm full variable passing).
+      VERIFY-B: Response field path from send-message-sync to extract the agent reply text.
+      VERIFY-C: Session ID field path from start-agent-conversation response.
+                Handled defensively: vars.agentforceSessionId normalises both object and scalar returns.
+      VERIFY-D: instanceUrl attribute name on the connection element — may be salesforceUrl/orgUrl.
+
+    RULES:
+      1. All three operations are in ONE <try> — end-agent-conversation runs on every exit path.
+      2. end-agent-conversation is guarded against null sessionId (session may not have opened).
+      3. Never log full agent input/output — sessionId and status only (PII risk).
+      4. Build vars.agentforceInput from specific fields only — never pass raw payload to the agent.
+      5. vars.agentforceResponse is initialised to {} before the try — never null.
+      6. Payload is restored to agentforcePrimaryPayload on BOTH success and error paths.
+
+    Token: {{AGENTFORCE_PURPOSE}} — short label for doc:name (e.g. "Classify", "Enrich Lead")
+    Depends on: Agentforce_Config in global-config.xml (ms-agentforce: namespace)
 -->
 
-        <!-- Preserve primary payload before agent call -->
-        <set-variable variableName="primaryPayload" value="#[payload]" doc:name="Save Primary Payload"/>
+        <!-- Preserve primary payload and attributes before agent call -->
+        <set-variable variableName="agentforcePrimaryPayload" value="#[payload]"
+            doc:name="Save Primary Payload (Agentforce)"/>
 
-        <!-- Set fallback value before the try block -->
-        <set-variable variableName="agentforceFallbackValue" value="#[null]"
-            doc:name="Set Agentforce Fallback Value"/>
-        <!-- TODO: Replace null with a meaningful default (e.g. vars.primaryPayload, a cached result, or a default classification) -->
+        <!-- Safe default prevents NULL_POINTER on any field access downstream -->
+        <set-variable variableName="agentforceResponse" value="#[{}]"
+            doc:name="Init Agentforce Response (fallback)"/>
+
+        <!--
+            Build agent input from specific fields — NEVER pass raw payload (PII risk).
+            Store in vars.agentforceInput so it can be referenced, audited, and redacted.
+            Use commons/dwl/pii-mask.dwl if payload contains PII fields.
+            TODO: Replace with actual fields the agent expects.
+        -->
+        <set-variable variableName="agentforceInput" value='#["Process: " ++ write(vars.agentforcePrimaryPayload.someField default "unknown", "application/json")]'
+            doc:name="Build Agent Input (redacted)"/>
+        <!-- TODO: Replace .someField with the specific fields the agent needs -->
+
+        <!-- Normalised session ID — null until session opens; used for safe close guard -->
+        <set-variable variableName="agentforceSessionId" value="#[null]"
+            doc:name="Init Session ID (null until opened)"/>
 
         <try doc:name="Agentforce: {{AGENTFORCE_PURPOSE}}">
 
-            <agentforce:invoke-agent
+            <ms-agentforce:start-agent-conversation
                 config-ref="Agentforce_Config"
-                agentId="${agentforce.agentId}"
-                doc:name="Invoke Agentforce: {{AGENTFORCE_PURPOSE}}">
-                <agentforce:input-variables>#[{
-                    <!-- TODO: Map fields from vars.primaryPayload to the agent's expected input variables -->
-                    "context": vars.primaryPayload
-                }]</agentforce:input-variables>
-            </agentforce:invoke-agent>
+                agent="${agentforce.agentId}"
+                target="agentSession"
+                doc:name="Start Session: {{AGENTFORCE_PURPOSE}}"/>
 
-            <!-- Store agent response before it is overwritten -->
-            <set-variable variableName="agentforceResponse" value="#[payload]"
-                doc:name="Capture Agentforce Response"/>
+            <!--
+                VERIFY-C: Normalise session ID — handles both object (.sessionId) and
+                scalar (plain string) return shapes from start-agent-conversation.
+                Do NOT use vars.agentSession.sessionId directly — it is null when the
+                connector returns a scalar.
+            -->
+            <set-variable variableName="agentforceSessionId"
+                value="#[(vars.agentSession.sessionId default vars.agentSession) as String]"
+                doc:name="Normalise Session ID"/>
+
+            <!--
+                VERIFY-A: confirm ms-agentforce:message is the correct element for context.
+                target writes result to vars.agentforceResponse without touching payload.
+            -->
+            <ms-agentforce:send-message-sync
+                config-ref="Agentforce_Config"
+                sessionId="#[vars.agentforceSessionId]"
+                target="agentforceResponse"
+                doc:name="Send Message: {{AGENTFORCE_PURPOSE}}">
+                <ms-agentforce:message>#[vars.agentforceInput]</ms-agentforce:message>
+            </ms-agentforce:send-message-sync>
+
+            <!-- Close session immediately — do not hold sessions open -->
+            <ms-agentforce:end-agent-conversation
+                config-ref="Agentforce_Config"
+                sessionId="#[vars.agentforceSessionId]"
+                doc:name="End Session: {{AGENTFORCE_PURPOSE}}"/>
 
             <logger
                 level="INFO"
-                message='#["[AGENTFORCE] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | correlationId=" ++ correlationId ++ " | status=success"]'
+                message='#["[AGENTFORCE OK] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | sessionId=" ++ (vars.agentforceSessionId default "unknown") ++ " | correlationId=" ++ correlationId ++ " | env=" ++ p("mule.env")]'
                 doc:name="Log Agentforce Success"/>
 
+            <!-- Restore payload deterministically on success — matches error-path behaviour -->
+            <set-payload value="#[vars.agentforcePrimaryPayload]" doc:name="Restore Primary Payload"/>
+
             <error-handler>
-                <on-error-continue type="AGENTFORCE:TIMEOUT, AGENTFORCE:CONNECTIVITY, AGENTFORCE:SERVICE_UNAVAILABLE">
+
+                <!-- Transient network failures -->
+                <on-error-continue type="MS-AGENTFORCE:CONNECTIVITY">
+                    <!-- Guard: only close if session was actually opened -->
+                    <choice doc:name="Close Session If Opened">
+                        <when expression="#[vars.agentforceSessionId != null]">
+                            <try doc:name="Safe Session Close">
+                                <ms-agentforce:end-agent-conversation
+                                    config-ref="Agentforce_Config"
+                                    sessionId="#[vars.agentforceSessionId]"
+                                    doc:name="End Session on Connectivity Failure"/>
+                                <error-handler>
+                                    <on-error-continue type="ANY">
+                                        <logger level="WARN"
+                                            message='#["[AGENTFORCE SESSION CLOSE FAILED] sessionId=" ++ vars.agentforceSessionId ++ " | correlationId=" ++ correlationId]'
+                                            doc:name="Log Session Close Failure"/>
+                                    </on-error-continue>
+                                </error-handler>
+                            </try>
+                        </when>
+                    </choice>
                     <logger
                         level="WARN"
-                        message='#["[AGENTFORCE FALLBACK] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | correlationId=" ++ correlationId ++ " | error=" ++ (error.description default "unknown")]'
-                        doc:name="Log Agentforce Fallback"/>
-                    <!-- Restore primary payload so the flow can continue -->
-                    <set-payload value="#[vars.primaryPayload]" doc:name="Restore Primary Payload"/>
-                    <set-variable variableName="agentforceResponse" value="#[vars.agentforceFallbackValue]"
-                        doc:name="Use Fallback Value"/>
+                        message='#["[AGENTFORCE FALLBACK] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | sessionId=" ++ (vars.agentforceSessionId default "none") ++ " | correlationId=" ++ correlationId ++ " | env=" ++ p("mule.env") ++ " | error=" ++ ((error.description default "unknown") as String)[0..200]]'
+                        doc:name="Log Agentforce Connectivity Failure"/>
+                    <set-payload value="#[vars.agentforcePrimaryPayload]" doc:name="Restore Primary Payload"/>
                 </on-error-continue>
 
-                <on-error-continue type="AGENTFORCE:INVALID_INPUT">
-                    <!-- Bad input — not a transient error; log at ERROR, do not retry -->
+                <!-- Agent-side errors — structural, will not succeed on retry -->
+                <on-error-continue type="MS-AGENTFORCE:AGENT_API_ERROR, MS-AGENTFORCE:AGENT_OPERATIONS_FAILURE, MS-AGENTFORCE:AGENT_METADATA_FAILURE, MS-AGENTFORCE:INVALID_CONNECTION">
+                    <choice doc:name="Close Session If Opened">
+                        <when expression="#[vars.agentforceSessionId != null]">
+                            <try doc:name="Safe Session Close">
+                                <ms-agentforce:end-agent-conversation
+                                    config-ref="Agentforce_Config"
+                                    sessionId="#[vars.agentforceSessionId]"
+                                    doc:name="End Session on Agent Error"/>
+                                <error-handler>
+                                    <on-error-continue type="ANY">
+                                        <logger level="WARN"
+                                            message='#["[AGENTFORCE SESSION CLOSE FAILED] sessionId=" ++ vars.agentforceSessionId ++ " | correlationId=" ++ correlationId]'
+                                            doc:name="Log Session Close Failure"/>
+                                    </on-error-continue>
+                                </error-handler>
+                            </try>
+                        </when>
+                    </choice>
                     <logger
                         level="ERROR"
-                        message='#["[AGENTFORCE INVALID INPUT] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | correlationId=" ++ correlationId ++ " | error=" ++ (error.description default "unknown")]'
-                        doc:name="Log Agentforce Invalid Input"/>
-                    <set-payload value="#[vars.primaryPayload]" doc:name="Restore Primary Payload"/>
-                    <set-variable variableName="agentforceResponse" value="#[vars.agentforceFallbackValue]"
-                        doc:name="Use Fallback Value on Bad Input"/>
+                        message='#["[AGENTFORCE AGENT ERROR] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | sessionId=" ++ (vars.agentforceSessionId default "none") ++ " | correlationId=" ++ correlationId ++ " | env=" ++ p("mule.env") ++ " | errorType=" ++ (error.errorType.identifier default "unknown") ++ " | error=" ++ ((error.description default "unknown") as String)[0..200]]'
+                        doc:name="Log Agentforce Agent Error"/>
+                    <set-payload value="#[vars.agentforcePrimaryPayload]" doc:name="Restore Primary Payload"/>
                 </on-error-continue>
+
+                <!-- Catch-all — ensures no uncaught error type breaks the primary flow -->
+                <on-error-continue type="ANY">
+                    <choice doc:name="Close Session If Opened">
+                        <when expression="#[vars.agentforceSessionId != null]">
+                            <try doc:name="Safe Session Close">
+                                <ms-agentforce:end-agent-conversation
+                                    config-ref="Agentforce_Config"
+                                    sessionId="#[vars.agentforceSessionId]"
+                                    doc:name="End Session on Unknown Error"/>
+                                <error-handler>
+                                    <on-error-continue type="ANY">
+                                        <logger level="WARN"
+                                            message='#["[AGENTFORCE SESSION CLOSE FAILED] sessionId=" ++ vars.agentforceSessionId ++ " | correlationId=" ++ correlationId]'
+                                            doc:name="Log Session Close Failure"/>
+                                    </on-error-continue>
+                                </error-handler>
+                            </try>
+                        </when>
+                    </choice>
+                    <logger
+                        level="ERROR"
+                        message='#["[AGENTFORCE UNCAUGHT ERROR] flow=" ++ flow.name ++ " | purpose={{AGENTFORCE_PURPOSE}} | sessionId=" ++ (vars.agentforceSessionId default "none") ++ " | correlationId=" ++ correlationId ++ " | env=" ++ p("mule.env") ++ " | errorType=" ++ (error.errorType.identifier default "unknown") ++ " | error=" ++ ((error.description default "unknown") as String)[0..200]]'
+                        doc:name="Log Agentforce Uncaught Error"/>
+                    <set-payload value="#[vars.agentforcePrimaryPayload]" doc:name="Restore Primary Payload"/>
+                </on-error-continue>
+
             </error-handler>
 
         </try>
 
-        <!-- vars.agentforceResponse is now set (agent result or fallback) -->
-        <!-- vars.primaryPayload holds the original payload for downstream steps -->
-        <!-- TODO: Map vars.agentforceResponse fields into your downstream payload/variables -->
+        <!--
+            After this snippet — guaranteed on all paths:
+              vars.agentforceResponse        — agent result ({} on any error)
+              vars.agentforcePrimaryPayload  — original payload before the agent call
+              vars.agentforceSessionId       — session ID (or null if session never opened)
+              payload                        — restored to agentforcePrimaryPayload
+
+            VERIFY-B: confirm field path to extract agent reply from vars.agentforceResponse
+            TODO: Map vars.agentforceResponse into downstream variables or payload.
+            NOTE: Calls are NOT guaranteed idempotent if the agent has write side-effects.
+                  Disable retry for write-effect agents; document idempotency contract.
+        -->

@@ -1,0 +1,79 @@
+<!--
+    Trigger: Amazon S3 Object Created Event (idp-document-processing / file-based-etl)
+    Polls S3 bucket for new objects. Downloads file bytes for downstream processing.
+    NOTE: Configure s3.bucket.name and s3.prefix (folder path) in properties.
+    CloudHub 2.0 has no persistent local disk — files are processed in-memory.
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <s3:listener
+            config-ref="Amazon_S3_Config"
+            bucketName="${s3.bucket.name}"
+            prefix="${s3.prefix}"
+            doc:name="S3 New Object Listener">
+            <scheduling-strategy>
+                <fixed-frequency
+                    frequency="${s3.poll.frequencySeconds}"
+                    timeUnit="SECONDS"/>
+            </scheduling-strategy>
+        </s3:listener>
+
+        <logger
+            level="INFO"
+            message='#["[START] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | key=" ++ attributes.key ++ " | size=" ++ (attributes.size default 0) as String ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log S3 Object Received"/>
+
+        <!--
+            Payload at this point is the S3 object content as a stream.
+            Convert to byte array immediately — streams are single-read only.
+        -->
+        <set-variable
+            variableName="s3Key"
+            value="#[attributes.key]"
+            doc:name="Store S3 Key"/>
+
+        <set-variable
+            variableName="documentBytes"
+            value="#[payload]"
+            doc:name="Read Object Bytes"/>
+
+        <!--
+            TODO: Implement {{FLOW_DESCRIPTION}}
+            Source: S3 bucket ${s3.bucket.name}/${s3.prefix} → Target: {{FLOW_TARGET}}
+
+            Derive MIME type from file extension:
+              .pdf  → application/pdf
+              .png  → image/png
+              .jpg  → image/jpeg
+              .tiff → image/tiff
+
+            Example:
+              vars.documentMimeType = if (vars.s3Key endsWith '.pdf') 'application/pdf'
+                                      else if (vars.s3Key endsWith '.png') 'image/png'
+                                      else 'application/octet-stream'
+        -->
+        <set-variable
+            variableName="documentMimeType"
+            value="#[
+                if (vars.s3Key endsWith '.pdf') 'application/pdf'
+                else if (vars.s3Key endsWith '.png') 'image/png'
+                else if (vars.s3Key endsWith '.jpg' or vars.s3Key endsWith '.jpeg') 'image/jpeg'
+                else if (vars.s3Key endsWith '.tiff' or vars.s3Key endsWith '.tif') 'image/tiff'
+                else 'application/octet-stream'
+            ]"
+            doc:name="Derive MIME Type"/>
+
+        <set-variable
+            variableName="documentBase64"
+            value="#[vars.documentBytes as Binary {base64: true} as String]"
+            doc:name="Base64 Encode Document"/>
+
+        <!-- TODO: Call IDP sub-flow or other processing -->
+
+        <logger
+            level="INFO"
+            message='#["[END] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | key=" ++ vars.s3Key]'
+            doc:name="Log Processing End"/>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>

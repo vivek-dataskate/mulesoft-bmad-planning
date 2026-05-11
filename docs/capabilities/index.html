@@ -55,6 +55,45 @@
                    box-shadow: 0 1px 3px rgba(0,0,0,.08); display: flex; gap: 24px; flex-wrap: wrap; }
     .client-card strong { font-size: 16px; }
     footer { text-align: center; padding: 24px; color: #888; font-size: 12px; border-top: 1px solid #eee; margin-top: 32px; }
+    /* README section */
+    .readme { max-width: 900px; }
+    .readme h2 { font-size: 22px; margin: 0 0 8px; color: #0067b8; }
+    .readme .subtitle { color: #555; font-size: 14px; margin-bottom: 24px; border-bottom: 1px solid #e0e0e0; padding-bottom: 16px; }
+    .readme h3 { font-size: 17px; margin: 32px 0 10px; color: #1a1a1a; border-bottom: 2px solid #e0e7ff; padding-bottom: 6px; }
+    .readme h4 { font-size: 14px; margin: 20px 0 8px; color: #333; font-weight: 700; }
+    .readme p { line-height: 1.7; margin-bottom: 12px; color: #333; }
+    .readme ul, .readme ol { padding-left: 22px; margin-bottom: 12px; }
+    .readme li { line-height: 1.7; margin-bottom: 4px; color: #333; }
+    .readme pre { background: #1e1e2e; color: #cdd6f4; padding: 14px 18px; border-radius: 6px;
+                  font-size: 12.5px; overflow-x: auto; margin: 12px 0 16px; line-height: 1.6; }
+    .readme pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+    .readme .step { background: white; border-left: 4px solid #0067b8; border-radius: 0 8px 8px 0;
+                    padding: 18px 22px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+    .readme .step-num { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                        letter-spacing: .8px; color: #0067b8; margin-bottom: 4px; }
+    .readme .step h4 { margin: 0 0 8px; font-size: 15px; color: #111; }
+    .readme .warning { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 0 6px 6px 0;
+                       padding: 10px 16px; margin: 12px 0; font-size: 13px; color: #78350f; }
+    .readme .pipeline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+                        padding: 14px 18px; background: #f0f4ff; border-radius: 8px; margin: 16px 0;
+                        font-size: 13px; font-weight: 600; color: #333; }
+    .readme .pipeline span { background: white; padding: 4px 12px; border-radius: 12px;
+                             border: 1px solid #c7d2fe; color: #3730a3; }
+    .readme .pipeline .arrow { color: #6366f1; font-weight: 700; }
+    .readme .pipeline .highlight { background: #6366f1; color: white; border-color: #6366f1; }
+    .readme table { margin-bottom: 20px; }
+    .readme .toc { background: white; border-radius: 8px; padding: 18px 22px; margin-bottom: 28px;
+                   box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+    .readme .toc h4 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase;
+                      letter-spacing: .6px; color: #888; }
+    .readme .toc ol { margin: 0; }
+    .readme .toc li { margin-bottom: 4px; }
+    .readme .toc a { color: #0067b8; font-size: 13px; }
+    .readme .quirk-table td:first-child strong { color: #0067b8; }
+    .readme .maturity-stub { background: #f0f4ff; color: #3730a3; }
+    .readme .maturity-obs  { background: #fef9c3; color: #854d0e; }
+    .readme .maturity-ver  { background: #dcfce7; color: #166534; }
+    .readme .maturity-prm  { background: #e0e7ff; color: #3730a3; }
   </style>
 </head>
 <body>
@@ -79,6 +118,7 @@
   <button onclick="show('snippets',this)">Code Assets</button>
   <button onclick="show('playbooks',this)">System Playbooks</button>
   <button onclick="show('clients',this)">Client Usage</button>
+  <button onclick="show('readme',this)">README</button>
 </nav>
 
 <main>
@@ -2712,6 +2752,414 @@
 <section id="clients">
   <h2>Client Usage</h2>
   <p><em>No client projects found in projects/ folder.</em></p>
+</section>
+
+<!-- ── README ────────────────────────────────────────────────────────────── -->
+<section id="readme">
+<div class="readme">
+  <h2>MuleSoft BMAD Planning System</h2>
+  <p class="subtitle">For tech leads and architects. Developers never touch this repo — they receive a generated GitHub repo they open in a Codespace and implement flows using Anypoint Studio.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ol>
+      <li><a href="#rm-pipeline">Pipeline</a></li>
+      <li><a href="#rm-workflow">New Client Engagement — Step by Step</a></li>
+      <li><a href="#rm-artifacts">What This System Produces</a></li>
+      <li><a href="#rm-why">Why It Exists</a></li>
+      <li><a href="#rm-folders">Folder Structure</a></li>
+      <li><a href="#rm-dtree">The Decision Tree</a></li>
+      <li><a href="#rm-commons">The Commons Library</a></li>
+      <li><a href="#rm-playbooks">System Playbooks</a></li>
+      <li><a href="#rm-fk">How Field Knowledge Accumulates</a></li>
+      <li><a href="#rm-standards">Standards</a></li>
+      <li><a href="#rm-adding">Adding Capabilities</a></li>
+      <li><a href="#rm-coverage">MuleSoft Product Coverage</a></li>
+    </ol>
+  </div>
+
+  <!-- Pipeline -->
+  <h3 id="rm-pipeline">Pipeline</h3>
+  <div class="pipeline">
+    <span>Scout</span><span class="arrow">→</span>
+    <span>Analyst</span><span class="arrow">→</span>
+    <span>Architect (MD)</span><span class="arrow">→</span>
+    <span>PM</span><span class="arrow">→</span>
+    <span>Scaffold</span><span class="arrow">→</span>
+    <span class="highlight">Developer (Anypoint Studio)</span><span class="arrow">→</span>
+    <span>Architect (CO)</span>
+  </div>
+  <p>The Dev agent is <strong>not used</strong>. Developers implement flows directly in Anypoint Studio against the generated scaffold. The planning repo is only used by the tech lead / architect.</p>
+
+  <!-- New Client Engagement -->
+  <h3 id="rm-workflow">New Client Engagement — Step by Step</h3>
+
+  <div class="step">
+    <div class="step-num">Step 0</div>
+    <h4>Drop scoping notes and run Scout</h4>
+    <p>After the initial scoping call — before you send the client an intake form — drop your raw notes into:</p>
+    <pre><code>projects/{client}/scoping/</code></pre>
+    <p>Anything works: call transcript, Gemini/Otter notes, email thread, slide deck, handwritten notes copied to a text file.</p>
+    <p>Then run Scout:</p>
+    <pre><code>/bmad-agent-scout</code></pre>
+    <p>Scout reads the scoping notes, infers which systems are involved (explicit and implied), cross-checks every detected system against the connector registry and existing playbooks, and produces:</p>
+    <ul>
+      <li><code>projects/{client}/intake/intake-questionnaire.md</code> — tailored questionnaire with pre-filled understandings from the scoping notes, base questions, and system-specific gotcha questions generated dynamically per detected system</li>
+    </ul>
+    <p>Scout also automatically registers every detected system in three commons artifacts (creating stubs if none exist):</p>
+    <ul>
+      <li><code>commons/playbooks/{system}/PLAYBOOK.md</code> — stub created on first detection</li>
+      <li><code>standards/connector-registry.json</code> — stub entry with auth type to be confirmed</li>
+      <li><code>standards/intake-checklist.json</code> — baseline autoWarning so the next project sees this system flagged immediately</li>
+    </ul>
+    <div class="warning">Send the intake questionnaire to the client. Wait for their responses before proceeding to Step 1. This step prevents the two most common causes of mid-project blockers: undocumented API contracts and system-specific connector constraints discovered too late.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 1</div>
+    <h4>Drop discovery documents</h4>
+    <p>Drop the client's completed intake questionnaire responses plus any supporting docs into:</p>
+    <pre><code>projects/{client}/intake/</code></pre>
+    <p>API specs, architecture diagrams, existing data mappings, email threads — anything relevant.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 2</div>
+    <h4>Run the Analyst</h4>
+    <pre><code>/bmad-agent-analyst
+# or: Talk to Mary (the analyst). Analyse all docs in projects/{client}/intake/ and produce projects/{client}/prd.md</code></pre>
+    <p>The Analyst produces:</p>
+    <ul>
+      <li><code>projects/{client}/prd.md</code> — structured requirements</li>
+      <li><code>projects/{client}/api-discovery/{system}-contract.md</code> — one per undocumented system (curl-verified field contracts + targeted gap questions)</li>
+    </ul>
+    <div class="warning">Do not proceed to Step 3 until you have sent the gap questions to the client and received confirmation. The Architect needs confirmed field contracts, not guesses.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 3</div>
+    <h4>Run the Architect</h4>
+    <pre><code>/bmad-agent-architect
+# or: Talk to Winston (the architect). Read projects/{client}/prd.md. Walk the 6-level decision tree.</code></pre>
+    <p>The Architect reads <code>docs/FIELD_KNOWLEDGE.md</code> and all existing playbooks before the decision tree. Verified field knowledge entries take precedence over scenario file defaults.</p>
+    <p>The three decisions a tech lead must personally review in <code>decisions.json</code>:</p>
+    <ul>
+      <li><strong>primaryPattern</strong> — is this the right EIP pattern for the business case?</li>
+      <li><strong>errorHandling.dlqEnabled</strong> — is async + DLQ the right failure model here?</li>
+      <li><strong>security.tier</strong> — does the data classification match the security controls selected?</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 4</div>
+    <h4>Run the PM</h4>
+    <pre><code>/bmad-agent-pm
+# or: Talk to John (the PM). Read projects/{client}/decisions.json and story-library/. Generate projects/{client}/stories.md</code></pre>
+    <p>Stories reference exact file names, acceptance criteria, and coverage floors — developers pick them up without needing to interpret the architecture doc.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 5</div>
+    <h4>Generate and push the client repo</h4>
+    <pre><code>node scaffold/generate.js --decisions projects/{client}/decisions.json --output /tmp/{client}-mule
+
+GITHUB_TOKEN=ghp_... bash scaffold/create-client-repo.sh \
+  --client {client} \
+  --org {your-github-org}</code></pre>
+    <p>The script creates <code>github.com/{org}/{client}-mule</code>, pushes code, and prints a one-click Codespace URL. Send that URL to the developer.</p>
+    <p><strong>Total time: discovery docs → developer writing code, under an hour.</strong></p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 6</div>
+    <h4>Developer implements using Anypoint Studio</h4>
+    <p>The developer opens the Codespace URL. The scaffold compiles immediately. They work through <code>projects/{client}/stories.md</code> story by story, implementing business logic in Anypoint Studio, confirming field mappings against the systems, and running MUnit tests until all coverage floors pass.</p>
+    <p>No BMAD agent is involved in this step. When the developer confirms stories are done, the engagement is ready for close-out.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 7</div>
+    <h4>Run the close-out <em>(mandatory)</em></h4>
+    <pre><code>/bmad-agent-architect-debrief  → select CO, specify client</code></pre>
+    <p>The close-out reads every internal flag, every open item, every story built, and every system involved. It interviews the architect question by question and automatically updates:</p>
+    <ul>
+      <li><code>docs/FIELD_KNOWLEDGE.md</code> — new FK entries for any non-obvious finding</li>
+      <li><code>commons/playbooks/{system}/</code> — implementation learnings, confirmed DWL mappings, maturity update</li>
+      <li><code>standards/intake-checklist.json</code> — new or updated autoWarnings</li>
+      <li><code>standards/connector-registry.json</code> — confirmed auth types, versions, and any new connectors used</li>
+    </ul>
+    <div class="warning">This is the mechanism by which every project makes the next project faster. It is mandatory, not optional.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 8</div>
+    <h4>Ad-hoc debrief (any time)</h4>
+    <pre><code>/bmad-agent-architect-debrief  → select DK</code></pre>
+    <p>Describe what you observed in plain language. The agent asks six focused questions and writes the field knowledge entry. Run <code>PK</code> when a finding has been confirmed on a second engagement.</p>
+  </div>
+
+  <!-- What This System Produces -->
+  <h3 id="rm-artifacts">What This System Produces</h3>
+  <h4>Per engagement</h4>
+  <table><thead><tr>
+    <th>Artifact</th><th>Who uses it</th><th>Where</th>
+  </tr></thead><tbody>
+    <tr><td>Intake questionnaire</td><td>Sent to client</td><td><code>projects/{client}/intake/intake-questionnaire.md</code></td></tr>
+    <tr><td>PRD</td><td>Tech lead review, client sign-off</td><td><code>projects/{client}/prd.md</code></td></tr>
+    <tr><td>API contract files</td><td>Send gap questions to client</td><td><code>projects/{client}/api-discovery/</code></td></tr>
+    <tr><td>Architecture doc</td><td>Tech lead approval</td><td><code>projects/{client}/architecture.md</code></td></tr>
+    <tr><td><code>decisions.json</code></td><td>Drives all code generation</td><td><code>projects/{client}/decisions.json</code></td></tr>
+    <tr><td>Sprint stories</td><td>Developer task board</td><td><code>projects/{client}/stories.md</code></td></tr>
+    <tr><td>Compiling Mule project</td><td>Developer codes against it</td><td><code>github.com/{org}/{client}-mule</code></td></tr>
+    <tr><td>Codespace URL</td><td>Developer opens it, done</td><td>Printed by <code>create-client-repo.sh</code></td></tr>
+  </tbody></table>
+
+  <h4>After close-out (commons contributions)</h4>
+  <table><thead><tr>
+    <th>Commons Artifact</th><th>Updated by</th><th>What grows</th>
+  </tr></thead><tbody>
+    <tr><td><code>docs/FIELD_KNOWLEDGE.md</code></td><td>Architect (DK / CO)</td><td>FK entries — lessons from every project</td></tr>
+    <tr><td><code>commons/playbooks/{system}/</code></td><td>Scout → Architect → CO</td><td>Auth, DWL mappings, known quirks per system</td></tr>
+    <tr><td><code>standards/intake-checklist.json</code></td><td>Scout → CO</td><td>autoWarnings — every system ever seen gets an entry</td></tr>
+    <tr><td><code>standards/connector-registry.json</code></td><td>Scout → Analyst → Architect → CO</td><td>Confirmed auth, versions, staleness</td></tr>
+  </tbody></table>
+
+  <!-- Why It Exists -->
+  <h3 id="rm-why">Why It Exists</h3>
+  <p>Every new MuleSoft engagement used to start the same way: a tech lead spending the first week making identical decisions — which pattern, which connectors, how to handle errors, how to structure flows. The decisions were inconsistent between projects, junior developers had no guardrails, and every repo started from blank files.</p>
+  <p><strong>This system encodes those decisions once, at the right abstraction level, and automates everything downstream.</strong></p>
+  <ul>
+    <li><strong>Consistency</strong> — all generated projects share the same error handling, correlation ID propagation, security controls, and naming conventions. No project deviates unless explicitly configured.</li>
+    <li><strong>Speed</strong> — the Analyst, Architect, and PM agents each take minutes. Code generation takes seconds. The bottleneck becomes client response time, not internal setup time.</li>
+    <li><strong>Accumulation</strong> — every new project teaches the system something. Lessons go into <code>docs/FIELD_KNOWLEDGE.md</code>, agents apply them on future projects automatically, and the playbooks in <code>commons/playbooks/</code> grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.</li>
+  </ul>
+
+  <!-- Folder Structure -->
+  <h3 id="rm-folders">Folder Structure</h3>
+  <pre><code>mulesoft-bmad-planning/
+├── _bmad/                          BMAD agent definitions
+│   └── custom/
+│       ├── bmad-agent-scout.toml            Scout: scoping notes → intake questionnaire + commons stubs
+│       ├── bmad-agent-analyst.toml          Mary: intake docs → prd.md + stub enrichment
+│       ├── bmad-agent-architect.toml        Winston: 6-level decision tree → decisions.json + stub enrichment
+│       ├── bmad-agent-architect-debrief.toml  CO / DK / PK modes
+│       └── bmad-agent-pm.toml               John: decisions.json → sprint stories
+│
+├── standards/
+│   ├── MULESOFT_DESIGN_STANDARDS.md   The constitution
+│   ├── decisions-schema.json           Schema + empty template for decisions.json
+│   ├── connector-registry.json         All known connectors: versions, Maven coords, auth types
+│   ├── intake-checklist.json           Mandatory checks + autoWarnings per system
+│   ├── snippet-registry.json           Three-tier registry of all reusable code assets
+│   └── scenarios/                      One reference file per integration pattern (A–U)
+│
+├── templates/
+│   ├── prd-template.md
+│   ├── architecture-template.md
+│   ├── story-template.md
+│   └── connectors/                     XML config stubs per connector (28 connectors)
+│
+├── story-library/                      Reusable story templates the PM references
+│   ├── global-*.md                     Always-on or conditional global stories
+│   └── flow-*.md                       Per-flow story templates
+│
+├── scaffold/
+│   ├── generate.js                     Code generator: decisions.json → complete Mule project
+│   ├── create-client-repo.sh           Creates GitHub repo and pushes generated project
+│   ├── generate-capabilities.js        Builds this capabilities portal (HTML)
+│   └── xml-templates/                  Source XML the generator renders
+│
+├── commons/                            Reusable library — shared across ALL client projects
+│   ├── src/main/mule/                  Sub-flows injected by reference (flow-ref)
+│   │   ├── common-error-handler.xml    DLQ routing, error response, notification dispatch
+│   │   ├── common-retry.xml            Retry-queue pattern with exponential backoff
+│   │   ├── common-notification.xml     Slack + email (scatter-gather)
+│   │   ├── common-batch.xml            Batch on-complete: log, alert, persist watermark
+│   │   └── common-correlation.xml      Generate / propagate / extract correlation ID
+│   ├── src/main/resources/dwl/         DWL modules — importable by any client project
+│   │   ├── error-envelope.dwl          Standard error envelope builder
+│   │   ├── pii-mask.dwl                Recursive payload masking (20+ field patterns)
+│   │   ├── canonical-date.dwl          Date normalization
+│   │   └── build-audit-record.dwl      CEF-compatible audit records
+│   ├── exchange/                        Canonical schema fragments published to Anypoint Exchange
+│   └── playbooks/                      System-specific reusable code (grows with every project)
+│       ├── salesforce/                 Verified: auth, account, contact, opportunity
+│       ├── netsuite/                   Verified: PS256 auth, customer, sales-order, invoice
+│       └── {system}/                   Stub created by Scout on first detection; enriched by CO
+│
+├── docs/
+│   ├── PLANNING_CONTEXT.md            Master system context — read before every session
+│   ├── FIELD_KNOWLEDGE.md             Lessons from real projects; agents apply verified entries
+│   ├── PATTERNS_RESEARCH.md           Research reference: EIP, flow control, coupling, compensation
+│   └── CHUNK_PROGRESS.md              Build progress log
+│
+└── projects/
+    └── {client}/
+        ├── scoping/                    Drop raw scoping call notes here (Step 0)
+        ├── intake/                     Drop completed intake questionnaire responses here (Step 1)
+        ├── api-discovery/              API contract files (Analyst output)
+        ├── prd.md
+        ├── architecture.md
+        ├── decisions.json
+        └── stories.md</code></pre>
+
+  <!-- Decision Tree -->
+  <h3 id="rm-dtree">The Decision Tree (What the Architect Does)</h3>
+  <p>The Architect walks 6 decisions in order. Every decision has a schema constraint in <code>decisions-schema.json</code>. The tech lead's job is to review the output, not re-walk the tree.</p>
+  <table><thead><tr>
+    <th>Level</th><th>Decision</th><th>Why it comes first</th>
+  </tr></thead><tbody>
+    <tr><td>1</td><td>Integration pattern (A–U)</td><td>Everything else depends on this: error strategy, retry model, test approach</td></tr>
+    <tr><td>2</td><td>Message TTL and dedup TTL</td><td>Prevents phantom retries and idempotency holes; TTL = messageTtlHours × 60 minutes</td></tr>
+    <tr><td>3</td><td>Error handling model</td><td>DLQ + retry-queue for async; 4xx/5xx mapping for sync</td></tr>
+    <tr><td>4</td><td>Security tier</td><td>Determines connector config, property encryption, Flex Gateway requirement</td></tr>
+    <tr><td>5</td><td>Deployment profile</td><td>minimal / standard / enterprise / regulated — drives which sub-flows are generated</td></tr>
+    <tr><td>6</td><td>Connector selection</td><td>Registry lookup, version pinning, playbook lookup, staleness check (&gt;60d = warning)</td></tr>
+  </tbody></table>
+  <p>The 21 integration patterns (A–U) are in <code>standards/scenarios/</code>. Each scenario file specifies the integration style, compensation strategy, flow control config, and EDA fit assessment.</p>
+
+  <!-- Commons Library -->
+  <h3 id="rm-commons">The Commons Library — Cross-Client Reuse</h3>
+  <p>Every generated client project declares <code>mulesoft-commons</code> as a Maven dependency. A bug fix in <code>common-error-handler.xml</code> benefits all client projects on next deploy — not just the one that found the bug.</p>
+  <h4>Why retry-queue instead of <code>until-successful</code></h4>
+  <p><code>until-successful</code> blocks the consumer thread for the entire retry duration and loses state on Mule restart. The retry-queue pattern publishes a message back to a retry queue with <code>X-Retry-Attempt</code> metadata, releases the consumer immediately, and survives restarts. The commons <code>common-retry.xml</code> implements this with exponential backoff.</p>
+  <h4>Why <code>set-correlation-id</code> instead of <code>set-variable</code></h4>
+  <p>Mule 4.6+ introduced <code>set-correlation-id</code> as a first-class element. <code>set-variable</code> creates a flow variable — it does not set the Mule event's <code>correlationId</code>, which is what appears in logs and gets propagated by the runtime. <code>common-correlation.xml</code> uses <code>set-correlation-id</code> everywhere.</p>
+
+  <!-- System Playbooks -->
+  <h3 id="rm-playbooks">System Playbooks — How Integration Knowledge Accumulates</h3>
+  <p>The playbooks in <code>commons/playbooks/</code> encode what we know about each external system. Each playbook is <strong>system-specific, not pair-specific</strong>.</p>
+  <h4>Bidirectional DWL transforms (pattern for every object)</h4>
+  <pre><code>import sfOpportunityToCanonical from "playbooks/salesforce/objects/opportunity/sf-opportunity-to-canonical.dwl"
+import canonicalToNsOrder       from "playbooks/netsuite/objects/sales-order/canonical-to-ns-order.dwl"
+---
+canonicalToNsOrder(sfOpportunityToCanonical(payload))</code></pre>
+  <p>No new code needed. The full field mapping, null handling, and status enum translation is already inside the two functions.</p>
+
+  <h4>Playbook maturity model</h4>
+  <table><thead><tr>
+    <th>Status</th><th>Meaning</th><th>Agent behaviour</th>
+  </tr></thead><tbody>
+    <tr><td><span class="badge maturity-stub">stub</span></td><td>Detected by Scout, not yet implemented</td><td>Architect flags "New Playbook Required" open item</td></tr>
+    <tr><td><span class="badge maturity-obs">observation</span></td><td>Implemented on one client</td><td>Available but not auto-applied</td></tr>
+    <tr><td><span class="badge maturity-ver">verified</span></td><td>Confirmed on 2+ clients</td><td>Applied automatically by Architect</td></tr>
+    <tr><td><span class="badge maturity-prm">promoted-to-standard</span></td><td>Clear universal pattern</td><td>Moved into <code>MULESOFT_DESIGN_STANDARDS.md</code></td></tr>
+  </tbody></table>
+
+  <h4>Known critical quirks encoded in the playbooks</h4>
+  <table class="quirk-table"><thead><tr>
+    <th>System</th><th>Quirk</th><th>Where it's handled</th>
+  </tr></thead><tbody>
+    <tr><td><strong>NetSuite</strong></td><td>REST requires PS256 JWT — MuleSoft JWT Module does NOT support PS256</td><td><code>ns-auth.xml</code> (Nimbus JOSE via Groovy)</td></tr>
+    <tr><td><strong>NetSuite</strong></td><td>SuiteQL max 1,000 records/page; governance units → 429 on overrun</td><td><code>ns-query.xml</code> (exponential backoff)</td></tr>
+    <tr><td><strong>NetSuite</strong></td><td>Invoices are system-generated — cannot POST to create one</td><td><code>ns-invoice-to-canonical.dwl</code> (read-only direction only)</td></tr>
+    <tr><td><strong>NetSuite</strong></td><td>Item lookup requires internalId — no lookup by product code via REST</td><td><code>canonical-to-ns-order.dwl</code> (itemMapping helper parameter)</td></tr>
+    <tr><td><strong>Salesforce</strong></td><td>SOQL OFFSET breaks silently on &gt; 2,000 records</td><td><code>sf-query.xml</code> (cursor pagination via <code>nextRecordsUrl</code>)</td></tr>
+    <tr><td><strong>Salesforce</strong></td><td><code>BillingCountryCode</code> only exists if "State and Country Picklists" feature is enabled</td><td><code>canonical-to-sf-account.dwl</code> (<code>useCountryCode</code> flag)</td></tr>
+    <tr><td><strong>Salesforce</strong></td><td><code>CurrencyIsoCode</code> on Account only writable on multi-currency orgs</td><td><code>canonical-to-sf-account.dwl</code> (<code>isMultiCurrency</code> flag)</td></tr>
+  </tbody></table>
+
+  <!-- Field Knowledge -->
+  <h3 id="rm-fk">How Field Knowledge Accumulates</h3>
+  <p><code>docs/FIELD_KNOWLEDGE.md</code> is the architect's lesson log. All agents read this file at the start of every session and apply <code>verified</code> entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.</p>
+  <pre><code>Scout detects a system for the first time
+        ↓
+Stub created in playbooks/, connector-registry, intake-checklist
+        ↓
+Analyst + Architect enrich the stubs with design knowledge
+        ↓
+Developer implements using Anypoint Studio (client Codespace)
+        ↓
+Architect runs CO → answers questions per system, per internal flag, per open item
+        ↓
+Agent mints FK-NNN (status: observation), enriches playbook, updates autoWarnings
+        ↓
+Second engagement hits the same system → CO again → status promoted to verified
+        Agents now apply it automatically on future projects
+        ↓
+Architect decides it's universal → PK command → agent drafts the target file change
+        Promoted to scenario file, standards doc, or commons playbook</code></pre>
+  <p>No client names are stored — counts only.</p>
+
+  <!-- Standards -->
+  <h3 id="rm-standards">Standards</h3>
+  <h4>Runtime</h4>
+  <ul>
+    <li><strong>Mule 4.8.0 / Java 17</strong> — all new projects</li>
+    <li><strong>CloudHub 2.0</strong> — default deployment</li>
+    <li><strong>Runtime Fabric</strong> — regulated and government security tiers only</li>
+  </ul>
+  <h4>Security Tiers</h4>
+  <table><thead><tr>
+    <th>Tier</th><th>Controls</th><th>When</th>
+  </tr></thead><tbody>
+    <tr><td><code>internal</code></td><td>client-id-enforcement + rate-limiting</td><td>Internal system-to-system</td></tr>
+    <tr><td><code>partner</code></td><td>oauth2-client-credentials + rate-limiting</td><td>External partner APIs</td></tr>
+    <tr><td><code>regulated</code></td><td>oauth2 + JWT via Flex Gateway + Secrets Manager</td><td>PII, financial data</td></tr>
+    <tr><td><code>government</code></td><td>mTLS + oauth2 + JWT + Secrets Manager + field-encryption</td><td>Government contracts</td></tr>
+  </tbody></table>
+  <h4>Error Handling</h4>
+  <ul>
+    <li>Global error handler mandatory in <code>error-handler.xml</code></li>
+    <li>Standard error envelope: <code>{correlationId, errorCode, message, timestamp, failingComponent}</code></li>
+    <li>DLQ routing for all async flows via <code>common-error-handler.xml</code></li>
+    <li>Never expose Java stack traces in API responses</li>
+  </ul>
+  <h4>Idempotency TTL Rule</h4>
+  <p><code>deduplicationTtlMinutes</code> must always equal <code>messageTtlHours × 60</code>. If a message can live in the queue for 24 hours, the idempotency store must cover 24 hours, or a replayed message after a restart will be processed twice.</p>
+  <h4>API-Led Connectivity (mandatory)</h4>
+  <ul>
+    <li><code>{system}-sys-api</code> — wraps one backend system</li>
+    <li><code>{domain}-proc-api</code> — orchestration and business logic</li>
+    <li><code>{consumer}-exp-api</code> — consumer-specific formatting</li>
+  </ul>
+
+  <!-- Adding Capabilities -->
+  <h3 id="rm-adding">Adding Capabilities</h3>
+  <table><thead><tr>
+    <th>Command</th><th>What it does</th>
+  </tr></thead><tbody>
+    <tr><td><code>/bmad-agent-architect-debrief → CO</code></td><td>Full close-out after delivery — updates all commons artifacts via structured interview</td></tr>
+    <tr><td><code>/bmad-agent-architect-debrief → DK</code></td><td>Capture an ad-hoc finding immediately — 6 questions, plain language, done</td></tr>
+    <tr><td><code>/bmad-agent-architect-debrief → PK</code></td><td>Promote a verified finding to standard — drafts exact change to target file</td></tr>
+    <tr><td><code>/bmad-agent-architect-debrief → NC</code></td><td>Add a new connector — writes registry entry, XML config stub, runs freshness check</td></tr>
+    <tr><td><code>/bmad-agent-architect-debrief → NP</code></td><td>Add a new integration pattern — creates scenario file, updates schema + standards doc</td></tr>
+    <tr><td><code>/bmad-agent-architect-debrief → NB</code></td><td>Add a new system playbook — scaffolds full folder, DWL transforms, registers assets</td></tr>
+  </tbody></table>
+
+  <!-- MuleSoft Product Coverage -->
+  <h3 id="rm-coverage">MuleSoft Product Coverage</h3>
+  <h4>Handled</h4>
+  <table><thead><tr>
+    <th>Product</th><th>How</th>
+  </tr></thead><tbody>
+    <tr><td><strong>Mule Runtime 4.8.0</strong></td><td>Core output — all flow XML, pom.xml, properties files generated</td></tr>
+    <tr><td><strong>Anypoint Studio / Code Builder</strong></td><td>Target IDE — generated projects compile immediately when opened in Codespace</td></tr>
+    <tr><td><strong>CloudHub 2.0</strong></td><td>Default deployment target — <code>deploy.yml</code> generated per project</td></tr>
+    <tr><td><strong>Runtime Fabric (RTF)</strong></td><td>Available as <code>devops.deployment</code> option in <code>decisions.json</code></td></tr>
+    <tr><td><strong>API Manager + API Gateway</strong></td><td>OAS 3.0 specs generated per HTTP flow; security policies driven from <code>decisions.json</code> security tier</td></tr>
+    <tr><td><strong>Anypoint Exchange</strong></td><td>Connector versions pinned from Exchange; <code>commons/publish.sh</code> publishes the shared library</td></tr>
+    <tr><td><strong>Anypoint Connectors</strong></td><td>28 connector config stubs in <code>templates/connectors/</code>; 150+ entries in connector registry</td></tr>
+    <tr><td><strong>Anypoint MQ</strong></td><td>Subscriber and publisher configs generated; queue setup, DLQ, TTL, and depth alert stories generated per async flow</td></tr>
+    <tr><td><strong>Anypoint Monitoring</strong></td><td>Alert configs and custom dashboard stories generated; mandatory in all non-minimal scaffold profiles</td></tr>
+    <tr><td><strong>Anypoint Visualizer</strong></td><td>API-led layer tags written into <code>mule-artifact.json</code>; verification story generated per project</td></tr>
+    <tr><td><strong>Anypoint IDP</strong></td><td>Pattern V (idp-document-processing) — scenario file, trigger template, and manual-review queue generated</td></tr>
+    <tr><td><strong>MuleSoft AI Chain</strong></td><td>Registered in connector registry; usable via Pattern P (ai-augmented-flow)</td></tr>
+    <tr><td><strong>Agentforce</strong></td><td>Config stub and invocation snippet generated; marked <code>verifyBeforeUse=true</code> until confirmed against Exchange</td></tr>
+  </tbody></table>
+  <h4>Not Handled</h4>
+  <table><thead><tr>
+    <th>Product</th><th>Why not</th>
+  </tr></thead><tbody>
+    <tr><td><strong>Anypoint Design Center</strong></td><td>This system generates OAS specs that go directly into Studio and Exchange. Design Center is bypassed, not integrated.</td></tr>
+    <tr><td><strong>Anypoint RPA</strong></td><td>No Mule connector, XML template, or integration pattern exists for RPA. Would require a dedicated pattern and separate engagement type.</td></tr>
+    <tr><td><strong>Anypoint DataGraph</strong></td><td>GraphQL federation layer configured in Anypoint Platform — not a flow-level concern. Sits above the APIs this system generates.</td></tr>
+    <tr><td><strong>Connector DevKit / PDK</strong></td><td>This system consumes connectors from Exchange. Building custom connectors is a separate Java/SDK discipline outside the planning pipeline.</td></tr>
+    <tr><td><strong>CloudHub 1.0</strong></td><td>Deprecated. Explicitly excluded — all generated projects target CloudHub 2.0 only.</td></tr>
+  </tbody></table>
+
+  <p style="margin-top:32px;color:#888;font-size:12px;border-top:1px solid #eee;padding-top:16px">Mule 4.8.0 / Java 17 / CloudHub 2.0 — System built May 2026</p>
+</div>
 </section>
 
 </main>
