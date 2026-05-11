@@ -1,0 +1,38 @@
+{
+  "name": "mulesoft-bmad-planning",
+  "version": "1.0.0",
+  "description": "MuleSoft BMAD Planning System — scaffold generator and pipeline scripts",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":80,\"functions\":80,\"branches\":70}}'",
+    "lint": "eslint scaffold/*.js tests/**/*.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "<rootDir>/tests/unit/**/*.test.js",
+      "<rootDir>/tests/integration/**/*.test.js"
+    ],
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "scaffold/generate.js",
+      "scaffold/validate-intake.js",
+      "scaffold/check-registry-freshness.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 80,
+        "functions": 80,
+        "branches": 70
+      }
+    },
+    "testTimeout": 15000
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
