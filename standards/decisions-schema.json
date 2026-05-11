@@ -9,7 +9,7 @@
 
   "integration": {
     "integrationStyle": "messaging|rpc|file-transfer|shared-db|hybrid",
-    "primaryPattern": "request-reply|event-driven|batch|scheduled-sync|file-based-etl|cdc-streaming|b2b-edi|process-orchestration|api-aggregation|webhook-ingestion|data-migration|streaming-pipeline|pubsub-fanout|outbound-notification|hybrid|ai-augmented-flow|rag-data-pipeline|agentic-mcp-integration|transactional-outbox|reverse-etl|ai-gateway",
+    "primaryPattern": "request-reply|event-driven|batch|scheduled-sync|file-based-etl|cdc-streaming|b2b-edi|process-orchestration|api-aggregation|webhook-ingestion|data-migration|streaming-pipeline|pubsub-fanout|outbound-notification|hybrid|ai-augmented-flow|rag-data-pipeline|agentic-mcp-integration|transactional-outbox|reverse-etl|ai-gateway|idp-document-processing",
     "secondaryPatterns": [],
     "direction": "unidirectional|bidirectional",
     "flows": [
@@ -18,7 +18,7 @@
         "layer": "system|process|experience",
         "source": "",
         "target": "",
-        "trigger": "http|scheduler|platform-event|mq-subscriber|cdc|sftp|db-poll",
+        "trigger": "http|scheduler|platform-event|mq-subscriber|cdc|sftp|db-poll|email-imap|s3-event|blob-event",
         "description": ""
       }
     ]
@@ -80,6 +80,21 @@
     "timeoutSeconds": 30,
     "fallbackOnTimeout": true,
     "storeEmbeddingsIn": "pinecone|weaviate|pgvector|opensearch|none"
+  },
+
+  "idp": {
+    "enabled": false,
+    "actionId": "",
+    "actionVersionId": "",
+    "orgId": "",
+    "documentSource": "http-multipart|s3|sftp|email",
+    "outputEntity": "",
+    "pollingIntervalSeconds": 3,
+    "pollingMaxAttempts": 10,
+    "manualReviewQueue": "",
+    "supportedMimeTypes": ["application/pdf", "image/png", "image/jpeg", "image/tiff"],
+    "multiActionRouting": false,
+    "actionRoutes": []
   },
 
   "observability": {
@@ -149,6 +164,7 @@
     "generateScheduler": false,
     "generateWatermark": false,
     "generateFlowControl": false,
-    "generateInvalidMessageChannel": false
+    "generateInvalidMessageChannel": false,
+    "generateIdpFlow": false
   }
 }

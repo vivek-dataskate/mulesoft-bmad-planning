@@ -36,8 +36,11 @@ principles = [
   # --- Q5: commons update ---
   "Q5: Ask — 'Does this need a commons update? Select all that apply:'\n  a) Playbook (which system?)\n  b) Scenario file (which pattern letter?)\n  c) Standards doc (MULESOFT_DESIGN_STANDARDS.md)\n  d) Commons DWL library (which function?)\n  e) None — FK entry is enough for now",
 
-  # --- Q6: promotion (only when appropriate) ---
-  "Q6 (only ask if status=verified AND the architect has given a clear fix in Q4): Ask — 'Do you want to mark this as promoted-to-standard now? That means I will identify exactly what needs to change in the target file and draft it.' If yes, identify the target file and draft the specific change before writing anything.",
+  # --- Q6: autoWarning check ---
+  "Q6: Ask — 'Should this surface at intake time — should Scout warn the team the moment this system or keyword appears in scoping notes?' If yes: ask 'What trigger keyword?' and 'High or medium severity?'. Then add an entry to standards/intake-checklist.json autoWarnings[] — id, trigger, warning (one sentence fix from Q4), severity. This ensures the next project with this system gets warned before architecture starts.",
+
+  # --- Q7: promotion (only when appropriate) ---
+  "Q7 (only ask if status=verified AND the architect has given a clear fix in Q4): Ask — 'Do you want to mark this as promoted-to-standard now? That means I will identify exactly what needs to change in the target file and draft it.' If yes, identify the target file and draft the specific change before writing anything.",
 
   # --- Status rules ---
   "Status rules:\n  observation: Times=1, or fix is unknown. Agents flag if situation matches — do not auto-apply.\n  verified: Times≥2 across multiple engagements. Agents apply as active guidance — takes precedence over scenario file defaults.\n  promoted-to-standard: architect explicitly confirms. Update the target file. Keep FK entry with status=promoted-to-standard for traceability.",
@@ -62,6 +65,90 @@ principles = [
 ]
 
 [[agent.menu]]
+code = "CO"
+description = "Close-out — comprehensive post-delivery interview; updates FK entries, playbooks, intake-checklist, and connector-registry from what was registered during scoping and architecture"
+prompt = """
+Run the project close-out interview for the specified client.
+
+PRE-FLIGHT — read all of these before asking a single question:
+1. projects/{client}/intake/intake-questionnaire.md — extract every INTERNAL FLAG (FLAG-1, FLAG-2, ...) verbatim.
+2. projects/{client}/architecture.md — extract every Open Item from every flow section verbatim.
+3. projects/{client}/decisions.json — extract systems.connectors[] and flows[].
+4. projects/{client}/stories.md — list every story and its acceptance criteria. These are what the developer actually built — use them to frame questions (e.g. "Story X required Y — did that work as written?").
+5. projects/{client}/prd.md — extract use case names and directions.
+6. commons/playbooks/*/PLAYBOOK.md — note which systems had existing playbooks going in and what was known.
+7. standards/connector-registry.json — note auth type and lastVerified for each system.
+8. standards/intake-checklist.json — note which systems already have autoWarning entries.
+9. docs/FIELD_KNOWLEDGE.md — note which FK entries were flagged as relevant to this project.
+
+After reading, summarise to yourself: {N} systems, {N} internal flags, {N} open items, {N} stories. Then begin the interview.
+
+Build a MASTER QUESTION LIST before starting the interview. The list must include:
+
+  BLOCK A — Per system (one block per system in decisions.json):
+  For each system:
+  A1. Did the {system} authentication work exactly as documented ({auth type} from registry)? Any surprises — token expiry behaviour, scope issues, sandbox vs prod differences?
+  A2. Were any connector operations missing or broken? (e.g. PATCH not supported, bulk endpoint unavailable, rate limits lower than expected)
+  A3. Did the DWL field mappings in architecture.md match reality? Any fields that were missing, renamed, typed differently, or required but undocumented?
+  A4. Any pagination or volume behaviour not captured — cursor vs offset, max page size, throttling?
+  A5. Was there an existing playbook for this system? If yes — was the playbook accurate, or did it need corrections? If no — enough is now known to create one?
+
+  BLOCK B — Per internal flag from intake (one question per FLAG-N):
+  "FLAG-N said: [{exact flag text}]. Was this resolved? What was the actual outcome?"
+
+  BLOCK C — Per open item from architecture.md (one question per open item):
+  "Open item in {flow}: [{exact open item text}]. What was the resolution or final decision?"
+
+  BLOCK D — Pattern and cross-cutting:
+  D1. Did any flow require a different integration pattern than decisions.json specified? Which flow, what changed, and why?
+  D2. Did idempotency work as designed, or were duplicate events a problem in any flow?
+  D3. Did error handling and DLQ routing behave as designed? Any flows that required a different retry strategy?
+  D4. Were there any Semantic Dissonance issues not captured in architecture.md — field name collisions or concepts that meant different things in different systems?
+  D5. Was the scaffold profile ({scaffold.profile from decisions.json}) correct, or did security or availability requirements shift during delivery?
+
+  BLOCK E — Commons gaps:
+  E1. Were any DWL transforms or sub-flows written that should be promoted to commons/playbooks/?
+  E2. Were any reusable patterns discovered that should become a new scenario file?
+  E3. Any connector quirks that should immediately warn the next project at intake time?
+
+Ask one question at a time. Work through BLOCK A for all systems, then BLOCK B, then BLOCK C, then BLOCK D, then BLOCK E.
+If the architect says "nothing to note" or "as expected" for a question — move on immediately. Do not dwell.
+If an answer reveals something significant — ask one follow-up to get the specific fix or workaround, then move on.
+
+AFTER all blocks are complete — run the commons update in this order, reporting each step:
+
+STEP 1 — FIELD_KNOWLEDGE.md
+For every surprising or non-obvious answer from the interview:
+- Check if an existing FK entry covers it. If yes: update Times, Last Seen, re-evaluate status.
+- If new: mint FK-NNN, write index row + full detail section.
+- Update *Last updated* line.
+
+STEP 2 — commons/playbooks/
+For every system in BLOCK A:
+- If no playbook existed: create commons/playbooks/{slug}/PLAYBOOK.md with everything learned — auth type confirmed, quirks from A1-A4, object types touched, skeleton objects/ and system/ directories.
+- If playbook existed: update PLAYBOOK.md — correct any inaccurate sections, add new quirks, update maturity (observation → verified if this is second engagement), update "Clients using this playbook" count.
+- If new DWL mappings or system XML were written during delivery: add them to objects/ and system/ in the playbook.
+
+STEP 3 — standards/intake-checklist.json autoWarnings
+For every system:
+- If no autoWarning entry: add one — trigger keyword, one-sentence warning from the most critical gotcha found, severity (high if it's a blocker, medium otherwise).
+- If entry exists but a more specific or severe gotcha was found: update the warning text.
+
+STEP 4 — standards/connector-registry.json
+For every system:
+- Update lastVerified to today.
+- If auth type, version, or notes changed from what was in the registry: update the entry.
+- If a new connector was used that was not in the registry: add a full entry.
+
+STEP 5 — Commit
+Suggest a single commit message covering all changes:
+  "close-out({client}): Update FK entries, playbooks, intake-checklist, and connector-registry"
+Print the list of files changed and ask the architect to confirm before committing.
+
+Which client are we closing out?
+"""
+
+[[agent.menu]]
 code = "DK"
 description = "Debrief — capture a new field knowledge observation, or update/promote an existing one"
 prompt = """
@@ -73,7 +160,7 @@ Do not explain the process or greet the user — ask Q1 immediately.
 Ask each question one at a time. Wait for the answer before proceeding.
 
 Flow:
-  Q1 → Q2 → [match check against existing FKs] → Q3 → Q4 → Q5 → Q6 (if appropriate)
+  Q1 → Q2 → [match check against existing FKs] → Q3 → Q4 → Q5 → Q6 → Q7 (if appropriate)
 
 After all answers are collected:
   - If new FK: write the index row and full detail section into docs/FIELD_KNOWLEDGE.md
