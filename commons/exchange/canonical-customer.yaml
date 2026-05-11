@@ -1,0 +1,114 @@
+title: Canonical Customer
+version: "1.0.0"
+description: |
+  Canonical customer/account entity schema across all client integrations.
+  Maps from: Salesforce Account, NetSuite Customer, Dynamics 365 Account, HubSpot Company.
+  Maps to: any target CRM, ERP, or service system.
+
+type: object
+required:
+  - customerId
+  - name
+  - status
+  - timestamps
+
+properties:
+  customerId:
+    type: string
+    description: Canonical customer identifier
+    example: "ACCT-001234"
+
+  externalIds:
+    type: object
+    description: Source system identifiers
+    properties:
+      salesforceAccountId: { type: string, example: "0010000001234" }
+      netsuiteInternalId:  { type: string, example: "5678" }
+      erpCustomerNumber:   { type: string, example: "CUST-0001" }
+      hubspotCompanyId:    { type: string, example: "12345678" }
+
+  name:
+    type: string
+    description: Legal entity name
+    example: "Acme Corp"
+
+  type:
+    type: string
+    enum: [PROSPECT, CUSTOMER, PARTNER, RESELLER, INTERNAL]
+
+  status:
+    type: string
+    enum: [ACTIVE, INACTIVE, SUSPENDED, CHURNED]
+
+  segment:
+    type: string
+    enum: [ENTERPRISE, MID_MARKET, SMB, STARTUP]
+    description: Customer tier for routing and prioritisation
+
+  industry:
+    type: string
+    description: SIC/NAICS industry classification or free text
+
+  contacts:
+    type: array
+    items:
+      $ref: '#/Contact'
+
+  addresses:
+    type: object
+    properties:
+      billing:  { $ref: '#/Address' }
+      shipping: { $ref: '#/Address' }
+      hq:       { $ref: '#/Address' }
+
+  financial:
+    $ref: '#/CustomerFinancial'
+
+  relationships:
+    type: object
+    properties:
+      parentCustomerId: { type: string, description: "Parent account for hierarchies" }
+      ownerId:          { type: string, description: "Canonical owner/rep identifier" }
+      accountManagerId: { type: string }
+
+  timestamps:
+    $ref: '#/Timestamps'
+
+Contact:
+  type: object
+  properties:
+    contactId:   { type: string }
+    firstName:   { type: string }
+    lastName:    { type: string }
+    title:       { type: string }
+    email:       { type: string, format: email }
+    phone:       { type: string }
+    isPrimary:   { type: boolean }
+    role:        { type: string, enum: [BILLING, TECHNICAL, EXECUTIVE, PURCHASING, OTHER] }
+
+CustomerFinancial:
+  type: object
+  properties:
+    creditLimit:    { type: number }
+    paymentTerms:   { type: string, example: "NET30" }
+    currency:       { type: string, pattern: "^[A-Z]{3}$" }
+    taxExempt:      { type: boolean }
+    taxId:          { type: string }
+    annualRevenue:  { type: number }
+
+Address:
+  type: object
+  properties:
+    line1:      { type: string }
+    line2:      { type: string }
+    city:       { type: string }
+    state:      { type: string }
+    postalCode: { type: string }
+    country:    { type: string, pattern: "^[A-Z]{2}$" }
+
+Timestamps:
+  type: object
+  properties:
+    createdAt:   { type: string, format: date-time }
+    updatedAt:   { type: string, format: date-time }
+    lastOrderAt: { type: string, format: date-time }

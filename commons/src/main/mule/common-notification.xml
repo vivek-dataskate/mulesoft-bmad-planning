@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    common-notification.xml — fire-and-forget notification dispatch.
+
+    All notifications are async and wrapped in on-error-continue.
+    A notification failure NEVER breaks the primary flow or error handler.
+
+    Supported channels (configured per project in properties):
+      Slack:  HTTP POST to incoming webhook URL (no Slack connector needed)
+      Email:  SMTP via mule-email-connector
+
+    REQUIRED properties (src/main/resources/properties/{env}.yaml):
+      notifications.slack.webhook.url   — blank to disable Slack
+      notifications.slack.channel       — e.g. #ops-alerts
+      notifications.email.to            — blank to disable email
+      notifications.email.from          — sender address
+      notifications.email.subject.prefix — e.g. "[ALERT][{env}]"
+
+    Notification payload contract (set vars.notificationPayload before calling):
+      {
+        level:   "ERROR" | "WARN" | "INFO",
+        title:   "Short alert title",
+        message: "Detailed message",
+        correlationId: "...",
+        environment:   "..."
+      }
+    If vars.notificationPayload is not set, the sub-flow builds a default message from the error object.
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/email
+          http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <!-- Shared HTTP config for Slack webhook (no auth — URL is the secret) -->
+    <http:request-config name="Commons_Slack_Config" doc:name="Commons Slack Webhook Config">
+        <http:request-connection host="hooks.slack.com" port="443" protocol="HTTPS"/>
+    </http:request-config>
+
+    <!-- Shared email config — client project must define email.smtp.* properties -->
+    <email:smtp-config name="Commons_Email_Config" doc:name="Commons Email Config">
+        <email:smtp-connection
+            host="${email.smtp.host}"
+            port="${email.smtp.port}"
+            user="${email.smtp.user}"
+            password="${email.smtp.password}"
+            tlsEnabled="true"/>
+    </email:smtp-config>
+
+    <!--
+        common-dispatch-notification-subflow
+        Entry point: sends to all enabled channels in parallel.
+        Caller sets vars.notificationPayload (see contract above) or leaves unset for auto-build.
+    -->
+    <sub-flow name="common-dispatch-notification-subflow">
+
+        <!-- Build notification payload if not already set by caller -->
+        <set-variable
+            variableName="notificationPayload"
+            value="#[
+                if (vars.notificationPayload != null) vars.notificationPayload
+                else {
+                    level:         'ERROR',
+                    title:         'Integration Alert — ' ++ flow.name,
+                    message:       error.description default 'See correlationId for details',
+                    correlationId: correlationId,
+                    environment:   p('mule.env')
+                }
+            ]"
+            doc:name="Build Notification Payload"/>
+
+        <!-- Parallel dispatch — each channel isolated; one channel failure does not block others -->
+        <scatter-gather doc:name="Dispatch to All Channels">
+            <route>
+                <flow-ref name="common-send-slack-notification-subflow" doc:name="Slack"/>
+            </route>
+            <route>
+                <flow-ref name="common-send-email-notification-subflow" doc:name="Email"/>
+            </route>
+        </scatter-gather>
+
+        <logger
+            level="INFO"
+            message='#["[NOTIFY_SENT] correlationId=" ++ correlationId ++ " level=" ++ vars.notificationPayload.level]'
+            doc:name="Log Notification Dispatched"/>
+
+    </sub-flow>
+
+    <!--
+        common-send-slack-notification-subflow
+        Sends Slack block kit message to webhook URL.
+        Skips silently if notifications.slack.webhook.url is blank.
+    -->
+    <sub-flow name="common-send-slack-notification-subflow">
+
+        <choice doc:name="Slack Enabled?">
+            <when expression="#[p('notifications.slack.webhook.url') != '' and p('notifications.slack.webhook.url') != null]">
+
+                <ee:transform doc:name="Build Slack Block Kit Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var n = vars.notificationPayload
+var emoji = if (n.level == "ERROR") ":red_circle:" else if (n.level == "WARN") ":warning:" else ":white_check_mark:"
+---
+{
+    channel: p("notifications.slack.channel"),
+    blocks: [
+        {
+            "type": "header",
+            "text": { "type": "plain_text", "text": emoji ++ " " ++ n.title }
+        },
+        {
+            "type": "section",
+            "fields": [
+                { "type": "mrkdwn", "text": "*Environment:*\n" ++ n.environment },
+                { "type": "mrkdwn", "text": "*Level:*\n" ++ n.level },
+                { "type": "mrkdwn", "text": "*CorrelationId:*\n`" ++ n.correlationId ++ "`" },
+                { "type": "mrkdwn", "text": "*Time:*\n" ++ (now() as String { format: "HH:mm:ss z" }) }
+            ]
+        },
+        {
+            "type": "section",
+            "text": { "type": "mrkdwn", "text": "*Message:*\n" ++ n.message }
+        }
+    ]
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <http:request
+                    config-ref="Commons_Slack_Config"
+                    method="POST"
+                    path="#['/services' ++ p('notifications.slack.webhook.url') splitBy('hooks.slack.com')[1] default p('notifications.slack.webhook.url')]"
+                    doc:name="POST to Slack Webhook">
+                    <http:body>#[output application/json --- payload]</http:body>
+                    <http:headers>
+                        #[{ "Content-Type": "application/json" }]
+                    </http:headers>
+                </http:request>
+
+            </when>
+            <otherwise>
+                <logger level="DEBUG" message="[NOTIFY] Slack disabled — skipping" doc:name="Slack Disabled"/>
+            </otherwise>
+        </choice>
+
+    </sub-flow>
+
+    <!--
+        common-send-email-notification-subflow
+        Sends SMTP email alert.
+        Skips silently if notifications.email.to is blank.
+    -->
+    <sub-flow name="common-send-email-notification-subflow">
+
+        <choice doc:name="Email Enabled?">
+            <when expression="#[p('notifications.email.to') != '' and p('notifications.email.to') != null]">
+
+                <ee:transform doc:name="Build Email Body">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output text/plain
+var n = vars.notificationPayload
+---
+"Integration Alert — " ++ n.title ++ "\n\n"
+++ "Level:         " ++ n.level ++ "\n"
+++ "Environment:   " ++ n.environment ++ "\n"
+++ "CorrelationId: " ++ n.correlationId ++ "\n"
+++ "Timestamp:     " ++ (now() as String { format: "yyyy-MM-dd HH:mm:ss z" }) ++ "\n\n"
+++ "Message:\n" ++ n.message ++ "\n\n"
+++ "---\nThis is an automated alert from the MuleSoft integration platform."]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <email:send
+                    config-ref="Commons_Email_Config"
+                    doc:name="Send Email Alert">
+                    <email:to-addresses>
+                        <email:to-address value="${notifications.email.to}"/>
+                    </email:to-addresses>
+                    <email:body>
+                        <email:content>#[payload]</email:content>
+                        <email:contentType>text/plain</email:contentType>
+                    </email:body>
+                    <email:subject>#[p('notifications.email.subject.prefix') ++ ' ' ++ vars.notificationPayload.title]</email:subject>
+                    <email:from-address>${notifications.email.from}</email:from-address>
+                </email:send>
+
+            </when>
+            <otherwise>
+                <logger level="DEBUG" message="[NOTIFY] Email disabled — skipping" doc:name="Email Disabled"/>
+            </otherwise>
+        </choice>
+
+    </sub-flow>
+
+</mule>

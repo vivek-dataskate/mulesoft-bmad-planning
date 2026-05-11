@@ -1,0 +1,234 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "description": "Master registry of all reusable code assets across clients. Three tiers: injectable snippets, commons library sub-flows, and Anypoint Exchange fragments.",
+    "lastUpdated": "2026-05-11",
+    "maintainer": "BMAD Architect Agent",
+    "tiers": {
+      "1": "Inline XML/DWL snippets injected by scaffold/generate.js at generation time",
+      "2": "Sub-flows and DWL functions in commons/ (mule-plugin, published to Exchange)",
+      "3": "Canonical API schemas and RAML/OAS fragments published to Anypoint Exchange"
+    },
+    "usageRule": "When adding a new client capability: check this registry first. If present, reference it. If absent, add it here before adding to the client project — this registry is the only path for capabilities."
+  },
+
+  "tier1_snippets": {
+    "idempotency-check": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/idempotency-check.xml",
+      "description": "Object Store deduplication check; ACKs and skips duplicate MQ/Kafka messages",
+      "injectOn": ["mq-subscriber", "kafka-listener", "platform-event", "cdc"],
+      "patterns": ["B", "F", "L", "M", "S"],
+      "autoInject": true,
+      "version": "1.1.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "wire-tap": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/wire-tap.xml",
+      "description": "Async audit copy of every message into a separate audit queue; zero impact on primary flow latency",
+      "injectOn": "decisions.wireTap.enabled=true",
+      "patterns": ["all"],
+      "autoInject": true,
+      "version": "1.1.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "invalid-message-channel-route": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/invalid-message-channel-route.xml",
+      "description": "Routes structurally invalid messages to IMC queue BEFORE downstream calls; never retried",
+      "injectOn": "decisions.errorHandling.invalidMessageChannel=true",
+      "patterns": ["all-async"],
+      "autoInject": true,
+      "version": "1.1.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "claim-check-store": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/claim-check-store.xml",
+      "description": "Write payload to S3; replace with claim check token for payloads > 1MB",
+      "injectOn": "payload > 1MB indicated in prd.md",
+      "patterns": ["all-async"],
+      "autoInject": false,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "claim-check-retrieve": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/claim-check-retrieve.xml",
+      "description": "Retrieve full payload from S3 using claim check token; delete after processing",
+      "injectOn": "paired with claim-check-store",
+      "patterns": ["all-async"],
+      "autoInject": false,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "correlation-id-propagate": {
+      "type": "xml-snippet",
+      "file": "scaffold/xml-templates/snippets/correlation-id-propagate.xml",
+      "description": "Set X-Correlation-ID header on every outbound HTTP call",
+      "injectOn": "any outbound HTTP request",
+      "patterns": ["all"],
+      "autoInject": true,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    }
+  },
+
+  "tier2_commons": {
+    "common-route-to-dlq": {
+      "type": "mule-subflow",
+      "commonsFile": "commons/src/main/mule/common-error-handler.xml",
+      "flowName": "common-route-to-dlq-subflow",
+      "description": "Publishes failed message to DLQ with full error envelope; logs at ERROR level",
+      "injectOn": "on-error-continue CONNECTIVITY,TIMEOUT in Global_Error_Handler",
+      "patterns": ["all-async"],
+      "autoInject": true,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "common-build-error-response": {
+      "type": "mule-subflow",
+      "commonsFile": "commons/src/main/mule/common-error-handler.xml",
+      "flowName": "common-build-error-response-subflow",
+      "description": "Builds standard HTTP error JSON envelope; sets vars.httpStatus=500; never exposes stack trace",
+      "injectOn": "on-error-continue default handler in Global_Error_Handler",
+      "patterns": ["request-reply", "api-aggregation", "process-orchestration"],
+      "autoInject": true,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "common-retry-with-backoff": {
+      "type": "mule-subflow",
+      "commonsFile": "commons/src/main/mule/common-retry.xml",
+      "flowName": "common-retry-with-backoff-subflow",
+      "description": "Exponential backoff retry loop using Object Store for state; publishes to retry queue after each failure; routes to DLQ after maxRetries",
+      "injectOn": "all async consumer flows where errorHandling.strategy=retry-then-dlq",
+      "patterns": ["B", "F", "L", "M", "S"],
+      "autoInject": true,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "common-dispatch-notification": {
+      "type": "mule-subflow",
+      "commonsFile": "commons/src/main/mule/common-notification.xml",
+      "flowName": "common-dispatch-notification-subflow",
+      "description": "Fire-and-forget notification dispatch: Slack webhook + SMTP email. Reads enabled channels from properties. Failure never breaks primary flow.",
+      "injectOn": "decisions.notifications.slack=true OR decisions.notifications.email=true",
+      "patterns": ["all"],
+      "autoInject": true,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "common-batch-on-complete": {
+      "type": "mule-subflow",
+      "commonsFile": "commons/src/main/mule/common-batch.xml",
+      "flowName": "common-batch-on-complete-subflow",
+      "description": "Batch job on-complete handler: logs success/failure counts, publishes summary to notification channel, stores watermark on success",
+      "injectOn": "patterns C, K (batch scope)",
+      "patterns": ["C", "K"],
+      "autoInject": true,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "common-generate-correlation-id": {
+      "type": "mule-subflow",
+      "commonsFile": "commons/src/main/mule/common-correlation.xml",
+      "flowName": "common-generate-correlation-id-subflow",
+      "description": "Generates UUID v4 correlationId; sets as Mule correlationId (not a variable); propagates X-Correlation-ID on all outbound calls",
+      "injectOn": "all Experience API entry flows (HTTP listener only)",
+      "patterns": ["request-reply", "api-aggregation", "webhook-ingestion", "process-orchestration"],
+      "autoInject": true,
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    }
+  },
+
+  "tier2_dwl": {
+    "error-envelope": {
+      "type": "dwl-module",
+      "commonsFile": "commons/src/main/resources/dwl/error-envelope.dwl",
+      "importAs": "import buildEnvelope from \"dwl/error-envelope.dwl\"",
+      "description": "Builds standard error envelope: {correlationId, errorCode, message, timestamp, failingComponent}. Never exposes stack trace.",
+      "usedIn": ["error-handler.xml", "any on-error handler"],
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "pii-mask": {
+      "type": "dwl-module",
+      "commonsFile": "commons/src/main/resources/dwl/pii-mask.dwl",
+      "importAs": "import maskPayload from \"dwl/pii-mask.dwl\"",
+      "description": "Field-level PII masking: email → first 3 chars + ***@***.com, phone → ***-***-NNNN, SSN → ***-**-NNNN, card → ****-****-****-NNNN",
+      "usedIn": ["all log statements", "wire-tap", "audit-trail"],
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "canonical-date": {
+      "type": "dwl-module",
+      "commonsFile": "commons/src/main/resources/dwl/canonical-date.dwl",
+      "importAs": "import toISODate, toEpochMs, fromEpochMs from \"dwl/canonical-date.dwl\"",
+      "description": "Normalises any date string (ISO 8601, US M/d/yyyy, epoch ms, yyyyMMdd) to canonical ISO date or epoch ms. Handles null safely.",
+      "usedIn": ["all DataWeave transforms involving date fields"],
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "build-audit-record": {
+      "type": "dwl-module",
+      "commonsFile": "commons/src/main/resources/dwl/build-audit-record.dwl",
+      "importAs": "import buildAuditRecord from \"dwl/build-audit-record.dwl\"",
+      "description": "Builds a tamper-evident audit log record: {auditId, correlationId, timestamp, environment, actor, action, resource, result, maskedPayload}",
+      "usedIn": ["audit-trail-flows.xml", "regulated profile"],
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    }
+  },
+
+  "tier3_exchange": {
+    "canonical-order": {
+      "type": "oas-fragment",
+      "exchangeAssetId": "canonical-order-fragment",
+      "localFile": "commons/exchange/canonical-order.yaml",
+      "description": "Canonical order entity schema: orderId, customerId, lines[], status, totals, fulfillment, timestamps",
+      "refAs": "$ref: 'exchange_modules/{{ORG_ID}}/canonical-order-fragment/1.0.0/canonical-order.yaml'",
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "canonical-customer": {
+      "type": "oas-fragment",
+      "exchangeAssetId": "canonical-customer-fragment",
+      "localFile": "commons/exchange/canonical-customer.yaml",
+      "description": "Canonical customer entity schema: customerId, name, addresses[], contacts[], segment, status",
+      "refAs": "$ref: 'exchange_modules/{{ORG_ID}}/canonical-customer-fragment/1.0.0/canonical-customer.yaml'",
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    },
+    "canonical-invoice": {
+      "type": "oas-fragment",
+      "exchangeAssetId": "canonical-invoice-fragment",
+      "localFile": "commons/exchange/canonical-invoice.yaml",
+      "description": "Canonical invoice entity schema: invoiceId, orderId, customerId, lines[], totals, paymentStatus, dueDate",
+      "refAs": "$ref: 'exchange_modules/{{ORG_ID}}/canonical-invoice-fragment/1.0.0/canonical-invoice.yaml'",
+      "version": "1.0.0",
+      "lastVerified": "2026-05-11",
+      "usedBy": []
+    }
+  }
+}

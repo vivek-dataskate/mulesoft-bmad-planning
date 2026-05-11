@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    sf-query.xml — Generic Salesforce SOQL paginator (cursor-based).
+
+    Executes a SOQL query with cursor pagination and collects all records
+    into vars.sfQueryResults. Handles Salesforce's nextRecordsUrl cursor.
+
+    CRITICAL: Do NOT use OFFSET in SOQL for bulk queries.
+    OFFSET breaks silently for result sets >2,000 records. Use cursor pagination.
+    Salesforce cursor: if payload.done=false, payload.nextRecordsUrl contains
+    the path for the next page. Follow it until done=true.
+
+    USAGE:
+      1. Call sf-authenticate-subflow first to get vars.sfToken
+      2. Set vars.sfSOQL to your full SOQL query string
+      3. Call sf-query-subflow
+      4. Read all records from vars.sfQueryResults (Array)
+
+    Rate limiting:
+      Salesforce API limit: 15,000 calls/24h per org (varies by edition).
+      Each page = 1 API call. Default page size: 2,000 (Salesforce max).
+      For large orgs: consider Bulk API 2.0 instead (see PLAYBOOK.md).
+
+    REQUIRED PROPERTIES:
+      salesforce.instance.url   — e.g. https://yourorg.my.salesforce.com
+      salesforce.api.version    — e.g. v58.0
+
+    RECOMMENDED: Pin the API version in properties. Salesforce retires old versions.
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <http:request-config name="SF_Query_Config" doc:name="Salesforce Query Config">
+        <http:request-connection
+            host="#[p('salesforce.instance.url') replace 'https://' with '' splitBy '/' [0]]"
+            port="443"
+            protocol="HTTPS"/>
+    </http:request-config>
+
+    <!--
+        sf-query-subflow
+        Executes SOQL and accumulates all pages into vars.sfQueryResults.
+
+        Inputs  (vars):
+          sfToken        — Bearer token from sf-authenticate-subflow
+          sfSOQL         — Full SOQL query string
+
+        Outputs (vars):
+          sfQueryResults — Array of all matching records (all pages merged)
+          sfQueryTotal   — totalSize reported by Salesforce (for verification)
+    -->
+    <sub-flow name="sf-query-subflow" doc:name="Salesforce SOQL Paginator">
+
+        <!-- Initialize state -->
+        <ee:transform doc:name="Init Query State">
+            <ee:variables>
+                <ee:set-variable variableName="sfQueryResults">[]</ee:set-variable>
+                <ee:set-variable variableName="sfQueryTotal">0</ee:set-variable>
+                <ee:set-variable variableName="sfQueryNextUrl">
+                    #['/services/data/' ++ p('salesforce.api.version') ++ '/query/?q=' ++ (vars.sfSOQL as String {encoding: "URI"})]
+                </ee:set-variable>
+                <ee:set-variable variableName="sfQueryDone">false</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <!-- Fetch first page to kick off pagination loop -->
+        <flow-ref name="sf-query-page-subflow" doc:name="Fetch All Pages"/>
+
+    </sub-flow>
+
+    <!--
+        sf-query-page-subflow
+        Fetches one page and recurses via nextRecordsUrl until done=true.
+        Internal — not intended for direct use outside this file.
+    -->
+    <sub-flow name="sf-query-page-subflow" doc:name="Salesforce SOQL Single Page">
+
+        <choice doc:name="More Pages?">
+            <when expression="#[not vars.sfQueryDone]">
+
+                <http:request
+                    config-ref="SF_Query_Config"
+                    method="GET"
+                    path="#[vars.sfQueryNextUrl]"
+                    doc:name="SOQL Query GET">
+                    <http:headers>
+                        <http:header key="Authorization" value="#['Bearer ' ++ vars.sfToken]"/>
+                    </http:headers>
+                    <http:response-validator>
+                        <http:success-status-code-validator values="200"/>
+                    </http:response-validator>
+                </http:request>
+
+                <ee:transform doc:name="Accumulate Page Results">
+                    <ee:variables>
+                        <ee:set-variable variableName="sfQueryResults"><![CDATA[%dw 2.0
+output application/java
+---
+vars.sfQueryResults ++ (payload.records default [])]]></ee:set-variable>
+                        <ee:set-variable variableName="sfQueryTotal">#[payload.totalSize default vars.sfQueryTotal]</ee:set-variable>
+                        <ee:set-variable variableName="sfQueryDone">#[payload.done default true]</ee:set-variable>
+                        <ee:set-variable variableName="sfQueryNextUrl">#[payload.nextRecordsUrl default null]</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+
+                <logger level="DEBUG"
+                    message='#["[SF_QUERY] Page fetched — records=" ++ sizeOf(payload.records default []) ++ " total=" ++ sizeOf(vars.sfQueryResults) ++ "/" ++ vars.sfQueryTotal ++ " done=" ++ vars.sfQueryDone]'/>
+
+                <!-- Recurse for next page using cursor URL -->
+                <flow-ref name="sf-query-page-subflow" doc:name="Next Page"/>
+
+            </when>
+            <otherwise>
+                <!-- done=true — all pages fetched -->
+                <logger level="INFO"
+                    message='#["[SF_QUERY] Complete — total records=" ++ sizeOf(vars.sfQueryResults) ++ " (SF reported " ++ vars.sfQueryTotal ++ ")"]'/>
+            </otherwise>
+        </choice>
+
+    </sub-flow>
+
+</mule>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    common-error-handler.xml — shared error handling sub-flows.
+
+    These sub-flows are called from every generated client project's
+    Global_Error_Handler (in src/main/mule/error-handler.xml).
+
+    Client error-handler.xml pattern:
+      <error-handler name="Global_Error_Handler">
+        <on-error-continue type="CONNECTIVITY, TIMEOUT, ...">
+          <flow-ref name="common-route-to-dlq-subflow"/>
+          <flow-ref name="common-dispatch-error-notification-subflow"/>
+        </on-error-continue>
+        <on-error-continue>
+          <flow-ref name="common-build-error-response-subflow"/>
+        </on-error-continue>
+      </error-handler>
+
+    REQUIRED client properties (src/main/resources/properties/{env}.yaml):
+      mq.queue.dlq          — DLQ queue name
+      notifications.slack.webhook.url  — Slack incoming webhook (or leave blank to skip)
+      notifications.email.to           — alert recipient email (or leave blank to skip)
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/anypoint-mq
+          http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <!--
+        common-route-to-dlq-subflow
+        Builds a standard error envelope, publishes to DLQ, logs at ERROR.
+        Called from on-error-continue handlers for CONNECTIVITY / TIMEOUT errors.
+        Pre-condition: error object is available (called from within an error handler).
+    -->
+    <sub-flow name="common-route-to-dlq-subflow">
+
+        <logger
+            level="ERROR"
+            message='#["[DLQ_ROUTE] correlationId=" ++ correlationId ++ " | failingFlow=" ++ flow.name ++ " | errorType=" ++ error.errorType.identifier ++ " | error=" ++ error.description]'
+            doc:name="Log DLQ Route"/>
+
+        <ee:transform doc:name="Build DLQ Error Envelope">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:    correlationId,
+    errorCode:        error.errorType.identifier,
+    message:          error.description,
+    timestamp:        now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    failingComponent: flow.name,
+    environment:      p("mule.env"),
+    // originalPayload intentionally omitted — reconstruct from upstream system if needed
+    // Add any additional context fields here (they survive in the DLQ message)
+    retryCount:       (vars.retryCount default 0) as Number
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <anypoint-mq:publish
+            config-ref="Anypoint_MQ_Config"
+            destination="${mq.queue.dlq}"
+            messageId="#[correlationId ++ '-dlq-' ++ (now() as Number as String)]"
+            doc:name="Publish to DLQ">
+            <anypoint-mq:body>#[output application/json --- payload]</anypoint-mq:body>
+        </anypoint-mq:publish>
+
+    </sub-flow>
+
+    <!--
+        common-build-error-response-subflow
+        Builds a standard HTTP error JSON response for synchronous flows.
+        Sets vars.httpStatus = 500 (caller may override for specific error types).
+        Never exposes Java stack traces or internal system details.
+    -->
+    <sub-flow name="common-build-error-response-subflow">
+
+        <set-variable
+            variableName="httpStatus"
+            value="#[
+                error.errorType.identifier == 'HTTP:UNAUTHORIZED'  ? 401 :
+                error.errorType.identifier == 'HTTP:FORBIDDEN'     ? 403 :
+                error.errorType.identifier == 'HTTP:NOT_FOUND'     ? 404 :
+                error.errorType.identifier == 'VALIDATION:INVALID' ? 400 :
+                500
+            ]"
+            doc:name="Set HTTP Status"/>
+
+        <ee:transform doc:name="Build Error Response Envelope">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:    correlationId,
+    errorCode:        error.errorType.identifier,
+    message:          (
+        // Return safe user-facing messages for known error types
+        if (error.errorType.identifier contains "UNAUTHORIZED")  "Authentication required."
+        else if (error.errorType.identifier contains "FORBIDDEN")  "Access denied."
+        else if (error.errorType.identifier contains "NOT_FOUND")  "Resource not found."
+        else if (error.errorType.identifier contains "VALIDATION") error.description
+        else "An unexpected error occurred. Contact support with correlationId."
+    ),
+    timestamp:        now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" },
+    failingComponent: flow.name
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger
+            level="ERROR"
+            message='#["[ERROR_RESPONSE] status=" ++ (vars.httpStatus as String) ++ " correlationId=" ++ correlationId ++ " errorType=" ++ error.errorType.identifier]'
+            doc:name="Log Error Response"/>
+
+    </sub-flow>
+
+    <!--
+        common-dispatch-error-notification-subflow
+        Sends Slack + email alert when a message is routed to DLQ.
+        Wrapped in async+on-error-continue: notification failure NEVER breaks error handling.
+        Reads notification config from properties — blank value = channel disabled.
+    -->
+    <sub-flow name="common-dispatch-error-notification-subflow">
+
+        <async doc:name="Fire-and-Forget Notification">
+            <try>
+                <flow-ref name="common-dispatch-notification-subflow" doc:name="Send Notification"/>
+                <error-handler>
+                    <on-error-continue>
+                        <logger
+                            level="WARN"
+                            message='#["[NOTIFY_FAILED] Notification dispatch failed — correlationId=" ++ correlationId ++ " — continuing"]'
+                            doc:name="Log Notification Failure"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </async>
+
+    </sub-flow>
+
+</mule>

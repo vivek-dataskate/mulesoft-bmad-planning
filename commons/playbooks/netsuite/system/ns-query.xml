@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    ns-query.xml — Generic SuiteQL paginator for any NetSuite record type.
+
+    Executes a SuiteQL query with offset pagination and collects all pages
+    into vars.nsQueryResults. Handles the 1,000-record hard page limit and
+    NetSuite governance unit (GU) backoff on 429.
+
+    USAGE:
+      1. Call ns-authenticate-subflow first to get vars.nsToken
+      2. Set vars.nsSuiteQL to your query string (no OFFSET/LIMIT — this flow adds them)
+      3. Set vars.nsQueryPageSize (optional, defaults to 1000)
+      4. Call ns-query-subflow
+      5. Read all records from vars.nsQueryResults (Array)
+
+    Example:
+      <set-variable variableName="nsSuiteQL" value="SELECT id, companyName, email FROM customer WHERE isInactive = 'F'"/>
+      <flow-ref name="ns-query-subflow"/>
+      <!-- vars.nsQueryResults now contains all matching Customer records -->
+
+    GOVERNANCE:
+      NetSuite allocates ~1,000 governance units per 15-minute window (default).
+      SuiteQL costs ~5 GUs per call. Max safe rate: ~200 pages/15min.
+      This flow implements exponential backoff on 429 — wait, then retry the same page.
+
+    REQUIRED PROPERTIES:
+      netsuite.base.url   — https://{accountId}.suitetalk.api.netsuite.com/services/rest
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <http:request-config name="NS_Query_Config" doc:name="NetSuite SuiteQL Config">
+        <http:request-connection
+            host="#[p('netsuite.base.url') replace 'https://' with '' splitBy '/' [0]]"
+            port="443"
+            protocol="HTTPS"/>
+    </http:request-config>
+
+    <!--
+        ns-query-subflow
+        Paginates a SuiteQL query and accumulates results.
+
+        Inputs  (vars):
+          nsToken          — Bearer token from ns-authenticate-subflow
+          nsSuiteQL        — SuiteQL query string (no OFFSET/LIMIT)
+          nsQueryPageSize  — optional, defaults to 1000
+
+        Outputs (vars):
+          nsQueryResults   — Array of all matching records (all pages merged)
+    -->
+    <sub-flow name="ns-query-subflow" doc:name="NetSuite SuiteQL Paginator">
+
+        <!-- Initialize pagination state -->
+        <ee:transform doc:name="Init Pagination State">
+            <ee:variables>
+                <ee:set-variable variableName="nsQueryResults">[]</ee:set-variable>
+                <ee:set-variable variableName="nsQueryOffset">0</ee:set-variable>
+                <ee:set-variable variableName="nsQueryPageSize">#[vars.nsQueryPageSize default 1000]</ee:set-variable>
+                <ee:set-variable variableName="nsQueryHasMore">true</ee:set-variable>
+                <ee:set-variable variableName="nsQueryRetryCount">0</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <!-- Paginate until no more records -->
+        <foreach collection="#[[1]]" doc:name="Pagination Loop (while simulation)">
+            <!-- MuleSoft foreach doesn't support while loops; use recursive sub-flow -->
+            <flow-ref name="ns-query-page-subflow" doc:name="Fetch All Pages"/>
+        </foreach>
+
+    </sub-flow>
+
+    <!--
+        ns-query-page-subflow
+        Fetches one page of SuiteQL results and recurses until hasMore=false.
+        Internal — not intended for direct use outside this file.
+    -->
+    <sub-flow name="ns-query-page-subflow" doc:name="NetSuite SuiteQL Single Page">
+
+        <choice doc:name="More Pages?">
+            <when expression="#[vars.nsQueryHasMore]">
+
+                <!-- Fetch current page -->
+                <http:request
+                    config-ref="NS_Query_Config"
+                    method="POST"
+                    path="/services/rest/query/v1/suiteql"
+                    doc:name="SuiteQL POST">
+                    <http:headers>
+                        <http:header key="Authorization" value="#['Bearer ' ++ vars.nsToken]"/>
+                        <http:header key="Content-Type"  value="application/json"/>
+                        <http:header key="Prefer"        value="#['transient, respond-async=false, return=representation, maxpagesize=' ++ vars.nsQueryPageSize]"/>
+                    </http:headers>
+                    <http:query-params>
+                        <http:query-param key="limit"  value="#[vars.nsQueryPageSize]"/>
+                        <http:query-param key="offset" value="#[vars.nsQueryOffset]"/>
+                    </http:query-params>
+                    <http:body>
+                        #[output application/json --- { q: vars.nsSuiteQL }]
+                    </http:body>
+                    <!-- Do NOT use success-status-code-validator here — we handle 429 ourselves -->
+                </http:request>
+
+                <choice doc:name="Check HTTP Status">
+                    <when expression="#[attributes.statusCode == 429]">
+                        <!-- Governance unit exhausted — exponential backoff -->
+                        <ee:transform doc:name="Calculate Backoff">
+                            <ee:variables>
+                                <ee:set-variable variableName="nsQueryRetryCount">#[vars.nsQueryRetryCount + 1]</ee:set-variable>
+                                <ee:set-variable variableName="nsQueryBackoffMs">#[Math.min(2000 * (2 pow vars.nsQueryRetryCount), 60000)]</ee:set-variable>
+                            </ee:variables>
+                        </ee:transform>
+                        <logger level="WARN"
+                            message='#["[NS_QUERY] 429 GU exhausted — backoff " ++ vars.nsQueryBackoffMs ++ "ms (retry " ++ vars.nsQueryRetryCount ++ ")"]'/>
+                        <!-- Mule scheduler-safe wait: use until-successful with 1 attempt to pause -->
+                        <until-successful maxRetries="1" millisBetweenRetries="#[vars.nsQueryBackoffMs as Number]" doc:name="Backoff Wait">
+                            <raise-error type="NS:BACKOFF" description="intentional backoff"/>
+                        </until-successful>
+                        <flow-ref name="ns-query-page-subflow" doc:name="Retry Same Page"/>
+                    </when>
+                    <when expression="#[attributes.statusCode == 200]">
+                        <!-- Accumulate results and advance offset -->
+                        <ee:transform doc:name="Accumulate Page Results">
+                            <ee:variables>
+                                <ee:set-variable variableName="nsQueryResults"><![CDATA[%dw 2.0
+output application/java
+---
+vars.nsQueryResults ++ (payload.items default [])]]></ee:set-variable>
+                                <ee:set-variable variableName="nsQueryOffset">#[vars.nsQueryOffset + sizeOf(payload.items default [])]</ee:set-variable>
+                                <ee:set-variable variableName="nsQueryHasMore">#[(payload.hasMore default false) and (sizeOf(payload.items default []) > 0)]</ee:set-variable>
+                                <ee:set-variable variableName="nsQueryRetryCount">0</ee:set-variable>
+                            </ee:variables>
+                        </ee:transform>
+                        <logger level="DEBUG"
+                            message='#["[NS_QUERY] Page fetched — items=" ++ sizeOf(payload.items default []) ++ " total=" ++ sizeOf(vars.nsQueryResults) ++ " hasMore=" ++ vars.nsQueryHasMore]'/>
+                        <!-- Recurse for next page -->
+                        <flow-ref name="ns-query-page-subflow" doc:name="Next Page"/>
+                    </when>
+                    <otherwise>
+                        <raise-error type="NS:QUERY_FAILED"
+                            description="#['SuiteQL failed: HTTP ' ++ attributes.statusCode ++ ' — ' ++ (payload.o:error default payload as String)]"/>
+                    </otherwise>
+                </choice>
+
+            </when>
+            <otherwise>
+                <!-- hasMore=false — pagination complete -->
+                <logger level="INFO"
+                    message='#["[NS_QUERY] Complete — total records=" ++ sizeOf(vars.nsQueryResults)]'/>
+            </otherwise>
+        </choice>
+
+    </sub-flow>
+
+</mule>

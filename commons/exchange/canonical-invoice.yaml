@@ -1,0 +1,103 @@
+title: Canonical Invoice
+version: "1.0.0"
+description: |
+  Canonical invoice entity schema across all client integrations.
+  Maps from: NetSuite Invoice, QuickBooks Invoice, SAP Billing Document, Salesforce Invoice.
+  Primary flow: source ERP → canonical → target CRM (status sync) or AP system (payment).
+
+type: object
+required:
+  - invoiceId
+  - customerId
+  - status
+  - totals
+  - timestamps
+
+properties:
+  invoiceId:
+    type: string
+    example: "INV-2024-001234"
+
+  externalIds:
+    type: object
+    properties:
+      netsuiteInternalId:      { type: string }
+      netsuiteTransactionId:   { type: string }
+      salesforceInvoiceId:     { type: string }
+      quickbooksInvoiceId:     { type: string }
+      sapBillingDocumentId:    { type: string }
+      sourceOrderId:           { type: string, description: "The order that generated this invoice" }
+
+  customerId:
+    type: string
+    description: Links to canonical-customer
+
+  orderId:
+    type: string
+    description: Links to canonical-order (the originating order)
+
+  status:
+    type: string
+    enum: [DRAFT, OPEN, SENT, PARTIALLY_PAID, PAID, OVERDUE, VOID, WRITTEN_OFF]
+
+  paymentStatus:
+    type: string
+    enum: [UNPAID, PARTIAL, PAID, REFUNDED]
+
+  lines:
+    type: array
+    items:
+      $ref: '#/InvoiceLine'
+
+  totals:
+    $ref: '#/InvoiceTotals'
+
+  payment:
+    $ref: '#/PaymentInfo'
+
+  timestamps:
+    $ref: '#/Timestamps'
+
+InvoiceLine:
+  type: object
+  required: [lineId, description, quantity, unitPrice, lineTotal]
+  properties:
+    lineId:      { type: string }
+    productId:   { type: string }
+    description: { type: string }
+    quantity:    { type: number }
+    unitPrice:   { type: number }
+    discount:    { type: number }
+    lineTotal:   { type: number }
+    taxCode:     { type: string }
+    taxAmount:   { type: number }
+
+InvoiceTotals:
+  type: object
+  required: [subtotal, total, currency, amountDue]
+  properties:
+    subtotal:       { type: number }
+    discount:       { type: number }
+    tax:            { type: number }
+    total:          { type: number }
+    amountPaid:     { type: number }
+    amountDue:      { type: number }
+    currency:       { type: string, pattern: "^[A-Z]{3}$" }
+
+PaymentInfo:
+  type: object
+  properties:
+    terms:         { type: string, example: "NET30" }
+    dueDate:       { type: string, format: date }
+    paidDate:      { type: string, format: date }
+    paymentRef:    { type: string, description: "Check number, ACH trace, wire ref" }
+    paymentMethod: { type: string, enum: [CHECK, ACH, WIRE, CREDIT_CARD, CASH] }
+
+Timestamps:
+  type: object
+  properties:
+    createdAt:   { type: string, format: date-time }
+    updatedAt:   { type: string, format: date-time }
+    issuedAt:    { type: string, format: date-time }
+    dueAt:       { type: string, format: date-time }
+    paidAt:      { type: string, format: date-time }

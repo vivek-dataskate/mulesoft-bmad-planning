@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        mulesoft-commons — shared Mule plugin library.
+
+        This artifact is published to Anypoint Exchange as a mule-plugin.
+        All generated client projects depend on this artifact.
+
+        Version policy:
+          - PATCH bump: bug fix in existing sub-flow or DWL function
+          - MINOR bump: new sub-flow or DWL function added (backwards compatible)
+          - MAJOR bump: sub-flow renamed/removed or signature changed (requires client updates)
+
+        Before bumping version:
+          1. Update commons/src/main/mule/*.xml and/or dwl/*.dwl
+          2. Run: mvn test (from this folder)
+          3. Run: commons/publish.sh to deploy to Exchange
+          4. Update commonsVersion in standards/snippet-registry.json _meta block
+          5. Regenerate any client projects that need the fix
+    -->
+
+    <groupId>com.yourcompany</groupId>
+    <artifactId>mulesoft-commons</artifactId>
+    <version>1.0.0</version>
+    <packaging>mule-plugin</packaging>
+
+    <name>MuleSoft Commons Library</name>
+    <description>Shared reusable sub-flows and DataWeave modules for all integration projects: error handling, retry, notifications, batch completion, correlation ID, PII masking, canonical date normalisation.</description>
+
+    <properties>
+        <mule.version>4.8.0</mule.version>
+        <mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.mule.tools.maven</groupId>
+                <artifactId>mule-maven-plugin</artifactId>
+                <version>${mule.maven.plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <classifier>mule-plugin</classifier>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mulesoft.munit.tools</groupId>
+                <artifactId>munit-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <phase>test</phase>
+                        <goals><goal>test</goal></goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <coverage>
+                        <runCoverage>true</runCoverage>
+                        <failBuild>true</failBuild>
+                        <requiredApplicationCoverage>80</requiredApplicationCoverage>
+                    </coverage>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Anypoint MQ — DLQ routing, retry queue publish -->
+        <dependency>
+            <groupId>com.mulesoft.connectors</groupId>
+            <artifactId>anypoint-mq-connector</artifactId>
+            <!-- TODO: verify exact patch version at https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/anypoint-mq-connector/ -->
+            <version>4.0.7</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+
+        <!-- HTTP — Slack webhook notification dispatch -->
+        <dependency>
+            <groupId>org.mule.connectors</groupId>
+            <artifactId>mule-http-connector</artifactId>
+            <!-- TODO: verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-http-connector/ -->
+            <version>1.9.0</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+
+        <!-- Email — SMTP notification dispatch -->
+        <dependency>
+            <groupId>org.mule.connectors</groupId>
+            <artifactId>mule-email-connector</artifactId>
+            <!-- TODO: verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-email-connector/ -->
+            <version>1.7.0</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+
+        <!-- Object Store — retry state (attempt count + backoff timestamps) -->
+        <dependency>
+            <groupId>org.mule.connectors</groupId>
+            <artifactId>mule-objectstore-connector</artifactId>
+            <!-- TODO: verify exact patch version at https://anypoint.mulesoft.com/exchange/org.mule.connectors/mule-objectstore-connector/ -->
+            <version>1.2.2</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>anypoint-exchange-v3</id>
+            <name>Anypoint Exchange</name>
+            <url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>https://repository.mulesoft.org/releases/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>https://repository.mulesoft.org/releases/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <!--
+        Exchange publishing:
+          Run commons/publish.sh — it sets ANYPOINT_ORG_ID from env var before mvn deploy.
+          Never run mvn deploy manually without publish.sh (org ID won't be set).
+    -->
+    <distributionManagement>
+        <repository>
+            <id>anypoint-exchange-v3</id>
+            <name>Anypoint Exchange</name>
+            <url>https://maven.anypoint.mulesoft.com/api/v3/organizations/${anypoint.org.id}/maven</url>
+        </repository>
+    </distributionManagement>
+
+</project>
