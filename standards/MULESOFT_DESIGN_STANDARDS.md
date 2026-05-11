@@ -95,32 +95,40 @@ F. cdc-streaming          → DB/platform change capture → near-real-time prop
 
 G. b2b-edi                → AS2/EDIFACT/X12/RosettaNet trading partner integration
                             Requires: EDI connector, ACK/NACK, partner registry
+                            Functional ACK (997 / CONTRL) must be sent within 30 minutes
+                            EDI documents require 7-year retention (compliance)
                             Style: File Transfer + Messaging
                             See: standards/scenarios/b2b-edi.md
 
 H. process-orchestration  → multi-step workflow with saga compensation
                             Returns 202; state in Object Store; status polling
+                            Use ONLY when 3+ systems AND rollback is required; not for 2-system flows
                             Style: RPC + Messaging
                             See: standards/scenarios/process-orchestration.md
 
 I. api-aggregation        → scatter-gather fan-out + response composition
                             Parallel calls to N systems → merge into one response
+                            Each leg must have its own timeout; partial failure is acceptable
                             Style: RPC
                             See: standards/scenarios/api-aggregation.md
 
 J. webhook-ingestion      → receive inbound HTTP POST from external SaaS
                             Stripe, GitHub, DocuSign, HubSpot, Shopify, custom
+                            Return HTTP 200 immediately — NEVER process inline (caller will retry)
+                            HMAC-SHA256 or shared-secret signature verification is MANDATORY
                             Style: Messaging (push-from-source)
                             See: standards/scenarios/webhook-ingestion.md
 
 K. data-migration         → one-time or phased bulk historical load
                             Resumable via checkpoint; idempotent upserts; audit log
+                            Do NOT use for < 10K records — use a manual export instead
                             Style: File Transfer or RPC
                             See: standards/scenarios/data-migration.md
 
 L. streaming-pipeline     → continuous high-throughput stream to analytics/data lake
                             Kafka/Kinesis consumer → enrich → S3/BigQuery/Redshift
-                            Style: Messaging (high-volume)
+                            Always use MANUAL offset commits — never auto-commit
+                            Style: Event Streaming (high-volume, continuous)
                             See: standards/scenarios/streaming-pipeline.md
 
 M. pubsub-fanout          → broadcast one event to N independent consumers
@@ -139,18 +147,24 @@ O. hybrid                 → explicit combination of 2+ patterns above
 
 P. ai-augmented-flow      → LLM/AI called mid-flow for extraction, classification,
                             semantic routing, or enrichment of integration data
-                            Always secondary to another primary pattern
+                            Always secondary to another primary pattern — never standalone
+                            Cache LLM responses aggressively — calls are expensive and rate-limited
+                            Do NOT use for > 10K records per run — per-record cost is prohibitive
                             Style: RPC (to LLM API)
                             See: standards/scenarios/ai-augmented-flow.md
 
 Q. rag-data-pipeline      → chunk + embed + upsert enterprise docs to vector store
                             Grounds AI assistants in current enterprise knowledge
+                            Covers ingestion (write) half only — retrieval handled by AI application
+                            Sync incremental changes only — never re-embed unchanged documents
                             Style: Messaging or File Transfer
                             See: standards/scenarios/rag-data-pipeline.md
 
 R. agentic-mcp-integration → MuleSoft APIs exposed as tools for AI agents (MCP or OpenAPI)
                             Agent is the caller; MuleSoft is the governed integration layer
-                            Style: RPC (MuleSoft as server)
+                            Latency target: < 3s per tool call — agents chain calls; each must be fast
+                            Never expose raw system APIs to agents — always wrap in a process layer
+                            Style: Agentic (RPC — MuleSoft as tool server)
                             See: standards/scenarios/agentic-mcp-integration.md
 
 S. transactional-outbox   → guarantee DB write + event publish happen atomically
@@ -245,6 +259,33 @@ throughput:   low | medium | high | very-high
 - availability: `99.9`
 - throughput: `medium`
 
+**Per-pattern NFR quick reference** (use as defaults when prd.md is silent on the NFR):
+
+| Pattern | volume | latency | frequency | availability | throughput |
+|---------|--------|---------|-----------|-------------|------------|
+| A request-reply | low–medium | under-1s | real-time | 99.9 | low–medium |
+| B event-driven | medium | async-ok | real-time | 99.9 | medium |
+| C batch | high | async-ok | scheduled | 99.9 | high |
+| D scheduled-sync | medium | async-ok | scheduled | 99.9 | medium |
+| E file-based-etl | medium–high | async-ok | triggered | 99.9 | medium–high |
+| F cdc-streaming | medium–high | async-ok | real-time | 99.9 | medium |
+| G b2b-edi | low–medium | async-ok | triggered | 99.9 | low |
+| H process-orchestration | low | async-ok | triggered | 99.9 | low |
+| I api-aggregation | low–medium | under-3s | real-time | 99.9 | medium |
+| J webhook-ingestion | medium | async-ok | real-time | 99.9 | medium |
+| K data-migration | bulk | async-ok | one-time | best-effort | very-high |
+| L streaming-pipeline | bulk | under-10s | real-time | 99.9 | very-high |
+| M pubsub-fanout | medium | async-ok | real-time | 99.9 | medium |
+| N outbound-notification | low | async-ok | triggered | best-effort | low |
+| P ai-augmented-flow | low–medium | under-3s | triggered | 99.9 | low |
+| Q rag-data-pipeline | low–medium | async-ok | scheduled | 99.9 | low |
+| R agentic-mcp-integration | low–medium | under-3s | real-time | 99.9 | low |
+| S transactional-outbox | medium | async-ok | real-time | 99.9 | medium |
+| T reverse-etl | medium | async-ok | scheduled | 99.9 | medium |
+| U ai-gateway | medium–high | under-3s | real-time | 99.99 | high |
+| V idp-document-processing | low | async-ok | triggered | 99.9 | low |
+| W rpa-orchestration | low | async-ok | triggered | 99.9 | low |
+
 ---
 
 ## Level 3 — Systems Involved
@@ -312,14 +353,20 @@ Multi-select. Check every box that applies. Each selection adds to `decisions.js
 
 Select exactly one. Each level inherits all controls from the level below it.
 
-```
-internal     → client-id-enforcement + rate-limiting
-partner      → oauth2-client-credentials + rate-limiting
-regulated    → oauth2 + jwt-validation + Secrets Manager
-government   → mtls + oauth2 + jwt + Secrets Manager + field-encryption
-```
+| Tier | Controls | Compliance context | Secrets Manager | Field encryption |
+|------|----------|--------------------|-----------------|-----------------|
+| **internal** | client-id-enforcement + rate-limiting | Internal apps; no external compliance req | Optional | No |
+| **partner** | oauth2-client-credentials + rate-limiting | SOC 2 Type II typically required; SLA required | Recommended | No |
+| **regulated** | oauth2 + jwt-validation + Secrets Manager | HIPAA / PCI-DSS / SOC 2; PII in transit and at rest | Mandatory | Mandatory for PII fields |
+| **government** | mtls + oauth2 + jwt + Secrets Manager + field-encryption | FedRAMP; data residency requirements apply | Mandatory | Mandatory for all sensitive fields |
 
 **Standard default:** `internal` unless prd.md states otherwise.
+
+**Escalation rules:**
+- Any flow touching payment card data → minimum `regulated`
+- Any flow touching PHI (health records) → minimum `regulated`
+- Any partner-facing API → minimum `partner`
+- Any government agency as client or data processor → `government`
 
 Write to `decisions.json security.level` and populate the corresponding `apiAuth`, `gatewayPolicies`, `secretsManager`, `fieldEncryption`, `mtls` fields.
 
@@ -339,6 +386,17 @@ Multi-select. Drives which additional components the scaffold generates.
 ```
 
 **Standard default:** `none` unless prd.md explicitly calls for a portal or reporting.
+
+**Mandatory conditions (auto-select even if prd.md is silent):**
+
+| Condition | Auto-select |
+|-----------|------------|
+| security level = `regulated` or `government` | `audit-trail` (compliance requires it) |
+| availability = `99.99` | `operations-dashboard` (SLA requires visibility) |
+| pattern includes financial mutations (payments, provisioning) | `audit-trail` |
+| pattern = U (ai-gateway) | `business-reporting` (cost tracking per team/model) |
+| pattern = G (b2b-edi) | `audit-trail` (7-year EDI retention) |
+| client explicitly has a reporting team or ops team stated in prd.md | `operations-dashboard` |
 
 ---
 
@@ -804,6 +862,22 @@ Watermarking:         persistent Object Store (not in-memory) for all scheduled 
 Idempotency:          required on ALL async MQ consumers — no exceptions
 Claim Check:          required for payloads > 1 MB
 ```
+
+### decisions.json Section Population Rules
+
+Two sections require conditional population — do not leave them empty:
+
+**`decisions.json idp` section** — populate when:
+- `primaryPattern` = `idp-document-processing` (V)
+- OR `secondaryPatterns` includes `idp-document-processing`
+
+Minimum required fields: `actionId`, `actionVersionId`, `orgId`, `documentSource`, `outputEntity`. Leave as `"TODO: ..."` placeholders if not yet known — flag as OPEN ITEM.
+
+**`decisions.json aiIntegration` section** — populate when:
+- `primaryPattern` ∈ {`ai-augmented-flow`, `rag-data-pipeline`, `agentic-mcp-integration`, `ai-gateway`}
+- OR `secondaryPatterns` includes `ai-augmented-flow` or `rag-data-pipeline`
+
+Minimum required fields: `provider`, `model`, `useCase`. Set `fallbackOnTimeout: true` always. Set `storeEmbeddingsIn` only for pattern Q (rag-data-pipeline).
 
 ---
 
