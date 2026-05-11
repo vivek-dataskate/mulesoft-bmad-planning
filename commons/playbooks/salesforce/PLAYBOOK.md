@@ -99,6 +99,7 @@ salesforce.api.limit.warn.threshold: 12000
 | Date | Client | Knowledge added | Status |
 |------|--------|----------------|--------|
 | 2026-05-11 | leolabs | Auth, SOQL pagination, Opportunity/Account objects, CDC awareness | observation |
+| 2026-05-11 | leolabs (Analyst) | CDC trigger for Flow 1 (Opportunity Closed Won) — trigger pattern OPEN (UC1-Q1). State/Country Picklists and multi-currency flags open. SF Connected App not yet created. | observation |
 
 *Second Salesforce client → update Status to `verified`.*
 *Third Salesforce client → evaluate promoting stable patterns to MULESOFT_DESIGN_STANDARDS.md.*

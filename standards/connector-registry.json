@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "lastFullSync": "2026-05",
     "syncSource": "docs.mulesoft.com/release-notes/connector/anypoint-connector-release-notes",
-    "totalConnectors": 328,
+    "totalConnectors": 329,
     "nextReviewDue": "2026-11",
     "versionPolicy": "MuleSoft does not publish exact versions on public docs pages. Versions here are sourced from doc page titles (e.g. 'Salesforce Connector 11.4'), MuleSoft blog release notes, and community sources. Always verify latest version on Anypoint Exchange before project start.",
     "updateInstructions": "When a new connector is found via MuleSoft MCP search_asset, add it to this registry in the correct category. Set lastVerified to current month. Commit with message: 'Add {connector} to registry'.",
@@ -43,7 +43,7 @@
         "Anypoint Monitoring / Visualizer": "Monitoring auto-discovers Mule apps. Use anypoint-custom-metrics connector for custom KPI metrics. Visualizer needs no connector.",
         "Anypoint Secrets Manager": "Native platform secrets manager \u2014 integrated into Mule runtime via Secure Properties or Secrets Manager properties provider (not a connector). AWS and Azure equivalents use dedicated properties providers already in this registry.",
         "MuleSoft Composer": "Standalone low-code iPaaS for Salesforce admins \u2014 separate product with its own connector ecosystem. No Mule 4 connector.",
-        "MuleSoft RPA (native)": "MuleSoft RPA bots triggered via MuleSoft RPA REST API \u2014 use HTTP connector. No dedicated Mule connector. See rpa_automation.automation-anywhere for third-party Automation Anywhere bots.",
+        "MuleSoft RPA (native)": "HANDLED \u2014 see platform_services.anypoint-rpa. No dedicated connector JAR; uses HTTP connector against Anypoint RPA REST API v2 with OAuth 2.0 client credentials. Pattern W (rpa-orchestration) covers full invoke-and-poll lifecycle.",
         "Dataloader.io": "Standalone Salesforce data loading web tool \u2014 no Mule connector. For Salesforce data loading from Mule use the Salesforce Connector (bulk API v2)."
       }
     }
@@ -164,11 +164,19 @@
           "propertiesRequired": [
             "agentforce.clientId",
             "agentforce.clientSecret",
-            "agentforce.instanceUrl"
+            "agentforce.instanceUrl",
+            "agentforce.agentId"
           ],
-          "notes": "Connects Mule flows to Salesforce Agentforce AI agents. Invoke agents synchronously, pass context, receive structured responses. Use with mule-mcp-connector (MCP server/client) and mule4-a2a-connector (agent-to-agent) for full agentic architectures. Data Cloud connector (mule4-sdc-connector) provides the knowledge base layer.",
+          "propertiesOptional": [
+            "agentforce.timeoutSec"
+          ],
+          "propertiesOptionalNote": "agentforce.timeoutSec deferred pending VERIFY-D (attribute name on connection element unconfirmed)",
+          "xmlPrefix": "ms-agentforce",
+          "namespaceUri": "http://www.mulesoft.org/schema/mule/ms-agentforce",
+          "xsdUrl": "http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd",
+          "notes": "Connects Mule flows to Salesforce Agentforce AI agents. NAMESPACE PREFIX IS ms-agentforce (not agentforce). No invoke-agent operation — session lifecycle is explicit: start-agent-conversation → send-message-sync → end-agent-conversation. continue-agent-conversation is DEPRECATED in v1.3. Agent ID attribute is named 'agent' (not agentId). Error types use MS-AGENTFORCE: prefix. Always end session in try error-handler to prevent resource leaks. Use with mule-mcp-connector (MCP server/client) and mule4-a2a-connector (agent-to-agent) for full agentic architectures. Data Cloud connector (mule4-sdc-connector) provides the knowledge base layer. VERIFY-A: send-message-sync variable passing syntax. VERIFY-B: send-message-sync response field path.",
           "category": "salesforce_ecosystem",
-          "lastVerified": "2026-05",
+          "lastVerified": "2026-05-11",
           "licenseRequired": false
         },
         "einstein-ai": {
@@ -575,7 +583,7 @@
             "d365fo.clientSecret",
             "d365fo.resourceUrl"
           ],
-          "notes": "Microsoft Dynamics 365 Finance & Operations (D365FO) OData services. Enterprise ERP — different from D365 CRM.",
+          "notes": "Microsoft Dynamics 365 Finance & Operations (D365FO) OData services. Enterprise ERP \u2014 different from D365 CRM.",
           "category": "erp_finance",
           "lastVerified": "2026-05",
           "licenseRequired": false
@@ -1453,6 +1461,21 @@
           "category": "crm_marketing",
           "lastVerified": "2026-05",
           "licenseRequired": false
+        },
+        "spiff": {
+          "displayName": "Salesforce Spiff",
+          "groupId": null,
+          "artifactId": null,
+          "docVersion": null,
+          "auth": "unknown",
+          "authOptions": [
+            "unknown \u2014 to be confirmed by Architect"
+          ],
+          "configTemplate": null,
+          "docsUrl": null,
+          "notes": "stub \u2014 Spiff is a Sales Performance Management / Commission platform. No MuleSoft native connector confirmed as of 2026-05-11. Integration likely requires HTTP connector via Spiff REST API. Auth type and API availability must be confirmed before architecture begins.",
+          "lastVerified": "2026-05-11",
+          "lastVerifiedBy": "scout-stub"
         }
       }
     },
@@ -2528,7 +2551,7 @@
             "db.oracle.user",
             "db.oracle.password"
           ],
-          "notes": "Oracle DB variant of the generic Database connector. Includes ojdbc11 driver. Use service name not SID for modern configs. IMPORTANT: ojdbc11.jar cannot be in pom.xml due to Oracle license — must be placed in shared lib folder on CloudHub 2.0.",
+          "notes": "Oracle DB variant of the generic Database connector. Includes ojdbc11 driver. Use service name not SID for modern configs. IMPORTANT: ojdbc11.jar cannot be in pom.xml due to Oracle license \u2014 must be placed in shared lib folder on CloudHub 2.0.",
           "category": "database",
           "lastVerified": "2026-05",
           "licenseRequired": false
@@ -2682,7 +2705,7 @@
           "propertiesRequired": [
             "file.workingDirectory"
           ],
-          "notes": "Local file system access. Used for batch file processing, archiving, temp storage. WARNING: CloudHub 2.0 local filesystem is ephemeral — use S3, SFTP, or Azure Blob for any persistence requirement.",
+          "notes": "Local file system access. Used for batch file processing, archiving, temp storage. WARNING: CloudHub 2.0 local filesystem is ephemeral \u2014 use S3, SFTP, or Azure Blob for any persistence requirement.",
           "category": "file_storage",
           "lastVerified": "2026-05",
           "licenseRequired": false
@@ -3887,31 +3910,61 @@
           "lastVerified": "2026-05",
           "licenseRequired": false
         },
-        "anypoint-idp": {
-          "displayName": "Anypoint IDP (Intelligent Document Processing)",
-          "groupId": "org.mule.connectors",
-          "artifactId": "mule-http-connector",
-          "docVersion": "via-http",
+        "mulesoft-forge-idp": {
+          "displayName": "MuleSoft Forge IDP Connector (Preferred)",
+          "groupId": "io.github.mulesoft-forge",
+          "artifactId": "mule-idp-connector",
+          "version": "1.0.6",
+          "docVersion": "1.0.6",
           "auth": "oauth2-client-credentials",
           "authOptions": [
             "oauth2-client-credentials"
           ],
-          "configTemplate": "templates/connectors/idp-http-config.xml",
-          "docsUrl": "https://docs.mulesoft.com/anypoint-datagraph/latest/idp-overview",
-          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/idp/idp-release-notes",
+          "configTemplate": "templates/connectors/idp-forge-config.xml",
+          "docsUrl": "https://docs.mulesoftforge.com/connectors/mule-idp-connector",
+          "releaseNotesUrl": "https://docs.mulesoftforge.com/connectors/mule-idp-connector",
+          "exchangeUrl": "https://central.sonatype.com/artifact/io.github.mulesoft-forge/mule-idp-connector",
           "propertiesRequired": [
-            "anypoint.idp.baseUrl",
+            "anypoint.idp.region",
             "anypoint.idp.orgId",
             "anypoint.idp.actionId",
             "anypoint.idp.actionVersionId",
             "anypoint.client.id",
             "anypoint.client.secret"
           ],
-          "notes": "Anypoint IDP has no dedicated Mule connector — call via HTTP connector against the Anypoint Platform IDP REST API. Auth: Anypoint Connected App (OAuth 2.0 client credentials). API is async: POST execution → poll GET until COMPLETED. Token URL: https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token. Base URL: https://anypoint.mulesoft.com/idp/api/v1/. Polling: check every 3s, max 10 attempts (~30s timeout). Supported MIME types: application/pdf, image/png, image/jpeg, image/tiff.",
+          "notes": "PREFERRED for IDP. MuleSoft Forge universal IDP connector \u2014 works across all action versions without connector sprawl. Operations: Service IDP - Execution - Submit, Service IDP - Execution Result - Retrieve. Auth: Anypoint Connected App OAuth 2.0 client credentials. Scope: leave empty (permissions controlled by Connected App scopes). Requires Mule 4.6+. Available on Maven Central (NOT Anypoint Exchange) \u2014 add mavenCentral() repo to pom.xml. Released Sept 2025.",
           "category": "ai_ml",
           "lastVerified": "2026-05",
           "lastAddedDate": "2026-05-11",
-          "lastVerifiedBy": "manual",
+          "lastVerifiedBy": "web-search-2026-05-11",
+          "licenseRequired": false
+        },
+        "anypoint-idp": {
+          "displayName": "Anypoint IDP via HTTP (Fallback \u2014 use mulesoft-forge-idp instead)",
+          "groupId": "org.mule.connectors",
+          "artifactId": "mule-http-connector",
+          "docVersion": "http-only",
+          "skipMavenDependency": true,
+          "auth": "oauth2-client-credentials",
+          "authOptions": [
+            "oauth2-client-credentials"
+          ],
+          "configTemplate": "templates/connectors/idp-http-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/idp/automate-document-processing-with-the-idp-api",
+          "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/idp/idp-release-notes",
+          "propertiesRequired": [
+            "anypoint.idp.region",
+            "anypoint.idp.orgId",
+            "anypoint.idp.actionId",
+            "anypoint.idp.actionVersionId",
+            "anypoint.client.id",
+            "anypoint.client.secret"
+          ],
+          "notes": "FALLBACK \u2014 prefer mulesoft-forge-idp connector. Raw HTTP calls to IDP REST API. Base URL: https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/ (regions: us-east-1, eu-central-1). POST submit: body={file:<base64>, fileName:<name.pdf>}. GET poll: /executions/{id}/v2 (note /v2 suffix). Status values: ACKNOWLEDGED|IN_PROGRESS|RESULTS_PENDING|SUCCEEDED|FAILED|PARTIAL_SUCCESS|MANUAL_VALIDATION_REQUIRED. Results in pages[].fields[]. OAuth scope: leave empty (Connected App permissions control access). Min polling interval: 10s per IDP quota docs. Token URL: https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token. Max file: 10MB, 50 pages. P50 latency: 7.6s, P99: 13.4s.",
+          "category": "ai_ml",
+          "lastVerified": "2026-05",
+          "lastAddedDate": "2026-05-11",
+          "lastVerifiedBy": "web-search-2026-05-11",
           "licenseRequired": false,
           "exchangeUrl": "https://www.mulesoft.com/exchange/org.mule.connectors/mule-http-connector/"
         }
@@ -4388,7 +4441,9 @@
           "artifactId": "mule-aggregators-module",
           "docVersion": "1.0",
           "auth": "none",
-          "authOptions": ["none"],
+          "authOptions": [
+            "none"
+          ],
           "configTemplate": "templates/connectors/http-generic-config.xml",
           "docsUrl": "https://docs.mulesoft.com/aggregators-module/latest/",
           "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/aggregators-module-release-notes-mule-4",
@@ -4404,7 +4459,9 @@
           "artifactId": "mule-cryptography-module",
           "docVersion": "1.3",
           "auth": "none",
-          "authOptions": ["none"],
+          "authOptions": [
+            "none"
+          ],
           "configTemplate": "templates/connectors/http-generic-config.xml",
           "docsUrl": "https://docs.mulesoft.com/cryptography-module/latest/",
           "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/cryptography-module-release-notes-mule-4",
@@ -4420,7 +4477,9 @@
           "artifactId": "mule-compression-module",
           "docVersion": "2.2",
           "auth": "none",
-          "authOptions": ["none"],
+          "authOptions": [
+            "none"
+          ],
           "configTemplate": "templates/connectors/http-generic-config.xml",
           "docsUrl": "https://docs.mulesoft.com/compression-module/latest/",
           "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/compression-module-release-notes-mule-4",
@@ -4436,7 +4495,9 @@
           "artifactId": "mule-java-module",
           "docVersion": "1.2",
           "auth": "none",
-          "authOptions": ["none"],
+          "authOptions": [
+            "none"
+          ],
           "configTemplate": "templates/connectors/http-generic-config.xml",
           "docsUrl": "https://docs.mulesoft.com/java-module/latest/",
           "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/java-module-release-notes-mule-4",
@@ -4452,7 +4513,9 @@
           "artifactId": "mule-json-module",
           "docVersion": "2.2",
           "auth": "none",
-          "authOptions": ["none"],
+          "authOptions": [
+            "none"
+          ],
           "configTemplate": "templates/connectors/http-generic-config.xml",
           "docsUrl": "https://docs.mulesoft.com/json-module/latest/",
           "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/json-module-release-notes-mule-4",
@@ -4468,7 +4531,9 @@
           "artifactId": "mule-kerberos-module",
           "docVersion": "1.0",
           "auth": "kerberos",
-          "authOptions": ["kerberos"],
+          "authOptions": [
+            "kerberos"
+          ],
           "configTemplate": "templates/connectors/http-generic-config.xml",
           "docsUrl": "https://docs.mulesoft.com/kerberos-module/latest/",
           "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/kerberos-module-release-notes-mule-4",
@@ -4488,7 +4553,10 @@
           "artifactId": "mule-oauth-module",
           "docVersion": "1.1",
           "auth": "oauth2",
-          "authOptions": ["oauth2-client-credentials", "oauth2-auth-code"],
+          "authOptions": [
+            "oauth2-client-credentials",
+            "oauth2-auth-code"
+          ],
           "configTemplate": "templates/connectors/http-generic-config.xml",
           "docsUrl": "https://docs.mulesoft.com/oauth-module/latest/",
           "releaseNotesUrl": "https://docs.mulesoft.com/release-notes/connector/oauth-module-release-notes-mule-4",
@@ -7546,6 +7614,47 @@
           "category": "travel_hospitality",
           "lastVerified": "2026-05",
           "licenseRequired": false
+        }
+      }
+    }
+  },
+    "platform_services": {
+      "description": "MuleSoft Anypoint Platform products accessed via HTTP connector (no dedicated Mule connector JAR exists)",
+      "connectors": {
+        "anypoint-rpa": {
+          "displayName": "Anypoint RPA",
+          "groupId": "org.mule.connectors",
+          "artifactId": "mule-http-connector",
+          "docVersion": "via-http",
+          "version": "1.9.0",
+          "auth": "oauth2-client-credentials",
+          "authOptions": [
+            "oauth2-client-credentials",
+            "api-key"
+          ],
+          "configTemplate": "templates/connectors/anypoint-rpa-config.xml",
+          "docsUrl": "https://docs.mulesoft.com/rpa-home/invoke-rpa-services",
+          "releaseNotesUrl": "https://docs.mulesoft.com/rpa-home/",
+          "exchangeUrl": "https://anypoint.mulesoft.com/exchange/",
+          "propertiesRequired": [
+            "rpa.tenant",
+            "rpa.process.api.base",
+            "rpa.token.url",
+            "rpa.poll.retries",
+            "rpa.poll.interval.ms",
+            "mq.queue.rpa-dlq",
+            "secure::rpa.client.id",
+            "secure::rpa.client.secret"
+          ],
+          "notes": "No dedicated Mule connector JAR. Uses HTTP connector against Anypoint RPA REST API v2 (OAuth) or v1 (API key). Production MUST use OAuth 2.0 client credentials with Connected App scopes: 'RPA Integrator' + 'RPA Invocable Process'. API key is user-scoped, expires, and must NOT be used in production. Idempotent invocation via PUT /executions/startProcess (same executionId = no duplicate run). Poll status via GET every 30s. See standards/scenarios/rpa-orchestration.md for full pattern.",
+          "category": "platform_services",
+          "pattern": "W",
+          "snippetKey": "rpa-invoke-and-poll",
+          "lastVerified": "2026-05",
+          "lastAddedDate": "2026-05",
+          "lastVerifiedBy": "deep-research-agent-2026-05",
+          "licenseRequired": false,
+          "verifyBeforeUse": false
         }
       }
     }

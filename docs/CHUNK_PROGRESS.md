@@ -378,3 +378,200 @@ CHUNK 13 — System Playbooks [x] COMPLETE (2026-05-11)
     NS Invoice → SF Opp update: canonicalToSfOpportunity(nsInvoiceToCanonical(payload))
     SF Account → NS Customer:  canonicalToNsCustomer(sfAccountToCanonical(payload))
     NS Customer → SF Account:  canonicalToSfAccount(nsCustomerToCanonical(payload))
+
+RPA PATTERN EXPANSION 2026-05-11 — [x] COMPLETE (research-backed)
+  Research: Deep web research across official MuleSoft docs (docs-rpa GitHub repo), MuleSoft workshops,
+  community blogs (makesensesoft, cloudfirstlabs, infomentum, medium), and Anypoint Exchange.
+  Key finding: No dedicated Mule connector JAR exists. Integration uses HTTP connector against
+  Anypoint RPA REST API v2 with OAuth 2.0 Connected App (scopes: RPA Integrator + RPA Invocable Process).
+
+  NEW FILES:
+    standards/scenarios/rpa-orchestration.md     — Pattern W scenario file; full invoke-and-poll
+                                                   reference architecture; gotchas; MUnit checklist
+    templates/connectors/anypoint-rpa-config.xml — HTTP requester with OAuth 2.0 CC; API key option
+                                                   (dev only); setup checklist; property keys
+    scaffold/xml-templates/snippets/rpa-invoke-and-poll.xml — Full 7-step snippet: generate UUID
+                                                   → PUT startProcess (idempotent) → persist to OS
+                                                   → poll via until-successful → branch success/error
+                                                   → cleanup → error handler (timeout DLQ + auth alert)
+
+  UPDATED FILES:
+    standards/connector-registry.json   — anypoint-rpa entry in new platform_services category;
+                                         platformGaps updated to note RPA is now HANDLED
+    standards/snippet-registry.json     — rpa-invoke-and-poll registered with tokens + prerequisites
+    standards/decisions-schema.json     — rpa-orchestration added to primaryPattern enum
+    standards/MULESOFT_DESIGN_STANDARDS.md — Pattern W added to catalog and decision guide
+    docs/PLANNING_CONTEXT.md            — Pattern W added to Level 1 tree, decision guide,
+                                         folder structure, and primaryPattern enum
+    scaffold/generate.js                — rpa-orchestration added to COVERAGE_MAP (80%);
+                                         RPA guards (auto-add anypoint-rpa + anypoint-mq connectors,
+                                         tenant/dlq warnings, poll config log); rpa-invoke-and-poll.xml
+                                         loaded in SNIPPET_NAMES; snippet injected in genFlowFile
+                                         (replaces <!-- TODO: Add flow implementation here --> anchor)
+    README.md                           — RPA moved from "Not Handled" to "Handled"
+
+  KNOWN FIELD GOTCHAS (from research — add as FK entries after first client use):
+    - No dedicated connector JAR; HTTP approach is more portable than REST Connect per-process asset
+    - API key is user-scoped and expires — OAuth CC is mandatory for production
+    - Idempotent PUT returns 204 on duplicate executionId — validator must accept both 201 and 204
+    - Status values are lowercase in API v2 ("success" not "SUCCESS")
+    - Bot must be in OK state; capacity limited to licensed console sessions
+    - until-successful is correct for polling up to 30 min; callback URI needed for longer processes
+
+AGENTFORCE CONNECTOR EXPANSION 2026-05-11 — [~] FUNCTIONAL BUT UNVERIFIED
+  New files (patterns P, R, O):
+    templates/connectors/agentforce-config.xml     — OAuth2 CC connection config + usage examples
+    scaffold/xml-templates/snippets/agentforce-invoke.xml — stateless agent invocation snippet
+
+  Registry updates:
+    standards/connector-registry.json             — agentforce.agentId + agentforce.timeoutSec
+                                                     added to propertiesRequired (were missing → startup failure)
+    standards/snippet-registry.json               — agentforce-invoke registered with verifyBeforeUse=true
+
+  Two-pass adversarial review run (first critic: standards compliance; second critic: doc-research backed):
+    Total findings: 28 (first pass) + 23 (second pass, 9 new UNVERIFIED items)
+
+  FIXES APPLIED (all VERIFIED findings):
+    BL-1: Nested XML comments removed — inner comment markers converted to plain prose
+    BL-2: XML comment inside DataWeave block → DataWeave // comment syntax
+    H-6:  Snippet registered in snippet-registry.json
+    H-7:  agentId + timeoutSec added to connector-registry.json propertiesRequired
+    M-1:  invoke-agent uses target="agentforceResponse" directly — removes fragile set-variable capture
+    M-2:  Snippet no longer overwrites the fallback value set by the caller
+    M-4:  Catch-all on-error-continue type="ANY" added — no uncaught error type escapes the try block
+    L-3:  primaryPayload renamed to agentforcePrimaryPayload — safe in multi-agent flows
+    L-4:  responseSize added to success log; catch-all logs errorType identifier
+    Session leak: stateful example now wraps in try with end-session in error handler
+    Fallback default: changed from null to {} (empty object) — prevents NULL_POINTER on field access
+    Timeout comment: updated to 60s recommendation for complex agents (was 30s — at lower bound)
+    PII note: input-variables TODO explicitly warns against passing raw payload
+    Log fields: all loggers now include env=p("mule.env") — was missing from all log statements
+
+  DOC RESEARCH PASS (2026-05-11) — official MuleSoft docs verified:
+    CONFIRMED: Namespace prefix is ms-agentforce (NOT agentforce) — files fully corrected
+    CONFIRMED: Namespace URI = http://www.mulesoft.org/schema/mule/ms-agentforce
+    CONFIRMED: XSD = mule-ms-agentforce.xsd
+    CONFIRMED: No invoke-agent operation. Correct sequence:
+               ms-agentforce:start-agent-conversation → ms-agentforce:send-message-sync
+               → ms-agentforce:end-agent-conversation
+    CONFIRMED: continue-agent-conversation is DEPRECATED in v1.3 — never use
+    CONFIRMED: Agent ID attribute name is "agent" (NOT agentId)
+    CONFIRMED: Connection element = ms-agentforce:oauth-client-credentials-connection
+               with child ms-agentforce:oauth-client-credentials (clientId + clientSecret)
+    CONFIRMED: Error types use MS-AGENTFORCE: prefix:
+               MS-AGENTFORCE:CONNECTIVITY, MS-AGENTFORCE:RETRY_EXHAUSTED,
+               MS-AGENTFORCE:AGENT_API_ERROR, MS-AGENTFORCE:AGENT_OPERATIONS_FAILURE,
+               MS-AGENTFORCE:AGENT_METADATA_FAILURE, MS-AGENTFORCE:INVALID_CONNECTION
+
+  COMMUNITY SEARCH (2026-05-11) — GitHub / code platforms:
+    No third-party community standards found beyond official MuleSoft docs.
+    MuleSoft AI Chain Project (mac-project.ai / GitHub: MuleSoft-AI-Chain-Project) exists
+    as a reference implementation but does not publish a separate connector standard.
+    No established community DataWeave patterns for agent variable mapping found.
+
+  OPUS CRITIC PASS (2026-05-11) — 34 new findings, all VERIFIED items fixed:
+    B1: end-agent-conversation in error handlers threw when session never opened (null sessionId)
+        Fixed: all error-path session closes now guarded by choice (#[vars.agentforceSessionId != null])
+               wrapped in inner try/on-error-continue to swallow close failures
+    B2: Payload non-deterministic across paths — success path never restored it
+        Fixed: set-payload to agentforcePrimaryPayload added after success logger on all paths
+    B3: correlationId bare reference — documented dependency on Mule 4 event binding
+    B4: instanceUrl attribute name likely wrong — added as separate VERIFY-D sub-item
+    H1: vars.agentSession.sessionId assumed object shape — could be scalar
+        Fixed: vars.agentforceSessionId normalises both:
+               (vars.agentSession.sessionId default vars.agentSession) as String
+    H2: Multi-turn stateful example had no try wrapper — demonstrated the leak it warned against
+        Fixed: full try/error-handler with guarded session close added to both patterns
+    H3: agentforce.timeoutSec required but never wired — removed from propertiesRequired
+        Moved to propertiesOptional with VERIFY-D note pending attribute name confirmation
+    H4: PII contradiction — agent input built without redaction scaffolding
+        Fixed: vars.agentforceInput introduced; built from specific fields with PII warning
+    H5: injectOn field used machine-rule syntax but was documented as non-machine-parsed
+        Fixed: rewritten as plain English prose
+    H6: verifyBeforeUse flag had no enforcement in generate.js
+        Fixed: removed from snippet-registry; warnApplicableSnippets() added to generate.js —
+               prints ⚠ MANUAL SNIPPET APPLICABLE when agentforce-invoke matches project patterns
+    H7: einstein-ai added to NS_REGISTRY with no backing templates or registry entry
+        Fixed: removed; comment added noting it's deferred
+    H8: MS-AGENTFORCE:RETRY_EXHAUSTED caught but no reconnection strategy configured (dead handler)
+        Fixed: removed from connectivity handler; noted requires reconnection strategy to be reachable
+    M2: VERIFY-C note in config template said vars.sessionId.sessionId — inconsistent with snippet
+        Fixed: unified to agentforceSessionId normalisation pattern in both files
+    M3: lastVerified month-only in connector registry vs full date in snippet registry
+        Fixed: connector registry normalised to 2026-05-11
+    M10: error.description logged raw — could break Splunk/Datadog regex extraction
+        Fixed: all error.description references truncated to 200 chars: [0..200]
+    M6: Idempotency caveat for write-effect agents added to snippet footer and config critical notes
+    generate.js: SNIPPET_REG_F was declared but never read (pre-existing unused variable hint)
+        Fixed: warnApplicableSnippets() now reads snippet-registry.json and uses SNIPPET_REG_F
+
+  STILL UNVERIFIED — check before first client use:
+    VERIFY-A: send-message-sync child element/attribute for passing context variables
+    VERIFY-B: send-message-sync response field path to extract agent reply
+    VERIFY-C: session ID field path (handled defensively — agentforceSessionId normalises both shapes)
+    VERIFY-D: (a) responseTimeout attribute name on connection element
+              (b) instanceUrl attribute name — may be salesforceUrl or orgUrl
+              (c) whether timeout belongs on connection child or on ms-agentforce:config
+    VERIFY-E: exact patch version (update connector-registry.json version field once confirmed)
+    All VERIFY items marked inline in both template files.
+
+PATTERN V — Anypoint IDP (idp-document-processing) [x] COMPLETE (2026-05-11)
+  Implemented full scaffold support for Intelligent Document Processing as Pattern V.
+  All implementation details are web-research-verified against live MuleSoft docs (May 2026).
+
+  NEW / MODIFIED FILES:
+    standards/scenarios/idp-document-processing.md  [NEW] — full pattern V scenario file
+    standards/connector-registry.json               [MODIFIED] — added mulesoft-forge-idp + anypoint-idp entries
+    standards/decisions-schema.json                 [MODIFIED] — added idp block + idp-document-processing enum value
+    scaffold/xml-templates/idp-document-flow.xml    [NEW] — IDP execute+poll sub-flows
+    scaffold/xml-templates/triggers/email-imap.xml  [NEW] — IMAP attachment trigger
+    scaffold/xml-templates/triggers/s3-event.xml    [NEW] — S3 object-created trigger (also used for blob-event)
+    templates/connectors/idp-forge-config.xml       [NEW] — MuleSoft Forge IDP connector config
+    templates/connectors/idp-http-config.xml        [REWRITTEN] — HTTP fallback connector config
+    scaffold/generate.js                            [MODIFIED] — IDP generation support
+    standards/intake-checklist.json                 [MODIFIED] — added anypoint_idp auto-warning
+    docs/PLANNING_CONTEXT.md                        [MODIFIED] — Pattern V in Level 1 tree + corrected Critical Note
+
+  CONNECTORS:
+    PREFERRED: MuleSoft Forge community connector io.github.mulesoft-forge:mule-idp-connector:1.0.6
+               Maven Central (NOT Anypoint Exchange). Released September 7, 2025. Requires Mule 4.6+.
+               Universal — works across all IDP action versions without per-action connector sprawl.
+    FALLBACK: HTTP connector with OAuth 2.0 client credentials against IDP REST API.
+
+  API FACTS VERIFIED BY WEB RESEARCH (corrected from training data — all 12 errors fixed):
+    Base URL:        https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/
+                     (NOT anypoint.mulesoft.com/idp/api/v1/ — training data was wrong)
+    Submit:          POST .../executions — body { "file": "<base64>", "fileName": "name.pdf" }
+                     (NOT { document: { content: ..., mimeType: ... } })
+    Poll:            GET .../executions/{id}/v2   (/v2 suffix REQUIRED — v1 is deprecated)
+    OAuth scope:     EMPTY — access controlled by "Execute Published Actions" permission in
+                     Access Management. NEVER pass urn:anypoint:idp (causes invalid_scope).
+    Terminal statuses: SUCCEEDED | FAILED | PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED
+                     (NOT "COMPLETED" — COMPLETED does not exist as an IDP status)
+    Result path:     pages[0].fields.{fieldLabel}.value  (NOT payload.result)
+    Min poll interval: 10 seconds per IDP quota docs
+    P50 latency: 7.6s | P99: 13.4s | Max file: 10MB | Max pages: 50
+
+  POLLING PATTERN (Mule 4 correctness):
+    CORRECT:  <until-successful maxRetries="18" millisBetweenRetries="10000">
+                  with <validation:is-true> to trigger retry on non-terminal status
+    WRONG:    <foreach collection="#[1 to N]"> — foreach has no sleep/break in Mule 4
+    WRONG:    <scheduler> mid-flow — scheduler is a source element only
+
+  DOCUMENT SOURCES SUPPORTED (all 4):
+    http-multipart — HTTP listener; multipart upload or base64 JSON body; optional MQ callback
+    s3             — S3 object-created listener; base64 encode bytes immediately (stream = single-read)
+    sftp           — SFTP on-new-file; path-based action routing
+    email          — IMAP listener; pluck attachments; MIME type filter before IDP submit
+
+  GENERATE.JS ADDITIONS:
+    - idp-document-processing added to ASYNC_PATTERNS and COVERAGE_MAP (80%)
+    - TRIGGER_TEMPLATE_MAP: email-imap→email-imap.xml, s3-event→s3-event.xml, blob-event→s3-event.xml
+    - TRIGGER_CONNECTOR_MAP: email-imap→[email], s3-event→[amazon-s3], blob-event→[azure-blob]
+    - skipMavenDependency check in genPom() — prevents anypoint-idp HTTP entry adding duplicate dep
+    - genIdpFlow(d, outDir): renders idp-document-flow.xml with IDP_MQ_CONSUMER flag
+    - genIdpDwlTransform(d, outDir): generates map-idp-result-to-{entity}.dwl with correct
+      vars.idpPages[0].fields.{fieldLabel}.value structure
+    - IDP properties block in genProperties() for all 4 env YAMLs
+    - validateDecisions(): auto-enables idp.enabled, checks required fields, auto-adds connectors
+    - warnApplicableSnippets(): prints ⚠ when manual snippets apply
