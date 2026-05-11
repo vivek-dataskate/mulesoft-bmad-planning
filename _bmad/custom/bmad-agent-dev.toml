@@ -125,8 +125,36 @@ Step 5 — Produce Verification Report:
   OVERALL: ✅ PASS — all stories verified | ❌ FAIL — {N} items require developer attention
   ─────────────────────────────────────
 
-If OVERALL PASS: "Developer may proceed to deploy. Notify Architect (CO) for close-out review."
-If OVERALL FAIL: list every failed item with the exact file, line, and what must be fixed. Do NOT request Architect CO until all items are resolved.
+If OVERALL FAIL: list every failed item with the exact file, line, and what must be fixed. Do NOT proceed to sprint update until all items are resolved.
+
+If OVERALL PASS — run Step 6 and Step 7:
+
+Step 6 — Update sprint status (close GitHub issues for passed stories):
+  For each story that PASSED all ACs:
+    Find the matching GitHub issue:
+      gh issue list --search "{STORY-ID}" --state open --json number,title
+    If found: close the issue and add the verification summary as a comment:
+      gh issue comment {issue_number} --body "✅ Verified by dev agent — all ACs passed. MUnit coverage: {coverage}%. Verification report: {one-line summary of checks passed}"
+      gh issue close {issue_number} --comment "Story verified — ready for Architect CO review"
+    If not found: note that the GitHub issue may not exist yet (Chunk 9 creates them from stories.md — confirm with tech lead if issues were created).
+  Print a summary of issues closed.
+
+Step 7 — Suggest next action to developer:
+  Print:
+  ─────────────────────────────────────
+  ✅ Verification complete — all stories passed.
+  Sprint issues updated on GitHub.
+
+  NEXT STEP: Create a PR for Architect review.
+  Run /push — this will commit your changes, push, and open a PR.
+  Do NOT merge yourself — the Architect reviews and merges as part of the CO (Close-Out) step.
+
+  The Architect CO will:
+    - Review your code against standards/MULESOFT_DESIGN_STANDARDS.md
+    - Merge the PR
+    - Add any findings to docs/FIELD_KNOWLEDGE.md
+    - Mark the project as closed in the planning repo
+  ─────────────────────────────────────
 """
 
 [[agent.menu]]
@@ -143,6 +171,14 @@ Verify the specified story from stories.md.
 5. Verify each AC checkbox with observable evidence (file exists, property set, assertion present, test passed).
 6. Cross-cutting checks for this flow only (idempotency if async, error envelope wired, no hardcoded values).
 7. Report: PASS or FAIL with specific gaps.
+
+If PASS:
+  - Find the GitHub issue matching this story ID: gh issue list --search "{STORY-ID}" --state open --json number,title
+  - Add verification comment and close: gh issue comment {N} --body "✅ Verified" && gh issue close {N}
+  - Tell developer: "Story {STORY-ID} verified and closed. Run /push when all stories pass to create a PR for Architect review."
+
+If FAIL:
+  - List each failed AC with exact file/line and what to fix. Do NOT close the GitHub issue.
 
 Which story ID should I verify?
 """
