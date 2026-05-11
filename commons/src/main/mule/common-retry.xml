@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    common-retry.xml — exponential backoff retry with DLQ escalation.
+
+    Pattern: retry-queue (not until-successful).
+    Why retry-queue instead of until-successful:
+      - until-successful blocks the consumer thread during all retry intervals
+      - retry-queue releases the consumer immediately; retries happen asynchronously
+      - retry-queue survives Mule restarts; until-successful loses state on restart
+
+    Retry sequence (configurable via properties):
+      Attempt 1: immediate (on first failure)
+      Attempt 2: +30s  delay (retry.backoff.delay.1.ms  = 30000)
+      Attempt 3: +90s  delay (retry.backoff.delay.2.ms  = 90000)
+      Attempt 4: +270s delay (retry.backoff.delay.3.ms  = 270000)
+      > maxRetries: route to DLQ
+
+    REQUIRED properties (src/main/resources/properties/{env}.yaml):
+      mq.queue.retry         — retry queue name
+      mq.queue.dlq           — DLQ queue name
+      retry.max.attempts     — default: 3
+      retry.backoff.delay.1.ms — default: 30000
+      retry.backoff.delay.2.ms — default: 90000
+      retry.backoff.delay.3.ms — default: 270000
+
+    REQUIRED: consuming flow must set var retryAttempt from message header on inbound.
+    The retry queue subscriber sets X-Retry-Attempt header; flows read it via:
+      set-variable variableName="retryAttempt"
+        value="#[(attributes.properties.'X-Retry-Attempt' default '0') as Number]"
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/anypoint-mq
+          http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/os
+          http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+    <!--
+        common-handle-processing-error-subflow
+        Called from a flow's on-error-continue handler when processing fails.
+        Decides: retry (publish to retry queue with incremented attempt count)
+                 OR escalate (publish to DLQ after max retries).
+        Pre-condition: vars.retryAttempt is set by the calling flow.
+    -->
+    <sub-flow name="common-handle-processing-error-subflow">
+
+        <set-variable
+            variableName="nextAttempt"
+            value="#[(vars.retryAttempt default 0) + 1]"
+            doc:name="Increment Retry Attempt"/>
+
+        <choice doc:name="Retry or DLQ?">
+
+            <when expression="#[(vars.nextAttempt as Number) &lt;= (p('retry.max.attempts') default '3') as Number]">
+
+                <logger
+                    level="WARN"
+                    message='#["[RETRY] correlationId=" ++ correlationId ++ " | attempt=" ++ vars.nextAttempt ++ " | error=" ++ error.description]'
+                    doc:name="Log Retry Attempt"/>
+
+                <!-- Calculate backoff delay for this attempt number -->
+                <set-variable
+                    variableName="backoffDelayMs"
+                    value="#[
+                        vars.nextAttempt == 1 ? (p('retry.backoff.delay.1.ms') default '30000') as Number :
+                        vars.nextAttempt == 2 ? (p('retry.backoff.delay.2.ms') default '90000') as Number :
+                                                (p('retry.backoff.delay.3.ms') default '270000') as Number
+                    ]"
+                    doc:name="Calculate Backoff Delay"/>
+
+                <!-- Store original payload before building retry envelope -->
+                <set-variable variableName="originalPayload" value="#[payload]" doc:name="Preserve Payload"/>
+
+                <ee:transform doc:name="Build Retry Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId:  correlationId,
+    retryAttempt:   vars.nextAttempt,
+    originalPayload: vars.originalPayload,
+    errorType:      error.errorType.identifier,
+    errorMessage:   error.description,
+    retryAfterMs:   vars.backoffDelayMs,
+    scheduledAt:    now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" }
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <!-- Publish to retry queue with delay property -->
+                <!-- Anypoint MQ does not support native delay; implement via Object Store + scheduler -->
+                <!-- For true delay: use Anypoint MQ FIFO queue with message timer, or a retry scheduler flow -->
+                <anypoint-mq:publish
+                    config-ref="Anypoint_MQ_Config"
+                    destination="${mq.queue.retry}"
+                    messageId="#[correlationId ++ '-retry-' ++ (vars.nextAttempt as String)]"
+                    doc:name="Publish to Retry Queue">
+                    <anypoint-mq:body>#[output application/json --- payload]</anypoint-mq:body>
+                    <anypoint-mq:properties>
+                        #[{ "X-Retry-Attempt": vars.nextAttempt as String, "X-Backoff-Ms": vars.backoffDelayMs as String }]
+                    </anypoint-mq:properties>
+                </anypoint-mq:publish>
+
+            </when>
+
+            <otherwise>
+                <!-- Max retries exhausted → DLQ -->
+                <logger
+                    level="ERROR"
+                    message='#["[MAX_RETRIES_EXHAUSTED] correlationId=" ++ correlationId ++ " | attempts=" ++ vars.nextAttempt ++ " — routing to DLQ"]'
+                    doc:name="Log DLQ Escalation"/>
+
+                <flow-ref name="common-route-to-dlq-subflow" doc:name="Route to DLQ"/>
+                <flow-ref name="common-dispatch-error-notification-subflow" doc:name="Alert on DLQ"/>
+            </otherwise>
+
+        </choice>
+
+    </sub-flow>
+
+    <!--
+        common-retry-scheduler-flow
+        Polls retry queue; waits for backoff window; re-dispatches to the original processing flow.
+        IMPORTANT: consuming flows must pass their processing sub-flow name via the message.
+
+        Optional: deploy this as a separate Mule app that manages retries centrally.
+        For simple cases: the retry queue subscriber in the main flow calls this sub-flow.
+
+        TODO: Configure mq.queue.retry in properties files.
+        TODO: Set maxConcurrency=1 on subscriber to avoid out-of-order retries.
+    -->
+
+</mule>

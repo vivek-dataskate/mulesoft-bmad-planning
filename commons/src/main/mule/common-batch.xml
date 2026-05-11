@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    common-batch.xml — batch job completion handler and watermark persistence.
+
+    Use in batch:on-complete phase of any pattern C (batch) or K (data-migration) flow.
+
+    Usage:
+      <batch:on-complete>
+        <flow-ref name="common-batch-on-complete-subflow"/>
+      </batch:on-complete>
+
+    The batchJobResult object is available inside batch:on-complete as a MEL/DW variable.
+    In Mule 4 DataWeave, access it via: batchResult (see below).
+
+    REQUIRED properties:
+      batch.watermark.store.name  — Object Store name for watermark persistence
+      notifications.slack.webhook.url / notifications.email.to — same as common-notification.xml
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/batch
+          http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/os
+          http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+    <!-- Persistent Object Store for batch watermarks — client must configure -->
+    <os:config name="Commons_Batch_OS_Config" doc:name="Commons Batch Object Store">
+        <os:persistent-config
+            storeName="${batch.watermark.store.name}"
+            partitionName="watermarks"/>
+    </os:config>
+
+    <!--
+        common-batch-on-complete-subflow
+        Called from batch:on-complete.
+        1. Logs success/failure counts
+        2. Sends notification if any failures occurred
+        3. Persists watermark if batch succeeded (zero failed records)
+
+        batch:on-complete exposes batchJobResult with:
+          batchJobResult.successfulRecords  — count
+          batchJobResult.failedRecords      — count
+          batchJobResult.totalRecords       — count
+          batchJobResult.startedAt          — DateTime
+          batchJobResult.finishedAt         — DateTime
+    -->
+    <sub-flow name="common-batch-on-complete-subflow">
+
+        <logger
+            level="INFO"
+            message='#["[BATCH_COMPLETE] correlationId=" ++ correlationId ++ " | total=" ++ batchJobResult.totalRecords ++ " | success=" ++ batchJobResult.successfulRecords ++ " | failed=" ++ batchJobResult.failedRecords]'
+            doc:name="Log Batch Summary"/>
+
+        <choice doc:name="Any Failures?">
+
+            <when expression="#[batchJobResult.failedRecords > 0]">
+
+                <!-- Build notification for partial failure -->
+                <set-variable
+                    variableName="notificationPayload"
+                    value="#[{
+                        level:         'WARN',
+                        title:         'Batch Partial Failure — ' ++ flow.name,
+                        message:       batchJobResult.failedRecords ++ ' of ' ++ batchJobResult.totalRecords ++ ' records failed. Check DLQ for failed record payloads.',
+                        correlationId: correlationId,
+                        environment:   p('mule.env')
+                    }]"
+                    doc:name="Build Failure Notification"/>
+
+                <flow-ref name="common-dispatch-notification-subflow" doc:name="Alert on Batch Failures"/>
+
+            </when>
+
+            <otherwise>
+                <!-- All records succeeded — persist watermark -->
+                <logger
+                    level="INFO"
+                    message='#["[BATCH_SUCCESS] All " ++ batchJobResult.successfulRecords ++ " records processed — advancing watermark"]'
+                    doc:name="Log Full Success"/>
+
+                <os:store
+                    config-ref="Commons_Batch_OS_Config"
+                    key="#[flow.name ++ '-watermark']"
+                    doc:name="Persist Watermark">
+                    <os:value>#[batchJobResult.finishedAt]</os:value>
+                </os:store>
+            </otherwise>
+
+        </choice>
+
+    </sub-flow>
+
+    <!--
+        common-load-batch-watermark-subflow
+        Loads the last successful batch completion time from Object Store.
+        Sets var watermark — use as filter in batch:input query.
+        If no prior watermark exists, sets watermark to epoch (processes all records).
+    -->
+    <sub-flow name="common-load-batch-watermark-subflow">
+
+        <os:retrieve
+            config-ref="Commons_Batch_OS_Config"
+            key="#[flow.name ++ '-watermark']"
+            target="watermark"
+            doc:name="Load Watermark">
+            <os:default-value>#[|1970-01-01T00:00:00Z| as DateTime]</os:default-value>
+        </os:retrieve>
+
+        <logger
+            level="DEBUG"
+            message='#["[WATERMARK] Loaded watermark=" ++ (vars.watermark as String) ++ " for flow=" ++ flow.name]'
+            doc:name="Log Watermark"/>
+
+    </sub-flow>
+
+</mule>

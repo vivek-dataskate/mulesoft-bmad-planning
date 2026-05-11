@@ -1,0 +1,135 @@
+title: Canonical Order
+version: "1.0.0"
+description: |
+  Canonical order entity schema used across all client integrations.
+  Source systems (Salesforce, NetSuite, Dynamics 365) map INTO this schema.
+  Target systems map OUT OF this schema.
+  DWL transforms handle the source→canonical and canonical→target conversions.
+
+  Usage in OAS spec:
+    $ref: 'exchange_modules/{ORG_ID}/canonical-order-fragment/1.0.0/canonical-order.yaml#/Order'
+
+type: object
+required:
+  - orderId
+  - customerId
+  - status
+  - lines
+  - totals
+  - timestamps
+
+properties:
+  orderId:
+    type: string
+    description: Canonical order identifier (use source system ID; prefix with system name for cross-system uniqueness e.g. "SF-00601234")
+    example: "SF-0060000001234"
+
+  externalIds:
+    type: object
+    description: Source system identifiers — enables lookup from any system
+    properties:
+      salesforceOpportunityId: { type: string, example: "0060000001234" }
+      netsuiteInternalId:      { type: string, example: "12345" }
+      erpOrderNumber:          { type: string, example: "SO-2024-0001" }
+      partnerOrderRef:         { type: string, example: "CUST-PO-9876" }
+
+  customerId:
+    type: string
+    description: Canonical customer identifier (links to canonical-customer)
+    example: "ACCT-001234"
+
+  status:
+    type: string
+    enum: [DRAFT, SUBMITTED, APPROVED, REJECTED, PROCESSING, FULFILLED, CANCELLED, CLOSED]
+    description: Canonical order status — map source-system statuses to these values
+
+  channel:
+    type: string
+    enum: [WEB, PHONE, EMAIL, EDI, PORTAL, API]
+    description: How the order was placed
+
+  lines:
+    type: array
+    minItems: 1
+    items:
+      $ref: '#/OrderLine'
+
+  totals:
+    $ref: '#/OrderTotals'
+
+  fulfillment:
+    $ref: '#/OrderFulfillment'
+
+  billing:
+    $ref: '#/BillingInfo'
+
+  notes:
+    type: string
+    description: Internal notes — strip from customer-facing responses
+
+  timestamps:
+    $ref: '#/Timestamps'
+
+OrderLine:
+  type: object
+  required: [lineId, productId, quantity, unitPrice]
+  properties:
+    lineId:        { type: string }
+    productId:     { type: string, description: "Canonical product identifier" }
+    sku:           { type: string }
+    description:   { type: string }
+    quantity:      { type: number, minimum: 0 }
+    unitPrice:     { type: number, minimum: 0 }
+    discount:      { type: number, minimum: 0, maximum: 100, description: "Percentage" }
+    lineTotal:     { type: number, description: "quantity × unitPrice × (1 - discount/100)" }
+    taxCode:       { type: string }
+    taxAmount:     { type: number }
+
+OrderTotals:
+  type: object
+  required: [subtotal, total, currency]
+  properties:
+    subtotal:    { type: number }
+    discount:    { type: number }
+    tax:         { type: number }
+    shipping:    { type: number }
+    total:       { type: number }
+    currency:    { type: string, pattern: "^[A-Z]{3}$", example: "USD" }
+
+OrderFulfillment:
+  type: object
+  properties:
+    type:            { type: string, enum: [SHIP, PICKUP, DIGITAL, SERVICE] }
+    warehouseId:     { type: string }
+    shippingAddress: { $ref: '#/Address' }
+    carrier:         { type: string }
+    trackingNumber:  { type: string }
+    estimatedDate:   { type: string, format: date }
+    actualDate:      { type: string, format: date }
+
+BillingInfo:
+  type: object
+  properties:
+    billingAddress:  { $ref: '#/Address' }
+    paymentTerms:    { type: string, example: "NET30" }
+    paymentMethod:   { type: string, enum: [INVOICE, CREDIT_CARD, ACH, CHECK, WIRE] }
+
+Address:
+  type: object
+  properties:
+    line1:      { type: string }
+    line2:      { type: string }
+    city:       { type: string }
+    state:      { type: string }
+    postalCode: { type: string }
+    country:    { type: string, pattern: "^[A-Z]{2}$", example: "US" }
+
+Timestamps:
+  type: object
+  properties:
+    createdAt:   { type: string, format: date-time }
+    updatedAt:   { type: string, format: date-time }
+    submittedAt: { type: string, format: date-time }
+    approvedAt:  { type: string, format: date-time }
+    fulfilledAt: { type: string, format: date-time }
+    closedAt:    { type: string, format: date-time }

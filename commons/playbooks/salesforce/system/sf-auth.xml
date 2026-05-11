@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    sf-auth.xml — Salesforce OAuth2 JWT Bearer Token authentication.
+    Reused by every Salesforce integration regardless of paired system.
+
+    Salesforce OAuth2 JWT flow:
+      1. Build JWT (iss=clientId, sub=user, aud=login URL, exp=now+5min)
+      2. Sign with RSA private key (RS256) — key in Secrets Manager
+      3. POST to /services/oauth2/token
+      4. Store Bearer token in vars.sfToken (cached for reuse within flow)
+
+    REQUIRED properties:
+      salesforce.instance.url            — e.g. https://yourorg.my.salesforce.com
+      salesforce.connected.app.client.id — Connected App consumer key
+      salesforce.user.email              — username of integration user
+      salesforce.jwt.private.key         — PEM private key (Secrets Manager)
+
+    Token TTL: Salesforce access tokens are valid for 2 hours.
+    For long-running flows (batch, migration): call sf-authenticate-subflow
+    before each batch step, not just once at the start.
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <http:request-config name="SF_Auth_Config" doc:name="Salesforce Auth Config">
+        <http:request-connection host="login.salesforce.com" port="443" protocol="HTTPS"/>
+    </http:request-config>
+
+    <!--
+        sf-authenticate-subflow
+        Obtains a Salesforce Bearer token via JWT OAuth2 flow.
+        Sets vars.sfToken — use in all subsequent Salesforce API calls.
+
+        Note: JWT signing is done via Java crypto (scripting:execute) because
+        the MuleSoft JWT Module signs RS256 but Salesforce also accepts RS256.
+        If your org requires a different alg, update the Java snippet below.
+    -->
+    <sub-flow name="sf-authenticate-subflow" doc:name="Salesforce JWT Auth">
+
+        <!-- Build JWT claims -->
+        <ee:transform doc:name="Build JWT Claims">
+            <ee:variables>
+                <ee:set-variable variableName="jwtClaims"><![CDATA[%dw 2.0
+output application/json
+var nowSec = (now() as Number { unit: "seconds" }) as Number
+---
+{
+    iss: p("salesforce.connected.app.client.id"),
+    sub: p("salesforce.user.email"),
+    aud: "https://login.salesforce.com",
+    exp: nowSec + 300  // 5-minute window
+}]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <!--
+            TODO: Sign JWT with RS256 using private key from Secrets Manager.
+            Recommended implementation: Java helper class or Scripting Module.
+
+            Option A — Java Module (simplest):
+              <java:invoke class="com.yourcompany.SalesforceJwtHelper"
+                           method="signJwt(String, String)"
+                           args="#[[output application/json --- vars.jwtClaims, p('salesforce.jwt.private.key')]]"
+                           target="signedJwt"/>
+
+            Option B — Nimbus JOSE (same library used for NetSuite PS256):
+              Use RS256 algorithm with the private key.
+              See: https://connect2id.com/products/nimbus-jose-jwt
+
+            The signed JWT goes into the POST body as 'assertion'.
+        -->
+        <set-variable
+            variableName="signedJwt"
+            value="TODO_SIGN_JWT_WITH_PRIVATE_KEY"
+            doc:name="TODO: Sign JWT (see comments)"/>
+
+        <!-- Exchange signed JWT for Bearer token -->
+        <http:request
+            config-ref="SF_Auth_Config"
+            method="POST"
+            path="/services/oauth2/token"
+            doc:name="Exchange JWT for Token">
+            <http:body>
+                #[output application/x-www-form-urlencoded
+                  ---
+                  {
+                      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                      assertion:  vars.signedJwt
+                  }]
+            </http:body>
+        </http:request>
+
+        <set-variable
+            variableName="sfToken"
+            value="#[payload.access_token]"
+            doc:name="Store Bearer Token"/>
+
+        <logger
+            level="DEBUG"
+            message='#["[SF_AUTH] Token obtained for user=" ++ p("salesforce.user.email")]'
+            doc:name="Log Auth Success"/>
+
+    </sub-flow>
+
+</mule>

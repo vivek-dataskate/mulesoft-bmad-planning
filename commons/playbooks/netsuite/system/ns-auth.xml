@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    ns-auth.xml — NetSuite PS256 JWT → Bearer token authentication.
+
+    CRITICAL: NetSuite REST uses PS256 JWT. The MuleSoft JWT Module does NOT support PS256.
+    This sub-flow uses the Nimbus JOSE Java library (com.nimbusds:nimbus-jose-jwt).
+    Add this dependency to the client project pom.xml (shaded JAR or Maven dep):
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>9.37.3</version>
+        <classifier>shaded</classifier>
+      </dependency>
+
+    NetSuite TBA-JWT auth flow:
+      1. Build JWT claims (iss=consumer key, sub=token ID, aud=account REST URL, iat=now, exp=now+60s)
+      2. Sign with RSA private key using PS256 (RSASSA-PSS with SHA-256 and MGF1)
+      3. POST to https://{accountId}.suitetalk.api.netsuite.com/services/rest/auth/oauth2/v1/token
+      4. Store Bearer token in vars.nsToken
+
+    REQUIRED PROPERTIES (in client project):
+      netsuite.account.id        — e.g. 1234567
+      netsuite.base.url          — https://{accountId}.suitetalk.api.netsuite.com/services/rest
+      netsuite.consumer.key      — OAuth2 consumer key from NetSuite (Integration record)
+      netsuite.consumer.secret   — OAuth2 consumer secret (not used in JWT flow, retained for reference)
+      netsuite.token.id          — OAuth2 access token ID (from Access Token record)
+      netsuite.token.secret      — OAuth2 access token secret (not used in JWT flow)
+      netsuite.jwt.private.key   — PKCS8 PEM private key (Secrets Manager), paired with cert in Integration record
+
+    Token TTL: NetSuite tokens valid 60 minutes.
+    Re-call this sub-flow before each batch step in long-running jobs.
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/scripting
+          http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+
+    <http:request-config name="NS_Auth_Config" doc:name="NetSuite Auth Config">
+        <http:request-connection
+            host="#[p('netsuite.account.id') ++ '.suitetalk.api.netsuite.com']"
+            port="443"
+            protocol="HTTPS"/>
+    </http:request-config>
+
+    <!--
+        ns-authenticate-subflow
+        Obtains a NetSuite Bearer token via PS256 JWT.
+        Sets vars.nsToken — use as Authorization header in all NetSuite calls.
+
+        Usage:
+          <flow-ref name="ns-authenticate-subflow"/>
+          Then: Authorization: Bearer #[vars.nsToken]
+    -->
+    <sub-flow name="ns-authenticate-subflow" doc:name="NetSuite PS256 JWT Auth">
+
+        <!-- Build JWT claims object for the Groovy signing script -->
+        <ee:transform doc:name="Build JWT Claim Data">
+            <ee:variables>
+                <ee:set-variable variableName="nsJwtData"><![CDATA[%dw 2.0
+output application/java
+var nowSec = (now() as Number { unit: "seconds" }) as Number
+---
+{
+    issuer:     p("netsuite.consumer.key"),
+    subject:    p("netsuite.token.id"),
+    audience:   "https://" ++ p("netsuite.account.id") ++ ".suitetalk.api.netsuite.com",
+    issuedAt:   nowSec,
+    expiry:     nowSec + 3600,
+    privateKey: p("netsuite.jwt.private.key")
+}]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <!--
+            Sign JWT with PS256 using Nimbus JOSE (Groovy scripting module).
+
+            This uses RSASSA-PSS (PS256) which the MuleSoft JWT Module does NOT support.
+            The Nimbus JOSE shaded JAR must be on the classpath (see pom.xml above).
+
+            The Groovy script:
+              1. Parses the PKCS8 PEM private key
+              2. Creates a JWSHeader with PS256 algorithm and "JWT" type
+              3. Builds JWTClaimsSet with iss/sub/aud/iat/exp
+              4. Signs with RSASSASigner using PS256
+              5. Returns the compact serialized JWT string
+        -->
+        <scripting:execute engine="groovy" doc:name="Sign JWT with PS256 (Nimbus JOSE)">
+            <scripting:code><![CDATA[
+import com.nimbusds.jose.*
+import com.nimbusds.jose.crypto.*
+import com.nimbusds.jwt.*
+import java.security.*
+import java.security.spec.*
+import java.util.*
+import java.util.Base64
+
+def data       = vars.nsJwtData
+def pemKey     = data.privateKey as String
+
+// Strip PEM headers and decode Base64
+def keyBody = pemKey
+    .replace("-----BEGIN PRIVATE KEY-----", "")
+    .replace("-----END PRIVATE KEY-----", "")
+    .replaceAll("\\s", "")
+def keyBytes = Base64.getDecoder().decode(keyBody)
+
+// Parse PKCS8 private key
+def keySpec  = new PKCS8EncodedKeySpec(keyBytes)
+def keyFactory = KeyFactory.getInstance("RSA")
+def privateKey = keyFactory.generatePrivate(keySpec)
+
+// Build JWT header with PS256
+def header = new JWSHeader.Builder(JWSAlgorithm.PS256)
+    .type(JOSEObjectType.JWT)
+    .build()
+
+// Build claims
+def claims = new JWTClaimsSet.Builder()
+    .issuer(data.issuer as String)
+    .subject(data.subject as String)
+    .audience(data.audience as String)
+    .issueTime(new Date((data.issuedAt as Long) * 1000))
+    .expirationTime(new Date((data.expiry as Long) * 1000))
+    .build()
+
+// Sign
+def signer = new RSASSASigner(privateKey)
+def signedJWT = new SignedJWT(header, claims)
+signedJWT.sign(signer)
+
+return signedJWT.serialize()
+]]></scripting:code>
+            <scripting:parameters>
+                #[{ vars: vars }]
+            </scripting:parameters>
+        </scripting:execute>
+
+        <set-variable
+            variableName="nsSignedJwt"
+            value="#[payload]"
+            doc:name="Store Signed JWT"/>
+
+        <!-- Exchange JWT for Bearer token -->
+        <http:request
+            config-ref="NS_Auth_Config"
+            method="POST"
+            path="/services/rest/auth/oauth2/v1/token"
+            doc:name="Exchange JWT for NS Token">
+            <http:headers>
+                <http:header key="Content-Type" value="application/x-www-form-urlencoded"/>
+            </http:headers>
+            <http:body>
+                #[output application/x-www-form-urlencoded
+                  ---
+                  {
+                      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                      assertion:  vars.nsSignedJwt
+                  }]
+            </http:body>
+            <http:response-validator>
+                <http:success-status-code-validator values="200"/>
+            </http:response-validator>
+        </http:request>
+
+        <set-variable
+            variableName="nsToken"
+            value="#[payload.access_token]"
+            doc:name="Store NS Bearer Token"/>
+
+        <logger
+            level="DEBUG"
+            message='#["[NS_AUTH] Token obtained for account=" ++ p("netsuite.account.id")]'
+            doc:name="Log Auth Success"/>
+
+    </sub-flow>
+
+</mule>

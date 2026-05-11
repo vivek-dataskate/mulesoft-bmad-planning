@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    ns-upsert.xml — Generic NetSuite REST upsert using externalId for idempotency.
+
+    NetSuite REST supports upsert via:
+      PUT /services/rest/record/v1/{recordType}/eid:{externalId}
+    This creates the record if it doesn't exist, updates it if it does.
+
+    externalId should be set to the source system's record ID (e.g. Salesforce Opportunity ID)
+    on first create. Subsequent syncs find the record by externalId and update in place.
+    This makes syncs idempotent — safe to re-run on failure.
+
+    USAGE:
+      1. Call ns-authenticate-subflow first to get vars.nsToken
+      2. Set vars.nsUpsertRecordType  — e.g. "salesOrder", "customer"
+      3. Set vars.nsUpsertExternalId  — source system record ID (URL-safe string)
+      4. Set vars.nsUpsertBody        — Object (the REST request body from canonical-to-ns-*.dwl)
+      5. Call ns-upsert-subflow
+      6. Read vars.nsUpsertInternalId for the NetSuite internalId of the upserted record
+
+    NetSuite record types (camelCase):
+      salesOrder, customer, invoice, vendor, vendorBill, purchaseOrder, item, contact
+
+    REQUIRED PROPERTIES:
+      netsuite.base.url   — https://{accountId}.suitetalk.api.netsuite.com/services/rest
+
+    OneWorld note:
+      If netsuite.subsidiary.id is set, the caller's DWL body MUST include subsidiary.id.
+      This sub-flow does not inject subsidiary — the DWL transform is responsible.
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <http:request-config name="NS_Upsert_Config" doc:name="NetSuite REST Upsert Config">
+        <http:request-connection
+            host="#[p('netsuite.base.url') replace 'https://' with '' splitBy '/' [0]]"
+            port="443"
+            protocol="HTTPS"/>
+    </http:request-config>
+
+    <!--
+        ns-upsert-subflow
+        Upserts a NetSuite record by externalId.
+
+        Inputs  (vars):
+          nsToken              — Bearer token from ns-authenticate-subflow
+          nsUpsertRecordType   — NetSuite record type (camelCase, e.g. "salesOrder")
+          nsUpsertExternalId   — Source system ID used as externalId key
+          nsUpsertBody         — Object: the full REST request body
+
+        Outputs (vars):
+          nsUpsertInternalId   — NetSuite internalId of the upserted record (from Location header)
+          nsUpsertWasCreated   — Boolean: true if record was created (201), false if updated (204)
+    -->
+    <sub-flow name="ns-upsert-subflow" doc:name="NetSuite Upsert by externalId">
+
+        <logger level="DEBUG"
+            message='#["[NS_UPSERT] " ++ vars.nsUpsertRecordType ++ " eid:" ++ vars.nsUpsertExternalId]'
+            doc:name="Log Upsert Start"/>
+
+        <http:request
+            config-ref="NS_Upsert_Config"
+            method="PUT"
+            path="#['/services/rest/record/v1/' ++ vars.nsUpsertRecordType ++ '/eid:' ++ vars.nsUpsertExternalId]"
+            doc:name="NS REST PUT (Upsert)">
+            <http:headers>
+                <http:header key="Authorization"  value="#['Bearer ' ++ vars.nsToken]"/>
+                <http:header key="Content-Type"   value="application/json"/>
+                <http:header key="Prefer"         value="return=representation"/>
+            </http:headers>
+            <http:body>
+                #[output application/json --- vars.nsUpsertBody]
+            </http:body>
+            <http:response-validator>
+                <!-- 200=updated (with body), 201=created, 204=updated (no body) -->
+                <http:success-status-code-validator values="200,201,204"/>
+            </http:response-validator>
+        </http:request>
+
+        <!-- Extract internalId from Location header (present on 201 Created) -->
+        <ee:transform doc:name="Extract Internal ID">
+            <ee:variables>
+                <ee:set-variable variableName="nsUpsertWasCreated">#[attributes.statusCode == 201]</ee:set-variable>
+                <ee:set-variable variableName="nsUpsertInternalId"><![CDATA[%dw 2.0
+output application/java
+var locationHeader = attributes.headers['Location'] default attributes.headers['location'] default ""
+var idFromLocation = locationHeader splitBy "/" [-1]
+var idFromBody     = payload.id default payload.internalId default null
+---
+idFromBody default idFromLocation default null]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <logger level="INFO"
+            message='#["[NS_UPSERT] " ++ (vars.nsUpsertWasCreated ? "CREATED" : "UPDATED") ++ " " ++ vars.nsUpsertRecordType ++ " internalId=" ++ vars.nsUpsertInternalId ++ " eid=" ++ vars.nsUpsertExternalId]'
+            doc:name="Log Upsert Result"/>
+
+    </sub-flow>
+
+    <!--
+        ns-get-by-internal-id-subflow
+        Retrieves a single NetSuite record by internalId.
+        Useful for reading back after upsert when Prefer:return=representation returns empty body.
+
+        Inputs  (vars):
+          nsToken              — Bearer token
+          nsGetRecordType      — NetSuite record type (camelCase)
+          nsGetInternalId      — internalId of the record to fetch
+
+        Outputs:
+          payload              — NetSuite record JSON
+    -->
+    <sub-flow name="ns-get-by-internal-id-subflow" doc:name="NetSuite GET by internalId">
+
+        <http:request
+            config-ref="NS_Upsert_Config"
+            method="GET"
+            path="#['/services/rest/record/v1/' ++ vars.nsGetRecordType ++ '/' ++ vars.nsGetInternalId]"
+            doc:name="NS REST GET">
+            <http:headers>
+                <http:header key="Authorization" value="#['Bearer ' ++ vars.nsToken]"/>
+            </http:headers>
+            <http:response-validator>
+                <http:success-status-code-validator values="200"/>
+            </http:response-validator>
+        </http:request>
+
+    </sub-flow>
+
+</mule>

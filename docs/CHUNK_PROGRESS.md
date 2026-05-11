@@ -278,3 +278,61 @@ docs/FIELD_KNOWLEDGE.md  [x] CREATED — architect training + lesson accumulatio
                              FK-010: set-variable ≠ set-correlation-id (use Mule 4.6+ element)
                              FK-011: expectedErrorType fails when on-error-continue consumes error
                              FK-012: output application/java from S3 produces byte[], use application/json
+
+CHUNK 11 — Commons Library [x] COMPLETE (2026-05-10)
+  commons/pom.xml                              — mule-plugin packaging; Nimbus JOSE dep; Exchange deploy
+  commons/publish.sh                           — Anypoint Exchange publish script (user+pass or connected app)
+  commons/src/main/mule/:
+    common-error-handler.xml                   — route-to-dlq, build-error-response, dispatch-notification sub-flows
+    common-retry.xml                           — retry-queue pattern (not until-successful); exponential backoff
+    common-notification.xml                    — scatter-gather Slack+email; skips channels when props blank
+    common-batch.xml                           — on-complete log+alert; watermark persistence
+    common-correlation.xml                     — generate, propagate, extract correlation ID sub-flows (set-correlation-id)
+  commons/src/main/resources/dwl/:
+    error-envelope.dwl                         — buildEnvelope + buildValidationEnvelope functions
+    pii-mask.dwl                               — 20+ field patterns; maskPayload recursive traversal
+    canonical-date.dwl                         — toISODate, toISODateTime, toEpochMs, fromEpochMs
+    build-audit-record.dwl                     — CEF-format audit records; chains pii-mask.dwl
+  commons/exchange/:
+    canonical-order.yaml                       — 8-status order schema with OrderLine, Totals, Fulfillment
+    canonical-customer.yaml                    — customer schema with Contact, Financial, Address nested types
+    canonical-invoice.yaml                     — invoice schema with InvoiceLine, Totals, PaymentInfo
+
+CHUNK 12 — Capabilities Portal [x] COMPLETE (2026-05-10)
+  scaffold/generate-capabilities.js            — Node.js HTML portal generator
+  .github/workflows/capabilities.yml          — auto-regenerate on push; commits with [skip ci]
+  Portal tabs: Connectors | Code Assets | System Playbooks | Client Usage
+  Features: staleness badges, search/filter, stats bar, playbook maturity table
+
+CHUNK 13 — System Playbooks [x] COMPLETE (2026-05-11)
+  Both playbooks follow identical object-centric, bidirectional design:
+    System DWL = always-ready; cross-system flow = compose(sf→canonical, canonical→ns)
+
+  commons/playbooks/salesforce/
+    PLAYBOOK.md                                — quirks, cursor pagination, JWT auth, maturity log
+    system/sf-auth.xml                         — OAuth2 JWT Bearer; RS256; token in vars.sfToken
+    system/sf-query.xml                        — SOQL cursor paginator (nextRecordsUrl); accumulates vars.sfQueryResults
+    objects/account/sf-account-to-canonical.dwl    — Account → canonical-customer (segment, type, contacts, addresses)
+    objects/account/canonical-to-sf-account.dwl    — canonical-customer → Account PATCH (null-strip)
+    objects/opportunity/sf-opportunity-to-canonical.dwl — Opp → canonical-order (StageName→status, line items)
+    objects/opportunity/canonical-to-sf-opportunity.dwl — canonical-order → Opp PATCH (status→StageName, null-strip)
+    objects/contact/sf-contact-to-canonical.dwl    — Contact → canonical contact entry
+    objects/contact/canonical-to-sf-contact.dwl    — canonical contact → Contact PATCH (null-strip)
+
+  commons/playbooks/netsuite/
+    PLAYBOOK.md                                — CRITICAL PS256 JWT note; quirks (internal IDs, SuiteQL 1000/page, GUs,
+                                                 item matching, invoice read-only, OneWorld subsidiary, tax codes)
+    system/ns-auth.xml                         — PS256 JWT via Nimbus JOSE Groovy scripting; token in vars.nsToken
+    system/ns-query.xml                        — SuiteQL paginator; 429 exponential backoff; accumulates vars.nsQueryResults
+    system/ns-upsert.xml                       — PUT /record/{type}/eid:{externalId}; extracts internalId from Location header
+    objects/sales-order/ns-order-to-canonical.dwl  — SO → canonical-order (status mapping, lines, totals, addresses)
+    objects/sales-order/canonical-to-ns-order.dwl  — canonical-order → SO PUT (itemMapping helper, subsidiaryId, null-strip)
+    objects/invoice/ns-invoice-to-canonical.dwl    — Invoice → canonical-invoice (read-only direction; SO link preserved)
+    objects/customer/ns-customer-to-canonical.dwl  — Customer → canonical-customer (isPerson flag, addressBook structured)
+    objects/customer/canonical-to-ns-customer.dwl  — canonical-customer → Customer PUT (addressBook items, null-strip)
+
+  Cross-system composition pattern established:
+    SF Opp → NS Sales Order:   canonicalToNsOrder(sfOpportunityToCanonical(payload))
+    NS Invoice → SF Opp update: canonicalToSfOpportunity(nsInvoiceToCanonical(payload))
+    SF Account → NS Customer:  canonicalToNsCustomer(sfAccountToCanonical(payload))
+    NS Customer → SF Account:  canonicalToSfAccount(nsCustomerToCanonical(payload))

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    common-correlation.xml — correlation ID lifecycle management.
+
+    Rules (from PLANNING_CONTEXT.md):
+      - Experience API generates the correlationId on inbound request
+      - Set as Mule correlationId (not a variable) — propagates automatically
+      - Pass as X-Correlation-ID header on all outbound HTTP calls
+      - Include in every MQ message publish as messageId
+      - Never generate a new correlationId mid-flow
+      - Never lose correlationId across async boundaries
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+    <!--
+        common-generate-correlation-id-subflow
+        Generates a UUID correlationId and sets it as the Mule event correlationId.
+        Call ONCE at the entry point of each Experience API flow (HTTP listener only).
+        Do NOT call in process or system APIs — they inherit the correlationId from upstream.
+
+        Strategy:
+          1. Use X-Correlation-ID header if provided by caller (external system replay)
+          2. Otherwise generate a new UUID v4
+
+        After this sub-flow runs, correlationId is available everywhere in the flow
+        as the built-in Mule event attribute — no variable needed.
+    -->
+    <sub-flow name="common-generate-correlation-id-subflow">
+
+        <!-- Mule 4.6+ set-correlation-id element — correctly updates the Mule event correlationId -->
+        <!-- Do not use set-variable for this — it does NOT update the Mule event correlationId -->
+        <set-correlation-id
+            value="#[
+                (attributes.headers.'x-correlation-id' default attributes.headers.'X-Correlation-ID')
+                    != null
+                ?  (attributes.headers.'x-correlation-id' default attributes.headers.'X-Correlation-ID')
+                :  uuid()
+            ]"
+            doc:name="Set Correlation ID"/>
+
+        <logger
+            level="DEBUG"
+            message='#["[CORRELATION] correlationId=" ++ correlationId ++ " flow=" ++ flow.name]'
+            doc:name="Log Correlation ID"/>
+
+    </sub-flow>
+
+    <!--
+        common-propagate-correlation-id-subflow
+        Sets X-Correlation-ID header for use in the NEXT outbound HTTP call.
+        Call this immediately before any http:request element that crosses a service boundary.
+
+        Stores the header in vars.outboundCorrelationHeaders — use as:
+          <http:request ...>
+            <http:headers>#[vars.outboundCorrelationHeaders]</http:headers>
+          </http:request>
+    -->
+    <sub-flow name="common-propagate-correlation-id-subflow">
+
+        <set-variable
+            variableName="outboundCorrelationHeaders"
+            value="#[{ 'X-Correlation-ID': correlationId }]"
+            doc:name="Build Outbound Correlation Header"/>
+
+    </sub-flow>
+
+    <!--
+        common-extract-inbound-correlation-id-subflow
+        For system/process APIs receiving an inbound request:
+        Reads X-Correlation-ID from the inbound HTTP header and applies it as the Mule correlationId.
+        If absent (caller did not set it), keeps the auto-generated Mule correlationId.
+    -->
+    <sub-flow name="common-extract-inbound-correlation-id-subflow">
+
+        <set-correlation-id
+            value="#[
+                (attributes.headers.'x-correlation-id' default attributes.headers.'X-Correlation-ID')
+                    != null
+                ?  (attributes.headers.'x-correlation-id' default attributes.headers.'X-Correlation-ID')
+                :  correlationId
+            ]"
+            doc:name="Apply Inbound Correlation ID"/>
+
+    </sub-flow>
+
+</mule>
