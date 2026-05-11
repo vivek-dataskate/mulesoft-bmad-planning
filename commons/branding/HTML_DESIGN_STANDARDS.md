@@ -186,6 +186,61 @@ padding: 9px 18px; border-radius: 6px; font-size: 13px
 
 ---
 
+## Business Context Panel (Intake Forms Only)
+
+Client-visible panel at the top of every intake HTML form. **Shown to the client and included in PDF.** Its purpose is to demonstrate that DataSkate has done its homework — we understand their business and where their integration work takes them. It frames the questionnaire before the first question.
+
+The P0 Blockers sub-section is the only part that is internal-only (`.no-print`, never sent to client).
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ HOW WE SEE YOUR BUSINESS         ▲ collapse                 │
+│ ABOUT {CLIENT}                                              │
+│ {company snapshot — 2-3 sentences; shows we did research}   │
+├─────────────────────────────────────────────────────────────┤
+│ YOUR INTEGRATION JOURNEY                                    │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │  Phase 1     │  │  Phase 2     │  │  Phase 3     │      │
+│  │  Connected   │  │  Automated   │  │  Agentic     │      │
+│  │  {specific}  │  │  {specific}  │  │  {specific}  │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+├──────────────────── no-print ───────────────────────────────┤
+│ P0 BLOCKERS (internal — never shown in PDF/email)           │
+│  • {blocker 1} — Owner: {client/vendor}                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Content framing rules:**
+- Snapshot: 2–3 sentences showing understanding of the client's business — not generic filler
+- Phase labels: use "Connected", "Automated", "Agentic" — these are always the three labels
+- Phase descriptions: MUST be specific to this client's flows and industry — never generic
+- Phase 1 = the flows being built right now; Phase 2 = what those flows make automatable; Phase 3 = subtle AI capability mention grounded in their data (not a sales pitch)
+- Tone: consultative and specific — "Once your job records sync to Salesforce automatically, your ops team can..." not "Phase 2 enables automation"
+
+**CSS classes:**
+- `.biz-context` — outer wrapper; `background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--blue-br); border-radius: 8px`
+- `.bc-header` — collapsible header row; `background: #DBEAFE; padding: 12px 20px; cursor: pointer; display: flex; justify-content: space-between`
+- `.bc-title` — "HOW WE SEE YOUR BUSINESS"; `font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #1E40AF`
+- `.bc-body` — collapsible content; `padding: 20px`
+- `.bc-snapshot` — company snapshot paragraph; `font-size: 14px; color: var(--dark); margin-bottom: 16px`
+
+**AI Journey cards** (`.journey-grid` → 3-column grid inside `.bc-body`):
+| Phase | Class | Background | Border color |
+|---|---|---|---|
+| Phase 1 — Connected | `.journey-card.phase-1` | `#F0FFF4` | `#68D391` |
+| Phase 2 — Automated | `.journey-card.phase-2` | `#FFFBEB` | `#F6D860` |
+| Phase 3 — Agentic | `.journey-card.phase-3` | `#F5F0FF` | `#C084FC` |
+
+Each card contains: `.jc-phase` (10px 700 uppercase — "PHASE 1"), `.jc-label` (14px 700 — "Connected"), `.jc-headline` (13px 600 — short specific headline), `.jc-body` (13px 400 — 1-2 sentence description).
+
+**P0 Blockers** (only rendered if blockers exist): `.bc-blockers.no-print` section — hidden from print and email. Heading: "Internal — Technical Blockers". Each `<li>` has `Owner:` annotation.
+
+**JS behavior:** clicking `.bc-header` toggles `.bc-body` visibility and flips a `▲/▼` chevron. Default state: expanded.
+
+**Print rule:** `.bc-blockers { display: none !important; }` — only the blockers sub-section is hidden in print. The snapshot and journey cards print normally.
+
+---
+
 ## Sticky Action Bar (Intake Forms Only)
 
 ```
