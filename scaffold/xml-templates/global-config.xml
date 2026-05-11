@@ -102,6 +102,25 @@
         <http:listener-connection host="${http.host}" port="${http.port}"/>
     </http:listener-config>
 
+    <!--
+        HTTP Requester — outbound calls to downstream REST APIs.
+        Add one <http:request-config> per external system you call.
+        Uncomment and rename (HTTP_Request_{System}_Config) for each target.
+
+        TODO: Uncomment and configure when making outbound HTTP calls:
+
+    <http:request-config
+        name="HTTP_Request_Config"
+        doc:name="HTTP Requester Config"
+        basePath="${http.target.basePath}">
+        <http:request-connection
+            host="${http.target.host}"
+            port="${http.target.port}"
+            protocol="${http.target.protocol}"
+            responseTimeout="${http.target.timeoutMs}"/>
+    </http:request-config>
+    -->
+
     <!-- ═══════════════════════════════════════════════════════════════
          CONNECTOR CONFIGURATIONS
          Generated from decisions.json systems.connectors[]

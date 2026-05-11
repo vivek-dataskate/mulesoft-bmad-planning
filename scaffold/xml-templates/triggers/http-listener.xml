@@ -17,6 +17,10 @@
 -->
     <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
 
+        <!--
+            allowedMethods: set per-flow in decisions.json flows[].httpMethods
+            Defaults to "POST,GET" — override by adding "httpMethods": "GET" to the flow entry.
+        -->
         <http:listener
             config-ref="HTTP_Listener_Config"
             path="{{HTTP_PATH}}"
@@ -65,16 +69,13 @@
         <!-- TODO: Implement {{FLOW_DESCRIPTION}} -->
         <!-- Source: {{FLOW_SOURCE}} → Target: {{FLOW_TARGET}} -->
 
+        <!--
+            Transform references the generated DWL stub at src/main/resources/dwl/{{DWL_FILE_NAME}}.dwl
+            Implement the field mappings there (already created by scaffold generator).
+        -->
         <ee:transform doc:name="Transform Response — {{FLOW_NAME}}">
             <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
-// TODO: move logic > 10 lines to resources/dwl/{{DWL_FILE_NAME}}.dwl
----
-{
-    // TODO: implement {{FLOW_SOURCE}} → {{FLOW_TARGET}} mapping
-    correlationId: correlationId
-}]]></ee:set-payload>
+                <ee:set-payload resource="dwl/{{DWL_FILE_NAME}}.dwl"/>
             </ee:message>
             <ee:variables>
                 <ee:set-variable variableName="httpStatus"><![CDATA[200]]></ee:set-variable>

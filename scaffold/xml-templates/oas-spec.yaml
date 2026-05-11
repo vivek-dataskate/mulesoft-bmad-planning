@@ -21,8 +21,10 @@ servers:
 
 # Security applied at operation level — Flex Gateway enforces at runtime.
 # client-id-enforcement policy validates client_id + client_secret pair.
+# Both schemes in the same list item = AND requirement (both headers required).
 security:
   - clientIdScheme: []
+    clientSecretScheme: []
 
 components:
   securitySchemes:
@@ -111,12 +113,12 @@ paths:
   # ── TODO: Define API endpoints ─────────────────────────────────────────
   # Replace {entity} with the actual resource name from decisions.json flows[].
   # Add one path block per HTTP method needed (POST create, GET query, PUT update).
-  "/{{RESOURCE_PATH}}":
+  "{{HTTP_PATH}}":
     post:
       summary: "TODO: Describe this operation"
       operationId: "{{FLOW_NAME}}"
       tags:
-        - "{{DOMAIN}}"
+        - "{{domain}}"
       security:
         - clientIdScheme: []
       parameters:
