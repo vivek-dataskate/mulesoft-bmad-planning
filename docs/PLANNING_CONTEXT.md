@@ -51,6 +51,21 @@ BMAD ANALYST AGENT
   Output → projects/{client}/prd.md
          + projects/{client}/api-discovery/ (per undocumented system)
         ↓
+PRD VALIDATION GATE  [Analyst runs VP before handing off — mandatory]
+  10-gate completeness check:
+    1. Status not BLOCKED
+    2. All sections have substantive content (no template placeholders)
+    3. All 5 NFR dimensions have concrete enum values
+    4. All systems are Found ✓ or classified REST/SOAP (no unknown BLOCKERs)
+    5. No unresolved blocker items
+    6. P0-priority API Discovery contract.md files exist
+    7. ≥1 confirmed flow with full metadata
+    8. Enough flow info to walk the Level 0/1 decision tree
+    9. Assumptions are specific and actionable
+    10. No uncleaned template placeholder text
+  PASS → Status updated to READY-FOR-ARCHITECT → hand off to Architect
+  FAIL → Analyst fixes gaps → re-runs VP → only then hands off
+        ↓
 API CONTRACT DISCOVERY  [runs when Analyst flags a system as spec-unknown]
   For each system without a complete API spec:
     GET-first: probe all known GET endpoints, capture response shapes
@@ -85,16 +100,29 @@ CREATE CLIENT REPO SCRIPT (shell)
   Reads decisions.json
   Runs scaffold generator
   Creates new GitHub repo via GitHub API
-  Pushes generated code
+  Pushes generated code + stories.md
   Developer opens repo in Codespace — no cloning needed
         ↓
 DEVELOPER
   Opens github.com/{org}/{client}-mule in Codespace
   Anypoint Code Builder opens automatically
   Project compiles immediately
-  Developer fills in TODO comments
-  Runs MUnit tests
-  Deploys to CloudHub 2.0
+  Developer fills in TODO comments in Anypoint Studio / Anypoint Code Builder
+  (Claude Code NOT used for MuleSoft XML code generation — Anypoint Studio is the IDE)
+        ↓
+BMAD DEV AGENT  [runs in CLIENT REPO Codespace — test verification only]
+  Does NOT write MuleSoft code — developer does that in Anypoint Studio
+  Runs: mvn munit:test
+  Checks coverage floors per pattern (from decisions.json primaryPattern)
+  Verifies each story's FRs, NFRs, and AC checkboxes against observable evidence
+  Cross-cutting checks: idempotency, error envelope, correlation ID, no hardcoded values
+  Output → Verification Report (PASS or list of gaps for developer to fix)
+  VR (Verify All Stories) or CS (Check Single Story)
+        ↓
+ARCHITECT (CO — Close-Out)
+  Reviews verification report + final code state
+  Updates FIELD_KNOWLEDGE.md with any non-obvious findings
+  Closes out project in planning repo
 ```
 
 ---

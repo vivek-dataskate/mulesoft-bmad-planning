@@ -41,9 +41,20 @@ Planning repo will be made private once all 10 chunks are complete.
 
 ## Pipeline
 
-Scout → Analyst → Architect (MD) → PM → Scaffold → **Developer uses Anypoint Studio** → Architect (CO)
+Scout → Analyst → **VP (Validate PRD)** → Architect (MD) → PM → Scaffold → **Client repo created** → Developer (Anypoint Studio) → **Dev agent (VR — Verify)** → Architect (CO)
 
-The Dev agent (`bmad-agent-dev`) is NOT used. Developers implement flows directly in Anypoint Studio against the generated scaffold. The planning repo is only used by the tech lead / architect.
+**Planning repo** (this repo) — used by tech lead / architect only:
+- All agent steps up to and including Scaffold run here
+- stories.md is included in the generated client repo
+
+**Client dev repo** — used by developers:
+- Developer implements flows in Anypoint Studio / Anypoint Code Builder (fills in TODO comments)
+- Dev agent (`bmad-agent-dev`) is run in the client repo Codespace **only for test verification**:
+  - Runs MUnit test suite (`mvn munit:test`)
+  - Checks coverage floors from decisions.json against actual results
+  - Verifies all FRs and NFRs from stories.md are addressed in the implementation
+  - Produces a verification report — PASS or list of gaps
+  - Does NOT generate MuleSoft XML code — that is the developer's job in Anypoint Studio
 
 ---
 
