@@ -62,6 +62,8 @@ New integration: Salesforce ↔ SAP
 - **PATCH semantics:** Only send fields being changed. Sending null erases the field — omit to leave unchanged.
 - **CDC vs polling:** CDC (Change Data Capture) preferred over SOQL polling for near-real-time. Subscribe to `ChangeEventHeader` channel.
 - **Compound fields:** Address is a compound field in Salesforce — query sub-fields explicitly (`BillingStreet`, `BillingCity`, etc.).
+- **BillingCountryCode / ShippingCountryCode:** Only exist when "State and Country Picklists" is enabled in Setup. On orgs without it, these fields throw `FIELD_INTEGRITY_EXCEPTION`. Check at project start. The `canonical-to-sf-account.dwl` function accepts a `useCountryCode` flag — default is `false` (safe free-text `BillingCountry`).
+- **CurrencyIsoCode on Account:** Only writable/readable on multi-currency orgs. Single-currency orgs do not expose this field on Account at all. Check at project start. The `canonical-to-sf-account.dwl` function accepts an `isMultiCurrency` flag.
 - **Connected App scopes:** Needs `api`, `refresh_token`. For CDC: also `cdp_ingest_api`.
 
 ---
