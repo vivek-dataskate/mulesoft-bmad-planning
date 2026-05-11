@@ -239,30 +239,59 @@ CHUNK 9 — Client Repo Sh [x] COMPLETE (2026-05-10)
     - Outputs: repo URL + GitHub Codespace one-click URL for developer
     - Developer handoff block: step-by-step instructions printed to stdout
 
-CHUNK 10 — E2E Test      [x] COMPLETE (2026-05-11)
+CHUNK 10 — E2E Test      [~] PARTIAL (2026-05-11) — scaffold validation only
   Full pipeline test using LeoLabs intake docs (projects/leolabs/)
-  Sequence: Analyst → Architect → PM → Scaffold → structural validation
-  All validation checks PASSED:
-    ✓ decisions.json: pattern=event-driven, connectors=[salesforce,netsuite,anypoint-mq,http],
+  NOTE: Analyst → Architect → PM pipeline NOT run — no prd.md / architecture.md / stories.md exist.
+        LeoLabs intake PDFs not yet extracted. decisions.json was pre-existing from 2026-05-10.
+        mvn compile and mvn test NOT run (requires commons published to Exchange first).
+
+  Scaffold validation checks:
+    ✓ decisions.json: pattern=event-driven, connectors=[salesforce,netsuite,anypoint-mq,http]
                       messageTtlHours=24, deduplicationTtlMinutes=1440 (=24h×60), cicd=github-actions
-    ✓ All 3 flow files generated (one per decisions.json flows[] entry)
-    ✓ All 3 MUnit test files generated (one per flow)
+    ✓ All flow files generated (one per decisions.json flows[] entry)
+    ✓ All MUnit test files generated (one per flow)
     ✓ No hardcoded credentials in local/dev/uat/prod.yaml property files
     ✓ pom.xml: salesforce 11.4.0, netsuite 11.11.0, anypoint-mq 4.0.7 with Exchange TODO comments
     ✓ deploy.yml generated (.github/workflows/deploy.yml), Java 17 correct
-    ✓ Zero unsubstituted {{tokens}} in all 8 XML files
-  NOTE: mvn compile/test require commons published to Exchange first (expected — dev handoff step)
-  BUGS FIXED during E2E:
-    scaffold/generate.js: {{WATERMARK_ENABLED}} in scheduler.xml comment not substituted
-      → Fixed: added WATERMARK_ENABLED to buildFlowTokens token map alongside flags
+    ✓ Zero unsubstituted {{tokens}} in all XML files
+    ✗ mvn compile — NOT RUN (commons not on Exchange; run after commons/publish.sh)
+    ✗ mvn test    — NOT RUN (same dependency gap)
+
+  BUGS FIXED during E2E scaffold run:
+    scaffold/generate.js: {{WATERMARK_ENABLED}} not substituted in scheduler.xml comment line
     scaffold/generate.js: {{WIRE_TAP_RETENTION_HOURS}}, {{SYSTEM_NAME}}, {{system_key}}
       not substituted in connector config blocks embedded in global-config.xml
-      → Fixed: sub(body, connTokens) applied per-connector after extractMuleBody
-    scaffold/xml-templates/oas-spec.yaml: {{DOMAIN}} not in token map (was lowercase-only)
-      → Fixed: added DOMAIN alias to buildFlowTokens tokens map
-    standards/connector-registry.json: version fields wrong for LeoLabs connectors
-      salesforce 10.18.0→11.4.0, netsuite 10.5.0→11.11.0, anypoint-mq 4.0.5→4.0.7
-      (docVersion was correct; version field had stale/wrong values)
+    scaffold/xml-templates/oas-spec.yaml: {{DOMAIN}} not in token map
+    standards/connector-registry.json: salesforce 10.18.0→11.4.0, netsuite 10.5.0→11.11.0,
+      anypoint-mq 4.0.5→4.0.7
+
+  BUGS FIXED during adversarial review (2026-05-11):
+    mq-subscriber.xml: idempotency os:store was BEFORE processing (pre-store drops messages
+      that fail on first attempt — at-most-once instead of at-least-once)
+      → Fixed: os:store moved to AFTER successful processing, before ACK
+    scheduler.xml: watermark stored as now() — skips records updated during run window
+      → Fixed: stores vars.newWatermark (set by developer during foreach/batch)
+    generate.js genProperties: per-flow scheduler cron key missing from YAML output
+      → Runtime PropertyNotFoundException on startup for scheduler flows
+      → Fixed: genProperties now appends scheduler.{flowKey}.cron for each scheduler flow
+    generate.js: {{DOMAIN}} in OAS spec mapped to client name (semantically wrong for API tag)
+      → Fixed: derived from flow name second segment (noun), e.g. "get-integration-status" → "integration"
+    generate.js: {{SYSTEM_NAME}} substituted with conn.displayName ("HTTP / HTTPS") — meaningless
+      → Fixed: generic http/soap connectors get explicit TODO placeholder
+    decisions.json LeoLabs: 3 flows but PLANNING_CONTEXT.md specifies 5 flows
+      → Fixed: added listen-opportunity-event-flow (platform-event trigger) and
+               sync-accounts-to-netsuite-flow (scheduler trigger)
+    generate.js TRIGGER_TEMPLATE_MAP: platform-event mapped to mq-subscriber.xml (wrong pattern)
+      → Fixed: new scaffold/xml-templates/triggers/platform-event.xml created
+               (SF subscribe-channel-listener → publish to MQ)
+    scaffold/generate.js default output: was /tmp/{client}-mule (ephemeral, user can't find files)
+      → Fixed: default is now projects/{client}/generated/ (gitignored, always visible locally)
+
+  REMAINING GAPS (deferred — require human agent runs or external tooling):
+    - Run Analyst agent on LeoLabs intake PDFs → generate prd.md
+    - Run Architect agent → generate architecture.md + validate decisions.json
+    - Run PM agent → generate stories.md
+    - Run mvn compile + mvn test (requires commons published to Anypoint Exchange first)
 
 PATTERN EXPANSION 2026-05-10 — Modern Integration Patterns (A-R → A-U):
   Research: EIP-era patterns compared against microservices, data integration, and AI agent standards.

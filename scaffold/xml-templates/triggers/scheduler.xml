@@ -52,12 +52,21 @@
         -->
 
         {{#if WATERMARK_ENABLED}}
-        <!-- Update watermark after successful run -->
+        <!--
+            Update watermark to the maximum updated_at timestamp seen in this run's records.
+            DO NOT use now() — that skips records updated while this run was executing.
+
+            TODO: Set vars.newWatermark during processing above (inside your foreach/batch):
+              vars.newWatermark = max(records[*].updatedAt) default vars.watermark
+
+            Only advance the watermark if records were actually returned.
+            If no records were returned, keep the existing watermark unchanged.
+        -->
         <os:store
             key="{{FLOW_NAME}}-watermark"
             objectStore="Persistent_Object_Store"
-            doc:name="Update Watermark">
-            <os:value>#[now() as String { format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" }]</os:value>
+            doc:name="Advance Watermark">
+            <os:value>#[vars.newWatermark default vars.watermark]</os:value>
         </os:store>
         {{/if}}
 

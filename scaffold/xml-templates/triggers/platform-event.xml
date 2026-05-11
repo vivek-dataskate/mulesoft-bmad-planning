@@ -1,0 +1,61 @@
+<!--
+    Trigger: Salesforce Platform Event subscriber
+    Channel: /event/{EventApiName}__e  (replace TODO_EventName__e below with actual Platform Event API name)
+    Pattern: system layer — subscribe to event, publish to Anypoint MQ for decoupled processing
+
+    Architecture:
+      This flow is a SYSTEM API — it translates a Salesforce-specific event into a
+      platform-agnostic MQ message. Keep this flow thin:
+        1. Receive Platform Event
+        2. Validate required fields
+        3. Publish canonical payload to MQ
+        4. Done — no business logic here
+
+    Replay ID:
+      Salesforce Platform Events support replay. The Salesforce connector stores the
+      replayId in a persistent Object Store so restarts do not re-process old events.
+      Replay strategy options: EARLIEST, LATEST, FROM_REPLAY_ID
+-->
+    <flow name="{{FLOW_NAME}}" doc:name="{{FLOW_DESCRIPTION}}">
+
+        <!--
+            TODO: Set the Platform Event API name (without __e suffix) in the channel path.
+            Example for OpportunityStatusChanged__e: /event/OpportunityStatusChanged__e
+        -->
+        <salesforce:subscribe-channel-listener
+            config-ref="Salesforce_Config"
+            channel="/event/TODO_EventName__e"
+            replayOption="EARLIEST"
+            doc:name="Subscribe to Platform Event — TODO_EventName__e"/>
+
+        <logger
+            level="INFO"
+            message='#["[EVENT] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | replayId=" ++ (attributes.replayId as String default "?") ++ " | env=" ++ p("mule.env")]'
+            doc:name="Log Platform Event Received"/>
+
+        <!--
+            TODO: Validate required fields before publishing.
+            Reject structurally invalid events early — they will always fail downstream.
+            Route validation failures to invalid-messages-queue (NOT the DLQ).
+        -->
+
+        <!--
+            Publish to Anypoint MQ for processing by the downstream MQ subscriber flow.
+            The MQ consumer (sync-*-flow) handles idempotency, retry, and DLQ routing.
+            This flow's job is delivery only.
+        -->
+        <anypoint-mq:publish
+            config-ref="Anypoint_MQ_Config"
+            destination="${mq.queue.{{QUEUE_PROPERTY}}}"
+            messageId="#[correlationId]"
+            doc:name="Publish to MQ — ${mq.queue.{{QUEUE_PROPERTY}}}">
+            <anypoint-mq:body>#[output application/json --- payload]</anypoint-mq:body>
+        </anypoint-mq:publish>
+
+        <logger
+            level="INFO"
+            message='#["[PUBLISHED] flow=" ++ flow.name ++ " | correlationId=" ++ correlationId ++ " | queue=${mq.queue.{{QUEUE_PROPERTY}}}"]'
+            doc:name="Log MQ Publish Success"/>
+
+        <error-handler ref="Global_Error_Handler"/>
+    </flow>
