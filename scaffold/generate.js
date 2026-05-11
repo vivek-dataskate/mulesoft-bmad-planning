@@ -417,6 +417,7 @@ function buildFlowTokens(flow, d, coverageFloor) {
     API_DESCRIPTION:      `${flow.description ?? 'Generated API stub'}\n\nDeveloper completes field-level schema before publishing to Exchange.`,
     PROJECT_TEAM:         client,
     base_url:             `${domain}.cloudhub2.io`,
+    DOMAIN:               domain,
 
     // Project-level — artifactId uses the sanitised domain slug, not the raw client name,
     // so it is always a valid Maven artifactId (lowercase, hyphens only).
@@ -425,6 +426,11 @@ function buildFlowTokens(flow, d, coverageFloor) {
 
     // MUnit
     MUNIT_COVERAGE:       coverageFloor,
+
+    // Scheduler / watermark — WATERMARK_ENABLED appears as a plain token in scheduler.xml
+    // comments (in addition to {{#if WATERMARK_ENABLED}} blocks). Duplicate in tokens map
+    // so comment lines are also substituted.
+    WATERMARK_ENABLED:    String(!!(d.scheduling?.watermarking)),
   };
 }
 
@@ -549,10 +555,17 @@ function genGlobalConfig(d, lookup, outDir) {
       continue;
     }
 
-    // Extract the connector config element(s) from the full mule XML document
+    // Extract the connector config element(s) from the full mule XML document.
+    // Apply per-connector token substitution before embedding so that tokens like
+    // {{WIRE_TAP_RETENTION_HOURS}}, {{SYSTEM_NAME}}, {{system_key}} are resolved.
     const raw    = readFile(tmplPath);
     const body   = extractMuleBody(stripXmlDecl(raw));
-    configBlocks.push(body);
+    const connTokens = {
+      WIRE_TAP_RETENTION_HOURS: d.wireTap?.retentionHours ?? 72,
+      SYSTEM_NAME:              conn.displayName ?? key,
+      system_key:               key,
+    };
+    configBlocks.push(sub(body, connTokens));
 
     // Collect namespace info for global-config xmlns declarations
     const ns = NS_REGISTRY[key];

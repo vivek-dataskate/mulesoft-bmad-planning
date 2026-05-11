@@ -1,0 +1,1336 @@
+ Notes
+ 
+
+ 
+Feb 17, 2026
+Zyris + Salesforce  
+Invited     
+Tito Tenorioaichikawa@zyris.comrkammer@zyris.comParis Thomas
+ 
+Sam McKay
+Attachments   
+Zyris + Salesforce 
+Meeting records    
+TranscriptRecording
+ 
+Summary 
+Integration Goals and Team Setup 
+The meeting formally began with the agenda to recap the previous 
+discussion, focusing on Mulesoft's role in reducing operational risk, 
+improving order-to-cash automation, and enabling internal integration 
+ownership. 
+ 
+Centralized Architecture Solves Fragmentation 
+The current architecture suffers from fragmented, point-to-point 
+integrations leading to complex and unmanageable business logic. 
+Mulesoft addresses this via a composable API architecture, providing a 
+single pane of glass for all integrations and demonstrating the capability to 
+handle complex requirements like address normalization and merge 
+resolution events. 
+ 
+Pricing and Positive Technical Feedback 
+The platform received positive technical feedback, confirming it covers 
+most immediate integration use cases and feels simpler to develop on than 
+existing tools. The proposed annual investment for the Mulesoft platform, 
+including 50 flows and 5 million messages, was presented at a discounted 
+rate of $30,000 
+ 
+
+Details 
+Decisions 
+Rate these decisions: Helpful or Not Helpful 
+ 
+ALIGNED 
+Anyoint Platform Annual Investment 
+Annual investment established at $30,000 for Anyoint Platform package. Package 
+includes 50 flows, 5 million messages, two pre-production, two production managed 
+APIs. 
+ 
+Annual Contract Renewal Uplift 
+Annual renewal rate based on $30,000 investment price point. Future renewals subject 
+to standard 9% standard Salesforce uplift. 
+ 
+Free Premier Success Inclusion 
+February contract includes free Premier Success access package. Support included 
+throughout Mulesoft contract duration, covering 24/7/365 support, health checks, 
+expert coaching. 
+ 
+Implementation Partner Introduction Scheduling 
+Introductory meeting with implementation partner scheduled for Thursday morning. 
+Partner will review implementation requirements before further contract movement. 
+ 
+More details: 
+● 
+Initial Introductions and Regional Weather Updates: The meeting began with 
+introductions and a discussion of the current weather conditions, noting that 
+someone in SF-Tower (23, C03) was keeping warm and dry in San Francisco, 
+which was expecting rain for nine days. Paris Thomas mentioned that they were 
+snowed in at Tahoe, having received a foot and a half of snow in the last 24 
+
+hours, with the snow expected to continue for two more days (00:00:00). Rodrigo 
+Zyris, Paris Thomas, and someone in SF-Tower (23, C03) all expressed their 
+fondness for Tahoe, with Rodrigo Zyris mentioning they often stay in the 
+downtown area, formerly the Hard Rock, now the Golden Nugget, for gambling 
+opportunities (00:00:56). 
+● 
+Tahoe Skiing Experiences and Road Closures: Paris Thomas, who was raised in 
+the area and skied Northstar, recently skied Heavenly for the first time and was 
+impressed by the lake views (00:00:56). They expressed disappointment that the 
+roads were closed, preventing them from returning. Following the casual 
+conversation, someone in SF-Tower (23, C03) welcomed Alex Ichikawa and 
+initiated the formal part of the meeting, asking Paris Thomas and Sam McKay to 
+proceed with their presentation (00:01:47). 
+● 
+Meeting Agenda and Introduction of Key Personnel: Paris Thomas outlined the 
+agenda, which included a recap of the last call, a stage setting for Sam McKay's 
+presentation, a product demo, pricing information, and discussion about partner 
+shopping (00:02:45). The team consists of Tito (Corey, managing Salesforce for 
+Zyrus), Paris Thomas (MuleSoft Account Executive on the data foundations 
+team), and Sam McKay (Solutions Engineer and MuleSoft expert). The ultimate 
+goal of the project is to reduce operational risk, improve order-to-cash 
+automation, and enable internal ownership of integrations (00:03:41). 
+● 
+Current Architecture Challenges and Mulesoft's Value Proposition: The current 
+architecture is fragmented, using different tools for integrations, which results in 
+complex business logic and a lack of standardization (00:03:41). Mulesoft aims 
+to address these issues by providing seamless integration across key systems 
+like HubSpot, Microsoft Dynamics, and Shopify. This integration is intended to 
+lead to stronger revenue, improved customer experience execution, and a solid 
+foundation for the IT team, including Rodrigo Zyris and Alex Ichikawa, for 
+managing systems and data flow (00:04:51). 
+● 
+Technical Requirements for Scalable Integration: Mulesoft is intended to provide 
+a scalable foundation by standardizing integration in one place across the 
+platform. Technical requirements include options for batch and real-time data 
+triggers, and the ability to orchestrate existing business logic in a scalable way 
+(00:05:58). Sam McKay then started the platform discussion, noting that growing 
+organizations often accumulate a thousand or more applications, leading to "API 
+sprawl" without a centralized middleware (00:07:20). 
+
+● 
+Addressing Point-to-Point Integration Challenges: Organizations often come to 
+Mulesoft after building "point-to-point integrations," which are difficult to 
+troubleshoot because the necessary code (e.g., for syncing HubSpot and 
+Microsoft Dynamics records) is scattered across multiple systems. This 
+fragmented architecture, often referred to as "spaghetti code," makes debugging 
+and tracing data flow nearly impossible (00:08:21). Mulesoft offers a solution by 
+providing a single pane of glass for all integrations (00:09:23). 
+● 
+Mulesoft Platform Pillars and Components: Mulesoft focuses on building 
+integrations the right way by providing a centralized user interface where all logic 
+resides, simplifying troubleshooting and data flow visibility. Other pillars include 
+automation via no-code tooling and AI-supported development, and API 
+management for 24/7 monitoring of throughput, latency, and data flow 
+(00:09:23). In the future, Mulesoft can also enable AI agents to leverage the same 
+applications and integrations to take action on end systems (00:10:23). 
+● 
+Anypoint Design Center and Exchange for API Development: API development 
+begins in Anypoint Design Center, which is used to create API documentation, 
+define endpoints, and create mock requests and responses for parallel team 
+development (00:10:23). Once designed, the API is published to Anypoint 
+Exchange, which functions as an internal "app store" for integrations, promoting 
+reusability and allowing developers to leverage existing APIs instead of building 
+from scratch (00:11:22). The core idea is to develop reusable building blocks that 
+can be applied to future integrations (00:12:22). 
+● 
+Anypoint Studio and Data Transformation: Implementation of the API integration 
+happens in Anypoint Studio, the desktop IDE development environment 
+(00:12:22) (00:14:31). Within the studio, the DataWeave connector is used to map 
+data between systems through a drag-and-drop experience. DataWeave 
+interprets both the incoming and outgoing data structures, simplifying the 
+process of mapping fields from one system (e.g., Shopify) to another (e.g., 
+Microsoft Dynamics) (00:13:36). Anypoint Studio has been the long-standing 
+development environment, though newer VS Code plugins offer AI-supported 
+development and are also perfectly valid for Mulesoft applications (00:14:31). 
+● 
+Monitoring and Alerts in Anypoint Platform: Anypoint Monitoring and Analytics 
+provides out-of-the-box dashboards for monitoring integrations, allowing users to 
+track total requests, identify erroring endpoints, and check response latency. The 
+platform offers dozens of metrics and provides real-time alerts if a system is 
+down or if a high number of errors occur within a short time frame (00:15:31). 
+
+● 
+Mulesoft Connectors for Specific Use Cases: Anypoint Studio includes 
+numerous out-of-the-box connectors to simplify interaction with common 
+systems. Relevant connectors for the team's needs include those for Microsoft 
+Dynamics FO and Shopify (00:16:30). While there is no pre-built connector for 
+HubSpot, the Anypoint HTTP connector can be used to set up the connection 
+using HubSpot's REST API (00:17:28). Once configured using the HTTP 
+connector, the HubSpot API can be published to Exchange for future reuse, 
+functioning as a custom connector (00:18:34). 
+● 
+Future State: Customer and Contact Synchronization: The future state for the 
+customer and contact sync between HubSpot and FO can have two entry points: 
+a scheduled batch process for bulk updates and a real-time sync button. 
+Mulesoft would query HubSpot for records based on criteria like a certain life 
+cycle stage and modification since the last job run, preventing unnecessary API 
+calls (00:19:42). The process involves querying FO for matching records, 
+mapping the data with DataWeave, and then upserting the record into FO, 
+followed by stamping the new FO ID back into HubSpot for record linkage 
+(00:20:43). 
+● 
+Future State: Order Synchronization and Address Normalization: The order 
+synchronization process between Shopify and FO is triggered by a new order 
+created in Shopify. Although complex address normalization logic was presented 
+in a previous flowchart, Sam McKay confirmed that all the necessary logic, 
+including complex business rules and if-else conditions via a choice router 
+component, could be handled in Mulesoft using DataWeave (00:21:43). After 
+querying FO for the record using the normalized address and creating the order, 
+the FO order ID is written back into Shopify to maintain system linkage. Mulesoft 
+can also capture status updates (e.g., delivered or fulfilled) from FO in real time 
+or via batch job and write them back to Shopify (00:22:49). 
+● 
+Future State: Handling Merge Resolution Events: To address concerns about 
+maintaining external system links during HubSpot record merges, Mulesoft can 
+be configured to listen for the HubSpot merge event (00:22:49). When the merge 
+event is received, Mulesoft takes the final merged record and the IDs of the 
+records merged into it, then extracts any external IDs (like FO or Shopify IDs). 
+This ensures those external IDs are stamped onto the final merged record in 
+HubSpot. Alex Ichikawa asked if this could also trigger a merge in FO, and Sam 
+McKay confirmed that Mulesoft could take action in FO to merge related records 
+there as well (00:23:56). 
+
+● 
+Future State: Customer Tag Sync for Pricing and Sales Agreements: The 
+customer tag sync for pricing and sales agreement updates can be authored or 
+updated in either FO or HubSpot. Mulesoft would capture these updates in real 
+time or via a batch job (00:24:48). The platform would then query Shopify to find 
+the related customer record and update any sales agreement tags or other terms 
+in Shopify to ensure synchronization across systems (00:25:49). 
+● 
+Mulesoft API Architecture (Composable Architecture): To contrast with the 
+"spaghetti code" model, Mulesoft promotes a composable API architecture 
+(00:25:49). This architecture follows three layers: the System Layer, which 
+connects directly to end systems like HubSpot without business logic; the 
+Process Layer, which contains the application's "brain" and holds business logic 
+such as address normalization and merge resolutions; and the Experience Layer, 
+which receives external events or callouts, such as a HubSpot merge event 
+(00:26:49). This structure promotes significant reuse as new integrations are 
+added (00:27:56). 
+● 
+Positive Feedback on Platform Suitability and Ease of Use: Rodrigo Zyris 
+confirmed that Mulesoft is exactly what they are looking for, covering most of 
+their immediate use cases (00:28:56). The platform feels robust and much 
+simpler to develop on compared to their current tools. Rodrigo Zyris specifically 
+liked the ability to get analytics and tracking (00:29:49). They acknowledged that 
+specific caveats would be defined later when working with an implementation 
+partner. Rodrigo Zyris requested a brief live look at the platform for curiosity 
+(00:31:12). 
+● 
+Platform Demonstration Walkthrough: Sam McKay provided a live walkthrough 
+of the API life cycle, starting in Design Center where an API specification is 
+mocked up, defining endpoints and example responses (00:32:13). Once 
+published, the API goes to Anypoint Exchange, acting as an app store for 
+developers to find existing system APIs and documentation (00:33:29). After 
+implementation in Anypoint Studio, the API is deployed to Runtime Manager, 
+where it is running and monitored for metrics like request count and response 
+time (00:34:18). For security, API Manager is used to apply policies like rate 
+limiting, IP whitelisting, and OAuth enforcement to managed APIs (00:35:15). 
+● 
+Pricing and Contract Details: Paris Thomas presented the proposed pricing for 
+the Anypoint platform, listing the cost at $42,000 annually, reduced to a $30,000 
+annual investment due to an initial 28.6% discount. This package includes 50 
+flows, 5 million messages, and two pre-production and two production managed 
+
+APIs (00:38:59). This discounted rate is the locking rate, though Salesforce has a 
+standard 9% uplift on renewals (00:44:22). 
+● 
+Capacity and Message Explanations: Sam McKay clarified that a "flow" is a 
+pipeline moving a certain type of data between systems, and the 50 flows are 
+generally split across pre-production and production environments (00:41:27). A 
+"message" is counted every time a flow is triggered; for instance, a batch job 
+running hourly, even if it picks up 1,000 records, counts as only one message. A 
+"managed API" is one to which security policies (e.g., client ID enforcement) are 
+applied, and two pre-production and two production managed APIs should be 
+sufficient for the current use cases (00:42:31). The package includes all relevant 
+connectors, with no limit on the number of non-premium connectors used 
+(00:43:29). 
+● 
+Training and Premier Success Promotion: Regarding training resources, the 
+team noted that there are free Trailhead courses for learning the Mulesoft 
+platform fundamentals, which can prepare developers for certification (00:40:17) 
+(00:45:31). A February-only promotion offers free access to Premier Success, 
+which typically costs 30% of the contract price (00:38:59) (00:47:32). Premier 
+Success offers 24/7/365 unlimited support, health check assessments, and 
+expert coaching sessions, and Paris Thomas confirmed it would be included for 
+the duration of the initial contract (00:46:31). This support is especially valuable 
+after implementation for leveraging best practices and planning future 
+integrations (00:47:32). 
+● 
+Next Steps and Partner Engagement: Rodrigo Zyris requested the quote in PDF 
+documentation, and asked to be put in contact with a partner for the initial 
+implementation (00:48:29). They need to meet with the partner first to ensure 
+alignment on their specific requirements before moving forward with the contract 
+in February (00:49:27). Paris Thomas confirmed they would send over a draft 
+quote and coordinate an introduction with a partner, potentially scheduling a 
+meeting for Thursday (00:48:29) (00:49:27). 
+ 
+Suggested next steps 
+ 
+Rodrigo Zyris will have an answer by the end of the week. 
+
+ 
+Paris Thomas will put a hold on the calendar for Thursday from 9:00 a.m. to 
+12:00 p.m. to check the partner team's availability for a call. 
+ 
+Paris Thomas will send a solidified time for a meeting with the partner on 
+Thursday and send the draft order form to Rodrigo Zyris and Alex Ichikawa. 
+ 
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how 
+Gemini takes notes 
+Please provide feedback about using Gemini to take notes in a short survey. 
+
+ Transcript 
+
+ 
+Feb 17, 2026
+Zyris + Salesforce  - Transcript 
+00:00:00 
+  
+SF-Tower (23, C03): Let me turn up the volume a little bit. Hi, Rodrigo. How are you? 
+Rodrigo Zyris: I'm doing good. How are you, 
+SF-Tower (23, C03): Good. 
+Rodrigo Zyris: sir? 
+SF-Tower (23, C03): Uh, keeping warm over here. Trying to stay dry here in San 
+Francisco. We're going to we're going we're expecting rain for the next 9 days, which 
+here in California we need. But uh Paris, you were telling me you're in snowed in and 
+Tahoe. 
+Paris Thomas: Yeah, it's pretty crazy. We have had a high season for the most part. I 
+think we got like maybe fiv e days of snow since December and then it just completely 
+dumped. We got foot We've had a foot and a half in the last 24 hours. It's coming down 
+out there. 
+Sam McKay: It's still going. 
+Paris Thomas: Oh, yes. It's going to be going for like two more days, 
+Rodrigo Zyris: Yeah. 
+Paris Thomas: too. 
+Sam McKay: Oh my 
+SF-Tower (23, C03): Yeah, 
+Paris Thomas: Yeah, we 
+SF-Tower (23, C03): as long as it's as long as it's raining here in San Francisco, 
+  
+  
+00:00:56 
+  
+Sam McKay: gosh. 
+Paris Thomas: have 
+SF-Tower (23, C03): it's snoring. It's snowing in in Tahoe. Uh I I love 
+Paris Thomas: Exactly. 
+SF-Tower (23, C03): Tahoe. 
+Rodrigo Zyris: Yeah. 
+
+Paris Thomas: It's the best. 
+Rodrigo Zyris: It's my favorite place in California. 
+Paris Thomas: Is it really? 
+SF-Tower (23, C03): Yeah. 
+Paris Thomas: It's my favorite place, 
+Rodrigo Zyris: Yeah. 
+Paris Thomas: too. Where do you usually go, 
+Rodrigo Zyris: Uh, 
+Paris Thomas: Rodrigo? 
+Rodrigo Zyris: usually I stay at the used to be the hard rock, now is the the golden 
+nugget, you know, 
+Paris Thomas: Okay. 
+SF-Tower (23, C03): Yeah. 
+Rodrigo Zyris: because I like gambling too. So I take the opportunity. 
+SF-Tower (23, C03): Yeah. The downtown the downtown area is 
+Rodrigo Zyris: So 
+Paris Thomas: Good. 
+SF-Tower (23, C03): nice. 
+Rodrigo Zyris: yes. 
+Paris Thomas: I um I was pretty much like raised up here and always skied Northstar. 
+My family were in Truckucky, so more of a Northshore gal, but I actually went and skied 
+Heavenly for the first time like two weeks ago and just so 
+SF-Tower (23, C03): Are 
+  
+  
+00:01:47 
+  
+Paris Thomas: amazed. It is gorgeous. I cannot believe the views of the lake and the 
+nature. It's it's really incredible. So, I was kind of bummed that I won't be getting down 
+there because everything is closed, all the roads. But next time, 
+SF-Tower (23, C03): you really bummed? 
+Paris Thomas: no. 
+SF-Tower (23, C03): I wouldn't 
+Paris Thomas: I mean, yeah. 
+Rodrigo Zyris: What? 
+Paris Thomas: So sad. 
+SF-Tower (23, C03): be. 
+Paris Thomas: I really wish it was in the rainy tower right 
+
+SF-Tower (23, C03): It's awful over here. 
+Paris Thomas: now. 
+SF-Tower (23, C03): Hey, Alex. How are you? 
+Alex Ichikawa: Hi. Doing good. 
+SF-Tower (23, C03): Staying dry. 
+Alex Ichikawa: Yeah. 
+SF-Tower (23, C03): Awesome. Well, hey, um, you know, I I I think we can jump right in. 
+Paris and Sam. Um, you know, I want to let you guys um go ahead and present what you 
+guys want to present. Um, I'm just going to be in the background if if if I'm needed for 
+any questions. 
+Paris Thomas: Perfect. 
+  
+  
+00:02:45 
+  
+Paris Thomas: Sounds good. Um, Rodrigo, Alex, anything you guys want to address 
+before we jump in or are we all 
+Rodrigo Zyris: No, 
+Paris Thomas: good? 
+Rodrigo Zyris: I think we're good. We're curious to see the tool. 
+Paris Thomas: Yeah. Great. Well, um, I will go ahead and start sharing my screen here. 
+Give me two seconds. Awesome. and we'll start a slideshow. Um, thank you guys for 
+jumping on today. Just for a quick agenda, we'll just kind of walk through a recap of 
+everything that we heard on our last call, set the stage a little bit for what Sam's going to 
+show, and then he'll walk through some product and platform information, jump into a 
+demo. We'll come out of that. We have some pricing for you. I know that we talked 
+about getting those numbers in front of you, and if everything's looking good, then we'll 
+take it from there. and we're shopping around with some partners for you all as well on 
+the back end. 
+  
+  
+00:03:41 
+  
+Paris Thomas: Um, does that sound good for an agenda? Do we need anything else 
+today? 
+Rodrigo Zyris: I think sounds 
+Paris Thomas: Great. 
+
+Rodrigo Zyris: good. 
+Paris Thomas: Well, you know the team at this point, Tito, of course, he's your Corey, so 
+managing all things across the board for Zyrus as it relates to Salesforce. myself I'm a 
+muleoft ae a part of our data foundations team and Sam is my solutions engineer and 
+the expert on all things mulesoft. So just to run through a quick kind of level executive 
+summary, make sure that we're aligned on what the ultimate goal of this project is. At its 
+base, kind of the value that we're looking to get out of this overall project is to reduce 
+that operational risk, improve the order to cache automation, and enable internal 
+ownership of integrations. Why does this matter? because right now it's pretty 
+fragmented across your architecture using a couple of different tools to do those 
+integrations changes that are happening in the systems that you're using. In the back 
+end of that, there's some complex business logic across systems which Sam will talk 
+about today and how Muoft can support that as you make a transition. 
+  
+  
+00:04:51 
+  
+Paris Thomas: um trying to just reduce some of those complexities and help with the 
+data governance and visibility across the gaps of where data is flowing between 
+systems. And this in turn is also leading to a lack of standardization. Hence the reason 
+why we're here having this conversation for that future innovation and for what 
+integrations will look like moving forward. Any problems we're missing or challenges to 
+the current flow of things? 
+Rodrigo Zyris: No, I think it sounds 
+Paris Thomas: Great. So, 
+Rodrigo Zyris: Yep. 
+Paris Thomas: what we're looking to accomplish with Mulesoft, aside from kind of that 
+value lever, but to break it down a little bit more, is really having that seamless 
+integration across the key systems we've been talking about so far. So, HubSpot, 
+Microsoft Dynamics, and Shopify, and in turn leading to stronger revenue and customer 
+experience execution, making sure that that flow is more seamless and in line with the 
+goals that you have today. Um, and then for yourself, right, Rodrigo and Alex, for the the 
+IT team, making sure that you guys have a foundation and a strategy when it comes to 
+managing these different systems and data flow across the board. 
+  
+  
+
+00:05:58 
+  
+Paris Thomas: And then again, of course, to double tap on this problem that we're 
+seeing here today is really making sure that there's that scalable foundation and you 
+have all the tools in place that you need. Thinking just a bit about what those technical 
+requirements are coming out of a tool like MU Mulesoft is being able to standardize 
+your integration in one place across the platform. Having the options for batch and 
+real-time triggers with that data and then also being able to orchestrate the business 
+logic that you have today. Making sure that that's all right but in a scalable way which is 
+what Muelloft offers. I know that was a lot, but making sure that we're all good here and 
+in alignment with what the goals are and how we can help drive that success. 
+Sam McKay: Awesome. 
+Paris Thomas: All right. Well, if there's no thoughts or questions on this, I'm going to 
+stop sharing and I'm going to pass it over to Sam. 
+Sam McKay: Thank you, Paris. Give me one second. Okay, great. So, I'm going to walk 
+through kind of the Mulesoft platform at a high level. 
+  
+  
+00:07:20 
+  
+Sam McKay: We'll talk about some of the the value ads of Mulesoft and we'll dive into 
+some of the specific features of the platform that uh pertain to the use cases that we've 
+discussed previously and and the uh future state that we'll go through today. So, at a 
+high level uh as organizations grow, they add more and more uh applications into their 
+tech stack. Today we're talking about HubSpot, Shopify, Microsoft Dynamics. Over time, 
+I'm sure that the uh application stack will grow and the need for integrations will 
+continue to grow. Uh normal enterprises as they scale and and reach larger sizes end up 
+with over a thousand different applications. And so when you start connecting uh them 
+via API and integration, we want a one-stop shop to manage all of those integrations so 
+that you don't get what we call API sprawl and integration sprawl across your tech 
+stack. And so this is kind of what it looks like uh when there's not a middleware like 
+Mulesoft in the picture. We see a lot of organizations come to us because they've built 
+out what we call point-to-point integrations. 
+  
+  
+
+00:08:21 
+  
+Sam McKay: Meaning let's say for example HubSpot and Microsoft Dynamics, you want 
+records syncing back and forth between them. Now, if you don't have a middleware in 
+the picture and you're building those integrations pointto-point, that code to move those 
+records between uh HubSpot and uh Microsoft Dynamics, it might live in HubSpot. 
+Some of it might live in Microsoft Dynamics. If something breaks, it's difficult to 
+troubleshoot with an architecture like this because you don't know exactly where that 
+code lives that moves that data. And this only continues to grow as you add more and 
+more applications into the mix. you have all these uh different we call it spaghetti code 
+often because the lines just they start blurring together and debugging and tracing the 
+flow of data becomes more and more of an impossibility. So now to talk about uh how 
+Mulesoft helps address those problems uh there's a few pillars with Mulesoft uh that we 
+talk about when it comes to building the integration landscape. Of course the first is 
+building integrations the right way. So we provide a single pane of glass for all of your 
+integrations. 
+  
+  
+00:09:23 
+  
+Sam McKay: So when you develop integrations with Mulesoft, they all live within the 
+same uh user interface. All the logic of your integrations lives in that interface. So that 
+whenever something uh needs to be troubleshooted, you need to see the flow of data 
+between applications. You're not left wondering which application do I need to jump into 
+to see where that data is coming from. All that management happens within Muleoft. 
+That's where the logic lives. That's where uh the data is extracted and moved between 
+systems. Uh we have automation. So that's our kind of no code tooling. So we have uh 
+AI supported development experiences, no code experiences to allow uh business users 
+to automate things easily. There's API management. So that's once you've developed 
+your applications and integrations, you've deployed them. Now this is monitoring those 
+integrations, making sure the data is flowing seamlessly. This gives you uh a 247 look 
+into the flow of data in your integrations. You can monitor how much data is being uh 
+throughput through your applications. 
+  
+  
+
+00:10:23 
+  
+Sam McKay: What's the latency looking like? How long is it taking data to move uh 
+around between systems? And then in the future state, uh everyone is of course has AI 
+on the mind. So with a tool like Mulesoft, you're building integrations to unlock your 
+applications. And long term, if you have AI agents in the picture, they can leverage those 
+same uh applications and integrations to uh take action on your end systems. Uh I'll 
+pause there before I go into this uh slide. We're going to get into kind of some of the 
+really specifics of the Mulesoft platform. Any questions so far? 
+Rodrigo Zyris: No, it's 
+Sam McKay: Sweet. Uh so this is uh Anyoint API designer or design center. 
+Rodrigo Zyris: okay. 
+Sam McKay: This is where you start when you're developing an integration in Mulesoft. 
+This is a user interface where you create the documentation for an API. So like the 
+endpoints that it exposes, the functionality uh that it gives you. It also allows you to 
+create uh mock requests and responses. 
+  
+  
+00:11:22 
+  
+Sam McKay: So when you come into design center and you're uh designing an API for 
+the first time, you get to define what do the responses look like. And even before the API 
+and integration is developed, you can use those mock responses to test it out. So if 
+you're uh developing an integration, teams don't have to wait for each other to complete 
+their work before uh getting to move on to the next step. With these mock responses, 
+they're able to uh leverage leverage those um response structures and build the whole 
+endto-end integration without having to wait for like piece one to be completed and then 
+piece two. Teams get to kind of work on these integrations in parallel. Once an API is 
+designed on API design center, it gets published to Anyoint Exchange. So Anyoint 
+Exchange is kind of like your app store for the integrations that you've developed. So 
+once you've developed an API or integration and published it to Exchange, anyone at 
+your organization who has access to this can search it up, find the integrations that 
+already exist. 
+  
+  
+
+00:12:22 
+  
+Sam McKay: So if uh a new requirement comes down the line and something needs to 
+be integrated into HubSpot, someone comes into Anyoint Exchange, they search up 
+HubSpot, they see, oh wow, we've already created an API to bring data into HubSpot. 
+They get to leverage that for this new integration. They don't have to design the wheel 
+from scratch, uh so to speak. The whole idea with this is reusability. We don't want you 
+to develop these point-to-point integrations that just get used once and every time a 
+new integration needs to be developed, it's starting from scratch, you develop it as 
+reusable building blocks. They get published to any point exchange and now you get to 
+reuse them for every integration going forward. Any questions on that before I move on? 
+Okay. 
+Rodrigo Zyris: Nope. 
+Sam McKay: And so then once you've uh you've designed your API now you've published 
+it to exchange the documentation's all there everyone can see it then it becomes about 
+actually implementing that API integration that's where anypoint studio comes in this is 
+the uh development environment for mulesoft APIs uh as you can see it's like 
+connectorbased so we will talk a little bit more about the specific connectors uh that 
+you'll be interested in for your use cases but the one that uh we're focusing on this slide 
+is called the data weave connector that's that transform 
+  
+  
+00:13:36 
+  
+Sam McKay: message component we're looking at. This is how we take data from one 
+system and map it to the data in another system. So what's really great about data 
+weave is it's able to interpret the structure of data coming in and it's able to uh interpret 
+the structure of the data that needs to go out to the next system. So if you look uh at the 
+bottom of the slide, it's like a drag and drop experience. On the left you have the fields 
+that are coming in to the uh transform component, the data weave component and on 
+the right you have the fields that you need for the outbound uh API call and then it's just 
+a drag and drop. You drag okay this is the field coming from Shopify for example and 
+this is what the name of the field is in Microsoft Dynamics and you just drag and drop it 
+and now it's mapping that field over before it brings that information into the next 
+system. Any questions on that? 
+Rodrigo Zyris: No. Any point studio is the add desktop 
+  
+  
+
+00:14:31 
+  
+Sam McKay: Yes. So it's a desktop IDE for 
+Rodrigo Zyris: app? 
+Sam McKay: developing. 
+Rodrigo Zyris: And is it related to the plug-in that you have for VS Code? They're 
+interchangeable or do you use one or the 
+Sam McKay: So we we do have some uh plugins for VS code for like AI supported 
+development. 
+Rodrigo Zyris: other? 
+Sam McKay: So that's just an alternate way to develop mule applications. Um basically 
+they they are interchangeable in that you can develop uh mulesoft applications with 
+both of those environments. 
+Rodrigo Zyris: Yes, but your recommendation would be to use Endpoint 
+Sam McKay: You know we nowadays we see customers uh doing both I would say uh 
+anyoint studio has kind of been 
+Rodrigo Zyris: Studio. 
+Sam McKay: the way for uh a long time. So it's what a lot of our uh customers who have 
+been on the mulesoft platform have uh the most familiarity with it. Uh I coming from a 
+muleoft developer background uh for maybe eight years or so I've been using anypoint 
+studio. Uh but the the VS code plugin the new AI powered experiences those are kind of 
+the uh uh the latest and greatest tools. 
+  
+  
+00:15:31 
+  
+Sam McKay: So you know I don't want to say hey no I don't recommend using those. Um 
+they're they're they're both uh perfectly valid for developing integrations with Mulesoft. 
+Rodrigo Zyris: Yeah, I understood. 
+Sam McKay: Sweet. This is anypieoint uh monitoring and analytics. So this is basically 
+the dashboards that come available out of the box to monitor your integrations. You get 
+to see the total amount of requests that are coming into your integrations easily monitor 
+uh are any endpoints erroring out. Uh what is the uh response latency? So there's like 
+response times and what we're seeing on this screen is just kind of a subset of the 
+dashboards you can look at. There's like dozens of outofthe-box metrics that you can uh 
+take a look at on these screens. So really, it's just all about monitoring and getting 
+real-time alerts on your data. So if a system is down, say many errors are coming in in a 
+short amount of time because one system in your stack is temporarily unavailable, you'll 
+
+see that right away on a dashboard like this. 
+  
+  
+00:16:30 
+  
+Sam McKay: And you can also set up alerts to be sent to you in real time. So you get x 
+amount of uh errors within a certain amount of time, you want to know right away so 
+that you can take a look into your systems, you can get that notification right away and 
+and know about it and take action immediately. Okay, sweet. So, now talking about uh 
+some of the connectors uh that specifically apply to your use cases, um Anyoint Studio 
+has dozens and dozens of out-of-the-box connectors for common systems. So, in your 
+case, uh a couple of those connectors that are highly relevant, we have a Microsoft 
+Dynamics connector for uh FO specifically and other parts of Microsoft Dynamics, but 
+we've been talking about FO a lot. So uh that's a connector you would use to interact 
+with uh Microsoft Dynamics. Pull data out of it, push data into it. Similarly, we have a 
+Shopify connector. Uh again, these connectors are just to simplify interacting with these 
+end systems. So you don't have to build that out of the box. 
+  
+  
+00:17:28 
+  
+Sam McKay: Uh you don't have to build from scratch the like authentication to those 
+systems, implementing the endpoints to access these systems. These connectors 
+abstract all of that hard work away from it. You just need to get your credentials, 
+configure it within the connector, and then you have access to all the API capabilities of 
+those systems. And then another connector I'm just going to touch on quickly is the 
+Anpoint HTTP connector. So, this is a connector for accessing any systems that we 
+don't have an out-of-the-box connector for. So, if you have a a system that there's no 
+built uh pre-built connector for, but it has a REST API, this is the connector that you 
+would use to connect to that system. Makes it very simple to access any existing REST 
+APIs. You just configure the host URL for that system, the endpoint that you're trying to 
+access, and then it's able to call those APIs to push data, pull data, update data, etc. Any 
+questions on the connectors uh before I move on? 
+Rodrigo Zyris: Uh just a question. Do is you have a out of the box H subspot connection 
+right 
+  
+  
+
+00:18:34 
+  
+Sam McKay: So, we do not have a HubSpot connector that's pre-built. 
+Rodrigo Zyris: now? 
+Sam McKay: So, for that, you would use this HTTP request uh uh connector. HubSpot 
+has uh tons of out-of-the-box uh API. So, it would be very simple to set up with a 
+connector like this. You would just be putting in the HubSpot host and port and your API 
+credentials and then you would just call those endpoints using this HT HTTP request 
+connector. What's nice uh about Mulesoft is in a situation like this where there's no 
+pre-built connector, you would build out that HubSpot API with this uh HTTP request 
+connector once, then it would get published to Exchange like we were looking at before. 
+And now in the future, any integrations that need to use HubSpot, you essentially have a 
+connector built for it. you built it once using this HTTP request connector, but now going 
+forward, now that it's uh developed and on Exchange, everyone gets to use it as if it 
+were any of those other pre-built connectors. Okay, 
+Rodrigo Zyris: Yeah. 
+Sam McKay: so now I'm going to get into uh some of your use cases that we uh 
+specifically discussed last time and what a future state could look like with Mulesoft 
+leveraging some of these connectors and these capabilities. 
+  
+  
+00:19:42 
+  
+Sam McKay: Oops, there we go. Uh so we discussed last time a customer and contact 
+sync between uh HubSpot and FO. So this is what that could kind of look like with 
+Mulesoft. Now you'll see there's actually two entry points for this future state flow . One 
+is a scheduled process. So that would be like the batch jobs that we were discussing 
+last time to update records in bulk. Uh and then on top we also have a real-time sync 
+button. So we discussed last time you would want batch for the most part. However, 
+you would also want to have the ability if a record needs to be synced right away, 
+someone just clicks a button in HubSpot and it syncs over to FO automatically. So, what 
+would happen is uh Mulesoft could query HubSpot for uh any of the records that meet 
+the criteria that you care about. So, we tal discussed last time if it's in a certain life cycle 
+stage, then those records should be syncing over into FO. So when we also have queries 
+HubSpot, it could identify records by that lifesty life cycle stage and also check that it's 
+been modified since the last time the job ran. 
+  
+  
+
+00:20:43 
+  
+Sam McKay: So you're not just syncing over records uh unnecessarily like, hey, we 
+synced over record A last time. Next time it runs, nothing's changed about record A. Why 
+why uh use an API call to resync that for no reason when it's already updated? So we 
+would query HubSpot, get those records. We would query fo see if a matching record 
+exists already for that one. We would map over the data using that data weave 
+component we were just looking at before. And then we would upsert that record uh 
+into FO. And then once that records upserted into FO, you would have an ID for the 
+record in FO, you would take that ID, you would stamp it back into HubSpot so that next 
+time this runs, once we query that record, we see, oh, it already has a matching record in 
+FO. Now we know exactly what record to update. Any questions on uh this use case or 
+like any thoughts on how this might speed up 
+Rodrigo Zyris: Mhm. 
+Sam McKay: the process? 
+Rodrigo Zyris: No. 
+  
+  
+00:21:43 
+  
+Sam McKay: Okay. So now this is the uh order syncing that we were uh discussing last 
+time between Shopify and FO. So here we have the trigger being an order being created 
+in Shopify. Now, I know there's that uh somewhat complex address normalization 
+process. You guys sent over the flowchart. I got to take a look at it some of the and see 
+some of the logic involved in uh finding the record when there's multiple records um 
+with the same email but maybe different addresses. I didn't add that complete logic into 
+this process diagram here. I didn't want to uh over complicate the visual here. However, 
+all that logic that you sent over would be able to be done in Mulesoft again using that 
+data weave component. we have a a choice router component for handling if else 
+conditions. So that would all live within that uh address normalization process. We 
+would query fo to find uh the record with that normalized address and then we would 
+create the uh fo order again all following the same uh business logic that you presented 
+in the um flowchart that you sent over and how you're kind of managing that process 
+today. 
+  
+  
+
+00:22:49 
+  
+Sam McKay: And then once that's done, you have the uh ID of the uh FO order. You write 
+that back into Shopify. So again, you're always maintaining that link between systems. 
+And then on the bottom, just uh a quick like uh other process that would be 
+implemented is the sync from FO back into Shopify. So that's when uh the status gets 
+updated to delivered or fulfilled, whatever status update you're trying to capture. uh 
+Mulesoft will be able to capture that either in real time or in a batch job and then write it 
+back into Shopify so that those statuses between systems are always in sync. I'll pause 
+there. Uh is this generally meeting the mark on uh where you see the future state of this 
+process? 
+Rodrigo Zyris: Yes. In general. 
+Sam McKay: Great. 
+Rodrigo Zyris: Yes. 
+Sam McKay: Merge resolution was a big one we touched on last time. making sure that 
+when you're merging uh duplicate records in HubSpot, you maintain all the uh ids and 
+links to records in other external systems. So when HubSpot merges uh records, there's 
+something called a merge event that can be fir ed from HubSpot. 
+  
+  
+00:23:56 
+  
+Sam McKay: Mulesoft would be configured to listen for that merge event. So when 
+Mulesoft receives that merge event, it gets the uh final record from HubSpot and it also 
+gets the ids of the records that were merged into it. Using that, Mulesoft is able to take 
+a look at all the records involved in this process, make sure it captures any of the 
+external IDs. So, if it's uh if it has an ID for an FO record on it that we want to keep track 
+of, Mulesoft grabs it. If it has uh a Shopify ID for a record, Mulesoft grabs it and makes 
+sure that it stamps it onto the final merged record in HubSpot so that even when you 
+merge these records, you're not losing any of those links to what you've created in other 
+systems. Does that make sense? that that touches uh or captures kind of the concerns 
+around 
+Rodrigo Zyris: Mhm. 
+Sam McKay: merges. 
+Alex Ichikawa: Yeah. Could that also trigger a merge in 
+Rodrigo Zyris: Yes. 
+Sam McKay: Yes. So uh if we wanted to link FO into this process when uh when 
+Mulesoft 
+
+  
+  
+00:24:48 
+  
+Alex Ichikawa: FO? 
+Sam McKay: receives this merge event from HubSpot, it can take action in FO. So that 
+can take those it can find the records in FO that are related and it can merge them 
+together into one unified record. 
+Alex Ichikawa: So I ask honey, 
+Sam McKay: Sweet. 
+Alex Ichikawa: honey, 
+Sam McKay: Okay. 
+Alex Ichikawa: why you're putting attack. 
+Sam McKay: And this is for the uh customer tag sync for uh pricing and sales 
+agreement updates that we discussed. So last time we discussed it if I uh if I got it right 
+last time. Um there's some decision- making to be made and whether uh FO or HubSpot 
+would be kind of the source of truth on this process. So I have it written down as the 
+sales agreement can be authored or updated in FO or HubSpot whichever one uh it 
+starts in or both. They can both be uh set up in the integration layer. Mulesoft would 
+capture that uh in real time or via a batch job. Again that's kind of up to you in how you 
+want to uh capture those updates. 
+  
+  
+00:25:49 
+  
+Sam McKay: Mulesoft can then take the information, query Shopify to find the related 
+customer record and then any sales agreement tags in Shopify, Shopify or other terms 
+that need to be updated as part of that process. Mulesoft goes into Shopify, does all the 
+updates to make sure that everything is in sync between systems. Any questions on this 
+one or any of these other future state uh uh diagrams we've just gone through? I believe 
+that was the last one I had. I'm going to show you one large API architecture diagram 
+right after this, but just want to make sure that we're for the for the most part hitting the 
+mark on these uh use cases and kind of how these future states going to look. 
+Rodrigo Zyris: Yeah, you did capture it. Well, so yeah, in general, 
+Sam McKay: Awesome. Okay, 
+Rodrigo Zyris: correct? 
+Sam McKay: this is the last slide I'll I'll go through and then we'll uh open it up and and 
+
+just kind of go into any questions you have. But this is to kind of contrast against the 
+spaghetti code diagram we were looking at at the uh start of the presentation. 
+  
+  
+00:26:49 
+  
+Sam McKay: And this is how uh you could architect this using Mulesoft for your 
+processes. So with Mulesoft we uh try to follow what we call an API architecture 
+architecture or a composable architecture and again that has to do with we want to be 
+able to reuse what we build. So the system layer is for APIs just to connect to your end 
+systems. So, for example, you'll see that I've uh called out the HubSpot system API 
+down here. So, when we were talking about how there's no out of the box HubSpot 
+connector, you would use that HTTP connector to connect to HubSpot and you would 
+package it as a HubSpot system API. That's what gets published to Exchange. That's 
+what everyone gets to use afterwards to connect to HubSpot. At the process layer, that's 
+where any business logic lives. So, system system layer, no business logic. It's just we're 
+going to grab information from a system, we're going to push information into a system. 
+Process layer is where the brain of the application is. So when we were talking about the 
+address normalization process uh or uh querying from multiple records and doing 
+merge resolutions, all that sort of logic lives in the process layer. 
+  
+  
+00:27:56 
+  
+Sam McKay: So you don't that's where you worry about if then logic or what to do in 
+different scenarios. And then in the experience layer, that's where you actually receive 
+uh events or call outs from the outside world, so to speak. Uh so when we're talking 
+about HubSpot, for example, firing a merge event when you merge something in 
+HubSpot, that merge event would be received in the HubSpot events experience API and 
+then it would bubble down into that process layer that's going to then call the system 
+layer to take whatever action it needs to in those end systems. The idea here is as you 
+add more integrations into this picture, as more business processes need to be 
+automated, you have that system layer available. You get to reuse any of those uh 
+system APIs to make it easier to connect to those systems. And then in the process 
+layer, all you need to do is uh rework the mapping or add some business logic for 
+different scenarios, but you get significant reuse out of what you've already built. 
+Awesome. 
+
+Rodrigo Zyris: Mhm. 
+  
+  
+00:28:56 
+  
+Sam McKay: I'll pause there. Uh that covers kind of everything I want to show in terms 
+of uh the platform. If there's any specific questions you have about we what we talked 
+about or thoughts on how this uh would work for your use cases, we'd love to hear it. 
+Rodrigo Zyris: No, I think it's exactly what we are looking for, you know. So, and you 
+cover most of the scenarios that we have any immediate need for. So, yeah, it's good. 
+Looks 
+Paris Thomas: Um, Rodrigo, Alex too, 
+Rodrigo Zyris: good. 
+Paris Thomas: just it sounds like I mean you just said this, right? This is what you guys 
+are looking for, but just kind of going through like walking through what the platform has 
+to offer, the different functionalities, thinking about these flows. Does this feel like the 
+right fit of where you're tracking to go? 
+Rodrigo Zyris: It does. It does. Feels like the right feet. 
+Paris Thomas: Yeah. Is there anything in particular that's kind of standing out about 
+how Mulesoft can support these different 
+  
+  
+00:29:49 
+  
+Rodrigo Zyris: Yes. 
+Paris Thomas: functionalities, these different workflows, um just the the immediate 
+goals that you do have? 
+Rodrigo Zyris: Uh nothing from my side. 
+Paris Thomas: Okay, maybe a followup there like how does this maybe differ from what 
+you guys are doing today and like um where's maybe some confidence coming? 
+Rodrigo Zyris: I think is much simpler to develop than the tools that we currently have. 
+Uh feels more robust. I like the the the the ability to be able to get analytics and tracking 
+of the things that are happening. Uh yeah, since sounds like a good fit thus 
+Paris Thomas: Yeah, great. Well, I appreciate that feedback. 
+Rodrigo Zyris: far. 
+Paris Thomas: And is there anything that we maybe need to do a little bit more 
+additional um covering of or are you feeling good about what we've walked through 
+
+today? 
+Rodrigo Zyris: I'm feeling good what we walked through today. You captured the the 
+requirements very well. I know there's a few things like that are caveats that we can 
+define later, but I also understand that we'll be working with a partner to create these 
+initial workflows for us. 
+  
+  
+00:31:12 
+  
+Rodrigo Zyris: So maybe that's when we go deep into the 
+Paris Thomas: Yeah. Okay. Absolutely. Um, 
+Rodrigo Zyris: requirements. 
+Paris Thomas: and we can definitely work on that as part of the rest of this evaluation 
+as you get set up with the partner and they'll help with making sure that all the different 
+little technicalities are showing up. Um, Rodrigo, would it be helpful if we pulled up the 
+actual application and looked at any of it or are you feeling good with 
+Rodrigo Zyris: Uh, 
+Paris Thomas: this? 
+Sam McKay: Sure. 
+Rodrigo Zyris: I would like to see just more for curiosity, you 
+Paris Thomas: Okay, absolutely. 
+Rodrigo Zyris: know. 
+Sam McKay: Just give me one moment. So, what I'll do is I can poke around the 
+platform. Uh it'll it'll basically be just going a little deeper in some of the functionality 
+that I was uh discussing previously. But just to give you kind of a a full life cycle 
+walkthrough of how this works. If I'm a developer, I'm coming in here. I want to develop 
+uh one of those new integrations uh from scratch, maybe the HubSpot API, something 
+like that. 
+  
+  
+00:32:13 
+  
+Sam McKay: It would start in design center where we kind of mock up the API. So, going 
+into here, uh these are just some uh pre pre uh pre-made uh APIs that I've put into 
+Design Center. So, if I open up this one, you can see this is kind of what the API 
+specification looks like. This is for a system called Blackbook, but this could be for any 
+system, you know, for HubSpot, for example. You'd come in here and define what the 
+
+API would look like. You define your endpoints. So there's a a post method, but you can 
+create get methods for querying data. Um, and uh delete methods for deleting data, 
+things like that. This is also where you include the example responses for your API. So 
+you get to say this is what the fields are going to be on a response. These are some 
+example values of what they'll look like. So now once you've created this someone could 
+easily take this API specification see what the response structure looks like and they'll 
+they'll understand okay so when I call this API I get these fields back this is what I'm 
+going to have to map to the next system once you've created this API specification you 
+would go and hit publish on it so if I were to go I I've already published it so I'm not 
+going to hit that right now but now if I've published it I go into anypoint exchange this is 
+our app store to see what's been 
+  
+  
+00:33:29 
+  
+Sam McKay: built what's been uh documented already. We have some of these APIs 
+that I've created the specification for before. If I jump into that one we were just looking 
+at. This is where there's some documentation now. So if a developer at your 
+organization wants to see what's been built already, they come into this app store 
+essentially. They say, "Oh, okay. We already have this system API built out. We already 
+have a HubSpot system API that I can use." They get to see the documentation that's 
+available for it, some use cases that uh it might be relevant for. And then they also get to 
+see the endpoints so that they can see, oh wow, this has a post method uh this API. And 
+this is what the request uh type looks like. And here's what the responses look like and 
+the different error codes that can come with it. So this is all to give developers a uh leg 
+up in developing faster. They don't have to wait for this API to be completely developed 
+to start designing around it. 
+  
+  
+00:34:18 
+  
+Sam McKay: They know exactly what it's going to look like once it's complete. Once 
+that's done, we would go into uh Anyoint Studio. I'm not going to pull that up right now, 
+but essentially uh we saw the slide of what that looks like. That's where you develop it. 
+You bring the connectors in. You actually implement the API. Then one once it's 
+complete, it gets deployed to runtime manager. I'll jump in there. You have different 
+environments. You can configure this for a dev environment, a production environment. 
+
+I'll jump into one of these. I don't have anything deployed in here at the moment, but this 
+is where you would take uh your completed API and deploy it. So once it's deployed 
+here, then it's running. This is where you would go to look at those dashboards we were 
+looking at before around like how many meth requests are coming in, how many 
+success responses, how long is the um uh response time on those API calls, all that 
+would live inside runtime manager where your integrations live. 
+  
+  
+00:35:15 
+  
+Sam McKay: And then separate from that, we didn't really touch on this in the uh slides, 
+but if you ever want to apply policies to those APIs, so maybe like rate limiting, uh IP 
+whitelisting, like security policies, we have what's called API manager. 
+Rodrigo Zyris: Okay. 
+Sam McKay: That's where you go in here. You can uh add an API to this. So you can you 
+basically uh click add new API. It'll show you the APIs that you have in your system. You 
+click one like I have this API here. And from here I can go into policies and you can add 
+policies to the API. So that's where you're adding like rate limiting, you want client ID 
+enforcement, oath enforcement on your API. Whatever security policy you want, that's 
+where you go in uh into this screen. And it's just about clicking through it. You just click 
+in, you click, okay, I want to apply client ID enforcement to that API. Then you apply it. It's 
+pretty uh seamless process to uh manage your APIs from there. 
+  
+  
+00:36:09 
+  
+Sam McKay: And from there, I mean, that pretty much covers the uh the whole 
+integration API life cycle. So, going forward after that, this is pretty much where you'd be 
+living if you want to monitor those APIs. But the idea with a system like this is once it's 
+set up, once things are configured, it should run smoothly. These things, you live inside 
+HubSpot, you live inside FO, uh the data flows seamlessly. You don't really uh want to 
+have to be coming in here all very often at all because everything should just be uh kind 
+of flowing seamlessly. 
+Rodrigo Zyris: Mhm. 
+Sam McKay: any questions or uh anything else I can uh dive into on 
+Rodrigo Zyris: Yeah. No, 
+Sam McKay: this 
+
+Rodrigo Zyris: since 4, there's a lot that, you know, we'll be exploring and playing with 
+once we have access to the tool. Uh, yeah. 
+Paris Thomas: How's the kind of look and feel of the platform? 
+Rodrigo Zyris: feels very friendly. You know, I have a development background, 
+Paris Thomas: Okay. 
+Rodrigo Zyris: so I I I kind of know what's going on and but the interface is very friendly. 
+  
+  
+00:37:15 
+  
+Paris Thomas: Okay. 
+Rodrigo Zyris: So, 
+Paris Thomas: friendly good or friendly bad or we like it. 
+Rodrigo Zyris: yeah. 
+Paris Thomas: Okay, great. I'm glad to hear 
+Rodrigo Zyris: Yeah. 
+SF-Tower (23, C03): Hey, Rodrigo and Alex, do you guys happen to have a hard stop? 
+Paris Thomas: that. 
+SF-Tower (23, C03): I just want to make sure. We I know we have about what, seven 
+minutes. I just want to make sure. 
+Rodrigo Zyris: Uh uh not really, but yeah, 
+SF-Tower (23, C03): Okay. 
+Rodrigo Zyris: we can go a few minutes over if 
+SF-Tower (23, C03): Okay. Sorry. Sorry, P. 
+Rodrigo Zyris: needed. 
+SF-Tower (23, C03): I don't know if you have additional questions. I just wanted to make 
+sure and and be respectful of their time. 
+Rodrigo Zyris: Yeah. Uh I have a couple things. Uh how about training? Is there any 
+online resource that we can use like for Alex and Rafael, my developers to get trained on 
+SF-Tower (23, C03): Yeah, that's a that's a great point. We're actually going to touch on 
+that. 
+  
+  
+00:38:02 
+  
+Rodrigo Zyris: that? 
+SF-Tower (23, C03): Um, but Paris, I believe you still had a couple more slides you 
+
+wanted to show. 
+Paris Thomas: Yeah, 
+SF-Tower (23, C03): But great point, 
+Paris Thomas: we'll walk through. 
+SF-Tower (23, C03): Rodrigo. We're going to we're going to bring that up right 
+Paris Thomas: Yes, 
+Rodrigo Zyris: All 
+Paris Thomas: absolutely. 
+SF-Tower (23, C03): now. 
+Paris Thomas: Um, any other questions before we touch on that? 
+Rodrigo Zyris: right. 
+Paris Thomas: I just want to make sure that we're clear before we talk about a little bit 
+about pricing and what kind of comes with the platform 
+Rodrigo Zyris: Yeah, 
+Paris Thomas: support perspective. 
+Rodrigo Zyris: that's what I'm curious about. So, that's 
+Paris Thomas: Okay, great. Um, and just before I share that, 
+Rodrigo Zyris: what 
+Paris Thomas: just want to make sure kind of to recap quickly. Everything Sam walked 
+through looks good. The platform looks good. We're feeling pretty confident in what 
+what it can do for you all. Okay, 
+Rodrigo Zyris: Yes. 
+Paris Thomas: great. Wonderful. All right. Well, I will take the screen back here and we'll 
+jump in to this. 
+  
+  
+00:38:59 
+  
+Paris Thomas: Um, okay. So, I'm going to pull up a pricing slide for us here. So, what we 
+are proposing is the Anyoint platform. That's what Sam just walked through. And 
+everything that we talked about today is going to come within the grounds of that 
+platform. uh list cost on this package 42,000 a year. We secured a 28.6% initial discount 
+on this putting the platform at a $30,000 investment for the year for Cyrus. A couple of 
+functionalities to take away here is being able to support those integrations across 
+HubSpot, Shopify, Microsoft Dynamics, really anything else you guys might want to think 
+about moving over to the platform and being able to really establish that ownership and 
+that centralization of the integrations a little bit on capacity. We can get more into this if 
+it's beneficial to you. I know you have developer background, technically astute with all 
+
+of this, but we'll come with 50 flows, 5 million messages, two pre-pro and two prod 
+managed APIs out the gate. Um, and then to your question, Rodrigo, we do have a 
+promotion right now with February contracts where we have free access to Premier 
+Success. 
+  
+  
+00:40:17 
+  
+Paris Thomas: So, this will give you access to our support team and just the ability to 
+learn a little bit more about the platform and how to use it. Um, to answer like other 
+questions, we do have a variety of additional resources as well for helping to educate 
+your team on how to use the platform and that comes in the form of trail head. So, just 
+there's a lot of online resources where they're able to learn. If you're looking for 
+something more advanced, we do have um options that do come at additional cost, 
+whether that's class courses or if we wanted to look at signature success down the 
+road, which I think would be a bit advanced for where you're at today. that premier 
+success should really just be a strong foundation for getting kicked off with the 
+platform and locking in that um full support that you're looking for and would need out 
+the gate as you're working with the partner and getting set up and comfortable. Any 
+questions on kind of those takeaways or the pricing so far? 
+Rodrigo Zyris: Can you expand a bit on the bullet point that says 50 workflows, 5 million 
+messages, two pre prepro and two product manage APIs. 
+  
+  
+00:41:27 
+  
+Rodrigo Zyris: Can you explain which one of these items actually 
+Sam McKay: I can uh I can touch on that Paris add some color there. 
+Rodrigo Zyris: means? 
+Sam McKay: Uh so a flow Rodrigo in Mulesoft is essentially uh a pipeline that is moving 
+a certain type of data between systems. So when we're talking about for example the 
+merge event from HubSpot and that flowing into other systems, setting up the pipeline 
+that receives those merge events and passes it along. That's one flow . Uh now if we're 
+talking about the batch job that's going to take customers from HubSpot and 
+Rodrigo Zyris: Mhm. 
+Sam McKay: move that into um FO that would be another flow . 
+Rodrigo Zyris: Uhhuh. 
+
+Sam McKay: So so it's not just system to system equals one flow but it gets a little more 
+granular than that. It's really more about like the triggers. So the unique triggers uh you 
+can think of as the entry points for flows. So that's where the 50 flows comes in and 
+that's uh generally split across a pre-production and production environment. So we did 
+some sizing uh we ran through kind of that uh illustrative uh API diagram that we were 
+looking at. 
+  
+  
+00:42:31 
+  
+Sam McKay: Uh we feel that 50 flows would more than cover the use cases that we've 
+discussed um for you today. 5 million messages every time a flow is triggered that's a 
+message. So when we're talking about a batch job, let's say that runs once an hour, 
+every time that runs, even if it queries and picks up a thousand records, that's only going 
+to be one message. Now, if someone hits the button to sync a record, 
+Rodrigo Zyris: Uhhuh. 
+Sam McKay: that's also one message. So it's really just about uh how many times the 
+flow is triggered, that's a message. So again, 
+Rodrigo Zyris: Mhm. 
+Sam McKay: fiv e fiv e million messages not, you know, concerned on that front. 
+Rodrigo Zyris: And that's a year, right? 
+Sam McKay: That's a year. 
+Rodrigo Zyris: Or Yeah. 
+Sam McKay: Yes. 
+Rodrigo Zyris: Okay. 
+Sam McKay: And then uh to touch on the managed APIs piece of it, uh a managed API 
+is an API that you're actually applying security policies to. So like if you want to add 
+client ID enforcement, if you want to add ooth to an API, you would be using one of 
+those managed APIs to do it. 
+  
+  
+00:43:29 
+  
+Sam McKay: Uh generally for the use cases that we've discussed, you wouldn't need 
+that. for example, the batch process, grabbing things from HubSpot, bringing it into FO, 
+that's not an API that a system is calling. That's a scheduled job that's running. So, you 
+don't really need to worry about uh adding client ID enforcement to a process like that. 
+
+However, when we're talking about uh the merge event or like a web hook coming from a 
+system, that's something that's going to come from an outside system and hit Mulesoft, 
+you would want to put some security on that, whether that's an IP whitelisting, a client ID 
+enforcement, something like that. So again, uh for your use cases that we've discussed 
+today, uh two prepro, two prod managed APIs uh should be more than sufficient for 
+those use cases. 
+Rodrigo Zyris: Do we have any limit on the number of connectors that we can use from 
+your exchange or we can Yeah. 
+Sam McKay: So uh uh all the connectors that uh come with this uh package you're able 
+to use. There's no like limit on the amount of connectors. 
+  
+  
+00:44:22 
+  
+Rodrigo Zyris: Anyway, 
+Sam McKay: We do have some premium connectors that are add-ons, but none of them 
+would be relevant for the uh use cases that we've discussed. They're more for like very 
+specialized uh uh niche use cases. So long and the short of it is you can use as many 
+connectors uh as you want uh with this package. 
+Rodrigo Zyris: and the discounted annual cost that's for the first year only or does it uh 
+Uh that's our pricing moving 
+Paris Thomas: So that'll be your pricing moving forward. 
+Rodrigo Zyris: forward. 
+Paris Thomas: SA uh Salesforce does have a standard uplift on renewals which is 9% 
+but this will be the rate that you're locking in and any renewal negotiation will go off of 
+this price 
+Rodrigo Zyris: All right. 
+Paris Thomas: point. 
+Rodrigo Zyris: Awesome. 
+Sam McKay: Just one more thing I wanted to add real quick, Paris, because I know uh 
+Rodrigo you were asking about um kind of like learning material and like scaling up on 
+the platform. And I know we've touched on your success and that that's a super helpful 
+resource. We also do have free trail head courses which is kind of like Salesforce's 
+learning platform that go over the Mulesoft platform and teach you the fundamentals. 
+  
+  
+
+00:45:31 
+  
+Sam McKay: When I graduated from university uh and started as a Mulesoft developer, 
+that's how I learned the platform. uh and it was enough to get me you know up to speed 
+get certified on the platform and and literally making it my career after that. So there 
+there is a lot of free material available to uh skill your developers up. 
+Rodrigo Zyris: Nice. 
+Paris Thomas: Great. 
+Rodrigo Zyris: Nice. 
+Paris Thomas: Um, wonderful. Any other questions, 
+SF-Tower (23, C03): Yeah. 
+Paris Thomas: Rodrigo, on kind of what the capacity looks like on support? Any 
+questions 
+Rodrigo Zyris: Uh, I don't believe so. 
+Paris Thomas: there? 
+Rodrigo Zyris: Alex, do you have anything? 
+Alex Ichikawa: No, 
+SF-Tower (23, C03): So, 
+Rodrigo Zyris: Yeah. 
+SF-Tower (23, C03): so one thing I do want to touch on here, 
+Alex Ichikawa: nothing. 
+SF-Tower (23, C03): Rodrigo and Alex, is is that uh February Premier Success 
+Promotion, that's a free package that's included here only for the month of February. Uh 
+February is our first month of the fiscal year. January was the end of our fiscal year. 
+  
+  
+00:46:31 
+  
+SF-Tower (23, C03): And a lot of our customers know like every month comes with like 
+some kind of promotion. uh this month happens to be like Mulesoft and Premiere. 
+There's also a separate solution. I won't even bring it up since it's not part of this 
+conversation, but um just letting you guys know like uh Premier success plan comes 
+with 
+Alex Ichikawa: Thank you. 
+SF-Tower (23, C03): um like it comes with like health check assessments, expert 
+coaching sessions. Uh you get the 247 365 support, unlimited support for you guys. Um, 
+but this is part of that free pro free packet or promotion that's uh free and included uh 
+for the Anyoint platform for the month of 
+
+Rodrigo Zyris: And for how long do we have access to the premier success for 
+SF-Tower (23, C03): February. 
+Paris Thomas: So you'll have clear success for the extent of your contract with Mulesoft 
+Rodrigo Zyris: lifetime? 
+Paris Thomas: and we can include that when it does come to renewal. So that'll be 
+baked in throughout the year to have access to that 
+  
+  
+00:47:32 
+  
+Rodrigo Zyris: Yeah, 
+SF-Tower (23, C03): Yeah. 
+Rodrigo Zyris: that is very good. 
+SF-Tower (23, C03): And this is Go ahead. 
+Paris Thomas: support. 
+SF-Tower (23, C03): I'm sorry. 
+Rodrigo Zyris: I said that the premier success actually adds a lot of value to the 
+SF-Tower (23, C03): Yeah. 
+Rodrigo Zyris: dealers. 
+SF-Tower (23, C03): Typically a Premier Success is 30% of uh of the actual contract. 
+Um but here it's it's included for the month of February only for the month of February. 
+Rodrigo Zyris: Mhm. 
+SF-Tower (23, C03): And what's great about these premier success plans, 
+Rodrigo Zyris: Uh-huh. 
+SF-Tower (23, C03): it's after you're done with implementation, this is when it it just 
+takes off and skyrockets. This is when you're able to leverage it after you're already set 
+up. You know, call or or set up meetings with expert train uh ex uh the technical uh 
+experts at Salesforce. Um I mean, we're we're here to literally guide you best practices, 
+maybe create different fields, maybe you have a future vision for another integration. 
+Like that's that's the beauty of these success plans. 
+  
+  
+00:48:29 
+  
+Rodrigo Zyris: Mhm. Yeah. Yeah, it sounds great. If I can get the quote like in a PDF just 
+so I have documentation of it, I would appreciate and if you can put me in contact with a 
+partner that can do the 
+
+Alex Ichikawa: You see what? 
+Rodrigo Zyris: initial implementation for us. That would also be great. And I should have 
+uh by the end of the week I should have an answer. But we are happy with what we saw. 
+Alex and I were lacking during the meeting and he was actually impressed with it. So, it's 
+good. 
+Paris Thomas: Great. Wonderful. I'm so happy to hear that, Alex. You're into it. 
+Rodrigo Zyris: Yeah. 
+Paris Thomas: We like it. 
+Alex Ichikawa: Yeah, looks good. Um, I like what I saw. 
+Paris Thomas: Great. Um, all right. So, this is what we'll do. Rodrigo, 
+Alex Ichikawa: adaptive. 
+Paris Thomas: Alex, we'll get over a draft quote with this pricing on there and then we'll 
+get an intro going with a partner. 
+  
+  
+00:49:27 
+  
+Alex Ichikawa: I'm 
+Paris Thomas: What just want to be clear here, 
+Alex Ichikawa: gonna 
+Paris Thomas: partners are like we talked about on the last call, they are third party. 
+They do come with their own associated investment. Um, 
+Alex Ichikawa: survive. 
+Paris Thomas: so you got the intro going for maybe Thursday. 
+Rodrigo Zyris: What? 
+Paris Thomas: Does that do you want to meet with them first and walk through 
+everything and we can send over all of this for kind of an initial so coming into that call 
+or what would you like to do? 
+Rodrigo Zyris: uh you can send the initial information and we can meet with them and 
+and go through like the actual requirements. So 
+Paris Thomas: Okay. And is there the that partner alignment and S so going to be have 
+an impact on an 
+Rodrigo Zyris: yeah, 
+Paris Thomas: ability for us to move forward with this in 
+Alex Ichikawa: You can This 
+Rodrigo Zyris: uh I would like to have some touch point to the the the partner 
+Paris Thomas: February. 
+Rodrigo Zyris: first to make sure that we have someone that understands some 
+
+requirements that we had that would help us moving forward. 
+Alex Ichikawa: Father, 
+Paris Thomas: Okay. 
+Rodrigo Zyris: uh we like the platform regardless like it's just like I know we will have uh 
+hopefully the first partner that we meet is a match you know 
+Paris Thomas: Yeah. Okay, great. Well, let's do this. 
+Rodrigo Zyris: so 
+Paris Thomas: Do you guys have availability maybe on Thursday and we can get a call 
+going with someone from our partner teams? 
+Rodrigo Zyris: yes so let See, Thursday, we have the morning wide open from 9:00 a.m. 
+to 
+Paris Thomas: I'm gonna do this. 
+Rodrigo Zyris: 12. 
+Paris Thomas: Uh, Rodrigo, let me put a hold for that time and just connect partner, 
+Rodrigo Zyris: Uh, 
+Paris Thomas: get their availability, and then I'll update that. 
+Rodrigo Zyris: awesome. 
+Alex Ichikawa: is 
+Paris Thomas: Okay. 
+Rodrigo Zyris: Yeah. 
+Paris Thomas: All right. Anything else you guys need from us? 
+Alex Ichikawa: lower. 
+Paris Thomas: Can we send anything over other than the draft order form? 
+  
+  
+Transcription ended after 01:02:39 
+ 
+This editable transcript was computer generated and might contain errors. People can 
+also change the text after it was created.
