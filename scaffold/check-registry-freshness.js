@@ -46,23 +46,20 @@ function run() {
   let   redCount  = 0;
   let   yellCount = 0;
 
-  function walk(obj, category) {
-    if (!obj || typeof obj !== 'object') return;
-    for (const [key, entry] of Object.entries(obj)) {
-      if (entry && typeof entry === 'object' && entry.lastVerified) {
-        const days = daysSince(entry.lastVerified);
-        const b    = badge(days);
-        results.push({ category, key, days, b, lastVerified: entry.lastVerified, displayName: entry.displayName || key, exchangeUrl: entry.exchangeUrl || '' });
-        if (days > YELLOW_DAYS) redCount++;
-        else if (days > GREEN_DAYS) yellCount++;
-      } else if (entry && typeof entry === 'object') {
-        walk(entry, key);
-      }
+  // BUG-28: The old recursive walk() passed `key` as `category` when recursing, so every
+  // connector ended up with category="connectors" instead of its real category name.
+  // Fix: traverse registry.categories directly — the structure is known and stable.
+  for (const [catKey, catObj] of Object.entries(registry.categories ?? {})) {
+    if (!catObj || typeof catObj !== 'object') continue;
+    const catName = catObj.displayName ?? catKey;
+    for (const [key, entry] of Object.entries(catObj.connectors ?? {})) {
+      if (!entry || typeof entry !== 'object') continue;
+      const days = daysSince(entry.lastVerified);
+      const b    = badge(days);
+      results.push({ category: catName, key, days, b, lastVerified: entry.lastVerified || null, displayName: entry.displayName || key, exchangeUrl: entry.exchangeUrl || '' });
+      if (days > YELLOW_DAYS) redCount++;
+      else if (days > GREEN_DAYS) yellCount++;
     }
-  }
-
-  for (const [cat, entries] of Object.entries(registry)) {
-    walk(entries, cat);
   }
 
   results.sort((a, b) => b.days - a.days);

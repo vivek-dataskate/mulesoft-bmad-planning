@@ -27,8 +27,8 @@
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 // TODO [COMPLIANCE]: Add project-specific PII field names to the exclusion set below
-var piiFields = { "ssn", "taxId", "creditCardNumber", "cvv", "password", "secret",
-                  "token", "dateOfBirth", "bankAccountNumber", "routingNumber" }
+var piiFields = ["ssn", "taxId", "creditCardNumber", "cvv", "password", "secret",
+                  "token", "dateOfBirth", "bankAccountNumber", "routingNumber"]
 var maskedPayload = if (payload is Object)
     payload - piiFields
   else

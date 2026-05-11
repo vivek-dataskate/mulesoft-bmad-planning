@@ -58,8 +58,12 @@ function readFile(filePath) {
 
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, content, 'utf8');
   const rel = path.relative(process.cwd(), filePath);
+  const remaining = content.match(/\{\{[A-Za-z_]+\}\}/g);
+  if (remaining) {
+    console.warn(`  ⚠  Unsubstituted tokens in ${rel}: ${[...new Set(remaining)].join(', ')}`);
+  }
+  fs.writeFileSync(filePath, content, 'utf8');
   console.log(`  ✓ ${rel}`);
 }
 
@@ -77,11 +81,17 @@ function sub(template, tokens) {
 
 // Process {{#if FLAG}}...{{/if}} blocks.
 // Blocks evaluate to their body when flags[FLAG] is truthy, empty string otherwise.
-// Does not support nesting.
+// Does not support nesting — nested {{#if}} inside a body will be left as-is and
+// produce malformed output. Warn early so template authors catch the problem.
 function processIf(template, flags) {
   return template.replace(
     /\{\{#if (\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-    (_, flag, body) => (flags[flag] ? body : '')
+    (_, flag, body) => {
+      if (/\{\{#if /.test(body)) {
+        console.warn(`  ⚠  Nested {{#if}} detected inside {{#if ${flag}}} — nesting is not supported; inner block will not be evaluated.`);
+      }
+      return flags[flag] ? body : '';
+    }
   );
 }
 
@@ -183,16 +193,20 @@ function buildRegistryLookup(registry) {
   return map;
 }
 
-// Print staleness warnings. Scaffold generator warns at > 30 days (not 60 like MCP policy).
+// Print staleness warnings. Thresholds: >60 days = WARNING (Red), >30 days = NOTICE (Yellow).
+// lastVerified is YYYY-MM. We use the last day of that month (day 0 of month+1) so that a
+// connector verified at any point during the month is not penalised by a full 30-day shift.
+// Using Date.UTC avoids local-timezone drift on build servers.
 function checkStaleness(key, conn) {
   if (!conn.lastVerified) return;
   const parts = conn.lastVerified.split('-').map(Number);
   if (parts.length < 2 || !parts[0] || !parts[1]) return;
-  const verifiedDate = new Date(parts[0], parts[1] - 1, 1);
+  // day 0 of (month+1) = last day of month
+  const verifiedDate = new Date(Date.UTC(parts[0], parts[1], 0));
   const daysDiff = (Date.now() - verifiedDate.getTime()) / 86_400_000;
   const name = conn.displayName ?? key;
   const url  = conn.exchangeUrl ?? 'https://anypoint.mulesoft.com/exchange/';
-  if (daysDiff > 180) {
+  if (daysDiff > 60) {
     console.warn(`\n⚠  WARNING: ${key} (${name}) last verified ${conn.lastVerified} (${Math.round(daysDiff)}d ago)`);
     console.warn(`   May be outdated. Check: ${url}`);
     console.warn(`   Update connector-registry.json after verifying.`);
@@ -292,6 +306,20 @@ const TRIGGER_TEMPLATE_MAP = {
   'process-orchestration': 'process-orchestration.xml',
 };
 
+// Connector namespaces implicitly required by each trigger type.
+// Used by genFlowFile() to add only the relevant xmlns declarations — not all project connectors.
+// Developers add target-connector namespaces manually when they implement the TODO stubs.
+const TRIGGER_CONNECTOR_MAP = {
+  'mq-subscriber':         ['anypoint-mq'],
+  'platform-event':        ['anypoint-mq'],
+  'cdc':                   ['anypoint-mq'],
+  'kafka':                 ['kafka'],
+  'sftp':                  ['sftp'],
+  'db-poll':               ['db'],
+  'process-orchestration': ['anypoint-mq'],
+  // http, scheduler, batch-scope, scatter-gather: no additional connector namespace needed
+};
+
 function loadTriggerTemplate(trigger) {
   const filename = TRIGGER_TEMPLATE_MAP[trigger] ?? 'http-listener.xml';
   const fullPath = path.join(TMPL_DIR, 'triggers', filename);
@@ -351,14 +379,17 @@ function buildFlowTokens(flow, d, coverageFloor) {
 
     // HTTP
     HTTP_PATH:            httpPath,
-    HTTP_METHODS:         'POST,GET',
+    HTTP_METHODS:         flow.httpMethods ?? 'POST,GET',
+    // RESOURCE_PATH is the path without the leading '/'; used in OAS paths section
+    RESOURCE_PATH:        httpPath.slice(1),
 
     // DataWeave
     DWL_FILE_NAME:        dwlName,
     VERB:                 'transform',
 
-    // MQ / async
+    // MQ / async — TOPIC_PROPERTY is the Kafka variant of QUEUE_PROPERTY (same value)
     QUEUE_PROPERTY:       queueProp,
+    TOPIC_PROPERTY:       queueProp,
     MAX_CONCURRENCY:      maxConc,
     MESSAGE_TTL_HOURS:    ttlHours,
     DEDUP_TTL_MINUTES:    dedupMins,
@@ -376,9 +407,10 @@ function buildFlowTokens(flow, d, coverageFloor) {
     PROJECT_TEAM:         client,
     base_url:             `${domain}.cloudhub2.io`,
 
-    // Project-level
+    // Project-level — artifactId uses the sanitised domain slug, not the raw client name,
+    // so it is always a valid Maven artifactId (lowercase, hyphens only).
     domain,
-    artifactId:           `${client}-mule`,
+    artifactId:           `${domain}-mule`,
 
     // MUnit
     MUNIT_COVERAGE:       coverageFloor,
@@ -421,10 +453,11 @@ function genPom(d, lookup, outDir) {
     `        </dependency>`,
   ].join('\n');
 
+  const domain = client.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const tmpl   = readFile(path.join(TMPL_DIR, 'pom.xml'));
   const result = sub(tmpl, {
     groupId:                d.scaffold?.groupId ?? 'com.yourcompany',
-    artifactId:             `${client}-mule`,
+    artifactId:             `${domain}-mule`,
     awsRegion:              d.devops?.region ?? 'us-east-1',
     CONNECTOR_DEPENDENCIES: commonsDep + '\n\n' + deps.join('\n\n'),
     munitCoverage:          coverage,
@@ -448,7 +481,11 @@ function genMuleArtifact(d, lookup, outDir) {
     const conn = lookup[key];
     if (!conn?.propertiesRequired) continue;
     for (const prop of conn.propertiesRequired) {
-      if (/password|secret|key|token|passphrase|credential/i.test(prop)) {
+      // Match only when the last dot-separated segment ends with a sensitive term.
+      // Substring match would produce false positives: sftp.keystore.path (contains "key"),
+      // or any property with "monkey" in its name. End-of-segment matching is precise.
+      const lastSeg = prop.split('.').pop() ?? prop;
+      if (/(password|secret|key|token|passphrase|credential)s?$/i.test(lastSeg)) {
         secProps.add(`"${prop}"`);
       }
     }
@@ -639,16 +676,23 @@ function genFlowFile(flow, d, snippets, outDir, coverageFloor) {
   if (wireTap && (isAsyncTrigger(trigger) || isAsyncPattern(d))) {
     if (snippets['wire-tap.xml']) {
       const wireTapXml = sub(snippets['wire-tap.xml'], tokens);
-      // Insert before the closing error-handler reference
-      flowContent = flowContent.replace(
-        '<error-handler ref="Global_Error_Handler"/>',
-        wireTapXml.trim() + '\n\n        <error-handler ref="Global_Error_Handler"/>'
-      );
+      const ANCHOR = '<error-handler ref="Global_Error_Handler"/>';
+      if (!flowContent.includes(ANCHOR)) {
+        console.warn(`  ⚠  Wire-tap injection failed for ${flow.name}: anchor "${ANCHOR}" not found in trigger template — wire-tap was NOT inserted.`);
+      } else {
+        flowContent = flowContent.replace(
+          ANCHOR,
+          wireTapXml.trim() + '\n\n        ' + ANCHOR
+        );
+      }
     }
   }
 
-  // 3. Build namespace additions based on which connectors this project uses
-  const { ADDITIONAL_NAMESPACES, ADDITIONAL_SCHEMA_LOCATIONS } = buildNamespaceAdditions(connKeys);
+  // 3. Build namespace additions for ONLY the connectors this trigger type requires.
+  // Using all project connectors (connKeys) would add unnecessary xmlns declarations to every
+  // flow file. Developers add target-connector namespaces manually when implementing TODOs.
+  const triggerConnKeys = TRIGGER_CONNECTOR_MAP[trigger] ?? [];
+  const { ADDITIONAL_NAMESPACES, ADDITIONAL_SCHEMA_LOCATIONS } = buildNamespaceAdditions(triggerConnKeys);
 
   // 4. Wrap flow content in flows-base.xml
   const baseTmpl = readFile(path.join(TMPL_DIR, 'flows-base.xml'));
@@ -702,8 +746,7 @@ function genOasSpec(flow, d, outDir) {
 function genProperties(d, outDir) {
   const client   = d.project?.client ?? 'client';
   const domain   = client.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const artifact = `${client}-mule`;
-  const tokens   = { domain, artifactId: artifact };
+  const tokens   = { domain, artifactId: `${domain}-mule` };
 
   for (const env of ['local', 'dev', 'uat', 'prod']) {
     const tmplPath = path.join(TMPL_DIR, `${env}.yaml`);
@@ -720,8 +763,9 @@ function genProperties(d, outDir) {
 function genDeployYml(d, outDir) {
   if ((d.devops?.cicd ?? 'none') !== 'github-actions') return;
   const client = d.project?.client ?? 'client';
+  const domain = client.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const tokens = {
-    artifactId: `${client}-mule`,
+    artifactId: `${domain}-mule`,
     awsRegion:  d.devops?.region ?? 'us-east-1',
   };
   const tmpl = readFile(path.join(TMPL_DIR, 'deploy.yml'));
@@ -832,7 +876,7 @@ function validateDecisions(d) {
     console.warn('\n⚠  OVERRIDE: scheduling.watermarking=true but scaffold.generateWatermark=false — generating watermark');
   }
 
-  if (isAsyncPattern(d) && !d.flowControl?.deduplicationEnabled) {
+  if (isAsyncPattern(d) && d.flowControl?.deduplicationEnabled === false) {
     console.warn('\n⚠  WARNING: Async pattern selected but flowControl.deduplicationEnabled is false — idempotency is MANDATORY for all async consumers');
   }
 

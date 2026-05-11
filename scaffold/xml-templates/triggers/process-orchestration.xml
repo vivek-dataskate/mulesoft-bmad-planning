@@ -34,7 +34,7 @@
             <http:response statusCode="#[vars.httpStatus default 202]">
                 <http:headers><![CDATA[#[{
     "X-Correlation-ID": correlationId,
-    "Location":         "/api/v1/{{RESOURCE_PATH}}/status/" ++ correlationId,
+    "Location":         "/api/v1/{{HTTP_PATH}}/status/" ++ correlationId,
     "Content-Type":     "application/json"
 }]]]></http:headers>
             </http:response>
@@ -74,7 +74,7 @@
         <!-- Trigger async processing via MQ (decouples response from processing) -->
         <anypoint-mq:publish
             config-ref="Anypoint_MQ_Config"
-            destination="${mq.queue.{{ORCHESTRATION_QUEUE_PROPERTY}}}"
+            destination="${mq.queue.{{QUEUE_PROPERTY}}}"
             messageId="#[correlationId]"
             doc:name="Trigger Async Orchestration">
             <anypoint-mq:body>#[output application/json --- { correlationId: correlationId, payload: payload }]</anypoint-mq:body>
@@ -90,7 +90,7 @@ output application/json
     correlationId: correlationId,
     status:        "PENDING",
     message:       "Request accepted for processing.",
-    statusUrl:     "/api/v1/{{RESOURCE_PATH}}/status/" ++ correlationId
+    statusUrl:     "/api/v1/{{HTTP_PATH}}/status/" ++ correlationId
 }]]></ee:set-payload>
             </ee:message>
             <ee:variables>
@@ -108,7 +108,7 @@ output application/json
 
         <anypoint-mq:subscriber
             config-ref="Anypoint_MQ_Config"
-            destination="${mq.queue.{{ORCHESTRATION_QUEUE_PROPERTY}}}"
+            destination="${mq.queue.{{QUEUE_PROPERTY}}}"
             acknowledgementMode="MANUAL"
             maxConcurrency="{{MAX_CONCURRENCY}}"
             doc:name="MQ Subscriber — Orchestration Queue"/>
@@ -156,13 +156,13 @@ output application/json
 
                 <try doc:name="Execute Saga Steps with Compensation">
 
-                    <!-- ── STEP 1: {{STEP_1_SYSTEM}} ────────────────────────── -->
+                    <!-- ── STEP 1: {system-name} ────────────────────────────── -->
                     <!--
                         TODO: Execute step 1 (e.g. create order in system A).
                         Store the result key for potential compensation.
                         Compensation: if later steps fail, delete/reverse this record.
                     -->
-                    <!-- <flow-ref name="{{STEP_1_SUBFLOW}}"/> -->
+                    <!-- TODO: <flow-ref name="{flow-name}-step1-subflow"/> -->
                     <set-variable variableName="step1Result" value='#[{ "id": "TODO", "status": "success" }]'
                         doc:name="PLACEHOLDER: Step 1 result"/>
 
@@ -176,9 +176,9 @@ output application/json
 }]]]></os:value>
                     </os:store>
 
-                    <!-- ── STEP 2: {{STEP_2_SYSTEM}} ────────────────────────── -->
+                    <!-- ── STEP 2: {system-name} ────────────────────────────── -->
                     <!-- TODO: Execute step 2 (depends on step 1 result) -->
-                    <!-- <flow-ref name="{{STEP_2_SUBFLOW}}"/> -->
+                    <!-- TODO: <flow-ref name="{flow-name}-step2-subflow"/> -->
 
                     <!-- ── Mark saga COMPLETED ───────────────────────────────── -->
                     <os:store key='#["saga-" ++ vars.sagaCorrelationId]' objectStore="Persistent_Object_Store"
@@ -210,7 +210,7 @@ output application/json
                                   - Read-only steps → no compensation needed
 
                                 Example:
-                                  <flow-ref name="{{FLOW_NAME}}-compensate-step1-subflow"/>
+                                  <flow-ref name="{flow-name}-compensate-step1-subflow"/>
 
                                 Each compensation subflow:
                                   - Implements its own retry (compensation must succeed)

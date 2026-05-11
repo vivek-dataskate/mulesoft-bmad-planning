@@ -10,8 +10,17 @@
 
         <scheduler doc:name="DB Poll Scheduler">
             <scheduling-strategy>
+                <!--
+                    Poll frequency is per-flow: ${scheduler.{{QUEUE_PROPERTY}}.frequencySeconds}
+                    Set in {env}.yaml under scheduler.{flowKey}.frequencySeconds.
+                    Example for flow "poll-orders-flow" (QUEUE_PROPERTY=poll.orders):
+                      scheduler:
+                        poll:
+                          orders:
+                            frequencySeconds: "60"
+                -->
                 <fixed-frequency
-                    frequency="${scheduler.frequencySeconds}"
+                    frequency="${scheduler.{{QUEUE_PROPERTY}}.frequencySeconds}"
                     timeUnit="SECONDS"/>
             </scheduling-strategy>
         </scheduler>
@@ -50,6 +59,10 @@
             <db:sql><![CDATA[
                 -- TODO: Replace with actual query for {{FLOW_SOURCE}}
                 -- Always filter by watermark field; never full-table scan
+                -- SQL dialect: adjust LIMIT clause for your database:
+                --   MySQL / PostgreSQL:  LIMIT ${db.poll.batchSize}              (shown below)
+                --   Oracle:              FETCH FIRST ${db.poll.batchSize} ROWS ONLY
+                --   SQL Server (MSSQL):  TOP (${db.poll.batchSize}) in SELECT clause
                 SELECT *
                 FROM   {{DB_TABLE}}
                 WHERE  {{WATERMARK_FIELD}} > :watermark
