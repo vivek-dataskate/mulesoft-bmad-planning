@@ -82,13 +82,14 @@ jobs:
       - name: Post Slack notifications via Slack agent
         if: steps.drive.outputs.valid_clients != '' || steps.drive.outputs.invalid_clients != ''
         env:
-          ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
-          SLACK_BOT_TOKEN:       ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL:         ${{ secrets.SLACK_PIPELINE_CHANNEL || vars.SLACK_PIPELINE_CHANNEL }}
+          ANTHROPIC_API_KEY:      ${{ secrets.ANTHROPIC_API_KEY }}
+          SLACK_BOT_TOKEN:        ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL:          ${{ secrets.SLACK_PIPELINE_CHANNEL || vars.SLACK_PIPELINE_CHANNEL }}
+          GITHUB_ORG:             ${{ vars.GITHUB_ORG || '' }}
           VALIDATION_RESULTS_B64: ${{ steps.drive.outputs.validation_results }}
-          VALID_CLIENTS:         ${{ steps.drive.outputs.valid_clients }}
-          INVALID_CLIENTS:       ${{ steps.drive.outputs.invalid_clients }}
-          PIPELINE_STAGE:        intake_validation
+          VALID_CLIENTS:          ${{ steps.drive.outputs.valid_clients }}
+          INVALID_CLIENTS:        ${{ steps.drive.outputs.invalid_clients }}
+          PIPELINE_STAGE:         intake_validation
         run: node scaffold/slack-agent.js
 
       - name: Summary

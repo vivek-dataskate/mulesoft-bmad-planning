@@ -3,32 +3,27 @@
 /**
  * scaffold/slack-agent.js
  *
- * Posts pipeline stage updates to a single shared Slack channel.
- * Each client project gets ONE persistent canvas that is updated at every
- * stage — so the team always sees current project state in one place.
+ * Posts pipeline stage updates to a shared Slack channel.
+ * Each client project gets ONE persistent canvas updated at every stage.
+ * The canvas contains full detail + clickable GitHub links at every section.
  *
- * Canvas lifecycle per project:
- *   intake_validation  → canvas CREATED with project overview + intake summary
- *   analyst_complete   → canvas UPDATED: PRD section added
- *   architect_complete → canvas UPDATED: Architecture section added
- *   pm_complete        → canvas UPDATED: Sprint plan section added
- *   scaffold_complete  → canvas UPDATED: Repo + done status
- *
- * Canvas state stored in: projects/{client}/.slack-canvas-state.json
- *   { canvasId, channelId, intake, analyst, architect, pm, scaffold }
+ * Canvas state: projects/{client}/.slack-canvas-state.json
  *
  * Required env vars:
- *   SLACK_BOT_TOKEN   — xoxb-... bot token
- *   SLACK_CHANNEL     — channel ID where all project canvases live
- *   ANTHROPIC_API_KEY — Claude API key
- *   PIPELINE_STAGE    — intake_validation | analyst_complete | architect_complete | pm_complete | scaffold_complete
- *   CLIENT            — client name (all stages except intake_validation which reads from VALIDATION_RESULTS_B64)
+ *   SLACK_BOT_TOKEN        — xoxb-...
+ *   SLACK_CHANNEL          — channel ID
+ *   ANTHROPIC_API_KEY      — Claude API key
+ *   PIPELINE_STAGE         — intake_validation | analyst_complete | architect_complete | pm_complete | scaffold_complete
+ *   CLIENT                 — client name (stages 2-5)
+ *   GITHUB_SERVER_URL      — auto-set in GitHub Actions (https://github.com)
+ *   GITHUB_REPOSITORY      — auto-set in GitHub Actions (org/repo)
+ *   GITHUB_ORG             — org name for client dev repos
  *
- *   intake_validation:
- *     VALIDATION_RESULTS_B64  — base64 JSON array from validate-intake.js
- *     VALID_CLIENTS / INVALID_CLIENTS — comma-separated fallback
- *   scaffold_complete:
- *     CLIENT_REPO_URL — GitHub repo URL
+ *   intake_validation only:
+ *     VALIDATION_RESULTS_B64  — base64 JSON from validate-intake.js
+ *     VALID_CLIENTS / INVALID_CLIENTS
+ *   scaffold_complete only:
+ *     CLIENT_REPO_URL  — GitHub URL of generated client repo
  */
 
 const https     = require('https');
@@ -38,6 +33,28 @@ const Anthropic = require('@anthropic-ai/sdk');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// ─── GitHub URL helpers ───────────────────────────────────────────────────────
+
+function githubBase() {
+  const server = process.env.GITHUB_SERVER_URL ?? 'https://github.com';
+  const repo   = process.env.GITHUB_REPOSITORY ?? '';
+  return repo ? `${server}/${repo}/blob/main` : null;
+}
+
+function githubLink(label, filePath) {
+  const base = githubBase();
+  if (!base) return `\`${filePath}\``;
+  return `[${label}](${base}/${filePath})`;
+}
+
+function clientRepoLink(clientName) {
+  const repoUrl = process.env.CLIENT_REPO_URL;
+  if (repoUrl) return repoUrl;
+  const org = process.env.GITHUB_ORG;
+  if (org) return `https://github.com/${org}/${clientName}-mule`;
+  return null;
+}
 
 // ─── Slack API ────────────────────────────────────────────────────────────────
 
@@ -51,8 +68,8 @@ function slackPost(method, body) {
       path:     `/api/${method}`,
       method:   'POST',
       headers: {
-        Authorization:   `Bearer ${token}`,
-        'Content-Type':  'application/json; charset=utf-8',
+        Authorization:    `Bearer ${token}`,
+        'Content-Type':   'application/json; charset=utf-8',
         'Content-Length': Buffer.byteLength(json),
       },
     }, res => {
@@ -91,151 +108,188 @@ function saveState(clientName, state) {
 
 // ─── Canvas markdown builder ──────────────────────────────────────────────────
 
-const STAGE_ORDER = ['intake', 'analyst', 'architect', 'pm', 'scaffold'];
-
 function stageIcon(state, key) {
-  if (!state[key])             return '⬜';
+  if (!state[key])                     return '⬜';
   if (state[key].status === 'blocked') return '🚫';
   if (state[key].status === 'invalid') return '❌';
   return '✅';
 }
 
 function buildCanvasMarkdown(clientName, state) {
-  const intake = state.intake ?? {};
+  const intake  = state.intake ?? {};
   const systems = (intake.systemsIdentified ?? []).join(' → ') || 'TBD';
+
   const overallStatus = (() => {
-    if (state.scaffold?.status === 'complete') return '🚀 Complete';
-    if (state.pm?.status === 'complete')       return '📅 Sprint planning done — scaffold pending';
+    if (state.scaffold?.status === 'complete')  return '🚀 Complete';
+    if (state.pm?.status === 'complete')        return '📅 Sprint plan done — scaffold pending';
     if (state.architect?.status === 'complete') return '🏗️ Architecture done — PM running';
     if (state.analyst?.status === 'complete')   return '📋 PRD done — architect running';
-    if (intake.valid === false)                 return '❌ Intake incomplete';
+    if (intake.valid === false)                 return '❌ Intake incomplete — waiting on presales';
     if (intake.valid === true)                  return '📥 Intake validated — analyst running';
     return '⏳ Pending';
   })();
 
-  const lines = [];
+  const L = [];   // lines accumulator
 
-  // ── Header ──
-  lines.push(`# ${clientName}`);
-  lines.push(`**Systems:** ${systems}`);
-  lines.push(`**Status:** ${overallStatus}`);
-  lines.push('');
+  // ── Header ──────────────────────────────────────────────────────────────────
+  L.push(`# ${clientName}`);
+  L.push(`**Systems:** ${systems}`);
+  L.push(`**Status:** ${overallStatus}`);
+  L.push('');
 
-  // ── Progress tracker ──
-  lines.push('## Pipeline Progress');
-  lines.push(`${stageIcon(state, 'intake')}   Intake validation`);
-  lines.push(`${stageIcon(state, 'analyst')}   Analyst — PRD`);
-  lines.push(`${stageIcon(state, 'architect')}   Architecture & decisions`);
-  lines.push(`${stageIcon(state, 'pm')}   Sprint planning`);
-  lines.push(`${stageIcon(state, 'scaffold')}   Scaffold & repo`);
-  lines.push('');
+  // ── Progress tracker ────────────────────────────────────────────────────────
+  L.push('## Pipeline');
+  L.push(`${stageIcon(state, 'intake')}   Intake validation`);
+  L.push(`${stageIcon(state, 'analyst')}   Analyst — PRD`);
+  L.push(`${stageIcon(state, 'architect')}   Architecture & decisions`);
+  L.push(`${stageIcon(state, 'pm')}   Sprint planning`);
+  L.push(`${stageIcon(state, 'scaffold')}   Scaffold & repo`);
+  L.push('');
 
-  // ── Warnings (from intake — shown throughout) ──
-  const warnings = (intake.autoWarnings ?? []);
+  // ── Links bar (shown once all docs exist) ───────────────────────────────────
+  const links = [
+    state.analyst   ? githubLink('📄 PRD',          `projects/${clientName}/prd.md`) : null,
+    state.architect ? githubLink('🏗️ Architecture', `projects/${clientName}/architecture.md`) : null,
+    state.architect ? githubLink('⚙️ Decisions',    `projects/${clientName}/decisions.json`) : null,
+    state.pm        ? githubLink('📅 Stories',       `projects/${clientName}/stories.md`) : null,
+    state.scaffold?.repoUrl || clientRepoLink(clientName)
+      ? `[🚀 Dev Repo](${state.scaffold?.repoUrl ?? clientRepoLink(clientName)})` : null,
+  ].filter(Boolean);
+  if (links.length > 0) {
+    L.push(links.join('   ·   '));
+    L.push('');
+  }
+
+  // ── Persistent warnings ─────────────────────────────────────────────────────
+  const warnings = intake.autoWarnings ?? [];
   if (warnings.length > 0) {
-    lines.push('## ⚠️ Warnings (Review Before Designing)');
+    L.push('## ⚠️ Project Warnings');
     for (const w of warnings) {
       const icon = w.severity === 'high' ? '🔴' : '🟡';
-      lines.push(`${icon} **${w.id.replace(/_/g, ' ')}:** ${w.warning}`);
+      L.push(`${icon} **${w.id.replace(/_/g, ' ')}**`);
+      L.push(`   ${w.warning}`);
+      L.push('');
     }
-    lines.push('');
   }
 
-  // ── Intake section ──
-  lines.push('## 📥 Intake');
+  // ── 📥 INTAKE ────────────────────────────────────────────────────────────────
+  L.push('---');
+  L.push('## 📥 Intake');
   if (intake.valid === false) {
-    lines.push('**Status:** ❌ Incomplete — pipeline blocked');
-    lines.push('');
-    lines.push('**Missing:**');
-    for (const m of (intake.missingMandatory ?? [])) {
-      lines.push(`- ${m}`);
+    L.push('**Result:** ❌ Incomplete — pipeline blocked');
+    L.push('');
+    L.push('### What Is Missing');
+    for (const gap of (intake.gapDetails ?? [])) {
+      L.push(`**${gap.label}**`);
+      L.push(gap.failMessage);
+      if (gap.example) L.push(`> *Example:* ${gap.example}`);
+      L.push('');
     }
-    lines.push('');
-    lines.push('**Next step:** Ask presales to upload the missing information to the Google Drive folder.');
+    L.push('### How to Fix');
+    L.push('Ask presales to upload a `gap-fill.md` to the Drive folder for this client.');
+    L.push('The system re-validates within 20 minutes of upload.');
   } else if (intake.valid === true) {
-    lines.push(`**Summary:** ${intake.executiveSummary ?? ''}`);
-    lines.push('');
+    L.push(`**Summary:** ${intake.executiveSummary ?? ''}`);
+    L.push('');
     if ((intake.whatIsBeingBuilt ?? []).length > 0) {
-      lines.push('**What is being built:**');
-      for (const item of intake.whatIsBeingBuilt) lines.push(`- ${item}`);
+      L.push('### What Is Being Built');
+      for (const item of intake.whatIsBeingBuilt) L.push(`- ${item}`);
+      L.push('');
     }
-    lines.push('');
-    lines.push(`**Complexity:** ${intake.estimatedComplexity ?? '?'} | **Flows:** ${intake.estimatedFlows ?? '?'} | **Confidence:** ${intake.confidence ?? '?'}`);
+    L.push('### Systems');
+    for (const s of (intake.systemsIdentified ?? [])) L.push(`- ${s}`);
+    L.push('');
+    L.push('| Complexity | Flows | Confidence |');
+    L.push('|---|---|---|');
+    L.push(`| ${intake.estimatedComplexity ?? '?'} | ${intake.estimatedFlows ?? '?'} | ${intake.confidence ?? '?'} |`);
+    if (intake.architectNotes) {
+      L.push('');
+      L.push('### Architect: Verify Before Designing');
+      L.push(intake.architectNotes);
+    }
+    if ((intake.openItems ?? []).length > 0) {
+      L.push('');
+      L.push('### Open Questions');
+      for (const q of intake.openItems) L.push(`- ${q}`);
+    }
+    if ((intake.reusableCapabilities ?? []).length > 0) {
+      L.push('');
+      L.push('### Reusable Capabilities');
+      for (const r of intake.reusableCapabilities) L.push(`- ${r}`);
+    }
     if ((intake.missingRecommended ?? []).length > 0) {
-      lines.push('');
-      lines.push('**Missing recommended (non-blocking):** ' + intake.missingRecommended.join(', '));
+      L.push('');
+      L.push('### Missing Recommended (Non-Blocking)');
+      for (const m of intake.missingRecommended) L.push(`- ${m}`);
     }
   } else {
-    lines.push('Pending...');
+    L.push('Pending...');
   }
-  lines.push('');
+  L.push('');
 
-  // ── Analyst section ──
-  lines.push('## 📋 Analyst — PRD');
+  // ── 📋 ANALYST ───────────────────────────────────────────────────────────────
+  L.push('---');
+  L.push('## 📋 Analyst — PRD');
   if (state.analyst) {
-    lines.push(state.analyst.summary ?? '');
-    if ((state.analyst.openItems ?? []).length > 0) {
-      lines.push('');
-      lines.push('**Open items:**');
-      for (const item of state.analyst.openItems) lines.push(`- ${item}`);
-    }
-    lines.push(`\n*Full PRD: \`projects/${clientName}/prd.md\`*`);
+    L.push(state.analyst.canvasSection ?? '');
+    L.push('');
+    L.push(`> ${githubLink('Open full PRD →', `projects/${clientName}/prd.md`)}`);
   } else {
-    lines.push('Pending...');
+    L.push('Pending...');
   }
-  lines.push('');
+  L.push('');
 
-  // ── Architecture section ──
-  lines.push('## 🏗️ Architecture');
+  // ── 🏗️ ARCHITECTURE ──────────────────────────────────────────────────────────
+  L.push('---');
+  L.push('## 🏗️ Architecture');
   if (state.architect) {
-    lines.push(state.architect.summary ?? '');
-    if (state.architect.pattern) lines.push(`\n**Pattern:** ${state.architect.pattern} | **Trigger:** ${state.architect.trigger ?? '?'}`);
-    if ((state.architect.risks ?? []).length > 0) {
-      lines.push('');
-      lines.push('**Risks:**');
-      for (const r of state.architect.risks) lines.push(`- 🔴 ${r}`);
-    }
-    lines.push(`\n*Full decisions: \`projects/${clientName}/decisions.json\`*`);
+    L.push(state.architect.canvasSection ?? '');
+    L.push('');
+    L.push([
+      `> ${githubLink('Architecture →', `projects/${clientName}/architecture.md`)}`,
+      `  ${githubLink('Decisions JSON →', `projects/${clientName}/decisions.json`)}`,
+    ].join('   '));
   } else {
-    lines.push('Pending...');
+    L.push('Pending...');
   }
-  lines.push('');
+  L.push('');
 
-  // ── Sprint planning section ──
-  lines.push('## 📅 Sprint Planning');
+  // ── 📅 SPRINT PLANNING ───────────────────────────────────────────────────────
+  L.push('---');
+  L.push('## 📅 Sprint Planning');
   if (state.pm) {
-    lines.push(state.pm.summary ?? '');
-    if (state.pm.storyCount)   lines.push(`\n**Stories:** ${state.pm.storyCount}`);
-    if (state.pm.estimateDays) lines.push(`**Estimate:** ~${state.pm.estimateDays} dev-days`);
-    lines.push(`\n*Full sprint plan: \`projects/${clientName}/stories.md\`*`);
+    L.push(state.pm.canvasSection ?? '');
+    L.push('');
+    L.push(`> ${githubLink('Open full sprint plan →', `projects/${clientName}/stories.md`)}`);
   } else {
-    lines.push('Pending...');
+    L.push('Pending...');
   }
-  lines.push('');
+  L.push('');
 
-  // ── Scaffold section ──
-  lines.push('## 🚀 Scaffold & Repo');
+  // ── 🚀 SCAFFOLD & REPO ───────────────────────────────────────────────────────
+  L.push('---');
+  L.push('## 🚀 Scaffold & Repo');
   if (state.scaffold) {
-    if (state.scaffold.repoUrl) lines.push(`**Repo:** ${state.scaffold.repoUrl}`);
-    lines.push(state.scaffold.summary ?? '');
-    lines.push('\n**Developer:** Open repo → Code → Open in Codespace. Wait ~3 min for silent setup.');
+    const repoUrl = state.scaffold.repoUrl ?? clientRepoLink(clientName);
+    if (repoUrl) L.push(`**Repo:** [${clientName}-mule](${repoUrl})`);
+    L.push('');
+    L.push(state.scaffold.canvasSection ?? '');
   } else {
-    lines.push('Pending...');
+    L.push('Pending...');
   }
 
-  return lines.join('\n');
+  return L.join('\n');
 }
 
-// ─── Create or update canvas ──────────────────────────────────────────────────
+// ─── Sync canvas ──────────────────────────────────────────────────────────────
 
 async function syncCanvas(clientName, state) {
   const channel = process.env.SLACK_CHANNEL;
-  if (!channel) { console.log('⚠  SLACK_CHANNEL not set — skipping canvas'); return; }
+  if (!channel) { console.log('⚠  SLACK_CHANNEL not set'); return; }
 
   const markdown = buildCanvasMarkdown(clientName, state);
 
   if (!state.canvasId) {
-    // Create new canvas for this project
     try {
       const res = await slackPost('conversations.canvases.create', {
         channel_id:       channel,
@@ -248,42 +302,35 @@ async function syncCanvas(clientName, state) {
       console.log(`⚠  Canvas create failed: ${e.message}`);
     }
   } else {
-    // Update existing canvas with full new content
     try {
       await slackPost('canvases.update', {
         canvas_id: state.canvasId,
-        changes: [{
-          operation:        'replace',
-          document_content: { type: 'markdown', markdown },
-        }],
+        changes: [{ operation: 'replace', document_content: { type: 'markdown', markdown } }],
       });
       console.log(`✓ Canvas updated: ${state.canvasId}`);
     } catch (e) {
-      console.log(`⚠  Canvas update failed: ${e.message} — posting as message instead`);
-      // Fallback: post a plain message
+      console.log(`⚠  Canvas update failed: ${e.message} — posting text fallback`);
       await slackPost('chat.postMessage', {
         channel: state.channelId ?? channel,
-        text:    `*${clientName}* pipeline update — see \`projects/${clientName}/\` for full output.`,
+        text:    `*${clientName}* pipeline update. See GitHub for full output.`,
         mrkdwn:  true,
       });
     }
   }
 
-  // Post a short notification message so team sees activity in the feed
+  // Short feed message so team sees the activity without opening the canvas
   const stageLabels = {
     intake_validation:  `📥 Intake ${state.intake?.valid ? 'validated ✅' : 'incomplete ❌'}`,
-    analyst_complete:   `📋 PRD complete ✅`,
-    architect_complete: `🏗️ Architecture complete ✅`,
-    pm_complete:        `📅 Sprint plan complete ✅`,
-    scaffold_complete:  `🚀 Scaffold ready ✅`,
+    analyst_complete:   '📋 PRD complete ✅',
+    architect_complete: '🏗️ Architecture complete ✅',
+    pm_complete:        '📅 Sprint plan complete ✅',
+    scaffold_complete:  '🚀 Scaffold ready ✅',
   };
-  const currentStage = process.env.PIPELINE_STAGE ?? '';
-  const label = stageLabels[currentStage] ?? 'Pipeline update';
-
+  const label = stageLabels[process.env.PIPELINE_STAGE ?? ''] ?? 'Pipeline update';
   await slackPost('chat.postMessage', {
-    channel: state.channelId ?? channel,
-    text:    `*${clientName}* — ${label}. Canvas updated ↑`,
-    mrkdwn:  true,
+    channel:  state.channelId ?? channel,
+    text:     `*${clientName}* — ${label}  ·  Canvas updated ↑`,
+    mrkdwn:   true,
   });
 }
 
@@ -312,7 +359,7 @@ function loadFieldKnowledge() {
 async function askClaude(system, user) {
   const r = await anthropic.messages.create({
     model:      'claude-sonnet-4-6',
-    max_tokens: 1500,
+    max_tokens: 2500,
     system,
     messages: [{ role: 'user', content: user }],
   });
@@ -334,55 +381,43 @@ async function handleIntakeValidation() {
     for (const c of invalidList) results.push({ client: c, valid: false, missingMandatory: ['unknown'], autoWarnings: [] });
   }
 
-  const fieldKnow  = loadFieldKnowledge();
-  const checklist  = loadChecklist();
+  const fieldKnow = loadFieldKnowledge();
+  const checklist = loadChecklist();
+
+  const gapExamples = {
+    systems_named:    '"We integrate Salesforce (source) with NetSuite (target)."',
+    business_problem: '"Orders in Salesforce are manually re-keyed into NetSuite — 2 hrs/day, 5% error rate."',
+    data_direction:   '"When Opportunity closes in Salesforce, create Sales Order in NetSuite within 5 min."',
+  };
 
   for (const result of results) {
     const clientName = result.client;
     const state      = loadState(clientName);
 
-    // Store intake data in state
     state.intake = {
       valid:               result.valid,
-      executiveSummary:    result.executiveSummary ?? null,
-      whatIsBeingBuilt:    result.whatIsBeingBuilt ?? [],
+      executiveSummary:    result.executiveSummary  ?? null,
+      whatIsBeingBuilt:    result.whatIsBeingBuilt  ?? [],
       systemsIdentified:   result.systemsIdentified ?? [],
       estimatedComplexity: result.estimatedComplexity ?? null,
-      estimatedFlows:      result.estimatedFlows ?? null,
-      confidence:          result.confidence ?? null,
-      autoWarnings:        result.autoWarnings ?? [],
-      missingMandatory:    result.missingMandatory ?? [],
+      estimatedFlows:      result.estimatedFlows    ?? null,
+      confidence:          result.confidence        ?? null,
+      autoWarnings:        result.autoWarnings       ?? [],
+      missingMandatory:    result.missingMandatory   ?? [],
       missingRecommended:  result.missingRecommended ?? [],
-      fileNames:           result.fileNames ?? [],
+      openItems:           result.openItems          ?? [],
+      reusableCapabilities: result.reusableCapabilities ?? [],
+      fileNames:           result.fileNames          ?? [],
+      gapDetails: (result.missingMandatory ?? []).map(id => {
+        const item = checklist.mandatory.find(m => m.id === id);
+        return { label: item?.label ?? id, failMessage: item?.failMessage ?? 'Required.', example: gapExamples[id] ?? null };
+      }),
     };
 
-    // For invalid intake: generate gap detail for the canvas via Claude
-    if (!result.valid) {
-      const missing    = result.missingMandatory ?? [];
-      const gapDetails = missing.map(id => {
-        const item = checklist.mandatory.find(m => m.id === id);
-        return item ? `${item.label}: ${item.failMessage}` : id;
-      }).join('\n');
-
-      const examples = {
-        systems_named:    `"We integrate Salesforce (source) with NetSuite (target)."`,
-        business_problem: `"Orders in Salesforce are manually re-keyed into NetSuite — 2 hrs/day, 5% error rate."`,
-        data_direction:   `"When Opportunity closes in Salesforce, create Sales Order in NetSuite within 5 min."`,
-      };
-
-      state.intake.gapInstructions = missing.map(id => {
-        const item = checklist.mandatory.find(m => m.id === id);
-        return `**${item?.label ?? id}:** ${item?.failMessage ?? 'Required.'}\nExample: ${examples[id] ?? 'Describe in plain English.'}`;
-      }).join('\n\n');
-    } else {
-      // For valid intake: ask Claude to extract architect warnings
-      const system = `You are a MuleSoft expert. Extract 2-3 specific architect warnings from this intake validation result. Be brief and specific.
-Field Knowledge: ${fieldKnow.slice(0, 1000)}`;
-      const notes = await askClaude(system,
-        `Client: ${clientName}
-Validation result: ${JSON.stringify({ systemsIdentified: result.systemsIdentified, architectNotes: result.architectNotes, openItems: result.openItems, autoWarnings: result.autoWarnings }, null, 2)}
-
-List 2-3 specific things the architect must verify before designing. One line each.`
+    if (result.valid) {
+      const notes = await askClaude(
+        `You are a MuleSoft expert. List 3-4 specific things the architect must verify before designing this integration. Name actual systems. Reference field knowledge (FK-NNN) where relevant.\nField Knowledge:\n${fieldKnow.slice(0, 1500)}`,
+        `Client: ${clientName}\n${JSON.stringify({ systemsIdentified: result.systemsIdentified, architectNotes: result.architectNotes, openItems: result.openItems, autoWarnings: result.autoWarnings, reusableCapabilities: result.reusableCapabilities }, null, 2)}\n\nFormat: bullet points.`
       );
       state.intake.architectNotes = notes;
     }
@@ -400,24 +435,35 @@ async function handleAnalystComplete() {
   const prd       = projectFile(clientName, 'prd.md') ?? '';
   const fieldKnow = loadFieldKnowledge();
 
-  // Extract open items and summary from PRD via Claude
-  const summary = await askClaude(
-    `You are a MuleSoft expert. Summarise a PRD in 2-3 bullet points. Extract open items (lines with OPEN ITEM, TBD, ❓). Be brief.`,
-    `Client: ${clientName}\nPRD (first 3000 chars):\n${prd.slice(0, 3000)}\n\nRespond with:\nSUMMARY:\n- bullet\n- bullet\n\nOPEN ITEMS:\n- item (or "None")`
+  const canvasSection = await askClaude(
+    `You are a MuleSoft expert writing a Slack canvas section summarising a completed PRD.
+Field Knowledge (apply verified FK entries): ${fieldKnow.slice(0, 1500)}`,
+    `Client: ${clientName}
+PRD (first 4000 chars):
+${prd.slice(0, 4000)}
+
+Write a detailed markdown section. Include ALL of:
+
+### Summary
+[3-4 specific bullets: scope, systems, integration type, key constraints]
+
+### Systems in Scope
+| System | Role | Connector Status |
+|---|---|---|
+[role = source/target/orchestrator — connector status = Green ≤30d / Yellow 31-60d / Red >60d / not-found]
+
+### Flows Identified
+[list each flow: name, trigger, source → target]
+
+### Open Items (Must Resolve Before Architecture)
+[every OPEN ITEM, TBD, BLOCKER, ❓ — state what decision is needed and who owns it]
+[If none: "None — PRD complete"]
+
+### Field Knowledge Flags
+[FK-NNN entries that apply to these specific systems — name the FK and what it means here]`
   );
 
-  const summaryMatch   = summary.match(/SUMMARY:\n([\s\S]*?)(?:\n\nOPEN ITEMS:|$)/);
-  const openItemsMatch = summary.match(/OPEN ITEMS:\n([\s\S]*?)$/);
-
-  state.analyst = {
-    status:    'complete',
-    summary:   summaryMatch?.[1]?.trim() ?? summary,
-    openItems: (openItemsMatch?.[1] ?? '')
-      .split('\n')
-      .map(l => l.replace(/^-\s*/, '').trim())
-      .filter(l => l && l !== 'None'),
-  };
-
+  state.analyst = { status: 'complete', canvasSection };
   saveState(clientName, state);
   await syncCanvas(clientName, state);
 }
@@ -434,38 +480,42 @@ async function handleArchitectComplete() {
   let dec = {};
   try { dec = JSON.parse(decisions); } catch { /* ignore */ }
 
-  // Extract key facts + risks via Claude
-  const analysis = await askClaude(
-    `You are a MuleSoft expert. Extract key architecture facts and risks. Be specific and brief.
-Field Knowledge: ${fieldKnow.slice(0, 1000)}`,
+  const canvasSection = await askClaude(
+    `You are a MuleSoft expert writing a Slack canvas section summarising completed architecture.
+Field Knowledge (verified = active guidance): ${fieldKnow.slice(0, 1500)}`,
     `Client: ${clientName}
-Pattern: ${dec.integrationPatternId ?? '?'} | Trigger: ${dec.triggerType ?? '?'}
-Architecture (first 2000 chars): ${architecture.slice(0, 2000)}
+Pattern: ${dec.integrationPatternId ?? '?'} | Trigger: ${dec.triggerType ?? '?'} | Flows: ${(dec.flows ?? []).length}
+Architecture (first 3000 chars): ${architecture.slice(0, 3000)}
+Decisions: ${decisions.slice(0, 2000)}
 
-Respond with:
-SUMMARY:
-1-2 sentence summary
+Write a detailed markdown section. Include ALL of:
 
-RISKS:
-- risk 1 (be specific, name the system)
-- risk 2`
+### Key Decisions
+| Decision | Choice | Rationale |
+|---|---|---|
+[pattern, trigger, error strategy, security tier, scaffold profile, compensation — one row each]
+
+### Flows
+| Flow | Trigger | Source → Target |
+|---|---|---|
+[one row per flow from decisions.json]
+
+### Reusable Capabilities
+[specific BMAD commons, shared connectors, patterns — with file paths where known]
+
+### 🔴 Design Risks
+[per risk: system name, the risk, what must be verified — no generic advice, name FK-NNN if relevant]
+
+### Review Checklist
+- [ ] PRD open items resolved
+- [ ] Pattern fits volume/latency NFRs
+- [ ] Compensating transactions defined for multi-system mutations
+- [ ] Security tier correct for data sensitivity
+- [ ] Watermark advances AFTER success (FK-007)
+- [ ] deduplicationTtlMinutes = messageTtlHours × 60`
   );
 
-  const summaryMatch = analysis.match(/SUMMARY:\n([\s\S]*?)(?:\n\nRISKS:|$)/);
-  const risksMatch   = analysis.match(/RISKS:\n([\s\S]*?)$/);
-
-  state.architect = {
-    status:  'complete',
-    pattern: dec.integrationPatternId ?? null,
-    trigger: dec.triggerType ?? null,
-    flows:   (dec.flows ?? []).length,
-    summary: summaryMatch?.[1]?.trim() ?? '',
-    risks:   (risksMatch?.[1] ?? '')
-      .split('\n')
-      .map(l => l.replace(/^-\s*/, '').trim())
-      .filter(Boolean),
-  };
-
+  state.architect = { status: 'complete', canvasSection };
   saveState(clientName, state);
   await syncCanvas(clientName, state);
 }
@@ -477,22 +527,41 @@ async function handlePmComplete() {
   const state   = loadState(clientName);
   const stories = projectFile(clientName, 'stories.md') ?? '';
 
-  // Count stories and estimate
   const storyCount   = (stories.match(/^### /gm) ?? stories.match(/^## Story/gm) ?? []).length;
   const estimateDays = Math.ceil(storyCount * 1.5);
 
-  const summary = await askClaude(
-    `You are a MuleSoft PM. Summarise a sprint plan in 2-3 bullets. Focus on critical path and foundation stories.`,
-    `Client: ${clientName}\nStories (first 2000 chars):\n${stories.slice(0, 2000)}\n\nGive 2-3 bullets on story breakdown and what to start with.`
+  const canvasSection = await askClaude(
+    `You are a MuleSoft PM writing a Slack canvas section summarising sprint planning.`,
+    `Client: ${clientName}
+Total stories: ${storyCount} | Estimate: ~${estimateDays} dev-days
+Stories (first 4000 chars):
+${stories.slice(0, 4000)}
+
+Write a detailed markdown section. Include ALL of:
+
+### Sprint Overview
+**${storyCount} stories** · **~${estimateDays} dev-days** · **~${Math.ceil(estimateDays / 5)} calendar weeks** (1 developer)
+
+### Story Breakdown
+| Area | Stories | Est. Days |
+|---|---|---|
+[group by: Foundation/Global, then one row per flow]
+
+### Start Here — Critical Path
+[foundation stories that must be done first — they unblock everything else]
+[flag any cross-flow dependencies]
+
+### Per-Flow Summary
+| Flow | Stories | Key Transforms | MUnit Target |
+|---|---|---|---|
+[one row per flow]
+
+### Open Items in Stories
+[any story with TBD, OPEN ITEM, or "Confirm with client" — must resolve before coding]
+[If none: "None — stories are complete"]`
   );
 
-  state.pm = {
-    status:       'complete',
-    storyCount,
-    estimateDays,
-    summary,
-  };
-
+  state.pm = { status: 'complete', canvasSection };
   saveState(clientName, state);
   await syncCanvas(clientName, state);
 }
@@ -501,15 +570,46 @@ async function handleScaffoldComplete() {
   const clientName = process.env.CLIENT;
   if (!clientName) { console.log('⚠  CLIENT not set'); return; }
 
-  const state   = loadState(clientName);
-  const repoUrl = process.env.CLIENT_REPO_URL ?? '';
+  const state     = loadState(clientName);
+  const decisions = projectFile(clientName, 'decisions.json') ?? '{}';
+  const repoUrl   = process.env.CLIENT_REPO_URL ?? clientRepoLink(clientName) ?? '';
+
+  let dec = {};
+  try { dec = JSON.parse(decisions); } catch { /* ignore */ }
+
+  const canvasSection = await askClaude(
+    `You are a MuleSoft expert writing the final scaffold-complete canvas section.`,
+    `Client: ${clientName}
+Repo: ${repoUrl || '(not yet pushed)'}
+Decisions: ${decisions.slice(0, 1500)}
+
+Write a markdown section covering:
+
+### What Was Generated
+| File | Purpose |
+|---|---|
+[list: pom.xml, global-config.xml, error-handler.xml, each flow XML, MUnit files, devcontainer.json, post-create.sh]
+
+### Developer Onboarding
+1. Open ${repoUrl ? `[the repo](${repoUrl})` : 'the GitHub repo'}
+2. **Code → Open in Codespace** (or open Dev Container locally)
+3. Wait ~3 min — MuleSoft extensions + BMAD install silently, no action needed
+4. Run \`mvn validate\` before first \`mvn compile\`
+5. Open GitHub Issues — start with stories labelled \`foundation\`
+
+### ⚠️ Before mvn compile
+[list any connectors in decisions.json flagged as approximate version — need Exchange verification]
+[If none: "All connector versions verified — safe to compile"]
+
+### Client Progress Report
+Plain-English report ready at \`projects/${clientName}/client-report.html\`
+Share with client — shows scope and % complete as GitHub Issues close.`
+  );
 
   state.scaffold = {
-    status:  'complete',
-    repoUrl: repoUrl || null,
-    summary: repoUrl
-      ? `Project scaffolded and pushed to GitHub.`
-      : `Scaffold generated locally. Run \`create-client-repo.sh\` to push to GitHub.`,
+    status:       'complete',
+    repoUrl:      repoUrl || null,
+    canvasSection,
   };
 
   saveState(clientName, state);
