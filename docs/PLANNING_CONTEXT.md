@@ -1138,7 +1138,7 @@ If > 6 months old, prints warning:
     "queueDepthAlertPct": 80,
     "backpressureEnabled": true,
     "deduplicationEnabled": true,
-    "deduplicationTtlMinutes": 60
+    "deduplicationTtlMinutes": 1440
   },
   "observability": {
     "anypointMonitoring": true,
@@ -1444,6 +1444,33 @@ After each project:
    - Add "Promotes to: {file}" so the trail is traceable
 6. Commit: "field-knowledge: Add FK-{NNN} [{system or pattern}]"
 ```
+
+---
+
+## REALISTIC TIMELINE (per project)
+
+The automated pipeline runs steps 1-4 automatically when intake files land.
+A tech lead's role is review and go/no-go at each gate, not running each step manually.
+
+| Phase | Who | Time | Automated? |
+|-------|-----|------|-----------|
+| Drop intake files | Tech lead | 5 min | — |
+| Analyst → prd.md | Pipeline (`intake-to-code.yml`) | 10–15 min | ✓ Auto |
+| **Review prd.md, resolve OPEN ITEMS** | Tech lead | 15–45 min | Manual gate |
+| Architect → architecture.md + decisions.json | Pipeline | 15–20 min | ✓ Auto |
+| **Review decisions.json** | Tech lead | 10–20 min | Manual gate |
+| PM → stories.md | Pipeline | 5–10 min | ✓ Auto |
+| Scaffold → /tmp/{client}-mule/ | Pipeline | < 1 min | ✓ Auto |
+| **Approve repo creation** | Tech lead | 2 min | Manual gate |
+| GitHub repo created + Codespace link | `create-client-repo.sh` | 2 min | Manual trigger |
+
+**Typical total clock time:** 1.5–3 hours (mostly waiting for pipeline + review)
+**Developer can open Codespace:** same day in most cases
+**Complex projects (API discovery needed):** 1–2 days to resolve OPEN ITEMS
+
+The "30-minute estimate" referenced in earlier sessions was aspirational and did not
+account for human review gates. The actual pipeline automation saves ~3 hours of
+manual agent-running but review time is irreducible and project-dependent.
 
 ---
 
