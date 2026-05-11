@@ -63,7 +63,8 @@ fun sfAccountToCanonical(sf: Object): Object = {
     financial: {
         creditLimit:   null,              // SF doesn't have this; comes from ERP
         paymentTerms:  null,
-        currency:      sf.DefaultCurrencyIsoCode default null,
+        // CurrencyIsoCode only exists on multi-currency orgs. Single-currency orgs: null.
+        currency:      sf.CurrencyIsoCode default null,
         taxExempt:     false,
         annualRevenue: sf.AnnualRevenue default null
     },

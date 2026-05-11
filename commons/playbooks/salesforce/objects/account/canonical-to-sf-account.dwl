@@ -17,7 +17,16 @@
  * Sending null for a field CLEARS it — omit fields you don't want to change.
  */
 
-fun canonicalToSfAccount(canonical: Object): Object = {
+/**
+ * CLIENT: Choose billing/shipping country field based on org configuration:
+ *   BillingCountry     — free-text string (works on ALL orgs, default)
+ *   BillingCountryCode — ISO code (only works when "State and Country Picklists" feature is ENABLED)
+ * Using BillingCountryCode on an org without picklists causes a FIELD_INTEGRITY_EXCEPTION.
+ * Check: Setup → State and Country/Territory Picklists → Status
+ *
+ * CurrencyIsoCode is only patchable on multi-currency orgs. Omit on single-currency orgs.
+ */
+fun canonicalToSfAccount(canonical: Object, useCountryCode: Boolean = false, isMultiCurrency: Boolean = false): Object = {
 
     Name: canonical.name,
 
@@ -30,21 +39,26 @@ fun canonicalToSfAccount(canonical: Object): Object = {
     }),
 
     // Billing address
-    BillingStreet:      canonical.addresses.billing.line1      default null,
-    BillingCity:        canonical.addresses.billing.city        default null,
-    BillingState:       canonical.addresses.billing.state       default null,
-    BillingPostalCode:  canonical.addresses.billing.postalCode  default null,
-    BillingCountryCode: canonical.addresses.billing.country     default null,
+    BillingStreet:     canonical.addresses.billing.line1      default null,
+    BillingCity:       canonical.addresses.billing.city        default null,
+    BillingState:      canonical.addresses.billing.state       default null,
+    BillingPostalCode: canonical.addresses.billing.postalCode  default null,
+    // Country: use CountryCode (ISO) if picklist feature enabled, else free-text Country
+    (BillingCountryCode: canonical.addresses.billing.country default null) if useCountryCode,
+    (BillingCountry:     canonical.addresses.billing.country default null) if (not useCountryCode),
 
     // Shipping address
-    ShippingStreet:      canonical.addresses.shipping.line1      default null,
-    ShippingCity:        canonical.addresses.shipping.city        default null,
-    ShippingState:       canonical.addresses.shipping.state       default null,
-    ShippingPostalCode:  canonical.addresses.shipping.postalCode  default null,
-    ShippingCountryCode: canonical.addresses.shipping.country     default null,
+    ShippingStreet:     canonical.addresses.shipping.line1      default null,
+    ShippingCity:       canonical.addresses.shipping.city        default null,
+    ShippingState:      canonical.addresses.shipping.state       default null,
+    ShippingPostalCode: canonical.addresses.shipping.postalCode  default null,
+    (ShippingCountryCode: canonical.addresses.shipping.country default null) if useCountryCode,
+    (ShippingCountry:     canonical.addresses.shipping.country default null) if (not useCountryCode),
 
     // Financials
     AnnualRevenue: canonical.financial.annualRevenue default null,
+    // CurrencyIsoCode only exists on multi-currency orgs
+    (CurrencyIsoCode: canonical.financial.currency default null) if isMultiCurrency,
 
     // Description — append sync note
     Description: "Last synced: " ++ (now() as String { format: "yyyy-MM-dd HH:mm:ss z" }),
