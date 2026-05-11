@@ -93,14 +93,14 @@ else
   ok "BMAD config already exists — skipped"
 fi
 
-# Install BMAD via npx if available (idempotent — safe to re-run)
-if command -v npx >/dev/null 2>&1; then
-  if npx --yes bmad-method@latest install --silent --non-interactive 2>>"$LOG"; then
-    ok "BMAD method skills installed"
-  else
-    warn "BMAD npx install failed — Claude Code built-in skills still available"
-  fi
-fi
+# BMAD skills are shipped by the scaffold generator (Option B — selective skills only).
+# .agents/skills/bmad-agent-dev/ and .agents/skills/bmad-sprint-status/ are already
+# present in this repo. We do NOT run `npx bmad-method@latest install` here because
+# that would add all planning agents (Scout, Analyst, Architect, PM) to this repo —
+# those belong in the planning repo only. The developer has exactly two agents:
+#   - bmad-agent-dev   → VR (verify stories) and CS (check single story)
+#   - bmad-sprint-status → sprint status view
+ok "BMAD skills pre-installed by scaffold (bmad-agent-dev, bmad-sprint-status)"
 
 # ─── 4. Maven Settings ────────────────────────────────────────────────────────
 
