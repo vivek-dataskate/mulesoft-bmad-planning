@@ -1,0 +1,132 @@
+name: Intake → Code Pipeline
+
+# Trigger: any file pushed into projects/{client}/intake/
+# Skips: commits tagged [skip ci] or [pipeline skip] (prevents loops)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'projects/*/intake/**'
+
+permissions:
+  contents: write
+
+# Required repository secrets:
+#   ANTHROPIC_API_KEY  — Anthropic API key for claude-sonnet-4-6
+#   GITHUB_DEPLOY_TOKEN — PAT with repo:write + codespace:write (for create-client-repo.sh)
+#   GITHUB_ORG          — GitHub org/user to own generated client repos
+#
+# Set these at: Settings → Secrets → Actions
+
+jobs:
+  pipeline:
+    name: Run BMAD Pipeline
+    runs-on: ubuntu-latest
+
+    # Skip if commit message contains [skip ci] or [pipeline skip]
+    if: >
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, '[pipeline skip]')
+
+    steps:
+
+      # ── Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Node.js ───────────────────────────────────────────────────────────
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Anthropic SDK
+        run: npm install --no-save @anthropic-ai/sdk
+        working-directory: ${{ github.workspace }}
+
+      # ── Detect which client's intake changed ──────────────────────────────
+      - name: Detect client
+        id: detect
+        run: |
+          set -euo pipefail
+          CHANGED=$(git diff --name-only HEAD~1 HEAD | grep '^projects/.*/intake/' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No intake files changed — nothing to do."
+            echo "client=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Pick the first unique client if multiple changed simultaneously
+          CLIENT=$(echo "$CHANGED" | sed 's|^projects/\([^/]*\)/.*|\1|' | sort -u | head -1)
+          echo "client=$CLIENT" >> "$GITHUB_OUTPUT"
+          echo "Detected client: $CLIENT"
+          echo ""
+          echo "Changed intake files:"
+          echo "$CHANGED"
+
+      # ── Run the full pipeline ─────────────────────────────────────────────
+      - name: Run BMAD pipeline (analyst → architect → PM → scaffold)
+        if: steps.detect.outputs.client != ''
+        env:
+          ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN:       ${{ secrets.GITHUB_DEPLOY_TOKEN || '' }}
+          GITHUB_ORG:         ${{ vars.GITHUB_ORG || '' }}
+          CLIENT:             ${{ steps.detect.outputs.client }}
+          # Slack — if set, each pipeline stage posts a structured architect notification
+          SLACK_BOT_TOKEN:    ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL:      ${{ secrets.SLACK_PIPELINE_CHANNEL || vars.SLACK_PIPELINE_CHANNEL }}
+        run: |
+          node scaffold/run-pipeline.js "$CLIENT" --skip-repo
+          # Repo creation is a separate manual step after tech lead reviews outputs.
+          # To auto-create repos: remove --skip-repo above
+
+      # ── Commit pipeline outputs back to main ─────────────────────────────
+      - name: Commit pipeline outputs
+        if: steps.detect.outputs.client != ''
+        env:
+          CLIENT: ${{ steps.detect.outputs.client }}
+        run: |
+          git config user.name  "BMAD Pipeline"
+          git config user.email "bmad-pipeline@noreply.github.com"
+
+          # Stage only the client project folder (prd, architecture, decisions, stories)
+          git add "projects/$CLIENT/"
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit — all outputs already up to date."
+          else
+            git commit -m "pipeline: $CLIENT — analyst + architect + PM outputs [skip ci]"
+            git push
+            echo ""
+            echo "Pipeline outputs committed."
+            echo "Review projects/$CLIENT/ then run:"
+            echo "  GITHUB_TOKEN=... GITHUB_ORG=... bash scaffold/create-client-repo.sh projects/$CLIENT/decisions.json"
+          fi
+
+      # ── Summary ───────────────────────────────────────────────────────────
+      - name: Pipeline summary
+        if: steps.detect.outputs.client != ''
+        env:
+          CLIENT: ${{ steps.detect.outputs.client }}
+        run: |
+          echo ""
+          echo "══════════════════════════════════════════════════════════"
+          echo "  BMAD Pipeline Complete — $CLIENT"
+          echo "══════════════════════════════════════════════════════════"
+          echo ""
+          echo "  Review outputs in the repo:"
+          echo "    projects/$CLIENT/prd.md"
+          echo "    projects/$CLIENT/architecture.md"
+          echo "    projects/$CLIENT/decisions.json"
+          echo "    projects/$CLIENT/stories.md"
+          echo ""
+          echo "  OPEN ITEMS in prd.md must be resolved before proceeding."
+          echo ""
+          echo "  When outputs look good, create the developer repo:"
+          echo "    GITHUB_TOKEN=\$TOKEN GITHUB_ORG=\$ORG \\"
+          echo "      bash scaffold/create-client-repo.sh projects/$CLIENT/decisions.json"
+          echo ""
+          echo "  The developer opens the Codespace link printed by that script."
+          echo "══════════════════════════════════════════════════════════"

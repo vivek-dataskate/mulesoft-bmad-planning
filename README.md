@@ -16,8 +16,12 @@ Anything works: transcripts, slide decks, email threads, requirements docs, arch
 
 ### Step 2: Run the Analyst
 
-Open Claude Code and invoke:
+In this Claude Code chat, send:
 
+```
+/bmad-agent-analyst
+```
+or
 ```
 Talk to Mary (the analyst). Analyse all docs in projects/{client}/intake/ and produce projects/{client}/prd.md
 ```
@@ -30,6 +34,10 @@ The Analyst produces:
 
 ### Step 3: Run the Architect
 
+```
+/bmad-agent-architect
+```
+or
 ```
 Talk to Winston (the architect). Read projects/{client}/prd.md. Walk the 6-level decision tree. Produce projects/{client}/architecture.md and projects/{client}/decisions.json
 ```
@@ -56,6 +64,10 @@ Everything else the Architect decides autonomously.
 ### Step 4: Run the PM
 
 ```
+/bmad-agent-pm
+```
+or
+```
 Talk to John (the PM). Read projects/{client}/decisions.json and story-library/. Generate projects/{client}/stories.md
 ```
 
@@ -74,6 +86,22 @@ GITHUB_TOKEN=ghp_... bash scaffold/create-client-repo.sh \
 The script creates `github.com/{org}/{client}-mule`, pushes code, and prints a one-click Codespace URL. Send that URL to the developer — they open it, the project compiles, they fill in `// TODO` blocks.
 
 **Total time: discovery docs → developer writing code, under an hour.**
+
+### Step 6: Debrief after any milestone
+
+Any time during or after the engagement — mid-architecture, post-UAT, post-production — if you learned something worth keeping, capture it:
+
+```
+/bmad-agent-architect-debrief
+```
+or
+```
+Talk to the Architect Debrief agent. Select DK.
+```
+
+Describe what you observed in plain language. The agent asks 6 questions and writes the field knowledge entry. No code needed, no client names recorded — counts only.
+
+When a finding has been confirmed on a second engagement, run `PK` to promote it: the agent drafts the exact change to the target file (scenario, standards doc, playbook, or commons DWL) and applies it. That learning then travels to every future project automatically.
 
 ---
 
@@ -115,10 +143,11 @@ Three specific problems it solves:
 mulesoft-bmad-planning/
 ├── _bmad/                          BMAD agent definitions
 │   └── custom/
-│       ├── bmad-agent-analyst.toml     Mary: PRD + API contract discovery
-│       ├── bmad-agent-architect.toml   Winston: 6-level decision tree → decisions.json
-│       ├── bmad-agent-pm.toml          John: decisions.json → sprint stories
-│       └── bmad-agent-dev.toml         Dev agent: standards enforcer during coding
+│       ├── bmad-agent-analyst.toml          Mary: PRD + API contract discovery
+│       ├── bmad-agent-architect.toml        Winston: 6-level decision tree → decisions.json
+│       ├── bmad-agent-architect-debrief.toml  DK: capture field knowledge; PK: promote to standard
+│       ├── bmad-agent-pm.toml               John: decisions.json → sprint stories
+│       └── bmad-agent-dev.toml              Dev agent: standards enforcer during coding
 │
 ├── standards/
 │   ├── MULESOFT_DESIGN_STANDARDS.md   The constitution — all pattern decisions flow from here
@@ -272,37 +301,33 @@ No new code needed. The full field mapping, null handling, and status enum trans
 
 ## How Field Knowledge Accumulates
 
-`docs/FIELD_KNOWLEDGE.md` is the architect's lesson log. When a project surfaces something not covered by existing standards, it goes here.
+`docs/FIELD_KNOWLEDGE.md` is the architect's lesson log. When any engagement surfaces something not covered by existing standards — during analysis, architecture, coding, UAT, or production — it goes here.
 
-```markdown
-## FK-{NNN} — {Short title}
-Date: YYYY-MM-DD
-Project: {anonymized client}
-Trigger: {what condition activates this}
-Scenario: {what happened}
-What worked: {the correct approach}
-Status: observation | verified | promoted-to-standard
+All agents read this file at the start of every session and apply `verified` entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.
+
+**To add or update an entry:** invoke the Architect Debrief agent and select `DK`. Six questions, plain language, no code required. The agent handles numbering, formatting, and status promotion logic.
+
 ```
-
-The Architect and all agents read this file at the start of every session and apply `verified` entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.
+Talk to the Architect Debrief agent. Select DK.
+```
 
 **How a finding travels from a project to a system improvement:**
 
 ```
-Developer hits something unexpected on a client project
+Architect observes something unexpected (any time — discovery, arch, code, or prod)
         ↓
-Opens GitHub Issue in client dev repo, fixes it, documents the fix in the PR
+Opens Architect Debrief agent → DK → describes it in plain language
         ↓
-Tech lead reviews: recurring pattern or one-off?
+Agent mints FK-NNN (status: observation, Times: 1)
         ↓
-If worth capturing → add FK-NNN entry to FIELD_KNOWLEDGE.md (status: observation)
+Second engagement hits the same thing → DK again → agent increments to verified
+        Agents now apply it automatically on future projects
         ↓
-Second project hits the same thing → status: verified → agents apply it automatically
-        ↓
-Third occurrence → promoted to scenario file or standard
+Architect decides it's universal → PK command → agent drafts the target file change
+        Promoted to scenario file, standards doc, or commons playbook
 ```
 
-Current verified entries include: PS256 JWT (NetSuite), set-correlation-id vs set-variable, on-error-continue inside async scope, byte[] output from S3 claims, MUnit expectedErrorType with on-error-continue.
+No client names are stored — counts only. Current verified entries: PS256 JWT (NetSuite), `set-correlation-id` vs `set-variable`, `on-error-continue` inside async scope, byte[] from S3 claim-check, MUnit `expectedErrorType` with `on-error-continue`.
 
 ---
 
@@ -356,27 +381,73 @@ Three-layer naming enforced by all generated projects:
 
 ---
 
-## Adding to the System
+## How to Use — Adding a Capability
 
-### New connector
-1. Add entry to `standards/connector-registry.json` (groupId, artifactId, version, auth, required properties)
-2. Create XML config stub at `templates/connectors/{name}-config.xml`
-3. Run `node scaffold/check-registry-freshness.js` to confirm it shows green
+### Capture a field knowledge observation (any time)
 
-### New integration pattern
-1. Create `standards/scenarios/{letter}-{name}.md` following existing scenario file format
-2. Add to `primaryPattern` enum in `standards/decisions-schema.json`
-3. Add pattern row to `standards/MULESOFT_DESIGN_STANDARDS.md` pattern catalog
+Something non-obvious happened on a project — a connector quirk, a Mule XML gotcha, a pattern that didn't fit. Capture it before it's forgotten:
 
-### New system playbook
-1. Create `commons/playbooks/{system}/PLAYBOOK.md` — document auth quirks prominently
-2. Create `system/` folder with auth, query, and upsert sub-flows
-3. Create `objects/{type}/` folders with bidirectional DWL transforms
-4. Update `standards/snippet-registry.json` `tier2_commons` section
-5. Add to the capabilities portal via `generate-capabilities.js`
+```
+/bmad-agent-architect-debrief
+```
+or
+```
+Talk to the Architect Debrief agent. Select DK.
+```
 
-### New field knowledge entry
-Add to `docs/FIELD_KNOWLEDGE.md` with status `observation`. Update to `verified` when second project confirms it.
+Describe what you observed in plain language. Six questions, done. The agent writes the FK entry, updates the index, and suggests the commit message. No client names — counts only.
+
+When the same thing happens on a second engagement: run `DK` again. The agent finds the existing entry and promotes it to `verified`. All agents then apply it automatically on future projects.
+
+### Promote a verified finding to standard (PK)
+
+When a `verified` finding is clearly universal — not just a pattern for one system type — bake it into the target file so no agent has to read the FK entry to know it:
+
+```
+/bmad-agent-architect-debrief
+```
+or
+```
+Talk to the Architect Debrief agent. Select PK.
+```
+
+The agent lists verified entries, you pick one, it drafts the exact change to the target file (scenario file, standards doc, playbook, or commons DWL), applies it, and updates the FK status to `promoted-to-standard`.
+
+### Add a new connector
+
+```
+/bmad-agent-architect-debrief
+```
+or
+```
+Talk to the Architect Debrief agent. Select NC.
+```
+
+The agent asks for the connector name, Exchange coordinates, auth type, and required properties. It writes the `connector-registry.json` entry, creates the XML config stub in `templates/connectors/`, runs the freshness check, and suggests the commit message.
+
+### Add a new integration pattern
+
+```
+/bmad-agent-architect-debrief
+```
+or
+```
+Talk to the Architect Debrief agent. Select NP.
+```
+
+The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `standards/scenarios/`, adds the enum value to `decisions-schema.json`, and adds the catalog row to `MULESOFT_DESIGN_STANDARDS.md`.
+
+### Add a new system playbook
+
+```
+/bmad-agent-architect-debrief
+```
+or
+```
+Talk to the Architect Debrief agent. Select NB.
+```
+
+The agent asks for the system name, auth method, objects needing DWL transforms, and any known quirks. It scaffolds the full folder structure under `commons/playbooks/{system}/`, writes skeleton auth/query/upsert sub-flows and bidirectional DWL transforms, registers the assets in `snippet-registry.json`, and regenerates the capabilities portal.
 
 ---
 

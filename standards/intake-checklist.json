@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "description": "Minimum viable intake checklist. Validated by scaffold/validate-intake.js before any intake is committed to GitHub.",
+    "version": "1.0.0"
+  },
+
+  "mandatory": [
+    {
+      "id": "systems_named",
+      "label": "Named systems",
+      "description": "At least one source system AND one target system must be identifiable by name (e.g. Salesforce, NetSuite, SAP, a database name, an API name).",
+      "failMessage": "No system names found. We need to know what systems are being integrated before we can proceed."
+    },
+    {
+      "id": "business_problem",
+      "label": "Business problem or pain point",
+      "description": "The documents must describe WHAT is broken, slow, manual, or at risk today — not just what the solution should do.",
+      "failMessage": "No business problem identified. Without understanding the pain point, the architect cannot make the right integration pattern choice."
+    },
+    {
+      "id": "data_direction",
+      "label": "Data flow direction",
+      "description": "At least one data flow must be described: what data moves, from where, to where, and roughly when (real-time / batch / triggered).",
+      "failMessage": "No data flow direction found. We need at least one source → target flow described to begin architecture."
+    }
+  ],
+
+  "recommended": [
+    {
+      "id": "volume_frequency",
+      "label": "Volume or frequency estimate",
+      "description": "How many records per day/hour? How often does the integration need to run? Needed for NFR decisions.",
+      "missingImpact": "Architect will default to medium volume / 99.9% availability. Confirm before go-live."
+    },
+    {
+      "id": "timeline",
+      "label": "Go-live date or project deadline",
+      "description": "Any stated deadline, sprint target, or go-live date.",
+      "missingImpact": "No timeline constraint — architect will not factor urgency into complexity trade-offs."
+    },
+    {
+      "id": "auth_credentials",
+      "label": "API auth type or credentials hint",
+      "description": "OAuth, API key, basic auth, SAML — any mention of how target systems are accessed.",
+      "missingImpact": "Architect will flag all undocumented systems for API Contract Discovery. Adds 1-2 days per unknown system."
+    },
+    {
+      "id": "nfr",
+      "label": "Non-functional requirements",
+      "description": "Uptime SLA, latency expectations, data sensitivity / compliance requirements.",
+      "missingImpact": "Architect defaults to internal security tier and 99.9% availability. Will ask if financial/regulated data involved."
+    },
+    {
+      "id": "existing_integrations",
+      "label": "Existing integrations or middleware",
+      "description": "Does the client already have MuleSoft, an ESB, or point-to-point integrations? Avoids re-designing what exists.",
+      "missingImpact": "Risk of duplicating existing work. Architect will ask."
+    },
+    {
+      "id": "stakeholders",
+      "label": "Key stakeholders and decision-makers",
+      "description": "Who approves architecture decisions? Who owns each system?",
+      "missingImpact": "Open items may stall if no named owner per system."
+    }
+  ],
+
+  "autoWarnings": [
+    {
+      "id": "netsuite_rest",
+      "trigger": "netsuite",
+      "warning": "NetSuite REST API requires PS256 JWT via Nimbus JOSE helper — the standard NetSuite connector does NOT support REST. Factor in an extra story for the JWT sub-flow.",
+      "severity": "high"
+    },
+    {
+      "id": "sap_license",
+      "trigger": "sap",
+      "warning": "SAP JCo connector requires a separate MuleSoft license AND native SAP JCo JARs. Confirm license status before scoping.",
+      "severity": "high"
+    },
+    {
+      "id": "servicenow_oauth",
+      "trigger": "servicenow",
+      "warning": "ServiceNow connector metadata does NOT work with OAuth 2.0 Authorization Code. Use basic auth for metadata resolution in Studio.",
+      "severity": "medium"
+    },
+    {
+      "id": "oracle_jdbc",
+      "trigger": "oracle",
+      "warning": "Oracle JDBC driver (ojdbc11.jar) cannot be declared in pom.xml due to Oracle licensing. Must be placed in shared lib folder on CloudHub 2.0.",
+      "severity": "medium"
+    },
+    {
+      "id": "real_time_volume",
+      "trigger": "real-time|real time|synchronous|sub-second|millisecond",
+      "warning": "Sub-second latency requirement detected. Verify downstream systems can respond within SLA before selecting request-reply pattern — SAP, NetSuite, and legacy ERPs often cannot.",
+      "severity": "high"
+    },
+    {
+      "id": "financial_data",
+      "trigger": "payment|invoice|billing|financial|revenue|ledger|accounts payable|accounts receivable",
+      "warning": "Financial data detected. Compensating-transaction strategy is MANDATORY if any mutation can fail mid-flow. Architect must select process-orchestration (H) if 2+ systems mutate in the same flow.",
+      "severity": "high"
+    },
+    {
+      "id": "pii_data",
+      "trigger": "pii|personal data|gdpr|ccpa|hipaa|ssn|social security|date of birth|passport",
+      "warning": "PII or regulated data detected. Security tier must be 'regulated' or higher. Field encryption and data masking in logs are mandatory. Confirm compliance framework.",
+      "severity": "high"
+    },
+    {
+      "id": "large_volume",
+      "trigger": "million|millions|bulk|warehouse|data lake|terabyte|bigquery|redshift|snowflake",
+      "warning": "High-volume or data warehouse destination detected. Consider streaming-pipeline (L) or batch (C) pattern, NOT scheduled-sync (D) which is capped at ~10K records per run.",
+      "severity": "medium"
+    },
+    {
+      "id": "existing_mulesoft",
+      "trigger": "existing mulesoft|already have mulesoft|current mulesoft|mulesoft instance|anypoint platform",
+      "warning": "Client may have existing MuleSoft assets. Check for reusable System APIs, shared connectors, and existing commons libraries before generating new scaffold.",
+      "severity": "medium"
+    }
+  ]
+}
