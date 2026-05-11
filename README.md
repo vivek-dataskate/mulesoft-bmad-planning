@@ -31,7 +31,7 @@ Scout reads the scoping notes, infers which systems are involved (explicit and i
 - `projects/{client}/intake/intake-questionnaire.md` — tailored questionnaire with pre-filled understandings from the scoping notes, base questions, and system-specific gotcha questions generated dynamically per detected system
 
 Scout also automatically registers every detected system in three commons artifacts (creating stubs if none exist):
-- `commons/playbooks/{system}/PLAYBOOK.md` — stub created on first detection, enriched as the project progresses
+- `playbooks/{system}/PLAYBOOK.md` — stub created on first detection, enriched as the project progresses
 - `standards/connector-registry.json` — stub entry with auth type to be confirmed
 - `standards/intake-checklist.json` — baseline autoWarning so the next project sees this system flagged immediately
 
@@ -75,7 +75,7 @@ or
 Talk to Winston (the architect). Read projects/{client}/prd.md. Walk the 6-level decision tree. Produce projects/{client}/architecture.md and projects/{client}/decisions.json
 ```
 
-The Architect reads `docs/FIELD_KNOWLEDGE.md` and all existing `commons/playbooks/*/PLAYBOOK.md` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
+The Architect reads `docs/FIELD_KNOWLEDGE.md` and all existing `playbooks/*/PLAYBOOK.md` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
 
 **Validate before proceeding:**
 ```bash
@@ -103,7 +103,7 @@ The Architect enriches all commons stubs before completing the MD run — playbo
 ```
 or
 ```
-Talk to John (the PM). Read projects/{client}/decisions.json and story-library/. Generate projects/{client}/stories.md
+Talk to John (the PM). Read projects/{client}/decisions.json and standards/stories/. Generate projects/{client}/stories.md
 ```
 
 Stories reference exact file names, acceptance criteria, and coverage floors — developers pick them up without needing to interpret the architecture doc.
@@ -140,7 +140,7 @@ Then select `CO` and specify the client.
 The close-out reads every internal flag from the intake questionnaire, every open item from architecture.md, every story that was built, and every system involved. It interviews the architect question by question — per system (auth, connector behaviour, field mapping surprises), per internal flag (was it resolved? how?), per architecture open item, and per cross-cutting pattern. Based on the answers it automatically updates:
 
 - `docs/FIELD_KNOWLEDGE.md` — new FK entries for any non-obvious finding
-- `commons/playbooks/{system}/` — implementation learnings, confirmed DWL mappings, maturity update
+- `playbooks/{system}/` — implementation learnings, confirmed DWL mappings, maturity update
 - `standards/intake-checklist.json` — new or updated autoWarnings so the next project sees these issues at intake time
 - `standards/connector-registry.json` — confirmed auth types, versions, and any new connectors used
 
@@ -177,7 +177,7 @@ After close-out, every project also contributes to the commons:
 | Commons artifact | Updated by | What grows |
 |-----------------|-----------|-----------|
 | `docs/FIELD_KNOWLEDGE.md` | Architect (DK / CO) | FK entries — lessons from every project |
-| `commons/playbooks/{system}/` | Scout (stub) → Architect (design) → CO (implementation) | Auth, DWL mappings, known quirks per system |
+| `playbooks/{system}/` | Scout (stub) → Architect (design) → CO (implementation) | Auth, DWL mappings, known quirks per system |
 | `standards/intake-checklist.json` | Scout (stub) → Architect Debrief Q6 / CO | autoWarnings — every system ever seen gets an entry |
 | `standards/connector-registry.json` | Scout (stub) → Analyst → Architect → CO | Confirmed auth, versions, staleness |
 
@@ -195,7 +195,7 @@ Three specific problems it solves:
 
 2. **Speed** — the Analyst, Architect, and PM agents each take minutes. Code generation takes seconds. The bottleneck becomes client response time, not internal setup time.
 
-3. **Accumulation** — every new project teaches the system something. Lessons go into `docs/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `commons/playbooks/` grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.
+3. **Accumulation** — every new project teaches the system something. Lessons go into `docs/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `playbooks/` grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.
 
 ---
 
@@ -213,7 +213,7 @@ mulesoft-bmad-planning/
 │           (bmad-agent-dev.toml is NOT used — developers use Anypoint Studio directly)
 │
 ├── standards/
-│   ├── MULESOFT_DESIGN_STANDARDS.md   The constitution — all pattern decisions flow from here
+│   ├── DESIGN_STANDARDS.md   The constitution — all pattern decisions flow from here
 │   ├── decisions-schema.json           Schema + empty template for decisions.json
 │   ├── connector-registry.json         All known connectors: versions, Maven coords, auth types
 │   ├── intake-checklist.json           Mandatory checks + autoWarnings per system (grows with every project)
@@ -226,7 +226,7 @@ mulesoft-bmad-planning/
 │   ├── story-template.md
 │   └── connectors/                     XML config stubs per connector (28 connectors)
 │
-├── story-library/                      Reusable story templates the PM references
+├── standards/stories/                      Reusable story templates the PM references
 │   ├── global-*.md                     Always-on or conditional global stories (10 files)
 │   └── flow-*.md                       Per-flow story templates (5 files)
 │
@@ -315,10 +315,10 @@ Mule 4.6+ introduced `set-correlation-id` as a first-class element. `set-variabl
 
 ## System Playbooks — How Integration Knowledge Accumulates
 
-The playbooks in `commons/playbooks/` encode what we know about each external system. Each playbook is **system-specific, not pair-specific** — the Salesforce playbook is reused whether the other side is NetSuite, SAP, Workday, or anything else.
+The playbooks in `playbooks/` encode what we know about each external system. Each playbook is **system-specific, not pair-specific** — the Salesforce playbook is reused whether the other side is NetSuite, SAP, Workday, or anything else.
 
 ```
-commons/playbooks/salesforce/       commons/playbooks/netsuite/
+playbooks/salesforce/       playbooks/netsuite/
   system/sf-auth.xml                  system/ns-auth.xml
   system/sf-query.xml                 system/ns-query.xml
   objects/account/                    system/ns-upsert.xml
@@ -372,7 +372,7 @@ No new code needed. The full field mapping, null handling, and status enum trans
 | `stub` | Detected by Scout, not yet implemented | Architect flags "New Playbook Required" open item |
 | `observation` | Implemented on one client | Available but not auto-applied |
 | `verified` | Confirmed on 2+ clients | Applied automatically by Architect |
-| `promoted-to-standard` | Clear universal pattern | Moved into `MULESOFT_DESIGN_STANDARDS.md` |
+| `promoted-to-standard` | Clear universal pattern | Moved into `DESIGN_STANDARDS.md` |
 
 ---
 
@@ -496,7 +496,7 @@ The agent lists verified entries, you pick one, it drafts the exact change to th
 /bmad-agent-architect-debrief → NC
 ```
 
-The agent asks for the connector name, Exchange coordinates, auth type, and required properties. It writes the `connector-registry.json` entry, creates the XML config stub in `templates/connectors/`, runs the freshness check, and suggests the commit message.
+The agent asks for the connector name, Exchange coordinates, auth type, and required properties. It writes the `connector-registry.json` entry, creates the XML config stub in `scaffold/connectors/`, runs the freshness check, and suggests the commit message.
 
 ### Add a new integration pattern (NP)
 
@@ -504,7 +504,7 @@ The agent asks for the connector name, Exchange coordinates, auth type, and requ
 /bmad-agent-architect-debrief → NP
 ```
 
-The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `standards/scenarios/`, adds the enum value to `decisions-schema.json`, and adds the catalog row to `MULESOFT_DESIGN_STANDARDS.md`.
+The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `standards/scenarios/`, adds the enum value to `decisions-schema.json`, and adds the catalog row to `DESIGN_STANDARDS.md`.
 
 ### Add a new system playbook (NB)
 
@@ -512,7 +512,7 @@ The agent asks for the pattern letter, integration style, compensation strategy,
 /bmad-agent-architect-debrief → NB
 ```
 
-The agent asks for the system name, auth method, objects needing DWL transforms, and any known quirks. It scaffolds the full folder structure under `commons/playbooks/{system}/`, writes skeleton auth/query/upsert sub-flows and bidirectional DWL transforms, registers the assets in `snippet-registry.json`, and regenerates the capabilities portal.
+The agent asks for the system name, auth method, objects needing DWL transforms, and any known quirks. It scaffolds the full folder structure under `playbooks/{system}/`, writes skeleton auth/query/upsert sub-flows and bidirectional DWL transforms, registers the assets in `snippet-registry.json`, and regenerates the capabilities portal.
 
 ---
 
@@ -542,7 +542,7 @@ This system automates the **integration runtime pipeline** — the path from dis
 | **Runtime Fabric (RTF)** | Available as `devops.deployment` option in `decisions.json` |
 | **API Manager + API Gateway** | OAS 3.0 specs generated per HTTP flow; security policies (client-id, OAuth2, mTLS) driven from `decisions.json` security tier |
 | **Anypoint Exchange** | Connector versions pinned from Exchange; `commons/publish.sh` publishes the shared library |
-| **Anypoint Connectors** | 28 connector config stubs in `templates/connectors/`; 150+ entries in `connector-registry.json` with auth types, versions, and Maven coordinates |
+| **Anypoint Connectors** | 28 connector config stubs in `scaffold/connectors/`; 345 entries in `connector-registry.json` with auth types, versions, and Maven coordinates |
 | **Anypoint MQ** | Subscriber and publisher configs generated; queue setup, DLQ, TTL, and depth alert stories generated per async flow |
 | **Anypoint Monitoring** | Alert configs and custom dashboard stories generated; mandatory in all non-minimal scaffold profiles |
 | **Anypoint Visualizer** | API-led layer tags written into `mule-artifact.json`; a dedicated Visualizer verification story is generated per project |

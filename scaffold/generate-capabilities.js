@@ -14,7 +14,7 @@
  *   standards/connector-registry.json     — Tier 0: connector catalog
  *   standards/snippet-registry.json       — Tier 1/2/3: all capabilities
  *   standards/exchange-registry.json      — Tier 3: Exchange assets (if exists)
- *   commons/playbooks/{pair}/PLAYBOOK.md   — system-pair playbooks
+ *   playbooks/{system}/PLAYBOOK.md         — system playbooks
  *   projects/{client}/decisions.json      — per-client usage tracking
  */
 
@@ -95,7 +95,7 @@ function loadSnippets() {
 }
 
 function loadPlaybooks() {
-  const playbooksDir = path.join(REPO_ROOT, 'commons', 'playbooks');
+  const playbooksDir = path.join(REPO_ROOT, 'playbooks');
   if (!fs.existsSync(playbooksDir)) return [];
   return fs.readdirSync(playbooksDir)
     .filter(d => fs.statSync(path.join(playbooksDir, d)).isDirectory())
@@ -335,7 +335,7 @@ function buildHtml(connectors, snippets, playbooks, clients) {
         ${p.clients.length > 0 ? 'Clients: ' + esc(p.clients.join(', ')) : 'No clients yet'}
       </div>
       <p style="margin-top:8px;font-size:13px">
-        See <code>commons/playbooks/${esc(p.name)}/PLAYBOOK.md</code> for full details,
+        See <code>playbooks/${esc(p.name)}/PLAYBOOK.md</code> for full details,
         quirks, and customisation guide.
       </p>
     </div>`).join('')}

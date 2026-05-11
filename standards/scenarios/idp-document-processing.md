@@ -197,11 +197,11 @@ IMAP listener (poll every 60s on inbox folder)
 - Typed operations: Submit + Retrieve
 - Available on Maven Central: `io.github.mulesoft-forge:mule-idp-connector:1.0.6`
 - Requires adding Maven Central repo to pom.xml (not on Anypoint Exchange)
-- See: `templates/connectors/idp-forge-config.xml`
+- See: `scaffold/connectors/idp-forge-config.xml`
 
 **Fallback: Raw HTTP** (`anypoint-idp` in registry)
 - Use when Forge connector cannot be used (org policy restricts Maven Central)
-- See: `templates/connectors/idp-http-config.xml`
+- See: `scaffold/connectors/idp-http-config.xml`
 
 ```xml
 <!-- HTTP fallback config — generated into global-config.xml -->

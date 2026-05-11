@@ -40,6 +40,7 @@
 | [FK-011](#fk-011) | MUnit `expectedErrorType` must not be set when Global_Error_Handler uses `on-error-continue` | MUnit / error handler testing | verified | 2026-05-10 | 2026-05-10 | 1 |
 | [FK-012](#fk-012) | Claim-check S3 getObject returns InputStream — `output application/java` produces byte array, not JSON | claim-check pattern / S3 / Azure Blob | verified | 2026-05-10 | 2026-05-10 | 1 |
 | [FK-013](#fk-013) | HubSpot connector registry vs. sales call divergence — verify Exchange before committing | HubSpot / connector selection | observation | 2026-05-11 | 2026-05-11 | 1 |
+| [FK-014](#fk-014) | Multi-instance SaaS: two Shopify stores require separate connector configs in global-config.xml | Shopify / multi-tenant connector design | observation | 2026-05-11 | 2026-05-11 | 1 |
 
 ---
 
@@ -677,6 +678,46 @@ Client question used:
 
 Promotes to: connector-registry.json — add `exchangeVerified: true/false` flag + `operationCoverage` list
              to any connector where partial coverage is suspected (after second occurrence)
+
+---
+
+## FK-014 — Multi-instance SaaS: two stores of the same platform require separate connector configs
+Date: 2026-05-11
+Project: MRN (scoping analysis)
+Trigger: Client operates two instances of the same SaaS platform (e.g., two Shopify stores, two Salesforce orgs, two NetSuite accounts) and both need to be connected to MuleSoft in the same project.
+
+Scenario:
+  MRN operates two Shopify stores (one for products/consumables, one for LegitScript certification).
+  The MuleSoft SE stated "it's just pointing the second one into MuleSoft and reusing workflows."
+  This is true at the flow level, but NOT at the connector config level.
+  A single `<shopify:config>` in global-config.xml is bound to one shopName + one accessToken.
+  Two Shopify instances require two separate connector config elements:
+    `<shopify:config name="Shopify_Config_Store1" .../>` and
+    `<shopify:config name="Shopify_Config_Store2" .../>`
+  Flows can be parameterized (pass the config-ref as a variable) or duplicated (simpler but verbose).
+  The same applies to any multi-instance SaaS: two HubSpot portals, two NetSuite accounts,
+  two Mailchimp accounts across business units.
+
+What to do:
+  1. Create one connector config element per instance, with environment-specific properties:
+       shopify.store1.shopName, shopify.store1.accessToken
+       shopify.store2.shopName, shopify.store2.accessToken
+  2. If the flows are identical (same transforms, same logic), use a single parameterized sub-flow
+     that accepts config-ref as a parameter. DataWeave does not accept connector config-ref
+     as a variable — use a choice router keyed on a flow variable (e.g., vars.shopifyInstance)
+     to select which connector config to use.
+  3. If the flows differ (different objects, different transforms), generate separate flow files
+     per instance — cleaner than conditional branching in shared flows.
+
+What failed:
+  Assuming one connector config serves multiple instances of the same system. MuleSoft connector
+  configs are static — credentials are bound at config element level, not at runtime invocation level.
+
+Applies to: Any client with multiple instances of the same SaaS platform (Shopify, HubSpot,
+            NetSuite, Salesforce, Mailchimp, etc.). Common in multi-brand, multi-region, or
+            multi-subsidiary businesses.
+
+Promotes to: standards/DESIGN_STANDARDS.md — add multi-instance connector note when verified on second client
 
 *Last updated: 2026-05-11*
 *Next review: after first project using Chunk 4+ agents*

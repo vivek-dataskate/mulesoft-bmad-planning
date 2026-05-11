@@ -8,15 +8,16 @@
 persistent_facts = [
   "file:{project-root}/docs/PLANNING_CONTEXT.md",
   "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
-  "file:{project-root}/templates/story-template.md",
-  "glob:{project-root}/story-library/*.md",
+  "file:{project-root}/standards/doc-templates/story-template.md",
+  "glob:{project-root}/standards/stories/*.md",
 ]
 
 # Executed before persona adoption and greeting — load context first.
 activation_steps_prepend = [
+  "Identify the active client: list subdirectories of projects/ and find any that contain a project.json file. If exactly one project.json exists, read it and confirm to the user: 'Working on **{displayName}** (projects/{client}/) — architect: {architect}.' If multiple project.json files exist, list them and ask which client to work on. If none exist, ask the user which client folder to use.",
   "Read docs/PLANNING_CONTEXT.md — specifically the Story Generation section (per-flow story count, global stories, acceptance criteria requirements) and the decisions.json schema (flows[] array structure, scaffold.profile, devops.cicd).",
   "Read docs/FIELD_KNOWLEDGE.md. Note any entries tagged 'verified' or 'promoted-to-standard' that affect story generation for this project's patterns or systems. Apply verified entries as active guidance.",
-  "Read all files in story-library/. For each story type you are about to generate, check if a matching template exists. If it does, use it as the base and adapt for this client's decisions.json context (substitute flow names, connector names, AC thresholds). If no matching template exists, generate from PLANNING_CONTEXT.md rules and flag the new story type for addition to story-library after this run.",
+  "Read all files in standards/stories/. For each story type you are about to generate, check if a matching template exists. If it does, use it as the base and adapt for this client's decisions.json context (substitute flow names, connector names, AC thresholds). If no matching template exists, generate from PLANNING_CONTEXT.md rules and flag the new story type for addition to standards/stories/ after this run.",
 ]
 
 # MuleSoft-specific principles appended to John's defaults.
@@ -27,7 +28,7 @@ principles = [
 
   "MuleSoft Coverage Floors by Pattern (apply to every Story 4 MUnit AC):\n  request-reply (A), api-aggregation (I):           80% minimum\n  event-driven (B), pubsub-fanout (M):               75% minimum\n  batch (C), data-migration (K):                     75% minimum\n  outbound-notification (N):                         60% minimum\n  all other patterns (D,E,F,G,H,J,L,O,P,Q,R):       80% minimum\n  Never use a floor not in this list.",
 
-  "MuleSoft Global Stories — generate these once per project:\n  Global 1: Configure global error handler + DLQ in error-handler.xml\n  Global 2: Set up Anypoint MQ queues with TTL and depth alerts (if async flows in decisions.json)\n  Global 3: Configure Secrets Manager\n  Global 4: Set up CI/CD pipeline (per decisions.json devops.cicd)\n  Global 5: Verify Anypoint Visualizer layer diagram\n  Global 6 (if wireTap.enabled=true): Wire Tap audit flow setup → use story-library/global-wire-tap.md\n  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow → use story-library/global-field-encryption.md\n  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup → use story-library/global-invalid-message-channel.md\n  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 client confirmation story → use story-library/global-contract-confirmation.md\n  Global 10 (if integration.primaryPattern=idp-document-processing OR idp.enabled=true): Anypoint IDP infrastructure setup → use story-library/global-idp-setup.md\n  Global 11 (if integration.primaryPattern=scheduled-sync OR scheduling.watermarking=true): Watermark + persistent Object Store setup → use story-library/global-scheduled-sync.md\n  Global 12 (if integration.primaryPattern=b2b-edi): B2B partner registry + EDI infrastructure → use story-library/global-b2b-partner-registry.md\n  Global 13 (if integration.primaryPattern=ai-gateway): AI Gateway proxy infrastructure → use story-library/global-ai-gateway.md\n  Global 14 (if integration.primaryPattern=transactional-outbox): Outbox table + poller setup → use story-library/global-transactional-outbox.md",
+  "MuleSoft Global Stories — generate these once per project:\n  Global 1: Configure global error handler + DLQ in error-handler.xml\n  Global 2: Set up Anypoint MQ queues with TTL and depth alerts (if async flows in decisions.json)\n  Global 3: Configure Secrets Manager\n  Global 4: Set up CI/CD pipeline (per decisions.json devops.cicd)\n  Global 5: Verify Anypoint Visualizer layer diagram\n  Global 6 (if wireTap.enabled=true): Wire Tap audit flow setup → use standards/stories/global-wire-tap.md\n  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow → use standards/stories/global-field-encryption.md\n  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup → use standards/stories/global-invalid-message-channel.md\n  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 client confirmation story → use standards/stories/global-contract-confirmation.md\n  Global 10 (if integration.primaryPattern=idp-document-processing OR idp.enabled=true): Anypoint IDP infrastructure setup → use standards/stories/global-idp-setup.md\n  Global 11 (if integration.primaryPattern=scheduled-sync OR scheduling.watermarking=true): Watermark + persistent Object Store setup → use standards/stories/global-scheduled-sync.md\n  Global 12 (if integration.primaryPattern=b2b-edi): B2B partner registry + EDI infrastructure → use standards/stories/global-b2b-partner-registry.md\n  Global 13 (if integration.primaryPattern=ai-gateway): AI Gateway proxy infrastructure → use standards/stories/global-ai-gateway.md\n  Global 14 (if integration.primaryPattern=transactional-outbox): Outbox table + poller setup → use standards/stories/global-transactional-outbox.md",
 
   "MuleSoft Scheduled-Sync flows (pattern D): always add a dedicated AC to Story 2 — 'watermarking configured using persistent Object Store (not in-memory); scheduling.watermarking=true in decisions.json.' Do not rely on the global error-handler story to cover this.",
 
@@ -47,14 +48,14 @@ code = "MS"
 description = "Generate MuleSoft sprint stories from decisions.json — per-flow + global stories"
 prompt = """
 Apply the MuleSoft BMAD PM story generation workflow from docs/PLANNING_CONTEXT.md — Story Generation section.
-Use templates/story-template.md for story structure and AC format.
+Use standards/doc-templates/story-template.md for story structure and AC format.
 
 Pre-flight:
-- Confirm client folder (projects/{client}/) and that decisions.json and architecture.md are present.
+- Use the active client confirmed during activation (from project.json). Verify projects/{client}/decisions.json and architecture.md are present.
 - Read decisions.json: note scaffold.profile, primaryPattern, all flows[], devops.cicd, errorHandling.invalidMessageChannel, scheduling.watermarking.
 - Read architecture.md: extract per-flow Field Mapping tables, Business Rules, and Open Items.
 - Note any FIELD_KNOWLEDGE.md verified entries affecting story generation.
-- Check story-library/ for matching templates before generating each story type. Use the template as a base; substitute client values. Flag any story types with no matching template — create them in story-library/ after this run (see STORY LIBRARY MAINTENANCE section in PLANNING_CONTEXT.md).
+- Check standards/stories/ for matching templates before generating each story type. Use the template as a base; substitute client values. Flag any story types with no matching template — create them in standards/stories/ after this run (see STORY LIBRARY MAINTENANCE section in PLANNING_CONTEXT.md).
 
 Story ID scheme: use {CLIENT}-{NNN} (e.g. LEOLABS-001, LEOLABS-002). Number globally across all stories sequentially.
 
@@ -128,45 +129,45 @@ Global stories (generate once per project):
     AC: system APIs=System, process APIs=Process, experience APIs=Experience.
     AC: No cross-layer violations. Diagram reviewed; screenshot attached.
 
-  Global 6 (if wireTap.enabled=true): Wire Tap audit flow → base on story-library/global-wire-tap.md
+  Global 6 (if wireTap.enabled=true): Wire Tap audit flow → base on standards/stories/global-wire-tap.md
     AC: Async wire-tap publish to {wireTap.queueName} in error-handler.xml or global async block.
     AC: Audit queue TTL = {wireTap.retentionHours} hours (from decisions.json — not hardcoded 72h).
     AC: Every primary flow routes a copy to audit queue — no impact on primary flow latency.
 
-  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow → base on story-library/global-field-encryption.md
+  Global 7 (if scaffold.profile=regulated): Field encryption + audit-trail flow → base on standards/stories/global-field-encryption.md
     AC: PII fields listed in architecture.md are encrypted at rest using Cryptography module.
     AC: Audit-trail flow publishes to separate audit store on every mutation.
     AC: Secrets Manager holds encryption keys — never in properties files.
 
-  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup → base on story-library/global-invalid-message-channel.md
+  Global 8 (if errorHandling.invalidMessageChannel=true): Invalid Message Channel setup → base on standards/stories/global-invalid-message-channel.md
     AC: {domain}-invalid-messages-queue created. Validation failures (structural, schema, missing required)
         route here BEFORE any downstream call — never to DLQ.
 
-  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 contract confirmation → base on story-library/global-contract-confirmation.md
+  Global 9 (if any api-discovery/{system}-contract.md has Open Gaps): Sprint 1 contract confirmation → base on standards/stories/global-contract-confirmation.md
     AC: Each Open Gap item in api-discovery/{system}-contract.md is answered by client by end of Sprint 1 Day 2.
     AC: Developer updates {system}-contract.md with confirmed values. DWL Open Items resolved.
 
-  Global 10 (if primaryPattern=idp-document-processing OR idp.enabled=true): Anypoint IDP infrastructure → base on story-library/global-idp-setup.md
+  Global 10 (if primaryPattern=idp-document-processing OR idp.enabled=true): Anypoint IDP infrastructure → base on standards/stories/global-idp-setup.md
     AC: IDP action published in Anypoint IDP UI (not draft). Connected App created with scope urn:anypoint:idp.
     AC: Two HTTP configs in global-config.xml: Anypoint_Token_Config + IDP_API_Config with OAuth client credentials.
     AC: Manual-review queue created with depth > 0 alert. documentBase64 never logged.
 
-  Global 11 (if primaryPattern=scheduled-sync OR scheduling.watermarking=true): Watermark + persistent Object Store → base on story-library/global-scheduled-sync.md
+  Global 11 (if primaryPattern=scheduled-sync OR scheduling.watermarking=true): Watermark + persistent Object Store → base on standards/stories/global-scheduled-sync.md
     AC: os:object-store with persistent=true declared in global-config.xml. entryTtl=30 DAYS.
     AC: Unique watermark key per sync flow. Watermark advanced AFTER successful target write, not after source read.
     AC: maxConcurrency=1 on all scheduler flows. Cron expressions in UTC, stored in properties.
 
-  Global 12 (if primaryPattern=b2b-edi): B2B partner registry + EDI infrastructure → base on story-library/global-b2b-partner-registry.md
+  Global 12 (if primaryPattern=b2b-edi): B2B partner registry + EDI infrastructure → base on standards/stories/global-b2b-partner-registry.md
     AC: Trading partner profiles created in Anypoint Partner Manager. AS2 certificates in Secrets Manager.
     AC: EDI schema files in src/main/resources/schemas/ (version-controlled). 997/CONTRL ACK wired.
     AC: ISA control number counter in persistent Object Store. Connectivity test completed with each partner in UAT.
 
-  Global 13 (if primaryPattern=ai-gateway): AI Gateway proxy → base on story-library/global-ai-gateway.md
+  Global 13 (if primaryPattern=ai-gateway): AI Gateway proxy → base on standards/stories/global-ai-gateway.md
     AC: client-id-enforcement on gateway endpoint. Rate limiting per caller via persistent Object Store.
     AC: PII redaction DWL runs before every LLM provider call. Original prompt never logged.
     AC: Async audit log to MQ after each call. Audit failure wrapped in on-error-continue.
 
-  Global 14 (if primaryPattern=transactional-outbox): Outbox table + poller → base on story-library/global-transactional-outbox.md
+  Global 14 (if primaryPattern=transactional-outbox): Outbox table + poller → base on standards/stories/global-transactional-outbox.md
     AC: outbox_events table with idx_outbox_unpublished index confirmed created in application DB.
     AC: maxConcurrency=1 on poller flow. published_at TIMESTAMP (not boolean). Stalled-row monitor alert wired.
 

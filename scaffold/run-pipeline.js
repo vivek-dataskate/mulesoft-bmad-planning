@@ -305,7 +305,7 @@ async function runPm(sysCtx, prd) {
   const decisions     = readFile(decisionsPath) ?? '{}';
 
   // Read all story library templates
-  const storyDir = path.join(REPO_ROOT, 'story-library');
+  const storyDir = path.join(REPO_ROOT, 'standards', 'stories');
   const storyLib = fs.readdirSync(storyDir)
     .filter(f => f.endsWith('.md'))
     .map(f => `\n=== ${f} ===\n${fs.readFileSync(path.join(storyDir, f), 'utf8')}`)

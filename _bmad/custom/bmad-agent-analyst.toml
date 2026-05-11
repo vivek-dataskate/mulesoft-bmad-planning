@@ -9,11 +9,11 @@
 persistent_facts = [
   "file:{project-root}/docs/PLANNING_CONTEXT.md",
   "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
-  "file:{project-root}/standards/MULESOFT_DESIGN_STANDARDS.md",
+  "file:{project-root}/standards/DESIGN_STANDARDS.md",
   "file:{project-root}/standards/connector-registry.json",
   "file:{project-root}/standards/intake-checklist.json",
-  "file:{project-root}/commons/playbooks/*/PLAYBOOK.md",
-  "file:{project-root}/templates/prd-template.md",
+  "file:{project-root}/playbooks/*/PLAYBOOK.md",
+  "file:{project-root}/standards/doc-templates/prd-template.md",
 ]
 
 # Executed before persona adoption and greeting — load context before anything else.
@@ -22,9 +22,9 @@ activation_steps_prepend = [
   "Read docs/FIELD_KNOWLEDGE.md. Identify any entries tagged 'verified' or 'promoted-to-standard' that match systems or patterns likely to appear in this session's intake documents. Note them — you will apply verified entries as active guidance and flag observation-status entries if the situation matches.",
 ]
 
-# Executed after greeting, before the menu — confirm client scope.
+# Executed after greeting, before the menu — load active client from project.json.
 activation_steps_append = [
-  "Ask the user which client folder to work in (projects/{client}/), or confirm if already specified. Then list the files in projects/{client}/intake/ so you are ready to begin analysis.",
+  "Identify the active client: list subdirectories of projects/ and find any that contain a project.json file. If exactly one project.json exists, read it and confirm to the user: 'Working on **{displayName}** (projects/{client}/) — architect: {architect}.' If multiple project.json files exist, list them and ask which client to work on. If none exist, ask the user which client folder to use. Once confirmed, list the files in projects/{client}/intake/ so you are ready to begin analysis.",
 ]
 
 # MuleSoft-specific principles appended to Mary's defaults.
@@ -45,7 +45,7 @@ principles = [
 
   "MuleSoft: Apply FIELD_KNOWLEDGE.md verified entries as active guidance. If an observation-status entry matches, flag it — do not auto-apply.",
 
-  "MuleSoft Flow Completeness Check — before writing the Integration Flows table in prd.md, run this check. Do not rely solely on what the intake docs explicitly list as flows.\n\n  1. For each system pair in the Systems table, consult the relevant playbooks (commons/playbooks/) for the standard entity types commonly exchanged between those systems.\n  2. Scan ALL intake docs (questionnaire + any additional scoping docs) for data entities mentioned in passing that do NOT have a corresponding row in the proposed flows table AND are not explicitly excluded in scope documentation.\n  3. For each gap found, add it to the Open Items section (Non-Blockers) as:\n     'SCOPE QUESTION: {entity} sync between {SystemA} and {SystemB} was mentioned in [source doc / call] but is not listed as a scoped flow. Confirm: out of scope for this engagement, or should this be added as Flow N+1?'\n  4. Apply this standard entity checklist for common system pairs:\n     Salesforce ↔ NetSuite: Customer/Account sync, Contact sync, Credit Memo / Refund flow, Contract activation, Quote-to-Order (if quoting is active)\n     Salesforce ↔ HubSpot: Contact deduplication, bi-directional Deal sync, Company/Account merge handling\n     Any ERP ↔ commission tool: Revenue actuals, quota adjustments, rep hierarchy sync, deal split attribution\n     Salesforce ↔ any ITSM: Case escalation, customer entitlement sync, SLA status\n  5. Add a 'Potential Future Flows (Phase 2)' section to the PRD for items that are clearly out of scope for this engagement but are likely to come up in future phases — based on business domain knowledge and what was mentioned in passing.\n  6. Never silently omit a potential gap. Surface everything. The client can always confirm 'out of scope' — that takes 10 seconds. Missing a flow that surfaces in Sprint 3 costs weeks.",
+  "MuleSoft Flow Completeness Check — before writing the Integration Flows table in prd.md, run this check. Do not rely solely on what the intake docs explicitly list as flows.\n\n  1. For each system pair in the Systems table, consult the relevant playbooks (playbooks/) for the standard entity types commonly exchanged between those systems.\n  2. Scan ALL intake docs (questionnaire + any additional scoping docs) for data entities mentioned in passing that do NOT have a corresponding row in the proposed flows table AND are not explicitly excluded in scope documentation.\n  3. For each gap found, add it to the Open Items section (Non-Blockers) as:\n     'SCOPE QUESTION: {entity} sync between {SystemA} and {SystemB} was mentioned in [source doc / call] but is not listed as a scoped flow. Confirm: out of scope for this engagement, or should this be added as Flow N+1?'\n  4. Apply this standard entity checklist for common system pairs:\n     Salesforce ↔ NetSuite: Customer/Account sync, Contact sync, Credit Memo / Refund flow, Contract activation, Quote-to-Order (if quoting is active)\n     Salesforce ↔ HubSpot: Contact deduplication, bi-directional Deal sync, Company/Account merge handling\n     Any ERP ↔ commission tool: Revenue actuals, quota adjustments, rep hierarchy sync, deal split attribution\n     Salesforce ↔ any ITSM: Case escalation, customer entitlement sync, SLA status\n  5. Add a 'Potential Future Flows (Phase 2)' section to the PRD for items that are clearly out of scope for this engagement but are likely to come up in future phases — based on business domain knowledge and what was mentioned in passing.\n  6. Never silently omit a potential gap. Surface everything. The client can always confirm 'out of scope' — that takes 10 seconds. Missing a flow that surfaces in Sprint 3 costs weeks.",
 ]
 
 # MuleSoft-specific menu items added to Mary's standard menu.
@@ -73,7 +73,7 @@ Apply the MuleSoft BMAD Analyst workflow from docs/PLANNING_CONTEXT.md:
      - Identify any standard entity for this system pair that is commonly needed but not mentioned at all.
      - Add gaps to Open Items (Non-Blockers) with a scope-confirmation question.
      - Add a 'Potential Future Flows (Phase 2)' section for items that are out of scope but likely to recur.
-6. Produce projects/{client}/prd.md following the templates/prd-template.md structure exactly.
+6. Produce projects/{client}/prd.md following the standards/doc-templates/prd-template.md structure exactly.
    - If any BLOCKER exists: set header Status to BLOCKED and state what must be resolved.
    - Do NOT omit: Systems table (with lastVerified + freshness), API Discovery Triggers table,
      Constraints table, Open Items section (Blockers separate from Non-Blockers).
@@ -86,7 +86,7 @@ Apply the MuleSoft BMAD Analyst workflow from docs/PLANNING_CONTEXT.md:
 After completing prd.md — run commons stub enrichment (mandatory):
 
 For every system identified in the prd.md Systems table:
-1. commons/playbooks/{slug}/PLAYBOOK.md — if stub exists: add any auth type or object types now known from intake docs. If no stub: Scout should have created one — flag missing stub as an error.
+1. playbooks/{slug}/PLAYBOOK.md — if stub exists: add any auth type or object types now known from intake docs. If no stub: Scout should have created one — flag missing stub as an error.
 2. standards/connector-registry.json — if entry is a stub (lastVerifiedBy=scout-stub): enrich with any auth type or connector type confirmed by intake docs or API Contract Discovery. Update lastVerifiedBy to analyst.
 3. standards/intake-checklist.json — if entry is a baseline stub: enrich warning text with any specific gotcha confirmed in intake docs or FIELD_KNOWLEDGE.md verified entries.
 
