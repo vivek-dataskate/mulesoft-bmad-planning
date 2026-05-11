@@ -63,16 +63,6 @@
                     doc:name="ACK Duplicate (skip)"/>
             </when>
             <otherwise>
-                <!-- Store key BEFORE processing — prevents re-processing on crash during retry -->
-                <os:store
-                    key='#["{{CONSUMER_PREFIX}}-" ++ vars.messageId]'
-                    objectStore="Persistent_Object_Store"
-                    ttl="{{DEDUP_TTL_MINUTES}}"
-                    ttlUnit="MINUTES"
-                    doc:name="Mark as Processing">
-                    <os:value>#[true]</os:value>
-                </os:store>
-
                 <!--
                     TODO: Validate message structure BEFORE any downstream write.
                     Validation failures → Invalid Message Channel (never DLQ).
@@ -82,6 +72,22 @@
 
                 <!-- TODO: Implement {{FLOW_DESCRIPTION}} -->
                 <!-- Source: {{FLOW_SOURCE}} → Target: {{FLOW_TARGET}} -->
+
+                <!--
+                    Idempotency key stored AFTER successful processing.
+                    This guarantees at-least-once delivery: if processing throws, the key is
+                    NOT stored, the message is not ACK'd, the broker redelivers after ackTimeout,
+                    and the retry sees seenBefore=false and processes again.
+                    Storing BEFORE processing would silently drop messages that fail on first attempt.
+                -->
+                <os:store
+                    key='#["{{CONSUMER_PREFIX}}-" ++ vars.messageId]'
+                    objectStore="Persistent_Object_Store"
+                    ttl="{{DEDUP_TTL_MINUTES}}"
+                    ttlUnit="MINUTES"
+                    doc:name="Mark as Processed (idempotency key)">
+                    <os:value>#[true]</os:value>
+                </os:store>
 
                 <anypoint-mq:ack
                     ackToken="#[attributes.ackToken]"

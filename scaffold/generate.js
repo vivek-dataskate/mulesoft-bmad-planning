@@ -307,7 +307,7 @@ const TRIGGER_TEMPLATE_MAP = {
   'http':                  'http-listener.xml',
   'scheduler':             'scheduler.xml',
   'mq-subscriber':         'mq-subscriber.xml',
-  'platform-event':        'mq-subscriber.xml',  // Platform Events use same subscriber pattern
+  'platform-event':        'platform-event.xml',  // SF Platform Event → publish to MQ (system layer)
   'cdc':                   'mq-subscriber.xml',  // CDC via MQ after Debezium/connector
   'kafka':                 'kafka-listener.xml',
   'sftp':                  'sftp-on-new-file.xml',
@@ -322,7 +322,7 @@ const TRIGGER_TEMPLATE_MAP = {
 // Developers add target-connector namespaces manually when they implement the TODO stubs.
 const TRIGGER_CONNECTOR_MAP = {
   'mq-subscriber':         ['anypoint-mq'],
-  'platform-event':        ['anypoint-mq'],
+  'platform-event':        ['salesforce', 'anypoint-mq'],  // SF subscriber + MQ publish
   'cdc':                   ['anypoint-mq'],
   'kafka':                 ['kafka'],
   'sftp':                  ['sftp'],
@@ -417,7 +417,13 @@ function buildFlowTokens(flow, d, coverageFloor) {
     API_DESCRIPTION:      `${flow.description ?? 'Generated API stub'}\n\nDeveloper completes field-level schema before publishing to Exchange.`,
     PROJECT_TEAM:         client,
     base_url:             `${domain}.cloudhub2.io`,
-    DOMAIN:               domain,
+    // DOMAIN is used as an OAS tags[] value — must be a logical API resource category,
+    // not the client name. Derived from the second segment of the flow name (the noun),
+    // e.g. "get-integration-status-flow" → "integration", "sync-account-flow" → "account".
+    DOMAIN:               (() => {
+      const parts = flowName.replace(/-flow$/, '').split('-');
+      return parts.length >= 2 ? parts[1] : parts[0];
+    })(),
 
     // Project-level — artifactId uses the sanitised domain slug, not the raw client name,
     // so it is always a valid Maven artifactId (lowercase, hyphens only).
@@ -556,14 +562,19 @@ function genGlobalConfig(d, lookup, outDir) {
     }
 
     // Extract the connector config element(s) from the full mule XML document.
-    // Apply per-connector token substitution before embedding so that tokens like
-    // {{WIRE_TAP_RETENTION_HOURS}}, {{SYSTEM_NAME}}, {{system_key}} are resolved.
+    // Apply per-connector token substitution before embedding.
+    //
+    // SYSTEM_NAME / system_key: the http-generic template uses these as placeholders
+    // for the specific external system being called. For the generic "http" registry key
+    // these are intentionally left as TODOs so the developer names the system.
+    // For a custom-{system} registry key, use the system-specific name and key.
     const raw    = readFile(tmplPath);
     const body   = extractMuleBody(stripXmlDecl(raw));
+    const isGenericHttp = key === 'http' || key === 'soap';
     const connTokens = {
       WIRE_TAP_RETENTION_HOURS: d.wireTap?.retentionHours ?? 72,
-      SYSTEM_NAME:              conn.displayName ?? key,
-      system_key:               key,
+      SYSTEM_NAME:  isGenericHttp ? `TODO: Replace with actual system name (key: ${key})` : (conn.displayName ?? key),
+      system_key:   isGenericHttp ? `TODO.replace.with.system` : key,
     };
     configBlocks.push(sub(body, connTokens));
 
@@ -772,13 +783,42 @@ function genProperties(d, outDir) {
   const domain   = client.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const tokens   = { domain, artifactId: `${domain}-mule` };
 
+  // Collect scheduler-triggered flows to generate per-flow cron properties.
+  // The scheduler.xml template uses ${scheduler.{QUEUE_PROPERTY}.cron} per flow,
+  // which requires a matching key in each env YAML (not just a generic scheduler.cron).
+  const schedulerFlows = (d.integration?.flows ?? []).filter(f => f.trigger === 'scheduler' && f.name);
+  const prodCron  = d.scheduling?.expression ?? '0 0 2 * * ?';
+
+  // Per-env scheduler cron defaults — devs override in Runtime Manager for uat/prod.
+  const schedulerCronByEnv = {
+    local: '0 0/30 * * * ?',   // every 30 min locally
+    dev:   '0 0/5 * * * ?',    // every 5 min in dev
+    uat:   '0 0 * * * ?',      // hourly in UAT
+    prod:  prodCron,            // configured cron from decisions.json
+  };
+
   for (const env of ['local', 'dev', 'uat', 'prod']) {
     const tmplPath = path.join(TMPL_DIR, `${env}.yaml`);
     if (!fs.existsSync(tmplPath)) continue;
-    writeFile(
-      path.join(outDir, `src/main/resources/properties/${env}.yaml`),
-      sub(readFile(tmplPath), tokens)
-    );
+    let content = sub(readFile(tmplPath), tokens);
+
+    // Append per-flow scheduler cron properties if any scheduler flows exist.
+    if (schedulerFlows.length > 0) {
+      const cron = schedulerCronByEnv[env] ?? prodCron;
+      const flowLines = schedulerFlows.map(f => {
+        // QUEUE_PROPERTY mirrors buildFlowTokens: flow name minus -flow suffix, hyphens→dots
+        const queueProp = f.name.replace(/-flow$/, '').replace(/-/g, '.');
+        // Build nested YAML path: scheduler.a.b.c.cron → "  a:\n    b:\n      c:\n        cron: ..."
+        const parts = queueProp.split('.');
+        const indent = (n) => '  '.repeat(n);
+        const nested = parts.map((p, i) => `${indent(i + 1)}${p}:`).join('\n')
+          + `\n${indent(parts.length + 1)}cron: "${cron}"`;
+        return nested;
+      });
+      content += `\n# Per-flow scheduler cron — matches \${scheduler.{flowKey}.cron} in flows.xml\nscheduler:\n${flowLines.join('\n')}\n`;
+    }
+
+    writeFile(path.join(outDir, `src/main/resources/properties/${env}.yaml`), content);
   }
 }
 
@@ -1001,7 +1041,12 @@ function main() {
     console.log(`\nProfile: ${d.scaffold.profile} (from decisions.json)`);
   }
 
-  const outDir = args[1] ? path.resolve(args[1]) : `/tmp/${client}-mule`;
+  // Default output: projects/{client}/generated/ inside the planning repo.
+  // This keeps generated files visible locally for inspection without polluting
+  // the planning repo (projects/*/generated/ is gitignored).
+  // create-client-repo.sh overrides this via the second CLI arg when pushing to GitHub.
+  const defaultOut = path.join(REPO_ROOT, 'projects', client, 'generated');
+  const outDir = args[1] ? path.resolve(args[1]) : defaultOut;
 
   console.log(`Client:  ${client}`);
   console.log(`Output:  ${outDir}`);

@@ -39,6 +39,7 @@
 | [FK-010](#fk-010) | `set-variable` does not update the Mule event's `correlationId` — use `set-correlation-id` (Mule 4.6+) | HTTP listener / correlation ID propagation | verified | 2026-05-10 | 2026-05-10 | 1 |
 | [FK-011](#fk-011) | MUnit `expectedErrorType` must not be set when Global_Error_Handler uses `on-error-continue` | MUnit / error handler testing | verified | 2026-05-10 | 2026-05-10 | 1 |
 | [FK-012](#fk-012) | Claim-check S3 getObject returns InputStream — `output application/java` produces byte array, not JSON | claim-check pattern / S3 / Azure Blob | verified | 2026-05-10 | 2026-05-10 | 1 |
+| [FK-013](#fk-013) | HubSpot connector registry vs. sales call divergence — verify Exchange before committing | HubSpot / connector selection | observation | 2026-05-11 | 2026-05-11 | 1 |
 
 ---
 
@@ -644,5 +645,38 @@ Promotes to: scaffold/xml-templates/snippets/claim-check-retrieve.xml — FIXED 
 
 ---
 
-*Last updated: 2026-05-10*
+---
+
+## FK-013 — HubSpot connector registry vs. sales call divergence
+Date: 2026-05-11
+Project: Zyris (scoping analysis)
+Trigger: Scoping notes explicitly state "we do not have a HubSpot connector that's pre-built" (said by MuleSoft SE on the Feb 17, 2026 sales call). Connector registry (lastVerified 2026-05) shows `hubspot-crm` → `mule-hubspot-connector 1.0.0` with groupId `com.mulesoft.connectors`.
+
+Scenario:
+  Sales calls often use out-of-date connector knowledge — SEs may not know about recently
+  released connectors, or may be referring to a connector that was community-built vs. officially
+  supported. The registry entry for HubSpot uses `http-generic-config.xml` as its configTemplate
+  and the docsUrl points to HubSpot developer docs (not MuleSoft docs page), suggesting this
+  may be a thin wrapper or recently added connector with limited operation coverage.
+
+  Architect cannot assume the registry entry = full native connector support without Exchange verification.
+
+What to do:
+  Before committing to `mule-hubspot-connector` in decisions.json:
+  1. Visit Anypoint Exchange and confirm: is this a MuleSoft-certified connector or a community connector?
+  2. Confirm which operations it covers (List/Get contacts, Create/Update contacts, Search, Webhooks)
+  3. If operation coverage is partial → fall back to HTTP connector with manual token management (FK-005 pattern)
+  4. If full coverage → use native connector and document which version was verified
+
+What failed:
+  Assuming scoping call SE statements about connector availability are current.
+  SE statements are point-in-time and connector Exchange changes frequently.
+
+Client question used:
+  N/A — internal check only. Do not ask client.
+
+Promotes to: connector-registry.json — add `exchangeVerified: true/false` flag + `operationCoverage` list
+             to any connector where partial coverage is suspected (after second occurrence)
+
+*Last updated: 2026-05-11*
 *Next review: after first project using Chunk 4+ agents*
