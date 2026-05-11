@@ -142,30 +142,47 @@ If valid=false, missingMandatory must be non-empty.`;
 
 // ─── Commit to GitHub ─────────────────────────────────────────────────────────
 
-function commitToGitHub(stagingDir, clientName) {
+async function commitToGitHub(stagingDir, clientName) {
   const targetDir = path.join(REPO_ROOT, 'projects', clientName, 'intake');
   fs.mkdirSync(targetDir, { recursive: true });
 
-  const files = fs.readdirSync(stagingDir).filter(f => !f.startsWith('.'));
+  const files    = fs.readdirSync(stagingDir).filter(f => !f.startsWith('.'));
+  let fileCount  = 0;
+
   for (const f of files) {
-    const src  = path.join(stagingDir, f);
-    const dest = path.join(targetDir, f);
-    if (fs.statSync(src).isFile()) {
-      fs.copyFileSync(src, dest);
+    const src = path.join(stagingDir, f);
+    if (!fs.statSync(src).isFile()) continue;
+
+    // Always persist the original source file
+    fs.copyFileSync(src, path.join(targetDir, f));
+    fileCount++;
+
+    // For non-text files, also persist an extracted .txt alongside
+    const ext = path.extname(f).toLowerCase();
+    if (!TEXT_EXTS.has(ext)) {
+      const txtName = f.replace(/\.[^.]+$/, '.txt');
+      const txtDest = path.join(targetDir, txtName);
+      // Only write if the .txt doesn't already exist (don't overwrite a hand-written file)
+      if (!fs.existsSync(txtDest)) {
+        const extracted = await extractFileContent(src, f);
+        fs.writeFileSync(txtDest, extracted, 'utf8');
+        console.log(`  extracted → ${txtName}`);
+        fileCount++;
+      }
     }
   }
 
   try {
     execSync('git add projects/' + clientName + '/intake/', { cwd: REPO_ROOT, stdio: 'pipe' });
     execSync(
-      `git commit -m "intake: ${clientName} — ${files.length} document(s) from Google Drive [skip pipeline-notification]"`,
+      `git commit -m "intake: ${clientName} — ${fileCount} file(s) from Google Drive [skip pipeline-notification]"`,
       { cwd: REPO_ROOT, stdio: 'pipe', env: { ...process.env, GIT_AUTHOR_NAME: 'BMAD Drive Sync', GIT_AUTHOR_EMAIL: 'bmad-drive@noreply.github.com', GIT_COMMITTER_NAME: 'BMAD Drive Sync', GIT_COMMITTER_EMAIL: 'bmad-drive@noreply.github.com' } }
     );
     execSync('git push', { cwd: REPO_ROOT, stdio: 'pipe' });
     return true;
   } catch (e) {
     const msg = e.stderr?.toString() ?? e.message;
-    if (msg.includes('nothing to commit')) return true; // already committed
+    if (msg.includes('nothing to commit')) return true;
     throw new Error('Git commit/push failed: ' + msg);
   }
 }
@@ -211,7 +228,7 @@ async function validateIntake(stagingDir, clientName) {
   // If valid, commit to GitHub
   if (result.valid) {
     console.log(`✓ Intake valid for "${clientName}" — committing to GitHub`);
-    commitToGitHub(stagingDir, clientName);
+    await commitToGitHub(stagingDir, clientName);
     result.committed = true;
   } else {
     console.log(`✗ Intake invalid for "${clientName}" — missing: ${result.missingMandatory?.join(', ')}`);
