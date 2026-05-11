@@ -1,0 +1,761 @@
+MRN <> Salesforce Integration [Hold]  - 2026/05/05 08:30 
+PDT - Transcript 
+Attendees 
+Basil Rizwan, Caralina Wigfield, Jason Ng, Jeff Routledge 
+Summary 
+Key Topics 
+● Current State of MRN's Salesforce Usage: MRN is a Group Purchasing Organization 
+(GPO) for aesthetics (4,000+ practices/med spas) but currently uses Salesforce 
+minimally—primarily as a digital phone book (around 5% utilization). The team faces 
+issues with stale data, manual member onboarding (55-member backlog since 
+November), and a lack of visibility into contract utilization and member purchasing 
+patterns. 
+● Integration Challenges: Systems are not connected, including two upcoming Shopify 
+instances, leading to "spaghetti marketing" without behavioral segmentation. An SMTP 
+issue is preventing automated welcome emails to new members. 
+● Mulesoft Proposal: Mulesoft, Salesforce's connectivity platform, would sit in the middle 
+of all systems (Salesforce, Shopify, WordPress/Gravity Forms, Mailchimp) to enable 
+automation and integration. This would allow MRN to: 
+○ Automate member onboarding and create a unified customer record. 
+○ Process different data types (dynamic, structured, and unstructured reports) to 
+accurately track member utilization. 
+○ Target the top 10% high-utilizers and enable Jeff Routledge's goal of kicking out 
+inactive members. 
+● Financials: The ballpark annual cost for Mulesoft is $25,000 
+Action Items 
+● Jason Ng: Coordinate with Katie to provide Jeff Routledge with the online 
+portal/information for quarterly billing payment. 
+● Jason Ng (Gemini/Salesforce): Gather additional ROI-related information (e.g., 
+average annual spend per member, loss opportunity cost) from Jeff Routledge. 
+● Basil Rizwan/Gemini Team: Research and provide information on Salesforce marketing 
+capabilities, limits, and financing for Caralina Wigfield, comparing it to Mailchimp. 
+
+Next Steps 
+● Follow-up Meeting: Schedule a follow-up call with partners to present a final pricing 
+proposal and ROI readback. 
+● Date/Time: Monday, May 11, 2026, 3:00–4:00 PM Eastern (12:00–1:00 PM Pacific). 
+Transcript 
+Basil Rizwan: Hi Jason. 
+Jason Ng: Hey, Bosle. 
+Jason Ng: Can you hear me? 
+Basil Rizwan: Yes. Cool. 
+Jason Ng: Okay, perfect. All right, I think they're here. So, let me let them in. you have the Lucid chart 
+ready, Just to confirm. 
+Basil Rizwan: I did. Yeah. 
+Jason Ng:  
+Jason Ng: Okay, cool. Thank you. All right. 
+Jeff Routledge: just stop on it. 
+Caralina Wigfield: just I think so too. 
+Jeff Routledge: I can find out. 
+Jason Ng: Hey,... 
+Jeff Routledge: No. 
+Jason Ng: Jeff. Thank God. 
+Jeff Routledge: So, are we at the cusp of this? Because I looked at his box for WGO and I looked at the 
+twopoint font and read the whole thing and it says nothing about 
+Jason Ng: I think he was frozen for a sec there. Yeah, no worries. 
+Caralina Wigfield: Muted him because it also sound like he was on a call. but I think he left the call maybe. 
+I'm not sure. How are you guys doing today? 
+Jason Ng: Okay, doing good. getting started here. 
+Basil Rizwan: Okay. Yeah. 
+Jeff Routledge: talk about. Yeah. Yeah. No, I mean, anything that decreases that slows down 
+metabulation is going to have that effect. You're absolutely right. 
+Caralina Wigfield: Hey, Jeff. 
+
+Caralina Wigfield: Jeff. ... 
+Caralina Wigfield: I think he muted himself. Okay. Yeah,... 
+Jason Ng: How about yourself? 
+Jason Ng: How's your week going off so far? 
+Caralina Wigfield: It's been good. 
+Caralina Wigfield: Slow start. I think I felt slow start this week. I feel like the weekend wasn't quite long 
+enough for me. Yeah. Yeah. 
+Jason Ng: Yeah. Never quite is. 
+Basil Rizwan: Always the case. 
+Jason Ng: Yeah. Yeah. We're dealing with some gloomy weather here in San Francisco. It's not very 
+common that we have some rain,... 
+Jason Ng: but yeah, it's what we're dealing with, but can't complain. 
+Basil Rizwan: Grey May is... 
+Basil Rizwan: what they call it. 
+Jason Ng: Yeah. Awesome. 
+Jason Ng: I guess should we wait a second? We can kind of wait couple minutes and then No,... 
+Caralina Wigfield: Is that okay? Sorry. 
+Jason Ng: it's problem at all. It's here I don't know if you've ever seen the Salesforce Tower in San 
+Francisco. It's the tallest building out here in the city. 
+Caralina Wigfield: Yeah, my husband did a future offices conference with his conference company. 
+Caralina Wigfield: This was quite a few years ago and... 
+Jason Ng: Yeah, very cool. 
+Caralina Wigfield: they did tours of sim the Salesforce tower one or two years in a row I think and yeah he 
+said it was awesome. 
+Jason Ng: Yeah, it is cool. some days you just don't know which day it is that the office just gets really 
+packed with people. today is one of the days. I came in a bit earlier but still can't secure a room. So I'm in 
+what we call a phone booth. So it's a little... 
+Caralina Wigfield: Yeah. 
+Jason Ng: if you're claustrophobic it's not the best but I mean soundproof phone booths. 
+Caralina Wigfield: Man. 
+
+Jason Ng: So it's pretty funny. 
+Caralina Wigfield: Yeah. Yeah. No. So, I used to be out in San Francisco a lot, once or... 
+Caralina Wigfield: twice a year, and he would have conferences usually ... 
+Jeff Routledge: Hello. 
+Caralina Wigfield: "Hey, Jeff." He'd have conferences once or... 
+Jason Ng: Hey Jeff. 
+Caralina Wigfield: twice a year. so, I would kind of tag along. And my brother and sister-in-law at the time 
+lived up in Davis. he was going to UC Davis and... 
+Jason Ng: Mhm. Yeah. Okay. 
+Caralina Wigfield: doing his PhD and then they moved to San Francisco sometime around COVID and then 
+shortly after and now they're here in DC so I don't really have excuse to go out that way anymore unless I 
+tag along on my husband's business trips. He's works at Western Digital. so they have an office down in 
+San Jose as their kind of HQ for North America I guess. 
+Caralina Wigfield: And so I'm actually going to be coming out with him in a couple weeks, the somewhere 
+around there. So we'll be in San Jose for a few days and then I think it's called Fairfax or... 
+Caralina Wigfield: something north of San Francisco. kind of like San Raphael sort of area. We're going to 
+do an Airbnb up there for a few days. 
+Jason Ng: Very nice. 
+Jason Ng: Okay. ... 
+Caralina Wigfield: Yeah. yeah,... 
+Jason Ng: if you guys have a second that week, I might I know be a tight week with work,... 
+Jason Ng: but if you guys make it up the city, Katie and I will be happy to show you around the tower in 
+San Yeah,... 
+Caralina Wigfield: that'd be awesome. 
+Jason Ng:  
+Jason Ng: the top floor it's a great view. It's 360 views of the city. So it's just up here. 
+Caralina Wigfield: That's really cool. 
+Jeff Routledge: Are you talking about the Salesforce tower? 
+Caralina Wigfield: Yeah. Yeah. Yeah. 
+
+00:05:00 
+Jeff Routledge: that you cannot miss it. 
+Jason Ng: Exactly. Yep. 
+Jeff Routledge: One, it's big, and two, it's got a certain look to it. 
+Jason Ng: The certain look is I know what you're talking about. 
+Jeff Routledge: Good to meet you, 
+Jason Ng: Everyone. Yeah. A little pointy. Yeah. very nice to meet you, Jeff. yeah, my name is Jason Ing. 
+I'm joined alongside here Busel. So we are on the Mulesoft team here at Salesforce. automation and 
+integration anything that deals with that. we're kind of the specialists that come in. we work alongside 
+Katie which I'm sure you've worked with quite a bit. she's the main account owner and we're kind of like 
+the specialists that work with her on the automation integration side. 
+Jeff Routledge: Do you guys see Katie on a daily basis or... 
+Jason Ng: So yeah. 
+Jeff Routledge: are you guys all remote? 
+Jason Ng: Yeah. Katie works in the same office. She's just a floor blow. 
+Jeff Routledge: Can you tell her we like Cara signed on to... 
+Jason Ng: So yeah,... 
+Jeff Routledge: how we get bill? I need an online portal to go to so I can pay for this quarter. if you could 
+tell her. I mean I mean as soon as I get it I'm gonna pay it in a nancond. I just don't know where to go to 
+pay it. 
+Jason Ng: okay. Yeah, gotcha. ... 
+Jeff Routledge: Thank you so much. 
+Jason Ng: yeah, no problem. 
+Jeff Routledge: Yeah. Just tell her to shoot it my way and I'll get it done as soon as I see it. 
+Jason Ng: Yeah, perfect. 
+Jason Ng: Just the quarterly billing just up. 
+Jeff Routledge: The quarterly billing. Yeah, they had annual and we always had it quarterly. We've been 
+with you guys, I don't know, since 2016, I think, somewhere in 2016. 
+Jason Ng: Yeah. Mhm. 
+
+Jeff Routledge: And it's always been quarterly. So, when we redid the contract or renewed it, it got 
+renewed on an annual basis. I said, "No, can we just cut it up in quarters?" And Cara took care of that, but I 
+need a place to go to pay it. 
+Jason Ng: Gotcha. Yeah, I'll u Yeah,... 
+Jeff Routledge: Thank you. 
+Jason Ng: I'll get that figured out. 
+Jeff Routledge:  
+Jeff Routledge: Okay, that's great. Yeah. No. And we'll get it done in a really quick period of time. 
+Jason Ng: Yeah, absolutely. Okay. Yeah, I appreciate that. so yeah, I know we haven't really officially met, 
+so I know you're the founder CEO of MRN, so definitely want to hear a bit about your background and what 
+inspired you to kind of,... 
+Jeff Routledge: Sure. 
+Jason Ng: ... 
+Caralina Wigfield: Thank you. 
+Jason Ng: get this company going. I'd love to always hear the information on that. 
+Jeff Routledge: So I've been around in healthcare for over 30 years. I'm a dinosaur, not a fossil. so, I've 
+done a bunch of startups and we took one of them public. and it happened to be still to this day the 
+fastest healthcare company ever. we went from zero to six and a half billion in three years. We took it 
+public in two years and 11 years after I left it eventually sold to CVS for around 25 billion. I think it was 24 
+or 23 something like that. and then after that I did some other startups. 
+Jeff Routledge: The first time that I ran a company where I said let's try Salesforce that was in 2000 and 
+there wasn't very many I mean Salesforce I mean there wasn't a lot of CRM you had gold mine and I mean 
+yeah I mean stuff that you got on disk and as soon as I saw Salesforce in 2000 and I don't even know if 
+you had a thousand customers 
+Jeff Routledge: I just took the chance and we started using it and then I used it in a couple of companies 
+and then we ended up selling those companies off and I don't know what happened if they still used it. I 
+know one company we had they changed to Zoho, after we sold it because Zoho had just come out. but 
+we've been using you guys for this company for 10 years. 
+Jason Ng: Mhm. 
+Jeff Routledge: So this company, we're a group purchasing organization. We started out in Huntington 
+Beach, California in 2008 and up until 2019 I think it was 2019 we were based out there and then we 
+moved everything out here. and we have now over 4,000 practices in Med Spas. We're focused in 
+aesthetics. So, we have plastic surgery practice facial plastic practices, dermatology groups. We have 
+20% of the derm market. and we have med spas. 
+
+Jeff Routledge: And so what we do is we go out and negotiate contracts with manufacturers and we say, 
+"Hey, we have 15% of the market. You're selling this to physicians or med spas for $100 and we want our 
+doctors to get it for $85. 
+00:10:00 
+Jason Ng: Yeah. All right. 
+Jeff Routledge: And each time that happens, we get $5, something to that effect. And then we promote 
+the heck out of the contract. And we want to get utilization because the more people that use these 
+contracts that we negotiate, the more money we make. Unfortunately, and it's all my fault, we're basically 
+using Salesforce as a digital phone book and we're not really having it work for us should. we have an 
+issue where we've got a lot of stale data. When the p pandemic came, the aesthetic industry was 
+considered non-essential health care. So, we got shut down for eight months, all the practices and 
+everything. And it was about eight months and you saw a lot of consolidation, a lot of things go out of 
+business. 
+Jeff Routledge: So, we've got to find someone to go out and basically refresh our database, call these 
+practices, find out if Susie Jones is the practice manager and Dr. Smith, if she's still the head physician or, 
+whatever it is. Are you guys still at the same address and all that? We have a lot of practices that just don't 
+utilize anything that we have. Maybe it's our fault that we don't get contracts that are attractive to them, 
+but a good contract, you're going to get three to 500, maybe 600 practices to use it. That's considered 
+really good. The best performing contract we had was with a pharma where we had a consistently 1,200 
+practices and med spas utilize that. 
+Jeff Routledge: It was a company that had based out of North Carolina, Merse. and they had two fillers 
+and some other stuff. So we had about 1,200 which at the time was about a third of our members utilizing 
+that contract. And then we've got another good contract and that's with our GLP1s and we've probably got 
+four or 500 practices that consistently, buy stuff through that contract. So that's kind of how we work. And 
+really what we need to do is we need to promote contracts, have a better way of promoting it, and then 
+have a better way of understanding who' who are the ones that we can push a little bit more to get more 
+what is their utilization pattern. 
+Jeff Routledge: We need to establish 10% kind of like the sumakun ladi crowd that they're like the ones 
+that we really have to pay attention to because they're high utilizers and we need to understand they're 
+high utilizers of this but not that whatever. So, we're not really marketing. We're not using this, it's kind of 
+like I used to before I had a medical event that affected my brain, I used to be a real whiz on Excel and 
+everybody always used to comment how I could do models and I used to do lisceral equations. Nobody 
+does that on Excel. I could do loit and projeed to be in research. 
+Jeff Routledge: You can do all that on Excel. Most people use about 5 to 10% at best of Excel's capability. 
+Jeff Routledge: I'm willing to bet it's very similar with Salesforce or maybe it's 20%. I don't know. We're in 
+that 10% range. we're like 5%. Yeah. I'm probably over. 
+Caralina Wigfield: We're probably in a 5% range to be honest. 
+Caralina Wigfield: I feel like there's so much more that Salesforce can do that we don't even know about. 
+
+Jeff Routledge: Yeah. I'm sure of it. I'm absolutely. So, I don't have a place to go look for utilization in 
+Salesforce. 
+Jason Ng: Mhm. Yeah. 
+Jeff Routledge:  
+Jeff Routledge: I have a place to go find, is Dr. Jones is he a member of our network that's about it phone 
+numbers and email addresses so we've got to beef that effort up and frankly we're getting ready to start I 
+mean carara's going to have both feet in both companies we're going to start something new and we 
+really need to be mindful we've got to dress med results up internally 
+Jeff Routledge: I don't mean dress up to go sell. We've got to get these things going internally so we look 
+like a real company and feel like a real company because the new company is going to be bringing more 
+business to Med Results because we're going to be in a situation with the new company where we're 
+attracting patients and having influence on providers. And when you have that those two things going 
+on,... 
+Jason Ng: Mhm. 
+Jeff Routledge: you basically own the manufacturers. And so we can go to the manufacturers and say, " 
+we're driving patients to get neurotoxin treatments in Orange County, 100,000 of them. That's $240 million 
+a year. And we think these physicians should be able to get a discount. You need to go to Med Results 
+Network, and cut a deal with them. All those physicians that are part of our network of the new company 
+we make them sign up with Med Results. 
+00:15:00 
+Jeff Routledge: Med results will be more successful on it with new code being successful than it could on 
+its own. It's not going to be successful if we keep running it the way we are, which is, basically we just 
+don't have anything automated. It's like looking at a company from 1991 or something. I mean,... 
+Jason Ng: Okay. 
+Jason Ng: Yeah, that's very helpful and that's a perfect 
+Jeff Routledge: Cara, is that accurate or... 
+Caralina Wigfield: Yeah, absolutely. 
+Caralina Wigfield: I mean, it's No,... 
+Jeff Routledge: was I exaggerating that too? 
+Caralina Wigfield: no, no. that's what I've been telling them as well that there's so much more we could do 
+with automation. 
+Jeff Routledge: Yeah. Right. 
+Caralina Wigfield: There's so much more data that we have. we get utilization reports and even just 
+reports that have our fee on there so we know... 
+
+Jason Ng: Yeah. 
+Caralina Wigfield: which members are using which contracts and I said they're probably just sitting in your 
+email on your desktop somewhere Jeff because we don't have anywhere to put that information right 
+now. yeah,... 
+Jeff Routledge: That's Yep. 
+Caralina Wigfield: building that out so that our sales guys can go in and see what's being used. We can 
+have it inform marketing. 
+Caralina Wigfield: It's data that would be hugely helpful and we just don't have any way to 
+Jeff Routledge: I mean, the biggest contribution I've made to this thing, and you guys can all laugh, was I 
+demanded that all of our practices had lat long coordinates because for many years I used Arcview 
+products, GIS, and... 
+Jason Ng: Yep. 
+Jeff Routledge: I know that it's great to depict data with geospatial concerns, but the analysis that you 
+can do on a ge spatial basis with data is absolutely incredible. So my intent was the lat long coordinates 
+wasn't just to show it all up on a map. It was really start to integrate other data to where we could start to 
+look. So then we could go to a company and say Susie Jones is your drug rep in Phoenix and we're seeing 
+in Phoenix based on this map that we have a lot of high utilization and then you do a thermatic map in the 
+Phoenix area so you show what practices where she needs to spend her time to make it more efficient. 
+That was my original intent with latl long coordinates and we just never got there. 
+Jeff Routledge: But, you got to utilize all these other things before you even do that. 
+Jason Ng: Yeah, absolutely. And let me share my screen. It's a perfect segue into kind of where we're 
+wanting to get to here. So, thanks for sharing all that, Very helpful. that was kind of echoing a lot of what 
+we were talking about. I've met with Cara twice already and then from what I understand exactly what you 
+mentioned. this is kind of the first slide I had and it's pretty funny because you just echoed all of those 
+thoughts there. you don't use Salesforce You don't use it a really database that it's made to be used, right? 
+And that just starts with the connectivity issue. 
+Caralina Wigfield: Mhm. 
+Jason Ng: You guys are using a lot of different systems that are not connected. I know there's a couple 
+Shopify instances that are there that's going to be activated here in a sec in a week or so I think when we 
+last chatted. 
+Jeff Routledge: Yeah. 
+Jason Ng: So I think getting close to that launch date there. you guys are having gaps in marketing, you 
+guys are having gaps in sales just because of that connectivity with your systems not being there 
+connected to Salesforce. So yeah, pretty much you kind of nailed the hammer on that. So, it's kind of 
+funny how that's what I had on my first slide and you just kind of wrapped it all up there. So, my job but 
+yeah, kind of just to continue on wanted to echo... 
+
+Jason Ng: what I understood from the business. And also just a quick agenda, we have about 45 minutes, 
+so we have until the 15 mark I believe. So, is that for you guys? 
+Jeff Routledge: That's Yeah. 
+Jeff Routledge: Yeah. I'm on a tight schedule as well. 
+Jason Ng: Okay. Amazing. 
+Jason Ng: So, yeah, kind of the agenda here is to go through kind of what I understand. I'll have Bossil 
+here, which I introduced earlier, kind of go through a more visual map of how it could look like with 
+Mulesoft and... 
+Jason Ng: then kind of run through some pricing ... 
+Jeff Routledge: What... 
+Jeff Routledge: what is Mulesoft? are you guys affiliated with Salesforce? Is it part of Salesforce? 
+Jason Ng: it is part of Salesforce,... 
+Jeff Routledge: Okay. Okay. 
+Jason Ng: yeah, Salesforce is known for their sales and service CRM product that you guys are using, but 
+we have a lot of different products that are recently launched in the past couple years from acquisitions 
+or new products. So we're a separate product line that works with about Salesforce, but essentially we're 
+the connectivity platform. So a lot of customers that we speak to deal with same things that you guys do. 
+they're not utilizing Salesforce with the fullest potential because their systems aren't connected. 
+00:20:00 
+Jason Ng: And as you keep growing and scaling as a company, you're just going to add more and more 
+applications. You're going to add more and more technology. And then it just becomes a big mess if 
+nothing's connected. So that's the premise of why Mulesoft was created and part of Salesforce is to 
+bridge the gap and bring things together. So yeah, just to kind of keep going here. we understand that 
+member onboarding there's been a backlog because of that connectivity issue, to start off. Carara doesn't 
+consistently she does... 
+Jeff Routledge: Right. Okay. 
+Jason Ng: but she doesn't prioritize uploading that member into Salesforce. it's time consuming. It's not 
+her best use of time. So that's the first thing there that we're hearing right the utiliz 
+Jeff Routledge: Yeah. Yeah. 
+Jeff Routledge: And one of the things that we have to do, we used to do this is very manual. We've got to 
+start doing it is when someone signs up, they've got to get something back. We've got to have an 
+automated system that says Yeah. 
+Caralina Wigfield: That's yeah,... 
+
+Caralina Wigfield: that's due to the SMTP issue right now between Gravity Forms and WordPress. it's not 
+sending that automatic kickback email, but that should be getting fixed soon hopefully. Yep. 
+Jeff Routledge: So, I mean, yeah, go ahead. 
+Jason Ng: Yeah. Yeah. 
+Jason Ng: That's a big issue because the longer the speed to lead thing, Is the longer you wait, you're 
+missing out on revenue. You're missing out on 
+Jeff Routledge: Hang on for one second, guys. I gota I have to do this. Hey, I thought you were one of my 
+doctors. I'm in the middle of a call. Okay. Yeah, you sure can. Yeah. Jeff medresultsnetwork.com. 
+Jeff Routledge: Thank I got a bunch of procedures. I got all these doctors and endoscopy suites and 
+everything calling me up. So, I thought it was one of those. 
+Jason Ng: Yeah. No,... 
+Jason Ng: you're a busy guy. 
+Jeff Routledge: Sorry about that. Mhm. 
+Jason Ng: No problem at all. So, yeah, just continuing on, the contract utilization. We kind of touched on 
+that. You're not being able to see and have visibility into who's using what and who's buying what. So, you 
+don't know who your top 10% of customers are, right? So, that's kind of hurting your revenue directly 
+because you're not able to have that visibility and actually target with marketing and sales on who your 
+top customers are. this one keeps sticking to me. Cara says, "We're throwing spaghetti on the wall and 
+seeing what sticks." So, your marketing is kind of spaghetti marketing, right? There's no behavioral 
+segmentation. your campaigns are demographic only and there's no behavioral data and segmentation. 
+Jason Ng: So that's kind of a big issue as moving on into the sales side right you guys have two Shopify 
+instances launching and... 
+Jason Ng: those are both currently not connected to Salesforce. So, yeah, the purchases won't be linked 
+to your member accounts. Once again, it goes back to the same issue. it's a full circle motion here of not 
+Jeff Routledge: To your point like... 
+Jeff Routledge: if I said we've got to create a new field in Salesforce for everybody who's legit script 
+certified. That's part of one of our Shopify things. We would have to manually create that and that you do 
+that anyway, but manually go back in and it's all post postcertification. You don't click the box that says 
+that they got certified instead of when they get certified. 
+Jeff Routledge: It automatically finds them in our database and says yes, they're legit script certified. 
+Jason Ng: Yeah. So yes,... 
+Jason Ng: the automation we could enable that. A lot of times integration enables automation. So having 
+that integration, you can then enable your automation and then it can kind of just build onto that in 
+Salesforce. So that's something that we can dive deeper into as well. So, kind of just moving on, you 
+mentioned it, Jeff, your business earns fees based on what members actually purchase, So, once you can 
+
+identify who your top customers are, you can identify where to target for contract utilization. and then as a 
+result, you get fees back on top of that for your revenue. and efficiency, right? Your CARA is manually 
+entering and onboarding members. There's been a member backlog of 55 since November. 
+Jason Ng: And that's just another marketing gap and you're not able to target them in a timely manner as 
+well. and then lastly, with the two Shopify sites, having more of that vendor data and having it connected, 
+you're able to actually have more visibility into who your customers are and what they're buying. And just 
+kind of a thought as well, just to throw out there, maybe not for immediate need, but for a future need, 
+thinking about phase two or three, if you guys are using Google Analytics, Facebook ads, things of that 
+nature, having those automated campaigns spinning up targeted ads. Maybe someone's looking you you 
+guys are having a high spike in San Jose, California, you guys can then have an uptake in marketing in San 
+Jose, run campaigns for San Jose specifically. That can all be connected and done through Mulesoft. 
+00:25:00 
+Jason Ng: Just something that could be for phase two or phase three. 
+Jason Ng: Just as a thought as I was kind of making this deck, just wanted to bring that up. and this is a 
+question that I do want to ask you, Jeff. So, if you're able to have and have that visibility into your 4,000 
+practices and what they're actively purchasing, which ones signed up, which ones actually ever bought 
+anything, what would that enable for your team? Yeah. Okay. 
+Jeff Routledge: Yeah, that'd be huge. 
+Jeff Routledge: Frankly, if I have folks that haven't bought in years, I want to kick them out. I don't 
+necessarily want to be the biggest GPO out there, I want to have high utition. Utilization Membership size 
+is great. but if you've got a third of your members that never ever use it, then they don't need to be a 
+member. Just get them out. 
+Jason Ng: Mhm. Yeah. 
+Caralina Wigfield: It's kind of part of that backlog that you mentioned,... 
+Caralina Wigfield: Jason, of new members because we're sending emails out through talks to the website. 
+the emails are coming in like the members get moved over to Mailchimp. They're just not in Salesforce. 
+Jason Ng: Mhm. 
+Caralina Wigfield: And it's more recently that we've had this sales team going through stuff, but for me it's 
+not been a priority because we're able to still email them. 
+Caralina Wigfield: So they don't have to be in Salesforce to be able to get our communications. And a lot 
+of times we're pulling the email who is engaged with the emails, clicks or opens or whatever and sending 
+that to the sales guys so they have that sort of fresh lead list to go through of warm leads essentially. 
+Jason Ng: Okay. 
+Caralina Wigfield: So yeah, being able to tie all of that together would be great, but as Jeff said, our 
+prioritization is more on utilization, not on growing the network. So like that adding the new practices into 
+Salesforce piece has just felt not as important as everything else that we do. Yes. 
+
+Jason Ng: More of a secondary thing. just where you guys are seeing things. Good and then before we go 
+here, I kind of want to pass it over to Bosel. We can kind of do the readback. Bosel, you want to go ahead 
+and share your screen here? Yeah. 
+Basil Rizwan: Thanks, Carolina, Jeff, nice to meet you for the first time here. I'm a solutions engineer here 
+at Mulesoft. I work hand in hand with Jason. more of his technical counterpart, so I can nerd out all over 
+the technology. so yeah, all the Excel sheets and all the derivatives and all that you were talking about 
+were definitely something that I got some interest out of. just a little background about myself... 
+Caralina Wigfield: Yeah. 
+Basil Rizwan: though I used to work as an IT engineer and before that I actually used to work as a 
+developer. 
+Jeff Routledge: That's not a good memory for us. 
+Basil Rizwan: So I'm very familiar with WordPress and Woo Commerce and Gravity Forums and all that. it 
+brings back great memories. the SMTP issue that you mentioned just recently something it's a good 
+memory for me because I'm past that but I do remember the issues it caused whether it was emails not 
+going out or it was payments failing. 
+Basil Rizwan: I ran into that as well and I think everyone in business or even developers have the story of 
+the time everything magnificently failed and it just like the lesson hurt. 
+Jeff Routledge:  
+Basil Rizwan: So there was one night I remember I had made this website for a nonprofit and the 
+payments just magically started failing on the night of their annual banquet. you can imagine how fun that 
+was. Yeah. But anyways, just I'll get into sort of the screen share here and we can keep it conversational. I 
+did keep it very high level here on what MUSO can do and how it can help you. So what Muoft does is it 
+lives in the sort of center of your digital environments. 
+Basil Rizwan: what you can do is connect all of your different systems and then you can make action of 
+those applications together to get the results you want. So when we talk about for example Salesforce 
+not being utilized enough or as it should be I say that in quotes because it's so customizable and 
+everyone kind of shapes it to their own u best use case and it evolves over time as well. but we have other 
+complexities as well. I understand we have an existing Shopify environment and we want to create 
+another one. We have members that we want to engage or engage or better engage. and so really a lot of 
+what we do here at Mulesoft is not only just integrating these platforms together but also helping you 
+make sense of that data so you can better action it as well. 
+00:30:00 
+Basil Rizwan: And part of that is within the whole Muleoft ecosystem of being able to not only keep an 
+automated eye on the data that's coming in, but also automatically take actions as well. And so when we 
+look at the different systems that came up WordPress or Gravity Forms, we have pipeline medical and list 
+of all sorts of other vendors as well. We have Shopify, we have Salesforce and Mailchimp for example as 
+well. What Muoft does is it actually sits in the middle. So when you have let's say a new potential member 
+
+come in my understanding is via gravity forms they can get some automations whether it's via email 
+whether it's some other sort of messaging as well and that's all powered by Muoft. 
+Basil Rizwan: you can create sort of a customer an onboarding journey if you will for that potential new 
+member. And in the same way if you have let's say members who have not purchased in the last 3 months 
+how I'm not sure what your cadence there is but you can set that logic and you can actually set it up for 
+different variables as well. So, if this customer is a once a year buyer and you want to try to make them 
+twice a year buyer, you can set up one flow for them. but if someone is buying on a monthly or a weekly 
+basis as well and they miss a month or they skip a month, you can send in that checkpoint automatically 
+as well. And the way all this works is for those existing members at least, we're again taking data from 
+Shopify itself if they're ordering online themselves or if let's say they have an invoice that's paid outside of 
+Shopify. 
+Basil Rizwan: Maybe they sent you a check or some other payment method. That information is still 
+logged whether it's by your sales folks within Salesforce itself or maybe it's through one of these other 
+vendors sorry, it probably wouldn't be your vendors. I assume you're ordering from those vendors. So, 
+when that information is updated, let's say payment is confirmed as well, assuming you take payment 
+before delivery. you are also able to automatically have that order be placed through your different 
+suppliers and then be sent to the correct folks as well. And so all that customer journey can be automated 
+step by step. We even have folks who integrate for example the tracking order. So maybe it's one of your 
+vendors that provides that tracking shipment ID. 
+Basil Rizwan: we can automatically place that within Salesforce and we can also notify the customer of 
+that shipment number expected delivery dates and any other information that they're looking for. 
+Basil Rizwan: I've kind of gone through all over the place on this web here. I want to pause Any questions 
+or thoughts on this? So we totally and... 
+Jeff Routledge: So with this we can take in dynamic as well as static data and... 
+Jeff Routledge: if we get a monthly report from vendor X that here's the purchase list you had 15 
+practices or 20 practices we would feed it in there it's going to find those practices in store that have 
+bought X amount this month of that. 
+Basil Rizwan: there's multiple ways we can bring that information in and it really depends on the platform. 
+Basil Rizwan: So the best way that we prefer is via API connections. you can tap directly into the system 
+and that information flows directly from their to your source of truth. But if that's not possible, let's say 
+they send it via PDF invoice, we are still able to read that we have a product within Muleoft called 
+intelligent document processing. And so I can read through say PDFs or Excel sheets to get the 
+information and then properly sort it out within Salesforce. So let's say it's a combined list on multiple 
+customers or... 
+Basil Rizwan: members that you have, we can sort that data out before it's placed into that record in 
+Salesforce. 
+Jeff Routledge: Okay. 
+Basil Rizwan: So dynamic data, structured data and unstructured data as well. 
+
+Jeff Routledge: Yeah, that's good. 
+Basil Rizwan: So this is sort of an overview of ... 
+00:35:00 
+Basil Rizwan: what you can do in terms of the customerf facing opportunities and this is just based off of 
+our current understanding obviously as you continue to grow. again that secondary Shopify store you can 
+have it talk to the same workflows without having to rebuild them as well. in this way where in this for 
+diagram for example I have just these sort of flows to these different applications... 
+Jeff Routledge: Okay. 
+Basil Rizwan: if you want to add a second one it's really as simple as just pointing it into Muleoft and then 
+it can use the existing workflows you've created you're not having to redo all the work that you've already 
+done and in the same way if you come up with a different alternative for any vendor let's say you want to 
+make changes 
+Basil Rizwan: to the forms plugin you're using or WordPress. I know it's unlikely. but if that is the case at 
+any point in time, it's very easy to rip and replace because just adding a new platform and pointing it in 
+here,... 
+Jeff Routledge: Good. 
+Basil Rizwan: you would just be able to replace any one of the given ones and have it continue using the 
+data and sending data from that platform as similar to how it was with the platform that you are 
+replacing. and then what one other thing that I wanted to mention as well is just because we see this 
+often enough folks often will start with either a customerf facing integrations and automation solution 
+kind of how we're diagramming here but then they'll also utilize the same platform for other automations 
+or even internal automations as well. 
+Basil Rizwan: So when we look at maybe you're using tools like QuickBooks or Netswuite folks do sort of 
+that accounting and ledgers and that sort of the internal back office processes and automate that using 
+Muoft as well. 
+Basil Rizwan: So this is what I had to show for now. if there's no other questions then I'll turn it back. 
+Jeff Routledge: No, it's good. 
+Jeff Routledge: It's good. No. Yeah. 
+Basil Rizwan: One other point I did want to mention I zoomed out a little bit and so I missed the point that 
+you made about the COVID taking a lot of businesses offline or putting on pause that was very real. I 
+know a lot of business owners here as well u and that non-essential tag hurt a lot of them and destroyed 
+a lot of businesses unfortunately as so one glad you're still around. 
+Basil Rizwan: But two when it comes to engaging with those contacts that's something that Muoft does 
+really well also is we are able to create sort of that unified customer record. so let's say someone who is 
+always purchasing through Shopify or they have some sort of member record in one of your platforms. if 
+that gets updated, we can add that new record or update the existing record within Salesforce itself. 
+
+Basil Rizwan: So we're always keeping based on the information we're getting through purchase orders, 
+contact forms and so on and so forth, we're always able to keep an eye on the latest best point of contact 
+is, their phone numbers, emails, whatever information we can get off. 
+Jeff Routledge: Yeah, that's our biggest dilemma right now. 
+Basil Rizwan: Totally. Yeah. 
+Jeff Routledge: And the other thing too the one thing that we've got to do going forward is no emails that 
+get submitted to us in a practice should be info at or... 
+Jeff Routledge: any of those types of emails because if we're sending stuff out to that address we have a 
+better chance of being marked for spam things of that nature. So, we've got to recreate some of the rules 
+with our members on just general emailing protocol. 
+Basil Rizwan: Totally. Yeah. 
+Basil Rizwan: And that's a great point. So this sort of cleanup work to your point doesn't need to come 
+with a lot of manual outreach either. 
+Basil Rizwan: U I imagine right now are you using Mailchimp to send out those blasts or how are you 
+engaging with those members to update that email? Yeah. 
+Jeff Routledge: Yeah, we had our own platform and the company that set us up went out of business and 
+they held a lot of key license and... 
+Jeff Routledge: the thing just in fact we don't even know if the guy's alive. yeah. 
+Caralina Wigfield: Literally we just overnight stopped hearing from him. 
+Caralina Wigfield: Emails elivered. couldn't contact him by phone, email, through his website, nothing. So 
+we have no idea what happened to him. But a lot of stuff for the website and everything for this new email 
+system that he had basically built from scratch for us was all under his company paying bills and... 
+00:40:00 
+Caralina Wigfield: stuff for it and they just stopped paying the bills. 
+Jeff Routledge: Yes. Yeah. 
+Jeff Routledge: To her point. So a lot of the stuff he built the light he would build it for other companies as 
+well and he would do the annual license. So when he wasn't doing so we tracked down every company 
+that had license. 
+Basil Rizwan: Yeah. Yeah. 
+Jeff Routledge: We said we can pay for it and they said we can't do it that way. It's like you got to be 
+kidding me. So, we went back to Mailchimp, which is off the shelf. It wasn't customizable. There's a lot of 
+really cool things that he and Cara built into that system that we kind of miss now. But, we have 
+Mailchimp. It works. It's not ideal, but it w the other thing we had. But, it is what it is. 
+
+Basil Rizwan: What was in that custom system that you kind of miss lack now in Mailchimp? 
+Caralina Wigfield: One thing that I really liked about it,... 
+Jeff Routledge: Yeah, I like that. 
+Caralina Wigfield: we had lists. So, our full database basically could get uploaded to each of the lists for 
+the vendors. So, I'm sending out an email from a vendor and unsubscribing from one vendor doesn't 
+unsubscribe you from our whole network. So, just because in one thing doesn't mean they're not 
+interested in everything. and we have not been able to make that same thing happen with Mailchimp. 
+Basil Rizwan: I'm just for a second here, I'm going to take off my Mulesoft hat and put on my previous 
+developer hat. one way to accomplish that is within Mailchimp, you are able to create sort of segments 
+and groups and lists as well. So I'm not sure how you split it up before but you're actually able to recreate 
+that within Mailchimp itself. and you can have those targeted segments sent out. 
+Basil Rizwan: So maybe that's by product or by some sort of group. but just wanted to throw out that it is 
+definitely possible. Yeah. 
+Jeff Routledge: You can go that way. 
+Jeff Routledge: Okay, that's interesting. 
+Caralina Wigfield: Yeah, I have it set up right now. 
+Caralina Wigfield: We have different audiences. So, our weight management program has one, new 
+members have the regular full database. and then this one vendor we worked with that was also kind of a 
+weight loss thing. but that we hit our max number of lists and we have some odd vendors. So, we I guess 
+it's audiences and we couldn't make a new audience for every group that we had for every vendor we 
+have. The segments for the most part were using that as demographic data. 
+Jeff Routledge: Yeah. Heat. 
+Caralina Wigfield: Where the practice is located or... 
+Basil Rizwan: Got it. 
+Caralina Wigfield: the type of practice, whether they're a med spa, that sort of thing. 
+Caralina Wigfield: So it's more about the demographics rather than behavioral because we just don't have 
+a way for all of that information to go into Mailchimp right now. 
+Basil Rizwan: So when I'm not sure what the limits there are. funny enough I never hit it. I thought I would. 
+but kudos to you for being able to find that limit. I'm not sure if you can pay for more limits on Mailchimp 
+and that sort of stuff, but sure. 
+Caralina Wigfield: Yeah, I think we can. I just haven't cuz it's not something that we'd have to have so 
+many of them. the financial side just didn't make sense. 
+
+Basil Rizwan: I know on our side we do have that capability within Salesforce as well. I don't know if 
+you've had those conversations with our core team before. and if that makes sense compared to 
+Mailchimp 
+Basil Rizwan: what the limits are and what the financing is, but maybe we can make a note of that and get 
+you some information if you're interested. 
+Caralina Wigfield: Yeah, that would be great. 
+Basil Rizwan: Yeah,... 
+Caralina Wigfield: So, just to kind of I guess an overarching question, Mulesoft is more of like a I don't 
+know... 
+Jeff Routledge: It's like a middleware. 
+Basil Rizwan: I can Yeah. 
+Caralina Wigfield: since all of the systems versus we can't do marketing through Muoft. That's a separate 
+piece of Salesforce. Okay. 
+Basil Rizwan: So yeah, Mulesoft would help you with sort of the integration and automation of it. So it 
+enables better marketing but it won't do the marketing for you itself. And Mulesoft does not hold any data 
+either. we are just a processor in the middle. So we make sure that the actions that you've set up and the 
+workflows that you want automated are one you're able to create within mulesoft but two you're also able 
+to make sure that they're working. So for example, just a very small example here, the Gravity Forms 
+SMPT SMTP issue that you're mentioning, that's something that if it was going through Mulesoft, you 
+would be able to be notified the first time that email did not work out. instead of waiting for someone to 
+say, hey, I didn't get such and such email. Or maybe,... 
+00:45:00 
+Basil Rizwan: you went through some logs to find out yourself, why aren't people responding to our 
+emails? Instead of having to do all that,... 
+Basil Rizwan: Mulesoft lets you know right then and there the first instance. something fails. And it's not 
+just Gravity Forms,... 
+Jeff Routledge: ... 
+Basil Rizwan: it's also all the other systems we talked about that that would be your third party vendors, 
+that be Shopify, etc. Yeah. 
+Caralina Wigfield: Okay. Yeah,... 
+Jeff Routledge: we're,... 
+Caralina Wigfield: I think that's like 
+Jeff Routledge: yeah, Jason, we're running up to the So,... 
+
+Jason Ng: Yeah, I think yeah,... 
+Jason Ng: we're on Yeah. 
+Jeff Routledge:  
+Jeff Routledge: how much is all Yes. 
+Jason Ng: So, we do need a partner on this. Partner is going to be involved for a onetime implementation 
+fee as well. So, in terms of our end, this is going to be ballpark. I do want to kind of get some more ROI 
+numbers to you. So, I did have some questions for me to kind of build that. but it just ballpark you're 
+looking at maybe 25,000 annually. 
+Jason Ng: And if you wanted to keep it quarterly, If you want to go monthly, you can as well. but that 
+would be just a ballpark range. the partner would be kind of a separate cost as well. But, yeah, I did. Yeah. 
+Jeff Routledge: How much do you know... 
+Jeff Routledge: what the partner because that's on the implementation the integration right? 
+Jason Ng: So, it's a onetime setup. and then once you get it set up, you're pretty much going to be good to 
+go. 
+Jeff Routledge: What do you think that would be? 
+Jason Ng: I would Yeah. 
+Jeff Routledge: Ballpark. Okay. 
+Jason Ng: ballpark maybe 10 to 15,000. Yeah. And then same, you could kind of split it off with the 
+payments there. So, I did want to So, If this all still sounds good on the next call, I would like to have the 
+partners on the call and then kind of go through a final pricing proposal and then ROI readback as well 
+kind of just to wrap it. 
+Jeff Routledge: Yeah. ROI reback will be I mean whatever information you need from us between now... 
+Jason Ng: Yep. Okay. 
+Jeff Routledge: then ask for it. Let's see. 
+Jason Ng: Yeah, if you have a second, can I just have four fields I just want to ask you here. Four. your 
+average transaction dollar amount. 
+Jeff Routledge: Okay. ... 
+Jason Ng: You have 4,000 members. what do you think that average transaction amount per member is? 
+Jeff Routledge: that's a trick question because there's a transaction amount and then there's a fee that we 
+make off of it. some things that we sell directly, that transaction amount is critical, then we have a 
+profitability off of that because we're dealing with contracts. there might be a $1,000 transaction that 
+we're making 50 bucks on, but they may buy 10,000 a month, so that's 500. So, we're making 6,000 a year 
+off that member. 
+
+Jeff Routledge: So, that's what it could be. It's very little what we make. We don't make a lot. I don't know... 
+Jason Ng: Okay,... 
+Jeff Routledge: if that answers your question, but I mean we just got this contract that we have not really 
+made a lot of traction, but once we do, we'll be making anywhere from three to five or three to $700 a 
+month off the member just in fees. it's a credit card processing vendor. 
+Jason Ng: would you say you guys look more annually like how much they spend annually? That would be 
+probably a better guess or metric to kind of judge how much you're getting from each member versus a 
+monthly number. 
+Jason Ng: So maybe annually you're... 
+Jason Ng: if you're getting three to 700, if you go mid-range there, it' be about a month. 500 annually 
+annualized would be 6,000 for Okay,... 
+Jeff Routledge: Yeah, I'd have to figure that out. 
+Jeff Routledge: You know what mean because it's so vastly different per contract. I guess probably what 
+you want is an average, right? Okay. 
+Jason Ng: Yeah, a mid number. so okay, another question. 4,000 members. How many would you say are 
+active? Because you did mention that not 
+Jeff Routledge:  
+Jeff Routledge: It all depends on the contract. I mean, like I said, with that MS contract, it was consistently 
+around 1,200 that were purchasing and they were purchasing at least one purchase per quarter. and then 
+on the GLP one, that's consistently I t know I think we've had four or 500 sign up for it, but I think we really 
+have 80 to maybe 200 users maybe. 
+Jeff Routledge: It's probably in that 80 to 120. there's not a lot of utilization. I mean, we got to get it up. 
+Jason Ng: Okay. 
+Jason Ng: Got and then your historical growth maybe 10% ually. And then this might be another trick 
+question, but what do you think you like with customers that have been abandoned, customers that you 
+lost out on, what do you think the loss opportunity cost there might be? 
+Jeff Routledge: Yeah, it's probably in that 5% to 10%. 
+00:50:00 
+Jeff Routledge: Have no idea. 
+Jason Ng: Okay. 
+Jeff Routledge: The thing with ours is we may have a customer,... 
+Caralina Wigfield: We also get med spas that are going through certification 
+
+Jeff Routledge: we may have a member that they sign up because we partner with a device company 
+and... 
+Jason Ng: Okay. 
+Jeff Routledge: they can get that deal and then they're not interested in using their membership for 
+anything other than that one-time sale. whereas we have others that are purchasing consumables like 
+GLP ones and things of that nature. 
+Caralina Wigfield: a nurse practitioner is going through their certification to become an injector nurse and 
+they sign up for the network because they're kicking off their med spa just getting everything started and 
+they want to see what kind of savings they can achieve. 
+Caralina Wigfield: So sometimes the savings is more on a med surge supply basis Jeff said a laser to get 
+started with or something like that rather than the ongoing opportunities from payment processing or 
+JLP1 products or whatever it be. They might be more of like a setup. so we see them at the beginning of 
+their practice starting up and then not really much after that. 
+Jason Ng: Bye-bye. Okay,... 
+Jason Ng: got it. And then is it ultimately a percentage base that you guys get and it varies per Okay. 
+Jeff Routledge: pretty. Yeah,... 
+Jeff Routledge: pretty much. Yeah. And There's a huge variation on certain things that are involved in 
+reimburseable medicine, we have to follow safe harbor guidelines and you're kind of capped at 3%. 
+Whereas there's other things that we're getting,% off. GOP1's on average we're getting about eight or 
+nine%. Okay. 
+Jason Ng: Okay, got it. Okay, perfect. yeah, that's great. 
+Jason Ng: If I have any additional ones, I can just shoot an email. But we can do that read back and then 
+the final pricing proposal with the partners would maybe Thursday Friday. I think Bosel is going to be out 
+of office here for onsite Wednesday and... 
+Basil Rizwan: Yeah. All right. 
+Jason Ng: Thursday, right? this week,... 
+Jeff Routledge: You talking about next week? 
+Jeff Routledge: This week. you guys are all West Coast,... 
+Jason Ng: Friday perhaps. correct. Yeah. Okay. 
+Jeff Routledge: I would have to do it. I vailability. I'm an East Coaster. I have availability for and then This 
+is all Eastern Daylight Time zone. I have availability from 8 in the morning which that doesn't work for 8 in 
+the morning to 12:00 p.m. That so I've got openings all that period. So from 8:00 a.m. to 12:00 p.m. So 
+that is 5 9 in the morning to you for you guys. 
+Jeff Routledge: Can you do a nine o'clocker? 
+
+Jason Ng: Yes, Bosel. Is that open for your schedule? 
+Basil Rizwan: I will likely be out just because of the customer onsites from Wednesday to Friday this 
+week. 
+Jeff Routledge: All right. Let's look at next week then. what does Monday look like for you? Okay. ... 
+Basil Rizwan: Monday's good. Yeah, I think. 
+Jason Ng: Yeah. Yeah. 
+Jeff Routledge: I've got a free schedule from 12:00 p.m. to 5:00 p.m. Eastern time zone. So, that's 9 to 2. 
+Jason Ng: Not it's you. 
+Basil Rizwan: Yeah. Yeah. 
+Caralina Wigfield: Can we do after 100 p.m. 
+Caralina Wigfield: Eastern? I have some airport ones... 
+Jeff Routledge: It works for me if it works for you guys. 
+Caralina Wigfield: because my family's in town for the weekend. So, yeah. 
+Basil Rizwan: That's awesome. How about 3 to 4 pm? Does that work for you, Jason? Yes. 
+Jason Ng: Nice. 
+Jason Ng: 3 to 4:00 p.m. Eastern. Yeah,... 
+Basil Rizwan: Eastern. So, that would be 12 to 1 hour time. 
+Jason Ng: that could work. Yeah. Okay,... 
+Jeff Routledge: Okay. 
+Jeff Routledge: Yeah, that works. 
+Basil Rizwan: Awesome. 
+Jeff Routledge: Does that work for you, Cara? Okay. 
+Caralina Wigfield: Yep, that's great. 
+Caralina Wigfield: Thank you guys so much. 
+Jason Ng: perfect. Thank you so much for the time. I know we went a bit over, so we'll chat next Monday. 
+Jeff Routledge: All right. 
+Jeff Routledge: Thank Thanks a lot. 
+Caralina Wigfield: Awesome. Thanks guys. 
+
+Jeff Routledge: I really appreciate it. 
+Jason Ng: Thank you. 
+Jason Ng: right. 
+Caralina Wigfield: You next week. 
+Jason Ng: right. you. Bye. 
+Meeting ended after 00:54:34  
+This editable transcript was computer generated and might contain errors. People can also change the text 
+after it was created.

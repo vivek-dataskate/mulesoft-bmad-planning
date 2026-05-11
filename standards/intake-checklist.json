@@ -145,6 +145,30 @@
       "trigger": "spiff",
       "warning": "Spiff (Sales Performance Management) has no confirmed MuleSoft native connector as of 2026-05-11. Integration requires HTTP connector via Spiff REST API. Confirm API availability, auth type, and sandbox access before architecture begins. This is a scope blocker.",
       "severity": "medium"
+    },
+    {
+      "id": "mailchimp_new",
+      "trigger": "mailchimp",
+      "warning": "Mailchimp connector (mule4-mailchimp-marketing-connector v1.0) is a low-version connector — verify operation coverage on Anypoint Exchange before committing. Per FK-013 pattern, registry entries and actual connector operation coverage can diverge for recently added connectors. Confirm: list member add/update, tag management, audience sync, and webhook subscription are all supported. If partial — fall back to HTTP connector with API key auth.",
+      "severity": "medium"
+    },
+    {
+      "id": "gravity_forms_new",
+      "trigger": "gravity forms|gravity-forms|wordpress",
+      "warning": "No MuleSoft connector exists for WordPress or Gravity Forms. Integration via inbound HTTP webhook (Gravity Forms Webhook Add-On — requires Developer or Elite license) or outbound HTTP polling (WordPress REST API). Confirm Webhook Add-On is installed before committing to Pattern J (webhook-ingestion); fall back to Pattern D (scheduled-sync) if not.",
+      "severity": "medium"
+    },
+    {
+      "id": "pharmacyhub_new",
+      "trigger": "pharmacyhub|pharmacy hub",
+      "warning": "New system — PharmacyHub has no MuleSoft native connector. Integration is SFTP file-based (Pattern E). Confirm: SFTP server host/auth, file format (CSV/XML/other), file naming convention, processing frequency, and Salesforce target object before architecture. File format unknown is a blocker for DataWeave design.",
+      "severity": "medium"
+    },
+    {
+      "id": "pipeline_medical_new",
+      "trigger": "pipeline medical|pipeline-medical",
+      "warning": "New system — Pipeline Medical has no MuleSoft native connector. Integration is SFTP file-based (Pattern E). Separate flow from PharmacyHub — no-combine rule applies even if SFTP server is shared. Confirm: file format, naming convention, and whether it matches PharmacyHub structure.",
+      "severity": "medium"
     }
   ]
 }

@@ -354,7 +354,7 @@ GET  /executions/{executionId}/getProcessExecutionStatus — Poll for status
 
 ## Connector Config (HTTP-based)
 
-See `templates/connectors/anypoint-rpa-config.xml` for the full connector config template.
+See `scaffold/connectors/anypoint-rpa-config.xml` for the full connector config template.
 
 Key property keys required in `{env}.yaml`:
 ```yaml

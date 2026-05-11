@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #fff; color: #111; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 100%; min-height: 100vh; padding: 64px 72px; display: flex; flex-direction: column; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .page.dark { background: #0f172a; color: #f8fafc; }
+  .page.light { background: #fff; }
+  .page.gray { background: #f8fafc; }
+  .logo { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+  .logo span { color: #e11d48; }
+  .brand-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 52px; }
+  .pn { font-size: 11px; color: #94a3b8; }
+  /* cover */
+  .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .ey { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #e11d48; margin-bottom: 18px; }
+  .ct { font-size: 52px; font-weight: 900; line-height: 1.05; color: #f8fafc; margin-bottom: 22px; }
+  .ct em { color: #e11d48; font-style: normal; }
+  .cs { font-size: 16px; color: #94a3b8; line-height: 1.65; max-width: 460px; }
+  .cdiv { width: 56px; height: 4px; background: #e11d48; border-radius: 2px; margin: 28px 0; }
+  .cmeta { display: flex; gap: 40px; margin-top: 44px; }
+  .cmeta-i .lbl { font-size: 11px; color: #475569; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .cmeta-i .val { font-size: 14px; color: #f8fafc; font-weight: 600; }
+  /* section */
+  .sh { margin-bottom: 32px; }
+  .sh .ey2 { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #e11d48; margin-bottom: 7px; }
+  .sh .st { font-size: 30px; font-weight: 800; line-height: 1.1; color: #0f172a; }
+  .sh .st.od { color: #f8fafc; }
+  .sh .ss { font-size: 13px; color: #64748b; margin-top: 9px; line-height: 1.65; max-width: 620px; }
+  .sh .ss.od { color: #94a3b8; }
+  /* table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #0f172a; color: #f8fafc; padding: 11px 15px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; }
+  tbody td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: top; line-height: 1.5; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) td { background: #f8fafc; }
+  td strong { color: #0f172a; font-weight: 700; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .pill.blue { background: #dbeafe; color: #1d4ed8; }
+  .pill.red { background: #fee2e2; color: #dc2626; }
+  /* cards */
+  .cr { display: flex; gap: 14px; margin-bottom: 18px; }
+  .card { border-radius: 12px; padding: 20px; }
+  .card.dk { background: #0f172a; color: #f8fafc; }
+  .card.rd { background: #e11d48; color: #fff; }
+  .card.lt { background: #f8fafc; border: 1.5px solid #e2e8f0; }
+  .card .cl { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; opacity: 0.6; margin-bottom: 5px; }
+  .card .cv { font-size: 32px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+  .card .cd { font-size: 12px; opacity: 0.72; line-height: 1.5; }
+  /* callout */
+  .co { border-radius: 10px; padding: 16px 20px; margin: 14px 0; display: flex; gap: 12px; align-items: flex-start; }
+  .co.amber { background: #fffbeb; border: 1.5px solid #fde68a; }
+  .co.red { background: #fff1f2; border: 1.5px solid #fecdd3; }
+  .co.green { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+  .co-ic { font-size: 17px; flex-shrink: 0; line-height: 1.5; }
+  .co-bd p { font-size: 13px; line-height: 1.65; color: #334155; }
+  .co-bd strong { color: #0f172a; }
+  /* rate schedule visual */
+  .rs-wrap { background: #1e293b; border-radius: 14px; padding: 28px; margin: 18px 0; }
+  .rs-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 18px; }
+  .rs-periods { display: flex; gap: 10px; }
+  .rs-p { flex: 1; background: #0f172a; border-radius: 10px; padding: 18px 14px; text-align: center; position: relative; }
+  .rs-p.current { border: 2px solid #e11d48; }
+  .rs-p .rsp-label { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .rs-p .rsp-rate { font-size: 26px; font-weight: 900; color: #f8fafc; margin-bottom: 4px; }
+  .rs-p .rsp-sub { font-size: 11px; color: #64748b; }
+  .rs-p .rsp-pay { font-size: 14px; font-weight: 700; color: #94a3b8; margin-top: 10px; }
+  .rs-p .rsp-pay span { color: #f8fafc; }
+  .rs-p .badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #e11d48; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+  .rs-note { display: flex; gap: 14px; margin-top: 14px; }
+  .rs-note-i { flex: 1; background: #0f172a; border-radius: 8px; padding: 14px; font-size: 12px; color: #94a3b8; line-height: 1.65; }
+  .rs-note-i strong { color: #f8fafc; }
+  .rs-note-i .g { color: #4ade80; }
+  /* example */
+  .ex { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 13px; }
+  .ex-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
+  .ex-t { font-size: 14px; font-weight: 700; color: #0f172a; }
+  .ex-b { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .ex-b.s { background: #dbeafe; color: #1d4ed8; }
+  .ex-b.n { background: #dcfce7; color: #15803d; }
+  .ex-b.i { background: #fef3c7; color: #b45309; }
+  .ex-row { display: flex; gap: 8px; }
+  .ec { flex: 1; background: #f8fafc; border-radius: 8px; padding: 13px; text-align: center; }
+  .ec .el { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+  .ec .ev { font-size: 18px; font-weight: 800; color: #0f172a; }
+  .ec .es { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+  .ec.hl { background: #0f172a; }
+  .ec.hl .el { color: #64748b; }
+  .ec.hl .ev { color: #fff; }
+  .ec.hl .es { color: #475569; }
+  /* included */
+  .ig { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 13px 0; }
+  .ii { display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; }
+  .ii-ic { width: 28px; height: 28px; background: #0f172a; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .ii-tx .it { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+  .ii-tx .id { font-size: 11px; color: #64748b; line-height: 1.4; }
+  /* two col */
+  .tc { display: flex; gap: 24px; margin: 16px 0; }
+  .tc > div { flex: 1; }
+  .ct2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 11px; padding-bottom: 7px; border-bottom: 2px solid; }
+  .ct2.r { color: #e11d48; border-color: #e11d48; }
+  .ct2.g { color: #16a34a; border-color: #16a34a; }
+  ul.cl { list-style: none; }
+  ul.cl li { font-size: 13px; color: #334155; padding: 6px 0; border-bottom: 1px solid #f1f5f9; line-height: 1.5; }
+  ul.cl li::before { content: '✓  '; color: #16a34a; font-weight: 700; }
+  /* footer */
+  .pf { margin-top: auto; padding-top: 26px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+  .pf.od { border-top-color: #1e293b; }
+  .pf span { font-size: 11px; color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="page dark">
+  <div class="brand-bar"><div class="logo">data<span>skate</span></div><div class="pn" style="color:#334155;">dataskate.ai</div></div>
+  <div class="cover-body">
+    <div class="ey">MuleSoft Integration Services</div>
+    <div class="ct">Pricing &amp;<br><em>Partnership</em><br>Model</div>
+    <div class="cdiv"></div>
+    <div class="cs">Integration-as-a-Service — fixed timelines, fully managed, transparent pricing. Built for MuleSoft AEs and their clients.</div>
+    <div class="cmeta">
+      <div class="cmeta-i"><div class="lbl">Version</div><div class="val">1.0 — May 2026</div></div>
+      <div class="cmeta-i"><div class="lbl">Classification</div><div class="val">Internal &amp; AE Partners</div></div>
+      <div class="cmeta-i"><div class="lbl">Contact</div><div class="val">vivek@dataskate.ai</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1: ENGAGEMENT TYPES -->
+<div class="page light">
+  <div class="brand-bar"><div class="logo">data<span>skate</span></div><div class="pn">01 / 05</div></div>
+  <div class="sh">
+    <div class="ey2">How We Engage</div>
+    <div class="st">Three ways to work with DataSkate</div>
+    <div class="ss">Implementation pricing depends on the channel. Every engagement also has access to the managed service contract — required on IaaS deals, optional otherwise.</div>
+  </div>
+  <table>
+    <thead><tr><th>Engagement Type</th><th>Who It Applies To</th><th>Implementation Cost</th><th>Managed Service</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Standard</strong></td><td>Existing AE or DS relationship</td><td><strong>$3,500 per flow</strong></td><td><span class="pill blue">Optional</span></td></tr>
+      <tr><td><strong>New AE Introductory</strong></td><td>AE's very first DataSkate deal</td><td><strong>$10,000 flat</strong> (up to 5 flows)<br><span style="font-size:11px;color:#64748b;">$3,500/flow beyond 5</span></td><td><span class="pill blue">Optional</span></td></tr>
+      <tr><td><strong>IaaS — Free Build</strong></td><td>AE sells full $50k Anypoint license</td><td><strong>$0 upfront</strong><br><span style="font-size:11px;color:#64748b;">Recovered via managed service contract</span></td><td><span class="pill red">Required</span></td></tr>
+    </tbody>
+  </table>
+  <div class="co amber" style="margin-top:14px;"><div class="co-ic">⚡</div><div class="co-bd"><p><strong>New AE:</strong> A MuleSoft AE bringing their first deal to DataSkate. Introductory pricing applies once per AE — the second deal onward is standard. Refers to the AE's history with DataSkate, not with the client.</p></div></div>
+  <div style="margin-top:20px;font-size:12px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Delivery Timeline</div>
+  <div class="cr">
+    <div class="card dk" style="flex:0 0 195px;"><div class="cl">Phase 1 — All Deals</div><div class="cv">2 wks</div><div class="cd">Requirements &amp; Analysis. Fixed — no exceptions.</div></div>
+    <div class="card dk" style="flex:0 0 195px;"><div class="cl">Phase 2 — Per Flow</div><div class="cv">1.5 wks</div><div class="cd">Development &amp; Testing. Multiplied by flow count.</div></div>
+    <div class="card rd" style="flex:1;"><div class="cl">Timeline Examples</div><div style="font-size:14px;margin-top:4px;line-height:2.2;">5 flows → <strong>9.5 weeks</strong><br>8 flows → <strong>14 weeks</strong><br>10 flows → <strong>17 weeks</strong></div><div class="cd" style="margin-top:6px;">Same timeline regardless of pricing tier</div></div>
+  </div>
+  <div class="pf"><span>DataSkate — dataskate.ai | vivek@dataskate.ai</span><span>01 / 05</span></div>
+</div>
+
+<!-- PAGE 2: MANAGED SERVICE + RATE SCHEDULE -->
+<div class="page gray">
+  <div class="brand-bar"><div class="logo">data<span>skate</span></div><div class="pn">02 / 05</div></div>
+  <div class="sh">
+    <div class="ey2">Managed Service Contract</div>
+    <div class="st">How the monthly rate works</div>
+    <div class="ss">The rate starts at $150/flow/month and increases 5% every 6 months — for all active flows. You know the full schedule upfront. Paid every 6 months, in advance.</div>
+  </div>
+  <div class="cr">
+    <div class="card rd" style="text-align:center;flex:0 0 200px;"><div class="cl">Starting Rate</div><div class="cv" style="font-size:44px;">$150</div><div class="cd" style="font-size:13px;margin-top:4px;">per flow / per month<br>Period 1 (Months 1–6)</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:11px;">
+      <div class="card lt" style="flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div class="cl">Contract Term</div><div style="font-size:20px;font-weight:800;color:#0f172a;">2 years per flow</div><div style="font-size:12px;color:#64748b;margin-top:3px;">From go-live date. No early exit. No discounts.</div></div><div style="font-size:24px;">🔒</div></div></div>
+      <div class="card lt" style="flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div class="cl">Payment Cadence</div><div style="font-size:20px;font-weight:800;color:#0f172a;">Upfront every 6 months</div><div style="font-size:12px;color:#64748b;margin-top:3px;">4 payments over the 2-year term</div></div><div style="font-size:24px;">📅</div></div></div>
+    </div>
+  </div>
+  <div style="font-size:12px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:11px;">Rate Schedule — All Flows, All Periods</div>
+  <table>
+    <thead><tr><th>Period</th><th>Months</th><th>Rate / Flow / Month</th><th>6-Month Payment (1 flow)</th><th>6-Month Payment (5 flows)</th><th>6-Month Payment (10 flows)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Period 1</strong></td><td>1–6</td><td><strong>$150.00</strong></td><td>$900</td><td>$4,500</td><td>$9,000</td></tr>
+      <tr><td><strong>Period 2</strong></td><td>7–12</td><td><strong>$157.50</strong></td><td>$945</td><td>$4,725</td><td>$9,450</td></tr>
+      <tr><td><strong>Period 3</strong></td><td>13–18</td><td><strong>$165.38</strong></td><td>$992</td><td>$4,961</td><td>$9,923</td></tr>
+      <tr><td><strong>Period 4</strong></td><td>19–24</td><td><strong>$173.64</strong></td><td>$1,042</td><td>$5,209</td><td>$10,418</td></tr>
+    </tbody>
+  </table>
+  <div class="co amber" style="margin-top:12px;"><div class="co-ic">📋</div><div class="co-bd"><p><strong>How to read this:</strong> Every 6 months, the rate for all active flows increases by 5%. The payment due at the start of each period reflects the new rate for that period. The full schedule is disclosed in the contract — no surprises at payment time.</p></div></div>
+  <div class="pf"><span>DataSkate — dataskate.ai | vivek@dataskate.ai</span><span>02 / 05</span></div>
+</div>
+
+<!-- PAGE 3: WHAT'S INCLUDED -->
+<div class="page dark">
+  <div class="brand-bar"><div class="logo">data<span>skate</span></div><div class="pn" style="color:#475569;">03 / 05</div></div>
+  <div class="sh">
+    <div class="ey2">What You Get</div>
+    <div class="st od">Everything included in the monthly rate</div>
+    <div class="ss od">One invoice. One team. Full service — from first line of code to 24/7 production management.</div>
+  </div>
+  <div class="ig" style="grid-template-columns:1fr 1fr 1fr;">
+    <div class="ii" style="background:#1e293b;border-color:#334155;"><div class="ii-ic">🚀</div><div class="ii-tx"><div class="it" style="color:#f8fafc;">Implementation</div><div class="id">Full build &amp; delivery — no separate fee on IaaS</div></div></div>
+    <div class="ii" style="background:#1e293b;border-color:#334155;"><div class="ii-ic">📡</div><div class="ii-tx"><div class="it" style="color:#f8fafc;">Uptime Monitoring</div><div class="id">24/7 monitoring and incident response</div></div></div>
+    <div class="ii" style="background:#1e293b;border-color:#334155;"><div class="ii-ic">⚡</div><div class="ii-tx"><div class="it" style="color:#f8fafc;">Performance Management</div><div class="id">Latency, throughput, error rate tuning</div></div></div>
+    <div class="ii" style="background:#1e293b;border-color:#334155;"><div class="ii-ic">🔔</div><div class="ii-tx"><div class="it" style="color:#f8fafc;">Notifications &amp; Alerting</div><div class="id">Alert setup and ongoing management</div></div></div>
+    <div class="ii" style="background:#1e293b;border-color:#334155;"><div class="ii-ic">🔄</div><div class="ii-tx"><div class="it" style="color:#f8fafc;">Upgrades</div><div class="id">Connector and platform compatibility updates</div></div></div>
+    <div class="ii" style="background:#1e293b;border-color:#334155;"><div class="ii-ic">✏️</div><div class="ii-tx"><div class="it" style="color:#f8fafc;">Minor Enhancements</div><div class="id">Field mapping, config tweaks — no action changes</div></div></div>
+  </div>
+  <div style="background:#1e293b;border-radius:12px;padding:22px;margin-top:8px;">
+    <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:14px;">Not included — requires a new SOW</div>
+    <div style="display:flex;gap:12px;">
+      <div style="flex:1;background:#0f172a;border-radius:8px;padding:14px;"><div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:6px;">Action Changes</div><div style="font-size:12px;color:#94a3b8;line-height:1.6;">New trigger, new target system, new business logic, new object type — these change what the flow does, not just how it does it.</div></div>
+      <div style="flex:1;background:#0f172a;border-radius:8px;padding:14px;"><div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:6px;">New Flows</div><div style="font-size:12px;color:#94a3b8;line-height:1.6;">Each additional flow is a new engagement. Scoped separately, priced at the then-current Period rate, with its own 2-year term from go-live.</div></div>
+      <div style="flex:1;background:#0f172a;border-radius:8px;padding:14px;"><div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:6px;">Major Redesign</div><div style="font-size:12px;color:#94a3b8;line-height:1.6;">Architectural changes to an existing flow — redesigning the pattern, changing the API layer, or restructuring the data model.</div></div>
+    </div>
+  </div>
+  <div class="pf od"><span style="color:#475569;">DataSkate — dataskate.ai | vivek@dataskate.ai</span><span style="color:#475569;">03 / 05</span></div>
+</div>
+
+<!-- PAGE 4: EXAMPLES -->
+<div class="page light">
+  <div class="brand-bar"><div class="logo">data<span>skate</span></div><div class="pn">04 / 05</div></div>
+  <div class="sh">
+    <div class="ey2">Pricing Examples</div>
+    <div class="st">What it looks like in practice</div>
+    <div class="ss">The 2-year total reflects the actual schedule — each period's payment increases 5% as the rate steps up. All figures are based on flows live from Period 1.</div>
+  </div>
+  <div class="ex">
+    <div class="ex-hd"><div class="ex-t">Standard — 6 flows</div><div class="ex-b s">Standard Pricing</div></div>
+    <div class="ex-row">
+      <div class="ec"><div class="el">Implementation</div><div class="ev">$21,000</div><div class="es">6 × $3,500</div></div>
+      <div class="ec"><div class="el">Period 1 Payment</div><div class="ev">$5,400</div><div class="es">6 × $150 × 6 mo</div></div>
+      <div class="ec"><div class="el">Period 4 Payment</div><div class="ev">$6,251</div><div class="es">6 × $173.64 × 6 mo</div></div>
+      <div class="ec hl"><div class="el">2-Year Managed Total</div><div class="ev">$23,275</div><div class="es">All 4 periods combined</div></div>
+    </div>
+  </div>
+  <div class="ex">
+    <div class="ex-hd"><div class="ex-t">New AE introductory — 5 flows</div><div class="ex-b n">New AE Deal</div></div>
+    <div class="ex-row">
+      <div class="ec"><div class="el">Implementation</div><div class="ev">$10,000</div><div class="es">Flat — up to 5 flows</div></div>
+      <div class="ec"><div class="el">Period 1 Payment</div><div class="ev">$4,500</div><div class="es">5 × $150 × 6 mo</div></div>
+      <div class="ec"><div class="el">Period 4 Payment</div><div class="ev">$5,209</div><div class="es">5 × $173.64 × 6 mo</div></div>
+      <div class="ec hl"><div class="el">2-Year Managed Total</div><div class="ev">$19,396</div><div class="es">All 4 periods combined</div></div>
+    </div>
+  </div>
+  <div class="ex">
+    <div class="ex-hd"><div class="ex-t">New AE — 7 flows (over cap)</div><div class="ex-b n">New AE Deal</div></div>
+    <div class="ex-row">
+      <div class="ec"><div class="el">Implementation</div><div class="ev">$17,000</div><div class="es">$10k + 2 × $3,500</div></div>
+      <div class="ec"><div class="el">Period 1 Payment</div><div class="ev">$6,300</div><div class="es">7 × $150 × 6 mo</div></div>
+      <div class="ec"><div class="el">Period 4 Payment</div><div class="ev">$7,293</div><div class="es">7 × $173.64 × 6 mo</div></div>
+      <div class="ec hl"><div class="el">2-Year Managed Total</div><div class="ev">$27,154</div><div class="es">All 4 periods combined</div></div>
+    </div>
+  </div>
+  <div class="ex">
+    <div class="ex-hd"><div class="ex-t">IaaS — AE sells $50k license, 10 flows</div><div class="ex-b i">IaaS Model</div></div>
+    <div class="ex-row">
+      <div class="ec"><div class="el">Implementation</div><div class="ev">$0</div><div class="es">Included in service</div></div>
+      <div class="ec"><div class="el">Period 1 Payment</div><div class="ev">$9,000</div><div class="es">10 × $150 × 6 mo</div></div>
+      <div class="ec"><div class="el">Period 4 Payment</div><div class="ev">$10,418</div><div class="es">10 × $173.64 × 6 mo</div></div>
+      <div class="ec hl"><div class="el">2-Year Managed Total</div><div class="ev">$38,791</div><div class="es">All 4 periods combined</div></div>
+    </div>
+  </div>
+  <div class="pf"><span>DataSkate — dataskate.ai | vivek@dataskate.ai</span><span>04 / 05</span></div>
+</div>
+
+<!-- PAGE 5: VALUE PROP -->
+<div class="page gray">
+  <div class="brand-bar"><div class="logo">data<span>skate</span></div><div class="pn">05 / 05</div></div>
+  <div class="sh">
+    <div class="ey2">Why This Model Works</div>
+    <div class="st">Value for the AE. Value for the client.</div>
+  </div>
+  <div class="tc">
+    <div>
+      <div class="ct2 r">For the MuleSoft AE</div>
+      <ul class="cl">
+        <li><strong>Full quota attainment</strong> — sell the full $50k license, not a split deal</li>
+        <li><strong>No implementation risk</strong> — DataSkate owns delivery end-to-end</li>
+        <li><strong>Renewal is protected</strong> — DS manages the client so they're live and successful before renewal</li>
+        <li><strong>Faster close</strong> — removes the "who handles implementation?" blocker</li>
+        <li><strong>Ongoing pipeline</strong> — every new flow the client adds is a conversation</li>
+      </ul>
+    </div>
+    <div>
+      <div class="ct2 g">For the Client</div>
+      <ul class="cl">
+        <li><strong>$0 upfront on IaaS</strong> — no project fee before a line is in production</li>
+        <li><strong>Transparent schedule</strong> — rate increases are disclosed upfront in the contract, no surprises</li>
+        <li><strong>Full team, not one person</strong> — vs. $100k+/year for one integration developer</li>
+        <li><strong>Everything included</strong> — uptime, performance, upgrades, minor changes. One invoice.</li>
+        <li><strong>You own the code</strong> — all integration code in your GitHub. Fully portable.</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top:18px;font-size:12px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:11px;">Cost Comparison — 10 Flows over 2 Years</div>
+  <table>
+    <thead><tr><th>Option</th><th>Year 1</th><th>Year 2</th><th>What You Get</th></tr></thead>
+    <tbody>
+      <tr><td>Hire one integration developer</td><td>$100,000+</td><td>$100,000+</td><td>One person. No 24/7. Single point of failure.</td></tr>
+      <tr><td>Traditional SI — build only</td><td>$30–80k project</td><td>$10–20k support</td><td>Delivered and handed off. Maintenance is yours.</td></tr>
+      <tr><td><strong>DataSkate IaaS — 10 flows</strong></td><td><strong>$18,450</strong></td><td><strong>$20,341</strong></td><td><strong>Built, monitored, upgraded, supported. Team-backed.</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="co green" style="margin-top:14px;"><div class="co-ic">💡</div><div class="co-bd"><p><strong>The long game:</strong> The IaaS model creates a 2-year partnership that ensures clients realize MuleSoft value before their license renewal — and opens the door to additional flows and agentic automation. For the AE, a successful client at renewal is a repeatable quota.</p></div></div>
+  <div class="pf"><span>DataSkate — 196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550 — dataskate.ai</span><span>05 / 05</span></div>
+</div>
+
+</body>
+</html>

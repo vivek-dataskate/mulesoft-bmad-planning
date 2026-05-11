@@ -15,7 +15,7 @@
  *   decisions.json                        — project decisions
  *   standards/connector-registry.json    — connector metadata + Maven coords
  *   scaffold/xml-templates/              — Mule project templates
- *   templates/connectors/                — per-connector config stubs
+ *   scaffold/connectors/                 — per-connector config stubs
  *
  * Generates (in output directory):
  *   pom.xml
@@ -37,7 +37,7 @@ const path = require('path');
 
 const REPO_ROOT    = path.resolve(__dirname, '..');
 const TMPL_DIR     = path.join(__dirname, 'xml-templates');
-const CONN_TMPL    = path.join(REPO_ROOT, 'templates', 'connectors');
+const CONN_TMPL    = path.join(__dirname, 'connectors');
 const REGISTRY_F   = path.join(REPO_ROOT, 'standards', 'connector-registry.json');
 const SNIPPET_REG_F = path.join(REPO_ROOT, 'standards', 'snippet-registry.json');
 const DEVCONTAINER_TMPL_DIR = path.join(__dirname, 'devcontainer-templates');
@@ -565,7 +565,7 @@ function genGlobalConfig(d, lookup, outDir) {
     }
 
     // Locate the config template file
-    const tmplRelative = conn.configTemplate ?? `templates/connectors/${key}-config.xml`;
+    const tmplRelative = conn.configTemplate ?? `scaffold/connectors/${key}-config.xml`;
     const tmplName     = path.basename(tmplRelative);
     const tmplPath     = path.join(CONN_TMPL, tmplName);
 

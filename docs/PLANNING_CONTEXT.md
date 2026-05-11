@@ -24,9 +24,13 @@ INPUT (post-scoping-call, pre-intake):
   - Gemini / Otter / meeting notes
   - Email thread from initial conversation
   - Slide deck from client
-  All dropped into: projects/{client}/scoping/
+  Drop ALL files into: _inbox/  ← single drop zone at repo root
+  Scout moves them to projects/{client}/scoping/ automatically during onboarding.
         ↓
 BMAD SCOUT AGENT  [Step 0 — runs before intake form is sent]
+  Onboarding: lists _inbox/, infers client name from filenames, asks metadata in one block
+    (client display name, folder slug, architect, engagement type, go-live target, primary contact)
+  Creates projects/{client}/scoping/ + projects/{client}/intake/, moves _inbox/ files, writes project.json
   Reads all files in projects/{client}/scoping/
   Pass 1: explicit system detection (named systems)
   Pass 2: implicit inference ('our CRM', 'our ERP', 'the billing system')
@@ -76,7 +80,7 @@ API CONTRACT DISCOVERY  [runs when Analyst flags a system as spec-unknown]
   Output → projects/{client}/api-discovery/{system}-contract.md
         ↓
 BMAD ARCHITECT AGENT
-  Reads prd.md + standards/MULESOFT_DESIGN_STANDARDS.md
+  Reads prd.md + standards/DESIGN_STANDARDS.md
   Reads docs/PATTERNS_RESEARCH.md (required before walking decision tree)
   Walks the 6-level decision tree (Level 0 → Level 6)
   Selects: integration style, pattern, NFRs, systems, ops needs, devops
@@ -84,7 +88,7 @@ BMAD ARCHITECT AGENT
          + projects/{client}/decisions.json
         ↓
 BMAD PM AGENT
-  Reads decisions.json + story-library/
+  Reads decisions.json + standards/stories/
   Generates MuleSoft-specific sprint stories
   Output → projects/{client}/stories.md
         ↓
@@ -204,7 +208,7 @@ mulesoft-bmad-planning/
   │           ├── bmad-agent-pm.toml        ← PM (John) team overrides
   │           └── bmad-agent-dev.toml       ← Dev (Amelia) team overrides
   ├── standards/
-  │     ├── MULESOFT_DESIGN_STANDARDS.md
+  │     ├── DESIGN_STANDARDS.md
   │     ├── decisions-schema.json
   │     ├── connector-registry.json
   │     └── scenarios/
@@ -231,17 +235,23 @@ mulesoft-bmad-planning/
   │           ├── ai-gateway.md             (U: centralized LLM proxy)
   │           ├── idp-document-processing.md (V: PDF/image data extraction)
   │           └── rpa-orchestration.md      (W: RPA bot invoke-and-poll)
-  ├── templates/
-  │     ├── prd-template.md
-  │     ├── architecture-template.md
-  │     ├── story-template.md
-  │     └── connectors/
-  │           └── (one XML per connector in registry)
-  ├── story-library/
-  │     └── (13 story template files)
+  ├── standards/
+  │     ├── doc-templates/
+  │     │     ├── prd-template.md
+  │     │     ├── architecture-template.md
+  │     │     └── story-template.md
+  │     └── stories/
+  │           └── (story template files)
+  ├── playbooks/
+  │     └── {system}/
+  │           ├── PLAYBOOK.md
+  │           ├── objects/{object}/*.dwl
+  │           └── system/*.xml
   ├── scaffold/
   │     ├── generate.js
   │     ├── create-client-repo.sh
+  │     ├── connectors/
+  │     │     └── (one XML config stub per connector)
   │     └── xml-templates/
   │           └── (all Mule project template files)
   ├── projects/
@@ -261,7 +271,7 @@ mulesoft-bmad-planning/
 ## PATTERNS RESEARCH REFERENCE
 
 `docs/PATTERNS_RESEARCH.md` is a living reference document maintained by the Architect.
-It is **not** the system definition — that is `standards/MULESOFT_DESIGN_STANDARDS.md`.
+It is **not** the system definition — that is `standards/DESIGN_STANDARDS.md`.
 
 Consult `PATTERNS_RESEARCH.md` when:
 - No scenario file clearly fits the client's integration need
@@ -272,7 +282,7 @@ Consult `PATTERNS_RESEARCH.md` when:
 Do not consult it on routine projects where the scenario file covers the case.
 The Architect should update it when discovering new patterns, revising flow control
 guidance, or deprecating an approach — and then decide whether the finding warrants
-a change to `MULESOFT_DESIGN_STANDARDS.md` or a scenario file.
+a change to `DESIGN_STANDARDS.md` or a scenario file.
 
 ---
 
@@ -834,7 +844,7 @@ finalising the decision. Update `lastVerified` after the check.
 1. Add full entry to `standards/connector-registry.json` in the correct category
 2. Set `lastAddedDate` and `lastVerified` to today (YYYY-MM-DD)
 3. Set `lastVerifiedBy` to `mcp-check`
-4. Create XML config template at `templates/connectors/{key}-config.xml`
+4. Create XML config template at `scaffold/connectors/{key}-config.xml`
 5. `git commit -m 'registry: Add {displayName} connector [{category}]'`
 6. **Never search for the same connector twice** — registry is the permanent cache
 
@@ -965,7 +975,7 @@ Step 2 — Not found → Call MuleSoft MCP tool: search_asset
 
   Found on Exchange:
     → Add full entry to connector-registry.json permanently
-    → Create XML config template in templates/connectors/
+    → Create XML config template in scaffold/connectors/
     → Set lastVerified to current month
     → Commit: "Add {connector} to registry from Exchange"
     → Use for this project
@@ -975,7 +985,7 @@ Step 2 — Not found → Call MuleSoft MCP tool: search_asset
     Has REST API + complete OpenAPI/Swagger spec:
       → Add to registry as key "custom-{system-name}"
       → Use http connector (mule-http-connector)
-      → configTemplate: templates/connectors/http-generic-config.xml
+      → configTemplate: scaffold/connectors/http-generic-config.xml
       → Note: "Custom REST - spec at {url}"
       → STILL run API Contract Discovery — specs are often incomplete on write endpoints
 
@@ -986,7 +996,7 @@ Step 2 — Not found → Call MuleSoft MCP tool: search_asset
     Has SOAP/WSDL:
       → Add to registry as key "custom-{system-name}"
       → Use soap connector (mule-wsc-connector)
-      → configTemplate: templates/connectors/soap-generic-config.xml
+      → configTemplate: scaffold/connectors/soap-generic-config.xml
       → Store WSDL in resources/api/{system}.wsdl
       → Note: "Custom SOAP - WSDL at {url}"
 
@@ -1285,7 +1295,7 @@ If > 6 months old, prints warning:
 
 ## STORY GENERATION
 
-PM agent reads `decisions.json` flows array and `story-library/` templates.
+PM agent reads `decisions.json` flows array and `standards/stories/` templates.
 Per flow generates ~5 stories:
 1. Create API spec (OAS/RAML) + publish to Exchange
 2. Implement flow XML (correct layer, naming, error handler)
@@ -1305,23 +1315,23 @@ Every story:
 - Has MuleSoft-specific acceptance criteria
 - Specifies which standard applies
 
-**Story generation order:** For each story type, check `story-library/` first. If a matching
+**Story generation order:** For each story type, check `standards/stories/` first. If a matching
 template exists, use it as the base and substitute client-specific values (flow names, connector
 names, AC thresholds from decisions.json). If no template exists, generate from the rules below
-and flag the new type for story-library addition after this run.
+and flag the new type for standards/stories/ addition after this run.
 
 ---
 
 ## STORY LIBRARY MAINTENANCE
 
-**File:** `story-library/`
+**File:** `standards/stories/`
 
 The story library is the PM agent's reusable template bank. It grows with each project — the
 same lifecycle as FIELD_KNOWLEDGE.md but for story patterns.
 
 ### When to add a story template
 
-Add a new file to `story-library/` whenever:
+Add a new file to `standards/stories/` whenever:
 - A story type was generated that doesn't have a matching template yet
 - An existing template produced wrong or incomplete ACs and was manually corrected
 - A new global story type was added (e.g., a new `decisions.json` flag introduced a new infra concern)
@@ -1367,14 +1377,14 @@ Do NOT add templates for:
 
 ```
 After generating stories for a client:
-1. Review which story types had no matching template in story-library/
+1. Review which story types had no matching template in standards/stories/
 2. For each: extract the generated ACs (strip client-specific values, make generic with {placeholder})
-3. Create story-library/{type}-{slug}.md using the template format above
-4. git commit -m "story-library: Add {title} template"
+3. Create standards/stories/{type}-{slug}.md using the template format above
+4. git commit -m "standards/stories: Add {title} template"
 
 For existing templates that needed correction:
 1. Update the template file directly
-2. git commit -m "story-library: Update {filename} — {reason for correction}"
+2. git commit -m "standards/stories: Update {filename} — {reason for correction}"
 ```
 
 ---
@@ -1474,6 +1484,32 @@ questions unless the answer is:
 **Maximum 3 questions per agent run.** Everything else defaults or becomes a developer TODO
 comment in the generated code.
 
+### Research-First Protocol (applies to ALL agents — Scout, Analyst, Architect, PM)
+
+**Never ask a blank or open-ended question when research is possible.**
+
+The client hires DataSkate because we are integration experts. Every question we ask them should reflect that. Before raising any question about a system, format, API, or data shape:
+
+1. **Check the playbook first** — `playbooks/{system}/PLAYBOOK.md` may already have the answer.
+2. **Check FIELD_KNOWLEDGE.md** — a verified FK entry may cover the scenario.
+3. **Check the connector registry** — auth type, API style, and known gotchas are documented there.
+4. **Web search if needed** — for unknown systems, data formats, industry standards, or API behavior.
+5. **Propose a best guess** — state what you found and propose a specific answer (a pre-filled field mapping table, a suggested column list, a default configuration).
+6. **Ask only to confirm or correct** — the question is "does this look right?" not "what should it be?"
+
+**Format for research-backed questions:**
+> "Based on [source / industry standard / prior client], we expect this format: [pre-filled table or config]. Please confirm this is correct, add any missing fields, or flag anything that looks wrong."
+
+**Never acceptable:**
+- "Please share a sample file." (when industry-standard format can be researched)
+- "What fields does your system use?" (when a playbook or standard schema exists)
+- "What auth method do you use?" (when the connector registry lists it)
+- "What does your data look like?" (when the system is known and the entity type is predictable)
+
+**Why:** The client should not babysit information to us. They look to DataSkate for recommendations and a streamlined engagement. Blank questions signal inexperience. Pre-filled proposals with a request for confirmation signal expertise.
+
+---
+
 ### BMAD Architect Agent — Walking the 6-Level Tree
 The architect walks all 6 levels in order. At each level:
 - Apply the decision from prd.md if stated explicitly
@@ -1555,7 +1591,7 @@ promoted-to-standard → incorporated into scenario file or standard; entry kept
 
 **When an entry reaches `verified` status,** the architect evaluates whether it belongs in:
 - A scenario file (`standards/scenarios/*.md`) — if it changes the reference architecture
-- `MULESOFT_DESIGN_STANDARDS.md` — if it changes a decision rule or default
+- `DESIGN_STANDARDS.md` — if it changes a decision rule or default
 - `PLANNING_CONTEXT.md` — if it changes agent behavior or the discovery protocol
 - Stays in FIELD_KNOWLEDGE.md — if it's too client-specific to generalize
 

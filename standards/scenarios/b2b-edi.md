@@ -236,7 +236,7 @@ All B2B flows must maintain an audit trail:
 - Log: partner ID, message ID, ISA control number, timestamp, document type, status
 - Retain raw inbound/outbound EDI in S3/Azure Blob for minimum 7 years (check vertical regulations)
 - Enable Business Events in Anypoint Monitoring for EDI transactions
-- Never log PII fields inline — mask sensitive data per `MULESOFT_DESIGN_STANDARDS.md`
+- Never log PII fields inline — mask sensitive data per `DESIGN_STANDARDS.md`
 
 ---
 

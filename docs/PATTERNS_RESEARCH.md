@@ -3,7 +3,7 @@
 > This document distills research from the EIP canonical catalog (65 patterns), the Microsoft/Hohpe
 > Patterns & Practices PDF (intpatt.pdf), Gregor Hohpe's ramblings articles (2019–2022), and the
 > Architecture & Governance integration patterns survey. Use it to understand WHY each decision in
-> MULESOFT_DESIGN_STANDARDS.md exists and to make judgment calls on edge cases.
+> DESIGN_STANDARDS.md exists and to make judgment calls on edge cases.
 >
 > **MuleSoft preference rule:** Apply EIP patterns as design vocabulary, not as strict requirements.
 > Where MuleSoft provides native support, use it. Where a pattern is outdated (SOAP/WS-*, screen

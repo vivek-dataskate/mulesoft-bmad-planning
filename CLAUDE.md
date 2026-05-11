@@ -6,8 +6,9 @@ Read `docs/PLANNING_CONTEXT.md` at the start of every session before doing anyth
 
 ## Team
 
-- **Primary architect:** Vivek Yadlapalli — default assignee for all new BMAD client projects
-- **Email:** vivek@dataskate.ai
+- **Primary architect (MuleSoft):** Kailash Chanda — default assignee for all MuleSoft implementations
+- **Email:** kailash@dataskate.ai
+- **Business lead / account:** Vivek Yadlapalli — vivek@dataskate.ai
 - **Slack default invite email for new project channels:** vivek@dataskate.ai (hardcoded as `SLACK_DEFAULT_ARCHITECT_EMAIL` in slack-agent.js)
 
 ---
@@ -36,6 +37,7 @@ Planning repo will be made private once all 10 chunks are complete.
 ## Scout Output Path
 
 - The intake questionnaire is always written to `projects/{client}/intake/intake-questionnaire-{client}.md` — client name appended to the filename for easy sharing. Never written to the client root folder.
+- **The intake questionnaire file is Scout-generated and must never be manually edited.** If something is wrong in the questionnaire, fix the Scout agent definition (`_bmad/custom/bmad-agent-scout.toml`) and regenerate via Scout. Manual edits bypass the generation logic and create structural divergence that breaks downstream agents.
 
 ---
 
@@ -58,9 +60,12 @@ Scout → Analyst → **VP (Validate PRD)** → Architect (MD) → PM → Scaffo
 
 ---
 
-## Commons Structure
+## Folder Structure
 
-- `commons/playbooks/{system}/` — the authoritative source for system-specific field knowledge. Each playbook contains PLAYBOOK.md (quirks, auth, supported objects, maturity log) + DataWeave mapping files (canonical ↔ system) + reusable Mule XML sub-flows. Field knowledge lives here, not in `standards/`.
+- `playbooks/{system}/` — the authoritative source for system-specific field knowledge. Each playbook contains PLAYBOOK.md (quirks, auth, supported objects, maturity log) + DataWeave mapping files (canonical ↔ system) + reusable Mule XML sub-flows. Field knowledge lives here, not in `standards/`.
 - `standards/scenarios/` — generic integration pattern templates (webhook-ingestion, batch, scheduled-sync, etc.). Promoted FK entries that describe a general pattern land here.
-- `standards/field-schemas/` — DO NOT CREATE files here. This directory should not exist. System field knowledge belongs in `commons/playbooks/{system}/PLAYBOOK.md`.
-- When a new system is encountered on a client project, create a new playbook under `commons/playbooks/{system}/` — not a field schema file.
+- `standards/stories/` — reusable story templates for the PM agent. One file per story type.
+- `standards/doc-templates/` — document templates: prd-template.md, architecture-template.md, story-template.md.
+- `scaffold/connectors/` — per-connector XML config stubs used by the scaffold generator.
+- `standards/field-schemas/` — DO NOT CREATE files here. This directory should not exist. System field knowledge belongs in `playbooks/{system}/PLAYBOOK.md`.
+- When a new system is encountered on a client project, create a new playbook under `playbooks/{system}/` — not a field schema file.
