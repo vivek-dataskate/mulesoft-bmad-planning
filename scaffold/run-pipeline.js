@@ -66,10 +66,11 @@ if (!client) {
 const REPO_ROOT    = path.resolve(__dirname, '..');
 const CLIENT_DIR   = path.join(REPO_ROOT, 'projects', client);
 const INTAKE_DIR   = path.join(CLIENT_DIR, 'intake');
+const SCOPING_DIR  = path.join(CLIENT_DIR, 'scoping');
 
-if (!fs.existsSync(INTAKE_DIR)) {
-  console.error(`Error: Intake directory not found: ${INTAKE_DIR}`);
-  console.error(`Create projects/${client}/intake/ and drop discovery documents there.`);
+if (!fs.existsSync(INTAKE_DIR) && !fs.existsSync(SCOPING_DIR)) {
+  console.error(`Error: No intake or scoping directory found for client: ${client}`);
+  console.error(`Create projects/${client}/intake/ or projects/${client}/scoping/ and drop discovery documents there.`);
   process.exit(1);
 }
 
@@ -102,21 +103,68 @@ function writeOutput(filePath, content) {
 
 const TEXT_EXTS = new Set(['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.html', '.htm', '.rst']);
 
-function readIntakeFiles() {
-  // Only reads text files — binary originals (PDF, DOCX) are committed alongside
-  // their extracted .txt by validate-intake.js, so the .txt is always present.
-  const files = fs.readdirSync(INTAKE_DIR).filter(f => !f.startsWith('.'));
-  const contents = [];
-  for (const f of files) {
-    const fullPath = path.join(INTAKE_DIR, f);
+// ─── Text extraction for manual uploads (bypass validate-intake.js) ───────────
+
+async function extractFileContent(fullPath, filename) {
+  const ext = path.extname(filename).toLowerCase();
+  if (TEXT_EXTS.has(ext)) return fs.readFileSync(fullPath, 'utf8');
+
+  if (ext === '.pdf') {
+    try {
+      const pdfParse = require('pdf-parse');
+      const data = await pdfParse(fs.readFileSync(fullPath));
+      return data.text?.trim() || '[PDF — no text layer found]';
+    } catch (e) {
+      if (e.code === 'MODULE_NOT_FOUND') return '[PDF — run: npm install pdf-parse@1.1.1]';
+      return `[PDF — extraction failed: ${e.message}]`;
+    }
+  }
+
+  if (ext === '.docx') {
+    try {
+      const mammoth = require('mammoth');
+      const result  = await mammoth.extractRawText({ path: fullPath });
+      return result.value?.trim() || '[DOCX — no text extracted]';
+    } catch (e) {
+      if (e.code === 'MODULE_NOT_FOUND') return '[DOCX — run: npm install mammoth]';
+      return `[DOCX — extraction failed: ${e.message}]`;
+    }
+  }
+
+  return null; // not extractable
+}
+
+async function extractBinaries(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir).filter(f => !f.startsWith('.'))) {
+    const fullPath = path.join(dir, f);
     if (!fs.statSync(fullPath).isFile()) continue;
-    const ext = path.extname(f).toLowerCase();
-    if (TEXT_EXTS.has(ext)) {
+    if (TEXT_EXTS.has(path.extname(f).toLowerCase())) continue;
+    const txtPath = path.join(dir, f.replace(/\.[^.]+$/, '.txt'));
+    if (fs.existsSync(txtPath)) continue;
+    const text = await extractFileContent(fullPath, f);
+    if (text) {
+      fs.writeFileSync(txtPath, text, 'utf8');
+      ok(`Extracted → ${path.relative(REPO_ROOT, txtPath)}`);
+    }
+  }
+}
+
+function readTextDir(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const contents = [];
+  for (const f of fs.readdirSync(dir).filter(f => !f.startsWith('.'))) {
+    const fullPath = path.join(dir, f);
+    if (!fs.statSync(fullPath).isFile()) continue;
+    if (TEXT_EXTS.has(path.extname(f).toLowerCase())) {
       contents.push(`\n\n=== ${f} ===\n${fs.readFileSync(fullPath, 'utf8')}`);
     }
-    // Binary files (PDF, DOCX, etc.) are silently skipped — their .txt is already here
   }
-  return contents.join('\n');
+  return contents;
+}
+
+function readIntakeFiles() {
+  return [...readTextDir(INTAKE_DIR), ...readTextDir(SCOPING_DIR)].join('\n');
 }
 
 function buildSystemContext() {
@@ -330,6 +378,10 @@ async function main() {
   console.log(`║  BMAD Pipeline — client: ${client.padEnd(33)}║`);
   console.log('╚══════════════════════════════════════════════════════════╝');
   console.log('');
+
+  // Extract any PDF/DOCX that don't yet have a .txt (manual uploads bypass validate-intake.js)
+  await extractBinaries(INTAKE_DIR);
+  await extractBinaries(SCOPING_DIR);
 
   const sysCtx = buildSystemContext();
   info(`System context: ${sysCtx.length} chars`);
