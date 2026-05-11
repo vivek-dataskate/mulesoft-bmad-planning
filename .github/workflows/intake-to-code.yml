@@ -43,8 +43,8 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Anthropic SDK
-        run: npm install --no-save @anthropic-ai/sdk
+      - name: Install dependencies
+        run: npm install --no-save @anthropic-ai/sdk pdf-parse mammoth
         working-directory: ${{ github.workspace }}
 
       # ── Detect which client's intake changed ──────────────────────────────

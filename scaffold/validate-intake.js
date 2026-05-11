@@ -30,20 +30,49 @@ const { execSync } = require('child_process');
 const REPO_ROOT  = path.resolve(__dirname, '..');
 const CHECKLIST  = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'standards', 'intake-checklist.json'), 'utf8'));
 
+// ─── File text extraction (PDF, DOCX, plain text) ────────────────────────────
+
+const TEXT_EXTS = new Set(['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.html', '.htm', '.rst']);
+
+async function extractFileContent(fullPath, filename) {
+  const ext = path.extname(filename).toLowerCase();
+
+  if (TEXT_EXTS.has(ext)) return fs.readFileSync(fullPath, 'utf8');
+
+  if (ext === '.pdf') {
+    try {
+      const pdfParse = require('pdf-parse');
+      const data = await pdfParse(fs.readFileSync(fullPath));
+      return data.text?.trim() || '[PDF — no text layer found]';
+    } catch (e) {
+      if (e.code === 'MODULE_NOT_FOUND') return '[PDF — run: npm install pdf-parse]';
+      return `[PDF — extraction failed: ${e.message}]`;
+    }
+  }
+
+  if (ext === '.docx') {
+    try {
+      const mammoth = require('mammoth');
+      const result = await mammoth.extractRawText({ path: fullPath });
+      return result.value?.trim() || '[DOCX — no text extracted]';
+    } catch (e) {
+      if (e.code === 'MODULE_NOT_FOUND') return '[DOCX — run: npm install mammoth]';
+      return `[DOCX — extraction failed: ${e.message}]`;
+    }
+  }
+
+  return `[Binary file — ${fs.statSync(fullPath).size} bytes — not included in context]`;
+}
+
 // ─── Read staging files ───────────────────────────────────────────────────────
 
-function readStagingFiles(stagingDir) {
+async function readStagingFiles(stagingDir) {
   const files = fs.readdirSync(stagingDir).filter(f => !f.startsWith('.'));
   const result = [];
   for (const f of files) {
     const full = path.join(stagingDir, f);
     if (!fs.statSync(full).isFile()) continue;
-    const ext  = path.extname(f).toLowerCase();
-    const text = ['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.html', '.rst'].includes(ext);
-    result.push({
-      name: f,
-      content: text ? fs.readFileSync(full, 'utf8') : `[Binary — ${fs.statSync(full).size} bytes]`,
-    });
+    result.push({ name: f, content: await extractFileContent(full, f) });
   }
   return result;
 }
@@ -147,7 +176,7 @@ async function validateIntake(stagingDir, clientName) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set');
 
-  const files   = readStagingFiles(stagingDir);
+  const files   = await readStagingFiles(stagingDir);
   if (files.length === 0) {
     return { valid: false, client: clientName, reason: 'No files found in staging directory.' };
   }
