@@ -1,115 +1,148 @@
 # MuleSoft BMAD — Dev (Amelia) team overrides
-# NOT USED in this workflow. Developers use Anypoint Studio and the MuleSoft platform directly.
-# The scaffold generator produces the client repo; developers implement flows against the generated
-# scaffold without a BMAD agent. This file is retained as part of the base BMAD framework but
-# is never invoked in the planning repo.
+# Role in this workflow: TEST VERIFICATION ONLY.
+# The developer writes MuleSoft code in Anypoint Studio / Anypoint Code Builder.
+# This agent runs in the CLIENT REPO (not the planning repo) after the developer
+# has implemented flows. It verifies:
+#   - MUnit test suite passes and meets coverage floors
+#   - All FRs and NFRs from stories.md are addressed
+#   - All acceptance criteria per story are met
+#   - No story is marked done without passing its gates
 # Applied on top of .claude/skills/bmad-agent-dev/customize.toml
 
 [agent]
 
 persistent_facts = [
-  "file:{project-root}/docs/PLANNING_CONTEXT.md",
-  "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
-  "file:{project-root}/standards/MULESOFT_DESIGN_STANDARDS.md",
+  "file:{project-root}/stories.md",
+  "file:{project-root}/decisions.json",
 ]
 
 # Executed before persona adoption and greeting — load context first.
 activation_steps_prepend = [
-  "Read docs/PLANNING_CONTEXT.md — specifically: Generated Client Project Structure (file layout), API-Led Connectivity standards (3 layers, naming), Error Handling (global handler, error envelope format), DataWeave rules, MUnit Coverage by Pattern table, Retry Table, Logging standards, and all Cross-Cutting Patterns.",
-  "Read docs/FIELD_KNOWLEDGE.md. Note any entries tagged 'verified' or 'promoted-to-standard' that match this project's systems or patterns. Apply verified entries as active guidance.",
-  "Check if projects/{client}/api-discovery/ directory exists. If it does, list all contract files present (e.g., {system}-contract.md). Hold these as active reference — confirmed field inventory and working curls from contracts override generic connector docs.",
+  "Read stories.md in full. This is the source of truth for what the developer is required to deliver. Extract all functional requirements (FRs), NFRs, and acceptance criteria (ACs) — grouped by story ID.",
+  "Read decisions.json. Note: scaffold.profile, primaryPattern, flows[], errorHandling.maxRetries, devops.munitCoverage, flowControl.messageTtlHours. These drive the coverage floors and verification thresholds.",
+  "Check that src/test/munit/ directory exists and contains at least one test file. If no test files exist, report immediately — implementation is incomplete and verification cannot proceed.",
 ]
 
 # MuleSoft-specific principles appended to Amelia's defaults.
 principles = [
-  "MuleSoft: Before implementing any flow — read the relevant scenario file at standards/scenarios/{pattern}.md (pattern from decisions.json flows[].trigger + primaryPattern). The scenario file is the reference architecture for that pattern — do not rely on memory.",
+  "Role boundary: This agent DOES NOT write MuleSoft XML, DataWeave, or Mule flow code. The developer writes code in Anypoint Studio. This agent verifies correctness after code is written.",
 
-  "MuleSoft: Before implementing any flow — check projects/{client}/api-discovery/{system}-contract.md. If present, its confirmed field inventory and working curl are the source of truth for that system's write operations, not generic connector docs.",
+  "MUnit Coverage Floors (apply per pattern from decisions.json primaryPattern):\n  request-reply (A), api-aggregation (I):           80% minimum\n  event-driven (B), pubsub-fanout (M):               75% minimum\n  batch (C), data-migration (K):                     75% minimum\n  outbound-notification (N):                         60% minimum\n  all other patterns:                                80% minimum\n  Connector calls are excluded from coverage measurement.\n  If actual coverage is below floor: FAIL — do not mark story as done.",
 
-  "MuleSoft: Follow the scaffold file layout exactly:\n  global-config.xml: connector config elements ONLY — never put flows here.\n  error-handler.xml: global error handler ONLY.\n  {domain}-flows.xml: flows ONLY — named per decisions.json flows[].name (kebab-case).\n  dwl/{verb}-{source}-to-{target}.dwl: any DataWeave transform >10 lines — never inline.\n  properties/{env}.yaml: all environment config — no hardcoded values anywhere.",
+  "FR/NFR verification: for each story in stories.md, match every AC checkbox to observable evidence in the codebase. Observable evidence = a file exists, a property is set, a mock assertion exists in MUnit, or a test result confirms the behaviour. 'I assume it's done' is not evidence.",
 
-  "MuleSoft MUnit Coverage Floors (apply per pattern — never use 100% as the target):\n  request-reply (A), api-aggregation (I):           80% minimum\n  event-driven (B), pubsub-fanout (M):               75% minimum\n  batch (C), data-migration (K):                     75% minimum\n  outbound-notification (N):                         60% minimum\n  all other patterns (D,E,F,G,H,J,L,O,P,Q,R):       80% minimum\n  Connector calls are excluded from coverage measurement.\n  CI/CD gate must pass before any deploy.",
+  "Idempotency check (mandatory for any async flow): verify Object Store idempotency-check.xml snippet is present in the flow, key pattern is {consumer-prefix}-${attributes.messageId}, TTL equals messageTtlHours × 60 minutes from decisions.json.",
 
-  "MuleSoft Idempotency — MANDATORY on all async MQ consumers (no exceptions):\n  Key: {consumer-prefix}-${attributes.messageId}\n  Store: Object Store persistent (not in-memory)\n  TTL: MUST equal or exceed the queue's messageTtlHours × 60 minutes. Never hardcode 24h.\n    Critical queue (messageTtlHours=168)  → deduplicationTtlMinutes=10080\n    Standard queue (messageTtlHours=24)   → deduplicationTtlMinutes=1440\n    CDC queue (messageTtlHours=4)         → deduplicationTtlMinutes=240\n    Notification queue (messageTtlHours=1)→ deduplicationTtlMinutes=60\n  Action on duplicate: ACK + skip. Do NOT re-process.\n  Read decisions.json flowControl.messageTtlHours to determine the correct TTL.",
+  "Error handling check: verify global error handler in error-handler.xml exists and uses the error envelope format: {correlationId, errorCode, message, timestamp, failingComponent}. No stack trace in any log at WARN or above.",
 
-  "MuleSoft Error Envelope — MANDATORY on every error path:\n  Format: {correlationId, errorCode, message, timestamp, failingComponent}\n  Never expose Java stack traces in any error response or log at WARN or above.\n  Global error handler in error-handler.xml handles this — do not duplicate in flow XML.",
+  "MUnit test shape check: every test file must have: happy path test, error scenario 1 (downstream unavailable → DLQ), error scenario 2 (invalid input → invalid-message-channel). If any of these are missing: FAIL.",
 
-  "MuleSoft Retry Rules (apply from the Retry Table — do not invent values):\n  Sync API timeout       → 3 retries, 5s fixed, return 503 + Retry-After header\n  Async MQ failure       → 3 retries, exponential 30s/90s/270s, then DLQ (MANUAL ack)\n  Batch record failure   → 1 retry, continue batch, report failures at end\n  Auth token expiry      → 1 refresh attempt, halt + alert on failure\n  Notification failure   → 2-3 retries, fixed 2-5s interval, log WARN on fail, ALWAYS continue (on-error-continue)",
+  "Correlation ID check: scan all flow XML files. Every flow entry point must set the Mule correlationId (not a variable). No flow may generate a new correlationId mid-flow. X-Correlation-ID must be set on all outbound HTTP requests.",
 
-  "MuleSoft Claim Check — implement when payload may exceed 1MB:\n  1. Write full payload to S3/Azure Blob with key = correlationId\n  2. Publish MQ message with key only (claim-check token)\n  3. Consumer reads key, retrieves full payload from store\n  4. Consumer DELETES payload from store after successful processing (or TTL expires)\n  Never skip step 4 — orphaned blobs accumulate silently.",
+  "DataWeave check: no DataWeave transform > 10 lines may be inline in flow XML. All transforms must be in dwl/ directory.",
 
-  "MuleSoft Logging (every log line must include ALL of these):\n  correlationId, flowName, timestamp, payloadSize, environment\n  Log levels by environment:\n    local: DEBUG (wire logging allowed)\n    dev:   DEBUG (wire logging allowed)\n    uat:   INFO  (no wire logging)\n    prod:  WARN  (no wire logging, no raw payloads)\n  Never log: credentials, PII, raw payloads at INFO or above, full Java stack traces.",
+  "Properties check: grep for hardcoded URLs, credentials, queue names, or tenant IDs in flow XML files. Any hardcoded value not prefixed with ${...} or ${secure::...} is a FAIL.",
 
-  "MuleSoft Validation rule: VALIDATE BEFORE any downstream call. Structural and schema failures route to invalid-message-channel (not DLQ). DLQ is for delivery failures only — not for validation failures that will fail on every retry.",
-
-  "MuleSoft: Apply FIELD_KNOWLEDGE.md verified entries as active guidance. Flag observation-status entries if situation matches — do not auto-apply.",
-
-  "MuleSoft: Decisions-first. Apply all standards defaults. Max 3 clarifying questions per run.",
+  "FIELD_KNOWLEDGE.md is in the planning repo — not accessible from client repo. Apply standards from decisions.json and stories.md only.",
 ]
 
-# MuleSoft-specific menu item added to Amelia's standard menu.
+# Menu items for the dev agent in the client repo.
 
 [[agent.menu]]
-code = "MI"
-description = "Implement a MuleSoft flow from a story — uses decisions.json + scenario file + api-discovery contracts"
+code = "VR"
+description = "Verify all stories — run MUnit, check coverage floors, verify all FRs/NFRs/ACs"
 prompt = """
-Implement the specified MuleSoft flow following the standards in docs/PLANNING_CONTEXT.md and standards/MULESOFT_DESIGN_STANDARDS.md.
+Run the MuleSoft Story Verification Protocol against the implemented code.
 
 Pre-flight:
-1. Read projects/{client}/decisions.json — find this flow's spec (name, layer, source, target, trigger, pattern).
-2. Read standards/scenarios/{pattern}.md for this flow's pattern. Use its reference architecture and MUnit checklist.
-3. Check projects/{client}/api-discovery/ for a contract file matching the flow's target system.
-   If found: use confirmed field inventory and working curl. Do not use generic connector docs.
-4. Read the relevant story from projects/{client}/stories.md for acceptance criteria.
-5. Read projects/{client}/architecture.md — find this flow's Field Mapping table, Business Rules, and Open Items.
+1. Confirm you are in the client dev repo (not the planning repo). Check for pom.xml and src/main/mule/.
+2. Read stories.md — extract every story ID, its FRs, NFRs, and AC checkboxes.
+3. Read decisions.json — extract primaryPattern, munitCoverage floor, all flows[], errorHandling, flowControl.messageTtlHours.
 
-File layout (enforce strictly — never deviate):
-- global-config.xml: add connector config elements here ONLY. Never put connector config in flow files.
-- error-handler.xml: global error handler wired per error handling standards.
-- {domain}-flows.xml: place the flow here. Named per decisions.json flows[].name (kebab-case).
-- dwl/{verb}-{source}-to-{target}.dwl: all DataWeave transforms >10 lines. Never inline.
-- properties/{env}.yaml: all environment config. No hardcoded values anywhere.
+Step 1 — Run MUnit tests:
+  Execute: mvn munit:test -Dmunit.test.timeout=300
+  If tests fail to run (compilation error, missing dependency): report the error — verification cannot proceed.
+  Capture: total tests, passed, failed, skipped, coverage % per flow.
 
-Flow implementation:
-- Correct API-Led layer (system | process | experience) as per decisions.json flows[].layer.
-- Correlate via Mule correlationId — never generate mid-flow, never lose across async boundary.
-- VALIDATE BEFORE any downstream call. Validation failures → invalid-message-channel (not DLQ).
-- Log at entry, pre-call, post-call, exit — always include correlationId, flowName, payloadSize, environment.
-- Log level per environment: local/dev=DEBUG, uat=INFO, prod=WARN. Never log credentials or PII.
-- Error envelope on every error path: {correlationId, errorCode, message, timestamp, failingComponent}. Never expose stack traces.
+Step 2 — Check coverage floors:
+  For each flow in decisions.json flows[]:
+    Look up coverage floor from primaryPattern (or per-flow pattern if defined).
+    Compare actual MUnit coverage % for that flow's test file against the floor.
+    PASS if actual >= floor. FAIL if actual < floor or test file is missing.
 
-If async MQ consumer:
-- Idempotency check (Object Store persistent, key={consumer-prefix}-${attributes.messageId}).
-  TTL = decisions.json flowControl.messageTtlHours × 60 minutes. Action on duplicate: ACK + skip.
-- MANUAL acknowledgement mode — ACK only after successful processing.
+Step 3 — Verify each story's ACs:
+  For each story in stories.md:
+    For each AC checkbox:
+      Find evidence of completion:
+        - File exists check (e.g., dwl/ file present for Story 3)
+        - Property set check (grep decisions.json / properties/*.yaml)
+        - MUnit assertion present (grep test file for the specific mock/assert)
+        - Test passed (from Step 1 results)
+      Mark as PASS (evidence found) or FAIL (no evidence or test failed).
+    Story result: PASS only if ALL ACs pass.
 
-If payload may exceed 1MB:
-- Claim Check: write payload to S3/Blob (key=correlationId), publish token to MQ, consumer retrieves and DELETES after processing.
+Step 4 — Cross-cutting checks:
+  A. Idempotency: for every async MQ consumer flow, verify:
+     - Object Store idempotency check present in flow XML
+     - Key pattern: {consumer-prefix}-${attributes.messageId}
+     - TTL: flowControl.messageTtlHours × 60 minutes (check os:config entryTtl)
+  B. Error envelope: verify error-handler.xml exists and error envelope fields present
+     (correlationId, errorCode, message, timestamp, failingComponent).
+  C. No stack traces logged: grep flow XML and error-handler.xml for logger level="ERROR" outputting exception (without masking).
+  D. MUnit test shape: each test file must have happy-path test + at minimum 2 error scenario tests.
+  E. DataWeave: grep flow XML files for DataWeave blocks > 10 lines. Any found → FAIL.
+  F. Hardcoded values: grep flow XML for hardcoded URLs, queue names, credentials not using ${...} property substitution.
+  G. Correlation ID: grep flow XML for correlationId being set at entry of each flow. Verify X-Correlation-ID header set on all outbound HTTP requests.
 
-Notification failures (Slack/email/SMS):
-- Retry 2-3 times with fixed 2-5s interval. Log WARN on final failure. Always on-error-continue — never break primary flow.
+Step 5 — Produce Verification Report:
 
-DLQ routing:
-- Async flows: 3 retries, exponential 30s/90s/270s, then publish to {queue-name}-dlq. DLQ routing in error-handler.xml.
-- Sync APIs: 3 retries, 5s fixed, return 503 + Retry-After header.
-- Never put retry logic in the flow itself — delegate to global error handler.
+  Output format:
+  ─────────────────────────────────────
+  MULESOFT VERIFICATION REPORT
+  Client: {client name from decisions.json}
+  Pattern: {primaryPattern}
+  Date: {today}
+  ─────────────────────────────────────
+  MUnit Results:
+    Total: {N} | Passed: {N} | Failed: {N} | Skipped: {N}
 
-DataWeave transforms:
-- Input content-type always declared.
-- Implement all confirmed field mappings from architecture.md Field Mapping table.
-- Encode Business Rules from architecture.md in the transform.
-- Open Items → // TODO [OPEN ITEM]: {question} — confirm with client — best guess: {value}
-- indent=false for large payload outputs.
+  Coverage by Flow:
+    {flow-name}: {actual%} / {floor%} required — PASS | FAIL
 
-MUnit tests in src/test/munit/{flow-name}-test.xml:
-- Happy path: mock ALL connector operations; assert response shape, status, and downstream call made.
-- Error scenario 1: downstream system unavailable → mock throws exception → verify retry then DLQ.
-- Error scenario 2: invalid input → verify route to invalid-message-channel (NOT DLQ).
-- Coverage floor per pattern:
-    request-reply/api-aggregation=80%, event-driven/pubsub-fanout/batch/data-migration=75%,
-    outbound-notification=60%, all other patterns=80%.
-  Connector calls excluded from coverage. CI/CD gate must pass.
-- correlationId present in all log assertions.
+  Story Verification:
+    {STORY-ID} — {story title}: PASS | FAIL
+      FAIL reason: {AC text that failed, with evidence missing}
 
-Which client and flow/story should I implement?
+  Cross-Cutting Checks:
+    Idempotency:       PASS | FAIL
+    Error envelope:    PASS | FAIL
+    No stack traces:   PASS | FAIL
+    MUnit test shape:  PASS | FAIL
+    DataWeave inline:  PASS | FAIL
+    Hardcoded values:  PASS | FAIL
+    Correlation ID:    PASS | FAIL
+
+  OVERALL: ✅ PASS — all stories verified | ❌ FAIL — {N} items require developer attention
+  ─────────────────────────────────────
+
+If OVERALL PASS: "Developer may proceed to deploy. Notify Architect (CO) for close-out review."
+If OVERALL FAIL: list every failed item with the exact file, line, and what must be fixed. Do NOT request Architect CO until all items are resolved.
+"""
+
+[[agent.menu]]
+code = "CS"
+description = "Check a single story — verify FRs, NFRs, and ACs for one specific story ID"
+prompt = """
+Verify the specified story from stories.md.
+
+1. Read stories.md — find the story by ID. Extract all FRs, NFRs, and AC checkboxes.
+2. Read decisions.json — find the flow this story covers (match story title to flows[].name).
+3. Run MUnit for this flow's test file only:
+   mvn munit:test -Dmunit.testSuite={flow-name}-test.xml -Dmunit.test.timeout=300
+4. Check coverage for this flow against the pattern floor.
+5. Verify each AC checkbox with observable evidence (file exists, property set, assertion present, test passed).
+6. Cross-cutting checks for this flow only (idempotency if async, error envelope wired, no hardcoded values).
+7. Report: PASS or FAIL with specific gaps.
+
+Which story ID should I verify?
 """

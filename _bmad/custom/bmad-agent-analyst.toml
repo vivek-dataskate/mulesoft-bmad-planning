@@ -96,6 +96,97 @@ If client folder is not yet confirmed, ask now. Then begin.
 """
 
 [[agent.menu]]
+code = "VP"
+description = "Validate PRD for architect handoff — 10-gate completeness and readiness check"
+prompt = """
+Run the MuleSoft PRD Validation Protocol. This is a mandatory gate between Analyst and Architect.
+The Architect MUST NOT start until this check produces a PASS on all 10 gates.
+
+Pre-flight:
+- Confirm client folder (projects/{client}/).
+- Read projects/{client}/prd.md in full.
+- Read standards/decisions-schema.json for valid enum values.
+
+Run all 10 gates in order. Record PASS or FAIL with specific evidence for each.
+
+GATE 1 — STATUS: PRD header Status must not be BLOCKED.
+  FAIL condition: Status == BLOCKED. If BLOCKED, stop here — list all unresolved blockers. Architect cannot start.
+  PASS condition: Status is DRAFT or READY-FOR-ARCHITECT.
+
+GATE 2 — SECTION COMPLETENESS: Every required section must have substantive content.
+  Required sections: Project Overview, Business Requirements, Integration Flows, Systems Identified,
+  NFR Profile, Compliance and Data Residency, Constraints, Open Items, Assumptions.
+  FAIL condition: Any section is empty, contains only template placeholder text (e.g. "{requirement}",
+  "{flow-name}", "{system name}"), or has only the table header with no data rows.
+  PASS condition: All sections have at least one substantive row or bullet with real client-specific content.
+
+GATE 3 — NFR CONCRETENESS: All 5 NFR dimensions must have concrete enum values.
+  Required values:
+    volume:       low | medium | high | bulk
+    latency:      under-1s | under-3s | under-10s | async-ok
+    frequency:    real-time | scheduled | triggered | one-time
+    availability: best-effort | 99.9 | 99.99
+    throughput:   low | medium | high | very-high
+  FAIL condition: Any dimension is blank, "unknown", "TBD", or not one of the exact enum values above.
+  PASS condition: All 5 dimensions have valid enum values with a source quote from intake.
+
+GATE 4 — SYSTEMS REGISTRY: No system may have an unknown/unresolved status.
+  FAIL condition: Any row in Systems Identified table has Registry Status = "Not Found–Unknown (BLOCKER)"
+  OR has "unknown" auth type AND is a target of a confirmed flow (not optional/future).
+  PASS condition: Every system is either Found ✓, Not Found–REST (http connector), or Not Found–SOAP (soap connector).
+  A system with no connector on Exchange that has a REST API is NOT a blocker — it classifies as Not Found–REST.
+
+GATE 5 — BLOCKER CLEARANCE: No unresolved blockers.
+  FAIL condition: Blockers section contains any unchecked [ ] item that has no resolution note.
+  PASS condition: Blockers section is empty, or every item has a resolution note and can be checked off.
+
+GATE 6 — API DISCOVERY COVERAGE: Contract files must exist for flagged systems.
+  FAIL condition: API Discovery Triggers table has ≥1 row with "P0 blocker" priority AND
+  projects/{client}/api-discovery/{system}-contract.md does not exist for that system.
+  PASS condition: All P0-priority discovery triggers have a corresponding contract.md. P1 items may be pending.
+
+GATE 7 — FLOWS COMPLETENESS: At least one confirmed flow with full metadata.
+  FAIL condition: Integration Flows table has 0 confirmed rows, OR every row has placeholder values
+  for trigger, direction, volume, or latency.
+  PASS condition: ≥1 row has real values for: Name, Source System, Target System, Trigger, Direction,
+  Est. Volume (enum), Latency Req. (enum), Priority (P0/P1/P2).
+
+GATE 8 — PATTERN DETERMINABILITY: Sufficient info to select a primary integration pattern.
+  FAIL condition: No confirmed flow has both a trigger type AND a direction. The Architect cannot
+  walk Level 0 (integration style) or Level 1 (primary pattern) of the decision tree without this.
+  PASS condition: ≥1 confirmed flow has trigger type AND direction. Architect can begin Level 0.
+
+GATE 9 — ASSUMPTIONS DOCUMENTED: Analyst assumptions are specific and actionable.
+  FAIL condition: Assumptions section is empty when there are flows with unknown system-of-record,
+  conflicting NFR signals, or systems not in the registry. These produce assumptions by default.
+  PASS condition: Each assumption is specific ("Assumed Salesforce is system of record for Account —
+  not explicitly stated in intake") and not vague ("assumed client knows what they want").
+
+GATE 10 — TEMPLATE HYGIENE: No uncleaned placeholder text remains.
+  FAIL condition: Any of these literal strings appear in substantive content:
+  {client name}, {flow-name}, {system name}, {YYYY-MM-DD}, {requirement}, {assumption}, {item excluded}
+  PASS condition: None of the above literal strings appear in non-template sections.
+
+--- Validation Output ---
+
+After all 10 gates:
+
+If ALL PASS:
+  1. Update the PRD header Status from DRAFT to READY-FOR-ARCHITECT.
+  2. Output: "✅ PRD READY-FOR-ARCHITECT — all 10 validation gates passed. Architect agent can proceed.
+     Run the Architect agent (bmad-agent-architect) and select the MD menu option."
+
+If ANY FAIL:
+  1. Do NOT update PRD status.
+  2. Output: "❌ PRD VALIDATION FAILED — {N} gate(s) failed. Architect must NOT start.
+     Fix the following before re-running VP:"
+  3. For each failed gate: list gate number, gate name, exact failure, and what must be fixed.
+  4. After listing all failures: "Re-run VP after fixing these items to confirm readiness."
+
+Which client's PRD should I validate?
+"""
+
+[[agent.menu]]
 code = "AC"
 description = "Run API Contract Discovery for a specific undocumented system"
 prompt = """
