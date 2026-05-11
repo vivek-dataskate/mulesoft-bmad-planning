@@ -105,10 +105,25 @@ Step 0 — Business Vertical Research (MANDATORY — run before reading scoping 
       "phase2": { "label": "Automated", "headline": "short specific headline for THIS client", "body": "1–2 sentences on what becomes possible once data flows — specific to their domain" },
       "phase3": { "label": "Agentic", "headline": "short specific headline for THIS client", "body": "1–2 sentences on what AI capability their connected data enables — grounded in their business" }
     },
-    "p0Blockers": []
+    "p0Blockers": [],
+    "systemFindings": []
   }
   The AI journey phases must be client-specific, not generic. Phase 1 = the flows being built now. Phase 2 = automation that becomes possible with connected data. Phase 3 = AI/intelligence layer that requires clean connected data as a prerequisite. Tone: matter-of-fact, not a sales pitch — this is for the architect's internal use.
   Update p0Blockers[] in place as blockers are identified in Step 5.
+  Update systemFindings[] in place as client-specific system research is completed in Steps 1c and 8.
+  systemFindings entry shape:
+  {
+    "system": "ComputerEase",
+    "source": "web-research" | "transcript" | "testing",
+    "step": "1c" | "8",
+    "finding": "One sentence — what is specifically true for THIS client's instance",
+    "writtenTo": "playbooks/computerease/PLAYBOOK.md" | "FIELD_KNOWLEDGE.md" | "client-only",
+    "date": "{ISO date}"
+  }
+  Rule — what goes in systemFindings vs shared knowledge bases:
+    systemFindings → findings that are specific to this client's instance: their version number, their admin name, their port, their specific config, their org settings, their sandbox state
+    FIELD_KNOWLEDGE.md / PLAYBOOK.md → findings that apply to ALL engagements with this system: auth patterns, relay topology, sandbox-never-has-API-access (as a general CE rule)
+    A finding can appear in BOTH if it is both confirmed for this client AND generalises to all users of that system
 
 Step 0b — System Prerequisites Research.
 - For each TARGET system identified so far (even before reading scoping files): document known prerequisites.
@@ -134,6 +149,7 @@ Before generating any system-specific questions, run web research for every syst
 - Extract: auth method, API style, rate limits, pagination pattern, sandbox behavior, known gotchas
 - Pre-fill the questionnaire with research findings — ask clients only to CONFIRM or CORRECT, never to provide from scratch
 - If research reveals a new critical note not in PLANNING_CONTEXT.md: flag it for addition in Step 8
+- For every finding that is client-instance-specific (version detected from scoping notes, admin named in transcript, port confirmed, specific org config mentioned): append an entry to systemFindings[] in projects/{client}/company_context.json. Use source='web-research' if from research, 'transcript' if from a call transcript. Set writtenTo='client-only' if the finding does not generalise beyond this client.
 
 Step 2 — System Inference (two passes).
 Pass 1 — Explicit: identify every named system, tool, or platform.
@@ -245,6 +261,12 @@ This step makes Scout smarter for the next engagement. Do all four sub-steps:
 8c. PLANNING_CONTEXT.md Critical Notes — if a discovery qualifies as a Critical Note (it affects every future engagement with this system, not just this client), add or update the system's entry under the Critical Notes section. Follow the existing format. Prefix the note with the date and project. Example: 'ComputerEase CE Live Service relay topology — confirmed Peerless 2026-04.'
 
 8d. Connector Registry — if a system's auth type, API style, or known gotchas have been verified in this engagement and differ from the registry entry, update standards/connector-registry.json with the verified values and update lastVerified/lastVerifiedBy.
+
+8e. company_context.json — update projects/{client}/company_context.json with any new client-specific findings discovered during the full scoping run (Steps 1–7) that were not yet in systemFindings[]. Also:
+  - Update p0Blockers[] with the final confirmed list from Step 5.
+  - Update aiJourney phases if the confirmed flow list changed the picture since Step 0.
+  - Never shrink systemFindings[] — only append. Each entry is a permanent record of what was known at the time it was written.
+  Distinction: systemFindings is the client's file — it lives at projects/{client}/company_context.json and travels with this engagement forever. It is NOT a cross-client knowledge base. Use it to answer 'what do we know specifically about Peerless's ComputerEase instance?' — not 'what do we know about ComputerEase in general?'
 
 After write-back: confirm to the user which files were updated and what was added. This confirmation is the signal that Scout's knowledge loop is closed.
 
