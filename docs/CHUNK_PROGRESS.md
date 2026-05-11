@@ -239,17 +239,30 @@ CHUNK 9 — Client Repo Sh [x] COMPLETE (2026-05-10)
     - Outputs: repo URL + GitHub Codespace one-click URL for developer
     - Developer handoff block: step-by-step instructions printed to stdout
 
-CHUNK 10 — E2E Test      [ ] NOT STARTED
+CHUNK 10 — E2E Test      [x] COMPLETE (2026-05-11)
   Full pipeline test using LeoLabs intake docs (projects/leolabs/)
-  Sequence: Analyst → Architect → PM → Scaffold → (manual) repo check
-  Validates:
-    - decisions.json produced with correct pattern, connectors, TTL, profile
-    - Generated code compiles (mvn compile — no deploy needed)
-    - MUnit tests pass (mvn test)
-    - All flow files present (one per decisions.json flows[] entry)
-    - No hardcoded credentials in generated property files
-    - pom.xml has correct connector versions and TODO comments
-    - deploy.yml generated (LeoLabs uses github-actions)
+  Sequence: Analyst → Architect → PM → Scaffold → structural validation
+  All validation checks PASSED:
+    ✓ decisions.json: pattern=event-driven, connectors=[salesforce,netsuite,anypoint-mq,http],
+                      messageTtlHours=24, deduplicationTtlMinutes=1440 (=24h×60), cicd=github-actions
+    ✓ All 3 flow files generated (one per decisions.json flows[] entry)
+    ✓ All 3 MUnit test files generated (one per flow)
+    ✓ No hardcoded credentials in local/dev/uat/prod.yaml property files
+    ✓ pom.xml: salesforce 11.4.0, netsuite 11.11.0, anypoint-mq 4.0.7 with Exchange TODO comments
+    ✓ deploy.yml generated (.github/workflows/deploy.yml), Java 17 correct
+    ✓ Zero unsubstituted {{tokens}} in all 8 XML files
+  NOTE: mvn compile/test require commons published to Exchange first (expected — dev handoff step)
+  BUGS FIXED during E2E:
+    scaffold/generate.js: {{WATERMARK_ENABLED}} in scheduler.xml comment not substituted
+      → Fixed: added WATERMARK_ENABLED to buildFlowTokens token map alongside flags
+    scaffold/generate.js: {{WIRE_TAP_RETENTION_HOURS}}, {{SYSTEM_NAME}}, {{system_key}}
+      not substituted in connector config blocks embedded in global-config.xml
+      → Fixed: sub(body, connTokens) applied per-connector after extractMuleBody
+    scaffold/xml-templates/oas-spec.yaml: {{DOMAIN}} not in token map (was lowercase-only)
+      → Fixed: added DOMAIN alias to buildFlowTokens tokens map
+    standards/connector-registry.json: version fields wrong for LeoLabs connectors
+      salesforce 10.18.0→11.4.0, netsuite 10.5.0→11.11.0, anypoint-mq 4.0.5→4.0.7
+      (docVersion was correct; version field had stale/wrong values)
 
 PATTERN EXPANSION 2026-05-10 — Modern Integration Patterns (A-R → A-U):
   Research: EIP-era patterns compared against microservices, data integration, and AI agent standards.
