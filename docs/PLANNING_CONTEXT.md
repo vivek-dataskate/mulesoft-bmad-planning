@@ -19,12 +19,27 @@ automatically.
 ## THE COMPLETE FLOW
 
 ```
-INPUT (any combination):
+INPUT (post-scoping-call, pre-intake):
   - Sales call transcript
-  - Discovery / requirements doc
-  - Slide deck / pricing deck
-  - Email threads
-  - Existing architecture docs
+  - Gemini / Otter / meeting notes
+  - Email thread from initial conversation
+  - Slide deck from client
+  All dropped into: projects/{client}/scoping/
+        ↓
+BMAD SCOUT AGENT  [Step 0 — runs before intake form is sent]
+  Reads all files in projects/{client}/scoping/
+  Pass 1: explicit system detection (named systems)
+  Pass 2: implicit inference ('our CRM', 'our ERP', 'the billing system')
+  Cross-references connector-registry.json for each detected system
+  Applies known gotchas from PLANNING_CONTEXT.md Critical Notes + FIELD_KNOWLEDGE.md verified entries
+  Generates system-specific questions dynamically — only for detected systems
+  Output → projects/{client}/intake-questionnaire.md
+         (base questions + conditional questions + per-system gotcha questions)
+  ⬇ Tech lead sends intake-questionnaire.md to client. Waits for responses. ⬇
+        ↓
+INPUT (client responses + supporting docs):
+  - Completed intake questionnaire responses
+  - API specs, data mapping docs, architecture diagrams
   All dropped into: projects/{client}/intake/
         ↓
 BMAD ANALYST AGENT
