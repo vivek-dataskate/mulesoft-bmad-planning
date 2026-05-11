@@ -1,0 +1,127 @@
+{
+  "project": {
+    "name": "test-standard",
+    "client": "test-client",
+    "description": "Standard profile fixture — event-driven + scheduled-sync, 2 flows",
+    "generatedAt": "2026-05-11T00:00:00Z",
+    "bmadVersion": "6.6.0"
+  },
+  "integration": {
+    "integrationStyle": "messaging",
+    "primaryPattern": "event-driven",
+    "secondaryPatterns": ["scheduled-sync"],
+    "direction": "unidirectional",
+    "flows": [
+      {
+        "name": "sync-accounts",
+        "layer": "process",
+        "source": "salesforce",
+        "target": "netsuite",
+        "trigger": "platform-event",
+        "description": "Sync Salesforce account changes to NetSuite"
+      },
+      {
+        "name": "sync-orders",
+        "layer": "process",
+        "source": "salesforce",
+        "target": "netsuite",
+        "trigger": "scheduler",
+        "description": "Periodic delta sync of orders from Salesforce to NetSuite"
+      }
+    ]
+  },
+  "nfr": {
+    "volume": "medium",
+    "latency": "async-ok",
+    "frequency": "real-time",
+    "availability": "99.9",
+    "throughput": "medium"
+  },
+  "systems": {
+    "connectors": ["salesforce", "netsuite", "anypoint-mq"],
+    "customSystems": {},
+    "database": null,
+    "nosql": null
+  },
+  "security": {
+    "level": "internal",
+    "apiAuth": "client-id",
+    "gatewayPolicies": ["client-id-enforcement", "rate-limiting"],
+    "secretsManager": false,
+    "fieldEncryption": false,
+    "dataMasking": true,
+    "mtls": false
+  },
+  "errorHandling": {
+    "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
+    "maxRetries": 3,
+    "backoff": "exponential",
+    "dlq": true,
+    "dlqName": "sync-accounts-dlq",
+    "retryQueueName": "sync-accounts-retry-queue",
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "accounts-invalid-messages-queue",
+    "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "queueDepthAlertPct": 80,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 1440
+  },
+  "observability": {
+    "anypointMonitoring": true,
+    "customDashboard": false,
+    "businessEvents": true,
+    "externalPlatform": null,
+    "logLevel": { "local": "DEBUG", "dev": "DEBUG", "uat": "INFO", "prod": "WARN" },
+    "alerts": [
+      { "metric": "dlq-depth", "threshold": 0, "severity": "HIGH" },
+      { "metric": "error-rate", "threshold": 5, "severity": "HIGH" }
+    ]
+  },
+  "notifications": {
+    "email": true,
+    "sms": false,
+    "slack": true,
+    "teams": false,
+    "slackWebhook": "${notifications.slack.webhook.url}",
+    "emailRecipients": ["ops@testclient.com"]
+  },
+  "wireTap": { "enabled": false, "retentionHours": 72, "queueName": "" },
+  "scheduling": {
+    "required": true,
+    "type": "cron",
+    "expression": "0 0 2 * * ?",
+    "watermarking": true,
+    "objectStore": "persistent"
+  },
+  "aiIntegration": { "enabled": false },
+  "clientFacing": { "operationsDashboard": false, "businessReporting": false, "auditTrail": false, "selfServicePortal": false, "uxFrontend": false },
+  "devops": {
+    "cicd": "github-actions",
+    "environments": ["dev", "uat", "prod"],
+    "munitRequired": true,
+    "munitCoverage": 75,
+    "exchangePublish": false,
+    "deployment": "cloudhub2",
+    "region": "us-east-1"
+  },
+  "scaffold": {
+    "runtime": "4.8.0",
+    "java": "17",
+    "groupId": "com.testclient",
+    "apiLedLayers": ["system", "process"],
+    "generateMunit": true,
+    "generateCicd": true,
+    "generateNotifications": true,
+    "generateScheduler": true,
+    "generateWatermark": true,
+    "generateFlowControl": true,
+    "generateInvalidMessageChannel": true
+  }
+}

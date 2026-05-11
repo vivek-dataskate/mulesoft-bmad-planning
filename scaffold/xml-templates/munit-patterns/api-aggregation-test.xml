@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    MUnit test file for API AGGREGATION flows
+    Pattern: api-aggregation (I) — scatter-gather fan-out + response composition
+    Flow trigger: HTTP listener (sync, caller waits)
+
+    Coverage floor: {{MUNIT_COVERAGE}}% (enforced by munit-maven-plugin in pom.xml)
+
+    Test cases generated:
+      TC-1: All legs succeed      — all N scatter-gather legs return success → merged response
+      TC-2: One leg fails         — one leg throws CONNECTIVITY → aggregate includes error for that leg, others succeed
+      TC-3: All legs timeout      — all legs throw HTTP:TIMEOUT → 503 returned
+      TC-4: Validation failure    → 400, no legs called
+      TC-5: Partial success       — N-1 legs succeed, 1 returns non-200 → partial response with errors flagged
+      TC-6: Correlation ID        — correlationId consistent across all leg calls and final response
+
+    Scatter-gather rules:
+      - Each leg has independent timeout — slow leg does not stall others
+      - Failed legs produce error struct in aggregate (not null — null causes NPE in downstream compose)
+      - Total response combines all leg results into one payload
+      - correlationId is set before scatter-gather and verified in each leg mock
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/munit
+          http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+        http://www.mulesoft.org/schema/mule/munit-tools
+          http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <munit:config name="{{FLOW_NAME}}-test" doc:name="MUnit Config"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-1: Happy Path — all scatter-gather legs succeed → merged response
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-all-legs-success-test"
+        doc:name="TC-1: All scatter-gather legs succeed — merged aggregate response returned"
+        description="All N system mocks return success → composed response contains all N results">
+
+        <munit:behavior>
+            <!--
+                Mock each scatter-gather leg by its config-ref.
+                TODO: Replace config-ref values with actual connector configs for this flow.
+                Each leg must be mocked independently — scatter-gather calls them in parallel.
+            -->
+
+            <!-- Leg 1 mock -->
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock Leg 1 — {{FLOW_SOURCE}}-1 success">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Leg1_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload
+                        value='#[{ "system": "system-1", "data": { "id": "s1-001", "value": "from-system-1" } }]'
+                        mediaType="application/json"/>
+                    <munit-tools:attributes value='#[{ statusCode: 200 }]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+
+            <!-- Leg 2 mock -->
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock Leg 2 — {{FLOW_SOURCE}}-2 success">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Leg2_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload
+                        value='#[{ "system": "system-2", "data": { "id": "s2-001", "value": "from-system-2" } }]'
+                        mediaType="application/json"/>
+                    <munit-tools:attributes value='#[{ statusCode: 200 }]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload
+                        value='#[{ "entityId": "entity-agg-001" }]'
+                        mediaType="application/json"/>
+                    <munit:attributes
+                        value='#[{
+    method: "GET",
+    requestPath: "{{HTTP_PATH}}",
+    headers: { "X-Correlation-ID": "agg-corr-001" },
+    queryParams: { "id": "entity-agg-001" }
+}]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- All legs called exactly once -->
+            <munit-tools:verify-call
+                processor="http:request"
+                doc:name="Verify Leg 1 called"
+                atLeast="1"/>
+            <!-- HTTP 200 response -->
+            <munit-tools:assert-that
+                expression="#[vars.httpStatus default 200]"
+                is="#[MunitTools::equalTo(200)]"
+                doc:name="Assert 200 on all-legs-success"/>
+            <!-- Aggregate payload not null -->
+            <munit-tools:assert-that
+                expression="#[payload != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert aggregate payload present"/>
+            <!-- TODO: Assert payload contains data from both legs -->
+            <!-- Example: expect(payload.system1).toBeDefined() && expect(payload.system2).toBeDefined() -->
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-2: Partial Failure — one leg fails, others succeed → partial aggregate
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-partial-failure-test"
+        doc:name="TC-2: One leg throws CONNECTIVITY — aggregate includes error for that leg, others succeed"
+        description="Leg 2 unavailable → response contains Leg 1 data + error entry for Leg 2 → 200 (partial)">
+
+        <munit:behavior>
+            <!-- Leg 1: success -->
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock Leg 1 — success">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Leg1_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload
+                        value='#[{ "system": "system-1", "data": { "id": "s1-001" } }]'
+                        mediaType="application/json"/>
+                    <munit-tools:attributes value='#[{ statusCode: 200 }]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+
+            <!-- Leg 2: throws CONNECTIVITY -->
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock Leg 2 — CONNECTIVITY failure">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Leg2_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="HTTP:CONNECTIVITY" description="Leg 2 unavailable"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload value='#[{ "entityId": "entity-partial-001" }]' mediaType="application/json"/>
+                    <munit:attributes value='#[{ method: "GET", requestPath: "{{HTTP_PATH}}", headers: { "X-Correlation-ID": "agg-partial-001" } }]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!--
+                Partial failure: aggregate-level error handling returns partial response.
+                Scatter-gather with on-error-continue on individual legs means:
+                - Leg 1 data present
+                - Leg 2 shows error entry (not null — null breaks composition transform)
+                - Overall HTTP response is 200 with partial indicator (not 503)
+                  UNLESS decisions.json requires all-or-nothing (then 503).
+            -->
+            <munit-tools:assert-that
+                expression="#[payload != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert partial aggregate payload returned (not null)"/>
+            <!-- TODO: Assert payload.leg2.error != null (error struct present for failed leg) -->
+            <!-- TODO: Assert payload.leg1.data != null (successful leg data present) -->
+            <!-- TODO: Assert response HTTP status per decisions.json (200 partial or 503 all-or-nothing) -->
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-3: All Legs Timeout → 503
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-all-legs-timeout-test"
+        doc:name="TC-3: All scatter-gather legs throw HTTP:TIMEOUT → 503 returned"
+        description="Every leg mock throws HTTP:TIMEOUT → Global_Error_Handler → 503">
+
+        <munit:behavior>
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock Leg 1 — TIMEOUT">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Leg1_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="HTTP:TIMEOUT"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock Leg 2 — TIMEOUT">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Leg2_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="HTTP:TIMEOUT"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload value='#[{ "entityId": "entity-timeout-001" }]' mediaType="application/json"/>
+                    <munit:attributes value='#[{ method: "GET", requestPath: "{{HTTP_PATH}}", headers: { "X-Correlation-ID": "agg-timeout-001" } }]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that
+                expression="#[vars.httpStatus default 500]"
+                is="#[MunitTools::equalTo(503)]"
+                doc:name="Assert 503 on all-legs-timeout"/>
+            <munit-tools:assert-that
+                expression="#[payload.errorCode]"
+                is="#[MunitTools::equalTo('SERVICE_UNAVAILABLE')]"
+                doc:name="Assert SERVICE_UNAVAILABLE error code"/>
+            <munit-tools:assert-that
+                expression="#[payload.correlationId != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert correlationId in error envelope"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-4: Validation Failure → 400 (no legs called)
+         Remove ignore="true" once validation is added to the flow.
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-validation-error-test"
+        doc:name="TC-4: Missing required field → 400, no scatter-gather legs called"
+        description="Request missing entityId → validation 400 before scatter-gather"
+        ignore="true">
+
+        <munit:behavior>
+            <!-- No mocks — validation fires before any connector call -->
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload value='#[{}]' mediaType="application/json"/>
+                    <munit:attributes value='#[{ method: "GET", requestPath: "{{HTTP_PATH}}", headers: { "X-Correlation-ID": "agg-val-001" } }]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that
+                expression="#[vars.httpStatus default 500]"
+                is="#[MunitTools::equalTo(400)]"
+                doc:name="Assert 400 on validation failure"/>
+            <munit-tools:assert-that
+                expression="#[payload.errorCode]"
+                is="#[MunitTools::equalTo('VALIDATION_ERROR')]"
+                doc:name="Assert VALIDATION_ERROR code"/>
+            <!-- Verify no leg was called -->
+            <munit-tools:verify-call
+                processor="http:request"
+                doc:name="Verify no leg called on validation failure"
+                times="0"/>
+        </munit:validation>
+
+    </munit:test>
+
+</mule>

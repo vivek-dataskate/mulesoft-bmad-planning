@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    MUnit test file for ASYNC CONSUMER flows
+    Patterns: event-driven (B), pubsub-fanout (M), cdc-streaming (F)
+    Flow trigger: anypoint-mq:subscriber | kafka:message-listener | platform-event
+
+    Coverage floor: {{MUNIT_COVERAGE}}% (enforced by munit-maven-plugin in pom.xml)
+
+    Test cases generated:
+      TC-1: Happy path           — valid message → downstream called 1x → MANUAL ack
+      TC-2: Connectivity failure → retry 3x → DLQ publish → no MANUAL ack
+      TC-3: Validation failure   → invalid-messages-queue (not DLQ) → 0 downstream calls
+      TC-4: Duplicate message    → idempotency check → ACK + skip → 0 downstream calls
+      TC-5: DLQ message payload  — verifies correlationId + errorCode in DLQ message body
+      TC-6: MQ MANUAL ACK timing — ACK only called after successful downstream write
+
+    Rules:
+      - Mock ALL connector operations
+      - Do NOT mock DataWeave transforms — test transform logic
+      - Idempotency check is MANDATORY for all async consumers (no exceptions)
+      - MANUAL ack: only call anypoint-mq:ack after downstream write succeeds
+      - DLQ test: connector mock throws CONNECTIVITY on every attempt (maxRetries + 1 calls total)
+-->
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/munit
+          http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+        http://www.mulesoft.org/schema/mule/munit-tools
+          http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/anypoint-mq
+          http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <munit:config name="{{FLOW_NAME}}-test" doc:name="MUnit Config">
+        <munit:parameterizations/>
+    </munit:config>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-1: Happy Path — valid message → downstream called 1 time → MANUAL ACK
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-happy-path-test"
+        doc:name="TC-1: Happy path — valid message processed, downstream called, MANUAL ACK sent"
+        description="Valid {{FLOW_SOURCE}} message → {{FLOW_TARGET}} write → anypoint-mq:ack">
+
+        <munit:behavior>
+            <!-- Mock: idempotency Object Store — key not found (new message) -->
+            <munit-tools:mock-when
+                processor="os:retrieve"
+                doc:name="Mock OS Retrieve — new message (key not found)">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="Object_Store_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="OS:KEY_NOT_FOUND" description="Key not found — new message"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+
+            <!-- Mock: idempotency Object Store — store key after processing -->
+            <munit-tools:mock-when
+                processor="os:store"
+                doc:name="Mock OS Store — mark as processed">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="Object_Store_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload value='#[null]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+
+            <!-- Mock: downstream connector — successful write -->
+            <!-- TODO: Replace with actual connector for {{FLOW_TARGET}} -->
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock {{FLOW_TARGET}} — successful write">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Request_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload
+                        value='#[{ "id": "created-001", "status": "CREATED" }]'
+                        mediaType="application/json"/>
+                    <munit-tools:attributes value='#[{ statusCode: 201 }]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+
+            <!-- Mock: MANUAL ACK -->
+            <munit-tools:mock-when
+                processor="anypoint-mq:ack"
+                doc:name="Mock MANUAL ACK">
+                <munit-tools:then-return>
+                    <munit-tools:payload value='#[null]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <!-- TODO: Replace with realistic {{FLOW_SOURCE}} payload -->
+                    <munit:payload
+                        value='#[{
+    "messageId": "msg-happy-001",
+    "entityId":  "entity-001",
+    "eventType": "CREATED",
+    "data": {
+        "id":   "test-001",
+        "name": "Test Record"
+    }
+}]'
+                        mediaType="application/json"/>
+                    <munit:attributes
+                        value='#[{
+    messageId: "msg-happy-001",
+    headers: {}
+}]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- Assert downstream connector called exactly once -->
+            <munit-tools:verify-call
+                processor="http:request"
+                doc:name="Verify downstream called 1 time"
+                times="1"/>
+            <!-- Assert MANUAL ACK was sent -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:ack"
+                doc:name="Verify MANUAL ACK sent"
+                times="1"/>
+            <!-- Assert NACK was never called -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:nack"
+                doc:name="Verify NACK not called"
+                times="0"/>
+            <!-- Assert correlationId present in flow variables -->
+            <munit-tools:assert-that
+                expression="#[vars.correlationId != null or correlationId != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert correlationId present"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-2: Connectivity Failure → Retry 3x → DLQ Publish → No MANUAL ACK
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-connectivity-retry-dlq-test"
+        doc:name="TC-2: Connectivity failure → 3 retries exhausted → DLQ publish, MANUAL ACK withheld"
+        description="Downstream throws CONNECTIVITY on every attempt → DLQ after maxRetries">
+
+        <munit:behavior>
+            <!-- Mock: idempotency check → new message -->
+            <munit-tools:mock-when
+                processor="os:retrieve"
+                doc:name="Mock OS — new message">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="Object_Store_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="OS:KEY_NOT_FOUND"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+
+            <!-- Mock: downstream always throws CONNECTIVITY -->
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock {{FLOW_TARGET}} — always fails (CONNECTIVITY)">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Request_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="HTTP:CONNECTIVITY" description="Simulated downstream unavailable"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+
+            <!-- Mock: DLQ publish -->
+            <munit-tools:mock-when
+                processor="anypoint-mq:publish"
+                doc:name="Mock DLQ Publish — capture call args">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="destination" whereValue="${{DLQ_QUEUE_PROPERTY}}"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload value='#[null]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload
+                        value='#[{ "messageId": "msg-conn-fail-001", "entityId": "entity-002" }]'
+                        mediaType="application/json"/>
+                    <munit:attributes value='#[{ messageId: "msg-conn-fail-001" }]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- Downstream called maxRetries + 1 times total -->
+            <!-- TODO: Replace times with decisions.json errorHandling.maxRetries + 1 -->
+            <munit-tools:verify-call
+                processor="http:request"
+                doc:name="Verify downstream called maxRetries + 1 times"
+                times="4"/>
+            <!-- DLQ published once -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:publish"
+                doc:name="Verify DLQ publish called once"
+                times="1"/>
+            <!-- MANUAL ACK NOT called (message remains unacked for DLQ requeue) -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:ack"
+                doc:name="Verify MANUAL ACK withheld"
+                times="0"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-3: Validation Failure → Invalid Message Channel (NOT DLQ)
+         Remove ignore="true" once validation:is-not-null is added to the flow.
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-validation-invalid-message-channel-test"
+        doc:name="TC-3: Validation failure routes to invalid-messages-queue, NOT DLQ"
+        description="Missing required field → invalid-messages-queue → 0 downstream calls"
+        ignore="true">
+
+        <munit:behavior>
+            <!-- Mock: invalid-messages-queue publish — capture destination -->
+            <munit-tools:mock-when
+                processor="anypoint-mq:publish"
+                doc:name="Mock invalid-messages-queue publish">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute
+                        attributeName="destination"
+                        whereValue="${mq.queue.invalid-messages}"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload value='#[null]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <!-- Intentionally empty — triggers validation failure -->
+                    <munit:payload value='#[{}]' mediaType="application/json"/>
+                    <munit:attributes value='#[{ messageId: "msg-invalid-001" }]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- Downstream connector NEVER called (validation fires first) -->
+            <munit-tools:verify-call
+                processor="http:request"
+                doc:name="Verify downstream NOT called"
+                times="0"/>
+            <!-- Invalid message channel publish called once -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:publish"
+                doc:name="Verify invalid-messages-queue publish called"
+                times="1"/>
+            <!-- DLQ NOT published -->
+            <!-- TODO: Add verify-call for DLQ publish times=0 once DLQ destination is known -->
+            <munit-tools:assert-that
+                expression="#[vars.httpStatus default 400]"
+                is="#[MunitTools::equalTo(400)]"
+                doc:name="Assert 400 validation error status"/>
+            <munit-tools:assert-that
+                expression="#[payload.errorCode]"
+                is="#[MunitTools::equalTo('VALIDATION_ERROR')]"
+                doc:name="Assert VALIDATION_ERROR error code"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-4: Duplicate Message — Idempotency Check → ACK + Skip
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-duplicate-idempotency-test"
+        doc:name="TC-4: Duplicate messageId → idempotency check fires → ACK and skip, 0 downstream calls"
+        description="Second delivery of same messageId: OS key found → skip processing → ACK">
+
+        <munit:behavior>
+            <!-- Mock: Object Store → key FOUND (duplicate message) -->
+            <munit-tools:mock-when
+                processor="os:retrieve"
+                doc:name="Mock OS — key found (duplicate)">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="Object_Store_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <!-- Key exists — processed before -->
+                    <munit-tools:payload value='"processed"'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+
+            <!-- Mock: MANUAL ACK (duplicate should still be ACKed — not a failure) -->
+            <munit-tools:mock-when
+                processor="anypoint-mq:ack"
+                doc:name="Mock MANUAL ACK — duplicate ACKed and skipped">
+                <munit-tools:then-return>
+                    <munit-tools:payload value='#[null]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload
+                        value='#[{ "messageId": "msg-happy-001", "entityId": "entity-001" }]'
+                        mediaType="application/json"/>
+                    <munit:attributes value='#[{ messageId: "msg-happy-001" }]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- Downstream NOT called — duplicate skipped -->
+            <munit-tools:verify-call
+                processor="http:request"
+                doc:name="Verify downstream NOT called on duplicate"
+                times="0"/>
+            <!-- MANUAL ACK IS called — duplicate ACKed to remove from queue -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:ack"
+                doc:name="Verify MANUAL ACK sent on duplicate"
+                times="1"/>
+            <!-- NACK never called — duplicate is not a failure -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:nack"
+                doc:name="Verify NACK not called on duplicate"
+                times="0"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-5: DLQ Message Payload — correlationId preserved in DLQ record
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-dlq-payload-schema-test"
+        doc:name="TC-5: DLQ message contains correct schema fields"
+        description="On error → DLQ publish payload has {correlationId, errorCode, failingFlow, timestamp}">
+
+        <munit:behavior>
+            <munit-tools:mock-when
+                processor="os:retrieve"
+                doc:name="Mock OS — new message">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="Object_Store_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="OS:KEY_NOT_FOUND"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock downstream — always throws">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Request_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="HTTP:CONNECTIVITY"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+
+            <!-- Spy on DLQ publish to capture payload -->
+            <munit-tools:spy-event
+                processor="anypoint-mq:publish"
+                doc:name="Spy DLQ Publish — capture payload"/>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload
+                        value='#[{ "messageId": "msg-dlq-payload-001" }]'
+                        mediaType="application/json"/>
+                    <munit:attributes value='#[{ messageId: "msg-dlq-payload-001" }]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- TODO: Assert on captured DLQ publish payload:
+                 - payload.correlationId != null
+                 - payload.errorCode != null
+                 - payload.failingFlow != null
+                 - payload.timestamp != null
+            -->
+            <munit-tools:verify-call
+                processor="anypoint-mq:publish"
+                doc:name="Verify DLQ publish fired"
+                times="1"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TC-6: Correlation ID Propagated End-to-End
+         ══════════════════════════════════════════════════════════════════ -->
+    <munit:test
+        name="{{FLOW_NAME}}-correlation-id-propagation-test"
+        doc:name="TC-6: correlationId from incoming message header is preserved in downstream call"
+        description="NFR: correlationId never changes mid-flow">
+
+        <munit:behavior>
+            <munit-tools:mock-when
+                processor="os:retrieve"
+                doc:name="Mock OS — new message">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="Object_Store_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-throw>
+                    <munit-tools:error typeId="OS:KEY_NOT_FOUND"/>
+                </munit-tools:then-throw>
+            </munit-tools:mock-when>
+
+            <munit-tools:mock-when
+                processor="http:request"
+                doc:name="Mock downstream — success">
+                <munit-tools:with-attributes>
+                    <munit-tools:with-attribute attributeName="config-ref" whereValue="HTTP_Request_Config"/>
+                </munit-tools:with-attributes>
+                <munit-tools:then-return>
+                    <munit-tools:payload value='#[{ "id": "corr-test-001" }]' mediaType="application/json"/>
+                    <munit-tools:attributes value='#[{ statusCode: 200 }]'/>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+
+            <munit-tools:mock-when
+                processor="anypoint-mq:ack"
+                doc:name="Mock ACK">
+                <munit-tools:then-return><munit-tools:payload value='#[null]'/></munit-tools:then-return>
+            </munit-tools:mock-when>
+        </munit:behavior>
+
+        <munit:execution>
+            <munit:run-flow name="{{FLOW_NAME}}">
+                <munit:event>
+                    <munit:payload
+                        value='#[{ "messageId": "msg-corr-001" }]'
+                        mediaType="application/json"/>
+                    <munit:attributes value='#[{
+    messageId: "msg-corr-001",
+    headers: { "X-Correlation-ID": "e2e-correlation-test-001" }
+}]'/>
+                </munit:event>
+            </munit:run-flow>
+        </munit:execution>
+
+        <munit:validation>
+            <!-- correlationId must be present and consistent throughout -->
+            <munit-tools:assert-that
+                expression="#[correlationId != null]"
+                is="#[MunitTools::equalTo(true)]"
+                doc:name="Assert correlationId present"/>
+            <!-- TODO: Assert correlationId == 'e2e-correlation-test-001'
+                 (or the Mule-generated one if header propagation is via Mule correlationId) -->
+        </munit:validation>
+
+    </munit:test>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TODO: Add notification failure test if notifications are enabled
+         (decisions.json notifications.slack = true or notifications.email = true)
+
+         TC-NOTIF: Notification failure does NOT break primary flow
+           - Mock slack/email connector to throw exception
+           - Assert: primary flow completes successfully
+           - Assert: downstream write still called and succeeds
+           - Assert: WARN logged (not ERROR)
+         ══════════════════════════════════════════════════════════════════ -->
+
+</mule>

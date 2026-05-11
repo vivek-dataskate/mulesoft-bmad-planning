@@ -1,0 +1,113 @@
+{
+  "project": {
+    "name": "test-enterprise",
+    "client": "test-client",
+    "description": "Enterprise profile fixture — 99.99 availability, compensating-transaction",
+    "generatedAt": "2026-05-11T00:00:00Z",
+    "bmadVersion": "6.6.0"
+  },
+  "integration": {
+    "integrationStyle": "hybrid",
+    "primaryPattern": "process-orchestration",
+    "secondaryPatterns": ["event-driven"],
+    "direction": "bidirectional",
+    "flows": [
+      {
+        "name": "create-order-orchestration",
+        "layer": "process",
+        "source": "http",
+        "target": "salesforce",
+        "trigger": "http",
+        "description": "Multi-step order creation with saga compensation"
+      }
+    ]
+  },
+  "nfr": {
+    "volume": "high",
+    "latency": "under-10s",
+    "frequency": "real-time",
+    "availability": "99.99",
+    "throughput": "high"
+  },
+  "systems": {
+    "connectors": ["salesforce", "netsuite", "anypoint-mq", "amazon-s3"],
+    "customSystems": {},
+    "database": null,
+    "nosql": null
+  },
+  "security": {
+    "level": "partner",
+    "apiAuth": "oauth2-client-credentials",
+    "gatewayPolicies": ["oauth2-client-credentials", "rate-limiting"],
+    "secretsManager": false,
+    "fieldEncryption": false,
+    "dataMasking": true,
+    "mtls": false
+  },
+  "errorHandling": {
+    "strategy": "retry-then-dlq",
+    "compensationStrategy": "compensating-transaction",
+    "maxRetries": 3,
+    "backoff": "exponential",
+    "dlq": true,
+    "dlqName": "create-order-dlq",
+    "retryQueueName": "create-order-retry-queue",
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "orders-invalid-messages-queue",
+    "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 168,
+    "maxConcurrency": 8,
+    "queueDepthAlertPct": 80,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": true,
+    "deduplicationTtlMinutes": 10080
+  },
+  "observability": {
+    "anypointMonitoring": true,
+    "customDashboard": true,
+    "businessEvents": true,
+    "externalPlatform": "datadog",
+    "logLevel": { "local": "DEBUG", "dev": "DEBUG", "uat": "INFO", "prod": "WARN" },
+    "alerts": [
+      { "metric": "dlq-depth", "threshold": 0, "severity": "HIGH" },
+      { "metric": "p95-latency", "threshold": 3000, "severity": "MEDIUM" }
+    ]
+  },
+  "notifications": {
+    "email": true,
+    "sms": false,
+    "slack": true,
+    "teams": false,
+    "slackWebhook": "${notifications.slack.webhook.url}",
+    "emailRecipients": ["ops@testclient.com"]
+  },
+  "wireTap": { "enabled": true, "retentionHours": 72, "queueName": "orders-audit-wire-tap-queue" },
+  "scheduling": { "required": false, "type": "cron", "expression": null, "watermarking": false, "objectStore": "persistent" },
+  "aiIntegration": { "enabled": false },
+  "clientFacing": { "operationsDashboard": true, "businessReporting": true, "auditTrail": true, "selfServicePortal": false, "uxFrontend": false },
+  "devops": {
+    "cicd": "github-actions",
+    "environments": ["dev", "uat", "prod"],
+    "munitRequired": true,
+    "munitCoverage": 80,
+    "exchangePublish": true,
+    "deployment": "cloudhub2",
+    "region": "us-east-1"
+  },
+  "scaffold": {
+    "runtime": "4.8.0",
+    "java": "17",
+    "groupId": "com.testclient",
+    "apiLedLayers": ["system", "process", "experience"],
+    "generateMunit": true,
+    "generateCicd": true,
+    "generateNotifications": true,
+    "generateScheduler": false,
+    "generateWatermark": false,
+    "generateFlowControl": true,
+    "generateInvalidMessageChannel": true
+  }
+}

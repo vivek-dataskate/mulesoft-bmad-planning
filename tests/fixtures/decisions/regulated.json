@@ -1,0 +1,112 @@
+{
+  "project": {
+    "name": "test-regulated",
+    "client": "test-client",
+    "description": "Regulated profile fixture — security=regulated, field encryption, secrets manager",
+    "generatedAt": "2026-05-11T00:00:00Z",
+    "bmadVersion": "6.6.0"
+  },
+  "integration": {
+    "integrationStyle": "rpc",
+    "primaryPattern": "request-reply",
+    "secondaryPatterns": [],
+    "direction": "unidirectional",
+    "flows": [
+      {
+        "name": "get-patient-records",
+        "layer": "system",
+        "source": "http",
+        "target": "database",
+        "trigger": "http",
+        "description": "HIPAA-regulated patient record retrieval"
+      }
+    ]
+  },
+  "nfr": {
+    "volume": "medium",
+    "latency": "under-3s",
+    "frequency": "real-time",
+    "availability": "99.9",
+    "throughput": "medium"
+  },
+  "systems": {
+    "connectors": ["http", "database"],
+    "customSystems": {},
+    "database": "postgresql",
+    "nosql": null
+  },
+  "security": {
+    "level": "regulated",
+    "apiAuth": "oauth2-client-credentials",
+    "gatewayPolicies": ["oauth2-client-credentials", "jwt-validation", "rate-limiting"],
+    "secretsManager": true,
+    "fieldEncryption": true,
+    "dataMasking": true,
+    "mtls": false
+  },
+  "errorHandling": {
+    "strategy": "retry-then-dlq",
+    "compensationStrategy": "retry",
+    "maxRetries": 3,
+    "backoff": "exponential",
+    "dlq": true,
+    "dlqName": "patient-records-dlq",
+    "retryQueueName": "",
+    "invalidMessageChannel": true,
+    "invalidMessageChannelName": "patient-invalid-messages-queue",
+    "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "pull",
+    "messageTtlHours": 24,
+    "maxConcurrency": 4,
+    "queueDepthAlertPct": 80,
+    "backpressureEnabled": true,
+    "deduplicationEnabled": false,
+    "deduplicationTtlMinutes": 1440
+  },
+  "observability": {
+    "anypointMonitoring": true,
+    "customDashboard": false,
+    "businessEvents": true,
+    "externalPlatform": "splunk",
+    "logLevel": { "local": "DEBUG", "dev": "DEBUG", "uat": "INFO", "prod": "WARN" },
+    "alerts": [
+      { "metric": "dlq-depth", "threshold": 0, "severity": "HIGH" },
+      { "metric": "error-rate", "threshold": 1, "severity": "HIGH" }
+    ]
+  },
+  "notifications": {
+    "email": true,
+    "sms": false,
+    "slack": false,
+    "teams": false,
+    "emailRecipients": ["compliance@testclient.com"]
+  },
+  "wireTap": { "enabled": true, "retentionHours": 720, "queueName": "patient-audit-wire-tap-queue" },
+  "scheduling": { "required": false, "type": "cron", "expression": null, "watermarking": false, "objectStore": "persistent" },
+  "aiIntegration": { "enabled": false },
+  "clientFacing": { "operationsDashboard": false, "businessReporting": false, "auditTrail": true, "selfServicePortal": false, "uxFrontend": false },
+  "devops": {
+    "cicd": "github-actions",
+    "environments": ["dev", "uat", "prod"],
+    "munitRequired": true,
+    "munitCoverage": 80,
+    "exchangePublish": false,
+    "deployment": "cloudhub2",
+    "region": "us-east-1"
+  },
+  "scaffold": {
+    "runtime": "4.8.0",
+    "java": "17",
+    "groupId": "com.testclient",
+    "apiLedLayers": ["system"],
+    "generateMunit": true,
+    "generateCicd": true,
+    "generateNotifications": true,
+    "generateScheduler": false,
+    "generateWatermark": false,
+    "generateFlowControl": false,
+    "generateInvalidMessageChannel": true
+  }
+}

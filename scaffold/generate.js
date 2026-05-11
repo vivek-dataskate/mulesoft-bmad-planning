@@ -375,8 +375,8 @@ function buildFlowTokens(flow, d, coverageFloor) {
     .replace(/^(get|post|put|delete|patch|process|sync|send|receive|create|update)-/, '');
   const httpPath = '/' + httpPathBase.replace(/-/g, '/');
 
-  // DWL file name convention: transform-{source}-to-{target}
-  const dwlName = `transform-${src.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-to-${tgt.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  // DWL file name convention: {flow-name}-transform (unique per flow, avoids collision when two flows share same src/tgt)
+  const dwlName = `${flowName}-transform`;
 
   // Queue property key for MQ subscriber flows (mq.queue.{key})
   const queueProp = flowName.replace(/-flow$/, '').replace(/-/g, '.');
@@ -1516,23 +1516,22 @@ function main() {
   console.log('   Capabilities portal: node scaffold/generate-capabilities.js');
 }
 
-main();
-
 // ─── Exports (for unit testing) ───────────────────────────────────────────────
-// Only exposed when required as a module, not when run directly as a script.
-if (require.main !== module) {
-  module.exports = {
-    sub,
-    processIf,
-    render,
-    stripXmlDecl,
-    extractMuleBody,
-    computeProfile,
-    getCoverageFloor,
-    isAsyncPattern,
-    isAsyncTrigger,
-    buildRegistryLookup,
-    checkStaleness,
-    connectorDepXml,
-  };
+module.exports = {
+  sub,
+  processIf,
+  render,
+  stripXmlDecl,
+  extractMuleBody,
+  computeProfile,
+  getCoverageFloor,
+  isAsyncPattern,
+  isAsyncTrigger,
+  buildRegistryLookup,
+  checkStaleness,
+  connectorDepXml,
+};
+
+if (require.main === module) {
+  main();
 }

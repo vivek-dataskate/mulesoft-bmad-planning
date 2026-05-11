@@ -1,0 +1,103 @@
+{
+  "project": {
+    "name": "test-minimal",
+    "client": "test-client",
+    "description": "Minimal profile fixture — outbound notification only",
+    "generatedAt": "2026-05-11T00:00:00Z",
+    "bmadVersion": "6.6.0"
+  },
+  "integration": {
+    "integrationStyle": "messaging",
+    "primaryPattern": "outbound-notification",
+    "secondaryPatterns": [],
+    "direction": "unidirectional",
+    "flows": [
+      {
+        "name": "notify-ops",
+        "layer": "experience",
+        "source": "mq",
+        "target": "slack",
+        "trigger": "mq-subscriber",
+        "description": "Publish Slack notification on alert event"
+      }
+    ]
+  },
+  "nfr": {
+    "volume": "low",
+    "latency": "async-ok",
+    "frequency": "triggered",
+    "availability": "best-effort",
+    "throughput": "low"
+  },
+  "systems": {
+    "connectors": ["anypoint-mq"],
+    "customSystems": {},
+    "database": null,
+    "nosql": null
+  },
+  "security": {
+    "level": "internal",
+    "apiAuth": "client-id",
+    "gatewayPolicies": [],
+    "secretsManager": false,
+    "fieldEncryption": false,
+    "dataMasking": true,
+    "mtls": false
+  },
+  "errorHandling": {
+    "strategy": "retry-then-dlq",
+    "compensationStrategy": "write-off",
+    "maxRetries": 3,
+    "backoff": "fixed",
+    "dlq": true,
+    "dlqName": "notify-ops-dlq",
+    "retryQueueName": "",
+    "invalidMessageChannel": false,
+    "invalidMessageChannelName": "",
+    "errorEnvelope": true
+  },
+  "flowControl": {
+    "direction": "push",
+    "messageTtlHours": 1,
+    "maxConcurrency": 4,
+    "queueDepthAlertPct": 80,
+    "backpressureEnabled": false,
+    "deduplicationEnabled": false,
+    "deduplicationTtlMinutes": 60
+  },
+  "observability": {
+    "anypointMonitoring": true,
+    "customDashboard": false,
+    "businessEvents": false,
+    "externalPlatform": null,
+    "logLevel": { "local": "DEBUG", "dev": "DEBUG", "uat": "INFO", "prod": "WARN" },
+    "alerts": []
+  },
+  "notifications": { "email": false, "sms": false, "slack": false, "teams": false },
+  "wireTap": { "enabled": false, "retentionHours": 72, "queueName": "" },
+  "scheduling": { "required": false, "type": "fixed-frequency", "expression": null, "watermarking": false, "objectStore": "in-memory" },
+  "aiIntegration": { "enabled": false },
+  "clientFacing": { "operationsDashboard": false, "businessReporting": false, "auditTrail": false, "selfServicePortal": false, "uxFrontend": false },
+  "devops": {
+    "cicd": "none",
+    "environments": ["dev", "prod"],
+    "munitRequired": true,
+    "munitCoverage": 60,
+    "exchangePublish": false,
+    "deployment": "cloudhub2",
+    "region": "us-east-1"
+  },
+  "scaffold": {
+    "runtime": "4.8.0",
+    "java": "17",
+    "groupId": "com.testclient",
+    "apiLedLayers": [],
+    "generateMunit": true,
+    "generateCicd": false,
+    "generateNotifications": false,
+    "generateScheduler": false,
+    "generateWatermark": false,
+    "generateFlowControl": false,
+    "generateInvalidMessageChannel": false
+  }
+}
