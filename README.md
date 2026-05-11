@@ -6,13 +6,41 @@
 
 ## How to Use — New Client Engagement
 
+### Step 0: Drop scoping notes and run Scout
+
+After the initial scoping call — before you send the client an intake form — drop your raw notes into:
+
+```
+projects/{client}/scoping/
+```
+
+Anything works: call transcript, Gemini/Otter notes, email thread, slide deck, handwritten notes copied to a text file.
+
+Then run Scout:
+
+```
+/bmad-agent-scout
+```
+or
+```
+Talk to Scout (the scoping analyst). Run SQ for projects/{client}/
+```
+
+Scout reads the scoping notes, infers which systems are involved (explicit and implied), cross-checks every detected system against the connector registry for known quirks, and produces:
+
+- `projects/{client}/intake-questionnaire.md` — a tailored questionnaire with base questions + system-specific gotcha questions generated dynamically per detected system
+
+**Send the intake questionnaire to the client. Wait for their responses before proceeding to Step 1.**
+
+This step prevents the two most common causes of mid-project blockers: undocumented API contracts and system-specific connector constraints (SAP JCo license, NetSuite PS256 JWT, ServiceNow OAuth metadata limitation, etc.) discovered too late.
+
 ### Step 1: Drop discovery documents
 
 ```
 projects/{client}/intake/
 ```
 
-Anything works: transcripts, slide decks, email threads, requirements docs, architecture diagrams.
+Drop the client's completed intake questionnaire responses plus any supporting docs: API specs, architecture diagrams, existing data mappings, email threads.
 
 ### Step 2: Run the Analyst
 
