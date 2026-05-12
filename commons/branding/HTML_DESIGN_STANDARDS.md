@@ -90,6 +90,7 @@ Every document starts with this header pattern:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
+│ [DataSkate logo SVG]    (inline SVG — height 28–32px)    │
 │ DATASKATE × CLIENT NAME        (eyebrow — 11px uppercase)│
 │ ┃ Document Title               (H1 — 26px 800)           │
 │ ┃ Subtitle / tagline           (15px --mid)               │
@@ -98,6 +99,11 @@ Every document starts with this header pattern:
 └─────────────────────────────────────────────────────────┘
         ↑ 3px solid --brand bottom border
 ```
+
+**Logo rule:** Every HTML document must include the DataSkate wordmark as an inline SVG in the header — never as an external image. Copy the SVG verbatim from `projects/mrn-healthcare/intake/proposal-mrn-healthcare.html` (lines ~750–765). Set `height:32px` for proposals, `height:28px` for intake forms. The SVG viewBox is `140 258 590 96`.
+
+- For **proposals**: logo goes in `.header-top` flex row (left), eyebrow text goes right
+- For **intake forms**: logo goes above the `.eyebrow` div, inside `.doc-header`, as its own row
 
 CSS classes: `.header`, `.header-eyebrow`, `.header-title-block` (left 4px `--brand` border, 20px padding-left), `.header-meta` (flex row, 12px, dividers between items).
 

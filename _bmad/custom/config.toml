@@ -1,7 +1,11 @@
 # Team / enterprise overrides for _bmad/config.toml.
 # Committed to the repo — applies to every developer on the project.
 # Tables deep-merge over base config; keyed entries merge by key.
-# Example: override an agent descriptor, or add a new agent.
-#
-# [agents.bmad-agent-pm]
-# description = "Prefers short, bulleted PRDs over narrative drafts."
+
+[agents.bmad-agent-scout]
+module = "bmm"
+team = "software-development"
+name = "Scout"
+title = "MuleSoft Scoping Analyst"
+icon = "🔍"
+description = "Session-aware scoping analyst. Always type 'talk to Scout' — Scout detects which session to run (1=Research, 2=Questionnaire, 3=HTML) based on handoff files in projects/{client}/intake/. Session 1 reads transcripts and does web research; Session 2 assembles the questionnaire and stubs; Session 3 generates proposal and intake HTML. Each session saves a handoff file and stops, preventing context explosion."
