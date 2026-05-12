@@ -1,0 +1,134 @@
+title: Canonical Job
+version: "1.0.0"
+vertical: construction
+description: |
+  Canonical installation job / work order entity for construction/contracting integrations.
+  Maps from: construction ERP (ComputerEase, Procore, Sage 300 CRE, Viewpoint),
+             CRM (Salesforce Opportunity), contractor portals (HD Portal, ServiceTitan).
+  Maps to: any system in the job lifecycle (scheduling, billing, reporting, customer portal).
+  Common synonyms by system: Job (ComputerEase), Project (generic ERP), Opportunity/Order (Salesforce),
+                              Order (HD Portal), Work Order (field service systems).
+
+  Known Peerless-specific format: jobNumber = "{YY} HD {sequential-counter} {sales-rep-initials}"
+  e.g. "26 HD 565 AS" — counter managed in Object Store by MuleSoft.
+
+type: object
+required:
+  - jobId
+  - customerId
+  - status
+  - jobType
+  - timestamps
+
+properties:
+  jobId:
+    type: string
+    description: Canonical job identifier
+    example: "JOB-2026-000565"
+
+  externalIds:
+    type: object
+    description: Source system identifiers
+    properties:
+      erpJobNumber:       { type: string, description: "Job number in construction ERP (e.g. ComputerEase '26 HD 565 AS')" }
+      portalOrderId:      { type: string, description: "Order/lead ID in contractor portal (e.g. HD Portal)" }
+      salesforceOpptyId:  { type: string, description: "Salesforce Opportunity ID" }
+      salesforceOrderId:  { type: string }
+
+  customerId:
+    type: string
+    description: Links to canonical-customer (the homeowner/property owner)
+
+  contractId:
+    type: string
+    description: Links to canonical-contract (the signed installation contract)
+
+  status:
+    type: string
+    enum: [LEAD, QUOTED, CONTRACTED, SCHEDULED, IN_PROGRESS, COMPLETE, CANCELLED, ON_HOLD]
+
+  jobType:
+    type: string
+    description: Type of installation work
+    example: "FENCE_INSTALLATION"
+
+  product:
+    type: object
+    description: What is being installed
+    properties:
+      material:     { type: string, description: "Fence material (e.g. WOOD, VINYL, CHAIN_LINK, ALUMINUM, STEEL)" }
+      style:        { type: string, description: "Fence style/design" }
+      linearFeet:   { type: number, description: "Total linear feet of fence" }
+      panels:       { type: integer }
+      gates:        { type: integer }
+
+  location:
+    $ref: '#/Address'
+    description: Job site / installation address
+
+  scheduling:
+    type: object
+    properties:
+      scheduledDate:    { type: string, format: date }
+      completedDate:    { type: string, format: date }
+      estimatedDays:    { type: integer }
+      crew:             { type: string }
+
+  financials:
+    $ref: '#/JobFinancials'
+
+  salesRep:
+    type: object
+    properties:
+      repId:      { type: string }
+      repName:    { type: string }
+      initials:   { type: string, description: "Used in job number generation (e.g. 'AS' for Ashley Salerno)" }
+
+  source:
+    type: string
+    enum: [HD_PORTAL, DIRECT, REFERRAL, REPEAT, OTHER]
+    description: Lead/order source channel
+
+  erpMetadata:
+    type: object
+    description: ERP-specific fields not in canonical — populated from client canonical-extensions.yaml
+    properties:
+      companyCode:  { type: string, description: "ERP company code (Peerless: 00 for IL/WI)" }
+      department:   { type: string, description: "ERP department code (Peerless: 3 for IL/WI)" }
+      customerType: { type: string, description: "ERP customer type (Peerless: R05 for HD residential)" }
+
+  timestamps:
+    $ref: '#/Timestamps'
+
+JobFinancials:
+  type: object
+  properties:
+    contractAmount:   { type: number, description: "Total signed contract value" }
+    materialCost:     { type: number }
+    laborCost:        { type: number }
+    overhead:         { type: number }
+    margin:           { type: number }
+    marginPct:        { type: number }
+    amountBilled:     { type: number }
+    amountPaid:       { type: number }
+    currency:         { type: string, pattern: "^[A-Z]{3}$", example: "USD" }
+
+Address:
+  type: object
+  properties:
+    line1:      { type: string }
+    line2:      { type: string }
+    city:       { type: string }
+    state:      { type: string }
+    postalCode: { type: string }
+    country:    { type: string, pattern: "^[A-Z]{2}$", example: "US" }
+
+Timestamps:
+  type: object
+  properties:
+    createdAt:    { type: string, format: date-time }
+    updatedAt:    { type: string, format: date-time }
+    contractedAt: { type: string, format: date-time }
+    scheduledAt:  { type: string, format: date-time }
+    completedAt:  { type: string, format: date-time }
+    cancelledAt:  { type: string, format: date-time }

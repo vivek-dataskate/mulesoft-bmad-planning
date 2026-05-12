@@ -1,0 +1,287 @@
+{
+  "_comment": "Canonical model standards registry. Maps vertical + record type to the authoritative industry standard. Agents consult this when creating or validating canonical schemas — never invent field names when a standard exists.",
+  "_rules": [
+    "vertical is derived from company_context.json industry field — never from client name",
+    "standard = 'derived' means no dominant standard exists; use source-system field terminology as reference",
+    "When standard is set: canonical field names MUST align with the standard's field naming (note deviations in the YAML)",
+    "ediTransactionSet populated only for edi-b2b vertical — the EDI message IS the canonical for those records"
+  ],
+
+  "verticals": {
+
+    "commerce": {
+      "standard": "OAGIS 10.x",
+      "standardBody": "Open Applications Group (OAGi)",
+      "standardRef": "https://www.oagi.org/dnn5/Home/DownloadaStandard",
+      "description": "Cross-industry B2B standard used internally by Oracle, SAP, NetSuite, and most major ERPs. BODs (Business Object Documents) define the canonical message structure.",
+      "records": {
+        "customer": {
+          "standardDocument": "SyncCustomerParty BOD",
+          "standardRef": "OAGIS 10.x — CustomerPartyType",
+          "keyFieldAlignments": {
+            "customerId":   "CustomerID",
+            "name":         "Name/GivenName or OrganizationName",
+            "status":       "Status/Code",
+            "contacts":     "Contact[]",
+            "addresses":    "Address[]"
+          }
+        },
+        "order": {
+          "standardDocument": "ProcessPurchaseOrder BOD",
+          "standardRef": "OAGIS 10.x — PurchaseOrderType",
+          "keyFieldAlignments": {
+            "orderId":      "DocumentID/ID",
+            "customerId":   "BuyerParty/PartyIDs/ID",
+            "status":       "Status/Code",
+            "lines":        "Line[]",
+            "totals":       "TotalAmount / Tax / ShippingAmount"
+          }
+        },
+        "invoice": {
+          "standardDocument": "ProcessInvoice BOD",
+          "standardRef": "OAGIS 10.x — InvoiceType",
+          "keyFieldAlignments": {
+            "invoiceId":    "DocumentID/ID",
+            "customerId":   "BillToParty/PartyIDs/ID",
+            "status":       "Status/Code",
+            "totals":       "TotalAmount / TaxAmount / NetAmount"
+          }
+        },
+        "product": {
+          "standardDocument": "SyncItem BOD",
+          "standardRef": "OAGIS 10.x — ItemType",
+          "keyFieldAlignments": {
+            "productId":    "ItemID/ID",
+            "sku":          "ManufacturerItemID or ItemID/ID",
+            "status":       "Status/Code"
+          }
+        }
+      }
+    },
+
+    "construction": {
+      "standard": "derived",
+      "standardBody": null,
+      "standardRef": null,
+      "description": "No dominant cross-vendor standard for construction/contractor operations. Canonical derived from leading construction ERP field terminology: ComputerEase, Procore, Sage 300 CRE, Viewpoint.",
+      "derivedFrom": [
+        "ComputerEase Job and Contract entity schemas",
+        "Procore Project and Contract API v1.0",
+        "Sage 300 CRE Job Cost module terminology",
+        "CSI MasterFormat division codes (where applicable)"
+      ],
+      "records": {
+        "job": {
+          "derivedFrom": "ComputerEase Job entity + Procore Project resource",
+          "referenceFields": "CE: job_number, job_name, job_status, company_code, dept_code, customer_type"
+        },
+        "contract": {
+          "derivedFrom": "ComputerEase Contract + HD Portal contract types (299A, 299B, 118)",
+          "referenceFields": "CE: contract_id, contract_type, signed_date, contract_amount"
+        },
+        "change-order": {
+          "derivedFrom": "Construction industry standard terminology + ComputerEase Change Order module",
+          "referenceFields": "CE: change_order_id, job_id, approved_amount, status"
+        },
+        "subcontract": {
+          "derivedFrom": "ComputerEase Subcontract module",
+          "referenceFields": "CE: subcontract_id, vendor_id, contract_amount, paid_to_date"
+        }
+      }
+    },
+
+    "insurance": {
+      "standard": "ACORD XML",
+      "standardBody": "ACORD (Association for Cooperative Operations Research and Development)",
+      "standardRef": "https://www.acord.org/standards-architecture/acord-data-standards",
+      "description": "Universal standard for P&C, life, and health insurance data exchange. Every US carrier uses ACORD. Policy admin systems (Applied Epic, Guidewire, Duck Creek) natively produce ACORD XML.",
+      "records": {
+        "insured": {
+          "standardDocument": "ACORD InsuredOrPrincipal / PartyInfo",
+          "standardRef": "ACORD XML — InsuredOrPrincipalType",
+          "keyFieldAlignments": {
+            "insuredId":    "InsuredOrPrincipal/GeneralPartyInfo/NameInfo/PersonName or CommercialName",
+            "name":         "NameInfo/CommercialName/CommercialName or PersonName/GivenName",
+            "type":         "InsuredOrPrincipalInfo/InsuredOrPrincipalRoleCd (1=Insured, 2=Additional Insured)",
+            "addresses":    "GeneralPartyInfo/Addr[]",
+            "contacts":     "GeneralPartyInfo/Communications/PhoneInfo[] / EmailInfo[]"
+          }
+        },
+        "policy": {
+          "standardDocument": "ACORD PolicySummaryInfo / CommAutoPolicyQuoteInqRq",
+          "standardRef": "ACORD XML — PolicySummaryInfo + CommAutoLineBusiness",
+          "keyFieldAlignments": {
+            "policyId":         "PolicySummaryInfo/PolicyRef/PolicyNumber",
+            "effectiveDate":    "PolicySummaryInfo/ContractTerm/EffectiveDt",
+            "expirationDate":   "PolicySummaryInfo/ContractTerm/ExpirationDt",
+            "status":           "PolicySummaryInfo/PolicyStatusCd",
+            "lineOfBusiness":   "CommAutoLineBusiness / GeneralLiabilityLineBusiness (LOB-specific element)",
+            "premium":          "PolicySummaryInfo/CurrentTermAmt"
+          }
+        },
+        "claim": {
+          "standardDocument": "ACORD ClaimsSummaryInfo / FNOLRq",
+          "standardRef": "ACORD XML — ClaimsSummaryInfo",
+          "keyFieldAlignments": {
+            "claimId":          "ClaimsSummaryInfo/ClaimsRef/ClaimNumber",
+            "status":           "ClaimsSummaryInfo/ClaimsStatusCd",
+            "lossDate":         "ClaimsSummaryInfo/LossDt",
+            "reportedDate":     "ClaimsSummaryInfo/ReportedDt",
+            "financials":       "ClaimsSummaryInfo/TotalPaidAmt / TotalReserveAmt"
+          }
+        },
+        "endorsement": {
+          "standardDocument": "ACORD PolicyChangeRq",
+          "standardRef": "ACORD XML — PolicyChangeRqType",
+          "keyFieldAlignments": {
+            "endorsementId":    "PolicyChangeRq/RqUID",
+            "type":             "PolicyChangeRq/ChangeDesc",
+            "effectiveDate":    "PolicyChangeRq/PolicyRef/ContractTerm/EffectiveDt",
+            "premiumImpact":    "PolicyChangeRq/PolicySummaryInfo/CurrentTermAmt (delta)"
+          }
+        }
+      }
+    },
+
+    "healthcare": {
+      "standard": "HL7 FHIR R4",
+      "standardBody": "Health Level Seven International (HL7)",
+      "standardRef": "https://hl7.org/fhir/R4/",
+      "description": "The modern healthcare interoperability standard. Replaces HL7 v2 and CDA for new implementations. Required for CMS/ONC compliance. All major EHRs expose FHIR R4 APIs.",
+      "records": {
+        "patient": {
+          "standardDocument": "FHIR Patient resource",
+          "standardRef": "https://hl7.org/fhir/R4/patient.html",
+          "keyFieldAlignments": {
+            "patientId":    "Patient.id",
+            "name":         "Patient.name[] (HumanName)",
+            "dob":          "Patient.birthDate",
+            "gender":       "Patient.gender (male|female|other|unknown)",
+            "addresses":    "Patient.address[] (Address)",
+            "contacts":     "Patient.telecom[] (ContactPoint)"
+          }
+        },
+        "practitioner": {
+          "standardDocument": "FHIR Practitioner resource",
+          "standardRef": "https://hl7.org/fhir/R4/practitioner.html"
+        },
+        "encounter": {
+          "standardDocument": "FHIR Encounter resource",
+          "standardRef": "https://hl7.org/fhir/R4/encounter.html"
+        },
+        "claim": {
+          "standardDocument": "FHIR Claim resource",
+          "standardRef": "https://hl7.org/fhir/R4/claim.html"
+        },
+        "observation": {
+          "standardDocument": "FHIR Observation resource",
+          "standardRef": "https://hl7.org/fhir/R4/observation.html"
+        }
+      }
+    },
+
+    "hr": {
+      "standard": "HR Open Standards 4.x",
+      "standardBody": "HR Open Standards Consortium (formerly HR-XML)",
+      "standardRef": "https://hropenstandards.org/",
+      "description": "Cross-vendor HR data interchange standard. Workday, SAP SuccessFactors, and Oracle HCM align their APIs to HR Open Standards. Use for employee, position, and workforce data.",
+      "records": {
+        "employee": {
+          "standardDocument": "HR Open WorkerType / PersonType",
+          "standardRef": "HR Open Standards 4.x — WorkerType",
+          "keyFieldAlignments": {
+            "employeeId":   "Worker/WorkerID/ID",
+            "name":         "Worker/Person/PersonName",
+            "status":       "Worker/WorkerStatus/Code",
+            "position":     "Worker/WorkerAssignment/PositionID"
+          }
+        },
+        "position": {
+          "standardDocument": "HR Open PositionType",
+          "standardRef": "HR Open Standards 4.x — PositionType"
+        },
+        "timesheet": {
+          "standardDocument": "HR Open TimeCard",
+          "standardRef": "HR Open Standards 4.x — TimeCardType"
+        },
+        "payroll": {
+          "standardDocument": "HR Open EarningsType / DeductionType",
+          "standardRef": "HR Open Standards 4.x — PayrollBaseType"
+        }
+      }
+    },
+
+    "financial-services": {
+      "standard": "IFX 2.x / MISMO 3.x (mortgage)",
+      "standardBody": "IFX Forum / MISMO",
+      "standardRef": "https://www.ifxforum.org/ | https://www.mismo.org/",
+      "description": "IFX (Interactive Financial eXchange) for retail banking data. MISMO for mortgage/lending. FIBO (Financial Industry Business Ontology) for securities/capital markets.",
+      "records": {
+        "account": {
+          "standardDocument": "IFX AcctRec / AcctStatusRec",
+          "standardRef": "IFX 2.x — AcctRecType"
+        },
+        "transaction": {
+          "standardDocument": "IFX StmtTrnRec",
+          "standardRef": "IFX 2.x — StmtTrnRecType"
+        },
+        "loan": {
+          "standardDocument": "MISMO LoanType",
+          "standardRef": "MISMO 3.4 — LoanType"
+        }
+      }
+    },
+
+    "edi-b2b": {
+      "standard": "X12 / EDIFACT",
+      "standardBody": "ASC X12 (US) / UN/CEFACT (international)",
+      "standardRef": "https://www.x12.org/standards/ | https://unece.org/trade/uncefact",
+      "description": "For B2B EDI integrations (G pattern), the EDI transaction set IS the canonical. Do not create a separate canonical YAML — the X12/EDIFACT schema serves that role. Reference the transaction set number in decisions.json.",
+      "_note": "No canonical YAML needed — EDI schema is the canonical for G-pattern flows",
+      "records": {
+        "order": {
+          "standardDocument": "X12 850 Purchase Order",
+          "ediTransactionSet": "850"
+        },
+        "invoice": {
+          "standardDocument": "X12 810 Invoice",
+          "ediTransactionSet": "810"
+        },
+        "shipment-notice": {
+          "standardDocument": "X12 856 Ship Notice/Manifest",
+          "ediTransactionSet": "856"
+        },
+        "acknowledgment": {
+          "standardDocument": "X12 997 Functional Acknowledgment",
+          "ediTransactionSet": "997"
+        },
+        "payment": {
+          "standardDocument": "X12 820 Payment Order/Remittance Advice",
+          "ediTransactionSet": "820"
+        },
+        "inventory": {
+          "standardDocument": "X12 846 Inventory Inquiry/Advice",
+          "ediTransactionSet": "846"
+        }
+      }
+    },
+
+    "nonprofit": {
+      "standard": "derived",
+      "standardBody": null,
+      "description": "No dominant integration standard. Canonical derived from Salesforce NPSP (Nonprofit Success Pack) object model, which is the de facto CRM standard for nonprofits.",
+      "derivedFrom": ["Salesforce NPSP object model (Contact, Account, Opportunity, npe01__OppPayment__c)"],
+      "records": {
+        "constituent": {
+          "derivedFrom": "Salesforce NPSP Contact + Account (household model)"
+        },
+        "donation": {
+          "derivedFrom": "Salesforce Opportunity + npe01__OppPayment__c"
+        },
+        "grant": {
+          "derivedFrom": "Salesforce Opportunity (RecordType=Grant)"
+        }
+      }
+    }
+  }
+}

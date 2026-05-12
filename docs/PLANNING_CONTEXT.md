@@ -211,6 +211,15 @@ mulesoft-bmad-planning/
   │     ├── DESIGN_STANDARDS.md
   │     ├── decisions-schema.json
   │     ├── connector-registry.json
+  │     ├── canonical-models/
+  │     │     ├── commerce/
+  │     │     │     ├── canonical-customer.yaml
+  │     │     │     ├── canonical-order.yaml
+  │     │     │     └── canonical-invoice.yaml
+  │     │     └── construction/
+  │     │           ├── canonical-job.yaml
+  │     │           ├── canonical-contract.yaml
+  │     │           └── canonical-change-order.yaml
   │     └── scenarios/
   │           ├── real-time.md              (A: request-reply)
   │           ├── event-driven.md           (B: event-driven 1-to-1)
@@ -1170,7 +1179,9 @@ If > 6 months old, prints warning:
         "source": "",
         "target": "",
         "trigger": "http|scheduler|platform-event|mq-subscriber|cdc|sftp|db-poll",
-        "description": ""
+        "description": "",
+        "entity": "",
+        "canonicalModel": "standards/canonical-models/{vertical}/canonical-{record}.yaml"
       }
     ]
   },
@@ -1669,6 +1680,69 @@ CI/CD: github-actions | Environments: dev, uat, prod
 Deployment: cloudhub2 us-east-1
 Flow control: messageTtl=24h, maxConcurrency=4, backpressureEnabled=true
 Compensation: retry (no financial mutations)
+
+---
+
+## CANONICAL MODEL LIBRARY
+
+**Path:** `standards/canonical-models/{vertical}/canonical-{record}.yaml`
+
+The canonical model library is the hub schema reference for all integration field mapping.
+It is organized by industry vertical, not by system. Systems map INTO canonical; canonical maps OUT to other systems.
+The DWL transforms that implement these mappings live in `playbooks/{system}/objects/{record}/`.
+
+### Vertical → Record mapping
+
+| Vertical slug | Canonical records |
+|--------------|-------------------|
+| `commerce`   | customer, order, invoice |
+| `construction` | job, contract, change-order |
+| (add new verticals per engagement) | |
+
+### Agent responsibilities
+
+**Scout (Step 7D — runs every engagement):**
+1. Read `projects/{client}/company_context.json` — `industry` field → derive vertical slug. NEVER infer from client name.
+2. For each object in `businessObjects[]`: check if `standards/canonical-models/{vertical}/canonical-{record}.yaml` exists.
+3. MISSING → create stub YAML with version `1.0.0-stub`. Derive fields from playbook DWL files + web research.
+4. Create `projects/{client}/canonical-extensions.yaml` shell (empty addedFields/renamedFields/omittedFields).
+
+**Analyst (Step 5c — runs every MA):**
+1. For each field mapping table in the intake questionnaire: validate against the canonical model for that record type.
+2. Populate `projects/{client}/canonical-extensions.yaml`:
+   - `addedFields` — client fields not in canonical (with type, description, source system)
+   - `renamedFields` — canonical field name ↔ client system field name mapping
+   - `omittedFields` — canonical fields the client does not use (with reason)
+3. If a stub canonical model exists and intake confirms fields: promote stub by adding confirmed fields and removing `stub` from version.
+
+**Architect (CO — Close-Out):**
+- If a stub has been confirmed by 2+ client engagements: promote to versioned schema, remove stub marker.
+- Add new verticals when new client domains are encountered.
+
+### canonical-extensions.yaml format
+
+```yaml
+vertical: construction
+client: peerless
+generatedBy: scout
+extensions:
+  - baseModel: standards/canonical-models/construction/canonical-job.yaml
+    record: Job
+    addedFields:
+      - name: companyCode
+        type: string
+        description: ComputerEase company code (Peerless — 00 for IL/WI)
+        sourceSystem: ComputerEase
+        requiredForClient: true
+    renamedFields:
+      - canonical: jobId
+        client: erpJobNumber
+        clientFormat: "{YY} HD {counter} {initials}"
+        sourceSystem: ComputerEase
+    omittedFields:
+      - canonical: financials.overhead
+        reason: Not tracked separately in ComputerEase for HD residential jobs
+```
 
 ---
 

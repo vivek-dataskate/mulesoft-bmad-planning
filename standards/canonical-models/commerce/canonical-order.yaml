@@ -1,13 +1,22 @@
 title: Canonical Order
 version: "1.0.0"
+standard: "OAGIS 10.x — ProcessPurchaseOrder BOD"
+standardBody: "Open Applications Group (OAGi)"
+standardRef: "https://www.oagi.org/dnn5/Home/DownloadaStandard"
+deviations:
+  - "Field names use camelCase (not OAGIS PascalCase) — DataWeave convention"
+  - "orderId maps to OAGIS DocumentID/ID — simplified to flat string"
+  - "customerId maps to OAGIS BuyerParty/PartyIDs/ID — not nested"
+  - "status enum is canonical; OAGIS uses Status/Code with implementation-defined values"
+  - "lines[] flattened from OAGIS Line[] with nested PurchaseOrderLineType"
+  - "totals maps to OAGIS TotalAmount/Tax/ShippingAmount — renamed for clarity"
 description: |
   Canonical order entity schema used across all client integrations.
   Source systems (Salesforce, NetSuite, Dynamics 365) map INTO this schema.
   Target systems map OUT OF this schema.
   DWL transforms handle the source→canonical and canonical→target conversions.
-
-  Usage in OAS spec:
-    $ref: 'exchange_modules/{ORG_ID}/canonical-order-fragment/1.0.0/canonical-order.yaml#/Order'
+  OAGIS alignment: PurchaseOrderType — key fields orderId→DocumentID/ID,
+  customerId→BuyerParty/PartyIDs/ID, lines→Line[], totals→TotalAmount/Tax/ShippingAmount.
 
 type: object
 required:

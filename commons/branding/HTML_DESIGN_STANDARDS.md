@@ -74,13 +74,13 @@ body {
 ## Page Layout
 
 ```
-max-width: 960px
+max-width: 900px
 margin: 0 auto
-padding: 0 16px
-background: #F5F5F5  ← page bg (all HTML docs)
+padding: 0 56px 80px   ← generous horizontal, matches proposal
+background: #fff       ← white body for all HTML docs (NOT #F5F5F5)
 ```
 
-Content blocks have `background: #fff`, `border: 1px solid var(--border)`, `border-radius: 8px`.
+Sections are separated by `border-bottom: 1px solid var(--border)` with `padding: 40px 0` — **no card boxes, no background colors on section wrappers**. The white-page + border-separator approach matches the proposal and keeps the document feeling clean. Gray page backgrounds (`#F5F5F5`) and border-radius card wrappers per section create visual clutter and must not be used.
 
 ---
 
@@ -106,14 +106,14 @@ CSS classes: `.header`, `.header-eyebrow`, `.header-title-block` (left 4px `--br
 ## Section Headers
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  ●  SECTION TITLE                                         │
-│     (section number = 32px red circle; title 18px 800)   │
-└──────────────────────────────────────────────────────────┘
-        ↑ 2px solid --brand bottom border
+1  ←  .section-num (11px, --brand, uppercase, letter-spaced)
+Section Title   ←  .section-title (18px 700, --dark)
+──────────────────────────────────────────  ← 1px --border bottom
 ```
 
-CSS classes: `.section-head`, `.section-num` (32px circle, `--brand` fill), `.section-title`.
+`.section-head` is a flex row (`align-items: baseline`, `gap: 10px`) with a `border-bottom: 1px solid var(--border)` and `margin-bottom: 28px`. The section number is **plain red text** — not a circle, not a badge. No dark background on the section header. This matches the proposal's `h2` (small red eyebrow) + `h3` (large dark title) pattern.
+
+CSS classes: `.section-head` (flex row, border-bottom), `.section-num` (11px 700 `--brand` uppercase), `.section-title` (18px 700 `--dark`).
 
 ---
 
@@ -134,27 +134,30 @@ CSS classes: `.section-head`, `.section-num` (32px circle, `--brand` fill), `.se
 ## Question Blocks (Intake Forms)
 
 ```
-Q1 *              ← .q-id (13px 800 --brand, * = required)
-Question text     ← .q-text (15px 500)
+Q1                ← .q-id (11px 700 --brand uppercase, 1px letter-spacing)
+Question text     ← .q-text (15px 500 --dark, 1.6 line-height)
 [pill] [pill]     ← .q-options (flex-wrap, clickable pills — see below)
 ┌──────────────┐
-│ textarea     │  ← textarea.answer (white / amber / green / red bg)
+│ textarea     │  ← textarea.answer (white / amber / green bg)
 └──────────────┘
+─ ─ ─ ─ ─ ─ ─ ─  ← 1px dashed --border separates questions (28px padding)
 ```
 
 **Option pills** (multiple-choice questions):
-- Resting state: `#F5F5F5` bg, `--border` border, `--mid` text
+- Resting state: `#F7F7F7` bg, `--border` border, `--mid` text
 - Hover: `--light` bg, `--brand` border and text
 - Selected: `--brand` bg, white text, 600 weight
 - Clicking a pill auto-populates the textarea below; multiple pills can be selected
 
-**Answer field states:**
+**Answer field states** (use soft border variants — not saturated):
 | State | Class | Background | Border |
 |---|---|---|---|
 | Empty, not required | — | white | `--border` |
-| Pre-filled | `is-prefilled` | `--amber-bg` | `#F6D860` |
-| Answered by user | `is-answered` | `#F0FFF4` | `#68D391` |
+| Pre-filled | `is-prefilled` | `--amber-bg` | `#FDE68A` |
+| Answered by user | `is-answered` | `#F0FFF4` | `#A7F3D0` |
 | Empty, required | `mandatory-empty` | `#FFF5F5` | `#F87171` |
+
+**Hint panels** (`.q-hint`, `.tbl-hint`) use `#FAFAFA` background with `--border` left border — **not** blue (`--blue-bg` / `--blue-br`). Blue left-border styling is reserved for the Business Context Panel only.
 
 ---
 
@@ -305,4 +308,5 @@ Source: always read `projects/{client}/project.json` → `architectEmail`. Never
 
 | Date | Change | Author |
 |---|---|---|
+| 2026-05-12 | Intake layout refinement: white body bg, no dark section headers, flat section separators, soft border colors for answer states, hint panels use #FAFAFA not blue | Vivek + Claude |
 | 2026-05-11 | Initial version — extracted from proposal and intake HTML | Vivek + Claude |
