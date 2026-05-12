@@ -1686,10 +1686,29 @@ Compensation: retry (no financial mutations)
 ## CANONICAL MODEL LIBRARY
 
 **Path:** `standards/canonical-models/{vertical}/canonical-{record}.yaml`
+**Registry:** `standards/canonical-models/registry.json` — authoritative map of vertical → industry standard → record → field alignments
 
 The canonical model library is the hub schema reference for all integration field mapping.
 It is organized by industry vertical, not by system. Systems map INTO canonical; canonical maps OUT to other systems.
 The DWL transforms that implement these mappings live in `playbooks/{system}/objects/{record}/`.
+
+### Standards Registry
+
+`standards/canonical-models/registry.json` maps each vertical to the authoritative industry standard:
+
+| Vertical slug | Standard | Governs |
+|---|---|---|
+| `commerce` | OAGIS 10.x | customer, order, invoice, product |
+| `construction` | derived (CE/Procore/Sage) | job, contract, change-order, subcontract |
+| `insurance` | ACORD XML | insured, policy, claim, endorsement |
+| `healthcare` | HL7 FHIR R4 | patient, practitioner, encounter, claim |
+| `hr` | HR Open Standards 4.x | employee, position, timesheet, payroll |
+| `financial-services` | IFX 2.x / MISMO 3.x | account, transaction, loan |
+| `edi-b2b` | X12 / EDIFACT | order (850), invoice (810), shipment (856), ACK (997) |
+| `nonprofit` | derived (Salesforce NPSP) | constituent, donation, grant |
+
+Agents **must read registry.json before creating any canonical stub or validating field mappings.**
+The `keyFieldAlignments` entries define the canonical field names — deviations are `renamedFields`, not errors.
 
 ### Vertical → Record mapping
 
@@ -1697,23 +1716,25 @@ The DWL transforms that implement these mappings live in `playbooks/{system}/obj
 |--------------|-------------------|
 | `commerce`   | customer, order, invoice |
 | `construction` | job, contract, change-order |
-| (add new verticals per engagement) | |
+| (add new verticals per engagement using registry.json as guide) | |
 
 ### Agent responsibilities
 
 **Scout (Step 7D — runs every engagement):**
 1. Read `projects/{client}/company_context.json` — `industry` field → derive vertical slug. NEVER infer from client name.
-2. For each object in `businessObjects[]`: check if `standards/canonical-models/{vertical}/canonical-{record}.yaml` exists.
-3. MISSING → create stub YAML with version `1.0.0-stub`. Derive fields from playbook DWL files + web research.
-4. Create `projects/{client}/canonical-extensions.yaml` shell (empty addedFields/renamedFields/omittedFields).
+2. Read `standards/canonical-models/registry.json` — find the vertical entry, note `standard`, `standardBody`, `standardRef`, `keyFieldAlignments`.
+3. For each object in `businessObjects[]`: check if `standards/canonical-models/{vertical}/canonical-{record}.yaml` exists.
+4. MISSING → create stub YAML pre-populated with the registry's `standard`/`standardBody`/`standardRef`/`deviations` headers. Derive fields from `keyFieldAlignments` + playbook DWL files + web research.
+5. Create `projects/{client}/canonical-extensions.yaml` shell (empty addedFields/renamedFields/omittedFields).
 
 **Analyst (Step 5c — runs every MA):**
-1. For each field mapping table in the intake questionnaire: validate against the canonical model for that record type.
-2. Populate `projects/{client}/canonical-extensions.yaml`:
+1. Read `standards/canonical-models/registry.json` — confirm the authoritative standard for this vertical and its `keyFieldAlignments`.
+2. For each field mapping table in the intake questionnaire: validate against the canonical model for that record type.
+3. Populate `projects/{client}/canonical-extensions.yaml`:
    - `addedFields` — client fields not in canonical (with type, description, source system)
    - `renamedFields` — canonical field name ↔ client system field name mapping
    - `omittedFields` — canonical fields the client does not use (with reason)
-3. If a stub canonical model exists and intake confirms fields: promote stub by adding confirmed fields and removing `stub` from version.
+4. If a stub canonical model exists and intake confirms fields: promote stub by adding confirmed fields and removing `stub` from version.
 
 **Architect (CO — Close-Out):**
 - If a stub has been confirmed by 2+ client engagements: promote to versioned schema, remove stub marker.

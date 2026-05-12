@@ -1,0 +1,2278 @@
+{
+  "_metadata": {
+    "description": "Tier-1 connector lookup \u2014 used by agents for system inference ONLY. Contains displayName, auth, category, licenseRequired per connector key. For gotchas and authOptions, use connector-index.json (targeted per-system query). For Maven/build fields, use connector-registry.json.",
+    "howToUse": "Load this file to identify connector keys from system names found in transcripts. Then run: python3 standards/query-connector.py salesforce netsuite shopify \u2014 to get full agent entries from connector-index.json for detected systems only.",
+    "totalConnectors": 350,
+    "regenerate": "node standards/build-connector-index.js"
+  },
+  "connectors": {
+    "salesforce": {
+      "displayName": "Salesforce",
+      "auth": "oauth-jwt",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "salesforce-data-cloud": {
+      "displayName": "Salesforce Data Cloud",
+      "auth": "oauth2-client-credentials",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "salesforce-marketing-cloud": {
+      "displayName": "Salesforce Marketing Cloud",
+      "auth": "oauth2-client-credentials",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "salesforce-commerce-cloud-shop": {
+      "displayName": "Salesforce Commerce Cloud Shop API",
+      "auth": "oauth2",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "agentforce": {
+      "_category": "ai_ml"
+    },
+    "einstein-ai": {
+      "_category": "ai_ml"
+    },
+    "salesforce-composite": {
+      "displayName": "Salesforce Composite",
+      "auth": "oauth-jwt",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "salesforce-einstein-analytics": {
+      "displayName": "Salesforce Einstein Analytics (Tableau CRM)",
+      "auth": "oauth-jwt",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "salesforce-marketing-cloud-rest": {
+      "displayName": "Salesforce Marketing Cloud REST",
+      "auth": "oauth2-client-credentials",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "salesforce-pubsub": {
+      "displayName": "Salesforce Pub/Sub API",
+      "auth": "oauth-jwt",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "salesforce-b2c-commerce-data": {
+      "displayName": "Salesforce B2C Commerce Cloud Data",
+      "auth": "oauth2-client-credentials",
+      "category": "salesforce_ecosystem",
+      "licenseRequired": false,
+      "_category": "salesforce_ecosystem"
+    },
+    "netsuite": {
+      "displayName": "Oracle NetSuite",
+      "auth": "token-based-auth",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "netsuite-restlet": {
+      "displayName": "NetSuite RESTlet",
+      "auth": "oauth1",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "sap": {
+      "displayName": "SAP ERP (JCo / NetWeaver)",
+      "auth": "sap-logon",
+      "category": "erp_finance",
+      "licenseRequired": true,
+      "_category": "erp_finance"
+    },
+    "sap-s4hana-cloud": {
+      "displayName": "SAP S/4HANA Cloud",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "sap-concur": {
+      "displayName": "SAP Concur",
+      "auth": "oauth2",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "workday": {
+      "displayName": "Workday",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "oracle-ebs-121": {
+      "displayName": "Oracle E-Business Suite 12.1",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "oracle-ebs-122": {
+      "displayName": "Oracle E-Business Suite 12.2",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "oracle-peoplesoft": {
+      "displayName": "Oracle PeopleSoft",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "oracle-siebel": {
+      "displayName": "Oracle Siebel",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "microsoft-dynamics-365-finance-ops": {
+      "displayName": "Microsoft Dynamics 365 Finance & Operations",
+      "auth": "oauth2-client-credentials",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "quickbooks-online": {
+      "displayName": "QuickBooks Online",
+      "auth": "oauth2",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "sap-successfactors": {
+      "displayName": "SAP SuccessFactors",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "sap-s4hana-soap": {
+      "displayName": "SAP S/4HANA SOAP",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "oracle-erp-cloud": {
+      "displayName": "Oracle ERP Cloud",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "oracle-hcm-cloud": {
+      "displayName": "Oracle HCM Cloud",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "netsuite-openair": {
+      "displayName": "NetSuite OpenAir",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "zuora": {
+      "displayName": "Zuora",
+      "auth": "oauth2-client-credentials",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "zuora-aqua": {
+      "displayName": "Zuora AQuA (Aggregate Query API)",
+      "auth": "oauth2-client-credentials",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "xero": {
+      "displayName": "Xero Accounting",
+      "auth": "oauth2",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "coupa": {
+      "displayName": "Coupa",
+      "auth": "oauth2-client-credentials",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "medius": {
+      "displayName": "Medius (Accounts Payable Automation)",
+      "auth": "oauth2-client-credentials",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "jack-henry-jxchange": {
+      "displayName": "Jack Henry jXchange",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "epicor": {
+      "displayName": "Epicor (Kinetic / ERP10)",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "infor-cloudsuite": {
+      "displayName": "Infor CloudSuite",
+      "auth": "oauth2",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "acumatica": {
+      "displayName": "Acumatica",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "sage-intacct": {
+      "displayName": "Sage Intacct",
+      "auth": "xml-session",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "syspro": {
+      "displayName": "SYSPRO",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "sage-x3": {
+      "displayName": "Sage X3 (People)",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "deltek": {
+      "displayName": "Deltek (Costpoint / Vantagepoint)",
+      "auth": "basic",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "microsoft-dynamics-365": {
+      "displayName": "Microsoft Dynamics 365",
+      "auth": "oauth2-client-credentials",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "marketo": {
+      "displayName": "Adobe Marketo Engage",
+      "auth": "oauth2-client-credentials",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "microsoft-dynamics-crm": {
+      "displayName": "Microsoft Dynamics CRM",
+      "auth": "oauth2-client-credentials",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "microsoft-dynamics-business-central": {
+      "displayName": "Microsoft Dynamics 365 Business Central",
+      "auth": "oauth2-client-credentials",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "microsoft-dynamics-ax": {
+      "displayName": "Microsoft Dynamics AX 2012",
+      "auth": "ntlm",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "microsoft-dynamics-gp": {
+      "displayName": "Microsoft Dynamics GP",
+      "auth": "basic",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "microsoft-dynamics-nav": {
+      "displayName": "Microsoft Dynamics NAV",
+      "auth": "ntlm",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "zendesk": {
+      "displayName": "Zendesk",
+      "auth": "api-token",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "shopify": {
+      "displayName": "Shopify",
+      "auth": "api-key",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "stripe": {
+      "displayName": "Stripe",
+      "auth": "api-key",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "braintree": {
+      "displayName": "Braintree (PayPal)",
+      "auth": "api-key",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "intercom": {
+      "displayName": "Intercom",
+      "auth": "bearer-token",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "adobe-commerce-magento": {
+      "displayName": "Adobe Commerce (Magento)",
+      "auth": "oauth1",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "hubspot-crm": {
+      "displayName": "HubSpot CRM",
+      "auth": "oauth2",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "zoho-crm": {
+      "displayName": "Zoho CRM",
+      "auth": "oauth2",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "pipedrive": {
+      "displayName": "Pipedrive",
+      "auth": "api-key",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "freshsales": {
+      "displayName": "Freshsales (Freshworks CRM)",
+      "auth": "api-key",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "sugarcrm": {
+      "displayName": "SugarCRM",
+      "auth": "oauth2",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "outreach": {
+      "displayName": "Outreach (Sales Engagement)",
+      "auth": "oauth2",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "spiff": {
+      "displayName": "Salesforce Spiff",
+      "auth": "unknown",
+      "_category": "crm_marketing"
+    },
+    "gravity-forms": {
+      "displayName": "Gravity Forms / WordPress",
+      "type": "via-http",
+      "auth": "none (inbound webhook) or api-key (outbound REST)",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "pharmacyhub": {
+      "displayName": "PharmacyHub",
+      "type": "via-sftp",
+      "auth": "unknown \u2014 to be confirmed by Architect",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "pipeline-medical": {
+      "displayName": "Pipeline Medical",
+      "type": "via-sftp",
+      "auth": "unknown \u2014 to be confirmed by Architect",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "hd-portal": {
+      "displayName": "HD Portal (Home Depot Service Center)",
+      "type": "via-http",
+      "auth": "api-key",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "computerease": {
+      "displayName": "ComputerEase (Deltek \u2014 specialty contractor ERP)",
+      "type": "via-http",
+      "auth": "unknown \u2014 to be confirmed via Deltek support",
+      "category": "crm_marketing",
+      "licenseRequired": false,
+      "_category": "crm_marketing"
+    },
+    "servicenow": {
+      "displayName": "ServiceNow",
+      "auth": "basic",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "jira": {
+      "displayName": "Jira",
+      "auth": "basic",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "asana": {
+      "displayName": "Asana",
+      "auth": "oauth2",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "docusign": {
+      "displayName": "DocuSign",
+      "auth": "oauth2",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "bmc-remedy": {
+      "displayName": "BMC Remedy AR System",
+      "auth": "basic",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "trello": {
+      "displayName": "Trello",
+      "auth": "api-key",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "smartsheet": {
+      "displayName": "Smartsheet",
+      "auth": "api-key",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "clickup": {
+      "displayName": "ClickUp",
+      "auth": "api-key",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "freshdesk": {
+      "displayName": "Freshdesk",
+      "auth": "api-key",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "freshservice": {
+      "displayName": "Freshservice",
+      "auth": "api-key",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "manageengine": {
+      "displayName": "ManageEngine ServiceDesk Plus",
+      "auth": "api-key",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "pagerduty-itsm": {
+      "displayName": "PagerDuty (ITSM)",
+      "auth": "api-key",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "anypoint-mq": {
+      "displayName": "Anypoint MQ",
+      "auth": "client-credentials",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "kafka": {
+      "displayName": "Apache Kafka",
+      "auth": "sasl-or-none",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "confluent-schema-registry": {
+      "displayName": "Confluent Schema Registry",
+      "auth": "basic",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "amqp": {
+      "displayName": "AMQP (RabbitMQ)",
+      "auth": "basic",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "jms": {
+      "displayName": "JMS (ActiveMQ / IBM MQ / others)",
+      "auth": "basic",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "azure-service-bus": {
+      "displayName": "Azure Service Bus",
+      "auth": "connection-string",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "azure-event-hubs": {
+      "displayName": "Azure Event Hubs",
+      "auth": "connection-string",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "amazon-sqs": {
+      "displayName": "Amazon SQS",
+      "auth": "aws-credentials",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "amazon-sns": {
+      "displayName": "Amazon SNS",
+      "auth": "aws-credentials",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "amazon-kinesis": {
+      "displayName": "Amazon Kinesis Data Streams",
+      "auth": "aws-credentials",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "mcp": {
+      "displayName": "MCP (Model Context Protocol)",
+      "auth": "oauth2",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "ibm-mq": {
+      "displayName": "IBM MQ",
+      "auth": "username-password",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "mqtt": {
+      "displayName": "MQTT",
+      "auth": "username-password",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "vm": {
+      "displayName": "VM (In-Memory Queue)",
+      "auth": "none",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "messaging_eventing"
+    },
+    "google-pubsub": {
+      "_category": "google_cloud"
+    },
+    "database": {
+      "displayName": "Database (Generic \u2014 MySQL, PostgreSQL, Oracle, MSSQL, MariaDB)",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "mongodb": {
+      "displayName": "MongoDB",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "amazon-dynamodb": {
+      "displayName": "Amazon DynamoDB",
+      "auth": "aws-credentials",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "amazon-rds": {
+      "displayName": "Amazon RDS",
+      "auth": "aws-credentials",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "amazon-redshift": {
+      "displayName": "Amazon Redshift",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "redis": {
+      "displayName": "Redis",
+      "auth": "password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "cassandra": {
+      "displayName": "Apache Cassandra",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "azure-cosmos-db": {
+      "displayName": "Azure Cosmos DB",
+      "auth": "connection-string",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "google-bigquery": {
+      "_category": "google_cloud"
+    },
+    "neo4j": {
+      "displayName": "Neo4j",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "snowflake": {
+      "displayName": "Snowflake",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "hadoop-hdfs": {
+      "displayName": "Hadoop (HDFS)",
+      "auth": "kerberos",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "reltio": {
+      "displayName": "Reltio",
+      "auth": "oauth2-client-credentials",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "database-mysql": {
+      "auth": "username-password",
+      "licenseRequired": false,
+      "displayName": "Database - MySQL",
+      "category": "database",
+      "_category": "database"
+    },
+    "database-postgresql": {
+      "auth": "username-password",
+      "licenseRequired": false,
+      "displayName": "Database - PostgreSQL",
+      "category": "database",
+      "_category": "database"
+    },
+    "database-sqlserver": {
+      "displayName": "Database - Microsoft SQL Server",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "database-oracle": {
+      "displayName": "Database - Oracle",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "database-db2": {
+      "displayName": "Database - IBM DB2",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "database-saphana": {
+      "displayName": "Database - SAP HANA",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "database-mariadb": {
+      "displayName": "Database - MariaDB",
+      "auth": "username-password",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "influxdb": {
+      "displayName": "InfluxDB",
+      "auth": "api-key",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "databricks": {
+      "displayName": "Databricks",
+      "auth": "api-key",
+      "category": "database",
+      "licenseRequired": false,
+      "_category": "database"
+    },
+    "file": {
+      "displayName": "File",
+      "auth": "none",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "ftp": {
+      "displayName": "FTP",
+      "auth": "username-password",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "ftps": {
+      "displayName": "FTPS",
+      "auth": "username-password",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "sftp": {
+      "displayName": "SFTP",
+      "auth": "username-password",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "amazon-s3": {
+      "displayName": "Amazon S3",
+      "auth": "aws-credentials",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "azure-blob": {
+      "displayName": "Azure Blob Storage",
+      "auth": "connection-string",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "azure-data-lake": {
+      "displayName": "Azure Data Lake Storage",
+      "auth": "connection-string",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "box": {
+      "displayName": "Box",
+      "auth": "oauth2",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "dropbox": {
+      "displayName": "Dropbox",
+      "auth": "oauth2",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "smb": {
+      "displayName": "SMB (Windows File Share)",
+      "auth": "username-password",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "microsoft-sharepoint": {
+      "_category": "microsoft_productivity"
+    },
+    "microsoft-onedrive": {
+      "_category": "microsoft_productivity"
+    },
+    "laserfiche": {
+      "displayName": "Laserfiche",
+      "auth": "oauth2",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "file_storage"
+    },
+    "email": {
+      "displayName": "Email (SMTP/IMAP/POP3)",
+      "auth": "smtp-credentials",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "gmail": {
+      "displayName": "Gmail",
+      "auth": "oauth2",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "twilio": {
+      "displayName": "Twilio",
+      "auth": "basic",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "slack": {
+      "displayName": "Slack",
+      "auth": "oauth2",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "microsoft-teams": {
+      "displayName": "Microsoft Teams",
+      "auth": "oauth2-client-credentials",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "microsoft-outlook-365": {
+      "displayName": "Microsoft Outlook 365",
+      "auth": "oauth2-client-credentials",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "zoom": {
+      "displayName": "Zoom",
+      "auth": "oauth2-client-credentials",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "mailchimp": {
+      "displayName": "Mailchimp",
+      "auth": "api-key",
+      "category": "communication",
+      "licenseRequired": false,
+      "_category": "communication"
+    },
+    "amazon-lambda": {
+      "displayName": "Amazon Lambda",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-ec2": {
+      "displayName": "Amazon EC2",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-bedrock": {
+      "_category": "ai_ml"
+    },
+    "amazon-secrets-manager": {
+      "displayName": "Amazon Secrets Manager Properties Provider",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-ses": {
+      "displayName": "Amazon SES",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-cloudwatch": {
+      "displayName": "Amazon CloudWatch",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-cognito": {
+      "displayName": "Amazon Cognito",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-api-gateway": {
+      "displayName": "Amazon API Gateway",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-ecs": {
+      "displayName": "Amazon ECS / EKS",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "amazon-step-functions": {
+      "displayName": "Amazon Step Functions",
+      "auth": "aws-credentials",
+      "category": "aws_cloud",
+      "licenseRequired": false,
+      "_category": "aws_cloud"
+    },
+    "azure-key-vault": {
+      "displayName": "Azure Key Vault",
+      "auth": "service-principal",
+      "category": "azure_cloud",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "azure-key-vault-properties": {
+      "displayName": "Azure Key Vault Properties Provider",
+      "auth": "service-principal",
+      "category": "azure_cloud",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "azure-service-bus-management": {
+      "displayName": "Azure Service Bus Management",
+      "auth": "service-principal",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "microsoft-excel-online": {
+      "_category": "microsoft_productivity"
+    },
+    "azure-active-directory": {
+      "displayName": "Azure Active Directory (Entra ID)",
+      "auth": "oauth2",
+      "category": "azure_cloud",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "azure-cognitive-services": {
+      "displayName": "Azure Cognitive Services (AI)",
+      "auth": "api-key",
+      "category": "azure_cloud",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "azure-functions": {
+      "displayName": "Azure Functions",
+      "auth": "function-key",
+      "category": "azure_cloud",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "azure-api-management": {
+      "displayName": "Azure API Management",
+      "auth": "subscription-key",
+      "category": "azure_cloud",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "azure-monitor": {
+      "displayName": "Azure Monitor",
+      "auth": "oauth2",
+      "category": "azure_cloud",
+      "licenseRequired": false,
+      "_category": "azure_cloud"
+    },
+    "edifact": {
+      "displayName": "EDIFACT EDI",
+      "auth": "none",
+      "category": "edi_b2b",
+      "licenseRequired": false,
+      "_category": "edi_b2b"
+    },
+    "as2": {
+      "displayName": "AS2",
+      "auth": "digital-signature",
+      "category": "edi_b2b",
+      "licenseRequired": false,
+      "_category": "edi_b2b"
+    },
+    "a2a": {
+      "displayName": "A2A (Application-to-Application)",
+      "auth": "varies",
+      "category": "edi_b2b",
+      "licenseRequired": false,
+      "_category": "edi_b2b"
+    },
+    "rosettanet": {
+      "displayName": "RosettaNet",
+      "auth": "ssl",
+      "category": "edi_b2b",
+      "licenseRequired": false,
+      "_category": "edi_b2b"
+    },
+    "dhl-tracking": {
+      "displayName": "DHL Tracking",
+      "auth": "api-key",
+      "category": "edi_b2b",
+      "licenseRequired": false,
+      "_category": "edi_b2b"
+    },
+    "x12": {
+      "displayName": "X12 EDI",
+      "auth": "none",
+      "category": "edi_b2b",
+      "licenseRequired": false,
+      "_category": "edi_b2b"
+    },
+    "tradacoms": {
+      "displayName": "TRADACOMS EDI",
+      "auth": "none",
+      "category": "edi_b2b",
+      "licenseRequired": false,
+      "_category": "edi_b2b"
+    },
+    "hl7": {
+      "_category": "healthcare"
+    },
+    "hl7-mllp": {
+      "_category": "healthcare"
+    },
+    "mulesoft-vectors": {
+      "displayName": "MuleSoft Vectors",
+      "auth": "varies",
+      "category": "ai_ml",
+      "licenseRequired": false,
+      "_category": "ai_ml"
+    },
+    "mulesoft-ai-chain": {
+      "displayName": "MuleSoft AI Chain",
+      "auth": "api-key",
+      "category": "ai_ml",
+      "licenseRequired": false,
+      "_category": "ai_ml"
+    },
+    "inference": {
+      "displayName": "Inference (MuleSoft)",
+      "auth": "api-key",
+      "category": "ai_ml",
+      "licenseRequired": false,
+      "_category": "ai_ml"
+    },
+    "chatgpt": {
+      "displayName": "ChatGPT / OpenAI",
+      "auth": "api-key",
+      "category": "ai_ml",
+      "licenseRequired": false,
+      "_category": "ai_ml"
+    },
+    "mulesoft-forge-idp": {
+      "displayName": "MuleSoft Forge IDP Connector (Preferred)",
+      "auth": "oauth2-client-credentials",
+      "category": "ai_ml",
+      "licenseRequired": false,
+      "_category": "ai_ml"
+    },
+    "anypoint-idp": {
+      "displayName": "Anypoint IDP via HTTP (Fallback \u2014 use mulesoft-forge-idp instead)",
+      "auth": "oauth2-client-credentials",
+      "category": "ai_ml",
+      "licenseRequired": false,
+      "_category": "ai_ml"
+    },
+    "caqh": {
+      "displayName": "CAQH",
+      "auth": "basic",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "kno2": {
+      "displayName": "Kno2",
+      "auth": "oauth2-client-credentials",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "redox": {
+      "displayName": "Redox",
+      "auth": "api-key",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "verato-umpi": {
+      "displayName": "Verato UMPI (Universal MPI)",
+      "auth": "api-key",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "epic-ehr": {
+      "displayName": "Epic EHR (FHIR)",
+      "auth": "oauth2",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "cerner-oracle-health": {
+      "displayName": "Cerner / Oracle Health (FHIR)",
+      "auth": "oauth2",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "athenahealth": {
+      "displayName": "athenahealth",
+      "auth": "oauth2",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "allscripts": {
+      "displayName": "Allscripts / Veradigm",
+      "auth": "oauth2",
+      "category": "healthcare",
+      "licenseRequired": false,
+      "_category": "healthcare"
+    },
+    "http": {
+      "displayName": "HTTP / HTTPS",
+      "auth": "varies",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "soap": {
+      "displayName": "Web Service Consumer (SOAP/WSDL)",
+      "auth": "varies",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "websocket": {
+      "displayName": "WebSocket",
+      "auth": "varies",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "ldap": {
+      "displayName": "LDAP",
+      "auth": "basic",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "object-store": {
+      "displayName": "Object Store",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "cloudhub": {
+      "displayName": "CloudHub Connector",
+      "auth": "anypoint-platform",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "sockets": {
+      "displayName": "Sockets (TCP/UDP)",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "ibm-ctg": {
+      "displayName": "IBM CICS Transaction Gateway",
+      "auth": "basic",
+      "category": "messaging_eventing",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "microsoft-dotnet": {
+      "_category": "microsoft_productivity"
+    },
+    "microsoft-powershell": {
+      "_category": "microsoft_productivity"
+    },
+    "grpc": {
+      "displayName": "gRPC",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "anypoint-custom-metrics": {
+      "displayName": "Anypoint Custom Metrics (Monitoring)",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": true,
+      "_category": "protocols_core"
+    },
+    "aggregators": {
+      "displayName": "Aggregators Module",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "cryptography": {
+      "displayName": "Cryptography Module",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "compression": {
+      "displayName": "Compression Module",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "java": {
+      "displayName": "Java Module",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "json": {
+      "displayName": "JSON Module",
+      "auth": "none",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "kerberos": {
+      "displayName": "Kerberos Module",
+      "auth": "kerberos",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "oauth": {
+      "displayName": "OAuth Module",
+      "auth": "oauth2",
+      "category": "protocols_core",
+      "licenseRequired": false,
+      "_category": "protocols_core"
+    },
+    "power-bi": {
+      "displayName": "Microsoft Power BI",
+      "auth": "oauth2-client-credentials",
+      "category": "microsoft_productivity",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "google-calendar": {
+      "displayName": "Google Calendar",
+      "auth": "oauth2",
+      "category": "google_cloud",
+      "licenseRequired": false,
+      "_category": "google_cloud"
+    },
+    "google-drive": {
+      "displayName": "Google Drive",
+      "auth": "oauth2",
+      "category": "file_storage",
+      "licenseRequired": false,
+      "_category": "google_cloud"
+    },
+    "google-sheets": {
+      "_category": "analytics_bi"
+    },
+    "google-analytics": {
+      "_category": "analytics_bi"
+    },
+    "google-cloud-storage": {
+      "displayName": "Google Cloud Storage (GCS)",
+      "auth": "oauth2",
+      "category": "google_cloud",
+      "licenseRequired": false,
+      "_category": "google_cloud"
+    },
+    "google-maps": {
+      "displayName": "Google Maps Platform",
+      "auth": "api-key",
+      "category": "google_cloud",
+      "licenseRequired": false,
+      "_category": "google_cloud"
+    },
+    "google-cloud-functions": {
+      "displayName": "Google Cloud Functions / Cloud Run",
+      "auth": "oauth2",
+      "category": "google_cloud",
+      "licenseRequired": false,
+      "_category": "google_cloud"
+    },
+    "google-workspace-admin": {
+      "displayName": "Google Workspace Admin",
+      "auth": "oauth2",
+      "category": "google_cloud",
+      "licenseRequired": false,
+      "_category": "google_cloud"
+    },
+    "google-vertex-ai": {
+      "displayName": "Google Vertex AI",
+      "auth": "oauth2",
+      "category": "google_cloud",
+      "licenseRequired": false,
+      "_category": "google_cloud"
+    },
+    "tableau": {
+      "displayName": "Tableau",
+      "auth": "basic",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "splunk": {
+      "displayName": "Splunk",
+      "auth": "basic",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "looker": {
+      "displayName": "Looker (Google)",
+      "auth": "oauth2",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "qlik-sense": {
+      "displayName": "Qlik Sense / QlikView",
+      "auth": "api-key",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "azure-synapse": {
+      "displayName": "Azure Synapse Analytics",
+      "auth": "oauth2",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "adobe-analytics": {
+      "displayName": "Adobe Analytics",
+      "auth": "oauth2",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "mixpanel": {
+      "displayName": "Mixpanel",
+      "auth": "basic",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "qualtrics": {
+      "displayName": "Qualtrics XM",
+      "auth": "api-key",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "surveymonkey": {
+      "displayName": "SurveyMonkey / Momentive",
+      "auth": "oauth2",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "typeform": {
+      "displayName": "Typeform",
+      "auth": "oauth2",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "dbt-cloud": {
+      "displayName": "dbt Cloud",
+      "auth": "api-key",
+      "category": "analytics_bi",
+      "licenseRequired": false,
+      "_category": "analytics_bi"
+    },
+    "uipath": {
+      "displayName": "UiPath",
+      "auth": "oauth2-client-credentials",
+      "category": "rpa_automation",
+      "licenseRequired": false,
+      "_category": "rpa_automation"
+    },
+    "automation-anywhere": {
+      "displayName": "Automation Anywhere RPA Bots",
+      "auth": "oauth2-client-credentials",
+      "category": "rpa_automation",
+      "licenseRequired": false,
+      "_category": "rpa_automation"
+    },
+    "blue-prism": {
+      "displayName": "Blue Prism",
+      "auth": "basic",
+      "category": "rpa_automation",
+      "licenseRequired": false,
+      "_category": "rpa_automation"
+    },
+    "kofax-rpa": {
+      "displayName": "Kofax RPA (Tungsten)",
+      "auth": "basic",
+      "category": "rpa_automation",
+      "licenseRequired": false,
+      "_category": "rpa_automation"
+    },
+    "microsoft-power-automate": {
+      "displayName": "Microsoft Power Automate",
+      "auth": "oauth2",
+      "category": "rpa_automation",
+      "licenseRequired": false,
+      "_category": "rpa_automation"
+    },
+    "dw-jwt-library": {
+      "displayName": "DataWeave JWT Library",
+      "auth": "none",
+      "category": "dataweave_libraries",
+      "licenseRequired": false,
+      "_category": "dataweave_libraries"
+    },
+    "dw-analytics-library": {
+      "displayName": "DataWeave Analytics Library",
+      "auth": "none",
+      "category": "dataweave_libraries",
+      "licenseRequired": false,
+      "_category": "dataweave_libraries"
+    },
+    "dw-slack-library": {
+      "displayName": "DataWeave Slack Library",
+      "auth": "none",
+      "category": "dataweave_libraries",
+      "licenseRequired": false,
+      "_category": "dataweave_libraries"
+    },
+    "dw-mock-data-generators": {
+      "displayName": "DataWeave Mock Data Generators Library",
+      "auth": "none",
+      "category": "dataweave_libraries",
+      "licenseRequired": false,
+      "_category": "dataweave_libraries"
+    },
+    "apm-payload-storage-s3": {
+      "displayName": "APM Payload Storage \u2014 S3 Implementation",
+      "auth": "aws-credentials",
+      "category": "anypoint_partner_manager",
+      "licenseRequired": false,
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-payload-storage-db": {
+      "displayName": "APM Payload Storage \u2014 Database (MySQL/Postgres) Implementation",
+      "auth": "username-password",
+      "category": "anypoint_partner_manager",
+      "licenseRequired": false,
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-payload-storage-object-store": {
+      "displayName": "APM Payload Storage \u2014 Object Store Implementation",
+      "auth": "none",
+      "category": "anypoint_partner_manager",
+      "licenseRequired": false,
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-transport-as2": {
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-transport-sftp": {
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-transport-ftps": {
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-edi-x12": {
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-edi-edifact": {
+      "_category": "anypoint_partner_manager"
+    },
+    "apm-edi-rosettanet": {
+      "_category": "anypoint_partner_manager"
+    },
+    "coda": {
+      "displayName": "Coda",
+      "auth": "api-key",
+      "category": "coda_productivity",
+      "licenseRequired": false,
+      "_category": "productivity_collaboration"
+    },
+    "notion": {
+      "displayName": "Notion",
+      "auth": "api-key",
+      "category": "productivity_collaboration",
+      "licenseRequired": false,
+      "_category": "productivity_collaboration"
+    },
+    "monday-com": {
+      "displayName": "Monday.com",
+      "auth": "api-key",
+      "category": "productivity_collaboration",
+      "licenseRequired": false,
+      "_category": "productivity_collaboration"
+    },
+    "confluence": {
+      "displayName": "Confluence (Atlassian)",
+      "auth": "basic",
+      "category": "productivity_collaboration",
+      "licenseRequired": false,
+      "_category": "productivity_collaboration"
+    },
+    "airtable": {
+      "displayName": "Airtable",
+      "auth": "api-key",
+      "category": "productivity_collaboration",
+      "licenseRequired": false,
+      "_category": "productivity_collaboration"
+    },
+    "microsoft-planner": {
+      "displayName": "Microsoft Planner / To Do",
+      "auth": "oauth2",
+      "category": "productivity_collaboration",
+      "licenseRequired": false,
+      "_category": "productivity_collaboration"
+    },
+    "okta": {
+      "displayName": "Okta",
+      "auth": "oauth2",
+      "category": "security_identity",
+      "licenseRequired": false,
+      "_category": "security_identity"
+    },
+    "auth0": {
+      "displayName": "Auth0 (Okta)",
+      "auth": "oauth2",
+      "category": "security_identity",
+      "licenseRequired": false,
+      "_category": "security_identity"
+    },
+    "ping-identity": {
+      "displayName": "Ping Identity / PingOne",
+      "auth": "oauth2",
+      "category": "security_identity",
+      "licenseRequired": false,
+      "_category": "security_identity"
+    },
+    "cyberark-conjur": {
+      "displayName": "CyberArk Conjur / PAM",
+      "auth": "api-key",
+      "category": "security_identity",
+      "licenseRequired": false,
+      "_category": "security_identity"
+    },
+    "hashicorp-vault": {
+      "displayName": "HashiCorp Vault",
+      "auth": "token",
+      "category": "security_identity",
+      "licenseRequired": false,
+      "_category": "security_identity"
+    },
+    "sailpoint": {
+      "displayName": "SailPoint IdentityNow",
+      "auth": "oauth2",
+      "category": "security_identity",
+      "licenseRequired": false,
+      "_category": "security_identity"
+    },
+    "adp-workforce-now": {
+      "displayName": "ADP Workforce Now",
+      "auth": "oauth2",
+      "category": "hr_payroll",
+      "licenseRequired": false,
+      "_category": "hr_payroll"
+    },
+    "bamboohr": {
+      "displayName": "BambooHR",
+      "auth": "api-key",
+      "category": "hr_payroll",
+      "licenseRequired": false,
+      "_category": "hr_payroll"
+    },
+    "ukg-pro": {
+      "displayName": "UKG Pro (Kronos)",
+      "auth": "oauth2",
+      "category": "hr_payroll",
+      "licenseRequired": false,
+      "_category": "hr_payroll"
+    },
+    "ceridian-dayforce": {
+      "displayName": "Ceridian Dayforce",
+      "auth": "basic",
+      "category": "hr_payroll",
+      "licenseRequired": false,
+      "_category": "hr_payroll"
+    },
+    "paychex-flex": {
+      "displayName": "Paychex Flex",
+      "auth": "oauth2",
+      "category": "hr_payroll",
+      "licenseRequired": false,
+      "_category": "hr_payroll"
+    },
+    "greenhouse": {
+      "displayName": "Greenhouse (ATS)",
+      "auth": "basic",
+      "category": "hr_payroll",
+      "licenseRequired": false,
+      "_category": "hr_payroll"
+    },
+    "lever": {
+      "displayName": "Lever (ATS)",
+      "auth": "basic",
+      "category": "hr_payroll",
+      "licenseRequired": false,
+      "_category": "hr_payroll"
+    },
+    "github": {
+      "displayName": "GitHub",
+      "auth": "oauth2",
+      "category": "devops_cicd",
+      "licenseRequired": false,
+      "_category": "devops_cicd"
+    },
+    "gitlab": {
+      "displayName": "GitLab",
+      "auth": "personal-access-token",
+      "category": "devops_cicd",
+      "licenseRequired": false,
+      "_category": "devops_cicd"
+    },
+    "azure-devops": {
+      "displayName": "Azure DevOps",
+      "auth": "basic",
+      "category": "devops_cicd",
+      "licenseRequired": false,
+      "_category": "devops_cicd"
+    },
+    "jenkins": {
+      "displayName": "Jenkins",
+      "auth": "basic",
+      "category": "devops_cicd",
+      "licenseRequired": false,
+      "_category": "devops_cicd"
+    },
+    "bitbucket": {
+      "displayName": "Bitbucket",
+      "auth": "oauth2",
+      "category": "devops_cicd",
+      "licenseRequired": false,
+      "_category": "devops_cicd"
+    },
+    "jfrog-artifactory": {
+      "displayName": "JFrog Artifactory",
+      "auth": "basic",
+      "category": "devops_cicd",
+      "licenseRequired": false,
+      "_category": "devops_cicd"
+    },
+    "sonarqube": {
+      "displayName": "SonarQube / SonarCloud",
+      "auth": "basic",
+      "category": "devops_cicd",
+      "licenseRequired": false,
+      "_category": "devops_cicd"
+    },
+    "datadog": {
+      "displayName": "Datadog",
+      "auth": "api-key",
+      "category": "monitoring_observability",
+      "licenseRequired": false,
+      "_category": "monitoring_observability"
+    },
+    "new-relic": {
+      "displayName": "New Relic",
+      "auth": "api-key",
+      "category": "monitoring_observability",
+      "licenseRequired": false,
+      "_category": "monitoring_observability"
+    },
+    "appdynamics": {
+      "displayName": "AppDynamics (Cisco)",
+      "auth": "basic",
+      "category": "monitoring_observability",
+      "licenseRequired": false,
+      "_category": "monitoring_observability"
+    },
+    "dynatrace": {
+      "displayName": "Dynatrace",
+      "auth": "api-token",
+      "category": "monitoring_observability",
+      "licenseRequired": false,
+      "_category": "monitoring_observability"
+    },
+    "pagerduty": {
+      "displayName": "PagerDuty",
+      "auth": "api-key",
+      "category": "monitoring_observability",
+      "licenseRequired": false,
+      "_category": "monitoring_observability"
+    },
+    "elastic": {
+      "displayName": "Elastic (ELK Stack)",
+      "auth": "basic",
+      "category": "monitoring_observability",
+      "licenseRequired": false,
+      "_category": "monitoring_observability"
+    },
+    "grafana": {
+      "displayName": "Grafana",
+      "auth": "api-key",
+      "category": "monitoring_observability",
+      "licenseRequired": false,
+      "_category": "monitoring_observability"
+    },
+    "paypal": {
+      "displayName": "PayPal",
+      "auth": "oauth2",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "square": {
+      "displayName": "Square",
+      "auth": "oauth2",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "adyen": {
+      "displayName": "Adyen",
+      "auth": "api-key",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "plaid": {
+      "displayName": "Plaid (Open Banking)",
+      "auth": "api-key",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "chargebee": {
+      "displayName": "Chargebee",
+      "auth": "basic",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "avalara": {
+      "displayName": "Avalara AvaTax",
+      "auth": "basic",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "fiserv": {
+      "displayName": "Fiserv",
+      "auth": "oauth2",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "temenos": {
+      "displayName": "Temenos Transact (T24)",
+      "auth": "basic",
+      "category": "payment_fintech",
+      "licenseRequired": false,
+      "_category": "payment_fintech"
+    },
+    "ups": {
+      "displayName": "UPS",
+      "auth": "oauth2",
+      "category": "logistics_supply_chain",
+      "licenseRequired": false,
+      "_category": "logistics_supply_chain"
+    },
+    "fedex": {
+      "displayName": "FedEx",
+      "auth": "oauth2",
+      "category": "logistics_supply_chain",
+      "licenseRequired": false,
+      "_category": "logistics_supply_chain"
+    },
+    "usps": {
+      "displayName": "USPS",
+      "auth": "oauth2",
+      "category": "logistics_supply_chain",
+      "licenseRequired": false,
+      "_category": "logistics_supply_chain"
+    },
+    "shipstation": {
+      "displayName": "ShipStation",
+      "auth": "basic",
+      "category": "logistics_supply_chain",
+      "licenseRequired": false,
+      "_category": "logistics_supply_chain"
+    },
+    "sap-ariba": {
+      "displayName": "SAP Ariba",
+      "auth": "oauth2",
+      "category": "logistics_supply_chain",
+      "licenseRequired": false,
+      "_category": "logistics_supply_chain"
+    },
+    "project44": {
+      "displayName": "Project44 (Visibility)",
+      "auth": "oauth2",
+      "category": "logistics_supply_chain",
+      "licenseRequired": false,
+      "_category": "logistics_supply_chain"
+    },
+    "contentful": {
+      "displayName": "Contentful",
+      "auth": "api-key",
+      "category": "content_cms",
+      "licenseRequired": false,
+      "_category": "content_cms"
+    },
+    "adobe-experience-manager": {
+      "displayName": "Adobe Experience Manager (AEM)",
+      "auth": "basic",
+      "category": "content_cms",
+      "licenseRequired": false,
+      "_category": "content_cms"
+    },
+    "contentstack": {
+      "displayName": "Contentstack",
+      "auth": "api-key",
+      "category": "content_cms",
+      "licenseRequired": false,
+      "_category": "content_cms"
+    },
+    "sitecore": {
+      "displayName": "Sitecore",
+      "auth": "basic",
+      "category": "content_cms",
+      "licenseRequired": false,
+      "_category": "content_cms"
+    },
+    "adobe-sign": {
+      "displayName": "Adobe Sign (Acrobat Sign)",
+      "auth": "oauth2",
+      "category": "content_cms",
+      "licenseRequired": false,
+      "_category": "content_cms"
+    },
+    "adobe-pdf-services": {
+      "displayName": "Adobe PDF Services",
+      "auth": "oauth2",
+      "category": "content_cms",
+      "licenseRequired": false,
+      "_category": "content_cms"
+    },
+    "linkedin": {
+      "displayName": "LinkedIn",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "twitter-x": {
+      "displayName": "Twitter / X",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "facebook-meta": {
+      "displayName": "Facebook / Meta (Graph API)",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "google-ads": {
+      "displayName": "Google Ads",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "microsoft-ads": {
+      "displayName": "Microsoft Advertising (Bing Ads)",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "pinterest": {
+      "displayName": "Pinterest",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "youtube": {
+      "displayName": "YouTube Data API",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "tiktok": {
+      "displayName": "TikTok for Business",
+      "auth": "oauth2",
+      "category": "social_media_ads",
+      "licenseRequired": false,
+      "_category": "social_media_ads"
+    },
+    "vonage": {
+      "displayName": "Vonage (Nexmo)",
+      "auth": "api-key",
+      "category": "telecom",
+      "licenseRequired": false,
+      "_category": "telecom"
+    },
+    "ringcentral": {
+      "displayName": "RingCentral",
+      "auth": "oauth2",
+      "category": "telecom",
+      "licenseRequired": false,
+      "_category": "telecom"
+    },
+    "webex": {
+      "displayName": "Cisco Webex",
+      "auth": "oauth2",
+      "category": "telecom",
+      "licenseRequired": false,
+      "_category": "telecom"
+    },
+    "whatsapp-business": {
+      "displayName": "WhatsApp Business (Meta)",
+      "auth": "api-key",
+      "category": "telecom",
+      "licenseRequired": false,
+      "_category": "telecom"
+    },
+    "bandwidth": {
+      "displayName": "Bandwidth",
+      "auth": "basic",
+      "category": "telecom",
+      "licenseRequired": false,
+      "_category": "telecom"
+    },
+    "messagebirdbird": {
+      "displayName": "MessageBird / Bird",
+      "auth": "api-key",
+      "category": "telecom",
+      "licenseRequired": false,
+      "_category": "telecom"
+    },
+    "guidewire": {
+      "displayName": "Guidewire (PolicyCenter / ClaimCenter / BillingCenter)",
+      "auth": "basic",
+      "category": "insurance",
+      "licenseRequired": true,
+      "_category": "insurance"
+    },
+    "duck-creek": {
+      "displayName": "Duck Creek Technologies",
+      "auth": "oauth2",
+      "category": "insurance",
+      "licenseRequired": false,
+      "_category": "insurance"
+    },
+    "majesco": {
+      "displayName": "Majesco",
+      "auth": "oauth2",
+      "category": "insurance",
+      "licenseRequired": false,
+      "_category": "insurance"
+    },
+    "applied-epic": {
+      "displayName": "Applied Epic (Applied Systems)",
+      "auth": "oauth2",
+      "category": "insurance",
+      "licenseRequired": false,
+      "_category": "insurance"
+    },
+    "one-shield": {
+      "displayName": "OneShield",
+      "auth": "basic",
+      "category": "insurance",
+      "licenseRequired": false,
+      "_category": "insurance"
+    },
+    "canvas-lms": {
+      "displayName": "Canvas LMS (Instructure)",
+      "auth": "api-key",
+      "category": "education",
+      "licenseRequired": false,
+      "_category": "education"
+    },
+    "ellucian-banner": {
+      "displayName": "Ellucian Banner / Colleague",
+      "auth": "oauth2",
+      "category": "education",
+      "licenseRequired": false,
+      "_category": "education"
+    },
+    "blackboard": {
+      "displayName": "Blackboard / Anthology",
+      "auth": "oauth2",
+      "category": "education",
+      "licenseRequired": false,
+      "_category": "education"
+    },
+    "d2l-brightspace": {
+      "displayName": "D2L Brightspace",
+      "auth": "oauth2",
+      "category": "education",
+      "licenseRequired": false,
+      "_category": "education"
+    },
+    "moodle": {
+      "displayName": "Moodle",
+      "auth": "api-key",
+      "category": "education",
+      "licenseRequired": false,
+      "_category": "education"
+    },
+    "powerschool": {
+      "displayName": "PowerSchool SIS",
+      "auth": "oauth2",
+      "category": "education",
+      "licenseRequired": false,
+      "_category": "education"
+    },
+    "aws-iot-core": {
+      "displayName": "AWS IoT Core",
+      "auth": "aws-credentials",
+      "category": "iot_edge",
+      "licenseRequired": false,
+      "_category": "iot_edge"
+    },
+    "azure-iot-hub": {
+      "displayName": "Azure IoT Hub",
+      "auth": "sas-token",
+      "category": "iot_edge",
+      "licenseRequired": false,
+      "_category": "iot_edge"
+    },
+    "siemens-mindsphere": {
+      "displayName": "Siemens MindSphere",
+      "auth": "oauth2",
+      "category": "iot_edge",
+      "licenseRequired": false,
+      "_category": "iot_edge"
+    },
+    "ptc-thingworx": {
+      "displayName": "PTC ThingWorx",
+      "auth": "api-key",
+      "category": "iot_edge",
+      "licenseRequired": false,
+      "_category": "iot_edge"
+    },
+    "google-cloud-iot": {
+      "displayName": "Google Cloud IoT Core",
+      "auth": "oauth2",
+      "category": "iot_edge",
+      "licenseRequired": false,
+      "_category": "iot_edge"
+    },
+    "bosch-iot": {
+      "displayName": "Bosch IoT Suite",
+      "auth": "oauth2",
+      "category": "iot_edge",
+      "licenseRequired": false,
+      "_category": "iot_edge"
+    },
+    "segment": {
+      "displayName": "Segment (Twilio)",
+      "auth": "api-key",
+      "category": "customer_data",
+      "licenseRequired": false,
+      "_category": "customer_data"
+    },
+    "mparticle": {
+      "displayName": "mParticle",
+      "auth": "basic",
+      "category": "customer_data",
+      "licenseRequired": false,
+      "_category": "customer_data"
+    },
+    "tealium": {
+      "displayName": "Tealium",
+      "auth": "api-key",
+      "category": "customer_data",
+      "licenseRequired": false,
+      "_category": "customer_data"
+    },
+    "amperity": {
+      "displayName": "Amperity",
+      "auth": "api-key",
+      "category": "customer_data",
+      "licenseRequired": false,
+      "_category": "customer_data"
+    },
+    "bloomreach": {
+      "displayName": "Bloomreach Engagement",
+      "auth": "basic",
+      "category": "customer_data",
+      "licenseRequired": false,
+      "_category": "customer_data"
+    },
+    "veeva-crm": {
+      "displayName": "Veeva CRM",
+      "auth": "username-password",
+      "category": "life_sciences",
+      "licenseRequired": true,
+      "_category": "life_sciences"
+    },
+    "veeva-vault": {
+      "displayName": "Veeva Vault",
+      "auth": "basic",
+      "category": "life_sciences",
+      "licenseRequired": false,
+      "_category": "life_sciences"
+    },
+    "iqvia": {
+      "displayName": "IQVIA (OCE / OneKey)",
+      "auth": "oauth2",
+      "category": "life_sciences",
+      "licenseRequired": false,
+      "_category": "life_sciences"
+    },
+    "medidata": {
+      "displayName": "Medidata (Dassault Syst\u00e8mes)",
+      "auth": "oauth2",
+      "category": "life_sciences",
+      "licenseRequired": false,
+      "_category": "life_sciences"
+    },
+    "oracle-health-sciences": {
+      "displayName": "Oracle Health Sciences (InForm / Argus)",
+      "auth": "basic",
+      "category": "life_sciences",
+      "licenseRequired": false,
+      "_category": "life_sciences"
+    },
+    "amadeus": {
+      "displayName": "Amadeus",
+      "auth": "oauth2",
+      "category": "travel_hospitality",
+      "licenseRequired": false,
+      "_category": "travel_hospitality"
+    },
+    "sabre": {
+      "displayName": "Sabre (GDS)",
+      "auth": "oauth2",
+      "category": "travel_hospitality",
+      "licenseRequired": false,
+      "_category": "travel_hospitality"
+    },
+    "oracle-opera": {
+      "displayName": "Oracle OPERA (OHIP)",
+      "auth": "oauth2",
+      "category": "travel_hospitality",
+      "licenseRequired": false,
+      "_category": "travel_hospitality"
+    },
+    "travelport": {
+      "displayName": "Travelport (Galileo / Worldspan)",
+      "auth": "basic",
+      "category": "travel_hospitality",
+      "licenseRequired": false,
+      "_category": "travel_hospitality"
+    },
+    "anypoint-rpa": {
+      "displayName": "Anypoint RPA",
+      "auth": "oauth2-client-credentials",
+      "category": "platform_services",
+      "licenseRequired": false,
+      "_category": "platform_services"
+    }
+  }
+}
