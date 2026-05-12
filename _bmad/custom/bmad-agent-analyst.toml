@@ -11,6 +11,8 @@ persistent_facts = [
   "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
   "file:{project-root}/standards/DESIGN_STANDARDS.md",
   "file:{project-root}/standards/connector-registry.json",
+  "file:{project-root}/standards/canonical-models/registry.json",
+  "file:{project-root}/standards/canonical-models/**/*.yaml",
   "file:{project-root}/standards/intake-checklist.json",
   "file:{project-root}/playbooks/*/PLAYBOOK.md",
   "file:{project-root}/standards/doc-templates/prd-template.md",
@@ -40,6 +42,8 @@ principles = [
   "MuleSoft staleness in prd.md Systems table: record lastVerified date AND freshness category (Green ≤30d / Yellow 31-60d / Red >60d) for every connector. This tells the Architect which connectors require MCP verification.",
 
   "MuleSoft PII handling: when quoting intake docs in prd.md, do NOT copy personal names, email addresses, phone numbers, account numbers, or credentials verbatim. Anonymize or paraphrase. The planning repo is not a data store for client PII.",
+
+  "MuleSoft Canonical Model Validation (MANDATORY — run during MA workflow, after field mapping tables are built):\n  The canonical model library at standards/canonical-models/{vertical}/ is the hub schema for all integrations. Every field mapping table in the PRD must be validated against the relevant canonical model.\n\n  Step A — Identify vertical from projects/{client}/company_context.json (industry field). NEVER infer from client name.\n  Step A2 — Read standards/canonical-models/registry.json. Find the entry for this vertical. Note: (a) which industry standard is authoritative (OAGIS, ACORD, HL7 FHIR, HR Open, IFX/MISMO, X12, or 'derived'), (b) the keyFieldAlignments for each record type. These canonical field names are the target — any deviation is a renamedField or extension, not an error.\n  Step B — For each data entity flowing through confirmed flows, check if standards/canonical-models/{vertical}/canonical-{record}.yaml exists.\n    MISSING canonical model → flag in Open Items (Non-Blocker): 'Canonical model for {record} in {vertical} vertical does not yet exist. Scout should have created a stub. If missing, create it now before architecture begins.'\n  Step C — For each field mapping table in Section 3 of the intake questionnaire:\n    Read the canonical model for that record type.\n    For every client field mapped:\n      MATCHES canonical field → mark as canonical-aligned\n      NO MATCH (client-specific field not in canonical) → this is an extension: record in canonical-extensions.yaml\n      CANONICAL FIELD MISSING from client → this is an omission: record in canonical-extensions.yaml\n      CLIENT RENAMES canonical field → record in canonical-extensions.yaml renamedFields\n  Step D — Update projects/{client}/canonical-extensions.yaml (Scout created the shell; Analyst fills it in):\n    For each record type, populate:\n      addedFields: fields the client uses that are NOT in the canonical model (with type, description, source system)\n      renamedFields: fields where client system uses a different name (canonical name → client name, source system)\n      omittedFields: canonical fields the client does not use (with reason)\n    Example entry:\n      - baseModel: standards/canonical-models/construction/canonical-job.yaml\n        record: Job\n        addedFields:\n          - name: companyCode\n            type: string\n            description: ComputerEase company code (e.g. 00 for IL/WI)\n            sourceSystem: ComputerEase\n            requiredForClient: true\n        renamedFields:\n          - canonical: jobId\n            client: erpJobNumber\n            clientFormat: \"{YY} HD {counter} {initials}\"\n            sourceSystem: ComputerEase\n        omittedFields:\n          - canonical: financials.overhead\n            reason: Not tracked separately in ComputerEase for HD residential jobs\n  Step E — If any canonical model stub was created by Scout for this engagement, note the fields now confirmed from intake docs and update the stub to a proper schema (remove 'stub' from version, add confirmed fields).\n\n  This is the primary mechanism by which canonical models grow over time — each engagement adds confirmed field knowledge back to the library.",
 
   "MuleSoft FIELD_KNOWLEDGE.md write-back: after completing any MA or AC run, check if any finding was unexpected (system behaved differently than standard, spec was incomplete in a non-obvious way, contract discovery revealed an undocumented pattern). If yes, add an observation-status entry to docs/FIELD_KNOWLEDGE.md using the FK-NNN format before closing the session.",
 
@@ -82,6 +86,15 @@ Apply the MuleSoft BMAD Analyst workflow from docs/PLANNING_CONTEXT.md:
    following the five-step protocol in PLANNING_CONTEXT.md.
 8. Flag all OPEN ITEMs clearly. Maximum 3 questions to the client — each specific, with best-guess
    options already provided. Never ask "Can you share the API documentation?"
+
+After completing flow completeness check — run canonical model validation (mandatory):
+
+5c. Canonical Model Validation (apply the 'MuleSoft Canonical Model Validation' principle):
+     - Read projects/{client}/company_context.json to get vertical and businessObjects.
+     - For each confirmed flow's data entity: validate field mappings against standards/canonical-models/{vertical}/canonical-{record}.yaml.
+     - Populate projects/{client}/canonical-extensions.yaml (addedFields, renamedFields, omittedFields per record).
+     - Flag any missing canonical model as Open Item (Non-Blocker).
+     - If intake docs confirm fields in a stub canonical model: promote the stub by adding confirmed fields and removing 'stub' from the version string.
 
 After completing prd.md — run commons stub enrichment (mandatory):
 

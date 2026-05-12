@@ -1,0 +1,93 @@
+title: Canonical Change Order
+version: "1.0.0"
+vertical: construction
+description: |
+  Canonical change order entity for construction/contracting integrations.
+  Represents a modification to a signed contract or in-progress job.
+  Maps from: construction ERP (ComputerEase, Procore), contractor portals, CRM.
+  Maps to: billing systems, ERP job cost updates, customer notification systems.
+
+type: object
+required:
+  - changeOrderId
+  - jobId
+  - contractId
+  - status
+  - requestedDate
+  - timestamps
+
+properties:
+  changeOrderId:
+    type: string
+    description: Canonical change order identifier
+    example: "CO-2026-000565-001"
+
+  externalIds:
+    type: object
+    properties:
+      erpChangeOrderId:  { type: string }
+      salesforceId:      { type: string }
+      portalId:          { type: string }
+
+  jobId:
+    type: string
+    description: Links to canonical-job
+
+  contractId:
+    type: string
+    description: Links to canonical-contract being modified
+
+  customerId:
+    type: string
+    description: Links to canonical-customer
+
+  status:
+    type: string
+    enum: [REQUESTED, PENDING_APPROVAL, APPROVED, REJECTED, APPLIED, CANCELLED]
+
+  reason:
+    type: string
+    description: Reason for the change order
+
+  description:
+    type: string
+    description: Detailed description of what is changing
+
+  changes:
+    type: object
+    properties:
+      scopeChange:      { type: string, description: "Description of scope change" }
+      additionalWork:   { type: string }
+      materialChange:   { type: string }
+
+  financialImpact:
+    type: object
+    properties:
+      additionalAmount:  { type: number, description: "Positive = additional cost to customer" }
+      creditAmount:      { type: number, description: "Positive = credit back to customer" }
+      netChange:         { type: number }
+      revisedTotal:      { type: number, description: "New contract total after change order" }
+      currency:          { type: string, pattern: "^[A-Z]{3}$", example: "USD" }
+
+  approvedBy:
+    type: object
+    properties:
+      name:   { type: string }
+      role:   { type: string }
+      date:   { type: string, format: date }
+
+  requestedDate:
+    type: string
+    format: date
+
+  timestamps:
+    $ref: '#/Timestamps'
+
+Timestamps:
+  type: object
+  properties:
+    createdAt:    { type: string, format: date-time }
+    updatedAt:    { type: string, format: date-time }
+    requestedAt:  { type: string, format: date-time }
+    approvedAt:   { type: string, format: date-time }
+    appliedAt:    { type: string, format: date-time }
