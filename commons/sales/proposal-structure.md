@@ -82,7 +82,7 @@ What to write here: AI agent actions specific to this client's domain. Must be g
 
 ### Closing line for the journey section
 Always end with this verbatim:
-> *"The 2-year managed service is how [Client] gets from Stage 1 to Stage 3 without rebuilding anything. The architecture we lay down in week one determines what is possible in year two. No other integration partner structures an engagement with this arc in mind."*
+"> *"The 1-year managed service is how [Client] gets from Stage 1 to Stage 2 without rebuilding anything. The architecture we lay down in week one determines what is possible at renewal. No other integration partner structures an engagement with this arc in mind."*
 
 ---
 
@@ -94,7 +94,7 @@ Every proposal shows exactly **two models**. All rates, fees, and payment schedu
 
 **Model 1 (recommended): IaaS / Managed Service**
 - Implementation: $0 — included in monthly rate
-- Headline number: 2-year managed service total (computed from pricing-model.md)
+- Headline number: 1-year managed service total (computed from pricing-model.md)
 - Sub-figures: $0 implementation badge (green) + Period 1 six-month payment
 
 **Model 2: Implementation Only**
@@ -102,10 +102,10 @@ Every proposal shows exactly **two models**. All rates, fees, and payment schedu
 - Headline number: the total implementation fee
 - No ongoing DataSkate service
 
-**Headline numbers must be visually distinct** — IaaS 2-year total vs OTB one-time fee. Never the same dollar amount on both cards.
+**Headline numbers must be visually distinct** — IaaS 1-year total vs OTB one-time fee. Never the same dollar amount on both cards.
 
 ### Rate schedule
-Always show all 4 periods. Rates, escalation %, and payment cadence come from pricing-model.md. All integration code is owned by the client in their GitHub repo.
+Always show both periods. Rates, escalation %, and payment cadence come from pricing-model.md. All integration code is owned by the client in their GitHub repo.
 
 ---
 

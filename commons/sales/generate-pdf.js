@@ -2,6 +2,62 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
+// ── Parse pricing-model.md (single source of truth — never hardcode rates here) ──
+const pricingMd = fs.readFileSync(path.join(__dirname, 'pricing-model.md'), 'utf8');
+
+function parsePricing(md) {
+  const num = s => parseFloat(s.replace(/,/g, ''));
+
+  const baseRate   = num(md.match(/\*\*Rate:\*\* \$([0-9,]+(?:\.\d+)?)/)[1]);
+  const escalation = parseFloat(md.match(/escalating (\d+)%/)[1]) / 100;
+  const termYears  = parseInt(md.match(/\*\*Minimum term:\*\* (\d+) year/)[1]);
+  const stdImpl    = num(md.match(/\| Standard \| \$([0-9,]+) \/ flow/)[1]);
+  const newAEFlat  = num(md.match(/\| New AE.*?\$([0-9,]+) flat/)[1]);
+  const newAECap   = parseInt(md.match(/≤(\d+) flows/)[1]);
+
+  const periods     = termYears * 2;
+  const periodRates = Array.from({ length: periods }, (_, i) =>
+    Math.round(baseRate * Math.pow(1 + escalation, i) * 100) / 100
+  );
+
+  const fmt    = n => '$' + Math.round(n).toLocaleString('en-US');
+  const fmtD   = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const pay6mo = (rate, flows) => rate * 6 * flows;
+  const termTotal = flows => periodRates.reduce((s, r) => s + pay6mo(r, flows), 0);
+  const implFee = (flows, type) => {
+    if (type === 'iaas')  return 0;
+    if (type === 'newae') return flows <= newAECap ? newAEFlat : newAEFlat + (flows - newAECap) * stdImpl;
+    return flows * stdImpl;
+  };
+
+  return { baseRate, escalation, termYears, periods, periodRates, stdImpl, newAEFlat, newAECap, fmt, fmtD, pay6mo, termTotal, implFee };
+}
+
+const P = parsePricing(pricingMd);
+
+// ── Pre-compute all display values ────────────────────────────────────────
+const rateScheduleRows = P.periodRates.map((rate, i) => {
+  const start = i * 6 + 1, end = (i + 1) * 6;
+  return `    <tr><td>Period ${i + 1}</td><td>${start}–${end}</td><td><strong>${P.fmtD(rate)}</strong></td><td>${P.fmt(P.pay6mo(rate, 1))}</td></tr>`;
+}).join('\n');
+
+const pdfExamples = [
+  { label: 'Standard — 6 flows',  flows: 6,  type: 'standard' },
+  { label: 'New AE — 5 flows',    flows: 5,  type: 'newae'    },
+  { label: 'New AE — 7 flows',    flows: 7,  type: 'newae'    },
+  { label: 'IaaS — 10 flows',     flows: 10, type: 'iaas'     },
+].map(({ label, flows, type }) => {
+  const impl  = P.implFee(flows, type);
+  const p1    = P.pay6mo(P.periodRates[0], flows);
+  const total = P.termTotal(flows);
+  const engmt = type === 'iaas' ? `${P.fmt(total)} recurring` : P.fmt(impl + total);
+  return `    <tr><td>${label}</td><td>${P.fmt(impl)}</td><td>${P.fmt(p1)}</td><td>${P.fmt(total)}</td><td><strong>${engmt}</strong></td></tr>`;
+}).join('\n');
+
+const urgencyDiff  = P.fmt(P.pay6mo(P.periodRates[1] - P.periodRates[0], 1));
+const iaas10Y1     = P.fmt(P.pay6mo(P.periodRates[0], 10) * 2); // two periods = year 1
+const iaas10Y2     = P.fmt(P.termTotal(10) * (1 + P.escalation)); // approx renewal year
+
 const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -85,9 +141,9 @@ const html = `<!DOCTYPE html>
 
   <table>
     <tr><th>Type</th><th>Condition</th><th>Implementation Price</th></tr>
-    <tr><td>Standard</td><td>Existing AE or DS relationship</td><td><strong>$3,500 / flow</strong></td></tr>
-    <tr><td>New AE Introductory</td><td>AE's first DataSkate deal</td><td><strong>$10,000 flat</strong> (up to 5 flows)</td></tr>
-    <tr><td>New AE — over 5 flows</td><td>Same intro deal, flows 6+</td><td>$10,000 + <strong>$3,500</strong> per additional flow</td></tr>
+    <tr><td>Standard</td><td>Existing AE or DS relationship</td><td><strong>${P.fmt(P.stdImpl)} / flow</strong></td></tr>
+    <tr><td>New AE Introductory</td><td>AE's first DataSkate deal</td><td><strong>${P.fmt(P.newAEFlat)} flat</strong> (up to ${P.newAECap} flows)</td></tr>
+    <tr><td>New AE — over ${P.newAECap} flows</td><td>Same intro deal, flows ${P.newAECap + 1}+</td><td>${P.fmt(P.newAEFlat)} + <strong>${P.fmt(P.stdImpl)}</strong> per additional flow</td></tr>
     <tr><td>IaaS (Free Build)</td><td>AE sells full $50k Anypoint license</td><td><strong>$0 upfront</strong> — recovered via managed service</td></tr>
   </table>
 
@@ -118,13 +174,13 @@ const html = `<!DOCTYPE html>
 
   <table>
     <tr><th>Term</th><th>Detail</th></tr>
-    <tr><td>Base rate</td><td><strong>$150 / flow / month</strong></td></tr>
-    <tr><td>Minimum duration</td><td>2 years per flow, from go-live date</td></tr>
-    <tr><td>Payment cadence</td><td>Upfront every 6 months (4 payments over 2 years)</td></tr>
-    <tr><td>Rate lock</td><td>Fixed at entry rate for the full 2-year term — no mid-contract increases</td></tr>
+    <tr><td>Base rate</td><td><strong>${P.fmtD(P.baseRate)} / flow / month</strong></td></tr>
+    <tr><td>Minimum duration</td><td>${P.termYears} year per flow, from go-live date</td></tr>
+    <tr><td>Payment cadence</td><td>Upfront every 6 months (${P.periods} payments over ${P.termYears} year)</td></tr>
+    <tr><td>Rate lock</td><td>Fixed at entry rate for the full ${P.termYears}-year term — no mid-contract increases</td></tr>
     <tr><td>Discounts</td><td>None — no exceptions</td></tr>
-    <tr><td>Early termination</td><td>Not permitted</td></tr>
-    <tr><td>New flows added mid-contract</td><td>Independent 2-year term at then-current catalog rate</td></tr>
+    <tr><td>Early termination</td><td>Not permitted within the ${P.termYears}-year term</td></tr>
+    <tr><td>New flows added mid-contract</td><td>Independent ${P.termYears}-year term at then-current catalog rate</td></tr>
   </table>
 
   <h3>What Is Included</h3>
@@ -150,27 +206,21 @@ const html = `<!DOCTYPE html>
   <h2>Catalog Rate Schedule &amp; Examples</h2>
   <div class="divider"></div>
 
-  <p>The base rate escalates 5% every 6 months for <strong>new flows only</strong>. Active flows in a signed contract are never affected — rate is locked for the full 2-year term.</p>
+  <p>The base rate escalates ${P.escalation * 100}% every 6 months. Active flows in a signed contract are rate-locked for the full ${P.termYears}-year term.</p>
 
   <table>
     <tr><th>Period</th><th>Months</th><th>Rate / Flow / Month</th><th>6-Month Payment (Per Flow)</th></tr>
-    <tr><td>Period 1</td><td>1–6</td><td><strong>$150.00</strong></td><td>$900</td></tr>
-    <tr><td>Period 2</td><td>7–12</td><td><strong>$157.50</strong></td><td>$945</td></tr>
-    <tr><td>Period 3</td><td>13–18</td><td><strong>$165.38</strong></td><td>$992</td></tr>
-    <tr><td>Period 4</td><td>19–24</td><td><strong>$173.64</strong></td><td>$1,042</td></tr>
+${rateScheduleRows}
   </table>
 
   <h3>Pricing Examples</h3>
   <table>
-    <tr><th>Scenario</th><th>Implementation</th><th>6-Month Payment</th><th>2-Year Total</th><th>Engagement Value</th></tr>
-    <tr><td>Standard — 6 flows</td><td>$21,000</td><td>$5,400</td><td>$21,600</td><td><strong>$42,600</strong></td></tr>
-    <tr><td>New AE — 5 flows</td><td>$10,000</td><td>$4,500</td><td>$18,000</td><td><strong>$28,000</strong></td></tr>
-    <tr><td>New AE — 7 flows</td><td>$17,000</td><td>$6,300</td><td>$25,200</td><td><strong>$42,200</strong></td></tr>
-    <tr><td>IaaS — 10 flows</td><td>$0</td><td>$9,000</td><td>$36,000</td><td><strong>$36,000 recurring</strong></td></tr>
+    <tr><th>Scenario</th><th>Implementation</th><th>6-Month Payment</th><th>${P.termYears}-Year Total</th><th>Engagement Value</th></tr>
+${pdfExamples}
   </table>
 
   <div class="highlight-box">
-    <p><strong>Rate lock creates natural urgency:</strong> Adding a flow now at $150/month costs $900 less per 6-month period than waiting until Period 2. Over 2 years that's $1,800 saved per flow by acting in Period 1.</p>
+    <p><strong>Rate lock creates natural urgency:</strong> Adding a flow now at ${P.fmtD(P.baseRate)}/month costs ${urgencyDiff} less per 6-month period than waiting until Period 2 (${P.fmtD(P.periodRates[1])}/month). Act in Period 1 to lock the lower rate for the full ${P.termYears}-year term.</p>
   </div>
 
   <div class="footer">DataSkate — dataskate.ai | vivek@dataskate.ai</div>
@@ -198,7 +248,7 @@ const html = `<!DOCTYPE html>
       <ul>
         <li>AE sells full $50k license — full quota</li>
         <li>DS implements for free — zero client friction</li>
-        <li>DS owns uptime and performance for 2 years</li>
+        <li>DS owns uptime and performance for ${P.termYears} year (renewable)</li>
         <li>Client is live and succeeding before renewal</li>
         <li>Renewal is a conversation, not a negotiation</li>
       </ul>
@@ -210,14 +260,14 @@ const html = `<!DOCTYPE html>
     <tr><th>Comparison</th><th>Year 1 Cost</th><th>Year 2 Cost</th><th>What You Get</th></tr>
     <tr><td>Hire integration developer</td><td>$100,000+</td><td>$100,000+</td><td>One person, single point of failure</td></tr>
     <tr><td>Traditional SI project</td><td>$30,000–$80,000</td><td>$10,000–$20,000</td><td>Delivered and mostly abandoned</td></tr>
-    <tr><td><strong>DataSkate IaaS (10 flows)</strong></td><td><strong>$18,000</strong></td><td><strong>$18,000</strong></td><td><strong>Fully managed, team-backed, SLA included</strong></td></tr>
+    <tr><td><strong>DataSkate IaaS (10 flows)</strong></td><td><strong>${iaas10Y1}</strong></td><td><strong>${iaas10Y2} if renewed</strong></td><td><strong>Fully managed, team-backed, SLA included</strong></td></tr>
   </table>
 
   <div class="metric-row">
     <div class="metric"><div class="value">$0</div><div class="label">Upfront implementation (IaaS)</div></div>
     <div class="metric"><div class="value">100%</div><div class="label">AE quota on $50k license</div></div>
     <div class="metric"><div class="value">24/7</div><div class="label">Monitoring &amp; incident response</div></div>
-    <div class="metric"><div class="value">2 yr</div><div class="label">Rate lock — no surprises</div></div>
+    <div class="metric"><div class="value">${P.termYears} yr</div><div class="label">Rate lock — no surprises</div></div>
   </div>
 
   <div class="footer">DataSkate — dataskate.ai | vivek@dataskate.ai</div>
@@ -235,7 +285,7 @@ const html = `<!DOCTYPE html>
     <tr><td>Payment cadence</td><td>6-month upfront only — no monthly, no annual prepay</td></tr>
     <tr><td>Emergency escalation</td><td>DS reserves the right to invoke one adjustment (max 5%) per contract term with 30-day written notice, only triggered by qualifying external cost events. Never invoked in normal operations.</td></tr>
     <tr><td>Code ownership</td><td>All integration code lives in the client's GitHub repository. Client owns it fully.</td></tr>
-    <tr><td>Contract renewal</td><td>After 2-year term: renegotiated at then-current catalog rate, new 2-year term required</td></tr>
+    <tr><td>Contract renewal</td><td>After ${P.termYears}-year term: renegotiated at then-current catalog rate, new ${P.termYears}-year term required</td></tr>
     <tr><td>IaaS eligibility</td><td>Requires AE to sell full $50k Anypoint license. DS confirms before committing free implementation.</td></tr>
   </table>
 
@@ -243,12 +293,12 @@ const html = `<!DOCTYPE html>
   <table>
     <tr><th>Party</th><th>Action</th><th>Outcome</th></tr>
     <tr><td>MuleSoft AE</td><td>Sells full $50k Anypoint Platform license</td><td>Full quota attainment</td></tr>
-    <tr><td>Client</td><td>Pays MuleSoft $50k + signs DS 2-year contract</td><td>Zero implementation cost, fully managed</td></tr>
-    <tr><td>DataSkate</td><td>Builds at no upfront cost, collects $150/flow/month</td><td>Recurring revenue + long-term relationship + upsell runway</td></tr>
+    <tr><td>Client</td><td>Pays MuleSoft $50k + signs DS ${P.termYears}-year contract</td><td>Zero implementation cost, fully managed</td></tr>
+    <tr><td>DataSkate</td><td>Builds at no upfront cost, collects ${P.fmtD(P.baseRate)}/flow/month</td><td>Recurring revenue + annual renewal + upsell runway</td></tr>
   </table>
 
   <div class="highlight-box">
-    <p><strong>The long game:</strong> DS's goal is a 2-year relationship that proves MuleSoft value, creates reference accounts, and opens the door to agentic automation and additional flows. The IaaS model is the entry point — not the ceiling.</p>
+    <p><strong>The long game:</strong> DS's goal is a ${P.termYears}-year engagement that proves MuleSoft value and earns renewal — creating reference accounts and opening the door to agentic automation and additional flows. The IaaS model is the entry point — not the ceiling.</p>
   </div>
 
   <div class="footer">DataSkate — dataskate.ai | vivek@dataskate.ai | 196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550</div>
