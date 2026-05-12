@@ -17,20 +17,33 @@ fi
 echo "$FIREBASE_SA_KEY" > "$SA_KEY_FILE"
 export GOOGLE_APPLICATION_CREDENTIALS="$SA_KEY_FILE"
 
+mkdir -p "$PUBLIC/intake" "$PUBLIC/proposal"
+
 echo "→ Syncing intake forms..."
-cp "$REPO_ROOT/projects/zyris/intake/intake-questionnaire-zyris.html"       "$PUBLIC/intake/zyris.html"
-cp "$REPO_ROOT/projects/peerless/intake/intake-questionnaire-peerless.html" "$PUBLIC/intake/peerless.html"
+for html in "$REPO_ROOT"/projects/*/intake/intake-questionnaire-*.html; do
+  [ -f "$html" ] || continue
+  filename="$(basename "$html")"
+  slug="${filename#intake-questionnaire-}"
+  slug="${slug%.html}"
+  cp "$html" "$PUBLIC/intake/${slug}.html"
+  echo "   intake/${slug}.html"
+done
 
 echo "→ Syncing proposals..."
-cp "$REPO_ROOT/projects/zyris/intake/proposal-zyris.html"                   "$PUBLIC/proposal/zyris.html"
-cp "$REPO_ROOT/projects/peerless/intake/proposal-peerless.html"             "$PUBLIC/proposal/peerless.html"
-cp "$REPO_ROOT/projects/mrn-healthcare/intake/proposal-mrn-healthcare.html" "$PUBLIC/proposal/mrn-healthcare.html"
+for html in "$REPO_ROOT"/projects/*/intake/proposal-*.html; do
+  [ -f "$html" ] || continue
+  filename="$(basename "$html")"
+  slug="${filename#proposal-}"
+  slug="${slug%.html}"
+  cp "$html" "$PUBLIC/proposal/${slug}.html"
+  echo "   proposal/${slug}.html"
+done
 
 echo "→ Installing function dependencies..."
 cd "$SCRIPT_DIR/functions" && npm install --silent
 
 echo "→ Deploying to Firebase..."
-cd "$SCRIPT_DIR" && npx firebase-tools deploy --project dataskateclients
+cd "$SCRIPT_DIR" && npx firebase-tools deploy --only hosting --project dataskateclients --force
 
 rm -f "$SA_KEY_FILE"
 echo ""
