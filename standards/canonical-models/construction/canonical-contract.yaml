@@ -1,0 +1,122 @@
+title: Canonical Contract
+version: "1.0.0"
+vertical: construction
+description: |
+  Canonical installation contract entity for construction/contracting integrations.
+  Maps from: contractor portals (HD Portal — types 299A, 299B, 118),
+             CRM (Salesforce), document management systems, construction ERP.
+  Maps to: compliance systems, ERP job creation, customer records.
+  Common synonyms: Contract (standard), Agreement (generic), Signed Doc (informal).
+
+  HD Portal-specific contract types:
+    299A — Standard residential installation contract
+    299B — Alternate/addendum contract
+    118  — Special program or materials contract
+
+type: object
+required:
+  - contractId
+  - jobId
+  - customerId
+  - status
+  - contractType
+  - signedDate
+  - timestamps
+
+properties:
+  contractId:
+    type: string
+    description: Canonical contract identifier
+    example: "CTR-2026-000565"
+
+  externalIds:
+    type: object
+    properties:
+      portalContractId:     { type: string, description: "Contract ID/document ID in HD Portal or source portal" }
+      salesforceContractId: { type: string }
+      erpJobNumber:         { type: string, description: "ComputerEase job number this contract maps to" }
+
+  jobId:
+    type: string
+    description: Links to canonical-job
+
+  customerId:
+    type: string
+    description: Links to canonical-customer
+
+  contractType:
+    type: string
+    description: Contract form type
+    example: "299A"
+
+  status:
+    type: string
+    enum: [DRAFT, PENDING_SIGNATURE, SIGNED, COMPLIANT, NON_COMPLIANT, CANCELLED, SUPERSEDED]
+
+  complianceStatus:
+    type: string
+    enum: [COMPLIANT, NON_COMPLIANT, PENDING_REVIEW, WAIVED]
+    description: Whether contract meets all portal/regulatory requirements
+
+  complianceFlags:
+    type: array
+    description: List of specific compliance issues found
+    items:
+      type: object
+      properties:
+        field:      { type: string, description: "Field or clause with the issue" }
+        issue:      { type: string, description: "Description of the compliance problem" }
+        severity:   { type: string, enum: [BLOCKING, WARNING, INFO] }
+
+  signedDate:
+    type: string
+    format: date
+
+  expirationDate:
+    type: string
+    format: date
+
+  value:
+    type: number
+    description: Total contract value
+
+  currency:
+    type: string
+    pattern: "^[A-Z]{3}$"
+    example: "USD"
+
+  parties:
+    type: object
+    properties:
+      contractor:
+        type: object
+        properties:
+          name:     { type: string }
+          licenseNumber: { type: string }
+      customer:
+        type: object
+        properties:
+          name:     { type: string }
+          email:    { type: string }
+          phone:    { type: string }
+
+  documentRef:
+    type: object
+    description: Reference to the contract document in storage
+    properties:
+      storageSystem:  { type: string, enum: [HD_PORTAL, S3, AZURE_BLOB, SHAREPOINT, OTHER] }
+      documentUrl:    { type: string }
+      documentKey:    { type: string, description: "Storage key or path" }
+      fileType:       { type: string, example: "PDF" }
+
+  timestamps:
+    $ref: '#/Timestamps'
+
+Timestamps:
+  type: object
+  properties:
+    createdAt:        { type: string, format: date-time }
+    updatedAt:        { type: string, format: date-time }
+    signedAt:         { type: string, format: date-time }
+    complianceCheckedAt: { type: string, format: date-time }
+    cancelledAt:      { type: string, format: date-time }

@@ -35,3 +35,4 @@ Stub created by Scout during Peerless scoping (2026-05-11). Enriched by Architec
 | Date | Client count | Knowledge added | Status |
 |------|-------------|-----------------|--------|
 | 2026-05-11 | 1 | Initial stub created by Scout (Peerless engagement) | stub |
+| 2026-05-12 | 1 | Scout transcript analysis. Added: API key from Marius received Apr 15; portal login pending (Ashley → HD); 'Final' status = trigger for downstream automation; ~10-min polling lag; current lead sync to SF broken; HD contact for API support = Greg (ticketing); test leads must be labeled 'Peerless test'. | stub |
