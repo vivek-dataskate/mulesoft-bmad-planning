@@ -28,3 +28,4 @@ None yet — populated by Architect during MD run.
 | Date | Client count | Knowledge added | Status |
 |------|-------------|-----------------|--------|
 | 2026-05-11 | 1 | Initial stub created by Scout (MRN engagement) | stub |
+| 2026-05-12 | 2 | Zyris engagement added — single Shopify store (no multi-tenant needed unlike MRN); Shopify→FO order sync with address normalization required; FK-005 PATCH limitation confirmed for fulfillment_orders | stub |

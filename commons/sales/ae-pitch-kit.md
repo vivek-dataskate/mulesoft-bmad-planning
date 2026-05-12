@@ -45,7 +45,7 @@ The client is not buying integrations. They are buying the ability to operate li
 
 | What Most SIs Do | What DataSkate Does |
 |---|---|
-| Deliver a project and hand it off | Own the integration for 2 years — uptime, performance, upgrades |
+| Deliver a project and hand it off | Own the integration for 1 year — uptime, performance, upgrades |
 | Charge for every change | Minor enhancements included in the monthly rate |
 | No stake in the client's success | Our revenue depends on the client staying active and adding flows |
 | Deliver MuleSoft flows, full stop | Guide the client from integration → automation → agentic AI |
@@ -63,7 +63,7 @@ The client is not buying integrations. They are buying the ability to operate li
 
 - You're not selling them a cheaper implementation. You're selling them a smarter path to AI readiness.
 - The 30-minute conversation positions you as the advisor, not just the license seller.
-- DataSkate's 2-year managed service means your client is live, healthy, and realizing value before you have the renewal conversation.
+- DataSkate's 1-year managed service means your client is live, healthy, and realizing value before you have the renewal conversation.
 
 ---
 
@@ -85,8 +85,8 @@ The client is not buying integrations. They are buying the ability to operate li
 ## Introductory Pricing — First Deal
 
 If this is your first engagement with DataSkate:
-- Up to 5 flows: **$10,000 flat implementation**
-- Beyond 5 flows: $10,000 + $3,500 per additional flow
+- Up to the AE cap: **introductory flat implementation fee** (see pricing-model.md)
+- Beyond the cap: flat fee + standard per-flow rate for additional flows
 - Same delivery timeline as all other deals
 - This applies once — it is a relationship-building entry point, not a permanent discount
 
@@ -104,7 +104,7 @@ Quick follow-up on implementation. Before you finalize your approach, I want to 
 
 What makes them different is that they don't just build integrations — they position every connection as a building block for automation and eventually agentic AI. The clients who work with them in year one are running autonomous workflows by year two.
 
-Their model: managed service at $150/flow/month, starting when you go live. They build it, run it, monitor it, and upgrade it. Your team focuses on the business outcomes.
+Their model: managed service at a fixed monthly rate per flow, starting when you go live. They build it, run it, monitor it, and upgrade it. Your team focuses on the business outcomes.
 
 Happy to set up 30 minutes with their architect this week if you're open to it.
 
@@ -124,7 +124,7 @@ The way they work: they start by building reliable integrations between your sys
 
 For [Company], that means [specific example based on what you know about their business — e.g., "member re-engagement that fires automatically rather than relying on Caralina to pull a list"].
 
-The cost is $150/flow/month — all-in, fully managed. Happy to share the full scope and timeline for your situation.
+The cost is a fixed monthly rate per flow — all-in, fully managed. Happy to share the full scope, rate schedule, and timeline for your situation.
 
 [Your name]
 
@@ -136,7 +136,7 @@ The cost is $150/flow/month — all-in, fully managed. Happy to share the full s
 
 Hi [Name],
 
-One thing I want to flag — DataSkate's managed service rate is currently $150/flow/month. That steps up 5% on [date]. Flows scoped and contracted before then pay the current rate for their 6-month period.
+One thing I want to flag — DataSkate's managed service rate steps up 5% every 6 months. Flows contracted in the current period lock in the current rate for the full contract term.
 
 Not trying to manufacture urgency — just making sure you have the timing picture before deciding.
 
@@ -163,13 +163,46 @@ Not trying to manufacture urgency — just making sure you have the timing pictu
 > That's where most clients start. The good news is you don't have to think about AI right now — DataSkate just builds integrations in a way that doesn't make AI harder later. Clean APIs, consistent data models, reliable pipelines. When you're ready to layer automation on top, the foundation is already there. It doesn't cost more to do it right.
 
 **"We already have an SI picked."**
-> Worth one comparison before you sign. Ask them: what does post-delivery support look like? Who owns the integration when something breaks at 2am six months from now? DataSkate owns it for 2 years — uptime, upgrades, everything. Most SIs hand off and move on.
+> Worth one comparison before you sign. Ask them: what does post-delivery support look like? Who owns the integration when something breaks at 2am six months from now? DataSkate owns it for the full year — uptime, upgrades, everything. Most SIs hand off and move on.
 
-**"We don't want to be locked in for 2 years."**
-> The 2 years is what makes the model work — for both sides. For you, it means DataSkate has the runway to actually guide you through the automation phase, not just deliver flows and disappear. For them, it gives them the stability to staff your account properly. It's a partnership contract, not just a service agreement.
+**"We don't want to be locked in for a year."**
+> The 1-year term is what makes the model work — for both sides. For you, it means DataSkate has the runway to actually guide you through the automation phase, not just deliver flows and disappear. For them, it gives them the stability to staff your account properly. It's a partnership contract, not just a service agreement. And at renewal you renegotiate from a position of having a proven, running system.
 
 **"Why should we pay monthly when we could own it outright?"**
-> You can — that's our standard model at $3,500/flow. But owning it means your team maintains it, upgrades it, and handles incidents. For most companies, the ongoing cost of that is higher than $150/month/flow. And the owned model doesn't include the automation and agentic roadmap that comes with the managed service.
+> You can — that's our implementation-only model. But owning it means your team maintains it, upgrades it, and handles incidents. For most companies, the ongoing cost of that exceeds our managed service rate. And the owned model doesn't include the automation and agentic roadmap that comes with the managed service.
+
+---
+
+## When the Client Self-Maintains — Phase 2 Pivot
+
+When a client has a developer and plans to own integration maintenance, do not push IaaS. Agree with them, close Implementation Only, and immediately plant the Phase 2 seed.
+
+**What you say at scoping:**
+> *"That makes total sense — Implementation Only is the right model for you. Your developer runs the integration layer, you own the code. What I want to put on the roadmap now is Phase 2: once your systems are connected, the next unlock is agents — AI that uses those connections to automate decisions and surface insights your team doesn't have time to find manually. Separate engagement, separate timeline. Let's get Phase 1 done right and come back to this at go-live."*
+
+**What you say at go-live:**
+> *"Your flows are live. This is exactly the right moment to scope what Phase 2 looks like — your data is clean, connected, and ready. We've done this build before and we know where the agent opportunities are in your stack. Worth a 30-minute session to map it out?"*
+
+**Why this works:**
+- No conflict with their developer — you're not competing with their team, you're adding a layer above it
+- Implementation Only closes faster with no managed service objection
+- Phase 2 creates a natural follow-on SOW conversation anchored to a real milestone (go-live)
+- Positions DataSkate as the AI/agent partner, not just the integration builder
+
+**The Phase 2 pitch:**
+
+| Phase | Who Owns It | What It Is |
+|---|---|---|
+| Phase 1 — Connected | Client's developer | Integration flows built by DataSkate, maintained in-house |
+| Phase 2 — Automated & Agentic | DataSkate (SOW) | AI agents that use the connected data to automate workflows, surface decisions, reduce manual operations |
+
+Phase 2 is a new SOW — not IaaS, not managed service. DataSkate designs and builds the agent layer. The client's developer continues owning and running the integrations underneath.
+
+**Signals that Phase 2 is ready:**
+- Flows have been live 60–90 days and are stable
+- Client team is using the connected data in their workflows
+- Client mentions manual reporting, repetitive decisions, or "we still export to Excel"
+- AI or automation comes up in any context
 
 ---
 
@@ -177,7 +210,7 @@ Not trying to manufacture urgency — just making sure you have the timing pictu
 
 1. **"Integration is the foundation, not the destination"** — Every flow we build is a pipeline an AI agent will eventually use. Build it right the first time.
 
-2. **"You're not buying maintenance, you're buying momentum"** — The 2-year managed service is how clients go from connected to automated to agentic. It's a guided journey, not a support contract.
+2. **"You're not buying maintenance, you're buying momentum"** — The 1-year managed service is how clients go from connected to automated to agentic. It's a guided journey, not a support contract.
 
 3. **"Full quota, zero implementation friction"** — AE sells the full license. DataSkate removes the implementation objection entirely.
 
