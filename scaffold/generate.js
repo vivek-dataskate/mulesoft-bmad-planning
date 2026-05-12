@@ -38,8 +38,9 @@ const path = require('path');
 const REPO_ROOT    = path.resolve(__dirname, '..');
 const TMPL_DIR     = path.join(__dirname, 'xml-templates');
 const CONN_TMPL    = path.join(__dirname, 'connectors');
-const REGISTRY_F   = path.join(REPO_ROOT, 'standards', 'connector-registry.json');
-const SNIPPET_REG_F = path.join(REPO_ROOT, 'standards', 'snippet-registry.json');
+const REGISTRY_F        = path.join(REPO_ROOT, 'standards', 'connector-registry.json');
+const SNIPPET_REG_F     = path.join(REPO_ROOT, 'standards', 'snippet-registry.json');
+const CANONICAL_REG_F   = path.join(REPO_ROOT, 'standards', 'canonical-models', 'registry.json');
 const DEVCONTAINER_TMPL_DIR = path.join(__dirname, 'devcontainer-templates');
 
 // Commons library version — read from commons/pom.xml when available
@@ -194,6 +195,60 @@ function buildRegistryLookup(registry) {
     }
   }
   return map;
+}
+
+// ─── Canonical Model Registry ─────────────────────────────────────────────────
+
+function loadCanonicalRegistry() {
+  if (!fs.existsSync(CANONICAL_REG_F)) return null;
+  try { return JSON.parse(readFile(CANONICAL_REG_F)); } catch { return null; }
+}
+
+// Derive the vertical slug from a canonical model path.
+// "standards/canonical-models/construction/canonical-job.yaml" → "construction"
+function verticalFromPath(canonicalModelPath) {
+  const m = (canonicalModelPath ?? '').match(/canonical-models\/([^/]+)\//);
+  return m ? m[1] : null;
+}
+
+// Determine if a flow should use the canonical hub-and-spoke split (two DWL files).
+// Any one of the following triggers it:
+//   A. flow.canonicalModel is explicitly set
+//   B. flow.bidirectional === true and flow.entity is set
+//   C. The same entity appears in 3+ flows in this project (hub pattern)
+function useCanonicalSplit(flow, allFlows) {
+  if (!flow.entity) return false;
+  if (flow.canonicalModel) return true;
+  if (flow.bidirectional === true) return true;
+  const sameEntityCount = allFlows.filter(f => f.entity === flow.entity).length;
+  return sameEntityCount >= 3;
+}
+
+// Generate commented field stubs for the source→canonical DWL template.
+// Uses registry keyFieldAlignments when available; falls back to a generic TODO.
+function buildCanonicalFieldStubs(canonicalReg, vertical, record) {
+  const fields = Object.keys(
+    canonicalReg?.verticals?.[vertical]?.records?.[record]?.keyFieldAlignments ?? {}
+  );
+  if (fields.length === 0) {
+    return '    // TODO: Map source fields to canonical schema fields (see canonical YAML in standards/canonical-models/)';
+  }
+  return fields
+    .map(f => `    // "${f}": payload.TODO_${f.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_FIELD,`)
+    .join('\n');
+}
+
+// Generate commented field stubs for the canonical→target DWL template.
+// Uses registry keyFieldAlignments (values = target system field names).
+function buildTargetFieldStubs(canonicalReg, vertical, record) {
+  const alignments = canonicalReg?.verticals?.[vertical]?.records?.[record]?.keyFieldAlignments ?? {};
+  const entries = Object.entries(alignments);
+  if (entries.length === 0) {
+    return '    // TODO: Map canonical fields to target system fields';
+  }
+  return entries
+    .map(([canonField, targetField]) => `    // "${targetField}": payload.${canonField},`)
+    .join('\n');
 }
 
 // Print staleness warnings. Thresholds: >60 days = WARNING (Red), >30 days = NOTICE (Yellow).
@@ -710,7 +765,7 @@ ${hasNotify ? `            <flow-ref name="common-dispatch-error-notification-su
 
 // ─── {flow.name}-flows.xml ────────────────────────────────────────────────────
 
-function genFlowFile(flow, d, snippets, outDir, coverageFloor) {
+function genFlowFile(flow, d, snippets, allFlows, outDir, coverageFloor) {
   const trigger   = flow.trigger ?? 'http';
   const connKeys  = d.systems?.connectors ?? [];
   const wireTap   = d.wireTap?.enabled ?? false;
@@ -760,6 +815,39 @@ function genFlowFile(flow, d, snippets, outDir, coverageFloor) {
     }
   }
 
+  // 2c. Inject canonical split guidance when two DWL files were generated for this flow.
+  // Inserts a comment block documenting the hub-and-spoke pattern so developers know
+  // there are two DWL files to complete rather than one.
+  if (useCanonicalSplit(flow, allFlows) && flow.entity) {
+    const entity  = flow.entity;
+    const src     = (flow.source ?? 'source').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const tgt     = (flow.target ?? 'target').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const canonGuidance = `
+        <!--
+            ── CANONICAL SPLIT PATTERN ──────────────────────────────────────────────
+            This flow uses a canonical hub schema for the "${entity}" entity.
+            Two DataWeave transforms are required — both files are pre-generated:
+
+            Step 1 — Map ${flow.source ?? 'Source'} → Canonical ${entity}:
+              <ee:transform doc:name="Map ${flow.source ?? 'Source'} to Canonical ${entity}"
+                            resource="dwl/${src}-to-canonical-${entity}.dwl"/>
+
+            Step 2 — Call ${flow.target ?? 'Target'} system (TODO: implement this)
+
+            Step 3 — Map Canonical ${entity} → ${flow.target ?? 'Target'}:
+              <ee:transform doc:name="Map Canonical ${entity} to ${flow.target ?? 'Target'}"
+                            resource="dwl/canonical-${entity}-to-${tgt}.dwl"/>
+
+            Canonical schema: ${flow.canonicalModel ?? `standards/canonical-models/UNKNOWN/canonical-${entity}.yaml`}
+            Client extensions: projects/${d.project?.client ?? 'CLIENT'}/canonical-extensions.yaml
+            ─────────────────────────────────────────────────────────────────────────
+        -->`;
+    const CANONICAL_ANCHOR = '<error-handler ref="Global_Error_Handler"/>';
+    if (flowContent.includes(CANONICAL_ANCHOR)) {
+      flowContent = flowContent.replace(CANONICAL_ANCHOR, canonGuidance + '\n\n        ' + CANONICAL_ANCHOR);
+    }
+  }
+
   // 3. Build namespace additions for ONLY the connectors this trigger type requires.
   // Using all project connectors (connKeys) would add unnecessary xmlns declarations to every
   // flow file. Developers add target-connector namespaces manually when implementing TODOs.
@@ -791,14 +879,60 @@ function genMunitFile(flow, d, outDir, coverageFloor) {
 
 // ─── {transform}.dwl ─────────────────────────────────────────────────────────
 
-function genDwlFile(flow, d, outDir) {
-  const tokens  = buildFlowTokens(flow, d, 80);
-  const dwlName = tokens.DWL_FILE_NAME;
-  const tmpl    = readFile(path.join(TMPL_DIR, 'transform.dwl'));
-  writeFile(
-    path.join(outDir, `src/main/resources/dwl/${dwlName}.dwl`),
-    sub(tmpl, tokens)
-  );
+// Generate DataWeave transform file(s) for a flow.
+// When the flow meets the canonical split criteria, generates two DWL files:
+//   {source}-to-canonical-{entity}.dwl  — source system → canonical hub schema
+//   canonical-{entity}-to-{target}.dwl  — canonical hub schema → target system
+// Otherwise generates a single {flow-name}-transform.dwl (existing behaviour).
+function genDwlFiles(flow, d, allFlows, canonicalReg, outDir) {
+  const tokens   = buildFlowTokens(flow, d, 80);
+  const dwlDir   = path.join(outDir, 'src/main/resources/dwl');
+  const client   = d.project?.client ?? 'client';
+
+  if (!useCanonicalSplit(flow, allFlows)) {
+    // Single-transform (no canonical hub) — existing behaviour
+    const tmpl = readFile(path.join(TMPL_DIR, 'transform.dwl'));
+    writeFile(path.join(dwlDir, `${tokens.DWL_FILE_NAME}.dwl`), sub(tmpl, tokens));
+    return;
+  }
+
+  // ── Canonical split: two DWL files ──────────────────────────────────────
+  const entity       = flow.entity;                             // e.g. "job"
+  const entityTitle  = entity.charAt(0).toUpperCase() + entity.slice(1).replace(/-/g, ' ');
+  const src          = (flow.source ?? 'source').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const tgt          = (flow.target ?? 'target').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const vertical     = verticalFromPath(flow.canonicalModel);
+  const record       = entity;
+
+  const toCanonicalName   = `${src}-to-canonical-${entity}`;
+  const fromCanonicalName = `canonical-${entity}-to-${tgt}`;
+
+  const schemaVersion = '1.0.0';
+  const canonicalPath = flow.canonicalModel ?? `standards/canonical-models/${vertical ?? 'UNKNOWN_VERTICAL'}/canonical-${entity}.yaml`;
+
+  const canonicalTokens = {
+    ...tokens,
+    SOURCE_SYSTEM:           flow.source ?? 'SourceSystem',
+    TARGET_SYSTEM:           flow.target ?? 'TargetSystem',
+    ENTITY:                  entity,
+    ENTITY_TITLE:            entityTitle,
+    CANONICAL_MODEL_PATH:    canonicalPath,
+    CLIENT:                  client,
+    SOURCE_SYSTEM_KEY:       src,
+    CANONICAL_SCHEMA_VERSION: schemaVersion,
+    CANONICAL_FIELD_STUBS:   buildCanonicalFieldStubs(canonicalReg, vertical, record),
+    TARGET_FIELD_STUBS:      buildTargetFieldStubs(canonicalReg, vertical, record),
+  };
+
+  const toCanonicalTmpl   = readFile(path.join(TMPL_DIR, 'transform-to-canonical.dwl'));
+  const fromCanonicalTmpl = readFile(path.join(TMPL_DIR, 'transform-from-canonical.dwl'));
+
+  writeFile(path.join(dwlDir, `${toCanonicalName}.dwl`),   sub(toCanonicalTmpl, canonicalTokens));
+  writeFile(path.join(dwlDir, `${fromCanonicalName}.dwl`), sub(fromCanonicalTmpl, canonicalTokens));
+
+  console.log(`     [CANONICAL SPLIT] ${src} → canonical-${entity} → ${tgt}`);
+  console.log(`     DWL 1: ${toCanonicalName}.dwl`);
+  console.log(`     DWL 2: ${fromCanonicalName}.dwl`);
 }
 
 // ─── OAS spec stub ────────────────────────────────────────────────────────────
@@ -1380,8 +1514,14 @@ function main() {
     console.error(`Error: Connector registry not found: ${REGISTRY_F}`);
     process.exit(1);
   }
-  const registry = JSON.parse(readFile(REGISTRY_F));
-  const lookup   = buildRegistryLookup(registry);
+  const registry     = JSON.parse(readFile(REGISTRY_F));
+  const lookup       = buildRegistryLookup(registry);
+
+  // Load canonical model registry (optional — generates richer DWL stubs when present)
+  const canonicalReg = loadCanonicalRegistry();
+  if (!canonicalReg) {
+    console.warn('  ⚠  Canonical model registry not found — DWL canonical stubs will use generic TODOs');
+  }
 
   // Load snippets that are actively injected into generated flow files.
   //
@@ -1452,22 +1592,27 @@ function main() {
       console.warn('\n  ⚠  Flow missing "name" field — skipping');
       continue;
     }
-    console.log(`\n  Flow: ${flow.name}  trigger=${flow.trigger ?? 'http'}  layer=${flow.layer ?? 'process'}`);
-    genFlowFile(flow, d, snippets, outDir, coverageFloor);
+    const isCanonicalSplit = useCanonicalSplit(flow, flows);
+    console.log(`\n  Flow: ${flow.name}  trigger=${flow.trigger ?? 'http'}  layer=${flow.layer ?? 'process'}${isCanonicalSplit ? '  [canonical-split]' : ''}`);
+    genFlowFile(flow, d, snippets, flows, outDir, coverageFloor);
     genMunitFile(flow, d, outDir, coverageFloor);
-    genDwlFile(flow, d, outDir);
+    genDwlFiles(flow, d, flows, canonicalReg, outDir);
     if ((flow.trigger ?? 'http') === 'http') {
       genOasSpec(flow, d, outDir);
     }
   }
 
   // ── Summary ──────────────────────────────────────────────────────────────
-  const flowCount  = flows.filter(f => f.name).length;
-  const httpFlows  = flows.filter(f => (f.trigger ?? 'http') === 'http' && f.name).length;
+  const flowCount        = flows.filter(f => f.name).length;
+  const httpFlows        = flows.filter(f => (f.trigger ?? 'http') === 'http' && f.name).length;
+  const canonicalFlows   = flows.filter(f => f.name && useCanonicalSplit(f, flows)).length;
+  const singleDwlFlows   = flowCount - canonicalFlows;
   const totalFiles = 6 + (profile === 'regulated' ? 1 : 0)  // project-level
                    + 2                                        // .devcontainer files
                    + 8                                        // push.md, push-dev.md, settings.json, bmad-agent-dev.toml, 2×skill dirs (SKILL.md+customize.toml each)
-                   + flowCount * 3                            // flows + munit + dwl
+                   + flowCount * 2                            // flows.xml + munit per flow
+                   + singleDwlFlows                           // single DWL per non-canonical flow
+                   + canonicalFlows * 2                       // two DWL files per canonical-split flow
                    + httpFlows                                // OAS specs
                    + (d.devops?.cicd === 'github-actions' ? 1 : 0);
 
@@ -1530,6 +1675,10 @@ module.exports = {
   buildRegistryLookup,
   checkStaleness,
   connectorDepXml,
+  useCanonicalSplit,
+  verticalFromPath,
+  buildCanonicalFieldStubs,
+  buildTargetFieldStubs,
 };
 
 if (require.main === module) {

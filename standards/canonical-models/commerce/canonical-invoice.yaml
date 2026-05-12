@@ -1,9 +1,20 @@
 title: Canonical Invoice
 version: "1.0.0"
+standard: "OAGIS 10.x — ProcessInvoice BOD"
+standardBody: "Open Applications Group (OAGi)"
+standardRef: "https://www.oagi.org/dnn5/Home/DownloadaStandard"
+deviations:
+  - "Field names use camelCase (not OAGIS PascalCase) — DataWeave convention"
+  - "invoiceId maps to OAGIS DocumentID/ID — simplified to flat string"
+  - "customerId maps to OAGIS BillToParty/PartyIDs/ID — not nested"
+  - "totals maps to OAGIS TotalAmount/TaxAmount/NetAmount — renamed for clarity"
+  - "paymentStatus is a canonical addition — not in OAGIS InvoiceType directly"
 description: |
   Canonical invoice entity schema across all client integrations.
   Maps from: NetSuite Invoice, QuickBooks Invoice, SAP Billing Document, Salesforce Invoice.
   Primary flow: source ERP → canonical → target CRM (status sync) or AP system (payment).
+  OAGIS alignment: InvoiceType — key fields invoiceId→DocumentID/ID,
+  customerId→BillToParty/PartyIDs/ID, totals→TotalAmount/TaxAmount/NetAmount.
 
 type: object
 required:

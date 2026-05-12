@@ -1,9 +1,19 @@
 title: Canonical Customer
 version: "1.0.0"
+standard: "OAGIS 10.x — SyncCustomerParty BOD"
+standardBody: "Open Applications Group (OAGi)"
+standardRef: "https://www.oagi.org/dnn5/Home/DownloadaStandard"
+deviations:
+  - "Field names use camelCase (not OAGIS PascalCase) — DataWeave convention"
+  - "status enum simplified to ACTIVE/INACTIVE/SUSPENDED/CHURNED (OAGIS uses Status/Code free text)"
+  - "contacts[] flattened from OAGIS Contact/ContactName/PersonName hierarchy"
+  - "addresses split into billing/shipping/hq (OAGIS uses Address[] with AddressTypeCd)"
 description: |
   Canonical customer/account entity schema across all client integrations.
   Maps from: Salesforce Account, NetSuite Customer, Dynamics 365 Account, HubSpot Company.
   Maps to: any target CRM, ERP, or service system.
+  OAGIS alignment: CustomerPartyType — key fields customerId→CustomerID, name→OrganizationName,
+  contacts→Contact[], addresses→Address[].
 
 type: object
 required:

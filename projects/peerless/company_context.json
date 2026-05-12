@@ -1,0 +1,148 @@
+{
+  "client": "peerless",
+  "generatedAt": "2026-05-12",
+  "snapshot": "Peerless Fence Group is a residential fencing installation company headquartered in West Chicago, IL, operating across Chicagoland, IL, WI, IN, and OH. They are a Home Depot Pro contractor partner — HD generates leads that Peerless sales reps convert into fence installation jobs. The core operational bottleneck is manual cross-referencing between three systems (HD Portal, Salesforce, and ComputerEase) for every new order: verifying contracts, entering jobs, and ensuring compliance — all done today by a single operations manager (Ashley Salerno).",
+  "industry": "Specialty residential contractor (fencing installation — Home Depot Pro partner)",
+  "businessObjects": [
+    "Leads",
+    "Quotes",
+    "Opportunities",
+    "Contracts (299A / 299B / 118)",
+    "Jobs",
+    "Customers",
+    "Commissions",
+    "Budget Worksheets",
+    "Material Orders",
+    "Projects",
+    "Change Orders"
+  ],
+  "aiJourney": {
+    "phase1": {
+      "label": "Connected",
+      "headline": "HD Portal, Salesforce, and ComputerEase talk to each other automatically",
+      "body": "Every new HD order triggers automatic field validation, contract download, and job creation in ComputerEase — eliminating the 45-90 minutes Ashley spends manually cross-referencing systems for every new job."
+    },
+    "phase2": {
+      "label": "Automated",
+      "headline": "Compliance and corrections run without human intervention",
+      "body": "Mismatch alerts fire in real time as soon as an order arrives. Salesforce corrections sync back to HD Portal automatically. No manual follow-up, no re-entry, no compliance backlog accumulating in Ashley's queue."
+    },
+    "phase3": {
+      "label": "Agentic",
+      "headline": "AI monitors job cycle times, contract quality, and margin trends",
+      "body": "With clean data flowing across all three systems, AI agents can score contract compliance patterns per sales rep, flag at-risk installs before customer complaints arrive, and surface seasonal demand signals from lead volume trends for proactive operations planning."
+    }
+  },
+  "p0Blockers": [
+    {
+      "id": "P0-001",
+      "system": "ComputerEase",
+      "description": "CE Live Service not yet configured — Deltek support ticket filed Apr 17, 2026 by Jean Jacobs. CE API is NOT accessible from CloudHub until CE Live Service is installed and the Deltek relay endpoint is provisioned. BLOCKS all CE integration work.",
+      "owner": "Peerless / Deltek support",
+      "mustResolveBy": "Before architecture begins",
+      "ticketStatus": "Submitted Apr 17, 2026 — response ETA 2-4 hours (legacy tier)"
+    },
+    {
+      "id": "P0-002",
+      "system": "ComputerEase",
+      "description": "API port unknown — CE application is NOT listening on 443 or 8081 (confirmed via netstat Apr 16, 2026). Actual API port must be discovered by running netstat on production GCP VM (135.226.222.18). Required before firewall rules can be finalized.",
+      "owner": "Peerless (Brian Cook)",
+      "mustResolveBy": "Before development begins"
+    },
+    {
+      "id": "P0-003",
+      "system": "ComputerEase",
+      "description": "DataSkate needs a dedicated CE API user created via pw-maintenance login in production. API access group (Jobs, Cost Types, Subcontracts, Job Totals) already created — user just needs to be assigned to it.",
+      "owner": "Peerless (Jean Jacobs)",
+      "mustResolveBy": "Before CE development begins"
+    },
+    {
+      "id": "P0-004",
+      "system": "HD Portal",
+      "description": "HD Portal write endpoints (POST/PATCH) not confirmed. UC2 (Salesforce corrections → HD Portal) requires write API access. Only GET operations confirmed (Apr 2026). Must verify with HD API team (Greg) before UC2 can be scoped for development.",
+      "owner": "Peerless (Ashley Salerno / Greg at HD)",
+      "mustResolveBy": "Before UC2 development begins"
+    },
+    {
+      "id": "P0-005",
+      "system": "HD Portal",
+      "description": "DataSkate team HD Portal login not yet created. Ashley Salerno is waiting for HD response to create a DataSkate-specific login. API credentials (from Marius) received but portal login still pending.",
+      "owner": "Peerless (Ashley Salerno → HD Portal team)",
+      "mustResolveBy": "Before HD Portal integration testing begins"
+    }
+  ],
+  "systemFindings": [
+    {
+      "system": "ComputerEase",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "CE application is NOT listening on port 443 or 8081 on GCP VM 135.226.222.18 — confirmed via netstat by Brian Cook Apr 16, 2026. Actual API port unknown. Must run netstat on VM to identify.",
+      "writtenTo": "playbooks/computerease/PLAYBOOK.md",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "ComputerEase",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "GCP VM (135.226.222.18) has SSH and RDP open from 0.0.0.0/0 — flagged as critical security risk by Raghuram Potluri and Brian Cook on Apr 15, 2026. Must be locked to MuleSoft CloudHub static IPs after deployment.",
+      "writtenTo": "playbooks/computerease/PLAYBOOK.md",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "ComputerEase",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "CE API access group created in production (Apr 15, 2026) with these objects: Jobs, Cost Types, Subcontracts, Job Totals. Payroll and Vendors explicitly excluded.",
+      "writtenTo": "playbooks/computerease/PLAYBOOK.md",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "ComputerEase",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "Deltek support ticket filed Apr 17, 2026 by Jean Jacobs (jeanj@peerlessfence.com). Ticket filed for CE Live Service configuration on GCP VM. ETA: 2-4 hours (legacy product tier). Jean is the only person with Deltek support portal credentials.",
+      "writtenTo": "client-only",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "ComputerEase",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "Job number format confirmed: {YY} HD {sequential-counter} {sales-rep-initials} (e.g., '26 HD 565 AS'). Counter maintained manually in a spreadsheet today — MuleSoft must manage via Object Store. Customer number format: 3-letter last-name prefix + sequential counter (e.g., MUC180).",
+      "writtenTo": "playbooks/computerease/PLAYBOOK.md",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "ComputerEase",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "CE company codes for Peerless: IL/WI = 00 (Home Depot residential = 00-South or 00-ES). Department code = 3 for IL and WI. Customer type for HD residential = R05.",
+      "writtenTo": "client-only",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "HD Portal",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "HD Portal API credentials (API key) received from Marius by Apr 15, 2026. Portal login (separate from API key) still pending — Ashley Salerno is the contact who requests logins from HD. HD contact for API support: Greg (ticketing system, variable response times).",
+      "writtenTo": "playbooks/hd-portal/PLAYBOOK.md",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "HD Portal",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "Lead status 'Final' = contract signed and compliant — the trigger for downstream automation. Lead sync from HD Portal to Salesforce has a ~10-minute polling lag. This sync is currently broken/unreliable per Ashley Salerno (Apr 14 call).",
+      "writtenTo": "playbooks/hd-portal/PLAYBOOK.md",
+      "date": "2026-05-12"
+    },
+    {
+      "system": "Salesforce",
+      "source": "transcript",
+      "step": "1b",
+      "finding": "Salesforce sandbox credentials being created by Cora Barahi (per Marius). DataSkate email to be used. Opportunity Closed Won is the SF-side trigger event for CE job creation.",
+      "writtenTo": "client-only",
+      "date": "2026-05-12"
+    }
+  ]
+}
