@@ -37,10 +37,10 @@ a{color:var(--brand);}
 .doc-header .meta-row span strong{color:var(--dark);font-weight:600;display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
 
 /* ── BUSINESS CONTEXT PANEL ── */
-.biz-context{background:#EFF6FF;border:1px solid #BFDBFE;border-left:4px solid var(--blue-br);border-radius:8px;margin:32px 0 0;overflow:hidden;}
-.bc-header{background:#DBEAFE;padding:12px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
-.bc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#1E40AF;}
-.bc-chevron{font-size:14px;color:#1E40AF;transition:transform 0.2s;}
+.biz-context{background:var(--light);border:1px solid var(--border);border-left:4px solid var(--brand);border-radius:8px;margin:32px 0 0;overflow:hidden;}
+.bc-header{background:#FFE4E4;padding:12px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+.bc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--brand-dk);}
+.bc-chevron{font-size:14px;color:var(--brand-dk);transition:transform 0.2s;}
 .bc-body{padding:24px 28px;}
 .bc-snapshot{font-size:14px;color:var(--dark);margin-bottom:16px;line-height:1.7;}
 .journey-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
@@ -1371,7 +1371,44 @@ function toggleBC() {
   chevron.textContent = isOpen ? '▼' : '▲';
 }
 
+function collectAnswers() {
+  var answers = {};
+  document.querySelectorAll('textarea.answer, input.tbl-ans').forEach(function(el) {
+    if (el.id && (el.value || '').trim()) answers[el.id] = el.value.trim();
+  });
+  return answers;
+}
+
+function saveToFirestore(answers, pct) {
+  if (typeof firebase === 'undefined') return Promise.resolve();
+  var db = firebase.firestore();
+  return db.collection('intake_responses').doc('zyris').set({
+    clientId: 'zyris',
+    responses: answers,
+    completionPercent: pct,
+    submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true }).then(function() {
+    return db.collection('projects').doc('zyris').set({
+      status: 'intake_complete',
+      completionPercent: pct,
+      lastActivityAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  });
+}
+
 function sendEmail() {
+  var all = document.querySelectorAll('textarea.answer, input.tbl-ans');
+  var answered = 0;
+  all.forEach(function(el) {
+    var v = (el.value || '').trim();
+    if (v && v !== el.placeholder) answered++;
+  });
+  var pct = all.length ? Math.round((answered / all.length) * 100) : 0;
+  var answers = collectAnswers();
+
+  saveToFirestore(answers, pct).catch(function(e) { console.warn('Firestore save failed:', e); });
+
   window.print();
   setTimeout(function() {
     window.location.href = 'mailto:kailash@dataskate.ai?cc=vivek@dataskate.ai&subject=Zyris%20Intake%20Questionnaire%20%E2%80%94%20Completed&body=Hi%20Kailash%2C%0A%0APlease%20find%20attached%20the%20completed%20Zyris%20intake%20questionnaire.%0A%0AThanks%2C%0ARodrigo';
@@ -1399,6 +1436,18 @@ document.addEventListener('DOMContentLoaded', function() {
     el.addEventListener('input', updateProgress);
   });
 });
+</script>
+<!-- Firebase — loaded only when served from Firebase Hosting; no-op if opened as a local file -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+(function() {
+  try {
+    var s = document.createElement('script'); s.src = '/firebase-config.js';
+    s.onload = function() { if (typeof FIREBASE_CONFIG !== 'undefined') firebase.initializeApp(FIREBASE_CONFIG); };
+    document.head.appendChild(s);
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>

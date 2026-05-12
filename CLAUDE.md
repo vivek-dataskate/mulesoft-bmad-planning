@@ -2,6 +2,13 @@
 
 Read `docs/PLANNING_CONTEXT.md` at the start of every session before doing anything else.
 
+**UI feedback rule:** Any time the user gives negative feedback on UI or HTML output (e.g. "this is wrong", "fix this", "don't do that"), immediately save that feedback to three places:
+1. `commons/branding/HTML_DESIGN_STANDARDS.md` — add to the relevant section or "What NOT to Do"
+2. `memory/` — save or update a feedback memory file
+3. This `CLAUDE.md` file — add to the relevant section if it's a recurring pattern
+
+Do not wait to be asked. The goal is that no UI mistake is ever repeated across sessions.
+
 ---
 
 ## Team
@@ -16,6 +23,8 @@ Read `docs/PLANNING_CONTEXT.md` at the start of every session before doing anyth
 - **Slack default invite email for new project channels:** vivek@dataskate.ai (hardcoded as `SLACK_DEFAULT_ARCHITECT_EMAIL` in slack-agent.js)
 
 The assigned architect is stored in `project.json` as both `architect` (display name) and `architectEmail` (email). The CC on all client-facing emails (intake HTML, proposal) must use `architectEmail` from project.json — never hardcode a specific architect's email.
+
+**Footer rule for DataSkate sales materials** (flyer, pricing guide, architect guide): use `kailash@dataskate.ai` as the primary contact. Kailash Chanda is the owner of the DataSkate integration service. Do not use `vivek@dataskate.ai` in footers of these documents.
 
 ---
 

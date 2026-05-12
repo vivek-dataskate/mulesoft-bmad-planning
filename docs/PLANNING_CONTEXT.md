@@ -37,14 +37,17 @@ BMAD SCOUT AGENT  [Step 0 — runs before intake form is sent]
   Cross-references connector-registry.json for each detected system
   Applies known gotchas from PLANNING_CONTEXT.md Critical Notes + FIELD_KNOWLEDGE.md verified entries
   Generates system-specific questions dynamically — only for detected systems
-  Output → projects/{client}/intake-questionnaire.md
-         (base questions + conditional questions + per-system gotcha questions)
-  ⬇ Tech lead sends intake-questionnaire.md to client. Waits for responses. ⬇
+  Output → projects/{client}/intake/intake-questionnaire-{client}.md  (source)
+         + projects/{client}/intake/intake-questionnaire-{client}.html (client-facing form)
+  ⬇ Run: bash firebase/deploy.sh  → publishes HTML form to Firebase Hosting ⬇
+  ⬇ Send client the URL: https://dataskateclients.web.app/intake/{client}.html ⬇
+  ⬇ Client fills form online → responses auto-save to Firestore → responses.json committed here ⬇
+  ⬇ Architect monitors live progress at: https://dataskateclients.web.app (Google login required) ⬇
         ↓
 INPUT (client responses + supporting docs):
-  - Completed intake questionnaire responses
-  - API specs, data mapping docs, architecture diagrams
-  All dropped into: projects/{client}/intake/
+  - projects/{client}/intake/responses.json  ← auto-written by Firebase when client submits
+  - API specs, data mapping docs, architecture diagrams (still dropped manually into projects/{client}/intake/)
+  Tech lead reviews responses.json, then runs Analyst.
         ↓
 BMAD ANALYST AGENT
   Reads all intake docs
