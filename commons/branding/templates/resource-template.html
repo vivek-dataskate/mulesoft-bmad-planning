@@ -7,7 +7,21 @@
 <!-- CSS: commons/branding/resource-base.css.html — pasted verbatim by fill-template.js -->
 <!-- FILL:__css -->
 </head>
-<body>
+<body style="display:none">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="/firebase-config.js"></script>
+<script>
+firebase.initializeApp(FIREBASE_CONFIG);
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user && user.email.endsWith('@dataskate.ai')) {
+    document.body.style.display = '';
+  } else {
+    window.location.href = '/?redirect=' + encodeURIComponent(window.location.pathname);
+  }
+});
+</script>
 
 <div class="doc-header">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:24px;width:auto;display:block;margin-bottom:12px;" aria-label="DataSkate">
