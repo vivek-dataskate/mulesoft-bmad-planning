@@ -70,7 +70,7 @@ jobs:
         run: |
           git config user.name  "BMAD Pipeline"
           git config user.email "bmad-pipeline@noreply.github.com"
-          git add 'projects/*/client-report.html'
+          git add 'projects/*/client-report.html' 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No report changes to commit."
           else
