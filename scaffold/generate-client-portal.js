@@ -364,21 +364,13 @@ async function buildPortal(slug) {
     } catch {}
   }
 
-  // ── Scoping files — copy to Firebase and build download links ──
-  const scopingDir     = path.join(projectDir, 'scoping');
-  const scopingOutDir  = path.join(PUBLIC, 'portal', 'docs', slug, 'scoping');
-  const scopingWebBase = `${PORTAL}/portal/docs/${slug}/scoping`;
-  let scopingFiles = [];
-  if (fs.existsSync(scopingDir)) {
-    const files = fs.readdirSync(scopingDir).filter(f => !f.startsWith('.'));
-    if (files.length > 0) {
-      fs.mkdirSync(scopingOutDir, { recursive: true });
-      for (const f of files) {
-        fs.copyFileSync(path.join(scopingDir, f), path.join(scopingOutDir, f));
-        scopingFiles.push({ name: f, url: `${scopingWebBase}/${encodeURIComponent(f)}` });
-      }
-    }
-  }
+  // ── Scoping files — read from project.json (archived to Firebase Storage by move-sources.js) ──
+  // Files are private in Firebase Storage; never copied to Firebase Hosting.
+  const scopingDir = path.join(projectDir, 'scoping');
+  const archivedFiles = proj.sourceFiles || [];
+  const localScopingCount = fs.existsSync(scopingDir)
+    ? fs.readdirSync(scopingDir).filter(f => !f.startsWith('.')).length
+    : 0;
 
   // ── Decisions / dev repo ──
   const decisionsFile = path.join(projectDir, 'decisions.json');
@@ -456,36 +448,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;f
 a{color:var(--brand);text-decoration:none;}
 
 /* ── HEADER ── */
-.header{background:#fff;padding:24px 40px 0;border-bottom:3px solid var(--brand);}
-.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.header{background:#fff;padding:20px 40px 0;border-bottom:3px solid var(--brand);}
+.header-top{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
 .header-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .header-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--brand-dk);}
 .header-client{font-size:28px;font-weight:900;line-height:1.15;border-left:4px solid var(--brand);padding-left:16px;margin-top:4px;color:var(--dark);}
 .header-sub{font-size:13px;color:var(--mid);padding-left:20px;margin-top:2px;}
-.arch-badge{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:12px 16px;min-width:200px;}
+.header-phase-col{flex:1;min-width:260px;padding:0 16px;}
+.header-phase-col .phase-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mid);margin-bottom:8px;}
+.header-phase-col .phase-bar{padding:0;}
+.arch-badge{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:12px 16px;min-width:180px;flex-shrink:0;}
 .arch-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mid);margin-bottom:4px;}
 .arch-name{font-size:14px;font-weight:700;color:var(--dark);}
 .arch-email{font-size:12px;color:var(--mid);margin-top:2px;}
 .arch-email a{color:var(--brand);}
-.header-meta{display:flex;gap:0;border-top:1px solid var(--border);font-size:12px;color:var(--mid);flex-wrap:wrap;margin:16px -40px 0;padding:0 40px;}
-.header-meta span{padding:8px 24px 8px 0;margin-right:24px;border-right:1px solid var(--border);}
+.header-meta{display:flex;gap:0;border-top:1px solid var(--border);font-size:12px;color:var(--mid);flex-wrap:wrap;margin:14px -40px 0;padding:0 40px;}
+.header-meta span{padding:6px 24px 6px 0;margin-right:24px;border-right:1px solid var(--border);}
 .header-meta span:last-child{border-right:none;}
-.header-phase{display:flex;align-items:center;border-top:1px solid var(--border);margin:0 -40px;padding:12px 40px;}
-.header-phase .phase-bar{flex:1;padding:8px 0;}
 
 /* ── LAYOUT ── */
 .container{max-width:1100px;margin:0 auto;padding:0 32px 80px;}
 
 /* ── SECTION ── */
-.section{border-bottom:1px solid var(--border);padding:40px 0;}
+.section{border-bottom:1px solid var(--border);padding:20px 0;}
 .section:last-child{border-bottom:none;}
-.section-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--border);margin-bottom:20px;padding-bottom:12px;}
+.section-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--border);margin-bottom:14px;padding-bottom:8px;}
 .section-num{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:0.5px;}
 .section-title{font-size:18px;font-weight:700;color:var(--dark);}
 .section-body{padding:0;}
 
 /* ── PHASE BAR ── */
-.phase-bar{display:flex;align-items:center;padding:20px 0;}
+.phase-bar{display:flex;align-items:center;padding:8px 0;}
 .phase-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;}
 .phase-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);}
 .phase-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mid);white-space:nowrap;}
@@ -497,8 +490,8 @@ a{color:var(--brand);text-decoration:none;}
 .phase-future .phase-dot{background:#F3F4F6;border-color:#D1D5DB;}
 
 /* ── DOC CARDS ── */
-.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
-.doc-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--border);border-radius:8px;transition:border-color .15s,box-shadow .15s;cursor:default;}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;}
+.doc-card{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;transition:border-color .15s,box-shadow .15s;cursor:default;}
 a.doc-card{cursor:pointer;}
 a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.1);}
 .doc-available{border-color:#A7F3D0;}
@@ -565,8 +558,8 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
 @media(max-width:640px){
   .header{padding:20px 24px 0;}
   .container{padding:0 16px 60px;}
-  .header-meta{padding:0 24px;margin:16px -24px 0;}
-  .header-phase{margin:0 -24px;padding:8px 24px;}
+  .header-meta{padding:0 24px;margin:14px -24px 0;}
+  .header-phase-col{padding:8px 0;min-width:100%;}
   .phase-bar{overflow-x:auto;gap:0;}
 }
 </style>
@@ -581,6 +574,10 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
       <div class="header-client">${escHtml(displayName)}</div>
       <div class="header-sub">Integration Project</div>
     </div>
+    <div class="header-phase-col">
+      <div class="phase-head">Engagement Phase</div>
+      <div class="phase-bar">${renderPhaseBar(status)}</div>
+    </div>
     <div class="arch-badge">
       <div class="arch-label">Your Architect</div>
       <div class="arch-name">${escHtml(architect)}</div>
@@ -591,9 +588,6 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
     <span>Project started: ${createdAt || 'TBD'}</span>
     <span>Target go-live: ${escHtml(targetGoLive)}</span>
     <span>Updated: ${lastUpdated}</span>
-  </div>
-  <div class="header-phase">
-    <div class="phase-bar">${renderPhaseBar(status)}</div>
   </div>
 </div>
 
@@ -618,17 +612,14 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
           responsesStatus === 'available' ? 'available' : 'pending'
         )}
         ${renderDocCard('📄', 'Proposal', proposalUrl ? 'View proposal →' : 'Not yet sent', proposalUrl, proposalUrl ? 'available' : 'na')}
-        ${scopingFiles.length > 0
-          ? `<div class="doc-card doc-available" onclick="document.getElementById('scoping-modal').style.display='flex'" style="cursor:pointer">
-              <div class="doc-icon">📁</div>
-              <div class="doc-info"><div class="doc-title">Scoping Documents</div><div class="doc-sub">${scopingFiles.length} file${scopingFiles.length !== 1 ? 's' : ''} — click to view</div></div>
-              <div class="doc-arrow">↗</div>
-            </div>`
-          : renderDocCard('📁', 'Scoping Documents', 'Not yet uploaded', null, 'na')}
+        ${archivedFiles.length > 0
+          ? renderDocCard('📁', 'Scoping Documents', `${archivedFiles.length} file${archivedFiles.length !== 1 ? 's' : ''} archived →`, sourceFilesUrl, 'available')
+          : localScopingCount > 0
+            ? renderDocCard('📁', 'Scoping Documents', `${localScopingCount} file${localScopingCount !== 1 ? 's' : ''} — pending archive`, null, 'pending')
+            : renderDocCard('📁', 'Scoping Documents', 'Not yet uploaded', null, 'na')}
         ${docLinks['prd.md'] ? renderDocCard('📝', 'Product Requirements', 'View PRD →', docLinks['prd.md'], 'available') : renderDocCard('📝', 'Product Requirements', 'Not yet finalized', null, 'na')}
         ${docLinks['architecture.md'] ? renderDocCard('🏗️', 'Architecture Design', 'View design doc →', docLinks['architecture.md'], 'available') : renderDocCard('🏗️', 'Architecture Design', 'Not yet finalized', null, 'na')}
         ${docLinks['stories.md'] ? renderDocCard('🗂️', 'Epics & Stories', 'View full list →', docLinks['stories.md'], 'available') : renderDocCard('🗂️', 'Epics & Stories', 'Not yet started', null, 'na')}
-        ${sourceFilesUrl ? renderDocCard('📁', 'Source Files', 'View in cloud storage →', sourceFilesUrl, 'available') : ''}
         ${devRepoUrl ? renderDocCard('⚙️', 'Dev Repository', 'View on GitHub →', devRepoUrl, 'available') : ''}
       </div>
     </div>
@@ -649,30 +640,6 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
   Powered by <a href="https://dataskate.ai" target="_blank">DataSkate</a> · This page updates automatically as your project progresses.
 </div>
 
-${scopingFiles.length > 0 ? `
-<!-- Scoping files modal -->
-<div id="scoping-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:24px" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:white;border-radius:12px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <div style="background:#1A1A1A;color:white;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #ed1c24">
-      <div>
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:2px">Scoping Documents</div>
-        <div style="font-size:16px;font-weight:800">${escHtml(displayName)}</div>
-      </div>
-      <button onclick="document.getElementById('scoping-modal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer;line-height:1">×</button>
-    </div>
-    <div style="padding:8px 0">
-      ${scopingFiles.map(f => `
-      <a href="${f.url}" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
-        <span style="font-size:20px">${fileIcon(f.name)}</span>
-        <span style="flex:1;font-size:13px;font-weight:600">${escHtml(f.name)}</span>
-        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
-      </a>`).join('')}
-    </div>
-    <div style="padding:14px 24px;background:#F9FAFB;border-top:1px solid #E8E0E0;font-size:11px;color:#6B7280;text-align:center">
-      Click a file to download · Contact your architect for questions
-    </div>
-  </div>
-</div>` : ''}
 
 </body>
 </html>`;
