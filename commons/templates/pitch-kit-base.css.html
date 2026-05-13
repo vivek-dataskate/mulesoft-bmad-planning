@@ -1,0 +1,116 @@
+<style>
+:root {
+  --brand:    #ed1c24;
+  --brand-dk: #a01019;
+  --dark:     #1A1A1A;
+  --mid:      #555F6E;
+  --light:    #FFF5F5;
+  --border:   #E8E0E0;
+  --green:    #2E9E6B;
+  --amber:    #D69E2E;
+  --amber-bg: #FFFBEB;
+  --blue-bg:  #F0F6FF;
+  --blue-br:  #3B82F6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.6;color:var(--dark);background:#fff}
+a{color:var(--brand);text-decoration:none}
+
+/* ── Header ──────────────────────────────────────────────── */
+.header{background:#fff;border-bottom:3px solid var(--brand);padding:28px 56px 20px;max-width:900px;margin:0 auto}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);display:flex;align-items:center;gap:8px}
+.internal-badge{background:var(--brand);color:#fff;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
+.header-title-block{border-left:4px solid var(--brand);padding-left:20px;margin-bottom:14px}
+.header-title-block h1{font-size:26px;font-weight:800;line-height:1.2;color:var(--dark)}
+.subtitle{font-size:15px;color:var(--mid);margin-top:4px}
+.header-meta{display:flex;flex-wrap:wrap;gap:0;font-size:12px;color:var(--mid);border-top:1px solid var(--border);padding-top:10px}
+.header-meta span{padding-right:16px;margin-right:16px;border-right:1px solid var(--border)}
+.header-meta span:last-child{border-right:none}
+.header-meta strong{color:var(--dark);margin-right:4px}
+
+/* ── Page wrapper ─────────────────────────────────────────── */
+.page{max-width:900px;margin:0 auto;padding:0 56px 80px}
+
+/* ── Section ─────────────────────────────────────────────── */
+section{border-bottom:1px solid var(--border);padding:36px 0}
+section:last-child{border-bottom:none}
+section h2{font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dark);margin-bottom:16px}
+section h3{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:8px}
+section p{margin-bottom:12px;color:var(--dark)}
+section p:last-child{margin-bottom:0}
+
+/* ── Snapshot cards ──────────────────────────────────────── */
+.snapshot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px}
+.snapshot-card{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:14px 16px}
+.snapshot-card .sc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:4px}
+.snapshot-card .sc-value{font-size:14px;font-weight:600;color:var(--dark)}
+.pain-list{margin-top:14px;padding:0}
+.pain-list li{list-style:none;padding:8px 0 8px 20px;border-bottom:1px solid var(--border);font-size:14px;color:var(--dark);position:relative}
+.pain-list li::before{content:"→";position:absolute;left:0;color:var(--brand);font-weight:700}
+.pain-list li:last-child{border-bottom:none}
+
+/* ── Talking points ──────────────────────────────────────── */
+.tp-block{background:var(--blue-bg);border-left:4px solid var(--blue-br);border-radius:0 6px 6px 0;padding:16px 20px;margin-bottom:12px}
+.tp-trigger{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:6px}
+.tp-say{font-size:14px;font-style:italic;color:var(--dark);margin-bottom:6px;line-height:1.5}
+.tp-say::before{content:'\201C';color:var(--brand)}
+.tp-say::after{content:'\201D';color:var(--brand)}
+.tp-impact{font-size:13px;color:var(--mid)}
+.tp-impact strong{color:var(--green)}
+
+/* ── Nearby peers table ──────────────────────────────────── */
+.peer-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
+.peer-table th{background:var(--dark);color:#fff;padding:10px 12px;text-align:left;font-size:12px;font-weight:600}
+.peer-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.peer-table tr:last-child td{border-bottom:none}
+.peer-table tr:nth-child(even) td{background:#fafafa}
+.peer-name{font-weight:700;color:var(--dark)}
+.peer-dist{display:inline-block;background:var(--light);color:var(--brand);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;margin-top:3px}
+.peer-source{font-size:11px;color:var(--mid);margin-top:4px;font-style:italic}
+
+/* ── Competitor FOMO cards ──────────────────────────────────── */
+.fomo-card{border:1px solid var(--border);border-radius:6px;margin-top:14px;overflow:hidden}
+.fomo-card-head{background:var(--brand);color:#fff;padding:10px 16px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.fomo-co-name{font-size:14px;font-weight:700}
+.fomo-co-meta{font-size:11px;opacity:.85}
+.fomo-card-body{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fomo-cell{display:flex;flex-direction:column;gap:3px}
+.fomo-cell-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mid)}
+.fomo-cell-value{font-size:13px;color:var(--dark);line-height:1.45}
+.fomo-savings{font-size:15px;font-weight:800;color:var(--green)}
+.fomo-before-after{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--border);margin-top:2px}
+.fomo-before{background:#FFF5F5;padding:10px 14px;border-right:1px solid var(--border)}
+.fomo-after{background:#F0FFF4;padding:10px 14px}
+.fomo-ba-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.fomo-before .fomo-ba-label{color:var(--brand)}
+.fomo-after .fomo-ba-label{color:var(--green)}
+.fomo-ba-text{font-size:12px;line-height:1.4;color:var(--dark)}
+.fomo-angle{background:var(--amber-bg);border-top:1px solid var(--border);padding:10px 16px;font-size:13px;font-style:italic;color:var(--dark);line-height:1.5}
+.fomo-angle::before{content:'Say this: \201C';font-style:normal;font-weight:700;font-size:11px;color:var(--amber);display:block;margin-bottom:3px}
+.fomo-status{display:inline-block;background:#F0FFF4;color:var(--green);border:1px solid #68D391;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px}
+.fomo-tier-badge{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:3px;margin-left:auto}
+.tier-exact{background:#fff;color:var(--brand);border:1px solid rgba(255,255,255,.5)}
+.tier-adjacent{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.tier-stat{background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.2)}
+.fomo-analogy{background:var(--blue-bg);border-left:3px solid var(--blue-br);padding:10px 14px;font-size:13px;color:var(--dark);line-height:1.5}
+.fomo-analogy::before{content:'Why this applies: ';font-weight:700;color:var(--blue-br)}
+
+/* ── Opening lines ──────────────────────────────────────── */
+.ol-block{border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin-bottom:10px}
+.ol-context{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:6px}
+.ol-line{font-size:14px;font-style:italic;color:var(--dark);line-height:1.5}
+.ol-line::before{content:'\201C';color:var(--brand);font-weight:700}
+.ol-line::after{content:'\201D';color:var(--brand);font-weight:700}
+
+/* ── AI journey narrative ──────────────────────────────────── */
+.narrative-block{background:var(--light);border-left:4px solid var(--brand);padding:20px 24px;border-radius:0 6px 6px 0;font-size:15px;line-height:1.7;color:var(--dark)}
+
+/* ── Print ─────────────────────────────────────────────── */
+@media print{
+  body{font-size:12px}
+  .header,.page{padding-left:24px;padding-right:24px}
+  section{padding:20px 0;page-break-inside:avoid}
+  .no-print{display:none!important}
+}
+</style>
