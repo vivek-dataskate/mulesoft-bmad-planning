@@ -43,6 +43,13 @@
 | [FK-014](#fk-014) | Multi-instance SaaS: two Shopify stores require separate connector configs in global-config.xml | Shopify / multi-tenant connector design | observation | 2026-05-11 | 2026-05-11 | 1 |
 | [FK-015](#fk-015) | ComputerEase (Deltek) API requires CE Live Service relay — not directly internet-accessible | ComputerEase / legacy on-prem ERP connectivity | observation | 2026-05-11 | 2026-05-11 | 1 |
 | [FK-016](#fk-016) | HD Portal (Home Depot) is a proprietary contractor-partner API — write endpoints must be explicitly confirmed before scoping write flows | HD Portal / custom API discovery | observation | 2026-05-11 | 2026-05-11 | 1 |
+| [FK-017](#fk-017) | QuickBooks Online OAuth access tokens expire after 60 min — Mule flows must detect 401 mid-batch and proactively refresh | QuickBooks Online / OAuth token management | observation | 2026-05-12 | 2026-05-12 | 1 |
+| [FK-018](#fk-018) | Trimble Vista ERP does have a REST API via AppXchange — client claim of "no open API" was wrong; API requires AppXchange license purchase and applies only to cloud-hosted Vista | Trimble Vista ERP / API access | observation | 2026-05-12 | 2026-05-12 | 1 |
+| [FK-019](#fk-019) | MuleSoft IDP hard limit: 50 pages / 10MB per document submission — spec books or documents over 50 pages must be split before IDP submission | MuleSoft IDP / large document processing | observation | 2026-05-12 | 2026-05-12 | 1 |
+| [FK-020](#fk-020) | QuickBooks Enterprise (Desktop) is NOT QuickBooks Online — no REST API, incompatible with QBO connector, requires QBXML Web Connector or third-party bridge | QuickBooks Enterprise / Desktop / API access | observation | 2026-05-12 | 2026-05-12 | 1 |
+| [FK-021](#fk-021) | Paylocity API access requires formal signed Web Services Access Request Form — approval is multi-week; must submit before project kickoff | Paylocity / API access | observation | 2026-05-12 | 2026-05-12 | 1 |
+| [FK-022](#fk-022) | Sandata CalEVV aggregator: REST API, Basic Auth + EntityGuid header, JSON/XML; alternate EVV vendor registration required before integration can be tested | Sandata / California EVV aggregator | observation | 2026-05-12 | 2026-05-12 | 1 |
+| [FK-023](#fk-023) | Legacy EVV platforms (DCI et al.) have no public API — data migration requires file-based bulk export before account termination; schedule export request immediately at scoping | DCI / legacy EVV / data migration | observation | 2026-05-12 | 2026-05-12 | 1 |
 
 ---
 
@@ -784,3 +791,299 @@ Promotes to: playbooks/hd-portal/PLAYBOOK.md (once write endpoint status confirm
 
 *Last updated: 2026-05-11*
 *Next review: after first project using Chunk 4+ agents*
+
+---
+
+## FK-017 — QuickBooks Online OAuth access tokens expire after 60 minutes
+Date: 2026-05-12
+Project: agile-mind-customer (first engagement using QuickBooks Online)
+Trigger: Any Mule flow that integrates with QuickBooks Online API.
+
+Scenario:
+  QuickBooks Online OAuth 2.0 access tokens have a hard 60-minute expiry — shorter than most SaaS APIs.
+  For batch flows (e.g. syncing 200+ invoices), a single Mule job can outlast the token's validity.
+  Additionally, Intuit's Nov 2025 policy change means refresh tokens may rotate every 24–26 hours,
+  so the stored refresh token itself needs to be updated after each use.
+
+Key facts:
+  - Access token TTL: 60 minutes (non-negotiable; cannot be extended)
+  - Refresh token TTL: historically 100 days, now up to 5 years but may rotate every 24–26 hours
+  - 401 response handling: detect 401 → refresh access token using stored refresh token → retry once.
+    If second attempt also returns 401: flag account as disconnected (admin revoked app access).
+  - realmId (Company ID): mandatory on every QB API call; must be stored as secure property
+  - Rate limits: 500 req/min per realmId, max 10 concurrent; batch endpoint: 120 req/min
+  - Sandbox: auto-provisioned per Intuit developer account; shares production rate limits
+  - App registration: must be registered in Intuit Developer Portal (developer.intuit.com)
+    — clientId + clientSecret are generated there; requires QB Company Admin to complete OAuth consent flow
+
+What to do:
+  1. Use the MuleSoft QuickBooks Online connector (com.mulesoft.connectors/mule-quickbooks-online-connector)
+     which handles token refresh internally when properly configured with qb.refreshToken.
+  2. Store qb.clientId, qb.clientSecret, qb.companyId, qb.refreshToken in Secrets Manager.
+  3. For batch flows: set maxConcurrency ≤ 5 to stay under the 10-concurrent-request limit.
+  4. Add 401 retry logic at the HTTP level as a safety net even when using the connector.
+  5. Flag admin-revoked tokens as HIGH alerts — they require manual re-consent, not automated recovery.
+
+What failed:
+  Not yet observed in production. Flagged from web research on Intuit API behavior during Scout S1.
+
+Status: observation
+Promotes to: playbooks/quickbooks-online/PLAYBOOK.md (create after first full engagement)
+
+*Added: 2026-05-12 — Source: web research during Scout S1 for agile-mind-customer*
+
+---
+
+## FK-018 — Trimble Vista ERP does have a REST API via AppXchange — client claim of "no open API" was wrong
+Date: 2026-05-12
+Project: bear-electrical-customer (Scout S1 research)
+Trigger: Client is on Trimble Vista ERP. Scoping notes state "Vista does not have an open API and integrations must run exclusively through the Trimble marketplace."
+
+Scenario:
+  Client developers stated Vista has no open API and that integrations must go through the Trimble Marketplace.
+  Web research during Scout S1 confirmed: Trimble Vista does expose a bidirectional REST API via AppXchange
+  (direct-api.xchange.trimble.com). The API IS the Trimble Marketplace integration path — the client's statement
+  is partially correct but framed in a way that suggests no API access, which is inaccurate.
+
+Key facts:
+  - REST API base URL: direct-api.xchange.trimble.com
+  - Auth: API keys (per-vendor, scoped) + OAuth clients for third-party integrations
+  - Rate limits: 2,000 requests/min (rolling 60-second window; HTTP 429 on excess)
+  - Test environment: api-test.xchange.trimble.com (confirmed available)
+  - Applies to: cloud-hosted Vista instances ONLY (not on-premise)
+  - License: Requires AppXchange API license purchase from Trimble Marketplace — not free
+  - Documentation: https://direct-api.xchange.trimble.com/docs/vista-api-overview
+  - No dedicated MuleSoft connector — use MuleSoft HTTP connector with API key header
+
+What to do:
+  1. Ask client to confirm whether their Vista instance is cloud-hosted or on-premise.
+  2. Ask whether they have purchased (or can purchase) the AppXchange API license.
+  3. If cloud-hosted + license available: scope Vista integration using MuleSoft HTTP connector.
+  4. If on-premise: the API path is NOT available — must use file-based integration or vendor middleware only.
+  5. Reach out to Trimble support to confirm API scope (which Vista modules/entities are exposed) before flow design.
+  6. Register an API user per vendor (DataSkate) in AppXchange — separate from the Bear IT admin user.
+
+What failed:
+  Accepting the client developer statement at face value without web research.
+  The API exists and is the intended integration path — "Trimble Marketplace = API access point," not API absence.
+
+Status: observation
+Promotes to: playbooks/trimble-vista/PLAYBOOK.md (create once Vista integration is confirmed and scoped)
+
+*Added: 2026-05-12 — Source: web research during Scout S1 for bear-electrical-customer*
+
+---
+
+## FK-019 — MuleSoft IDP hard limit: 50 pages / 10MB per document submission — must split large PDFs first
+Date: 2026-05-12
+Project: bear-electrical-customer (Scout S1 research)
+Trigger: Any MuleSoft IDP use case where source documents may exceed 50 pages or 10MB.
+
+Scenario:
+  Bear Electrical receives public works bid specification books of 100+ pages (confirmed from sample files).
+  MuleSoft Anypoint IDP has a hard limit of 50 pages and 10MB per document submission — this cannot be
+  overridden. Submitting a 100+ page PDF will fail or silently truncate.
+  The only valid approach is to split the PDF before submission.
+
+Key facts:
+  - IDP hard limits: 50 pages per submission, 10MB per file
+  - Minimum polling interval after submit: 10 seconds (per IDP quota docs)
+  - P50 extraction latency: 7.6s, P99: 13.4s (per connector-index.json)
+  - Status flow: ACKNOWLEDGED → IN_PROGRESS → RESULTS_PENDING → SUCCEEDED / FAILED / PARTIAL_SUCCESS / MANUAL_VALIDATION_REQUIRED
+  - PARTIAL_SUCCESS and MANUAL_VALIDATION_REQUIRED are valid outcomes — design flows to handle them, not just SUCCEEDED/FAILED
+  - For 100+ page PDFs: split to 40-page chunks with 5-page overlap at boundaries to avoid splitting mid-clause
+  - Adobe PDF Services (HTTP connector) can split PDFs programmatically before IDP submission
+  - Alternative: use page-range extraction to pull only known relevant sections (e.g. Notice Inviting Bids, Special Provisions, Insurance Requirements) rather than processing all pages
+
+What to do:
+  1. Before UC1 architecture: agree on whether to process full PDF (split strategy) or targeted sections only.
+  2. If full document: add pre-processing sub-flow using Adobe PDF Services to split into 40-page chunks.
+  3. If targeted sections: design IDP document action to extract from pages 1-50 of spec (cover + bid terms typically within this range for public works specs).
+  4. Design IDP document action fields based on confirmed canonical-bid fields in canonical-extensions.yaml.
+  5. Handle PARTIAL_SUCCESS: define minimum confidence thresholds per field; route to manual review queue if below threshold.
+  6. 90% accuracy threshold (set by Brent Paulson) applies to the full extraction pipeline — not just IDP.
+
+What failed:
+  Not yet observed in production. Flagged from connector-index.json research during Scout S1.
+  Sample spec files in scoping/ confirmed 100+ pages (City of Encinitas CS22B = 175+ page PDF).
+
+Status: observation
+Promotes to: playbooks/mulesoft-idp/PLAYBOOK.md (create after first full IDP engagement delivery)
+
+*Added: 2026-05-12 — Source: connector-index.json + sample spec book analysis during Scout S1 for bear-electrical-customer*
+
+---
+
+## FK-020 — QuickBooks Enterprise (Desktop) ≠ QuickBooks Online — no REST API, incompatible with QBO connector
+Date: 2026-05-12
+Project: cas-industries-customer (Scout S1 research)
+Trigger: Client says "we're on QuickBooks Enterprise." Sales team demos Salesforce-QuickBooks integration without distinguishing Desktop vs. Online. Architect selects `quickbooks-online` connector — it will not work.
+
+Scenario:
+  CAS Industries confirmed they are on QuickBooks Enterprise (the Desktop product, not QuickBooks Online).
+  The MuleSoft `quickbooks-online` connector (com.mulesoft.connectors/mule-quickbooks-online-connector)
+  communicates with Intuit's REST API v3 — which is exclusively for QuickBooks Online (cloud).
+  QuickBooks Desktop/Enterprise has NO REST API. It uses:
+    - QBXML: an XML format exchanged via a Windows-only Web Connector service that runs on the QB host machine
+    - The Web Connector polls for work; your server (MuleSoft) cannot push to it — the Desktop app pulls
+    - SDK: Intuit QuickBooks Desktop SDK (Windows only; not suitable for CloudHub deployment)
+  This makes cloud-based MuleSoft integration architecturally difficult:
+    - Direct REST call to QB Desktop: not possible (no listening REST service)
+    - QBXML via WSC connector: requires Windows-based intermediary; not native CloudHub 2.0
+    - CData JDBC Driver: third-party bridge that translates JDBC calls to QBXML — viable but adds vendor dependency
+    - Conductor (conductor.is): REST API wrapper around QB Desktop SDK — cloud-accessible but adds SaaS cost
+
+Key facts:
+  - MuleSoft QBO connector: OAuth 2.0 REST API v3 — FOR QuickBooks ONLINE ONLY
+  - QB Desktop Web Connector: local Windows service, polls your SOAP endpoint — NOT CloudHub-accessible natively
+  - CData JDBC Driver approach: MuleSoft DB connector → CData JDBC jar → QBXML over Web Connector → QB Desktop
+    (requires CData license; JDBC jar must be placed in shared lib on CloudHub 2.0)
+  - QB Online upgrade path: if CAS can migrate to QBO, the native connector works and all integration patterns apply
+
+What to do (as DataSkate):
+  1. Immediately clarify with CAS: "You're on QuickBooks Enterprise — is this the Desktop (local/server install) version
+     or QuickBooks Online Advanced (cloud)?" These are different products despite similar names.
+  2. If Desktop confirmed: present three options with trade-offs:
+     (a) CData JDBC bridge — adds ~$500-2000/yr license; proven MuleSoft path
+     (b) Conductor REST wrapper — adds SaaS subscription; cleaner REST interface
+     (c) Migrate to QBO — eliminates the problem entirely; Intuit sales incentive
+  3. Do NOT scope UC1 (Salesforce ↔ QuickBooks) until this is resolved.
+  4. Flag as P0 blocker in intake questionnaire and scout-s1.md.
+
+What failed:
+  Sales teams routinely conflate "QuickBooks" with "QuickBooks Online" because QBO is the product
+  pushed in modern demos. A client saying "QuickBooks Enterprise" almost always means Desktop.
+  Josh Bates (sales) asked "which version?" and got "Enterprise" but did not follow up to confirm
+  Desktop vs. Online — a common gap in pre-sales technical qualification.
+
+Client question that reveals this:
+  "You mentioned QuickBooks Enterprise — is your installation cloud-hosted by Intuit (QuickBooks Online),
+   or is it installed on a local server or Windows PC at your office? The integration approach is
+   completely different depending on the answer."
+
+Status: observation
+Promotes to: PLANNING_CONTEXT.md Critical Notes (QuickBooks) — add QB Desktop/Enterprise warning when this is seen on a second client
+
+*Added: 2026-05-12 — Source: web research + Intuit developer docs during Scout S1 for cas-industries-customer*
+
+---
+
+## FK-021 — Paylocity API access requires formal signed request form — multi-week approval; submit before kickoff
+Date: 2026-05-12
+Project: cas-industries-customer (Scout S1 research)
+Trigger: Any project integrating with Paylocity (HR/payroll platform). Developer tries to use Paylocity API and finds no self-service signup path.
+
+Scenario:
+  Paylocity API access is gated behind a formal "Web Services Access Request Form."
+  The form must be completed with details of the integration (which endpoints, which webhooks),
+  signed by a Paylocity-authorized contact at the client, and submitted to the client's assigned
+  Paylocity Sales Account Executive or Current Client Consultant.
+  Only after approval does Paylocity issue OAuth 2.0 Client ID + Client Secret and sandbox access.
+  Approval timeline is not SLA-bound but is typically multi-week.
+
+Key facts:
+  - Auth: OAuth 2.0 Client Credentials (Bearer token)
+  - Base URL: https://api.paylocity.com/api/v2/
+  - Sandbox: provided after form approval; not self-service
+  - Form required fields: integration description, endpoints needed, webhook subscriptions, authorized contact
+  - No dedicated MuleSoft connector on Anypoint Exchange — use HTTP connector with OAuth2 config
+  - Rate limits: not publicly documented; assumed standard (confirm with Paylocity during onboarding)
+  - Developer portal: developer.paylocity.com
+
+What to do:
+  1. Flag in intake questionnaire: "Submit Paylocity Web Services Access Request Form immediately.
+     Provide the name and email of your Paylocity Account Executive."
+  2. DataSkate should assist with completing the form — list the specific API endpoints needed based on use case.
+  3. Allow 2-4 weeks in project timeline for approval + sandbox provisioning before development starts.
+  4. In the meantime: obtain QB/Salesforce credentials first (QB P0 resolution may take longer anyway).
+
+What failed:
+  Not yet observed in production. Flagged from web research during Scout S1.
+  Similar access request delays have been observed with other payroll platforms (ADP, Paychex).
+
+Status: observation
+Promotes to: playbooks/paylocity/PLAYBOOK.md (create after first full engagement)
+
+*Added: 2026-05-12 — Source: developer.paylocity.com + web research during Scout S1 for cas-industries-customer*
+
+---
+
+## FK-022 — Sandata CalEVV aggregator: REST API, Basic Auth + EntityGuid header
+Date: 2026-05-12
+Project: healthcare / HCBS (1 engagement)
+Trigger: Client is a California home-based services provider (HCBS) required by DDS to submit EVV data
+         to the state aggregator. DCI handled this automatically; new EVV platform requires direct integration.
+
+Scenario:
+  Client transitions EVV platform. New system (e.g. Salesforce) does not automatically submit to the
+  California state EVV aggregator. MuleSoft must bridge: Salesforce → Sandata CalEVV.
+
+What worked (from research — not yet tested in production):
+  Auth: HTTP Basic Auth — Base64 encode "username:password" in Authorization header.
+  EntityGuid: Required header for alternate EVV vendors submitting on behalf of clients.
+  API style: REST (JSON primary, XML also accepted).
+  Model: Real-time submission preferred by California DDS (not batch).
+  Endpoint registration: Must register with California as Alternate EVV Vendor BEFORE testing.
+    Contact: CAAltEVV@sandata.com | (855) 943-6069
+  EntityGuid is issued by Sandata upon successful alternate vendor registration.
+
+Key prerequisite (P0):
+  EntityGuid must be obtained from Sandata before any integration testing can begin.
+  Registration requires confirming: EVV vendor name, FEIN, state(s), Medicaid program type.
+  Registration timeline: unknown — flag immediately at scoping kickoff.
+
+Client question used:
+  "Has your Salesforce EVV product already been registered as an Alternate EVV Vendor with
+   Sandata for California? If yes, do you have an EntityGuid? If not, we need to initiate
+   registration immediately — DataSkate can assist. Confirm who owns this vendor relationship."
+
+Notes:
+  - No dedicated MuleSoft connector on Exchange — use HTTP connector with Basic Auth config.
+  - 90-day backdated visit submission: Sandata API may accept backdated timestamps — must confirm
+    during API Contract Discovery. Client requires 90-day backdating capability.
+  - California DDS EVV compliance deadline: February 27, 2026 (QIP eligibility at stake).
+
+Status: observation
+Promotes to: playbooks/sandata/PLAYBOOK.md (create stub in Session 2)
+
+*Added: 2026-05-12 — Source: California DDS EVV page + Sandata web research during Scout S1 for cherish-care*
+
+---
+
+## FK-023 — Legacy EVV platforms have no public API — file-based export before termination is P0
+Date: 2026-05-12
+Project: healthcare / HCBS (1 engagement)
+Trigger: Client is migrating from a niche EVV SaaS (DCI, AlayaCare, etc.) that is being terminated
+         or replaced. Client assumes historical data can be extracted via API.
+
+Scenario:
+  Legacy EVV platform (DCI — Direct Care Innovations) has no public REST API.
+  All data extraction is manual: portal-based report downloads (Excel, PDF).
+  Client's DCI contract terminated June 3 2026 — earlier than anticipated (was September 2026).
+  All historical EVV, employee, client, and authorization records must be exported before that date.
+
+What worked:
+  1. Flag this as a P0 blocker at first scoping call, not during discovery.
+  2. Initiate formal bulk data export request to DCI vendor support immediately.
+     DCI/similar vendors often have a structured offboarding export — but only if requested in advance.
+  3. Get the export in: employee records, client/consumer records, authorization records, EVV visit history.
+  4. Define the migration format: CSV or Excel → one-time Mule batch flow to load into Salesforce.
+  5. Pattern K (data-migration) applies for the historical load.
+
+What failed:
+  Waiting until architecture phase to discover the API doesn't exist.
+  By then, the client may have already lost access to the legacy system.
+
+Client question used:
+  "DCI has no public API for data extraction. You must request a bulk data export from DCI support
+   BEFORE your June 3 termination date. Have you already requested this? If not, do this week.
+   Confirm: what format will DCI provide (CSV, Excel, XML)? We will build the migration load around
+   whatever DCI provides."
+
+Applies to: any niche EVV platform, homecare scheduling software, legacy HCBS platforms.
+Similar platforms to watch: AlayaCare, ClearCare, WellSky, Therap.
+
+Status: observation
+Promotes to: playbooks/dci/PLAYBOOK.md (create stub — flag API unavailability as permanent note)
+
+*Added: 2026-05-12 — Source: Scoping transcripts + web research during Scout S1 for cherish-care*

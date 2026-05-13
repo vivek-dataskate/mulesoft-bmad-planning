@@ -9,6 +9,16 @@ Read `docs/PLANNING_CONTEXT.md` at the start of every session before doing anyth
 
 Do not wait to be asked. The goal is that no UI mistake is ever repeated across sessions.
 
+**HTML lint enforcement:** `commons/branding/lint-html.js` runs automatically (via PostToolUse hook) after every `.html` file is written or edited. If it reports violations, fix them immediately — do not defer or explain them away. Every `.html` file in this repo must pass all lint checks before the session ends.
+
+**Recurring HTML violations — never repeat these:**
+- No dark header (`.header { background: var(--dark) }`) — headers must be white
+- No gray page background (`background: #F5F5F5`) — body must be `background: #fff`
+- No circle section numbers (`.section-num` with `border-radius:50%` + fill)
+- No card-style section wrappers (`.section` with `border-radius`)
+- No off-palette CSS variables (`--blue`, `--gray`, etc.) — only the 11 standard vars allowed
+- These rules apply to ALL document types: portals, intake forms, proposals, sales materials
+
 ---
 
 ## Team

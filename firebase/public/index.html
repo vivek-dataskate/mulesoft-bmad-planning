@@ -83,7 +83,7 @@ body {
 
 /* ── STATS BAR ── */
 .stats-bar {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
   margin-bottom: 40px;
 }
 .stat-card {
@@ -96,14 +96,9 @@ body {
 .stat-card.stat-done .stat-num { color: var(--green); }
 
 /* ── SECTION HEAD ── */
-.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; margin-top: 48px; }
+.section-head:first-of-type { margin-top: 0; }
 .section-head h2 { font-size: 16px; font-weight: 700; color: var(--dark); }
-.btn-add {
-  font-size: 12px; font-weight: 700; color: #fff;
-  background: var(--brand); border: none;
-  padding: 7px 16px; border-radius: 6px; cursor: pointer;
-}
-.btn-add:hover { background: var(--brand-dk); }
 
 /* ── PROJECT TABLE ── */
 .project-table { width: 100%; border-collapse: collapse; }
@@ -119,45 +114,51 @@ body {
   font-size: 13px;
 }
 .project-table tr:hover td { background: #FAFAFA; }
-.project-table tr.no-hover:hover td { background: transparent; }
 
-.client-name { font-size: 14px; font-weight: 700; color: var(--dark); }
-.client-industry { font-size: 11px; color: var(--mid); margin-top: 2px; }
+.client-name { font-size: 14px; font-weight: 700; color: var(--dark); text-decoration: none; }
+.client-name:hover { color: var(--brand); text-decoration: underline; }
+.client-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
 
-/* Status badges */
-.status-badge {
-  display: inline-block; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .5px;
-  padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+/* Intake progress cell */
+.intake-cell {
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
 }
-.status-intake-sent    { background: var(--amber-bg); color: #7C5E10; border: 1px solid #FDE68A; }
-.status-in-progress    { background: var(--light);    color: var(--brand-dk); border: 1px solid #FECACA; }
-.status-intake-done    { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
-.status-proposal-sent  { background: var(--light);    color: var(--brand-dk); border: 1px solid #FECACA; }
-.status-complete       { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
-
-/* Progress bar */
-.progress-wrap { display: flex; align-items: center; gap: 8px; }
-.progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .4s; }
-.progress-pct { font-size: 11px; font-weight: 700; color: var(--mid); min-width: 28px; text-align: right; }
-
-/* Action links */
-.action-links { display: flex; gap: 8px; flex-wrap: wrap; }
-.action-link {
-  font-size: 11px; font-weight: 600;
-  padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border);
-  color: var(--dark); text-decoration: none; white-space: nowrap; cursor: pointer;
-  background: #fff;
+.intake-cell:hover .intake-label { color: var(--brand); text-decoration: underline; }
+.intake-label { font-size: 12px; font-weight: 600; }
+.intake-badge {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  padding: 2px 8px; border-radius: 20px; white-space: nowrap;
 }
-.action-link:hover { border-color: var(--brand); color: var(--brand); }
-.action-link.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
-.action-link.primary:hover { background: var(--brand-dk); border-color: var(--brand-dk); }
+.badge-submitted  { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+.badge-progress   { background: var(--amber-bg); color: #7C5E10; border: 1px solid #FDE68A; }
+.badge-none       { background: #F3F4F6; color: var(--mid); border: 1px solid var(--border); }
 
 /* Empty state */
-.empty-row td {
-  text-align: center; padding: 48px 20px;
-  color: var(--mid); font-size: 13px;
+.empty-row td { text-align: center; padding: 48px 20px; color: var(--mid); font-size: 13px; }
+
+/* ── DOCS & RESOURCES ── */
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.resource-card {
+  display: flex; flex-direction: column; gap: 6px;
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 18px;
+  text-decoration: none; color: inherit;
+  transition: border-color .15s, box-shadow .15s;
+  background: #fff;
+}
+.resource-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,.08); }
+.resource-icon { font-size: 22px; line-height: 1; margin-bottom: 4px; }
+.resource-title { font-size: 13px; font-weight: 700; color: var(--dark); }
+.resource-desc  { font-size: 12px; color: var(--mid); line-height: 1.4; }
+.resource-tag   {
+  margin-top: auto; padding-top: 8px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--brand);
 }
 
 /* ── RESPONSES MODAL ── */
@@ -256,21 +257,17 @@ body {
       <div class="stat-label">Total Engagements</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="stat-intake-sent">—</div>
-      <div class="stat-label">Intake Sent</div>
-    </div>
-    <div class="stat-card stat-active">
-      <div class="stat-num" id="stat-in-progress">—</div>
-      <div class="stat-label">In Progress</div>
+      <div class="stat-num" id="stat-started">—</div>
+      <div class="stat-label">Intake In Progress</div>
     </div>
     <div class="stat-card stat-done">
-      <div class="stat-num" id="stat-complete">—</div>
-      <div class="stat-label">Complete</div>
+      <div class="stat-num" id="stat-submitted">—</div>
+      <div class="stat-label">Intake Submitted</div>
     </div>
   </div>
 
-  <!-- Project table -->
-  <div class="section-head">
+  <!-- Active Engagements -->
+  <div class="section-head" style="margin-top:0">
     <h2>Active Engagements</h2>
   </div>
   <table class="project-table">
@@ -278,16 +275,57 @@ body {
       <tr>
         <th>Client</th>
         <th>Architect</th>
-        <th>Status</th>
-        <th>Intake Progress</th>
+        <th>Intake Responses</th>
         <th>Last Activity</th>
-        <th>Links</th>
       </tr>
     </thead>
     <tbody id="project-tbody">
-      <tr class="empty-row"><td colspan="6">Loading engagements…</td></tr>
+      <tr class="empty-row"><td colspan="4">Loading engagements…</td></tr>
     </tbody>
   </table>
+
+  <!-- Docs & Resources -->
+  <div class="section-head">
+    <h2>Docs &amp; Resources</h2>
+  </div>
+  <div class="resource-grid">
+    <a class="resource-card" href="/resources/pricing-model.html" target="_blank">
+      <div class="resource-icon">💰</div>
+      <div class="resource-title">Pricing Model</div>
+      <div class="resource-desc">3-stage AI journey pricing tiers, SOW line items, and engagement sizing guidance.</div>
+      <div class="resource-tag">Sales · Internal</div>
+    </a>
+    <a class="resource-card" href="/resources/architect-guide.html" target="_blank">
+      <div class="resource-icon">🏗️</div>
+      <div class="resource-title">Architect Guide</div>
+      <div class="resource-desc">Engagement playbook for architects — scoping, flow design, and delivery standards.</div>
+      <div class="resource-tag">Delivery · Internal</div>
+    </a>
+    <a class="resource-card" href="/resources/architect-flyer.html" target="_blank">
+      <div class="resource-icon">📄</div>
+      <div class="resource-title">DataSkate One-Pager</div>
+      <div class="resource-desc">Client-ready flyer summarising the DataSkate AI integration service offering.</div>
+      <div class="resource-tag">Sales · Client-facing</div>
+    </a>
+    <a class="resource-card" href="/resources/ae-pitch-kit.html" target="_blank">
+      <div class="resource-icon">🎯</div>
+      <div class="resource-title">AE Pitch Kit</div>
+      <div class="resource-desc">Conversation guide and objection handling for AEs introducing DataSkate to prospects.</div>
+      <div class="resource-tag">Sales · AE</div>
+    </a>
+    <a class="resource-card" href="/resources/client-pitch-kit.html" target="_blank">
+      <div class="resource-icon">🤝</div>
+      <div class="resource-title">Client Pitch Kit</div>
+      <div class="resource-desc">Leave-behind deck outline and talking points for client discovery calls.</div>
+      <div class="resource-tag">Sales · Client-facing</div>
+    </a>
+    <a class="resource-card" href="/resources/proposal-structure.html" target="_blank">
+      <div class="resource-icon">📋</div>
+      <div class="resource-title">Proposal Structure</div>
+      <div class="resource-desc">Standard 10-section proposal outline with section-by-section writing guidance.</div>
+      <div class="resource-tag">Delivery · Internal</div>
+    </a>
+  </div>
 </div>
 
 <!-- ── RESPONSES MODAL ── -->
@@ -311,23 +349,13 @@ firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
-const STATUS_LABELS = {
-  'intake_sent':      { label: 'Intake Sent',      cls: 'status-intake-sent'   },
-  'intake_in_progress':{ label: 'In Progress',     cls: 'status-in-progress'   },
-  'intake_complete':  { label: 'Intake Complete',   cls: 'status-intake-done'   },
-  'proposal_sent':    { label: 'Proposal Sent',     cls: 'status-proposal-sent' },
-  'complete':         { label: 'Complete',          cls: 'status-complete'      },
-};
-
 function signIn() {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ hd: 'dataskate.ai' });
   auth.signInWithPopup(provider).catch(err => showLoginError(err.message));
 }
 
-function signOut() {
-  auth.signOut();
-}
+function signOut() { auth.signOut(); }
 
 function showLoginError(msg) {
   const el = document.getElementById('login-error');
@@ -342,6 +370,11 @@ auth.onAuthStateChanged(user => {
       showLoginError('Access restricted to @dataskate.ai accounts.');
       return;
     }
+    const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+    if (redirectTo && redirectTo.startsWith('/')) {
+      window.location.href = redirectTo;
+      return;
+    }
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
     document.getElementById('user-email-chip').textContent = user.email;
@@ -352,61 +385,104 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-let unsubscribeProjects = null;
+async function loadProjects() {
+  let projects = [];
+  try {
+    const r = await fetch('/projects-manifest.json?v=' + Date.now());
+    projects = await r.json();
+  } catch {
+    document.getElementById('project-tbody').innerHTML =
+      '<tr class="empty-row"><td colspan="4">Could not load projects manifest.</td></tr>';
+    return;
+  }
 
-function loadProjects() {
-  if (unsubscribeProjects) unsubscribeProjects();
-  unsubscribeProjects = db.collection('projects')
-    .orderBy('createdAt', 'desc')
-    .onSnapshot(snapshot => {
-      const projects = [];
-      snapshot.forEach(doc => projects.push({ id: doc.id, ...doc.data() }));
-      renderProjects(projects);
-      renderStats(projects);
-    });
+  // Load intake responses for all projects in parallel
+  const intakeDocs = await Promise.all(
+    projects.map(p =>
+      db.collection('intake_responses').doc(p.id).get().catch(() => null)
+    )
+  );
+
+  const intakeMap = {};
+  for (let i = 0; i < projects.length; i++) {
+    const doc = intakeDocs[i];
+    if (!doc || !doc.exists) {
+      intakeMap[projects[i].id] = { state: 'none', count: 0, submittedAt: null, lastActivityAt: null };
+      continue;
+    }
+    const data = doc.data();
+    const responses = data.responses || {};
+    const count = Object.values(responses).filter(v => v && String(v).trim()).length;
+    const submittedAt = data.submittedAt || data.completedAt || null;
+    const lastActivityAt = data.lastActivityAt || submittedAt || null;
+    intakeMap[projects[i].id] = {
+      state: submittedAt ? 'submitted' : count > 0 ? 'progress' : 'none',
+      count,
+      submittedAt,
+      lastActivityAt,
+    };
+  }
+
+  renderStats(projects, intakeMap);
+  renderProjects(projects, intakeMap);
 }
 
-function renderStats(projects) {
-  document.getElementById('stat-total').textContent       = projects.length;
-  document.getElementById('stat-intake-sent').textContent = projects.filter(p => p.status === 'intake_sent').length;
-  document.getElementById('stat-in-progress').textContent = projects.filter(p => p.status === 'intake_in_progress').length;
-  document.getElementById('stat-complete').textContent    = projects.filter(p => p.status === 'complete').length;
+function renderStats(projects, intakeMap) {
+  const started   = projects.filter(p => intakeMap[p.id] && intakeMap[p.id].state === 'progress').length;
+  const submitted = projects.filter(p => intakeMap[p.id] && intakeMap[p.id].state === 'submitted').length;
+  document.getElementById('stat-total').textContent     = projects.length;
+  document.getElementById('stat-started').textContent   = started;
+  document.getElementById('stat-submitted').textContent = submitted;
 }
 
-function renderProjects(projects) {
+function renderProjects(projects, intakeMap) {
   const tbody = document.getElementById('project-tbody');
   if (!projects.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No engagements yet.</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No engagements yet.</td></tr>';
     return;
   }
   tbody.innerHTML = projects.map(p => {
-    const s = STATUS_LABELS[p.status] || { label: p.status, cls: '' };
-    const pct = p.completionPercent || 0;
-    const lastActivity = p.lastActivityAt
-      ? new Date(p.lastActivityAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      : '—';
+    const intake = intakeMap[p.id] || { state: 'none', count: 0 };
+
+    let badgeCls, badgeText, intakeSub;
+    if (intake.state === 'submitted') {
+      badgeCls  = 'badge-submitted';
+      badgeText = 'Submitted';
+      intakeSub = intake.count + ' answer' + (intake.count !== 1 ? 's' : '');
+    } else if (intake.state === 'progress') {
+      badgeCls  = 'badge-progress';
+      badgeText = 'In Progress';
+      intakeSub = intake.count + ' answer' + (intake.count !== 1 ? 's' : '') + ' so far';
+    } else {
+      badgeCls  = 'badge-none';
+      badgeText = 'Not Started';
+      intakeSub = 'Click to check';
+    }
+
+    // Last activity: prefer intake Firestore timestamp, fall back to manifest
+    let lastActivity = '—';
+    if (intake.lastActivityAt && intake.lastActivityAt.seconds) {
+      lastActivity = new Date(intake.lastActivityAt.seconds * 1000)
+        .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } else if (p.createdAt) {
+      lastActivity = 'Created ' + p.createdAt;
+    }
 
     return `<tr>
       <td>
-        <div class="client-name">${esc(p.name)}</div>
-        <div class="client-industry">${esc(p.industry || '')}</div>
+        <a class="client-name" href="/portal/${esc(p.id)}.html" target="_blank">${esc(p.name)}</a>
+        <div class="client-sub">${esc(p.createdAt || '')}</div>
       </td>
       <td style="font-size:13px;color:var(--mid)">${esc(p.architect || '—')}</td>
-      <td><span class="status-badge ${s.cls}">${s.label}</span></td>
       <td>
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <span class="progress-pct">${pct}%</span>
+        <div class="intake-cell" onclick="viewResponses('${esc(p.id)}', '${esc(p.name)}')">
+          <div>
+            <span class="intake-badge ${badgeCls}">${badgeText}</span>
+            <div style="font-size:11px;color:var(--mid);margin-top:4px">${intakeSub}</div>
+          </div>
         </div>
       </td>
       <td style="font-size:12px;color:var(--mid)">${lastActivity}</td>
-      <td>
-        <div class="action-links">
-          ${p.proposalUrl ? `<a class="action-link" href="${p.proposalUrl}" target="_blank">Proposal</a>` : ''}
-          ${p.intakeUrl   ? `<a class="action-link" href="${p.intakeUrl}"   target="_blank">Intake</a>`   : ''}
-          <a class="action-link primary" onclick="viewResponses('${p.id}', '${esc(p.name)}')">Responses</a>
-        </div>
-      </td>
     </tr>`;
   }).join('');
 }
@@ -428,18 +504,24 @@ async function viewResponses(clientId, clientName) {
   const responses = data.responses || {};
   const submittedAt = data.submittedAt
     ? new Date(data.submittedAt.seconds * 1000).toLocaleString()
-    : 'Unknown';
+    : null;
+  const lastActivity = data.lastActivityAt
+    ? new Date(data.lastActivityAt.seconds * 1000).toLocaleString()
+    : null;
 
-  const keys = Object.keys(responses).filter(k => responses[k] && responses[k].trim());
+  const keys = Object.keys(responses).filter(k => responses[k] && String(responses[k]).trim());
   if (!keys.length) {
     body.innerHTML = '<div class="no-responses">Form opened but no answers entered yet.</div>';
     return;
   }
 
+  const metaParts = [];
+  if (submittedAt) metaParts.push('Submitted: ' + submittedAt);
+  else if (lastActivity) metaParts.push('Last saved: ' + lastActivity);
+  metaParts.push(keys.length + ' answer' + (keys.length !== 1 ? 's' : '') + ' recorded');
+
   body.innerHTML = `
-    <div class="response-meta">
-      Submitted: ${submittedAt} &nbsp;·&nbsp; ${keys.length} answers recorded
-    </div>
+    <div class="response-meta">${metaParts.join(' &nbsp;·&nbsp; ')}</div>
     ${keys.map(k => `
       <div class="response-item">
         <div class="response-qid">${esc(k)}</div>

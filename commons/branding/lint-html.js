@@ -130,8 +130,9 @@ const single = args[0] ? path.resolve(process.cwd(), args[0]) : null;
 
 // Paths excluded from linting — templates and CSS snippets are partial files
 const EXCLUDE_PATTERNS = [
-  /^commons\/branding\/templates\//,   // shell templates — CSS injected at fill time, not a full doc
-  /^commons\/branding\/[^/]+-base\.css\.html$/,  // CSS snippet files — not full HTML documents
+  /^commons\/branding\/templates\//,    // shell templates — CSS injected at fill time
+  /^commons\/branding\/[^/]+-base\.css\.html$/,  // CSS snippets in branding/
+  /^commons\/templates\//,             // all files in templates/ are partials or design previews
 ];
 
 function isExcluded(rel) {

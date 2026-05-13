@@ -634,6 +634,58 @@
           "licenseRequired": false,
           "exchangeUrl": "https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-quickbooks-online-connector/"
         },
+        "quickbooks-enterprise": {
+          "displayName": "QuickBooks Enterprise (Desktop)",
+          "groupId": null,
+          "artifactId": null,
+          "docVersion": null,
+          "auth": "qbxml-web-connector",
+          "authOptions": [
+            "cdata-jdbc",
+            "conductor-rest",
+            "qbxml-web-connector"
+          ],
+          "configTemplate": "scaffold/connectors/http-generic-config.xml",
+          "docsUrl": "https://developer.intuit.com/app/developer/qbdesktop/docs/get-started",
+          "releaseNotesUrl": null,
+          "propertiesRequired": [
+            "qbe.connectionType",
+            "qbe.host",
+            "qbe.companyFilePath"
+          ],
+          "notes": "stub — QuickBooks Desktop/Enterprise has NO REST API. Uses QBXML via Windows Web Connector. NO native MuleSoft connector. Integration options: CData JDBC Driver, Conductor REST wrapper, or direct QBXML/SOAP. Must confirm whether client can upgrade to QB Online. See FK-020 and playbooks/quickbooks-enterprise/PLAYBOOK.md.",
+          "category": "erp_finance",
+          "lastVerified": "2026-05-12",
+          "lastVerifiedBy": "scout-stub",
+          "lastAddedDate": "2026-05-12",
+          "licenseRequired": false,
+          "exchangeUrl": null
+        },
+        "paylocity": {
+          "displayName": "Paylocity",
+          "groupId": null,
+          "artifactId": null,
+          "docVersion": null,
+          "auth": "oauth2-client-credentials",
+          "authOptions": [
+            "oauth2-client-credentials"
+          ],
+          "configTemplate": "scaffold/connectors/http-generic-config.xml",
+          "docsUrl": "https://developer.paylocity.com/integrations/docs/getting-started",
+          "releaseNotesUrl": null,
+          "propertiesRequired": [
+            "paylocity.clientId",
+            "paylocity.clientSecret",
+            "paylocity.companyId"
+          ],
+          "notes": "stub — No dedicated MuleSoft connector on Exchange. Use HTTP connector with OAuth2 Client Credentials. API access requires formal Web Services Access Request Form — multi-week approval. See FK-021 and playbooks/paylocity/PLAYBOOK.md.",
+          "category": "erp_finance",
+          "lastVerified": "2026-05-12",
+          "lastVerifiedBy": "scout-stub",
+          "lastAddedDate": "2026-05-12",
+          "licenseRequired": false,
+          "exchangeUrl": null
+        },
         "sap-successfactors": {
           "displayName": "SAP SuccessFactors",
           "groupId": "com.mulesoft.connectors",
@@ -1744,6 +1796,32 @@
           "lastVerified": "2026-05",
           "licenseRequired": false,
           "exchangeUrl": "https://anypoint.mulesoft.com/exchange/com.mulesoft.connectors/mule-asana-connector/"
+        },
+        "docuware": {
+          "displayName": "DocuWare",
+          "groupId": null,
+          "artifactId": null,
+          "docVersion": null,
+          "auth": "token",
+          "authOptions": [
+            "token",
+            "cookie"
+          ],
+          "configTemplate": "scaffold/connectors/http-generic-config.xml",
+          "docsUrl": "https://developer.docuware.com/rest/index.html",
+          "releaseNotesUrl": null,
+          "propertiesRequired": [
+            "docuware.baseUrl",
+            "docuware.username",
+            "docuware.password"
+          ],
+          "notes": "stub — No dedicated MuleSoft connector. Use HTTP connector with token auth. REST API + Postman collections available at developer.docuware.com. Not in active integration scope for CAS; document archive only.",
+          "category": "itsm_service",
+          "lastVerified": "2026-05-12",
+          "lastVerifiedBy": "scout-stub",
+          "lastAddedDate": "2026-05-12",
+          "licenseRequired": false,
+          "exchangeUrl": null
         },
         "docusign": {
           "displayName": "DocuSign",

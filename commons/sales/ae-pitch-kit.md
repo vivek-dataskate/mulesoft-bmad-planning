@@ -3,92 +3,97 @@
 
 ---
 
-## The Shift in How to Think About This Sale
+## Your Opportunity Here
 
-Most AEs position MuleSoft as an integration platform. DataSkate positions it as the foundation of the client's AI future.
+Your clients are asking about AI. They are also getting hit with implementation risk, upfront cost, and delivery timelines that stall deals before they close.
 
-Every flow we build is a reliable data pipeline. Every connected system is a capability an AI agent can call. The client who starts with DataSkate managed integrations today is the client who deploys agentic workflows in 18 months — on the same platform, with the same partner, renewing the same license.
+DataSkate removes all of that friction. We absorb the implementation cost on IaaS deals. We manage the platform for the full year. Your client gets connected systems, a clear path to AI, and no in-house ops burden — without their team having to learn to run a platform. You get the full license value, a client actively using MuleSoft at renewal, and a second-year conversation that is not a fight.
 
-**Your job:** Sell the license that starts the journey.  
-**Our job:** Make sure that journey is successful enough that the renewal conversation never feels like a fight.
+**Your job:** Sell the license that starts the journey.
+**Our job:** Deliver enough in year one that your client is asking to expand — not looking for an exit.
 
 ---
 
-## The Two-Year Arc We're Selling
+## What Your Client Gets in Year One
 
 ```
-Year 1 — CONNECT
-  Systems talk to each other reliably.
-  Data flows without manual intervention.
-  Caralina stops exporting spreadsheets.
-  Jeff's team sees real-time member activity in Salesforce.
+Year 1 — CONNECT + START AUTOMATING
+  Systems talk to each other without manual effort.
+  Data moves in real time — no spreadsheet exports, no file drops.
+  Ops team stops being the integration layer between software.
+  Sales sees live customer data in Salesforce, not a weekly report.
 
-Year 2 — AUTOMATE & ENABLE
-  AI agents monitor patterns across connected systems.
-  Re-engagement triggers fire automatically when member
-  behaviour signals risk — no rep action required.
-  Vendor utilization reports are processed without human touch.
-  The business runs on data, not emails.
+Year 2 — AUTOMATE + AI-ENABLED
+  Triggers fire when risk signals appear in connected data — no rep required.
+  Reports process without human touch.
+  AI agents begin acting on the data: surfacing decisions, not just dashboards.
 
 Year 3+ — AGENTIC
-  Agents take actions across systems autonomously.
-  Sales reps get next-best-action recommendations.
-  Operations runs exception-based — humans approve,
-  AI executes.
+  Agents act across systems autonomously.
+  Sales gets next-best-action without pulling a report.
+  Ops runs exception-based — humans approve, AI executes.
 ```
 
-The client is not buying integrations. They are buying the ability to operate like a technology company.
+The client is not buying integrations. They are buying the operational leverage that makes the next stage possible.
 
 ---
 
 ## Why DataSkate, Not Another SI
 
-| What Most SIs Do | What DataSkate Does |
+| What Most SIs Offer | What Your Client Gets With DataSkate |
 |---|---|
-| Deliver a project and hand it off | Own the integration for 1 year — uptime, performance, upgrades |
-| Charge for every change | Minor enhancements included in the monthly rate |
-| No stake in the client's success | Our revenue depends on the client staying active and adding flows |
-| Deliver MuleSoft flows, full stop | Guide the client from integration → automation → agentic AI |
-| No visibility after go-live | Monitoring, alerting, incident response in perpetuity |
+| Project delivery, then handoff | Managed for 12 months — uptime, performance, upgrades included |
+| Change orders for every adjustment | Minor enhancements included — config, field maps, tuning |
+| One delivery team, then gone | Monitoring, alerting, incident response in perpetuity |
+| Integration only — no AI roadmap | Guided through Stage 1 → Stage 2 → Agentic on the same platform |
+| Implementation cost splits your deal | $0 implementation on IaaS — you keep the full license value |
 
 ---
 
-## The IaaS Conversation With Your Client
+## The AI Conversation You're Already In
 
-**What you say:**
+Every client is hearing about AI. Most aren't ready for it — but they're being sold it anyway. The gap between "we want AI" and "our data can support AI" is exactly where deals die in year two.
 
-> *"One thing I want to flag before you finalize the budget. We work with DataSkate — they do MuleSoft implementations as a managed service. The model is: they build it, they run it, they keep it running. Your team never has to own integration maintenance. And the reason I'm mentioning it now is that how you structure this engagement shapes what's possible for you in year two with AI and automation. Worth a 30-minute conversation before you lock in an approach."*
+**What to say when a client asks "so how does this help us with AI?"**
 
-**Why this works:**
+> *"The honest answer is: AI only works on connected, consistent data. Right now, your systems don't talk to each other — so there's nothing for an AI to act on reliably. What we're doing in year one is building that foundation. Clean APIs, real-time data streams, consistent models. By renewal, you have something an AI agent can actually call. That's what puts you ahead of competitors who are still debating whether to start."*
 
-- You're not selling them a cheaper implementation. You're selling them a smarter path to AI readiness.
-- The 30-minute conversation positions you as the advisor, not just the license seller.
-- DataSkate's 1-year managed service means your client is live, healthy, and realizing value before you have the renewal conversation.
+**What is happening in their industry right now:**
 
----
+Companies that connected their systems in 2023–2024 are running AI that their competitors are not:
 
-## The IaaS Model — What It Means for Your Quota
+| Industry | What connected companies are already doing |
+|---|---|
+| Healthcare / GPO | AI predicting member churn 30–45 days out — re-engagement sequences fire before a rep notices anything |
+| Construction | AI detecting budget variance patterns from connected ERP + project data 3–4 weeks before a change order is submitted |
+| Financial services | AI scoring account health daily from CRM + support + billing — at-risk accounts surface before the customer thinks about leaving |
+| Distribution / Manufacturing | AI triggering procurement from connected inventory + supplier data — the manual reorder cycle is gone |
 
-**Traditional deal:**
-- AE splits the $50k budget with an SI — you get $20k, SI gets $30k
-- SI delivers and disappears — no one owns client success post-go-live
-- Renewal is uncertain because the integrations may be broken or abandoned
+None of these companies started with AI. They started by connecting their systems. MuleSoft is the platform. DataSkate is what gets them there without the implementation overhead that stalls the deal.
 
-**DataSkate IaaS deal:**
-- AE sells the full $50k license — full quota attainment
-- DataSkate absorbs implementation cost, recovers it via managed service
-- Client is live, maintained, and successful before renewal
-- You renew the license because the client is genuinely using the platform
+**The FOMO close — when a client is stalling:**
+
+> *"The [industry] companies that got connected in 2023 are running AI workflows today. The ones getting connected now will have that capability by 2026. The ones still evaluating will be building what their competitors already finished. That window is not closing dramatically — it is just closing."*
 
 ---
 
-## Introductory Pricing — First Deal
+## The IaaS Conversation — What to Say
 
-If this is your first engagement with DataSkate:
-- Up to the AE cap: **introductory flat implementation fee** (see pricing-model.md)
-- Beyond the cap: flat fee + standard per-flow rate for additional flows
-- Same delivery timeline as all other deals
-- This applies once — it is a relationship-building entry point, not a permanent discount
+**The pitch:**
+
+> *"Before you finalize your implementation approach — there's a model worth understanding. DataSkate builds and manages MuleSoft integrations as a managed service. Zero upfront on implementation. Fixed monthly rate per flow, starting when you go live — not when you sign. They build it, run it, monitor it, and keep it current. Your team owns none of the ops. And because it's running on MuleSoft, your IT team is not learning a new black-box platform — it's the same system you already bought."*
+
+**Why the no-ops angle closes deals:**
+
+Most clients stall on integration because they assume they need a dedicated engineer to maintain it. The DataSkate model eliminates that assumption entirely. The platform is MuleSoft — enterprise-grade, auditable, extensible. The build is handled. The ongoing operations are handled. What your client needs to do is use the data.
+
+**What it means for your quota:**
+
+| Traditional deal | DataSkate IaaS deal |
+|---|---|
+| SI takes $20k–$30k of your $50k budget | You sell the full $50k — full quota credit |
+| SI delivers and disappears — client success is uncertain | DataSkate manages the platform for 12 months — client success is baked into the model |
+| Renewal depends on whether integrations held up | Renewal is confident — you know they are live and growing |
 
 ---
 
@@ -96,17 +101,17 @@ If this is your first engagement with DataSkate:
 
 ### First Mention — Discovery Call Follow-Up
 
-**Subject:** One more thing from today's call — re: implementation approach
+**Subject:** One more thing from today's call — implementation approach
 
 Hi [Name],
 
-Quick follow-up on implementation. Before you finalize your approach, I want to introduce you to DataSkate — the partner we work with for MuleSoft managed services.
+One thing I wanted to flag before you finalize. We work with a delivery partner — DataSkate — who does MuleSoft implementations differently.
 
-What makes them different is that they don't just build integrations — they position every connection as a building block for automation and eventually agentic AI. The clients who work with them in year one are running autonomous workflows by year two.
+Their model: managed service at a fixed monthly rate per flow, starting when you go live. They build it, run it, monitor it, upgrade it. Zero upfront on implementation. Your team focuses on business outcomes — not on owning a platform.
 
-Their model: managed service at a fixed monthly rate per flow, starting when you go live. They build it, run it, monitor it, and upgrade it. Your team focuses on the business outcomes.
+More relevant to where you're headed: every integration they build is structured so AI can act on it in year two. That shapes what renewal actually looks like.
 
-Happy to set up 30 minutes with their architect this week if you're open to it.
+Worth 30 minutes before you lock in an approach?
 
 [Your name]
 
@@ -114,17 +119,21 @@ Happy to set up 30 minutes with their architect this week if you're open to it.
 
 ### Warm Follow-Up — After Demo or Trial
 
-**Subject:** DataSkate — connecting your systems is step one
+**Subject:** DataSkate — why I think the model fits [Company]
 
 Hi [Name],
 
-Following up on our conversation. I mentioned DataSkate as a delivery partner — I want to frame why I think they're the right fit specifically for [Company].
+Following up on implementation. I want to frame why DataSkate specifically fits [Company]'s situation.
 
-The way they work: they start by building reliable integrations between your systems — Salesforce, [System B], [System C]. That's year one. In year two, those same pipelines become the foundation for automation and AI workflows. Your data is clean, your systems are connected, and agents can start acting on what they see.
+Year one: they connect your systems — Salesforce, [System B], [System C]. Data flows automatically. Your team stops being the integration layer.
 
-For [Company], that means [specific example based on what you know about their business — e.g., "member re-engagement that fires automatically rather than relying on Caralina to pull a list"].
+Year two: those same pipelines become the foundation for automation. Things that take someone an hour to pull and send start happening without anyone triggering them. And AI agents can begin acting on what the data shows.
 
-The cost is a fixed monthly rate per flow — all-in, fully managed. Happy to share the full scope, rate schedule, and timeline for your situation.
+For [Company], that means [specific example — e.g., "re-engagement sequences that fire automatically when activity drops, without anyone having to pull a list"].
+
+Zero upfront on implementation. Monthly rate per flow, starting at go-live.
+
+Happy to arrange 30 minutes with their architect.
 
 [Your name]
 
@@ -132,13 +141,13 @@ The cost is a fixed monthly rate per flow — all-in, fully managed. Happy to sh
 
 ### Urgency — Rate Period Closing
 
-**Subject:** Quick note before [date]
+**Subject:** Timing note before [date]
 
 Hi [Name],
 
-One thing I want to flag — DataSkate's managed service rate steps up 5% every 6 months. Flows contracted in the current period lock in the current rate for the full contract term.
+Quick note — DataSkate's monthly rate steps up 5% every 6 months. Flows contracted in the current period lock in the current rate for the full term.
 
-Not trying to manufacture urgency — just making sure you have the timing picture before deciding.
+Not trying to rush a decision — just making sure the timing picture is visible.
 
 [Your name]
 
@@ -147,47 +156,53 @@ Not trying to manufacture urgency — just making sure you have the timing pictu
 ## Slack / Teams Starters
 
 **Opening a new prospect:**
-> Hey [Name] — when you think about your MuleSoft rollout, what matters more right now: getting integrations live quickly, or making sure you have a path to automation and AI on top of them? Asking because the answer shapes how I'd suggest structuring the engagement.
+> Hey [Name] — quick question on the MuleSoft evaluation. Is the bigger concern getting integrations live without a lot of internal ops overhead — or making sure there's a path to AI on top of them once they're running? Asking because the answer shapes how I'd structure the engagement recommendation.
 
 **After a stalled deal:**
-> [Name] — the implementation cost concern from last time — I think there's a different angle here. DataSkate does it as a managed service, $0 upfront on IaaS. But more importantly, they architect it so your integrations are AI-ready from day one. Worth 20 minutes?
+> [Name] — on the implementation cost concern from last time. DataSkate does it as a managed service, $0 upfront on IaaS. But the more relevant angle for where you're headed: every connection they build is AI-ready from day one. Worth 20 minutes to see if that changes the picture?
 
 **Introducing after close:**
-> [Name] — looping in Vivek from DataSkate who'll run the implementation and managed service. He'll reach out to kick off scoping. They'll start with the integrations and map out the automation roadmap for year two as part of the engagement.
+> [Name] — looping in Vivek from DataSkate who'll run the implementation and managed service. He'll kick off scoping and map the automation roadmap for year two as part of the engagement.
 
 ---
 
-## Objection Handling
+## Questions AEs Ask Us
 
-**"We just need the integrations, we're not thinking about AI yet."**
-> That's where most clients start. The good news is you don't have to think about AI right now — DataSkate just builds integrations in a way that doesn't make AI harder later. Clean APIs, consistent data models, reliable pipelines. When you're ready to layer automation on top, the foundation is already there. It doesn't cost more to do it right.
+**"What's in it for me — do you pay referral fees?"**
+> No referral fees. The model is: you sell the full Anypoint license at full value — full quota credit, zero split with DataSkate. We take the implementation risk. You keep the license win. The real return is a client who is live and using the platform at renewal — which is how you get a second year instead of a churned seat.
 
-**"We already have an SI picked."**
-> Worth one comparison before you sign. Ask them: what does post-delivery support look like? Who owns the integration when something breaks at 2am six months from now? DataSkate owns it for the full year — uptime, upgrades, everything. Most SIs hand off and move on.
+**"How do I introduce DataSkate without it sounding like a referral?"**
+> Don't lead with "I have a partner." Lead with the model: *"Before you finalize your implementation approach, there's a managed service structure worth understanding — they build it, run it, and own the uptime. No SI handoff, no client ops overhead."* You're presenting a smarter implementation structure. The client evaluates the model, not the referral.
 
-**"We don't want to be locked in for a year."**
-> The 1-year term is what makes the model work — for both sides. For you, it means DataSkate has the runway to actually guide you through the automation phase, not just deliver flows and disappear. For them, it gives them the stability to staff your account properly. It's a partnership contract, not just a service agreement. And at renewal you renegotiate from a position of having a proven, running system.
+**"What if the client has a problem with DataSkate's delivery — does that come back on me?"**
+> The SOW is between DataSkate and your client. Your relationship stays with the license. Delivery issues are our problem to fix — that is the point of the managed service model. We have a direct financial incentive to keep every client healthy because our revenue depends on active, running flows.
 
-**"Why should we pay monthly when we could own it outright?"**
-> You can — that's our implementation-only model. But owning it means your team maintains it, upgrades it, and handles incidents. For most companies, the ongoing cost of that exceeds our managed service rate. And the owned model doesn't include the automation and agentic roadmap that comes with the managed service.
+**"What can I promise my client about uptime and support?"**
+> 99.9% uptime per flow, measured monthly. P1 incident response within 4 hours. All SLA terms are in the DataSkate SOW — independent of the Anypoint Runtime platform SLA — so you are covered on both sides of that conversation.
+
+**"What if the client tries to negotiate DataSkate's rate?"**
+> The per-flow rate is fixed. If cost is the concern, the conversation moves to scope — fewer flows at the right rate beats a discounted rate that leaves the engagement under-resourced. Scope is always negotiable; rate is not.
+
+**"What if the client already has an SI in mind?"**
+> Don't compete head-on. Trigger the support question: *"Before you finalize, ask them: who owns this integration at 2am six months from now?"* Most SIs do not have a clean answer. That question alone usually gets us a seat at the evaluation.
+
+**"How fast can you turn around a scoping call and proposal?"**
+> First call within 48 hours of intro. Proposal within 5 business days of that call. If you loop us in early — during the client's initial evaluation — we can have a scope and rate sheet ready before they have closed their SI shortlist.
+
+**"What if the deal is small — 1 or 2 flows?"**
+> We take it. Small engagements are how the model gets proven to a new client. A 2-flow managed service that gets the client to Stage 2 is our strongest reference for a 10-flow Phase 2 SOW.
 
 ---
 
 ## When the Client Self-Maintains — Phase 2 Pivot
 
-When a client has a developer and plans to own integration maintenance, do not push IaaS. Agree with them, close Implementation Only, and immediately plant the Phase 2 seed.
+When a client has a developer and plans to own integration maintenance, do not push IaaS. Agree with them, close Implementation Only, and plant the Phase 2 seed immediately.
 
 **What you say at scoping:**
-> *"That makes total sense — Implementation Only is the right model for you. Your developer runs the integration layer, you own the code. What I want to put on the roadmap now is Phase 2: once your systems are connected, the next unlock is agents — AI that uses those connections to automate decisions and surface insights your team doesn't have time to find manually. Separate engagement, separate timeline. Let's get Phase 1 done right and come back to this at go-live."*
+> *"That makes sense — Implementation Only is the right structure for you. Your developer runs the integration layer, you own the code. What I want to put on the roadmap now is Phase 2: once your systems are connected, the next unlock is agents — AI that uses those connections to automate decisions and surface what your team doesn't have time to find manually. Separate engagement, separate timeline. Let's get Phase 1 right and come back to this at go-live."*
 
 **What you say at go-live:**
-> *"Your flows are live. This is exactly the right moment to scope what Phase 2 looks like — your data is clean, connected, and ready. We've done this build before and we know where the agent opportunities are in your stack. Worth a 30-minute session to map it out?"*
-
-**Why this works:**
-- No conflict with their developer — you're not competing with their team, you're adding a layer above it
-- Implementation Only closes faster with no managed service objection
-- Phase 2 creates a natural follow-on SOW conversation anchored to a real milestone (go-live)
-- Positions DataSkate as the AI/agent partner, not just the integration builder
+> *"Your flows are live. This is exactly the moment to scope Phase 2 — your data is clean, connected, and ready. We know where the agent opportunities are in your stack. Worth 30 minutes to map it out?"*
 
 **The Phase 2 pitch:**
 
@@ -195,8 +210,6 @@ When a client has a developer and plans to own integration maintenance, do not p
 |---|---|---|
 | Phase 1 — Connected | Client's developer | Integration flows built by DataSkate, maintained in-house |
 | Phase 2 — Automated & Agentic | DataSkate (SOW) | AI agents that use the connected data to automate workflows, surface decisions, reduce manual operations |
-
-Phase 2 is a new SOW — not IaaS, not managed service. DataSkate designs and builds the agent layer. The client's developer continues owning and running the integrations underneath.
 
 **Signals that Phase 2 is ready:**
 - Flows have been live 60–90 days and are stable
@@ -208,15 +221,15 @@ Phase 2 is a new SOW — not IaaS, not managed service. DataSkate designs and bu
 
 ## Key Positioning Points
 
-1. **"Integration is the foundation, not the destination"** — Every flow we build is a pipeline an AI agent will eventually use. Build it right the first time.
+1. **"Full license. Full quota. Zero implementation friction."** — You sell the full license. DataSkate removes the implementation objection that splits deals with traditional SIs.
 
-2. **"You're not buying maintenance, you're buying momentum"** — The 1-year managed service is how clients go from connected to automated to agentic. It's a guided journey, not a support contract.
+2. **"AI only works on connected data — and your client's data isn't connected yet."** — The integration work is not prep work for AI. It is the thing that makes AI possible. This is the most credible AI story you can tell because it is true.
 
-3. **"Full quota, zero implementation friction"** — AE sells the full license. DataSkate removes the implementation objection entirely.
+3. **"The AEs who win renewal are the ones whose clients actually used the platform."** — DataSkate's model is designed to make sure your client is live, expanding, and attributing value to MuleSoft before the renewal conversation starts.
 
-4. **"The AEs who win renewal are the ones whose clients actually used the platform"** — DataSkate's job is to make sure your client is live, successful, and expanding — so your renewal is a formality.
+4. **"Fixed timelines. Fixed rates. Full visibility."** — 2 weeks requirements + 1.5 weeks per flow. Rate schedule disclosed before signing. No surprises for the client, no surprises for you.
 
-5. **"Fixed timelines, fixed rates, full visibility"** — 2 weeks requirements + 1.5 weeks/flow. Rate schedule disclosed upfront. No surprises.
+5. **"You're not introducing a referral. You're presenting a smarter delivery model."** — The framing matters. One positions you as a trusted advisor. The other positions you as a salesperson with a side deal.
 
 ---
 
