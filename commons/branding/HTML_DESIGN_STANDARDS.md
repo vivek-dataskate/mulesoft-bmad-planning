@@ -196,6 +196,16 @@ answer inputs  → min-width 100px, placeholder: "Yes / Correct to..."
 padding: 9px 18px; border-radius: 6px; font-size: 13px
 ```
 
+**Submit success banner** (`.submit-success`) — shown after `submitForm()` saves to Firestore:
+```css
+.submit-success {
+  display: none;
+  background: #F0FFF4; border: 1px solid #68D391; border-left: 4px solid var(--green);
+  border-radius: 6px; padding: 14px 20px; margin-top: 24px;
+  font-size: 14px; font-weight: 600; color: #276749;
+}
+```
+
 ---
 
 ## Business Context Panel (Intake Forms Only)
@@ -284,7 +294,39 @@ background: rgba(255,255,255,0.96); backdrop-filter: blur(4px)
 border-bottom: 1px solid --border
 ```
 
-Contains: progress pill (left) + PDF + Email buttons (right).
+**Layout:** progress pill (left) + buttons (right).
+
+**Buttons — right side of sticky bar:**
+- `[Print / Save PDF]` — `.btn-outline`, `onclick="window.print()"`
+- `[Submit to DataSkate]` — `.btn-primary`, `onclick="submitForm()"`
+
+Secondary action (PDF) left, primary action (Submit) right — always in this order.
+
+**No config strip** (no To/CC email fields) — Firebase captures responses; no mailto.
+
+**Bottom submit block** — placed inside `.wrap`, after the last form section, before closing `</div>`:
+```html
+<div class="submit-block no-print">
+  <button class="btn btn-primary btn-submit" onclick="submitForm()">Submit to DataSkate</button>
+  <div class="submit-success" id="submit-success">
+    ✓ Your responses have been submitted to DataSkate. We'll be in touch shortly.
+  </div>
+</div>
+```
+```css
+.submit-block { text-align: center; padding: 40px 0 20px; }
+.btn-submit { font-size: 15px; padding: 12px 36px; }
+```
+
+**`submitForm()` function spec:**
+```js
+function submitForm() {
+  // 1. Check required fields — warn if unanswered but don't block
+  // 2. saveToFirestore(collectAnswers(), pct)
+  // 3. On success: show #submit-success banner (both sticky and bottom)
+  // 4. NO mailto, NO window.print() — Firebase is the submission channel
+}
+```
 
 ---
 
@@ -331,14 +373,31 @@ Every HTML document must include `@media print` rules that:
 
 ---
 
-## Reference Files
+## Template System
 
-| Document type | Canonical CSS reference |
-|---|---|
-| Client proposal | `projects/mrn-healthcare/intake/proposal-mrn-healthcare.html` |
-| Intake questionnaire form | `projects/peerless/intake/intake-questionnaire-peerless.html` |
+Scout (and any other agent) does **not** write raw HTML for proposals or intake forms. Instead:
 
-**Rule:** When generating a new HTML document, copy the CSS block verbatim from the appropriate reference file. Do NOT invent new class names or color values. Extend by adding new classes; never override existing ones.
+1. **Scout outputs a content JSON file** (`proposal-content.json` or `intake-content.json`) containing only the client-specific text, data, and HTML fragments for variable sections.
+2. **`fill-template.js` merges the JSON into the shell template** and writes the final HTML.
+
+| Document type | Shell template | CSS snippet | Content JSON | Fill command |
+|---|---|---|---|---|
+| Client proposal | `commons/branding/templates/proposal-template.html` | `commons/branding/proposal-base.css.html` | `projects/{client}/intake/proposal-content.json` | `node commons/branding/fill-template.js --template proposal --client {client}` |
+| Intake questionnaire | `commons/branding/templates/intake-template.html` | `commons/branding/intake-base.css.html` | `projects/{client}/intake/intake-content.json` | `node commons/branding/fill-template.js --template intake --client {client}` |
+| Per-client portal | `commons/branding/templates/portal-template.html` | `commons/branding/portal-base.css.html` | `projects/{client}/portal-content.json` | `node commons/branding/fill-template.js --template portal --client {client}` |
+| Sales flyer | `commons/branding/templates/flyer-template.html` | `commons/branding/flyer-base.css.html` | `commons/sales/flyer-content.json` | `node commons/branding/fill-template.js --template flyer` |
+| Internal resource (markdown viewer) | `commons/branding/templates/resource-template.html` | `commons/branding/resource-base.css.html` | *(reads source `.md` directly)* | `node commons/branding/fill-template.js --template resource --name {slug} --src commons/sales/{slug}.md` |
+
+**How it works:** The shell template contains `<!-- FILL:key -->` markers. The fill script replaces each marker with the corresponding value from the content JSON (or markdown source for the resource type). The CSS snippet is injected at `<!-- FILL:__css -->`. The Firebase JS is pre-embedded in the intake template — Scout never writes it.
+
+**All five registered types cover all client-facing and agent-generated HTML.** There is no escape hatch for writing raw HTML. Every HTML file in this system must be generated through the template pipeline.
+
+**For agents:** Output the content JSON, then run the fill command. Do not read CSS snippet files or write raw HTML.
+
+**If no template exists for your document type — STOP.** Do not write raw HTML. Flag it to the user:
+> "No template exists for `{type}` HTML. Before writing raw HTML, a template + CSS snippet should be added to the template system. Should I create `commons/branding/templates/{type}-template.html` and `{type}-base.css.html` first?"
+
+`fill-template.js` enforces this at runtime — it will exit with an error and instructions if an unregistered template type is requested.
 
 ---
 
@@ -353,6 +412,13 @@ Every HTML document must include `@media print` rules that:
 - Do not use dark gradient cover pages — use the standard `.header` pattern (see Multi-Page PDF Documents)
 - Do not use dark-background display cards (e.g. `background: var(--dark)` on metric/stat blocks) — use `.stat-row`/`.stat` instead
 - For contact emails in footers and CC fields: see `CLAUDE.md` Team section — do not hardcode emails here
+- **Do not use a dark header** — `.header { background: var(--dark) }` or any dark/black header background is forbidden. All headers must be white with a `3px solid var(--brand)` bottom border
+- **Do not use a gray page background** — `body { background: #F5F5F5 }` or any non-white body background is forbidden. Body must be `background: #fff`
+- **Do not use circle section numbers** — `.section-num` with `border-radius: 50%` and a background fill is forbidden. Section numbers are plain red text (`--brand` color), no circle, no badge
+- **Do not use card-style section wrappers** — `.section` with `border-radius` creates visual clutter. Use flat sections with `border-bottom: 1px solid var(--border)` separators
+- **Do not define off-palette CSS variables** — only the 11 standard vars (`--brand`, `--brand-dk`, `--dark`, `--mid`, `--light`, `--border`, `--green`, `--amber`, `--amber-bg`, `--blue-bg`, `--blue-br`) may appear in `:root`. Never add `--blue`, `--gray`, `--navy`, `--purple`, etc.
+
+**These rules apply to ALL HTML document types** — proposals, intake forms, sales materials, engagement portals, capability pages, and any other deliverable. There is no "dashboard exception" to the white-page standard.
 
 ---
 
@@ -360,6 +426,8 @@ Every HTML document must include `@media print` rules that:
 
 | Date | Change | Author |
 |---|---|---|
+| 2026-05-13 | What NOT to Do: added 5 portal-specific rules (dark header, gray body, circle section nums, card sections, off-palette CSS vars); enforcement: lint-html.js now validates ALL .html files via PostToolUse hook (was commons/sales/ only) | Vivek + Claude |
+| 2026-05-12 | Sticky Action Bar: replaced email/mailto pattern with Firebase submit — submitForm() saves to Firestore, no mailto; added bottom submit block spec; added .submit-success banner; removed config strip (To/CC fields) | Vivek + Claude |
 | 2026-05-12 | Added Multi-page PDF Documents section: no dark covers, no dark metric cards, .stat-row pattern documented; added two rules to What NOT to Do | Vivek + Claude |
 | 2026-05-12 | Removed Architect Email section — team/contact decisions belong in CLAUDE.md, not design standards | Vivek + Claude |
 | 2026-05-12 | Removed all blue/purple from non-panel elements: Business Context Panel switched to DataSkate red palette (--light bg, #FFE4E4 header, --brand-dk text); complexity-badge.medium → #EBEBEB/--mid; owner-client/owner-both → --light/--brand-dk and --amber-bg; added Badges section | Vivek + Claude |
