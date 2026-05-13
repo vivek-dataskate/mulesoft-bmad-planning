@@ -1,0 +1,75 @@
+title: Canonical HCBS Service Authorization
+version: 1.0.0-stub — created from cherish-care engagement (2026-05-12)
+standard: derived
+standardBody: null
+standardRef: null
+deviations:
+  - "No HL7 FHIR R4 resource maps directly to an HCBS Regional Center service authorization. FHIR Coverage is the closest analog but lacks regional-center-specific constructs (service hours per month, regional center assignment, HCBS service codes). This canonical is derived from California DDS authorization data structures and DCI/Salesforce EVV implementations."
+  - "CMS/FHIR CareTeam and CarePlan resources partially overlap but are not appropriate as a canonical hub for EVV authorization-hours tracking."
+description: >
+  Canonical record for a Home and Community-Based Services (HCBS) service authorization issued by a
+  regional center to a consumer. Represents the monthly approved service hours a consumer is entitled to
+  receive for a specific service code under their regional center contract.
+  Used by Cherish Care (California DDS respite services — IRC, SGP, ELR).
+type: object
+required:
+  - authorizationId
+  - consumerId
+  - serviceCode
+  - authorizedHoursPerMonth
+  - effectiveDate
+  - regionalCenter
+properties:
+  authorizationId:
+    type: string
+    description: Unique authorization identifier — regional center reference number or DCI auth ID
+  consumerId:
+    type: string
+    description: Consumer/client identifier this authorization is issued for
+  serviceCode:
+    type: string
+    description: HCBS service/procedure code this authorization covers (e.g., H2015, H0045)
+  serviceDescription:
+    type: string
+    description: Human-readable service description (e.g., "Respite Care — In Home", "IHSS")
+  authorizedHoursPerMonth:
+    type: number
+    description: Monthly hour budget approved by the regional center
+  authorizedHoursPerYear:
+    type: number
+    description: Annual hour budget (if applicable — some authorizations are annual)
+  effectiveDate:
+    type: string
+    format: date
+    description: First date this authorization is valid (YYYY-MM-DD)
+  expirationDate:
+    type: string
+    format: date
+    description: Last date this authorization is valid — authorizations typically run 1 year
+  regionalCenter:
+    type: string
+    enum: [IRC, SGP, ELR]
+    description: Issuing regional center (Inland RC, San Gabriel RC, Eastern LA RC)
+  vendorId:
+    type: string
+    description: Regional center vendor/provider ID for Cherish Care under this authorization
+  status:
+    type: string
+    enum: [active, expired, cancelled, pending_renewal]
+    description: Current status of the authorization
+  hoursUsedThisMonth:
+    type: number
+    description: Computed — hours already consumed this month via approved EVV visits (for remaining-hours alert logic)
+  hoursRemainingThisMonth:
+    type: number
+    description: Computed — authorizedHoursPerMonth minus hoursUsedThisMonth
+  notes:
+    type: string
+    description: Regional center notes or conditions attached to this authorization
+  lastReviewedDate:
+    type: string
+    format: date
+    description: Date authorization was last reviewed by the regional center
+
+clients_using:
+  - cherish-care (2026-05-12, stub)

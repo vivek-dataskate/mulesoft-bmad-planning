@@ -1,0 +1,274 @@
+{
+  "meta": {
+    "clientName": "AgileMind",
+    "title": "MuleSoft Integration for AgileMind",
+    "subtitle": "From spreadsheet chaos to a connected, AI-ready operations platform",
+    "date": "May 2026",
+    "architect": "Kailash Chanda",
+    "architectEmail": "kailash@dataskate.ai",
+    "flowCount": 4
+  },
+  "challenge": {
+    "headline": "Crystal re-keys. Holly builds worksheets. Maria runs QB reports. None of this scales.",
+    "lead": "AgileMind's revenue runs on multi-year district agreements — but the operational layer connecting Salesforce, QuickBooks, and inventory is 100% manual. During the April–August print procurement window, every data handoff is a spreadsheet, a manual QB report, or a re-keyed entry.",
+    "cards": [
+      {
+        "label": "Agreement-to-Invoice Gap",
+        "body": "Crystal manually creates QB invoices from finalized Salesforce agreements. One missed agreement or wrong amount is a delayed revenue collection and an audit risk at renewal."
+      },
+      {
+        "label": "No Payment Visibility in Salesforce",
+        "body": "Maria runs manual QB reports to surface payment status. Sales reps have no live view of which agreements are paid, outstanding, or overdue — making renewal conversations guesswork."
+      },
+      {
+        "label": "Inventory Lives in Spreadsheets",
+        "body": "Holly's demand worksheet is the only place anyone can see how many Student Activity Books and Teacher Books are in stock. If the file is out of date, procurement decisions for the back-to-school run are wrong."
+      },
+      {
+        "label": "No Single Source for ISBN Inventory",
+        "body": "Physical title inventory is tracked across QB Items and Holly's spreadsheet — neither is authoritative. Fulfillment decisions for the April–August peak season are made with incomplete data."
+      }
+    ]
+  },
+  "solution": {
+    "lead": "MuleSoft connects Salesforce, QuickBooks Online, and your inventory data sources into a single real-time pipeline — eliminating manual re-keying, giving every team member live data, and building the data infrastructure AgileMind needs for AI-powered procurement planning.",
+    "diagramNodes": {
+      "sources": ["Salesforce (Agreement__c)", "QuickBooks Online", "Google Sheets / Excel"],
+      "targets": ["QuickBooks Online (Invoices)", "Salesforce (Agreement__c + Inventory__c)"]
+    },
+    "diagramCaption": "UC1 and UC2 are bidirectional — Salesforce writes to QB, QB writes back to Salesforce. All flows monitored 24/7 with automatic retry on failure."
+  },
+  "journey": {
+    "headline": "Integration Is Stage 1. Here's What AgileMind Looks Like at Stage 3.",
+    "stage1": {
+      "label": "Year 1 · Connected",
+      "year": "Year 1",
+      "headline": "Agreement-to-Invoice Without Spreadsheets",
+      "items": [
+        "Crystal stops creating QB invoices by hand — Salesforce Agreement finalization triggers invoice creation automatically",
+        "Maria sees live payment status in Salesforce — no more weekly QB report runs",
+        "Holly's demand worksheet is replaced by live Salesforce Inventory__c records updated from both QB and Google Sheets",
+        "QB Item inventory feeds Salesforce automatically — one authoritative source for ISBN-level stock"
+      ]
+    },
+    "stage2": {
+      "label": "Year 1–2 · Automated",
+      "year": "Year 1–2",
+      "headline": "Demand-Driven Procurement, Automatic Alerts",
+      "items": [
+        "When open Salesforce pipeline demand exceeds available Inventory__c stock, a purchase recommendation fires automatically — no Holly worksheet required",
+        "Invoice due dates in QB trigger automatic reminders through Salesforce — overdue escalations without manual monitoring",
+        "Inventory shortage projections by ISBN title surface 6–8 weeks before the production deadline — procurement acts before the shortage, not after"
+      ]
+    },
+    "stage3": {
+      "label": "Year 2+ · Agentic",
+      "year": "Year 2+",
+      "headline": "AI-Powered Print Run Optimization",
+      "items": [
+        "An AI agent reads Salesforce pipeline, Inventory__c levels, and historical title sell-through to recommend optimal print quantities per ISBN — 'Order 4,200 Intensified Algebra Vol 1 SABs for the fall run' with confidence intervals",
+        "The agent monitors agreement close rates by district and surfaces renewal risk signals 90 days before agreement expiry — giving sales an actionable list before renewal season",
+        "Seasonal demand forecasting replaces Holly's manual worksheet entirely — AI surfaces projected shortages and overstock risk before the April procurement window opens"
+      ]
+    },
+    "closingLine": "The 1-year managed service is how AgileMind moves from Stage 1 to Stage 2 without rebuilding anything. Every scoping decision in week one — data contracts, error handling, the canonical model — determines what is possible at renewal. That is by design."
+  },
+  "flows": [
+    {
+      "num": 1,
+      "name": "Agreement-to-Invoice (SF → QB)",
+      "route": "Salesforce → MuleSoft → QuickBooks Online",
+      "complexity": "high",
+      "value": "Finalizing a Salesforce Agreement__c automatically creates or updates the corresponding QB invoice — eliminating Crystal's manual re-keying and reducing invoice lag from days to minutes."
+    },
+    {
+      "num": 2,
+      "name": "Payment Sync-Back (QB → SF)",
+      "route": "QuickBooks Online → MuleSoft → Salesforce",
+      "complexity": "medium",
+      "value": "QB invoice payments and statuses sync back to Salesforce Agreement__c in real time — Maria and the sales team see payment status without running QB reports."
+    },
+    {
+      "num": 3,
+      "name": "Inventory Upload (Sheets/Excel → SF)",
+      "route": "Google Sheets / Excel → MuleSoft → Salesforce",
+      "complexity": "medium",
+      "value": "Holly's demand worksheet data flows automatically into Salesforce Inventory__c — eliminating the manual import and giving all teams a live view of title-level stock by ISBN."
+    },
+    {
+      "num": 4,
+      "name": "QB Item Sync (QB → SF Inventory)",
+      "route": "QuickBooks Online → MuleSoft → Salesforce",
+      "complexity": "medium",
+      "value": "QuickBooks item quantities sync to Salesforce Inventory__c on a scheduled basis — QB remains the fulfillment system of record while Salesforce gains live inventory visibility."
+    }
+  ],
+  "outcomes": [
+    {
+      "icon": "⚡",
+      "title": "Zero Manual Invoice Creation",
+      "body": "Crystal's re-keying process is eliminated on day one. Agreement finalization triggers QB invoice creation automatically — reducing invoice lag from days to minutes and removing entry errors."
+    },
+    {
+      "icon": "📊",
+      "title": "Live Payment Visibility",
+      "body": "Sales reps and operations see payment status directly in Salesforce without running QB reports. Overdue follow-ups happen automatically instead of reactively."
+    },
+    {
+      "icon": "📦",
+      "title": "Single Source for ISBN Inventory",
+      "body": "Salesforce Inventory__c becomes the live inventory record for all physical titles — fed by both QB and Holly's demand data. Procurement decisions for the April–August peak run on real numbers."
+    },
+    {
+      "icon": "🤖",
+      "title": "AI-Ready Foundation",
+      "body": "Clean, connected, well-maintained data infrastructure is what AI agents need to operate. Every flow we build is a pipeline an AI agent will eventually use — built right from the start."
+    }
+  ],
+  "roi": null,
+  "timeline": [
+    {
+      "phase": "Phase 1",
+      "weeks": "Weeks 1–2",
+      "title": "Requirements & Analysis",
+      "body": "DataSkate finalizes all field mappings, confirms QuickBooks version and plan tier, validates Salesforce custom object readiness, and produces a signed scope document before build begins."
+    },
+    {
+      "phase": "Phase 2",
+      "weeks": "Weeks 3–8",
+      "title": "Build & Testing",
+      "body": "All 4 flows built and tested against AgileMind's Salesforce sandbox and QBO developer account. MUnit coverage meets DataSkate's standard floor requirements."
+    },
+    {
+      "phase": "Phase 3",
+      "weeks": "Weeks 9–10",
+      "title": "UAT & Go-Live Prep",
+      "body": "AgileMind team validates all flows against real data. Sign-off triggers production deployment."
+    },
+    {
+      "phase": "Phase 4",
+      "weeks": "Week 11 → Year 2",
+      "title": "Managed Operations & Roadmap",
+      "body": "DataSkate monitors all 4 flows 24/7. At the 6-month review, DataSkate delivers a Stage 2 roadmap: demand-driven procurement automation and AI inventory optimization, scoped and ready for renewal."
+    }
+  ],
+  "pricing": {
+    "timelineWeeks": 11,
+    "period1": { "rate": "250" },
+    "period2": { "rate": "262.50" },
+    "period3": { "rate": "275.63" },
+    "period4": { "rate": "289.41" },
+    "implOnly": "14000"
+  },
+  "included": [
+    {
+      "title": "Full Implementation",
+      "detail": "All 4 flows designed, built, tested, and deployed to production. No upfront implementation fee under IaaS."
+    },
+    {
+      "title": "24/7 Monitoring & Incident Response",
+      "detail": "DataSkate monitors every flow around the clock. Failures are detected and resolved before you know they happened."
+    },
+    {
+      "title": "Connector & Platform Upgrades",
+      "detail": "MuleSoft connector upgrades, runtime patches, and compatibility updates — handled by DataSkate with no client action required."
+    },
+    {
+      "title": "Minor Enhancements (Config Tier)",
+      "detail": "Field mapping updates, filter adjustments, credential rotation, and performance tuning are included at no additional charge."
+    },
+    {
+      "title": "Client-Owned Code Repository",
+      "detail": "All integration code lives in a DataSkate-managed GitHub repository. Full code ownership transfers to AgileMind on request."
+    },
+    {
+      "title": "Year 2 Automation Roadmap",
+      "detail": "DataSkate prepares a Stage 2 roadmap at the 6-month review — demand-driven procurement alerts and AI inventory optimization, scoped and ready for renewal."
+    }
+  ],
+  "about": "<p>DataSkate is a MuleSoft integration practice. We work exclusively on the Connected → Automated → Agentic arc — every engagement is designed with all three stages in mind, even when the current deliverable is Stage 1 only.</p><p>For AgileMind, that means the Salesforce–QuickBooks–Inventory pipeline we build in Year 1 carries the data contracts, error handling, and observability that AI-driven procurement planning requires in Year 2+. The Salesforce custom object patterns, QuickBooks Online billing API behavior, and inventory-linked automation we use here are documented and tested across educational publishing and adjacent verticals.</p><p>Stage 3 should be an activation, not a rebuild. That is the standard we hold ourselves to on every engagement.</p>",
+  "oos": [
+    {
+      "title": "Salesforce Custom Object Design",
+      "detail": "The Inventory__c object in Salesforce must be designed and created by AgileMind's engineering team before UC3/UC4 integration can be built. DataSkate provides a field spec — creation is the client's responsibility."
+    },
+    {
+      "title": "QuickBooks Plan Upgrade",
+      "detail": "If AgileMind's current QBO plan is below Plus tier, upgrading to support inventory tracking is the client's responsibility. DataSkate cannot proceed with UC4 until inventory is enabled in QBO."
+    },
+    {
+      "title": "Historical Data Migration",
+      "detail": "This engagement connects systems for net-new data from go-live forward. Migration of historical QB invoices or past inventory records into Salesforce is out of scope."
+    },
+    {
+      "title": "Demand Worksheet File Standardization",
+      "detail": "Holly's demand worksheet must be available in a stable, consistent format (column names, data types) before UC3 can be built. Restructuring the file format is not in scope."
+    },
+    {
+      "title": "QuickBooks OAuth Authorization",
+      "detail": "The QB Company Admin (Maria or Linda) must complete a one-time OAuth consent flow to authorize DataSkate API access. Scheduling and performing this step is the client's responsibility."
+    }
+  ],
+  "assumptions": [
+    {
+      "assumption": "[P0 BLOCKER] QuickBooks confirmed as QuickBooks Online — not Desktop or Enterprise. Desktop QB has no REST API and requires a completely different architecture.",
+      "owner": "client",
+      "when": "Before requirements phase begins",
+      "p0": true
+    },
+    {
+      "assumption": "[P0 BLOCKER] QuickBooks Online plan tier confirmed as Plus or Advanced. Inventory tracking for UC4 is not available on Simple Start or Essentials.",
+      "owner": "client",
+      "when": "Before requirements phase begins",
+      "p0": true
+    },
+    {
+      "assumption": "[P0 BLOCKER] Salesforce Inventory__c custom object designed and created by AgileMind engineering before build phase. DataSkate provides field specifications.",
+      "owner": "both",
+      "when": "Before build phase (Week 3)",
+      "p0": true
+    },
+    {
+      "assumption": "QuickBooks Company Admin available to complete one-time OAuth consent flow before dev environment setup.",
+      "owner": "client",
+      "when": "Before dev environment setup",
+      "p0": false
+    },
+    {
+      "assumption": "AgileMind provides Salesforce sandbox access for DataSkate testing (full-copy or partial-copy sandbox).",
+      "owner": "client",
+      "when": "Week 1",
+      "p0": false
+    },
+    {
+      "assumption": "Holly's demand worksheet accessible as a stable Google Sheet (shared with DataSkate service account) or placed in a designated S3/SFTP drop location before build begins.",
+      "owner": "client",
+      "when": "Week 2 — field mapping confirmation",
+      "p0": false
+    },
+    {
+      "assumption": "Salesforce custom field SF_QB_InvoiceId__c created on Agreement__c before integration testing begins.",
+      "owner": "client",
+      "when": "Before build phase",
+      "p0": false
+    }
+  ],
+  "nextSteps": [
+    {
+      "title": "Review & Sign Proposal",
+      "body": "AgileMind stakeholders review this proposal and confirm scope direction. Questions addressed by Kailash Chanda (kailash@dataskate.ai)."
+    },
+    {
+      "title": "Complete Intake Questionnaire",
+      "body": "AgileMind team completes the discovery questionnaire — P0 items (QB version, plan tier, Inventory__c readiness) must be answered before requirements begin."
+    },
+    {
+      "title": "SOW Signing & Kickoff Retainer",
+      "body": "Signed SOW plus $2,500 kickoff retainer triggers the requirements phase. Target: SOW signed by end of May 2026 to hit the July 15 go-live."
+    },
+    {
+      "title": "Requirements & Year 2 Planning",
+      "body": "DataSkate and AgileMind finalize all field mappings and produce a signed scope document. At the 6-month review, DataSkate delivers a Stage 2 roadmap: demand-driven procurement automation and AI inventory optimization."
+    }
+  ]
+}

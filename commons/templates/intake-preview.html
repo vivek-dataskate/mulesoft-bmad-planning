@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intake Form — Design Preview</title>
+<style>
+:root {
+  --brand:    #ed1c24;
+  --brand-dk: #a01019;
+  --dark:     #1A1A1A;
+  --mid:      #555F6E;
+  --light:    #FFF5F5;
+  --border:   #E8E0E0;
+  --green:    #2E9E6B;
+  --amber:    #D69E2E;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--dark);
+  background: #f0f0f0;
+}
+
+/* ── SPLIT LAYOUT ── */
+.split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; gap: 2px; }
+.pane { background: #fff; }
+.pane-label {
+  position: sticky; top: 0; z-index: 10;
+  padding: 8px 36px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; color: #fff;
+  display: flex; align-items: center; gap: 8px;
+}
+.pane-label.old { background: #777; }
+.pane-label.new { background: var(--brand); }
+.pane-label .badge { font-size: 10px; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.inner { padding: 0 36px 80px; }
+
+
+/* ═══════════════════════════════
+   OLD — current design
+═══════════════════════════════ */
+.old .doc-header { padding: 28px 0 24px; border-bottom: 3px solid var(--brand); margin-bottom: 0; }
+.old .doc-header h1 { font-size: 20px; font-weight: 800; border-left: 4px solid var(--brand); padding-left: 14px; }
+.old .doc-header .sub { font-size: 12px; color: var(--mid); padding-left: 18px; margin-top: 2px; }
+
+.old .biz { background: #FFF5F5; border: 1px solid #E8E0E0; border-left: 4px solid var(--brand); border-radius: 8px; margin: 24px 0 0; overflow: hidden; }
+.old .biz-hd { background: #FFE4E4; padding: 9px 16px; display: flex; justify-content: space-between; }
+.old .biz-hd span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brand-dk); }
+.old .biz-body { padding: 16px 20px; }
+.old .snap { font-size: 13px; margin-bottom: 12px; line-height: 1.6; }
+.old .jgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.old .jcard { border-radius: 8px; padding: 10px 12px; }
+.old .jcard.p1 { background: #F0FFF4; border: 1px solid #68D391; }
+.old .jcard.p2 { background: #FFFBEB; border: 1px solid #F6D860; }
+.old .jcard.p3 { background: #F5F0FF; border: 1px solid #C084FC; }
+.old .jc-ph  { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--mid); }
+.old .jc-lb  { font-size: 12px; font-weight: 700; color: var(--dark); margin: 1px 0; }
+.old .jc-bd  { font-size: 11px; color: var(--mid); line-height: 1.4; }
+
+.old .sec { padding: 36px 0 0; border-top: 1px solid var(--border); margin-top: 36px; }
+.old .sec:first-of-type { margin-top: 0; border-top: none; }
+.old .sec-hd { display: flex; align-items: baseline; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.old .sec-num { font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 1px; }
+.old .sec-title { font-size: 17px; font-weight: 700; color: var(--dark); }
+
+.old .uc { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+.old .uc:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+.old .uc-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.old .uc-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; background: var(--brand); color: #fff; padding: 2px 7px; border-radius: 3px; }
+.old .uc-hd h3 { font-size: 14px; font-weight: 700; }
+.old .uc-note { border-left: 3px solid var(--border); padding: 6px 12px; margin-bottom: 12px; font-size: 12px; color: var(--mid); }
+
+.old .q { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border); }
+.old .q:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.old .q-id { font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+.old .q-text { font-size: 14px; font-weight: 500; margin-bottom: 7px; }
+.old .q-hint { font-size: 11px; color: var(--mid); font-style: italic; margin-bottom: 7px; padding: 6px 10px; background: #FAFAFA; border-left: 3px solid var(--border); }
+.old .opts { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
+.old .pill { padding: 4px 11px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); background: #F7F7F7; color: var(--mid); cursor: pointer; }
+.old .pill.sel { background: var(--brand); color: #fff; border-color: var(--brand); }
+.old textarea { width: 100%; border: 1px solid var(--border); border-radius: 5px; padding: 8px 10px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 44px; color: var(--dark); }
+.old textarea.pre { background: #FFFBEB; border-color: #FDE68A; }
+.old textarea.ans { background: #F0FFF4; border-color: #A7F3D0; }
+
+.old .sgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 10px; }
+.old .si { padding: 7px 10px; border-radius: 5px; font-size: 11px; }
+.old .si-in  { background: #F0FFF4; color: #276749; border: 1px solid #A7F3D0; }
+.old .si-as  { background: #FFFBEB; color: #7C5E10; border: 1px solid #FDE68A; }
+.old .si-out { background: #FFF5F5; color: #9B2335; border: 1px solid #FECACA; }
+.old .si-lbl { font-weight: 700; font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.4px; }
+
+
+/* ═══════════════════════════════
+   NEW — compact design
+═══════════════════════════════ */
+.new .doc-header { padding: 28px 0 24px; border-bottom: 3px solid var(--brand); }
+.new .doc-header h1 { font-size: 20px; font-weight: 800; border-left: 4px solid var(--brand); padding-left: 14px; }
+.new .doc-header .sub { font-size: 12px; color: var(--mid); padding-left: 18px; margin-top: 2px; }
+
+/* Business context — white card, single accent */
+.new .biz { border: 1px solid var(--border); border-left: 4px solid var(--brand); border-radius: 6px; margin: 24px 0 0; overflow: hidden; }
+.new .biz-hd { background: var(--light); padding: 9px 16px; display: flex; justify-content: space-between; cursor: pointer; }
+.new .biz-hd span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brand-dk); }
+.new .biz-body { padding: 16px 20px; }
+.new .snap { font-size: 13px; margin-bottom: 14px; line-height: 1.6; color: var(--mid); }
+/* Journey cards — top-border only, white bg */
+.new .jgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.new .jcard { border: 1px solid var(--border); border-top: 3px solid var(--brand); padding: 10px 12px; background: #fff; }
+.new .jcard.p2 { border-top-color: var(--amber); }
+.new .jcard.p3 { border-top-color: var(--mid); }
+.new .jc-ph  { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--mid); }
+.new .jc-lb  { font-size: 12px; font-weight: 700; color: var(--dark); margin: 1px 0; }
+.new .jc-bd  { font-size: 11px; color: var(--mid); line-height: 1.4; }
+
+/* Sections — top gap is the separator, no interior border on header */
+.new .sec { padding-top: 40px; }
+.new .sec + .sec { border-top: 1px solid var(--border); }
+.new .sec-hd { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+.new .sec-num { font-size: 11px; font-weight: 800; color: var(--brand); letter-spacing: 1.5px; flex-shrink: 0; }
+.new .sec-title { font-size: 16px; font-weight: 800; color: var(--dark); }
+
+/* UC tag + title shared styles */
+.new .uc-tag {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--brand);
+  border: 1px solid currentColor; padding: 1px 7px; border-radius: 3px;
+  flex-shrink: 0;
+}
+.new .uc-hd h3 { font-size: 13px; font-weight: 700; color: var(--dark); }
+.new .uc-note { font-size: 12px; color: var(--mid); margin-bottom: 16px; line-height: 1.5; }
+
+/* Questions — Q number inline, tight spacing */
+.new .q { display: grid; grid-template-columns: 36px 1fr; gap: 0 8px; margin-bottom: 18px; align-items: start; }
+.new .q:last-child { margin-bottom: 0; }
+.new .q-num {
+  font-size: 11px; font-weight: 800; color: var(--brand);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding-top: 1px; /* align with first line of text */
+  text-align: right;
+}
+.new .q-body { min-width: 0; }
+.new .q-text { font-size: 14px; font-weight: 500; color: var(--dark); margin-bottom: 7px; line-height: 1.45; }
+.new .q-hint {
+  font-size: 12px; color: var(--mid); font-style: italic;
+  margin-bottom: 7px; padding-left: 10px;
+  border-left: 2px solid var(--border); line-height: 1.4;
+}
+.new .opts { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
+.new .pill {
+  padding: 3px 12px; border-radius: 20px; font-size: 12px;
+  border: 1px solid var(--border); background: #fff; color: var(--mid); cursor: pointer;
+  transition: all 0.1s;
+}
+.new .pill:hover { border-color: var(--brand); color: var(--brand); }
+.new .pill.sel { background: var(--brand); color: #fff; border-color: var(--brand); font-weight: 600; }
+
+/* Textarea — border only shows state, no background change */
+.new textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 4px;
+  padding: 7px 10px; font-size: 13px; font-family: inherit; resize: vertical;
+  min-height: 38px; color: var(--dark); background: #fff;
+  transition: border-color 0.1s;
+  line-height: 1.5;
+}
+.new textarea:focus { outline: none; border-color: var(--brand); }
+.new textarea.pre { border-left: 3px solid var(--amber); }
+.new textarea.ans { border-left: 3px solid var(--green); }
+
+/* Collapsible UC blocks */
+.new details.uc { margin-bottom: 6px; border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.new details.uc + details.uc { margin-top: 6px; }
+.new summary.uc-hd {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; cursor: pointer; list-style: none;
+  background: #FAFAFA; user-select: none;
+}
+.new summary.uc-hd::-webkit-details-marker { display: none; }
+.new summary.uc-hd:hover { background: var(--light); }
+.new details[open] > summary.uc-hd { background: var(--light); border-bottom: 1px solid var(--border); }
+.new .uc-chevron { margin-left: auto; font-size: 10px; color: var(--mid); transition: transform 0.15s; }
+.new details[open] .uc-chevron { transform: rotate(90deg); }
+.new .uc-body { padding: 16px 14px 8px; }
+
+/* Scope — all neutral, label color is the only indicator */
+.new .sgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 10px; }
+.new .si { padding: 7px 10px; font-size: 11px; border: 1px solid var(--border); background: #FAFAFA; border-radius: 4px; }
+.new .si-in  .si-lbl { color: #276749; }
+.new .si-as  .si-lbl { color: #92400E; }
+.new .si-out .si-lbl { color: var(--brand-dk); }
+.new .si-lbl { font-weight: 700; font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.4px; color: var(--mid); }
+</style>
+</head>
+<body>
+<div class="split">
+
+  <!-- ═══ OLD ═══ -->
+  <div class="pane old">
+    <div class="pane-label old">Current <span class="badge">Q label on its own line, dashed dividers</span></div>
+    <div class="inner">
+      <div class="doc-header">
+        <h1>DataSkate × Acme Corp</h1>
+        <div class="sub">MuleSoft Integration Intake Questionnaire</div>
+      </div>
+
+      <div class="biz">
+        <div class="biz-hd"><span>How We See Your Business</span><span>▲</span></div>
+        <div class="biz-body">
+          <p class="snap">Acme Corp is a mid-market distributor operating across 12 states. Your current stack — Salesforce + NetSuite — runs mostly on manual exports and email chains.</p>
+          <div class="jgrid">
+            <div class="jcard p1"><div class="jc-ph">Phase 1</div><div class="jc-lb">Connected</div><div class="jc-bd">Real-time order sync between SF and NetSuite</div></div>
+            <div class="jcard p2"><div class="jc-ph">Phase 2</div><div class="jc-lb">Automated</div><div class="jc-bd">Invoices auto-generated on order close</div></div>
+            <div class="jcard p3"><div class="jc-ph">Phase 3</div><div class="jc-lb">Agentic</div><div class="jc-bd">AI flags at-risk orders before they go overdue</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec" style="margin-top:32px">
+        <div class="sec-hd"><div class="sec-num">1</div><div class="sec-title">Salesforce Configuration</div></div>
+        <div class="uc">
+          <div class="uc-hd"><span class="uc-tag">UC1</span><h3>Opportunity → NetSuite Sales Order</h3></div>
+          <div class="uc-note">When an SF Opportunity reaches Closed Won, a Sales Order should be created in NetSuite automatically.</div>
+
+          <div class="q">
+            <div class="q-id">Q1 *</div>
+            <div class="q-text">Which Salesforce edition are you on?</div>
+            <div class="q-hint">Determines API limits and bulk API access.</div>
+            <div class="opts"><span class="pill">Professional</span><span class="pill sel">Enterprise</span><span class="pill">Unlimited</span></div>
+            <textarea class="pre">Enterprise</textarea>
+          </div>
+
+          <div class="q">
+            <div class="q-id">Q2</div>
+            <div class="q-text">Do you use Person Accounts or standard Accounts + Contacts?</div>
+            <div class="opts"><span class="pill">Person Accounts</span><span class="pill">Standard Accounts + Contacts</span></div>
+            <textarea placeholder="Your answer…"></textarea>
+          </div>
+
+          <div class="q">
+            <div class="q-id">Q3 *</div>
+            <div class="q-text">Which custom fields on Opportunity need to map to NetSuite Sales Order?</div>
+            <div class="q-hint">List field API names if known. E.g. Contract_Type__c</div>
+            <textarea class="ans">Contract_Type__c, PO_Number__c, Billing_Region__c</textarea>
+          </div>
+
+          <div class="q" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+            <div class="q-id">Q4</div>
+            <div class="q-text">Confirm scope:</div>
+            <div class="sgrid">
+              <div class="si si-in"><span class="si-lbl">In scope</span>Closed Won → SO creation</div>
+              <div class="si si-as"><span class="si-lbl">Assumed</span>NetSuite item IDs match SF product codes</div>
+              <div class="si si-out"><span class="si-lbl">Out of scope</span>Partial shipment updates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-hd"><div class="sec-num">2</div><div class="sec-title">NetSuite Configuration</div></div>
+        <div class="uc">
+          <div class="uc-hd"><span class="uc-tag">UC2</span><h3>Invoice Sync to Salesforce</h3></div>
+          <div class="uc-note">NetSuite invoices should appear on the Salesforce Account within minutes of being posted.</div>
+          <div class="q">
+            <div class="q-id">Q5 *</div>
+            <div class="q-text">What NetSuite auth method does your instance use?</div>
+            <div class="opts"><span class="pill">Token-Based Auth</span><span class="pill sel">OAuth 2.0</span></div>
+            <textarea class="pre">OAuth 2.0 — Connected App already set up</textarea>
+          </div>
+          <div class="q" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+            <div class="q-id">Q6</div>
+            <div class="q-text">Which subsidiary should invoices be created under?</div>
+            <textarea placeholder="Your answer…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-hd"><div class="sec-num">3</div><div class="sec-title">Error Handling &amp; Notifications</div></div>
+        <div class="uc">
+          <div class="uc-hd"><span class="uc-tag">UC3</span><h3>Failure Alerting</h3></div>
+          <div class="uc-note">When a sync fails, your team needs to be notified quickly.</div>
+          <div class="q">
+            <div class="q-id">Q7 *</div>
+            <div class="q-text">Who should receive failure alerts?</div>
+            <div class="q-hint">Email addresses, Slack channel, or both.</div>
+            <textarea placeholder="Your answer…"></textarea>
+          </div>
+          <div class="q" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+            <div class="q-id">Q8</div>
+            <div class="q-text">What is an acceptable delay before an alert is sent after a failure?</div>
+            <div class="opts"><span class="pill">Immediately</span><span class="pill">Within 5 min</span><span class="pill">Within 15 min</span></div>
+            <textarea placeholder="Your answer…"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ NEW ═══ -->
+  <div class="pane new">
+    <div class="pane-label new">Improved <span class="badge">Q inline, tight spacing, fewer colors</span></div>
+    <div class="inner">
+      <div class="doc-header">
+        <h1>DataSkate × Acme Corp</h1>
+        <div class="sub">MuleSoft Integration Intake Questionnaire</div>
+      </div>
+
+      <div class="biz">
+        <div class="biz-hd"><span>How We See Your Business</span><span style="color:var(--mid)">▲</span></div>
+        <div class="biz-body">
+          <p class="snap">Acme Corp is a mid-market distributor operating across 12 states. Your current stack — Salesforce + NetSuite — runs mostly on manual exports and email chains.</p>
+          <div class="jgrid">
+            <div class="jcard p1"><div class="jc-ph">Phase 1</div><div class="jc-lb">Connected</div><div class="jc-bd">Real-time order sync between SF and NetSuite</div></div>
+            <div class="jcard p2"><div class="jc-ph">Phase 2</div><div class="jc-lb">Automated</div><div class="jc-bd">Invoices auto-generated on order close</div></div>
+            <div class="jcard p3"><div class="jc-ph">Phase 3</div><div class="jc-lb">Agentic</div><div class="jc-bd">AI flags at-risk orders before they go overdue</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec" style="margin-top:32px">
+        <div class="sec-hd"><div class="sec-num">01</div><div class="sec-title">Salesforce Configuration</div></div>
+
+        <details class="uc">
+          <summary class="uc-hd"><span class="uc-tag">UC1</span><h3>Opportunity → NetSuite Sales Order</h3><span class="uc-chevron">▶</span></summary>
+          <div class="uc-body">
+            <p class="uc-note">When an SF Opportunity reaches Closed Won, a Sales Order should be created in NetSuite automatically.</p>
+
+            <div class="q">
+              <div class="q-num">Q1 *</div>
+              <div class="q-body">
+                <div class="q-text">Which Salesforce edition are you on?</div>
+                <div class="q-hint">Determines API limits and bulk API access.</div>
+                <div class="opts"><span class="pill">Professional</span><span class="pill sel">Enterprise</span><span class="pill">Unlimited</span></div>
+                <textarea class="pre">Enterprise</textarea>
+              </div>
+            </div>
+
+            <div class="q">
+              <div class="q-num">Q2</div>
+              <div class="q-body">
+                <div class="q-text">Do you use Person Accounts or standard Accounts + Contacts?</div>
+                <div class="opts"><span class="pill">Person Accounts</span><span class="pill">Standard Accounts + Contacts</span></div>
+                <textarea placeholder="Your answer…"></textarea>
+              </div>
+            </div>
+
+            <div class="q">
+              <div class="q-num">Q3 *</div>
+              <div class="q-body">
+                <div class="q-text">Which custom fields on Opportunity need to map to NetSuite Sales Order?</div>
+                <div class="q-hint">List field API names if known. E.g. Contract_Type__c</div>
+                <textarea class="ans">Contract_Type__c, PO_Number__c, Billing_Region__c</textarea>
+              </div>
+            </div>
+
+            <div class="q">
+              <div class="q-num">Q4</div>
+              <div class="q-body">
+                <div class="q-text">Confirm scope:</div>
+                <div class="sgrid">
+                  <div class="si si-in"><span class="si-lbl">In scope</span>Closed Won → SO creation</div>
+                  <div class="si si-as"><span class="si-lbl">Assumed</span>NetSuite item IDs match SF product codes</div>
+                  <div class="si si-out"><span class="si-lbl">Out of scope</span>Partial shipment updates</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="sec">
+        <div class="sec-hd"><div class="sec-num">02</div><div class="sec-title">NetSuite Configuration</div></div>
+
+        <details class="uc">
+          <summary class="uc-hd"><span class="uc-tag">UC2</span><h3>Invoice Sync to Salesforce</h3><span class="uc-chevron">▶</span></summary>
+          <div class="uc-body">
+            <p class="uc-note">NetSuite invoices should appear on the Salesforce Account within minutes of being posted.</p>
+            <div class="q">
+              <div class="q-num">Q5 *</div>
+              <div class="q-body">
+                <div class="q-text">What NetSuite auth method does your instance use?</div>
+                <div class="opts"><span class="pill">Token-Based Auth</span><span class="pill sel">OAuth 2.0</span></div>
+                <textarea class="pre">OAuth 2.0 — Connected App already set up</textarea>
+              </div>
+            </div>
+            <div class="q">
+              <div class="q-num">Q6</div>
+              <div class="q-body">
+                <div class="q-text">Which subsidiary should invoices be created under?</div>
+                <textarea placeholder="Your answer…"></textarea>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="sec">
+        <div class="sec-hd"><div class="sec-num">03</div><div class="sec-title">Error Handling &amp; Notifications</div></div>
+
+        <details class="uc">
+          <summary class="uc-hd"><span class="uc-tag">UC3</span><h3>Failure Alerting</h3><span class="uc-chevron">▶</span></summary>
+          <div class="uc-body">
+            <p class="uc-note">When a sync fails, your team needs to be notified quickly.</p>
+            <div class="q">
+              <div class="q-num">Q7 *</div>
+              <div class="q-body">
+                <div class="q-text">Who should receive failure alerts?</div>
+                <div class="q-hint">Email addresses, Slack channel, or both.</div>
+                <textarea placeholder="Your answer…"></textarea>
+              </div>
+            </div>
+            <div class="q">
+              <div class="q-num">Q8</div>
+              <div class="q-body">
+                <div class="q-text">What is an acceptable delay before an alert fires after a failure?</div>
+                <div class="opts"><span class="pill">Immediately</span><span class="pill">Within 5 min</span><span class="pill">Within 15 min</span></div>
+                <textarea placeholder="Your answer…"></textarea>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Client-facing docs (intake forms, proposals) — public read
+    match /client-docs/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+                      request.auth.token.email.matches('.*@dataskate\\.ai');
+    }
+
+    // Sales resources (pitch kits, pricing, guides) — public read
+    match /resources/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+                      request.auth.token.email.matches('.*@dataskate\\.ai');
+    }
+
+    // Source files (scoping transcripts, PDFs) — DataSkate only
+    match /source-files/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+                            request.auth.token.email.matches('.*@dataskate\\.ai');
+    }
+  }
+}

@@ -1,0 +1,111 @@
+title: Canonical EVV Visit
+version: 1.0.0-stub — created from cherish-care engagement (2026-05-12)
+standard: derived
+standardBody: null
+standardRef: null
+deviations:
+  - "No HL7 FHIR R4 resource maps cleanly to an EVV visit. FHIR Encounter is the closest analog but lacks GPS verification, Medicaid-specific service codes, and parent/guardian approval workflow. This canonical is derived from California DDS EVV mandate requirements and Sandata CalEVV API submission fields."
+  - "Treat as HCBS-vertical extension. When a stable multi-client standard emerges, migrate fields to align with CMS EVV data element requirements (42 CFR Part 431)."
+description: >
+  Canonical record for Electronic Visit Verification (EVV) visits in Home and Community-Based Services (HCBS).
+  Represents a single caregiver service visit: clock-in, clock-out, GPS verification, service code, and submission
+  status to the state EVV aggregator. Used by Cherish Care (California DDS respite services).
+type: object
+required:
+  - visitId
+  - caregiverId
+  - consumerId
+  - serviceDate
+  - clockInDateTime
+  - serviceCode
+  - submissionStatus
+properties:
+  visitId:
+    type: string
+    description: Unique visit identifier — source system primary key (Salesforce Id or DCI Visit ID)
+  caregiverId:
+    type: string
+    description: Caregiver/employee identifier (maps to Employee__c or practitioner external ID)
+  caregiverMedicaidProviderId:
+    type: string
+    description: Caregiver's Medicaid provider ID required by state EVV aggregator (NPI or state-assigned)
+  consumerId:
+    type: string
+    description: Consumer/client identifier (maps to Consumer__c or patient external ID)
+  consumerMedicaidBeneficiaryId:
+    type: string
+    description: Consumer's Medi-Cal/Medicaid beneficiary ID required by state EVV aggregator
+  serviceDate:
+    type: string
+    format: date
+    description: Calendar date of the service visit (YYYY-MM-DD)
+  clockInDateTime:
+    type: string
+    format: date-time
+    description: Timestamp of caregiver clock-in (ISO 8601 with timezone — Pacific time for California)
+  clockOutDateTime:
+    type: string
+    format: date-time
+    description: Timestamp of caregiver clock-out (null if visit not yet ended)
+  clockInGpsLat:
+    type: number
+    description: GPS latitude at clock-in — required for EVV mandate location verification
+  clockInGpsLng:
+    type: number
+    description: GPS longitude at clock-in
+  clockOutGpsLat:
+    type: number
+    description: GPS latitude at clock-out (some state aggregators require both)
+  clockOutGpsLng:
+    type: number
+    description: GPS longitude at clock-out
+  serviceCode:
+    type: string
+    description: HCBS procedure/service code (e.g., H2015 for respite, H0045 for IHSS)
+  modifierCodes:
+    type: array
+    items:
+      type: string
+    description: Optional HCBS modifier codes applied to the service code
+  authorizationNumber:
+    type: string
+    description: Regional center authorization number this visit applies against (recommended for billing traceability)
+  approvalStatus:
+    type: string
+    enum: [pending, approved, rejected, not_required]
+    description: Parent/guardian approval status for this visit
+  submissionStatus:
+    type: string
+    enum: [not_submitted, pending, submitted, accepted, rejected, failed]
+    description: State EVV aggregator submission status (Sandata CalEVV in California)
+  submissionTimestamp:
+    type: string
+    format: date-time
+    description: Timestamp when visit was submitted to the state EVV aggregator
+  aggregatorConfirmationId:
+    type: string
+    description: Confirmation/acknowledgment ID returned by the state EVV aggregator on accepted submission
+  aggregatorRejectionReason:
+    type: string
+    description: Error message returned by aggregator on rejected submission
+  regionalCenter:
+    type: string
+    enum: [IRC, SGP, ELR]
+    description: Regional center associated with this consumer (Inland RC, San Gabriel RC, Eastern LA RC)
+  payPeriodStart:
+    type: string
+    format: date
+    description: Start of the pay period this visit falls within
+  payPeriodEnd:
+    type: string
+    format: date
+    description: End of the pay period this visit falls within
+  durationMinutes:
+    type: integer
+    description: Computed duration in minutes (clockOut - clockIn) — used for payroll calculation
+  notes:
+    type: string
+    description: Optional visit notes
+
+clients_using:
+  - cherish-care (2026-05-12, stub)
