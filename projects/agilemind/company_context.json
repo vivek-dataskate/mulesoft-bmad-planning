@@ -1,0 +1,92 @@
+{
+  "client": "agilemind",
+  "generatedAt": "2026-05-13",
+  "snapshot": "Agile Mind is a K-12 educational curriculum publisher that develops and licenses math and science programs (grades 6-12), including Intensified Algebra and Intensified Mathematics. The company sells both digital access licenses and physical print materials (Student Activity Books, Teacher Books) to school districts nationwide. Revenue is driven by multi-year district agreements, with the print procurement and fulfillment cycle peaking April-August ahead of back-to-school start dates.",
+  "industry": "educational publishing",
+  "verticalSlug": "commerce",
+  "businessObjects": [
+    "Program/Product (with ISBN variants by state/region)",
+    "Opportunity",
+    "Agreement/Contract (Salesforce custom object)",
+    "Invoice (QuickBooks)",
+    "Inventory Item (physical print books by ISBN)",
+    "Account (School/District)",
+    "Contact (Partner Services, Billing, IT)",
+    "Payment"
+  ],
+  "aiJourney": {
+    "phase1": {
+      "label": "Connected",
+      "headline": "Agreement-to-Invoice Without Spreadsheets",
+      "body": "Automate the handoff from Salesforce agreements to QuickBooks invoices and sync inventory data from Excel/QuickBooks into Salesforce. Crystal stops re-keying. Holly sees live inventory. Maria sees payment status without running QB reports manually."
+    },
+    "phase2": {
+      "label": "Automated",
+      "headline": "Demand-Driven Procurement Planning",
+      "body": "With connected Salesforce pipeline data and live inventory in one place, trigger automated purchase recommendations when open opportunity demand exceeds available stock. Automate invoice due date reminders and overdue escalations. Run inventory shortage projections by title without Holly building manual demand worksheets."
+    },
+    "phase3": {
+      "label": "Agentic",
+      "headline": "AI-Powered Inventory Optimization",
+      "body": "An AI agent monitors the full order-to-fulfillment pipeline — reading opportunity stages, inventory levels, and historical sell-through — to recommend optimal print run quantities for each title, flagging overstock risk and projected shorts weeks before the production deadline. It surfaces answers to questions like 'How many Intensified Algebra Volume 1 SABs should we order for next school year?' without anyone touching a spreadsheet."
+    }
+  },
+  "p0Blockers": [
+    {
+      "system": "QuickBooks",
+      "blocker": "Version not confirmed — Online vs Desktop/Enterprise. QBO = native MuleSoft connector. Desktop = completely different architecture (no REST API). MUST confirm before any architecture.",
+      "owner": "Maria Gonzalez-Pettway",
+      "mustResolveBy": "Intake questionnaire response"
+    },
+    {
+      "system": "Salesforce",
+      "blocker": "Custom Inventory object does not exist in Salesforce. Must be designed and created by Chloe's (IT Director) team before UC3/UC4 integration can be built.",
+      "owner": "Chloe (Engineering Director)",
+      "mustResolveBy": "Before architecture phase"
+    },
+    {
+      "system": "QuickBooks Online",
+      "blocker": "Inventory tracking in QBO requires Plus or Advanced plan. Simple Start / Essentials have no inventory module. Must confirm plan tier.",
+      "owner": "Maria Gonzalez-Pettway",
+      "mustResolveBy": "Intake questionnaire response"
+    },
+    {
+      "system": "QuickBooks Online",
+      "blocker": "OAuth consent flow requires QB Company Admin (Maria or Linda) to authorize DataSkate API access once. Must happen before any integration testing.",
+      "owner": "Maria Gonzalez-Pettway / Linda",
+      "mustResolveBy": "Before dev environment setup"
+    }
+  ],
+  "systemFindings": [
+    {
+      "system": "QuickBooks",
+      "finding": "Strong indicators point to QuickBooks Online (Holly runs QB reports online; Maria has entered items in QB; references to QB as accessible cloud tool). However version was never explicitly stated. FK-020 applies if Desktop is confirmed.",
+      "confidence": "medium",
+      "source": "AgileMind_Discusssion_With_AE.txt transcript, May 2026"
+    },
+    {
+      "system": "QuickBooks Online",
+      "finding": "QBO API does NOT support PUT/PATCH. All updates (including invoice sync-back) require POST with the full object. This is critical for the UC1 return leg where QB invoice number must be created and referenced.",
+      "confidence": "high",
+      "source": "Web research — Intuit developer docs 2026"
+    },
+    {
+      "system": "QuickBooks Online",
+      "finding": "QBO access tokens expire after 60 minutes hard limit (FK-017). For the SF→QB invoice flow, token management is handled by the MuleSoft QBO connector. For any batch flows over 60 min, must implement 401-detect-refresh-retry pattern.",
+      "confidence": "high",
+      "source": "FK-017 + web research 2026"
+    },
+    {
+      "system": "Salesforce",
+      "finding": "Agreements are custom objects in Salesforce (not standard Opportunity + Order). This means the Mule flow listens to Agreement__c object events, not native Order events. External ID field SF_QB_InvoiceId__c must be created on Agreement__c before integration.",
+      "confidence": "high",
+      "source": "Apr 28 + May 8 discovery sessions"
+    },
+    {
+      "system": "Excel / Google Sheets",
+      "finding": "Holly's demand worksheet is described as both 'Excel' and 'Google Sheets' across different call contexts. Must confirm single source: if Google Sheets → use Google Sheets connector (service-account auth); if local Excel → use SFTP/S3 file drop pattern.",
+      "confidence": "medium",
+      "source": "AgileMind_Discusssion_With_AE.txt and May 8 session"
+    }
+  ]
+}

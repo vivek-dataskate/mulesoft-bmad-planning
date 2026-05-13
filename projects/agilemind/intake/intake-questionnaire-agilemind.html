@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataSkate × AgileMind — Intake Questionnaire</title>
+<style>
+:root {
+  --brand:#ed1c24; --brand-dk:#a01019; --dark:#1A1A1A; --mid:#555F6E;
+  --light:#FFF5F5; --border:#E8E0E0; --green:#2E9E6B; --amber:#D69E2E;
+  --amber-bg:#FFFBEB; --blue-bg:#F0F6FF; --blue-br:#3B82F6;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.6;color:var(--dark);background:#fff;}
+a{color:var(--brand);}
+
+/* ── STICKY BAR ── */
+.sticky-bar{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(4px);border-bottom:1px solid var(--border);padding:10px 56px;display:flex;align-items:center;justify-content:space-between;}
+.progress-pill{font-size:12px;font-weight:600;color:var(--mid);}
+.progress-pill span{color:var(--brand);font-weight:800;}
+.bar-actions{display:flex;gap:8px;}
+.btn{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;}
+.btn-primary{background:var(--brand);color:#fff;}
+.btn-outline{background:#fff;color:var(--dark);border:2px solid var(--border);}
+/* ── BOTTOM SUBMIT ── */
+.submit-block{text-align:center;padding:40px 0 20px;}
+.btn-submit{font-size:15px;padding:12px 36px;}
+.submit-success{display:none;background:#F0FFF4;border:1px solid #68D391;border-left:4px solid var(--green);border-radius:6px;padding:14px 20px;margin-top:16px;font-size:14px;font-weight:600;color:#276749;}
+
+/* ── LAYOUT ── */
+.wrap{max-width:900px;margin:0 auto;padding:0 56px 80px;}
+
+/* ── HEADER ── */
+.doc-header{padding:36px 0 32px;border-bottom:3px solid var(--brand);}
+.doc-header .eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:10px;}
+.doc-header h1{font-size:26px;font-weight:800;color:var(--dark);margin-bottom:6px;line-height:1.25;border-left:4px solid var(--brand);padding-left:18px;}
+.doc-header .subtitle{font-size:14px;color:var(--mid);margin-bottom:20px;padding-left:22px;}
+.doc-header .meta-row{display:flex;flex-wrap:wrap;gap:0;font-size:12px;padding-top:16px;}
+.doc-header .meta-row span{color:var(--mid);padding-right:28px;margin-right:28px;border-right:1px solid var(--border);line-height:1.5;}
+.doc-header .meta-row span:last-child{border-right:none;margin-right:0;}
+.doc-header .meta-row span strong{color:var(--dark);font-weight:600;display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+
+/* ── BUSINESS CONTEXT PANEL ── */
+.biz-context{background:var(--light);border:1px solid var(--border);border-left:4px solid var(--brand);border-radius:8px;margin:32px 0 0;overflow:hidden;}
+.bc-header{background:#FFE4E4;padding:12px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+.bc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--brand-dk);}
+.bc-chevron{font-size:14px;color:var(--brand-dk);transition:transform 0.2s;}
+.bc-body{padding:24px 28px;}
+.bc-snapshot{font-size:14px;color:var(--dark);margin-bottom:16px;line-height:1.7;}
+.journey-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.journey-card{border-radius:8px;padding:16px 18px;}
+.journey-card.phase-1{background:#F0FFF4;border:1px solid #A7F3D0;}
+.journey-card.phase-2{background:#FFFBEB;border:1px solid #FDE68A;}
+.journey-card.phase-3{background:#F5F0FF;border:1px solid #DDD6FE;}
+.jc-phase{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;color:var(--mid);}
+.jc-label{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;}
+.jc-headline{font-size:12px;font-weight:600;color:var(--dark);margin-bottom:4px;}
+.jc-body{font-size:12px;color:var(--mid);line-height:1.5;}
+.bc-blockers{margin-top:12px;padding:12px 16px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;}
+.bc-blockers h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#991B1B;margin-bottom:8px;}
+.bc-blockers ul{list-style:none;padding:0;}
+.bc-blockers li{font-size:12px;color:#7F1D1D;padding:3px 0 3px 16px;position:relative;}
+.bc-blockers li::before{content:'⚠';position:absolute;left:0;font-size:10px;}
+
+/* ── INSTRUCTIONS ── */
+.instructions{padding:24px 0;border-bottom:1px solid var(--border);}
+.instructions h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mid);margin-bottom:10px;}
+.instructions ul{list-style:none;padding:0;}
+.instructions li{font-size:13px;color:var(--mid);padding:3px 0 3px 18px;position:relative;}
+.instructions li::before{content:'→';position:absolute;left:0;color:var(--brand);font-size:12px;}
+.instructions li strong{color:var(--dark);}
+
+/* ── SECTION ── */
+.section-block{border-bottom:1px solid var(--border);padding:40px 0;}
+.section-block:last-of-type{border-bottom:none;}
+.section-head{display:flex;align-items:baseline;gap:10px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.section-num{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:1px;flex-shrink:0;}
+.section-title{font-size:18px;font-weight:700;color:var(--dark);}
+
+/* ── UC BLOCKS ── */
+.uc-block{margin-bottom:36px;padding-bottom:36px;border-bottom:1px solid var(--border);}
+.uc-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.uc-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.uc-tag{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--brand);color:#fff;padding:2px 8px;border-radius:4px;}
+.uc-head h3{font-size:16px;font-weight:700;color:var(--dark);}
+.uc-understood{border-left:3px solid var(--border);padding:10px 16px;margin-bottom:16px;}
+.uc-understood strong{color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.uc-understood ul{padding-left:0;list-style:none;margin-top:6px;}
+.uc-understood li{font-size:13px;color:var(--mid);padding:2px 0 2px 16px;position:relative;}
+.uc-understood li::before{content:'·';position:absolute;left:4px;color:var(--mid);}
+
+/* ── P0 BLOCKER ── */
+.p0-block{background:#FEF2F2;border-left:3px solid var(--brand);padding:12px 16px;margin-bottom:16px;border-radius:0 6px 6px 0;}
+.p0-block .p0-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#991B1B;margin-bottom:4px;}
+.p0-block p{font-size:13px;color:#7F1D1D;margin:0;line-height:1.6;}
+.p0-block p strong{color:#991B1B;}
+.p0-block code{background:#FEE2E2;padding:1px 4px;border-radius:3px;font-family:monospace;font-size:12px;}
+
+/* ── SCOPE BOUNDARY ── */
+.scope-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px;}
+.scope-item{padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.5;}
+.scope-in{background:#F0FFF4;color:#276749;border:1px solid #A7F3D0;}
+.scope-assumed{background:#FFFBEB;color:#7C5E10;border:1px solid #FDE68A;}
+.scope-out{background:#FFF5F5;color:#9B2335;border:1px solid #FECACA;}
+.scope-item .scope-label{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;}
+
+/* ── QUESTION BLOCKS ── */
+.q-block{margin-bottom:28px;padding-bottom:28px;border-bottom:1px dashed var(--border);}
+.q-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.q-id{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.q-text{font-size:15px;font-weight:500;color:var(--dark);margin-bottom:10px;line-height:1.6;}
+.q-hint{font-size:12px;color:var(--mid);font-style:italic;margin-bottom:10px;padding:8px 14px;background:#FAFAFA;border-left:3px solid var(--border);border-radius:0 4px 4px 0;}
+.q-options{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.pill{padding:5px 14px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--border);background:#F7F7F7;color:var(--mid);transition:all 0.15s;}
+.pill:hover{background:var(--light);border-color:var(--brand);color:var(--brand);}
+.pill.selected{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600;}
+textarea.answer{width:100%;border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:14px;font-family:inherit;resize:vertical;min-height:52px;color:var(--dark);background:#fff;transition:all 0.15s;line-height:1.6;}
+textarea.answer:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px rgba(237,28,36,0.08);}
+textarea.answer.is-prefilled{background:var(--amber-bg);border-color:#FDE68A;}
+textarea.answer.is-answered{background:#F0FFF4;border-color:#A7F3D0;}
+
+/* ── TABLES ── */
+table.dtbl{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+table.dtbl th{background:var(--dark);color:#fff;font-size:11px;font-weight:600;letter-spacing:0.5px;padding:10px 14px;text-align:left;}
+table.dtbl td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.dtbl tr:nth-child(even) td{background:#FAFAFA;}
+table.dtbl tr:last-child td{border-bottom:none;}
+table.dtbl input.tbl-ans{width:100%;border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:12px;font-family:inherit;background:#fff;}
+table.dtbl input.tbl-ans.is-prefilled{background:var(--amber-bg);border-color:#FDE68A;}
+.tbl-hint{font-size:12px;color:var(--mid);font-style:italic;margin-bottom:8px;padding:8px 14px;background:#FAFAFA;border-left:3px solid var(--border);border-radius:0 4px 4px 0;}
+
+/* ── PRICING TABLE ── */
+.pricing-table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0;}
+.pricing-table th{background:var(--dark);color:#fff;font-size:11px;font-weight:600;padding:10px 14px;text-align:left;}
+.pricing-table td{padding:10px 14px;border-bottom:1px solid var(--border);}
+.pricing-table tr:nth-child(even) td{background:#FAFAFA;}
+.pricing-table tr.total-row td{font-weight:700;color:var(--dark);background:var(--light);}
+
+/* ── INTERNAL SECTION ── */
+.internal-block{border-top:2px solid #FDE68A;padding:32px 0;}
+.internal-block h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#92400E;margin-bottom:20px;}
+.flag-item{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #FDE68A;}
+.flag-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.flag-num{font-size:10px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.flag-body{font-size:13px;color:#78350F;line-height:1.6;}
+.flag-body code{background:#FEF3C7;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;}
+
+/* ── PRINT ── */
+@media print{
+  .sticky-bar,.no-print{display:none!important;}
+  body{background:#fff;}
+  .wrap{padding:0 32px;}
+  textarea.answer{background:#fff!important;border:1px solid #ccc!important;}
+  .tbl-ans{background:#fff!important;border:1px solid #ccc!important;}
+  .bc-blockers{display:none!important;}
+  .internal-block{display:none!important;}
+  .p0-block{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .section-block{page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY BAR -->
+<div class="sticky-bar no-print">
+  <div class="progress-pill">Questions answered: <span id="answered-count">0</span> / <span id="total-count">0</span></div>
+  <div class="bar-actions">
+    <button class="btn btn-outline" onclick="window.print()">Print / Save PDF</button>
+    <button class="btn btn-primary" onclick="submitForm()">Submit to DataSkate</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- DOCUMENT HEADER -->
+<div class="doc-header">
+  <div style="margin-bottom:16px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:28px;width:auto;display:block;" aria-label="DataSkate">
+      <path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/>
+      <path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/>
+      <path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+      <path fill="#231f20" d="m302.54,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+      <path fill="#231f20" d="m361.69,320.49v-44.07h10.95v16.1h23.46v9.94h-23.46v18.03c0,6.07,3.13,8.46,7.64,8.46s7.64-2.3,7.64-8.46v-1.2h10.95v1.2c0,12.6-7.54,18.68-18.58,18.68s-18.58-6.07-18.58-18.68Z"/>
+      <path fill="#231f20" d="m405.39,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+      <path fill="#ed1c24" d="m471.93,324.82h8.83c.18,3.77,3.68,6.44,10.03,6.44s10.03-2.85,10.03-6.44c0-4.32-4.78-4.88-10.49-5.61-7.91-1.01-17.48-2.48-17.48-12.88,0-8.92,6.99-15,17.85-15s17.57,6.16,17.75,13.98h-8.65c-.28-3.5-3.5-6.07-9.02-6.07-5.8,0-9.11,2.76-9.11,6.35,0,4.32,4.78,4.78,10.4,5.52,7.91,1.01,17.57,2.48,17.57,12.88,0,9.2-7.45,15.18-18.86,15.18s-18.58-6.07-18.86-14.35Z"/>
+      <path fill="#ed1c24" d="m520.51,272.65h8.74v40.02l20.88-20.15h11.5l-23.73,22.17,24.56,23.27h-11.68l-21.53-21.16v21.16h-8.74v-65.32Z"/>
+      <path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/>
+      <path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
+      <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
+    </svg>
+  </div>
+  <div class="eyebrow">DataSkate × AgileMind</div>
+  <h1>MuleSoft Integration Intake Questionnaire</h1>
+  <div class="subtitle">Pre-development discovery — Salesforce · QuickBooks Online · Google Sheets · 4 flows</div>
+  <div class="meta-row">
+    <span><strong>Prepared by:</strong> Kailash Chanda · DataSkate</span>
+    <span><strong>Date:</strong> May 13, 2026</span>
+    <span><strong>Architect email:</strong> kailash@dataskate.ai</span>
+    <span><strong>Source:</strong> Discovery sessions Apr 28 + May 8, 2026; AE transcript; Holly Wale written answers</span>
+  </div>
+</div>
+
+<!-- BUSINESS CONTEXT PANEL -->
+<div class="biz-context">
+  <div class="bc-header" onclick="toggleBC()">
+    <span class="bc-title">How We See Your Business</span>
+    <span class="bc-chevron" id="bc-chevron">▲</span>
+  </div>
+  <div class="bc-body" id="bc-body">
+    <p class="bc-snapshot">Agile Mind is a K-12 educational curriculum publisher that develops and licenses math and science programs (grades 6–12) including Intensified Algebra and Intensified Mathematics to school districts nationwide. Revenue comes from multi-year district agreements, and the critical production window — when print orders are placed and fulfilled — runs May through August. Right now, every agreement that closes in Salesforce requires Crystal to manually re-enter line items into QuickBooks, and Holly to maintain inventory counts separately in QuickBooks with no visibility in Salesforce. The core problem DataSkate is solving: two people spending hours on data entry that should happen automatically.</p>
+    <div class="journey-grid">
+      <div class="journey-card phase-1">
+        <div class="jc-phase">Phase 1</div>
+        <div class="jc-label">Connected</div>
+        <div class="jc-headline">Agreement-to-Invoice Without Spreadsheets</div>
+        <div class="jc-body">Automate the handoff from Salesforce agreements to QuickBooks invoices and sync inventory data from QuickBooks into Salesforce. Crystal stops re-keying. Holly sees live inventory. Maria sees payment status without running QB reports manually.</div>
+      </div>
+      <div class="journey-card phase-2">
+        <div class="jc-phase">Phase 2</div>
+        <div class="jc-label">Automated</div>
+        <div class="jc-headline">Demand-Driven Procurement Planning</div>
+        <div class="jc-body">With connected pipeline data and live inventory in Salesforce, trigger automated purchase recommendations when open opportunity demand exceeds available stock. Automate invoice reminders and overdue escalations without Holly building manual demand worksheets.</div>
+      </div>
+      <div class="journey-card phase-3">
+        <div class="jc-phase">Phase 3</div>
+        <div class="jc-label">Agentic</div>
+        <div class="jc-headline">AI-Powered Inventory Optimization</div>
+        <div class="jc-body">An AI agent monitors the full order-to-fulfillment pipeline — reading opportunity stages, inventory levels, and historical sell-through — to recommend optimal print run quantities per title and flag overstock risk weeks before the production deadline.</div>
+      </div>
+    </div>
+    <!-- P0 Blockers — internal, no-print -->
+    <div class="bc-blockers no-print">
+      <h4>Internal — Technical Blockers (P0) — Not Shown in PDF</h4>
+      <ul>
+        <li><strong>P0-001:</strong> QuickBooks version not confirmed — Online vs Desktop/Enterprise. If Desktop, entire architecture changes. Must confirm before any architecture work. Owner: Maria Gonzalez-Pettway.</li>
+        <li><strong>P0-002:</strong> Salesforce custom Inventory object (<code>Inventory__c</code>) does not exist. Must be designed and created by Chloe's team before UC3/UC4 can be built. Owner: Chloe (Engineering Director).</li>
+        <li><strong>P0-003:</strong> QBO inventory tracking requires Plus or Advanced plan. Essentials/Simple Start have no inventory API. Must confirm plan tier. Owner: Maria Gonzalez-Pettway.</li>
+        <li><strong>P0-004:</strong> QBO OAuth consent — QB Company Admin must authorize DataSkate API access (one-time). Must happen before any dev environment setup. Owner: Maria Gonzalez-Pettway / Linda (CFO).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="instructions">
+  <h3>How to Use This Document</h3>
+  <ul>
+    <li><strong>Amber fields</strong> are pre-filled from your scoping sessions. Leave them as-is or correct them if something has changed.</li>
+    <li><strong>White fields</strong> are genuine unknowns — please fill these in. Blank answers create delays during development.</li>
+    <li><strong>Clickable pills</strong> under some questions let you select an option — clicking auto-fills the text field below.</li>
+    <li>Questions marked <strong>[INTERNAL]</strong> are for DataSkate's use only — please skip those.</li>
+    <li>Return completed form to <strong>kailash@dataskate.ai</strong> and <strong>vivek@dataskate.ai</strong>.</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 1: USE CASES
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">1</div>
+    <div class="section-title">Use Cases</div>
+  </div>
+  <div class="section-body">
+
+    <!-- UC1 -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">UC1</div>
+        <h3>Salesforce Agreement → QuickBooks Invoice (Event-Driven)</h3>
+      </div>
+      <div class="uc-understood">
+        <strong>What we understood:</strong>
+        <ul>
+          <li>Triggered when a Salesforce Agreement changes status to Approved or Active</li>
+          <li>Creates a new invoice in QuickBooks Online for the matching customer account</li>
+          <li>Maps Agreement line items (programs, ISBNs, quantities, pricing) to QB Invoice line items</li>
+          <li>Returns QB Invoice number, invoice date, and due date back to the Agreement record</li>
+          <li>Due date logic: early orders (Jan–Mar) → due in July/Aug; summer orders → due within 30 days</li>
+        </ul>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q1.1 *</div>
+        <div class="q-text">Which <strong>specific Salesforce Agreement Status value</strong> should trigger invoice creation in QuickBooks?</div>
+        <div class="q-hint">From sessions: both "Approved" and "Active" were mentioned. We need the exact picklist value that fires the trigger.</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q1_1')">Approved</span>
+          <span class="pill" onclick="pickPill(this,'q1_1')">Active</span>
+          <span class="pill" onclick="pickPill(this,'q1_1')">Both Approved and Active</span>
+        </div>
+        <textarea class="answer" id="q1_1" rows="2" data-required="true" placeholder="Select above or enter the exact status value…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q1.2 *</div>
+        <div class="q-text">What is the exact Salesforce API name of the Agreement custom object?</div>
+        <div class="q-hint">From sessions: referred to as "Agreement__c" throughout.</div>
+        <textarea class="answer is-prefilled" id="q1_2" rows="2" placeholder="Confirm Agreement__c or correct it…">Agreement__c (confirm or correct)</textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q1.3</div>
+        <div class="q-text">If an Agreement is re-approved after a reversal, should the integration <strong>skip</strong> creating a second QB invoice (check for existing invoice first), <strong>update</strong> the existing QB invoice, or <strong>always create a new one</strong>?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q1_3')">Skip — only create if no QB invoice exists yet</span>
+          <span class="pill" onclick="pickPill(this,'q1_3')">Update the existing QB invoice</span>
+          <span class="pill" onclick="pickPill(this,'q1_3')">Always create a new invoice</span>
+        </div>
+        <textarea class="answer" id="q1_3" rows="2" placeholder="Select above or describe the desired behavior…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q1.4 *</div>
+        <div class="q-text">Confirm the <strong>invoice due date rules</strong> for both scenarios:</div>
+        <div class="q-hint">From sessions: Kailash committed to the July/Aug rule; Crystal and Maria confirmed the 30-day summer rule.</div>
+        <textarea class="answer is-prefilled" id="q1_4" rows="3" placeholder="Confirm or correct the due date rules…">a) Orders placed Jan–Mar: due date = July/August (confirm exact date, e.g. July 31)
+b) Summer orders (Apr 1 onwards): due date = 30 calendar days from invoice creation date</textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q1.5</div>
+        <div class="q-text"><strong>Multi-year prepaid agreements:</strong> the full amount is invoiced in Year 1; Years 2–3 are $0. Should Year 2/3 lines at $0 appear on the QB invoice, or should only the Year 1 amount be included?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q1_5')">Year 1 amount only — do not include $0 lines</span>
+          <span class="pill" onclick="pickPill(this,'q1_5')">Include all years — $0 lines for Years 2–3</span>
+        </div>
+        <textarea class="answer" id="q1_5" rows="2" placeholder="Select above or describe the desired behavior…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q1.6</div>
+        <div class="q-text"><strong>Multi-year pay-per-year agreements:</strong> each year is treated as a separate Agreement, closed-won when the customer confirms payment for that year. Should each confirmed Annual Agreement create its own separate QB invoice?</div>
+        <div class="q-hint">From sessions: "treated similarly to regular year-to-year opportunities" — Abby Dawson.</div>
+        <textarea class="answer is-prefilled" id="q1_6" rows="2" placeholder="Confirm or correct…">Yes — each confirmed Annual Agreement creates its own QB invoice independently</textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q1.7 *</div>
+        <div class="q-text">Which Salesforce Agreement fields should be <strong>updated on sync-back</strong> after the QB invoice is created?</div>
+        <div class="q-hint">From sessions: SF_QB_InvoiceId__c (Invoice number), plus invoice date, due date, and open balance were mentioned.</div>
+        <textarea class="answer is-prefilled" id="q1_7" rows="3" placeholder="Confirm or add fields…">SF_QB_InvoiceId__c (QB Invoice number)
+Invoice_Date__c (QB invoice creation date)
+Invoice_Due_Date__c (QB due date)
+Open_Balance__c (initial balance = invoice total)</textarea>
+      </div>
+
+      <div class="scope-grid">
+        <div class="scope-item scope-in"><span class="scope-label">✅ In Scope</span>Event-driven Agreement→Invoice creation; QB Invoice number + dates written back to Salesforce; due date logic; multi-year handling.</div>
+        <div class="scope-item scope-assumed"><span class="scope-label">⚠️ Assumed Pre-Exists</span>Agreement__c custom object exists; SF_QB_InvoiceId__c External ID field created before dev; QB Customer records already exist matching SF Accounts.</div>
+        <div class="scope-item scope-out"><span class="scope-label">❌ Out of Scope</span>Creating QB Customer records from SF Accounts; collections follow-up and escalation notes (remain manual).</div>
+      </div>
+    </div><!-- /UC1 -->
+
+    <!-- UC2 -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">UC2</div>
+        <h3>QuickBooks Payment Status → Salesforce Agreement (Scheduled Sync)</h3>
+      </div>
+      <div class="uc-understood">
+        <strong>What we understood:</strong>
+        <ul>
+          <li>Scheduled nightly poll of QuickBooks Online Invoices and Payments</li>
+          <li>Syncs QB Invoice status (Open / Paid / Partially Paid) and open balance back to Salesforce Agreement</li>
+          <li>These are separate from UC1 — UC1 creates the invoice; UC2 tracks its payment lifecycle</li>
+        </ul>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q2.1 *</div>
+        <div class="q-text">What is the desired <strong>polling schedule</strong> for UC2?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q2_1')">Once per night (e.g. 2 AM CT)</span>
+          <span class="pill" onclick="pickPill(this,'q2_1')">Twice per day (morning + night)</span>
+          <span class="pill" onclick="pickPill(this,'q2_1')">Every few hours during business hours</span>
+        </div>
+        <textarea class="answer" id="q2_1" rows="2" data-required="true" placeholder="Select above or specify schedule…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q2.2 *</div>
+        <div class="q-text">Which Salesforce Agreement fields should be updated when QB payment status changes?</div>
+        <div class="q-hint">From sessions: invoice status, open balance amount, payment date were mentioned by Crystal.</div>
+        <textarea class="answer is-prefilled" id="q2_2" rows="3" placeholder="Confirm or add fields…">QB_Invoice_Status__c (Open / Partially Paid / Paid)
+Open_Balance__c (remaining amount due)
+Last_Payment_Date__c (date of most recent payment received)</textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q2.3</div>
+        <div class="q-text">When QB shows an invoice as "Partially Paid," should the integration update the open balance in Salesforce on each nightly run (reflecting any partial payments received), or only update when the invoice is <strong>fully Paid</strong>?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q2_3')">Update on every sync — including partial payments</span>
+          <span class="pill" onclick="pickPill(this,'q2_3')">Update only when fully paid</span>
+        </div>
+        <textarea class="answer" id="q2_3" rows="2" placeholder="Select above or describe desired behavior…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q2.4</div>
+        <div class="q-text">Should the integration log each payment event as a <strong>Salesforce Activity / Task record</strong>, or only update field values on the Agreement record?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q2_4')">Update Agreement fields only</span>
+          <span class="pill" onclick="pickPill(this,'q2_4')">Create a Salesforce Activity/Task per payment event</span>
+          <span class="pill" onclick="pickPill(this,'q2_4')">Both — update fields and log an Activity</span>
+        </div>
+        <textarea class="answer" id="q2_4" rows="2" placeholder="Select above or describe desired behavior…"></textarea>
+      </div>
+
+      <div class="scope-grid">
+        <div class="scope-item scope-in"><span class="scope-label">✅ In Scope</span>Nightly scheduled poll of QB Invoices + Payments; sync of payment status, open balance, and payment date to Salesforce Agreement.</div>
+        <div class="scope-item scope-assumed"><span class="scope-label">⚠️ Assumed Pre-Exists</span>QB Invoice was created by UC1 and Invoice ID is stored in SF_QB_InvoiceId__c; QB Company Admin has completed OAuth consent.</div>
+        <div class="scope-item scope-out"><span class="scope-label">❌ Out of Scope</span>Payment reminders, overdue alerts, or collections escalation (remains manual); creating or modifying QB payments from Salesforce.</div>
+      </div>
+    </div><!-- /UC2 -->
+
+    <!-- UC3 -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">UC3</div>
+        <h3>Google Sheets / Excel Inventory → Salesforce Inventory Object (Scheduled)</h3>
+      </div>
+
+      <div class="p0-block">
+        <div class="p0-label">P0 Prerequisite Blocker</div>
+        <p>The Salesforce custom Inventory object (<code>Inventory__c</code>) does not exist. <strong>Chloe's IT team must design and create it before this flow can be built.</strong> DataSkate can provide the field specification — see Section 3.3 for the proposed field list.</p>
+      </div>
+
+      <div class="uc-understood">
+        <strong>What we understood:</strong>
+        <ul>
+          <li>Holly Wale maintains an inventory demand worksheet with product title, ISBN, QOH, committed quantity, available quantity, unit cost, and buffer %</li>
+          <li>Integration pushes this data into a custom Salesforce Inventory object for team-wide dashboard visibility</li>
+          <li>QB is likely the source-of-record for raw QOH; UC3 may serve as Holly's demand planning overlay</li>
+        </ul>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.1 *</div>
+        <div class="q-text">Is Holly's inventory worksheet a <strong>Google Sheet</strong> (hosted at sheets.google.com) or a <strong>local Excel file</strong> on a PC, shared drive, or OneDrive?</div>
+        <div class="q-hint">From sessions: Holly said "Google Sheets I own" on May 8, but "Excel" was mentioned on the AE call. This changes the connector entirely.</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_1')">Google Sheet (sheets.google.com)</span>
+          <span class="pill" onclick="pickPill(this,'q3_1')">Local Excel file on PC</span>
+          <span class="pill" onclick="pickPill(this,'q3_1')">Excel on OneDrive / SharePoint</span>
+        </div>
+        <textarea class="answer" id="q3_1" rows="2" data-required="true" placeholder="Select above — this is a critical P0 architecture decision…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.2</div>
+        <div class="q-text">How often is Holly's worksheet updated? Is there a specific update schedule, or is it updated continuously throughout the week?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_2')">Updated daily (end of day)</span>
+          <span class="pill" onclick="pickPill(this,'q3_2')">Updated weekly (Monday morning)</span>
+          <span class="pill" onclick="pickPill(this,'q3_2')">Updated ad hoc — no fixed schedule</span>
+        </div>
+        <textarea class="answer" id="q3_2" rows="2" placeholder="Select above or describe the update frequency…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.3</div>
+        <div class="q-text">Approximately how many rows (ISBN/title combinations) are in Holly's worksheet at peak?</div>
+        <textarea class="answer" id="q3_3" rows="2" placeholder="Approximate number of rows (e.g. 50, 200, 500+)…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.4</div>
+        <div class="q-text">Should each sync run do a <strong>full refresh</strong> (replace all Salesforce Inventory records) or <strong>upsert only changed rows</strong> (incremental update by ISBN)?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_4')">Full refresh — replace all records each run</span>
+          <span class="pill" onclick="pickPill(this,'q3_4')">Upsert by ISBN — only update changed rows</span>
+        </div>
+        <textarea class="answer" id="q3_4" rows="2" placeholder="Select above or describe desired behavior…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.5 *</div>
+        <div class="q-text">What is the <strong>intended relationship between UC3 and UC4</strong> once both are live? Should UC3 continue as an ongoing demand planning overlay, or does UC4 (QB → SF) replace UC3 as the source for QOH data?</div>
+        <div class="q-hint">From sessions: Kailash proposed QB as primary source-of-record; Holly and Maria agreed QB reports are sufficient. UC3 may serve only for Holly's demand planning overlay data (buffer %, committed qty) not available from QB.</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_5')">UC3 continues as ongoing demand overlay alongside UC4</span>
+          <span class="pill" onclick="pickPill(this,'q3_5')">UC3 is initial load only — UC4 takes over QOH after go-live</span>
+        </div>
+        <textarea class="answer" id="q3_5" rows="2" data-required="true" placeholder="Select above or describe the desired approach…"></textarea>
+      </div>
+
+      <div class="scope-grid">
+        <div class="scope-item scope-in"><span class="scope-label">✅ In Scope</span>Scheduled sync of inventory data from Holly's worksheet into Salesforce Inventory__c; upsert by ISBN; committed/available separation.</div>
+        <div class="scope-item scope-assumed"><span class="scope-label">⚠️ Assumed Pre-Exists</span>Salesforce Inventory__c object created by Chloe's team; Holly's sheet shared with DataSkate service account (if Google Sheets).</div>
+        <div class="scope-item scope-out"><span class="scope-label">❌ Out of Scope</span>Salesforce Inventory object design (client-side prerequisite); modifying Holly's worksheet; inventory valuation or cost accounting.</div>
+      </div>
+    </div><!-- /UC3 -->
+
+    <!-- UC4 -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">UC4</div>
+        <h3>QuickBooks Inventory Items → Salesforce Inventory Object (Scheduled Nightly)</h3>
+      </div>
+
+      <div class="p0-block">
+        <div class="p0-label">P0 — QuickBooks Version Must Be Confirmed Before Any Architecture</div>
+        <p><strong>This entire flow depends on QuickBooks Online (cloud).</strong> If your QuickBooks is the Desktop/Enterprise version installed on a local server, this flow requires a completely different architecture. Please answer Q4.1 first — it gates everything else.</p>
+      </div>
+
+      <div class="p0-block">
+        <div class="p0-label">P0 — QBO Plan Tier Required for Inventory</div>
+        <p>QuickBooks Online inventory tracking is only available on the <strong>Plus or Advanced plan</strong>. Essentials and Simple Start plans do not expose inventory data via API. Please confirm your plan tier in Q4.2.</p>
+      </div>
+
+      <div class="uc-understood">
+        <strong>What we understood:</strong>
+        <ul>
+          <li>Scheduled nightly pull from QuickBooks Online Item objects (type = Inventory)</li>
+          <li>Syncs quantity-on-hand into Salesforce Inventory__c — QB auto-decrements QOH when invoices are created</li>
+          <li>QB is the source-of-record for raw QOH; this flow surfaces that data in Salesforce for dashboards</li>
+        </ul>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q4.1 * P0</div>
+        <div class="q-text">Is your QuickBooks the <strong>cloud-hosted version</strong> at quickbooks.intuit.com (QuickBooks Online), or is it <strong>installed on a local server or PC</strong> at your office (QuickBooks Desktop / Enterprise)?</div>
+        <div class="q-hint">This is the single most important question in this document. QuickBooks Online uses a modern REST API. QuickBooks Desktop uses a completely different Windows-only integration method. The answer determines whether our architecture is feasible as planned.</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q4_1')">QuickBooks Online — cloud (quickbooks.intuit.com)</span>
+          <span class="pill" onclick="pickPill(this,'q4_1')">QuickBooks Desktop — installed on a local PC or server</span>
+          <span class="pill" onclick="pickPill(this,'q4_1')">QuickBooks Enterprise — local server</span>
+        </div>
+        <textarea class="answer" id="q4_1" rows="2" data-required="true" placeholder="Select above — this is a P0 architecture gate…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q4.2 * P0</div>
+        <div class="q-text">[If QuickBooks Online confirmed] What <strong>QBO plan</strong> is AgileMind on?</div>
+        <div class="q-hint">Inventory tracking via API is only available on Plus or Advanced. Simple Start and Essentials do not have an inventory module accessible via API.</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q4_2')">Simple Start</span>
+          <span class="pill" onclick="pickPill(this,'q4_2')">Essentials</span>
+          <span class="pill" onclick="pickPill(this,'q4_2')">Plus</span>
+          <span class="pill" onclick="pickPill(this,'q4_2')">Advanced</span>
+        </div>
+        <textarea class="answer" id="q4_2" rows="2" data-required="true" placeholder="Select above — required to confirm inventory scope…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q4.3 *</div>
+        <div class="q-text">Has a QuickBooks Company Admin already set up an application in the Intuit Developer Portal, or will DataSkate walk you through the one-time OAuth app registration?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q4_3')">Already registered — we have a developer app</span>
+          <span class="pill" onclick="pickPill(this,'q4_3')">Not yet — DataSkate should guide us through this</span>
+          <span class="pill" onclick="pickPill(this,'q4_3')">Unknown</span>
+        </div>
+        <textarea class="answer" id="q4_3" rows="2" placeholder="Select above or describe the current state…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q4.4</div>
+        <div class="q-text">What is the desired <strong>nightly sync schedule</strong> for UC4?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q4_4')">Nightly at 1 AM CT</span>
+          <span class="pill" onclick="pickPill(this,'q4_4')">Nightly at 3 AM CT</span>
+          <span class="pill" onclick="pickPill(this,'q4_4')">Results available by 7 AM CT</span>
+        </div>
+        <textarea class="answer" id="q4_4" rows="2" placeholder="Specify desired run time or deadline…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q4.5</div>
+        <div class="q-text">Should UC4 sync <strong>all QB Inventory Items</strong>, or only items belonging to a specific QB class, category, or product group?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q4_5')">All inventory items</span>
+          <span class="pill" onclick="pickPill(this,'q4_5')">Filtered by QB class or category (specify below)</span>
+        </div>
+        <textarea class="answer" id="q4_5" rows="2" placeholder="Select above or specify the filter criteria…"></textarea>
+      </div>
+
+      <div class="scope-grid">
+        <div class="scope-item scope-in"><span class="scope-label">✅ In Scope</span>Nightly scheduled pull of QB Inventory Items (type=Inventory); sync of QOH to Salesforce Inventory__c by ISBN.</div>
+        <div class="scope-item scope-assumed"><span class="scope-label">⚠️ Assumed Pre-Exists</span>Salesforce Inventory__c object exists; QBO Plus/Advanced plan confirmed; QB OAuth consent completed by QB Company Admin.</div>
+        <div class="scope-item scope-out"><span class="scope-label">❌ Out of Scope</span>Modifying QB inventory items or quantities; inventory valuation; creating QB items from Salesforce.</div>
+      </div>
+    </div><!-- /UC4 -->
+
+  </div>
+</div><!-- /Section 1 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 2: SYSTEMS AND CONNECTIVITY
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">2</div>
+    <div class="section-title">Systems and Connectivity</div>
+  </div>
+  <div class="section-body">
+
+    <!-- 2A Salesforce -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">System</div>
+        <h3>Salesforce</h3>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q5.1</div>
+        <div class="q-text">Which Salesforce edition is AgileMind on?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q5_1')">Professional</span>
+          <span class="pill" onclick="pickPill(this,'q5_1')">Enterprise</span>
+          <span class="pill" onclick="pickPill(this,'q5_1')">Unlimited</span>
+        </div>
+        <textarea class="answer is-prefilled" id="q5_1" rows="2" placeholder="Confirm or correct the edition…">Enterprise (confirm or correct)</textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q5.2</div>
+        <div class="q-text">Does your Salesforce org have API access enabled for the profiles that the integration user will need?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q5_2')">Yes — API access is enabled</span>
+          <span class="pill" onclick="pickPill(this,'q5_2')">Unknown — will check with Chloe</span>
+        </div>
+        <textarea class="answer" id="q5_2" rows="2" placeholder="Select above or describe the access situation…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q5.3 *</div>
+        <div class="q-text">Who will create the required Salesforce custom fields (<code>SF_QB_InvoiceId__c</code> on Agreement__c, payment status fields, and the Inventory__c custom object)?</div>
+        <div class="q-hint">From sessions: Chloe (Engineering/IT Director) manages Salesforce administration.</div>
+        <textarea class="answer is-prefilled" id="q5_3" rows="2" placeholder="Confirm Chloe's team or provide contact…">Chloe (Engineering/IT Director) and her team (confirm or provide email)</textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q5.4</div>
+        <div class="q-text">Are <strong>Platform Events or Change Data Capture (CDC)</strong> currently enabled in your Salesforce org? (UC1 may use one of these to listen for Agreement status changes without polling.)</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q5_4')">Yes — already in use</span>
+          <span class="pill" onclick="pickPill(this,'q5_4')">Enabled but not currently in use</span>
+          <span class="pill" onclick="pickPill(this,'q5_4')">Not enabled / Unknown</span>
+        </div>
+        <textarea class="answer" id="q5_4" rows="2" placeholder="Select above — affects how UC1 trigger is implemented…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q5.5</div>
+        <div class="q-text">Is there a Salesforce Connected App already set up for server-to-server (JWT) integration, or will DataSkate need to create one?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q5_5')">Existing Connected App available</span>
+          <span class="pill" onclick="pickPill(this,'q5_5')">DataSkate should create one</span>
+          <span class="pill" onclick="pickPill(this,'q5_5')">Unknown</span>
+        </div>
+        <textarea class="answer" id="q5_5" rows="2" placeholder="Select above or describe the current setup…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q5.6</div>
+        <div class="q-text">Are there any Salesforce API governor limit concerns we should know about? (e.g. existing integrations already consuming a large portion of your daily 100K API call limit.)</div>
+        <textarea class="answer" id="q5_6" rows="2" placeholder="Describe any API limit concerns, or leave blank if not applicable…"></textarea>
+      </div>
+    </div><!-- /2A Salesforce -->
+
+    <!-- 2B QuickBooks -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">System</div>
+        <h3>QuickBooks</h3>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q6.1 * P0</div>
+        <div class="q-text">[Repeating P0 — also asked as Q4.1] Confirm: QuickBooks Online (cloud at quickbooks.intuit.com) or QuickBooks Desktop (installed on a local PC or server)?</div>
+        <textarea class="answer" id="q6_1" rows="2" data-required="true" placeholder="QuickBooks Online (cloud) / QuickBooks Desktop (local) / QuickBooks Enterprise…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q6.2</div>
+        <div class="q-text">[If QBO confirmed] What is your QuickBooks <strong>Company ID (realmId)</strong>? This is the numeric identifier visible in the URL when logged in (e.g. <code>app.qbo.intuit.com/app/…?realmId=<strong>123456789</strong></code>).</div>
+        <textarea class="answer" id="q6_2" rows="2" placeholder="Paste the numeric Company ID from your QuickBooks URL…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q6.3 *</div>
+        <div class="q-text">Who should DataSkate coordinate with to complete the one-time <strong>OAuth authorization</strong> for API access? This person must be a Company Admin in QuickBooks Online.</div>
+        <div class="q-hint">From sessions: Maria Gonzalez-Pettway and Linda (CFO) were identified as likely QB administrators.</div>
+        <textarea class="answer is-prefilled" id="q6_3" rows="2" placeholder="Confirm contact name and email…">Maria Gonzalez-Pettway (mgonzalez@agilemind.com) or Linda (CFO) — confirm which person should complete this step</textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q6.4</div>
+        <div class="q-text">Are all AgileMind products/ISBNs already set up as <strong>Inventory Items</strong> in QuickBooks (not Non-Inventory or Service type)?</div>
+        <div class="q-hint">From sessions: Maria confirmed she has already inputted items in QB; Holly confirmed QB has good QOH reports.</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q6_4')">Yes — all set up as Inventory Items</span>
+          <span class="pill" onclick="pickPill(this,'q6_4')">Partially — some are non-inventory type</span>
+          <span class="pill" onclick="pickPill(this,'q6_4')">No — need to be converted to Inventory type</span>
+        </div>
+        <textarea class="answer is-prefilled" id="q6_4" rows="2" placeholder="Confirm or correct…">Likely yes — Maria has inputted items; Holly runs QOH reports from QB (confirm all are Inventory type)</textarea>
+      </div>
+    </div><!-- /2B QuickBooks -->
+
+    <!-- 2C Google Sheets -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">System</div>
+        <h3>Google Sheets / Excel (UC3 only)</h3>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q7.1 *</div>
+        <div class="q-text">[Repeating Q3.1] Confirm: is Holly's inventory worksheet a <strong>Google Sheet</strong> or an <strong>Excel file</strong>?</div>
+        <textarea class="answer" id="q7_1" rows="2" data-required="true" placeholder="Google Sheet / Local Excel / Excel on OneDrive / Other…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q7.2</div>
+        <div class="q-text">[If Google Sheets] Will Holly share the sheet with a DataSkate service account email address? (DataSkate provides the email — one-time share, no ongoing OAuth required.)</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q7_2')">Yes — Holly will share it when DataSkate provides the email</span>
+          <span class="pill" onclick="pickPill(this,'q7_2')">Holly needs instructions on how to share</span>
+        </div>
+        <textarea class="answer" id="q7_2" rows="2" placeholder="Select above or describe the situation…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q7.3 *</div>
+        <div class="q-text">Is there a consistent <strong>tab/sheet name</strong> the integration should always read from, or does the tab name change by quarter or year?</div>
+        <textarea class="answer" id="q7_3" rows="2" data-required="true" placeholder="Provide the exact tab name (e.g. 'Inventory 2026') or describe how it changes…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q7.4 *</div>
+        <div class="q-text">What are the <strong>column headers in Row 1</strong> of Holly's worksheet? (We need the exact column names as they appear.)</div>
+        <div class="q-hint">Expected from sessions: Product Title, ISBN, Quantity on Hand, Committed Quantity, Available Quantity, Unit Cost, Buffer %</div>
+        <textarea class="answer is-prefilled" id="q7_4" rows="3" placeholder="Confirm or correct the column headers…">Expected columns: Product Title | ISBN | Quantity on Hand | Committed Quantity | Available Quantity | Unit Cost | Buffer %
+Confirm these are correct, or list the actual column headers in order:</textarea>
+      </div>
+    </div><!-- /2C Google Sheets -->
+
+  </div>
+</div><!-- /Section 2 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 3: FIELD MAPPING TABLES
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">3</div>
+    <div class="section-title">Field Mapping Tables</div>
+  </div>
+  <div class="section-body">
+
+    <!-- 3.1 UC1 mapping -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">3.1</div>
+        <h3>UC1 — Salesforce Agreement → QuickBooks Invoice</h3>
+      </div>
+      <div class="tbl-hint"><strong>How to use:</strong> Type <em>Yes</em> to confirm each pre-filled mapping, or enter the correct value if different for your system.</div>
+      <table class="dtbl">
+        <thead><tr><th>#</th><th>Source: Salesforce Agreement</th><th>Target: QuickBooks Invoice</th><th>Pre-filled Mapping</th><th>Confirm?</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Agreement__c.Name</td><td>Invoice.DocNumber</td><td>QB auto-generates DocNumber; Mule stores it in return sync field SF_QB_InvoiceId__c</td><td><input class="tbl-ans is-prefilled" id="t1_1" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>2</td><td>Agreement__c.AccountId → Account Name</td><td>Invoice.CustomerRef</td><td>Lookup QB Customer by Salesforce Account Name</td><td><input class="tbl-ans" id="t1_2" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>3</td><td>Agreement line items — Product Name</td><td>Invoice.Line[].Description</td><td>Product title from Agreement line items</td><td><input class="tbl-ans" id="t1_3" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>4</td><td>Agreement line items — ISBN / Product Code</td><td>Invoice.Line[].ItemRef</td><td>ISBN lookup table maps SF product → QB Item</td><td><input class="tbl-ans" id="t1_4" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>5</td><td>Agreement line items — Quantity</td><td>Invoice.Line[].Qty</td><td>Quantity from Agreement line items</td><td><input class="tbl-ans is-prefilled" id="t1_5" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>6</td><td>Agreement line items — Unit Price</td><td>Invoice.Line[].UnitPrice</td><td>Unit price from Agreement line items</td><td><input class="tbl-ans is-prefilled" id="t1_6" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>7</td><td>Calculated: due date rule (early/summer)</td><td>Invoice.DueDate</td><td>July/Aug for Jan–Mar orders; +30 days for summer orders</td><td><input class="tbl-ans is-prefilled" id="t1_7" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>8</td><td>QB Invoice number (return sync)</td><td>Agreement__c.SF_QB_InvoiceId__c</td><td>Written back to SF after QB invoice creation</td><td><input class="tbl-ans is-prefilled" id="t1_8" placeholder="Yes / Correct to…"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="q-block" style="margin-top:20px;">
+        <div class="q-id">Q3.1a *</div>
+        <div class="q-text">When matching a Salesforce Account to a QuickBooks Customer, what is the <strong>match key</strong>? Account Name only, or is there a separate QB Customer reference field on the Salesforce Account?</div>
+        <textarea class="answer" id="q3_1a" rows="2" data-required="true" placeholder="Describe the match logic (e.g. Account Name = QB Customer Name, or a specific cross-reference field)…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.1b *</div>
+        <div class="q-text">What Salesforce object will store the <strong>ISBN lookup table</strong> (state → ISBN mapping)?</div>
+        <div class="q-hint">From sessions: Kailash proposed a Custom Metadata Type — supports runtime updates without code deployment.</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_1b')">Custom Metadata Type (recommended)</span>
+          <span class="pill" onclick="pickPill(this,'q3_1b')">Custom Object</span>
+          <span class="pill" onclick="pickPill(this,'q3_1b')">Static field on Product record</span>
+        </div>
+        <textarea class="answer" id="q3_1b" rows="2" placeholder="Select above or describe your preferred approach…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.1c</div>
+        <div class="q-text">When determining which ISBN variant to use, is the <strong>mailing state on the Salesforce Account record</strong> the lookup key?</div>
+        <div class="q-hint">From sessions: Holly confirmed that the mailing state is currently used to map the correct ISBN variant (California vs National, etc.).</div>
+        <textarea class="answer is-prefilled" id="q3_1c" rows="2" placeholder="Confirm or correct…">Yes — mailing state on the Salesforce Account (BillingState) is the key for ISBN variant lookup</textarea>
+      </div>
+    </div><!-- /3.1 -->
+
+    <!-- 3.2 UC2 mapping -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">3.2</div>
+        <h3>UC2 — QuickBooks Payment → Salesforce Agreement</h3>
+      </div>
+      <div class="tbl-hint"><strong>How to use:</strong> Type <em>Yes</em> to confirm each pre-filled mapping, or enter the correct Salesforce field API name if different.</div>
+      <table class="dtbl">
+        <thead><tr><th>#</th><th>Source: QuickBooks</th><th>Target: Salesforce Agreement Field</th><th>Pre-filled Mapping</th><th>Confirm?</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Invoice.DocNumber</td><td>SF_QB_InvoiceId__c (match key)</td><td>Used to find the matching Agreement in SF</td><td><input class="tbl-ans is-prefilled" id="t2_1" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>2</td><td>Invoice.Balance</td><td>Open_Balance__c (new field)</td><td>Remaining amount due after partial/full payment</td><td><input class="tbl-ans" id="t2_2" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>3</td><td>Invoice.TotalAmt</td><td>Invoice_Total__c (new field)</td><td>Total invoice amount</td><td><input class="tbl-ans" id="t2_3" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>4</td><td>Payment.TxnDate</td><td>Last_Payment_Date__c (new field)</td><td>Date of most recent payment received</td><td><input class="tbl-ans" id="t2_4" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>5</td><td>Derived: Invoice.Balance = 0 → Paid, Balance > 0 and < Total → Partially Paid</td><td>QB_Invoice_Status__c (new field)</td><td>Open / Partially Paid / Paid — derived from QB Invoice balance</td><td><input class="tbl-ans" id="t2_5" placeholder="Yes / Correct to…"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="q-block" style="margin-top:20px;">
+        <div class="q-id">Q3.2a</div>
+        <div class="q-text">Confirm the desired Salesforce API field names for the new Agreement fields above, or we will use the pre-filled suggestions.</div>
+        <textarea class="answer" id="q3_2a" rows="3" placeholder="Confirm the pre-filled field names, or specify different names for each field…"></textarea>
+      </div>
+    </div><!-- /3.2 -->
+
+    <!-- 3.3 UC3 mapping -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">3.3</div>
+        <h3>UC3 — Google Sheets / Excel → Salesforce Inventory__c</h3>
+      </div>
+      <div class="tbl-hint"><strong>How to use:</strong> Type <em>Yes</em> to confirm each pre-filled mapping, or enter the correct value if different. The Salesforce field names below are <em>proposed</em> — Chloe's team should use these when creating the Inventory__c object.</div>
+      <table class="dtbl">
+        <thead><tr><th>#</th><th>Source: Holly's Worksheet Column</th><th>Proposed Salesforce Inventory__c Field</th><th>Pre-filled Mapping</th><th>Confirm?</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Product Title</td><td>Product_Title__c</td><td>Primary display name for the inventory record</td><td><input class="tbl-ans is-prefilled" id="t3_1" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>2</td><td>ISBN</td><td>ISBN__c (External ID — upsert key)</td><td>13-digit ISBN; used as the unique identifier for upsert</td><td><input class="tbl-ans is-prefilled" id="t3_2" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>3</td><td>Quantity on Hand</td><td>Quantity_On_Hand__c</td><td>Raw QOH from Holly's count or QB sync</td><td><input class="tbl-ans is-prefilled" id="t3_3" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>4</td><td>Committed Quantity</td><td>Committed_Quantity__c</td><td>Quantity committed to open orders (not yet fulfilled)</td><td><input class="tbl-ans is-prefilled" id="t3_4" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>5</td><td>Available Quantity</td><td>Available_Quantity__c</td><td>On Hand minus Committed — for Holly's demand view</td><td><input class="tbl-ans is-prefilled" id="t3_5" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>6</td><td>Unit Cost</td><td>Unit_Cost__c</td><td>Cost per book (for inventory valuation reference)</td><td><input class="tbl-ans is-prefilled" id="t3_6" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>7</td><td>Buffer %</td><td>Buffer_Pct__c</td><td>Safety buffer percentage per title (e.g. 3%)</td><td><input class="tbl-ans is-prefilled" id="t3_7" placeholder="Yes / Correct to…"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="q-block" style="margin-top:20px;">
+        <div class="q-id">Q3.3a *</div>
+        <div class="q-text">Will Chloe's team create the Inventory__c object using the field names above, or should DataSkate send a formal field specification document?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_3a')">Chloe's team will use the names in the table above</span>
+          <span class="pill" onclick="pickPill(this,'q3_3a')">DataSkate should send a formal field spec document</span>
+        </div>
+        <textarea class="answer" id="q3_3a" rows="2" data-required="true" placeholder="Select above — determines whether we need to send a spec before dev begins…"></textarea>
+      </div>
+    </div><!-- /3.3 -->
+
+    <!-- 3.4 UC4 mapping -->
+    <div class="uc-block">
+      <div class="uc-head">
+        <div class="uc-tag">3.4</div>
+        <h3>UC4 — QuickBooks Items → Salesforce Inventory__c</h3>
+      </div>
+      <div class="tbl-hint"><strong>How to use:</strong> Type <em>Yes</em> to confirm each pre-filled mapping, or enter the correct value if different. Key question: where is the ISBN stored in QB Item records?</div>
+      <table class="dtbl">
+        <thead><tr><th>#</th><th>Source: QuickBooks Item</th><th>Target: Salesforce Inventory__c Field</th><th>Pre-filled Mapping</th><th>Confirm?</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Item.Name</td><td>Product_Title__c</td><td>Item name in QuickBooks</td><td><input class="tbl-ans is-prefilled" id="t4_1" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>2</td><td>Item.Sku (assumed)</td><td>ISBN__c (External ID / upsert key)</td><td>ISBN stored in QB Item SKU field — <strong>confirm this is correct</strong></td><td><input class="tbl-ans" id="t4_2" placeholder="Yes — ISBN is in SKU / No — it's in Description / Other field…"></td></tr>
+          <tr><td>3</td><td>Item.QtyOnHand</td><td>Quantity_On_Hand__c</td><td>QB QOH — auto-decremented when QB invoices are created</td><td><input class="tbl-ans is-prefilled" id="t4_3" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>4</td><td>Item.PurchaseCost</td><td>Unit_Cost__c</td><td>Unit cost from QB</td><td><input class="tbl-ans is-prefilled" id="t4_4" placeholder="Yes / Correct to…"></td></tr>
+          <tr><td>5</td><td>Item.UnitPrice</td><td>List_Price__c (new field)</td><td>List price from QB</td><td><input class="tbl-ans" id="t4_5" placeholder="Yes / Correct to…"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="q-block" style="margin-top:20px;">
+        <div class="q-id">Q3.4a *</div>
+        <div class="q-text">In QuickBooks, where is the <strong>ISBN stored</strong> on inventory items — in the <strong>SKU field</strong>, the Description, or a custom field?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_4a')">SKU field</span>
+          <span class="pill" onclick="pickPill(this,'q3_4a')">Description field</span>
+          <span class="pill" onclick="pickPill(this,'q3_4a')">Item Name</span>
+          <span class="pill" onclick="pickPill(this,'q3_4a')">A custom field</span>
+        </div>
+        <textarea class="answer" id="q3_4a" rows="2" data-required="true" placeholder="Select above — determines how Mule looks up QB Item records by ISBN…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-id">Q3.4b</div>
+        <div class="q-text">Should UC4 upsert Salesforce Inventory records using <strong>ISBN</strong> or <strong>QuickBooks Item ID</strong> as the External ID?</div>
+        <div class="q-options">
+          <span class="pill" onclick="pickPill(this,'q3_4b')">ISBN — stable across systems (recommended)</span>
+          <span class="pill" onclick="pickPill(this,'q3_4b')">QB Item ID</span>
+        </div>
+        <textarea class="answer is-prefilled" id="q3_4b" rows="2" placeholder="Select above or describe preferred approach…">ISBN (recommended — ISBN is stable and shared across QB, SF, and Holly's worksheet)</textarea>
+      </div>
+    </div><!-- /3.4 -->
+
+  </div>
+</div><!-- /Section 3 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 4: DATA VOLUME AND SCHEDULING
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">4</div>
+    <div class="section-title">Data Volume and Scheduling</div>
+  </div>
+  <div class="section-body">
+
+    <div class="q-block">
+      <div class="q-id">Q8.1</div>
+      <div class="q-text">For UC2 (payment sync): approximately how many <strong>active QB Invoices</strong> will the nightly poll need to read? (Helps us size the batch window within QB rate limits.)</div>
+      <textarea class="answer" id="q8_1" rows="2" placeholder="Approximate number of open QB invoices at any given time (e.g. 50, 200, 500+)…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q8.2</div>
+      <div class="q-text">For UC4 (inventory sync): approximately how many <strong>Inventory Items (ISBN/title combinations)</strong> are in QuickBooks today?</div>
+      <textarea class="answer" id="q8_2" rows="2" placeholder="Approximate number of QB Inventory Items (e.g. 50, 150, 500+)…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q8.3</div>
+      <div class="q-text">For UC3 (if Google Sheets): approximately how many rows are in Holly's inventory worksheet at peak (end of back-to-school season)?</div>
+      <textarea class="answer" id="q8_3" rows="2" placeholder="Approximate peak row count in Holly's worksheet…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q8.4</div>
+      <div class="q-text">Are there any time windows when QuickBooks should <strong>NOT</strong> be polled? (e.g. month-end close processes, QB admin maintenance windows.)</div>
+      <textarea class="answer" id="q8_4" rows="2" placeholder="Describe any QB blackout windows, or leave blank if none…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q8.5</div>
+      <div class="q-text">Is there a hard deadline by which the nightly inventory sync (UC4) must <strong>complete</strong>? (e.g. "results must be in Salesforce by 7 AM CT so Holly can review before her day starts.")</div>
+      <textarea class="answer" id="q8_5" rows="2" placeholder="Specify deadline time if applicable, or leave blank if no hard constraint…"></textarea>
+    </div>
+
+  </div>
+</div><!-- /Section 4 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 5: ISBN MAPPING AND PRODUCT CATALOG
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">5</div>
+    <div class="section-title">ISBN Mapping and Product Catalog</div>
+  </div>
+  <div class="section-body">
+
+    <div class="q-block">
+      <div class="q-id">Q9.1</div>
+      <div class="q-text">How many unique <strong>program titles</strong> does AgileMind currently sell as print materials?</div>
+      <textarea class="answer" id="q9_1" rows="2" placeholder="Number of unique program titles (e.g. 8, 15, 25+)…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q9.2</div>
+      <div class="q-text">How many total <strong>ISBN variants</strong> (national + all state-specific) are in use across all titles today?</div>
+      <textarea class="answer" id="q9_2" rows="2" placeholder="Total ISBN count including all regional variants…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q9.3 *</div>
+      <div class="q-text">Who will be responsible for <strong>maintaining the ISBN lookup table</strong> in Salesforce once DataSkate builds it? Will that person have Salesforce admin access to update Custom Metadata records?</div>
+      <div class="q-hint">From sessions: Kailash proposed the configurable lookup table; Holly or Chloe's team would likely maintain it.</div>
+      <textarea class="answer" id="q9_3" rows="2" data-required="true" placeholder="Name and role of the person who will own the ISBN lookup table maintenance…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q9.4</div>
+      <div class="q-text">When a <strong>new title or new ISBN variant</strong> is introduced mid-year (new print run with a different ISBN), who initiates the update, and what is the current process?</div>
+      <div class="q-hint">From sessions: Holly raised this as a manual oversight challenge — new ISBNs require updates across systems.</div>
+      <textarea class="answer" id="q9_4" rows="3" placeholder="Describe the current process for introducing new ISBNs, and who owns it…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q9.5 *</div>
+      <div class="q-text">When the state lookup <strong>fails</strong> (no matching ISBN found for a given state), what should the integration do?</div>
+      <div class="q-hint">From sessions: Kailash proposed routing to a manual review queue; Maria agreed. This is the fallback behavior when the ISBN table has a gap.</div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q9_5')">Hold Agreement — route to manual review queue</span>
+        <span class="pill" onclick="pickPill(this,'q9_5')">Create QB Invoice with placeholder item — flag for correction</span>
+        <span class="pill" onclick="pickPill(this,'q9_5')">Abort and alert Crystal or Maria</span>
+      </div>
+      <textarea class="answer is-prefilled" id="q9_5" rows="2" data-required="true" placeholder="Select above or confirm the preferred fallback behavior…">Hold Agreement and route to manual review queue (Kailash's recommendation — confirm or change)</textarea>
+    </div>
+
+  </div>
+</div><!-- /Section 5 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 6: TESTING AND GO-LIVE
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">6</div>
+    <div class="section-title">Testing and Go-Live</div>
+  </div>
+  <div class="section-body">
+
+    <div class="q-block">
+      <div class="q-id">Q10.1 *</div>
+      <div class="q-text">Is there a Salesforce <strong>sandbox environment</strong> DataSkate can use for integration testing (completely separate from your production Salesforce org)?</div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q10_1')">Yes — sandbox available</span>
+        <span class="pill" onclick="pickPill(this,'q10_1')">No sandbox — dev only against production</span>
+        <span class="pill" onclick="pickPill(this,'q10_1')">Developer org available</span>
+      </div>
+      <textarea class="answer" id="q10_1" rows="2" data-required="true" placeholder="Select above — determines our testing approach…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q10.2</div>
+      <div class="q-text">For QB testing: DataSkate will use the <strong>Intuit sandbox</strong> (auto-provisioned per developer account). Will you use a separate QBO test company for UAT, or test directly against production QB with test records?</div>
+      <div class="q-hint">Note: Intuit sandbox environments do not share production data — we will create test customers and invoices in the sandbox.</div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q10_2')">Use Intuit sandbox — DataSkate manages test data</span>
+        <span class="pill" onclick="pickPill(this,'q10_2')">Use a separate QBO test company</span>
+        <span class="pill" onclick="pickPill(this,'q10_2')">Test against production with test records</span>
+      </div>
+      <textarea class="answer" id="q10_2" rows="2" placeholder="Select above or describe the preferred testing approach…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q10.3 *</div>
+      <div class="q-text">Planned go-live is <strong>July 15, 2026</strong>. Is this date still the target?</div>
+      <div class="q-hint"><strong>Risk flag:</strong> July 15 falls within the back-to-school production window. Order placement is in progress May–June; fulfillment peaks July–August. A July 15 go-live is feasible but requires zero-downtime cutover with Crystal and Maria on standby. If any delays occur, we recommend rescheduling to September after the fulfillment peak.</div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q10_3')">July 15, 2026 — confirmed</span>
+        <span class="pill" onclick="pickPill(this,'q10_3')">Prefer September 2026 (after back-to-school)</span>
+        <span class="pill" onclick="pickPill(this,'q10_3')">Other date</span>
+      </div>
+      <textarea class="answer is-prefilled" id="q10_3" rows="2" data-required="true" placeholder="Confirm July 15 or specify preferred go-live date…">July 15, 2026 (confirm or adjust — see back-to-school risk note above)</textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q10.4 *</div>
+      <div class="q-text">Who from AgileMind will serve as the <strong>primary integration testing contact</strong> and sign-off approver for UAT?</div>
+      <textarea class="answer" id="q10_4" rows="2" data-required="true" placeholder="Name and role of UAT lead (likely Crystal Robinson for invoicing flows, Holly Wale for inventory flows)…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q10.5</div>
+      <div class="q-text">Are there any <strong>deployment freeze windows</strong> DataSkate should avoid? (e.g. "no Salesforce production deployments during July/August fulfillment peak.")</div>
+      <textarea class="answer" id="q10_5" rows="2" placeholder="Describe any freeze windows or blackout dates, or leave blank if none…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q10.6</div>
+      <div class="q-text">AgileMind's fiscal year starts <strong>April 1</strong>. Does go-live need to align with a fiscal year boundary, or is mid-year rollout acceptable?</div>
+      <div class="q-hint">From sessions: Maria confirmed the April 1 fiscal year. The original go-live target was April 2026 and has slipped to July 2026.</div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q10_6')">Mid-year rollout is fine — July is acceptable</span>
+        <span class="pill" onclick="pickPill(this,'q10_6')">Prefer fiscal year start (April 1, 2027)</span>
+      </div>
+      <textarea class="answer" id="q10_6" rows="2" placeholder="Confirm or describe any fiscal year constraints…"></textarea>
+    </div>
+
+  </div>
+</div><!-- /Section 6 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 7: POTENTIAL ADDITIONAL FLOWS
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">7</div>
+    <div class="section-title">Potential Additional Flows</div>
+  </div>
+  <div class="section-body">
+    <p style="font-size:13px;color:var(--mid);margin-bottom:24px;line-height:1.6;">The following flows were mentioned in discovery but not formally scoped. Please indicate your interest level — this helps us decide whether to include them in the Statement of Work.</p>
+
+    <div class="q-block">
+      <div class="q-id">Q11.1</div>
+      <div class="q-text"><strong>Product / ISBN Catalog Sync — Salesforce Products ↔ QuickBooks Items</strong><br><span style="font-size:13px;color:var(--mid);">Context: Holly noted that maintaining two separate product lists (Salesforce and QuickBooks) for the same ISBNs creates divergence risk. A sync would keep both catalogs consistent. Estimated complexity: Medium.</span></div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q11_1')">Yes — include in scope</span>
+        <span class="pill" onclick="pickPill(this,'q11_1')">No — manage manually for now</span>
+        <span class="pill" onclick="pickPill(this,'q11_1')">Discuss after Phase 1 go-live</span>
+      </div>
+      <textarea class="answer" id="q11_1" rows="2" placeholder="Select above or describe your interest level…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q11.2</div>
+      <div class="q-text"><strong>Opportunity Demand Visibility — Salesforce Open Opportunities → Inventory Dashboard</strong><br><span style="font-size:13px;color:var(--mid);">Context: Holly reviews open opportunities to forecast inventory demand. Surfacing pipeline data natively on the Inventory dashboard would eliminate her manual report-building step. Estimated complexity: Low (read-only SF data).</span></div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q11_2')">Yes — include in scope</span>
+        <span class="pill" onclick="pickPill(this,'q11_2')">No — manage manually for now</span>
+        <span class="pill" onclick="pickPill(this,'q11_2')">Discuss after Phase 1 go-live</span>
+      </div>
+      <textarea class="answer" id="q11_2" rows="2" placeholder="Select above or describe your interest level…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q11.3</div>
+      <div class="q-text"><strong>Invoice Overdue Alert — QuickBooks Overdue Invoices → Email or Slack Notification to Crystal / Maria</strong><br><span style="font-size:13px;color:var(--mid);">Context: Collections follow-up is currently manual. An automated alert when an invoice passes its due date would reduce Crystal's monitoring burden. Estimated complexity: Low (outbound notification only).</span></div>
+      <div class="q-options">
+        <span class="pill" onclick="pickPill(this,'q11_3')">Yes — include in scope</span>
+        <span class="pill" onclick="pickPill(this,'q11_3')">No — manage manually for now</span>
+        <span class="pill" onclick="pickPill(this,'q11_3')">Discuss after Phase 1 go-live</span>
+      </div>
+      <textarea class="answer" id="q11_3" rows="2" placeholder="Select above or describe your interest level…"></textarea>
+    </div>
+
+  </div>
+</div><!-- /Section 7 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 8: PRICING CONFIRMATION
+═══════════════════════════════════════════════════════════ -->
+<div class="section-block">
+  <div class="section-head">
+    <div class="section-num">8</div>
+    <div class="section-title">Pricing Confirmation</div>
+  </div>
+  <div class="section-body">
+
+    <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6;">Based on the confirmed scope of 4 flows, DataSkate has pre-calculated the following engagement pricing for your review.</p>
+
+    <table class="pricing-table">
+      <thead><tr><th>Item</th><th>Detail</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Confirmed flow count</td><td>UC1 + UC2 + UC3 + UC4</td><td><strong>4 flows</strong></td></tr>
+        <tr><td>Kickoff retainer (1–5 flows)</td><td>One-time; credited against first 6-month period</td><td><strong>$2,500</strong></td></tr>
+        <tr><td>IaaS — Period 1 (months 1–6)</td><td>4 flows × $250/mo × 6 months</td><td><strong>$6,000</strong></td></tr>
+        <tr><td>IaaS — Period 2 (months 7–12)</td><td>4 flows × $262.50/mo × 6 months</td><td><strong>$6,300</strong></td></tr>
+        <tr class="total-row"><td>IaaS total — 12 months</td><td></td><td><strong>$12,300</strong></td></tr>
+        <tr><td>Implementation only (alternative)</td><td>4 flows × $3,500/flow</td><td><strong>$14,000</strong></td></tr>
+        <tr><td>Estimated build timeline</td><td>2 weeks setup + 4 flows × 1.5 weeks/flow</td><td><strong>~8 weeks from signed SOW</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="q-block" style="margin-top:24px;">
+      <div class="q-id">Q12.1</div>
+      <div class="q-text">Have you had a chance to review the pricing model with Linda (CFO)? Are there any budget or approval questions we should address before finalizing the SOW?</div>
+      <textarea class="answer" id="q12_1" rows="3" placeholder="Describe any budget questions or approval requirements…"></textarea>
+    </div>
+
+    <div class="q-block">
+      <div class="q-id">Q12.2</div>
+      <div class="q-text">Are any of the three potential additional flows (Q11.1–Q11.3) likely to be added to scope? If yes, we can revise the pricing to include them before finalizing the SOW.</div>
+      <textarea class="answer" id="q12_2" rows="3" placeholder="List any flows you expect to add, or leave blank if scope is confirmed at 4 flows…"></textarea>
+    </div>
+
+  </div>
+</div><!-- /Section 8 -->
+
+<!-- SUBMIT BLOCK -->
+<div class="submit-block no-print">
+  <button class="btn btn-primary btn-submit" onclick="submitForm()">Submit to DataSkate</button>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your answers are saved directly to DataSkate's secure project portal.</p>
+  <div id="submit-success" class="submit-success">
+    ✓ Submitted successfully. Kailash Chanda will review your answers and follow up within 1–2 business days. Thank you, AgileMind team!
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     INTERNAL SECTION 9 (NO-PRINT)
+═══════════════════════════════════════════════════════════ -->
+<div class="internal-block no-print">
+  <h3>Internal — Architecture Pre-Decisions [DataSkate Only — Not Shown in PDF]</h3>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 1 — Auth Model</div>
+    <div class="flag-body">Salesforce = OAuth JWT (service account, <code>jwt_bearer_token</code> flow). QuickBooks = OAuth 2.0 Authorization Code with refresh token stored in CloudHub Secrets Manager — not in properties files.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 2 — QB Update Pattern (FK-017)</div>
+    <div class="flag-body">QBO API has <strong>no PUT or PATCH</strong>. All QB updates require POST with full object + current <code>SyncToken</code>. Must GET the object immediately before each POST to retrieve the current SyncToken. Stale SyncToken → 400 error. MuleSoft QBO connector handles 60-min token refresh automatically when configured with refresh token.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 3 — QB Version Gate (FK-020)</div>
+    <div class="flag-body">If Q4.1 answer is anything other than "QuickBooks Online (cloud)" — <strong>escalate immediately to Kailash</strong>. QB Desktop uses QBXML / Windows Web Connector — completely different architecture. Do not proceed with QBO connector scoping until version is confirmed.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 4 — Salesforce UC1 Trigger</div>
+    <div class="flag-body">Prefer Platform Event or Change Data Capture on <code>Agreement__c</code> rather than polling. Requires Chloe to confirm CDC is enabled in their Salesforce org (Q5.4). If CDC not available, fall back to scheduled polling with timestamp filter.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 5 — ISBN Lookup Table</div>
+    <div class="flag-body">Salesforce Custom Metadata Type is the recommended implementation for the state→ISBN mapping. Supports runtime update without code deployment. Kailash proposed this; Maria agreed. External ID field <code>QB_InvoiceId__c</code> must be created on <code>Agreement__c</code> before development begins.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 6 — Back-to-School Deployment Risk</div>
+    <div class="flag-body">Go-live target July 15, 2026. Back-to-school fulfillment peaks July–August. Recommend zero-downtime cutover at off-peak hours (early AM CT, Tuesday). Crystal and Maria must be on standby. If any slippage past July 1, recommend rescheduling to September to avoid production peak.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 7 — realmId Storage</div>
+    <div class="flag-body">QBO realmId must be stored in CloudHub Secrets Manager. Not in property files, not hardcoded in flow variables. Retrieve at flow startup. Refresh token must also be in Secrets Manager with update-after-refresh pattern (Intuit refresh tokens may rotate every 24–26 hours per Nov 2025 policy).</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 8 — Inventory Committed/Available Logic</div>
+    <div class="flag-body">QB does not natively track "committed" quantity (orders placed but not yet fulfilled). Committed quantity must be derived from open Salesforce Agreement line items (not from QB). Available = QOH (from QB) − Committed (from SF open Agreements). This calculation lives in the integration layer or as a Salesforce formula field.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 9 — Google Sheets Auth Pattern</div>
+    <div class="flag-body">Use service-account auth (no user OAuth consent required for unattended flows). Holly must share the sheet with DataSkate's service account email one time. For large sheets (10K+ rows), use batch read with <code>batchGet</code>. If local Excel confirmed instead, switch to SFTP or OneDrive/SharePoint connector pattern.</div>
+  </div>
+
+  <div class="flag-item">
+    <div class="flag-num">Pre-decision 10 — QBO Rate Limits</div>
+    <div class="flag-body">500 req/min per realmId; max 10 concurrent connections; batch endpoint: 120 req/min. For UC2 and UC4 nightly batch flows: set <code>maxConcurrency ≤ 5</code>. If UC2 nightly run exceeds 60 minutes (large invoice count), implement 401-detect → refresh → retry wrapper around the QBO connector calls.</div>
+  </div>
+
+</div><!-- /Internal Section 9 -->
+
+</div><!-- /wrap -->
+
+<script>
+// ── PILL SELECTION ──
+function pickPill(el, targetId) {
+  var siblings = el.parentElement.querySelectorAll('.pill');
+  siblings.forEach(function(p) { p.classList.remove('selected'); });
+  el.classList.add('selected');
+  var ta = document.getElementById(targetId);
+  if (ta) {
+    var current = (ta.value || '').trim();
+    var chosen = el.textContent.trim();
+    if (current && !ta.classList.contains('is-prefilled')) {
+      ta.value = current + '; ' + chosen;
+    } else {
+      ta.value = chosen;
+    }
+    ta.classList.remove('is-prefilled');
+    ta.classList.add('is-answered');
+    updateProgress();
+  }
+}
+
+// ── BUSINESS CONTEXT TOGGLE ──
+function toggleBC() {
+  var body = document.getElementById('bc-body');
+  var chev = document.getElementById('bc-chevron');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    chev.textContent = '▲';
+  } else {
+    body.style.display = 'none';
+    chev.textContent = '▼';
+  }
+}
+
+// ── PROGRESS TRACKING ──
+function updateProgress() {
+  var all = document.querySelectorAll('textarea.answer, input.tbl-ans');
+  var answered = 0;
+  all.forEach(function(el) {
+    var v = (el.value || '').trim();
+    if (v && v !== el.placeholder) answered++;
+  });
+  document.getElementById('answered-count').textContent = answered;
+  document.getElementById('total-count').textContent = all.length;
+}
+
+// ── ANSWER STATE TRACKING ──
+document.addEventListener('DOMContentLoaded', function() {
+  var all = document.querySelectorAll('textarea.answer, input.tbl-ans');
+  all.forEach(function(el) {
+    el.addEventListener('input', function() {
+      var v = (this.value || '').trim();
+      if (v && v !== this.placeholder) {
+        this.classList.remove('is-prefilled');
+        this.classList.add('is-answered');
+      } else {
+        this.classList.remove('is-answered');
+      }
+      updateProgress();
+    });
+  });
+  updateProgress();
+});
+
+// ── FIRESTORE HELPERS ──
+function collectAnswers() {
+  var answers = {};
+  document.querySelectorAll('textarea.answer, input.tbl-ans').forEach(function(el) {
+    if (el.id && (el.value || '').trim()) answers[el.id] = el.value.trim();
+  });
+  return answers;
+}
+
+function saveToFirestore(answers, pct) {
+  if (typeof firebase === 'undefined') return Promise.resolve();
+  var db = firebase.firestore();
+  return db.collection('intake_responses').doc('agilemind').set({
+    clientId: 'agilemind',
+    responses: answers,
+    completionPercent: pct,
+    submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true }).then(function() {
+    return db.collection('projects').doc('agilemind').set({
+      status: 'intake_complete',
+      completionPercent: pct,
+      lastActivityAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  });
+}
+
+function submitForm() {
+  var all = document.querySelectorAll('textarea.answer, input.tbl-ans');
+  var answered = 0;
+  var unansweredRequired = 0;
+  all.forEach(function(el) {
+    var v = (el.value || '').trim();
+    if (v && v !== el.placeholder) answered++;
+    else if (el.dataset.required === 'true') unansweredRequired++;
+  });
+  var pct = all.length ? Math.round((answered / all.length) * 100) : 0;
+
+  if (unansweredRequired > 0) {
+    if (!confirm(unansweredRequired + ' required question(s) are unanswered. Submit anyway?')) return;
+  }
+
+  saveToFirestore(collectAnswers(), pct).then(function() {
+    document.getElementById('submit-success').style.display = 'block';
+    document.getElementById('submit-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }).catch(function(e) {
+    console.warn('Firestore save failed:', e);
+    alert('Submission failed — please try again or contact kailash@dataskate.ai directly.');
+  });
+}
+</script>
+<!-- Firebase — loaded only when served from Firebase Hosting; no-op if opened as a local file -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+(function() {
+  try {
+    var s = document.createElement('script'); s.src = '/firebase-config.js';
+    s.onload = function() { if (typeof FIREBASE_CONFIG !== 'undefined') firebase.initializeApp(FIREBASE_CONFIG); };
+    document.head.appendChild(s);
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
