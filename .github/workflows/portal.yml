@@ -7,10 +7,11 @@ name: Regenerate Client Portals
 #   FIREBASE_SA_KEY  — Firebase service account JSON (same as Codespaces secret)
 
 on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 min — picks up sprint changes from client repos
   push:
     branches: [main]
     paths:
-      - 'projects/*/stories.md'
       - 'projects/*/decisions.json'
       - 'projects/*/project.json'
       - 'projects/*/intake/responses.json'
