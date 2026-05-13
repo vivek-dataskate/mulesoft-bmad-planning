@@ -350,8 +350,9 @@ async function buildPortal(slug) {
   }
   const entry = manifest.find(m => m.id === slug) || {};
   const status    = entry.status     || 'intake_sent';
-  const intakeUrl = entry.intakeUrl  || null;
-  const proposalUrl = entry.proposalUrl || null;
+  const intakeUrl    = entry.intakeUrl    || null;
+  const proposalUrl  = entry.proposalUrl  || null;
+  const pitchKitUrl  = entry.pitchKitUrl  || null;
 
   // ── Responses ──
   const responsesFile = path.join(projectDir, 'intake', 'responses.json');
@@ -425,15 +426,14 @@ a{color:var(--brand);text-decoration:none;}
 
 /* ── HEADER ── */
 .header{background:#fff;padding:20px 40px 0;border-bottom:3px solid var(--brand);}
-.header-top{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.header-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;}
 .header-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .header-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--brand-dk);}
 .header-client{font-size:28px;font-weight:900;line-height:1.15;border-left:4px solid var(--brand);padding-left:16px;margin-top:4px;color:var(--dark);}
 .header-sub{font-size:13px;color:var(--mid);padding-left:20px;margin-top:2px;}
-.header-phase-col{flex:1;min-width:260px;padding:0 16px;}
-.header-phase-col .phase-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mid);margin-bottom:8px;}
-.header-phase-col .phase-bar{padding:0;}
-.arch-badge{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:12px 16px;min-width:180px;flex-shrink:0;}
+.header-phase-col{display:flex;align-items:center;padding:8px 16px 14px;}
+.header-phase-col .phase-bar{width:100%;padding:0;}
+.arch-badge{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:12px 16px;min-width:180px;}
 .arch-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mid);margin-bottom:4px;}
 .arch-name{font-size:14px;font-weight:700;color:var(--dark);}
 .arch-email{font-size:12px;color:var(--mid);margin-top:2px;}
@@ -458,7 +458,7 @@ a{color:var(--brand);text-decoration:none;}
 .phase-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;}
 .phase-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);}
 .phase-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mid);white-space:nowrap;}
-.phase-line{width:32px;flex-shrink:0;height:2px;background:var(--border);}
+.phase-line{flex:1;min-width:20px;height:2px;background:var(--border);}
 .phase-done .phase-dot{background:var(--green);border-color:var(--green);}
 .phase-done .phase-label{color:var(--green);}
 .phase-active .phase-dot{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 4px rgba(237,28,36,.15);}
@@ -531,12 +531,17 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
 .footer{text-align:center;padding:32px;font-size:12px;color:var(--mid);}
 .footer a{color:var(--brand);}
 
+@media(max-width:900px){
+  .header-top{grid-template-columns:auto auto;}
+  .header-phase-col{grid-column:1/-1;padding:8px 0 14px;}
+}
 @media(max-width:640px){
   .header{padding:20px 24px 0;}
   .container{padding:0 16px 60px;}
   .header-meta{padding:0 24px;margin:14px -24px 0;}
-  .header-phase-col{padding:8px 0;min-width:100%;}
-  .phase-bar{overflow-x:auto;gap:0;}
+  .header-top{grid-template-columns:1fr;}
+  .arch-badge{justify-self:start;}
+  .phase-bar{overflow-x:auto;}
 }
 </style>
 </head>
@@ -551,7 +556,6 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
       <div class="header-sub">Integration Project</div>
     </div>
     <div class="header-phase-col">
-      <div class="phase-head">Engagement Phase</div>
       <div class="phase-bar">${renderPhaseBar(status)}</div>
     </div>
     <div class="arch-badge">
@@ -593,6 +597,7 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
           responsesStatus === 'available' ? 'available' : 'pending'
         )}
         ${renderDocCard('📄', 'Proposal', proposalUrl ? 'View proposal →' : 'Not yet sent', proposalUrl, proposalUrl ? 'available' : 'na')}
+        ${renderDocCard('🎯', 'Pitch Kit', pitchKitUrl ? 'View pitch kit →' : 'Not yet generated', pitchKitUrl, pitchKitUrl ? 'available' : 'na')}
         ${docUrls.sow ? renderDocCard('📜', 'SOW', 'View SOW →', docUrls.sow, 'available') : renderDocCard('📜', 'SOW', 'Not yet issued', null, 'na')}
         ${docUrls.prd ? renderDocCard('📝', 'Requirements', 'View PRD →', docUrls.prd, 'available') : renderDocCard('📝', 'Requirements', 'Not yet finalized', null, 'na')}
         ${docUrls.architecture ? renderDocCard('🏗️', 'Architecture', 'View design doc →', docUrls.architecture, 'available') : renderDocCard('🏗️', 'Architecture', 'Not yet finalized', null, 'na')}

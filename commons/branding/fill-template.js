@@ -22,7 +22,7 @@ const resourceName = nameIdx !== -1 ? args[nameIdx + 1] : null;
 const srcIdx       = args.indexOf('--src');
 const resourceSrc  = srcIdx !== -1 ? args[srcIdx + 1] : null;
 
-const KNOWN_TEMPLATES = ['proposal', 'intake', 'portal', 'flyer', 'resource'];
+const KNOWN_TEMPLATES = ['proposal', 'intake', 'portal', 'flyer', 'resource', 'pitch-kit'];
 
 if (!templateType) {
   console.error('Usage: node fill-template.js --template <proposal|intake|portal|flyer|resource> [--client <slug>] [--name <slug> --src <path>]');
@@ -34,8 +34,8 @@ if (!KNOWN_TEMPLATES.includes(templateType)) {
   console.error(`\n❌ No template registered for type: "${templateType}"`);
   console.error(`   Known types: ${KNOWN_TEMPLATES.join(', ')}`);
   console.error(`\n   To add a new document type:`);
-  console.error(`     1. Create commons/branding/templates/${templateType}-template.html`);
-  console.error(`     2. Create commons/branding/${templateType}-base.css.html`);
+  console.error(`     1. Create commons/templates/${templateType}-template.html`);
+  console.error(`     2. Create commons/templates/${templateType}-base.css.html`);
   console.error(`     3. Add "${templateType}" to KNOWN_TEMPLATES in fill-template.js`);
   console.error(`     4. Add a build${cap}() function`);
   console.error(`\n   Do NOT write raw HTML outside this system.`);
@@ -63,8 +63,8 @@ const typeConfig = {
   },
   flyer: {
     requiresClient: false,
-    contentFile: () => path.join(root, 'commons', 'sales', 'flyer-content.json'),
-    outFile:     () => path.join(root, 'commons', 'sales', 'architect-flyer.html'),
+    contentFile: () => null,  // reads pricing-model.md directly — no JSON file needed
+    outFile:     () => path.join(root, 'firebase', 'public', 'resources', 'architect-flyer.html'),
   },
   resource: {
     requiresClient: false,
@@ -72,6 +72,11 @@ const typeConfig = {
     // contentFile not used — resource reads its source markdown directly
     contentFile: () => null,
     outFile:     (_, name) => path.join(root, 'firebase', 'public', 'resources', `${name}.html`),
+  },
+  'pitch-kit': {
+    requiresClient: true,
+    contentFile: (c) => path.join(root, 'projects', c, 'intake', 'pitch-kit-content.json'),
+    outFile:     (c) => path.join(root, 'projects', c, 'intake', `pitch-kit-${c}.html`),
   },
 };
 
@@ -86,19 +91,24 @@ if (cfg.requiresName && !resourceName) {
   process.exit(1);
 }
 
-const templateFile = path.join(root, 'commons', 'branding', 'templates', `${templateType}-template.html`);
-const cssFile      = path.join(root, 'commons', 'branding', `${templateType}-base.css.html`);
+const templateFile = path.join(root, 'commons', 'templates', `${templateType}-template.html`);
+const cssFile      = path.join(root, 'commons', 'templates', `${templateType}-base.css.html`);
 const outFile      = cfg.outFile(client, resourceName);
 
 let html      = fs.readFileSync(templateFile, 'utf8');
 const css     = fs.readFileSync(cssFile, 'utf8');
 
-// For resource type, content is the raw markdown file (not a JSON)
+// Flyer and resource types read directly from markdown — no JSON content file
 let content;
 if (templateType === 'resource') {
   const srcPath = resourceSrc
     ? path.resolve(process.cwd(), resourceSrc)
     : path.join(root, 'commons', 'sales', `${resourceName}.md`);
+  content = fs.readFileSync(srcPath, 'utf8');
+} else if (templateType === 'flyer') {
+  const srcPath = resourceSrc
+    ? path.resolve(process.cwd(), resourceSrc)
+    : path.join(root, 'commons', 'sales', 'pricing-model.md');
   content = fs.readFileSync(srcPath, 'utf8');
 } else {
   const contentFilePath = cfg.contentFile(client);
@@ -121,6 +131,8 @@ if (templateType === 'proposal') {
   buildPortal(content);
 } else if (templateType === 'flyer') {
   buildFlyer(content);
+} else if (templateType === 'pitch-kit') {
+  buildPitchKit(content);
 } else {
   buildResource(content);
 }
@@ -475,32 +487,169 @@ function buildPortal(c) {
 }
 
 // ─── FLYER ───────────────────────────────────────────────────────────────────
+// Reads pricing-model.md — single source of truth for all pricing values.
 
-function buildFlyer(c) {
-  fill('header-tagline',   c.headerTagline   || 'MuleSoft Integration Services — Pricing Overview');
-  fill('iaas-rate',        c.iaasRate        || '$250.00');
-  fill('iaas-period2',     c.iaasPeriod2     || '$262.50/flow/mo');
-  fill('retainer-range',   c.retainerRange   || '$2,500–$5,000');
-  fill('impl-rate',        c.implRate        || '$3,500');
-  fill('phase2-body',      c.phase2Body      || 'Once systems are connected, DataSkate returns for a Phase 2 SOW: AI agents that use those integrations to automate workflows, surface decisions, and reduce manual operations.');
-  fill('footer-address',   c.footerAddress   || '196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550');
-  fill('footer-contact',   c.footerContact   || 'dataskate.ai | kailash@dataskate.ai');
+function buildFlyer(md) {
+  const num  = s => parseFloat(String(s).replace(/[,$]/g, ''));
+  const fmt  = n => '$' + Math.round(n).toLocaleString('en-US');
+  const fmtD = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  fill('change-order-rows', (c.changeOrderRows || [
-    ['Config',       'Field mapping, credentials, tuning',          '<strong>Free</strong>'],
-    ['Modification', 'New logic, branch, transform',                '<strong>$750</strong>'],
-    ['Extension',    'New object type, new secondary system',       '<strong>$1,500</strong>'],
-  ]).map(([tier, what, fee]) =>
+  // Parse pricing values from markdown
+  const baseRate   = num((md.match(/\*\*Rate:\*\* \$([0-9,]+(?:\.\d+)?)/) || [,'300'])[1]);
+  const escalation = parseFloat(((md.match(/escalating (\d+)%/) || [,'5'])[1])) / 100;
+  const p2rate     = Math.round(baseRate * (1 + escalation) * 100) / 100;
+  const retainer1  = num((md.match(/1[–\-]5 flows[^|]*\|\s*\$([0-9,]+)/) || [,'2500'])[1]);
+  const retainer2  = num((md.match(/6[–\-]10 flows[^|]*\|\s*\$([0-9,]+)/) || [,'5000'])[1]);
+  const stdImpl    = num((md.match(/\| Standard \| \$([0-9,]+)/) || [,'3500'])[1]);
+  const coMod      = num((md.match(/\*\*Modification\*\*[^|]*\|\s*\$([0-9,]+)/) || [,'750'])[1]);
+  const coExt      = num((md.match(/\*\*Extension\*\*[^|]*\|\s*\$([0-9,]+)/) || [,'1500'])[1]);
+  const replacement = num((md.match(/replacement fee: \$([0-9,]+)/) || [,'1500'])[1]);
+
+  fill('header-tagline', 'MuleSoft Integration Services — Pricing Overview');
+  fill('iaas-rate',      fmtD(baseRate));
+  fill('iaas-period2',   `${fmtD(p2rate)}/flow/mo`);
+  fill('retainer-range', `${fmt(retainer1)}–${fmt(retainer2)}`);
+  fill('impl-rate',      fmt(stdImpl));
+  fill('phase2-body',    'Once systems are connected, DataSkate returns for a Phase 2 SOW: AI agents that use those integrations to automate workflows, surface decisions, and reduce manual operations. Available under both models.');
+  fill('footer-address', '196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550');
+  fill('footer-contact', 'dataskate.ai | kailash@dataskate.ai');
+
+  fill('change-order-rows', [
+    ['Config',       'Field mapping, credentials, tuning',    '<strong>Free</strong>'],
+    ['Modification', 'New logic, branch, transform',          `<strong>${fmt(coMod)}</strong>`],
+    ['Extension',    'New object type, new secondary system', `<strong>${fmt(coExt)}</strong>`],
+  ].map(([tier, what, fee]) =>
     `<tr><td>${tier}</td><td>${what}</td><td>${fee}</td></tr>`
   ).join('\n'));
 
-  fill('decommission-rows', (c.decommissionRows || [
-    ['Flow replaced by new flow',         '<strong>$1,500 fee</strong> + fresh 12-mo contract'],
-    ['Decommission, no replacement',      'Remaining balance <strong>accelerates</strong> — payable immediately'],
-    ['Scope change within same flow',     'Change order applies (see left)'],
-  ]).map(([scenario, outcome]) =>
+  fill('decommission-rows', [
+    ['Flow replaced by new flow',    `<strong>${fmt(replacement)} fee</strong> + fresh 12-mo contract`],
+    ['Decommission, no replacement', 'Remaining balance <strong>accelerates</strong> — payable immediately'],
+    ['Scope change within same flow','Change order applies (see left)'],
+  ].map(([scenario, outcome]) =>
     `<tr><td>${scenario}</td><td>${outcome}</td></tr>`
   ).join('\n'));
+}
+
+// ─── PITCH KIT ───────────────────────────────────────────────────────────────
+
+function buildPitchKit(c) {
+  const m = c.meta;
+
+  fill('client-name',    m.clientName);
+  fill('subtitle',       m.subtitle || `${esc(m.industry)} · ${esc(m.flowCount)} flows · ${esc(m.revenue)}`);
+  fill('location',       m.location  || '');
+  fill('industry',       m.industry  || '');
+  fill('revenue',        m.revenue   || '');
+  fill('architect',      m.architect || '');
+  fill('date',           m.date      || '');
+
+  // Snapshot
+  fill('snapshot-description', c.snapshot.description || '');
+  fill('snapshot-cards', [
+    { label: 'Industry',  value: m.industry  || '—' },
+    { label: 'Revenue',   value: m.revenue   || '—' },
+    { label: 'Location',  value: m.location  || '—' },
+    { label: 'Flows',     value: `${m.flowCount || '—'} integration flows` },
+    ...(c.snapshot.systems || []).map(s => ({ label: 'System', value: s })),
+  ].map(card =>
+    `<div class="snapshot-card">
+      <div class="sc-label">${esc(card.label)}</div>
+      <div class="sc-value">${esc(card.value)}</div>
+    </div>`
+  ).join('\n'));
+
+  fill('pain-points', (c.snapshot.painPoints || []).map(p =>
+    `<li>${esc(p)}</li>`
+  ).join('\n'));
+
+  // Talking points
+  fill('talking-points', (c.talkingPoints || []).map(tp =>
+    `<div class="tp-block">
+      <div class="tp-trigger">${esc(tp.trigger)}</div>
+      <div class="tp-say">${esc(tp.say)}</div>
+      ${tp.impact ? `<div class="tp-impact"><strong>Impact:</strong> ${esc(tp.impact)}</div>` : ''}
+    </div>`
+  ).join('\n'));
+
+  // Nearby peers
+  const peers = c.nearbyPeers || [];
+  fill('search-radius',  m.searchRadius || '100 miles');
+  fill('peer-rows', peers.length > 0
+    ? peers.map(p =>
+        `<tr>
+          <td>
+            <div class="peer-name">${esc(p.name)}</div>
+            <div><span class="peer-dist">${esc(p.distance)}</span></div>
+            <div style="font-size:12px;color:var(--mid);margin-top:4px">${esc(p.location || '')} · ${esc(p.revenue || '')}</div>
+            ${p.source ? `<div class="peer-source">${esc(p.source)}</div>` : ''}
+          </td>
+          <td>${esc(p.what)}</td>
+          <td>${esc(p.outcome)}</td>
+        </tr>`
+      ).join('\n')
+    : `<tr><td colspan="3" style="text-align:center;color:var(--mid);padding:20px">No peer companies found within search radius.</td></tr>`
+  );
+
+  // Competitor FOMO cards
+  const fomo = c.competitorFOMO || [];
+  fill('revenue-bracket', m.revenueBracket || m.revenue || 'comparable');
+  const TIER_LABELS = {
+    'exact-match':       { label: 'Exact match',        cls: 'tier-exact' },
+    'same-industry':     { label: 'Same industry',      cls: 'tier-adjacent' },
+    'adjacent-industry': { label: 'Adjacent industry',  cls: 'tier-adjacent' },
+    'industry-stat':     { label: 'Industry data',      cls: 'tier-stat' },
+  };
+  fill('fomo-cards', fomo.length > 0
+    ? fomo.map(f => {
+        const systems = (f.systemsUsed || []).join(' → ');
+        const tier = TIER_LABELS[f.relevanceTier] || { label: f.relevanceTier || '', cls: 'tier-stat' };
+        return `<div class="fomo-card">
+  <div class="fomo-card-head">
+    <span class="fomo-co-name">${esc(f.name)}</span>
+    <span class="fomo-co-meta">${[f.location, f.revenue, systems].filter(Boolean).map(esc).join(' · ')}</span>
+    ${tier.label ? `<span class="fomo-tier-badge ${esc(tier.cls)}">${esc(tier.label)}</span>` : ''}
+  </div>
+  ${f.analogyNote ? `<div class="fomo-analogy">${esc(f.analogyNote)}</div>` : ''}
+  <div class="fomo-card-body">
+    <div class="fomo-cell">
+      <span class="fomo-cell-label">What They Built</span>
+      <span class="fomo-cell-value">${esc(f.whatTheyBuilt || f.what || '')}</span>
+    </div>
+    <div class="fomo-cell">
+      <span class="fomo-cell-label">AI Use Case</span>
+      <span class="fomo-cell-value">${esc(f.aiUseCase || '—')}</span>
+    </div>
+    <div class="fomo-cell">
+      <span class="fomo-cell-label">Savings / ROI</span>
+      <span class="fomo-savings">${esc(f.savings || '—')}</span>
+    </div>
+    <div class="fomo-cell">
+      <span class="fomo-cell-label">Status</span>
+      <span class="fomo-cell-value"><span class="fomo-status">${esc(f.status || '')}</span></span>
+      ${f.source ? `<span style="font-size:11px;color:var(--mid);margin-top:4px;font-style:italic">${esc(f.source)}</span>` : ''}
+    </div>
+  </div>
+  ${(f.before || f.after) ? `<div class="fomo-before-after">
+    <div class="fomo-before"><div class="fomo-ba-label">Before</div><div class="fomo-ba-text">${esc(f.before || '—')}</div></div>
+    <div class="fomo-after"><div class="fomo-ba-label">After</div><div class="fomo-ba-text">${esc(f.after || '—')}</div></div>
+  </div>` : ''}
+  ${f.fomoAngle ? `<div class="fomo-angle">${esc(f.fomoAngle)}</div>` : ''}
+</div>`;
+      }).join('\n')
+    : `<div style="text-align:center;color:var(--mid);padding:24px;border:1px dashed var(--border);border-radius:6px;margin-top:14px">No verified competitor data found for this revenue bracket and use case.</div>`
+  );
+
+  // Opening lines
+  fill('opening-lines', (c.openingLines || []).map(ol =>
+    `<div class="ol-block">
+      <div class="ol-context">${esc(ol.context)}</div>
+      <div class="ol-line">${esc(ol.line)}</div>
+    </div>`
+  ).join('\n'));
+
+  // AI journey narrative
+  fill('ai-narrative', c.aiJourneyNarrative || '');
 }
 
 // ─── RESOURCE ────────────────────────────────────────────────────────────────
