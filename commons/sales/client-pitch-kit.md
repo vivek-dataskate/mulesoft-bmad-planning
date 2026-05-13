@@ -3,15 +3,15 @@
 
 ---
 
-## What We're Actually Selling
+## What You're Actually Buying
 
-We are not selling integrations. We are selling the ability to operate like a technology company.
+What you're evaluating is not integration flows. It is the ability to run your business on data — and eventually, to let AI handle the parts that don't need a human decision.
 
-Most businesses spend enormous energy moving data manually — exporting spreadsheets, copying records between systems, chasing down reports from vendors. Every hour spent on that is an hour not spent on the business. Every manual step is a place where things go wrong, get delayed, or get dropped.
+Every hour your team spends moving data manually — exporting spreadsheets, copying records between systems, chasing vendor reports — is an hour not spent on the business. Every manual step is a place where things go wrong, get delayed, or get dropped.
 
-DataSkate's job is to eliminate that layer entirely — and then go further. Once your systems are connected and your data flows reliably, automation becomes possible. And once automation is possible, AI agents can start taking actions autonomously on your behalf.
+Connected systems eliminate that layer. And once it's gone, automation becomes possible. Once automation is in place, AI can take over the workflows that currently require a person to notice something, decide something, and act on it.
 
-That is the journey we guide clients through. Integrations are step one.
+That is the arc. Integrations are step one — but the destination is an operation that runs faster than your competition can react.
 
 ---
 
@@ -23,14 +23,32 @@ Your systems talk to each other. Data moves automatically, in real time or on sc
 *For a healthcare GPO:* New members flow from the website into Salesforce automatically. Shopify purchases sync to member records without anyone touching a keyboard. Vendor utilization reports process themselves.
 
 ### Stage 2 — Automated (Year 1)
-Rules and triggers fire without human involvement. A member goes quiet for 90 days — a re-engagement sequence starts automatically. A vendor report arrives — it is parsed, matched, and loaded without Caralina touching her inbox. Mailchimp campaigns are fed by live Salesforce segments, not weekly exports.
+Rules and triggers fire without human involvement. A customer goes quiet for 90 days — a re-engagement sequence starts automatically. A vendor report arrives — it is parsed, matched, and loaded without anyone touching their inbox. Marketing campaigns are fed by live Salesforce segments, not weekly exports someone pulled by hand.
 
 ### Stage 3 — Agentic (Renewal+ or Phase 2 SOW)
 AI agents monitor your connected systems, detect patterns, and take actions. They surface next-best-action recommendations to your sales team. They flag anomalies in utilization data before your vendors do. They operate your business processes — with your team in the loop for approvals, not for execution.
 
-**This is what the 1-year managed service is for.** Year one gets you to Stage 2. Renewal opens Stage 3. No other integration partner structures engagements with this arc in mind.
+**This is what the 1-year managed service is for.** Year one gets you to Stage 2. Renewal opens Stage 3.
 
-**If you have your own developer:** Stage 3 is still available. Your team runs the integration layer — DataSkate comes back for Phase 2 as a dedicated agent development engagement. Same destination, different path. The connected infrastructure your developer maintains becomes the foundation for the agents DataSkate builds on top of it.
+**If you have your own developer:** Stage 3 is still on the table. Your team runs the integration layer — we come back for Phase 2 as a dedicated agent development engagement. Same destination, different path.
+
+**What is happening in your industry right now:**
+
+Companies in your sector that completed their integration layer in 2023–2024 are running AI that you are not yet. Healthcare organizations are predicting member churn 30–45 days out — before a rep notices. Construction firms are flagging budget overruns from connected ERP and project data weeks before a change order is submitted. Distributors are triggering reorders automatically from connected inventory feeds. None of them started with AI. They started by connecting their systems.
+
+The gap between companies that are connected and companies that are not is widening. The window for catching up without rebuilding from scratch is right now.
+
+---
+
+## What We Guarantee
+
+Before we talk about price, here is what you are actually signing up for:
+
+- **Delivery timeline is contractual.** 2 weeks for requirements, then 1.5 weeks per flow. Scope sign-off happens before build starts — you see exactly what you're getting before we proceed.
+- **Billing starts when you go live — not when you sign.** On the IaaS model, the only upfront cost is the retainer, which covers the requirements phase and is credited against your first payment at go-live.
+- **You own the code from day one.** All integration code lives in your GitHub repository. You can audit it, export it, and take it anywhere.
+- **Continuous visibility.** Anypoint Monitoring is live from go-live — you can see uptime, performance, and error rates. You are not flying blind on an integration your team doesn't run.
+- **Changes are included.** Field mapping updates, configuration changes, performance tuning — covered. If the business logic of a flow changes fundamentally, that is a scoping conversation, not a surprise invoice.
 
 ---
 
@@ -48,7 +66,7 @@ AI agents monitor your connected systems, detect patterns, and take actions. The
 
 ## Core Value Statement (One Paragraph)
 
-DataSkate connects your systems, automates your operations, and builds the foundation for AI to run your workflows. We start with MuleSoft integrations — the pipes that move your data reliably between the tools your business runs on. Then we stay with you: maintaining, upgrading, and expanding those connections for the full year while your team learns to operate on data rather than instinct. By the time your AI ambitions are ready to execute, the infrastructure is already there.
+Your systems get connected. Your team stops being the integration layer between your software. And the work you do in year one — clean APIs, consistent data, reliable pipelines — is exactly what makes AI possible in year two. You do not have to think about AI today. You just have to make sure the decisions you make today do not make it harder later. That is what this engagement is structured to avoid.
 
 ---
 
@@ -71,12 +89,12 @@ An integration that breaks in month 3 costs more than the implementation fee to 
 
 ## How to Frame the Rate Schedule
 
-The rate is fixed at signing and increases 5% every 6 months. The full schedule — both payments, both amounts — is disclosed in the contract before you sign.
+**Lead with this:** You do not pay for the implementation upfront. You pay a retainer that covers the requirements phase — and that retainer is credited against your first managed service payment when you go live. From that point, billing is a fixed monthly rate per flow, disclosed fully before you sign.
 
-**How to explain it:**
-> *"The rate is transparent and predictable. You'll know every payment amount before you sign. It increases modestly each period — less than inflation for what's included. What doesn't change is the scope of service. Uptime, performance, upgrades, enhancements — all included at every rate."*
+**How to explain the rate:**
+> *"The rate is transparent and predictable — you'll know every payment amount before you commit. It steps up modestly every 6 months, less than inflation for what it covers. What stays constant is the scope: uptime, performance, upgrades, minor enhancements — all included at every rate, every period."*
 
-Do not lead with the escalation. Answer it directly when asked. The story is predictability and transparency, not the percentage.
+Do not lead with the escalation. The story is: you pay when you are live, you know every number before you sign, and nothing is hidden. Answer the rate question directly when it comes up — but frame it second, not first.
 
 ---
 
@@ -131,9 +149,9 @@ Based on our conversation, here is what I am seeing:
 
 **What Stage 1 looks like for [Company]:**
 [N] integrations connecting [systems]. Built in [X] weeks. Managed by DataSkate from go-live.
-- Monthly rate: $[N × 350]/month (Period 1)
-- 6-month payment: $[N × 350 × 6] — paid at start of each period
-- Full rate schedule included in the contract
+- Rate and payment schedule: see pricing-model for current per-flow rate and 6-month payment breakdown
+- Billing starts at go-live — not at contract signing
+- Full rate schedule disclosed in contract before you sign
 
 **What Stage 2 looks like (Year 1):**
 [Specific automation examples based on their business — e.g., "member re-engagement fires automatically when activity drops, vendor reports process without manual handling"]
@@ -195,6 +213,37 @@ Each of those has a different answer and I don't want to send you generic follow
 
 ### "We don't have the internal resources to manage this."
 > That is the point of the managed service. You do not manage it. We do. Your only job is to use the data in Salesforce and make business decisions based on it. We handle everything underneath.
+
+### "You're too expensive compared to offshore developers."
+> Offshore development is a different product. An offshore team builds the flows — then your team owns the incidents at 3am, the upgrade when Salesforce changes an API, and the debugging when something breaks six months after go-live. DataSkate's rate is the full cost: build, run, maintain, improve. It is not comparable to a per-hour development rate because it includes everything that comes after the build.
+
+### "We're a small company — we don't need enterprise-level integration."
+> MuleSoft is the platform of choice for your industry — not because companies are large, but because the systems they run on are. Salesforce, NetSuite, ServiceNow — these are enterprise platforms at any company size. The question is not whether you need serious integration. The question is whether you want to build and maintain it yourself or have a team run it for you.
+
+### "What if DataSkate goes away or we want to switch?"
+> All code is in your GitHub repository. You own it outright. If we ever stopped operating — which has not happened — you have the full Mule project, the architecture documentation, and the environment credentials. Any MuleSoft developer could pick it up from day one. The dependency is on MuleSoft and Anypoint, not on DataSkate.
+
+### "Can I talk to a reference customer before I decide?"
+> Yes. We connect you with a client who has been live for at least 6 months in the same phase you are considering. We do not use new deployments as references — only clients with enough running time to speak to the managed service experience, not just the build.
+
+### "We need to think about it — can you come back in a few months?"
+> Of course. One thing worth keeping in mind: DataSkate's rate steps up 5% every 6 months. Flows contracted now lock in the current rate for the full first year. We are not manufacturing urgency — just making sure the timing picture is visible before you make your decision.
+
+---
+
+## ROI at a Glance
+
+When clients ask "is it worth it?" — use this comparison.
+
+| What You're Replacing | Typical Cost | What's Not Included |
+|---|---|---|
+| Integration developer hire | $100k–$120k/year | Benefits, downtime coverage, ramp time, turnover risk |
+| Traditional SI project (build only) | $30k–$80k one-time | All post-go-live maintenance falls on your team from day one |
+| Off-the-shelf tools (Zapier, Make) | Low upfront, variable ongoing | Hard ceilings on complexity; breaks at enterprise data volumes |
+| **DataSkate managed service** | **Fixed monthly rate per flow — see pricing-model** | **Nothing — monitoring, upgrades, incidents all included** |
+
+**The payback framing:**
+> *"You are not paying for integrations. You are paying to not have someone on your team whose full-time job is to make your software talk to each other. Most of our clients find that the first freed-up resource more than covers the monthly rate — and that's before counting the value of the automated workflows that come online in the first year."*
 
 ---
 

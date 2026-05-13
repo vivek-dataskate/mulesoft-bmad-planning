@@ -382,11 +382,11 @@ Scout (and any other agent) does **not** write raw HTML for proposals or intake 
 
 | Document type | Shell template | CSS snippet | Content JSON | Fill command |
 |---|---|---|---|---|
-| Client proposal | `commons/branding/templates/proposal-template.html` | `commons/branding/proposal-base.css.html` | `projects/{client}/intake/proposal-content.json` | `node commons/branding/fill-template.js --template proposal --client {client}` |
-| Intake questionnaire | `commons/branding/templates/intake-template.html` | `commons/branding/intake-base.css.html` | `projects/{client}/intake/intake-content.json` | `node commons/branding/fill-template.js --template intake --client {client}` |
-| Per-client portal | `commons/branding/templates/portal-template.html` | `commons/branding/portal-base.css.html` | `projects/{client}/portal-content.json` | `node commons/branding/fill-template.js --template portal --client {client}` |
-| Sales flyer | `commons/branding/templates/flyer-template.html` | `commons/branding/flyer-base.css.html` | `commons/sales/flyer-content.json` | `node commons/branding/fill-template.js --template flyer` |
-| Internal resource (markdown viewer) | `commons/branding/templates/resource-template.html` | `commons/branding/resource-base.css.html` | *(reads source `.md` directly)* | `node commons/branding/fill-template.js --template resource --name {slug} --src commons/sales/{slug}.md` |
+| Client proposal | `commons/templates/proposal-template.html` | `commons/templates/proposal-base.css.html` | `projects/{client}/intake/proposal-content.json` | `node commons/branding/fill-template.js --template proposal --client {client}` |
+| Intake questionnaire | `commons/templates/intake-template.html` | `commons/templates/intake-base.css.html` | `projects/{client}/intake/intake-content.json` | `node commons/branding/fill-template.js --template intake --client {client}` |
+| Per-client portal | `commons/templates/portal-template.html` | `commons/templates/portal-base.css.html` | `projects/{client}/portal-content.json` | `node commons/branding/fill-template.js --template portal --client {client}` |
+| Sales flyer | `commons/templates/flyer-template.html` | `commons/templates/flyer-base.css.html` | *(reads `commons/sales/pricing-model.md` directly)* | `node commons/branding/fill-template.js --template flyer` |
+| Internal resource (markdown viewer) | `commons/templates/resource-template.html` | `commons/templates/resource-base.css.html` | *(reads source `.md` directly)* | `node commons/branding/fill-template.js --template resource --name {slug} --src commons/sales/{slug}.md` |
 
 **How it works:** The shell template contains `<!-- FILL:key -->` markers. The fill script replaces each marker with the corresponding value from the content JSON (or markdown source for the resource type). The CSS snippet is injected at `<!-- FILL:__css -->`. The Firebase JS is pre-embedded in the intake template — Scout never writes it.
 
@@ -395,7 +395,7 @@ Scout (and any other agent) does **not** write raw HTML for proposals or intake 
 **For agents:** Output the content JSON, then run the fill command. Do not read CSS snippet files or write raw HTML.
 
 **If no template exists for your document type — STOP.** Do not write raw HTML. Flag it to the user:
-> "No template exists for `{type}` HTML. Before writing raw HTML, a template + CSS snippet should be added to the template system. Should I create `commons/branding/templates/{type}-template.html` and `{type}-base.css.html` first?"
+> "No template exists for `{type}` HTML. Before writing raw HTML, a template + CSS snippet should be added to the template system. Should I create `commons/templates/{type}-template.html` and `{type}-base.css.html` first?"
 
 `fill-template.js` enforces this at runtime — it will exit with an error and instructions if an unregistered template type is requested.
 
