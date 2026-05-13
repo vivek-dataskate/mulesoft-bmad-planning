@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataSkate × Zyris — Engagement Portal</title>
+<style>
+:root {
+  --brand:#ed1c24; --brand-dk:#a01019; --dark:#1A1A1A; --mid:#555F6E;
+  --light:#FFF5F5; --border:#E8E0E0; --green:#059669; --amber:#D97706;
+  --blue:#2563EB; --gray:#6B7280;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.6;color:var(--dark);background:#F5F5F5;}
+a{color:var(--brand);text-decoration:none;}
+
+/* ── HEADER ── */
+.header{background:var(--dark);color:white;padding:24px 40px 20px;border-bottom:3px solid var(--brand);}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.header-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.header-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);}
+.header-client{font-size:28px;font-weight:900;line-height:1.15;border-left:4px solid var(--brand);padding-left:16px;margin-top:4px;}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.5);padding-left:20px;margin-top:2px;}
+.arch-badge{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 16px;min-width:200px;}
+.arch-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:4px;}
+.arch-name{font-size:14px;font-weight:700;color:white;}
+.arch-email{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.arch-email a{color:rgba(255,255,255,0.6);}
+.header-meta{display:flex;gap:0;background:#111;font-size:12px;color:rgba(255,255,255,0.4);flex-wrap:wrap;margin:0 -40px;padding:0 40px;}
+.header-meta span{padding:8px 24px 8px 0;margin-right:24px;border-right:1px solid rgba(255,255,255,0.07);}
+.header-meta span:last-child{border-right:none;}
+
+/* ── LAYOUT ── */
+.container{max-width:1100px;margin:0 auto;padding:32px 40px 80px;}
+
+/* ── SECTION ── */
+.section{background:white;border:1px solid var(--border);border-radius:10px;margin-bottom:24px;overflow:hidden;}
+.section-head{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.section-num{width:26px;height:26px;border-radius:50%;background:var(--brand);color:white;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-title{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1px;}
+.section-body{padding:24px;}
+
+/* ── PHASE BAR ── */
+.phase-bar{display:flex;align-items:center;padding:20px 24px;}
+.phase-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;}
+.phase-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);}
+.phase-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mid);white-space:nowrap;}
+.phase-line{flex:1;height:2px;background:var(--border);min-width:24px;}
+.phase-done .phase-dot{background:var(--green);border-color:var(--green);}
+.phase-done .phase-label{color:var(--green);}
+.phase-active .phase-dot{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 4px rgba(237,28,36,.15);}
+.phase-active .phase-label{color:var(--brand);font-weight:800;}
+.phase-future .phase-dot{background:#F3F4F6;border-color:#D1D5DB;}
+
+/* ── DOC CARDS ── */
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.doc-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--border);border-radius:8px;transition:border-color .15s,box-shadow .15s;cursor:default;}
+a.doc-card{cursor:pointer;}
+a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.1);}
+.doc-available{border-color:#A7F3D0;}
+.doc-pending{border-color:#FDE68A;background:#FFFBEB;}
+.doc-na{border-color:var(--border);background:#FAFAFA;}
+.doc-icon{font-size:22px;flex-shrink:0;}
+.doc-info{flex:1;min-width:0;}
+.doc-title{font-size:13px;font-weight:700;color:var(--dark);}
+.doc-sub{font-size:11px;color:var(--mid);margin-top:1px;}
+.doc-arrow{font-size:16px;color:var(--brand);flex-shrink:0;}
+.doc-na .doc-title{color:var(--mid);}
+
+/* ── SPRINT STATS ── */
+.sprint-stats{display:flex;gap:0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.sprint-stat{flex:1;min-width:80px;text-align:center;padding:16px 8px;border-right:1px solid var(--border);}
+.sprint-stat:last-child{border-right:none;}
+.sn{display:block;font-size:28px;font-weight:900;line-height:1;}
+.sl{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mid);margin-top:4px;}
+.sn-total{color:var(--dark);}
+.sn-done{color:var(--green);}
+.sn-active{color:var(--amber);}
+.sn-review{color:var(--blue);}
+.sn-planned{color:var(--gray);}
+
+/* ── EPIC BLOCKS ── */
+.epic-block{border-bottom:1px solid var(--border);}
+.epic-block:last-child{border-bottom:none;}
+.epic-header{display:flex;align-items:center;gap:12px;padding:14px 24px;cursor:pointer;user-select:none;list-style:none;}
+.epic-header::-webkit-details-marker{display:none;}
+.epic-block[open] .epic-header{background:var(--light);}
+.epic-num{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--brand);flex-shrink:0;}
+.epic-title{font-size:14px;font-weight:700;flex:1;}
+.epic-progress{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.epic-bar{width:80px;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;}
+.epic-bar-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s;}
+.epic-pct{font-size:11px;font-weight:700;color:var(--mid);width:28px;text-align:right;}
+.epic-count{font-size:11px;color:var(--mid);flex-shrink:0;}
+
+/* ── STORY ROWS ── */
+.epic-stories{padding:0 24px 16px;}
+.story-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F3F4F6;flex-wrap:wrap;}
+.story-row:last-child{border-bottom:none;}
+.story-id{font-size:11px;font-weight:800;color:var(--brand);background:var(--light);padding:2px 6px;border-radius:4px;flex-shrink:0;font-family:monospace;}
+.story-title{font-size:13px;font-weight:600;flex:1;min-width:160px;}
+.story-desc{font-size:12px;color:var(--mid);width:100%;padding-left:2px;}
+
+/* ── STATUS CHIPS ── */
+.chip{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.chip-done{background:#D1FAE5;color:#065F46;}
+.chip-active{background:#FEF3C7;color:#92400E;}
+.chip-review{background:#DBEAFE;color:#1E40AF;}
+.chip-planned{background:#F3F4F6;color:#6B7280;}
+
+/* ── EMPTY STATE ── */
+.sprint-empty{padding:48px 24px;text-align:center;}
+.sprint-empty-icon{font-size:36px;margin-bottom:12px;}
+.sprint-empty-title{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:6px;}
+.sprint-empty-body{font-size:13px;color:var(--mid);max-width:380px;margin:0 auto;}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:32px;font-size:12px;color:var(--mid);}
+.footer a{color:var(--brand);}
+
+@media(max-width:640px){
+  .header{padding:20px 24px 16px;}
+  .container{padding:20px 16px 60px;}
+  .header-meta{padding:0 24px;}
+  .phase-bar{overflow-x:auto;gap:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-brand">
+        <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="12" fill="#ed1c24"/>
+  <text x="50" y="72" font-family="Arial Black,Arial,sans-serif" font-size="62" font-weight="900" fill="white" text-anchor="middle">D</text>
+</svg>
+        <span class="header-eyebrow">DataSkate Engagement Portal</span>
+      </div>
+      <div class="header-client">Zyris</div>
+      <div class="header-sub">Integration Project</div>
+    </div>
+    <div class="arch-badge">
+      <div class="arch-label">Your Architect</div>
+      <div class="arch-name">Kailash Chanda</div>
+      <div class="arch-email"><a href="mailto:kailash@dataskate.ai">kailash@dataskate.ai</a></div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span>Project started: 2026-05-12</span>
+    <span>Target go-live: TBD</span>
+    <span>Updated: May 13, 2026</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Phase tracker -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">1</div>
+      <div class="section-title">Engagement Phase</div>
+    </div>
+    <div class="phase-bar"><div class="phase-step phase-active">
+      <div class="phase-dot"></div>
+      <div class="phase-label">Discovery</div>
+    </div><div class="phase-line"></div><div class="phase-step phase-future">
+      <div class="phase-dot"></div>
+      <div class="phase-label">Requirements</div>
+    </div><div class="phase-line"></div><div class="phase-step phase-future">
+      <div class="phase-dot"></div>
+      <div class="phase-label">Build</div>
+    </div><div class="phase-line"></div><div class="phase-step phase-future">
+      <div class="phase-dot"></div>
+      <div class="phase-label">Testing</div>
+    </div><div class="phase-line"></div><div class="phase-step phase-future">
+      <div class="phase-dot"></div>
+      <div class="phase-label">Go Live</div>
+    </div></div>
+  </div>
+
+  <!-- Documents -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">2</div>
+      <div class="section-title">Documents &amp; Resources</div>
+    </div>
+    <div class="section-body">
+      <div class="doc-grid">
+        <a href="https://dataskateclients.web.app/intake/zyris.html" target="_blank" class="doc-card doc-available">
+        <div class="doc-icon">📋</div>
+        <div class="doc-info"><div class="doc-title">Intake Questionnaire</div><div class="doc-sub">Open form →</div></div>
+        <div class="doc-arrow">↗</div>
+      </a>
+        <div class="doc-card doc-pending">
+        <div class="doc-icon">⏳</div>
+        <div class="doc-info"><div class="doc-title">Intake Responses</div><div class="doc-sub">Awaiting your submission</div></div>
+      </div>
+        <a href="https://dataskateclients.web.app/proposal/zyris.html" target="_blank" class="doc-card doc-available">
+        <div class="doc-icon">📄</div>
+        <div class="doc-info"><div class="doc-title">Proposal</div><div class="doc-sub">View proposal →</div></div>
+        <div class="doc-arrow">↗</div>
+      </a>
+        <div class="doc-card doc-pending">
+        <div class="doc-icon">📁</div>
+        <div class="doc-info"><div class="doc-title">Scoping Documents</div><div class="doc-sub">In progress</div></div>
+      </div>
+        <div class="doc-card doc-na">
+        <div class="doc-icon">📝</div>
+        <div class="doc-info"><div class="doc-title">Product Requirements</div><div class="doc-sub">Not yet finalized</div></div>
+      </div>
+        <div class="doc-card doc-na">
+        <div class="doc-icon">🏗️</div>
+        <div class="doc-info"><div class="doc-title">Architecture Design</div><div class="doc-sub">Not yet finalized</div></div>
+      </div>
+        <div class="doc-card doc-pending">
+        <div class="doc-icon">🗂️</div>
+        <div class="doc-info"><div class="doc-title">Epics & Stories</div><div class="doc-sub">Sprint planning pending</div></div>
+      </div>
+        <a href="https://console.cloud.google.com/storage/browser/dataskateclients.firebasestorage.app/source-files/zyris" target="_blank" class="doc-card doc-available">
+        <div class="doc-icon">📁</div>
+        <div class="doc-info"><div class="doc-title">Source Files</div><div class="doc-sub">View in cloud storage →</div></div>
+        <div class="doc-arrow">↗</div>
+      </a>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- Sprint board -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">3</div>
+      <div class="section-title">Sprint Status</div>
+    </div>
+    <div class="sprint-empty">
+      <div class="sprint-empty-icon">📋</div>
+      <div class="sprint-empty-title">Sprint planning not yet started</div>
+      <div class="sprint-empty-body">Stories and epics will appear here once your project moves into the Build phase.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Powered by <a href="https://dataskate.ai" target="_blank">DataSkate</a> · This page updates automatically as your project progresses.
+</div>
+
+</body>
+</html>
