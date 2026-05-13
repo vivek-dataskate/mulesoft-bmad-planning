@@ -1,0 +1,81 @@
+name: Regenerate Client Portals
+
+# Triggers whenever stories, decisions, or project config changes for any client.
+# Generates portal HTML and deploys to Firebase Hosting so clients see live updates.
+#
+# Required secrets (Settings → Secrets → Actions):
+#   FIREBASE_SA_KEY  — Firebase service account JSON (same as Codespaces secret)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'projects/*/stories.md'
+      - 'projects/*/decisions.json'
+      - 'projects/*/project.json'
+      - 'projects/*/intake/responses.json'
+      - 'scaffold/generate-client-portal.js'
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug (e.g. zyris) — leave blank to regenerate all'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-portals:
+    name: Generate & Deploy Portals
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Generate portal HTML
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_DEPLOY_TOKEN }}
+        run: |
+          CLIENT="${{ github.event.inputs.client }}"
+          if [ -n "$CLIENT" ]; then
+            node scaffold/generate-client-portal.js "$CLIENT"
+          else
+            node scaffold/generate-client-portal.js
+          fi
+
+      - name: Sync intake + proposal HTML into firebase/public
+        run: |
+          mkdir -p firebase/public/intake firebase/public/proposal
+          for html in projects/*/intake/intake-questionnaire-*.html; do
+            [ -f "$html" ] || continue
+            slug=$(basename "$html" | sed 's/intake-questionnaire-//' | sed 's/\.html//')
+            cp "$html" "firebase/public/intake/${slug}.html"
+          done
+          for html in projects/*/intake/proposal-*.html; do
+            [ -f "$html" ] || continue
+            slug=$(basename "$html" | sed 's/proposal-//' | sed 's/\.html//')
+            cp "$html" "firebase/public/proposal/${slug}.html"
+          done
+
+      - name: Write Firebase service account key
+        run: echo "${{ secrets.FIREBASE_SA_KEY }}" > /tmp/firebase-sa.json
+
+      - name: Deploy to Firebase Hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
+        run: |
+          cd firebase
+          npm install --prefix functions --silent
+          npx firebase-tools deploy --only hosting --project dataskateclients --force
+
+      - name: Cleanup
+        if: always()
+        run: rm -f /tmp/firebase-sa.json
