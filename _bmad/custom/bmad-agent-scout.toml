@@ -36,7 +36,7 @@ activation_steps_prepend = [
 ]
 
 activation_steps_append = [
-  "Run the workflow for the detected session:\n  If message contains 'PIPELINE MODE':\n    Run all sessions sequentially without stopping. After S1-CLOSE, immediately reload session 2 files and continue. After S2-CLOSE, immediately reload session 3a files and continue. After S3A-CLOSE, immediately reload session 3b files and continue through to final HTML deliverables and deploy.\n  Otherwise:\n    Session 1  → run Steps 0 through 3, then Step S1-CLOSE. Stop.\n    Session 2  → run Steps 4 through 8, then Step S2-CLOSE. Stop.\n    Session 3a → run Step 9, then Step S3A-CLOSE. Stop.\n    Session 3b → run Step 10, then Steps 11a-11c. Session complete.\n    Do not cross session boundaries.",
+  "Run the workflow for the detected session:\n  If message contains 'PIPELINE MODE':\n    Run all sessions sequentially without stopping. After S1-CLOSE, immediately reload session 2 files and continue. After S2-CLOSE, immediately reload session 3a files and continue. After S3A-CLOSE, immediately reload session 3b files and continue through to final HTML deliverables and deploy.\n  Otherwise:\n    Session 1  → run Steps 0 through 3, then Step S1-CLOSE. Stop.\n    Session 2  → run Steps 4 through 8, then Step S2-CLOSE. Stop.\n    Session 3a → run Step 9, then Step 9b (pitch kit), then Step S3A-CLOSE. Stop.\n    Session 3b → run Step 10, then Steps 11a-11c. Session complete.\n    Do not cross session boundaries.",
 ]
 
 principles = [
@@ -94,11 +94,11 @@ principles = [
 
   # ─── SESSION 3 PRINCIPLES ───────────────────────────────────────────
 
-  "MuleSoft Scout — HTML Output Gate (ALL sessions):\n  NEVER write a raw HTML file from scratch. All HTML must go through the template system:\n    node commons/branding/fill-template.js --template {type} [--client {client}] [--name {slug} --src {path}]\n  Registered types: proposal, intake, portal, flyer, resource.\n  If the required document type is NOT in that list:\n    STOP. Do not attempt to write raw HTML.\n    Say: 'No template exists for {type} HTML. I should create commons/branding/templates/{type}-template.html\n    and {type}-base.css.html before generating this document. Shall I do that first?'\n  The fill-template.js script enforces this at runtime and will exit with an error for unregistered types.",
+  "MuleSoft Scout — HTML Output Gate (ALL sessions):\n  NEVER write a raw HTML file from scratch. All HTML must go through the template system:\n    node commons/branding/fill-template.js --template {type} [--client {client}] [--name {slug} --src {path}]\n  Registered types: proposal, intake, portal, flyer, resource.\n  If the required document type is NOT in that list:\n    STOP. Do not attempt to write raw HTML.\n    Say: 'No template exists for {type} HTML. I should create commons/templates/{type}-template.html\n    and {type}-base.css.html before generating this document. Shall I do that first?'\n  The fill-template.js script enforces this at runtime and will exit with an error for unregistered types.",
 
-  "MuleSoft Scout — Intake HTML Generation (Session 3b — Step 10):\n  Source: intake-questionnaire-{client}.md, company_context.json, project.json\n\n  OUTPUT: Write projects/{client}/intake/intake-content.json — do NOT write raw HTML.\n  After writing the JSON, run: node commons/branding/fill-template.js --template intake --client {client}\n  The script reads the JSON + commons/branding/templates/intake-template.html and writes intake-questionnaire-{client}.html.\n\n  JSON SCHEMA — intake-content.json:\n  {\n    \"meta\": {\n      \"clientName\": \"...\",\n      \"clientSlug\": \"{slug}\",\n      \"eyebrow\": \"MuleSoft Integration Discovery — Intake Questionnaire\",\n      \"docTitle\": \"{ClientName} × DataSkate — Integration Discovery\",\n      \"docSubtitle\": \"one-line subtitle — e.g. 'Scoping supplement for your MuleSoft engagement'\",\n      \"date\": \"Month YYYY\",\n      \"architect\": \"{architect display name from project.json}\",\n      \"architectEmail\": \"{architectEmail from project.json — never hardcode}\",\n      \"source\": \"Scoping sessions with {ClientName} team\"\n    },\n    \"bizContext\": {\n      \"snapshot\": \"2–3 sentence company snapshot from company_context.json\",\n      \"journeyCards\": [\n        { \"phase\": \"phase-1\", \"label\": \"Connected\",  \"headline\": \"...\", \"body\": \"...\" },\n        { \"phase\": \"phase-2\", \"label\": \"Automated\",  \"headline\": \"...\", \"body\": \"...\" },\n        { \"phase\": \"phase-3\", \"label\": \"Agentic\",    \"headline\": \"...\", \"body\": \"...\" }\n      ],\n      \"p0Blockers\": [\n        { \"title\": \"...\", \"body\": \"...\" }\n        /* include only confirmed P0 blockers from scout-s1.md; omit array if none */\n      ]\n    },\n    \"sections\": [\n      {\n        \"id\": \"s1\",\n        \"title\": \"Section title\",\n        \"bodyHtml\": \"<div class='q-block'>...</div>\\n<div class='q-block'>...</div>\"\n      }\n      /* one entry per section (S01–S10); bodyHtml is the inner .section-body content only */\n    ],\n    \"internalFlags\": {\n      \"bodyHtml\": \"<div class='internal-block'>...</div>\"\n      /* internal-only content: access chain, system credentials, P0 details; empty string if none */\n    },\n    \"pricingSummary\": {\n      \"bodyHtml\": \"<table class='managed-table'>...</table>\"\n      /* pricing summary for internal reference; empty string if not yet computed */\n    }\n  }\n\n  SECTION BODY HTML RULES (for each sections[].bodyHtml):\n  - Every question → <div class='q-block'><span class='q-id'></span><p class='q-text'>...</p>\\n  [optional pills] <textarea class='answer' id='q-NN' [data-required='true']>pre-filled value or empty</textarea></div>\n  - Pre-filled answers → add prefilled value between textarea tags; do NOT add is-prefilled class (JS handles that)\n  - Required unknowns → data-required='true' on textarea; leave textarea empty\n  - Pills → <ul class='q-options'><li class='pill' onclick='pickPill(this, \"q-NN\")'>Option</li></ul> above textarea\n  - Field mapping tables → <p class='q-hint'>hint text</p><table class='dtbl'><thead>...</thead><tbody>...</tbody></table>\n  - UC blocks → <div class='uc-block'><span class='uc-tag'>UC-N</span> <strong>Title</strong><p>description</p></div>\n  - Internal-only content within a section → wrap in <div class='no-print internal-block'><p class='internal-label'>Internal — Do Not Send</p>...</div>\n  - NEVER put sticky bar, submit block, biz-context, or JS in bodyHtml — those come from the template\n  - Use only class names defined in intake-base.css.html; no inline styles; no CDN links",
+  "MuleSoft Scout — Intake HTML Generation (Session 3b — Step 10):\n  Source: intake-questionnaire-{client}.md, company_context.json, project.json\n\n  OUTPUT: Write projects/{client}/intake/intake-content.json — do NOT write raw HTML.\n  After writing the JSON, run: node commons/branding/fill-template.js --template intake --client {client}\n  The script reads the JSON + commons/templates/intake-template.html and writes intake-questionnaire-{client}.html.\n\n  JSON SCHEMA — intake-content.json:\n  {\n    \"meta\": {\n      \"clientName\": \"...\",\n      \"clientSlug\": \"{slug}\",\n      \"eyebrow\": \"MuleSoft Integration Discovery — Intake Questionnaire\",\n      \"docTitle\": \"{ClientName} × DataSkate — Integration Discovery\",\n      \"docSubtitle\": \"one-line subtitle — e.g. 'Scoping supplement for your MuleSoft engagement'\",\n      \"date\": \"Month YYYY\",\n      \"architect\": \"{architect display name from project.json}\",\n      \"architectEmail\": \"{architectEmail from project.json — never hardcode}\",\n      \"source\": \"Scoping sessions with {ClientName} team\"\n    },\n    \"bizContext\": {\n      \"snapshot\": \"2–3 sentence company snapshot from company_context.json\",\n      \"journeyCards\": [\n        { \"phase\": \"phase-1\", \"label\": \"Connected\",  \"headline\": \"...\", \"body\": \"...\" },\n        { \"phase\": \"phase-2\", \"label\": \"Automated\",  \"headline\": \"...\", \"body\": \"...\" },\n        { \"phase\": \"phase-3\", \"label\": \"Agentic\",    \"headline\": \"...\", \"body\": \"...\" }\n      ],\n      \"p0Blockers\": [\n        { \"title\": \"...\", \"body\": \"...\" }\n        /* include only confirmed P0 blockers from scout-s1.md; omit array if none */\n      ]\n    },\n    \"sections\": [\n      {\n        \"id\": \"s1\",\n        \"title\": \"Section title\",\n        \"bodyHtml\": \"<div class='q-block'>...</div>\\n<div class='q-block'>...</div>\"\n      }\n      /* one entry per section (S01–S10); bodyHtml is the inner .section-body content only */\n    ],\n    \"internalFlags\": {\n      \"bodyHtml\": \"<div class='internal-block'>...</div>\"\n      /* internal-only content: access chain, system credentials, P0 details; empty string if none */\n    },\n    \"pricingSummary\": {\n      \"bodyHtml\": \"<table class='managed-table'>...</table>\"\n      /* pricing summary for internal reference; empty string if not yet computed */\n    }\n  }\n\n  SECTION BODY HTML RULES (for each sections[].bodyHtml):\n  - Every question → <div class='q-block'><span class='q-id'></span><p class='q-text'>...</p>\\n  [optional pills] <textarea class='answer' id='q-NN' [data-required='true']>pre-filled value or empty</textarea></div>\n  - Pre-filled answers → add prefilled value between textarea tags; do NOT add is-prefilled class (JS handles that)\n  - Required unknowns → data-required='true' on textarea; leave textarea empty\n  - Pills → <ul class='q-options'><li class='pill' onclick='pickPill(this, \"q-NN\")'>Option</li></ul> above textarea\n  - Field mapping tables → <p class='q-hint'>hint text</p><table class='dtbl'><thead>...</thead><tbody>...</tbody></table>\n  - UC blocks → <div class='uc-block'><span class='uc-tag'>UC-N</span> <strong>Title</strong><p>description</p></div>\n  - Internal-only content within a section → wrap in <div class='no-print internal-block'><p class='internal-label'>Internal — Do Not Send</p>...</div>\n  - NEVER put sticky bar, submit block, biz-context, or JS in bodyHtml — those come from the template\n  - Use only class names defined in intake-base.css.html; no inline styles; no CDN links",
 
-  "MuleSoft Scout — Proposal Generation (Session 3a — Step 9):\n  Read project.json for displayName, architect, architectEmail, confirmed flow count.\n  Use pre-computed pricing figures from scout-s2.md — do NOT re-compute.\n\n  OUTPUT: Write projects/{client}/intake/proposal-content.json — do NOT write raw HTML.\n  After writing the JSON, run: node commons/branding/fill-template.js --template proposal --client {client}\n  The script reads the JSON + commons/branding/templates/proposal-template.html and writes proposal-{client}.html.\n\n  JSON SCHEMA — proposal-content.json:\n  {\n    \"meta\": {\n      \"clientName\": \"...\",\n      \"title\": \"MuleSoft Integration for {ClientName}\",\n      \"subtitle\": \"one-line tagline — AI journey angle, not 'connecting systems'\",\n      \"date\": \"Month YYYY\",\n      \"architect\": \"{architect display name}\",\n      \"architectEmail\": \"{architectEmail from project.json}\",\n      \"flowCount\": N\n    },\n    \"challenge\": {\n      \"headline\": \"short punchy headline about their pain\",\n      \"lead\": \"1-2 sentence lead with specific details from scoping\",\n      \"cards\": [\n        { \"label\": \"short label\", \"body\": \"1-2 sentence description with concrete detail\" }\n        /* 3-4 cards */\n      ]\n    },\n    \"solution\": {\n      \"lead\": \"1-2 sentence outcome statement\",\n      \"diagramNodes\": { \"sources\": [\"System A\"], \"targets\": [\"System B\", \"System C\"] },\n      \"diagramCaption\": \"one-line caption about monitoring / bidirectional / retries\"\n    },\n    \"journey\": {\n      \"headline\": \"short headline for journey section\",\n      \"stage1\": { \"label\": \"Year 1 · Connected\",  \"year\": \"Year 1\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"stage2\": { \"label\": \"Year 1 · Automated\",  \"year\": \"Year 1\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"stage3\": { \"label\": \"Year 2+ · Agentic\",   \"year\": \"Year 2+\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"closingLine\": \"verbatim closing line from proposal-structure.md\"\n    },\n    \"flows\": [\n      { \"num\": 1, \"name\": \"...\", \"route\": \"A → MuleSoft → B\", \"complexity\": \"high|medium|low\", \"value\": \"1-2 sentence business value\" }\n    ],\n    \"outcomes\": [\n      { \"icon\": \"⚡\", \"title\": \"...\", \"body\": \"...\" }\n      /* 3 cards; last must be AI-Ready Foundation verbatim from proposal-structure.md */\n    ],\n    \"roi\": null,\n    \"timeline\": [\n      { \"phase\": \"Phase 1\", \"weeks\": \"Weeks 1–N\", \"title\": \"...\", \"body\": \"...\" }\n    ],\n    \"pricing\": {\n      \"timelineWeeks\": N,\n      \"period1\": { \"rate\": \"825\" },\n      \"period2\": { \"rate\": \"700\" },\n      \"period3\": { \"rate\": \"600\" },\n      \"period4\": { \"rate\": \"500\" },\n      \"implOnly\": \"NNNNN\"\n    },\n    \"included\": [\n      { \"title\": \"...\", \"detail\": \"...\" }\n      /* 6 items */\n    ],\n    \"about\": null,\n    \"oos\": [\n      { \"title\": \"...\", \"detail\": \"...\" }\n      /* 4+ items, client-specific */\n    ],\n    \"assumptions\": [\n      { \"assumption\": \"...\", \"owner\": \"client|ds|both|vendor\", \"when\": \"...\", \"p0\": true|false }\n    ],\n    \"nextSteps\": [\n      { \"title\": \"...\", \"body\": \"...\" }\n      /* 4 steps */\n    ]\n  }\n\n  PRICING RULES (from proposal-structure.md and pricing-model.md):\n  - Timeline: Weeks = 2 + (N × 1.5), round up\n  - Period rates come from pricing-model.md\n  - implOnly: compute from pricing-model.md for N flows\n  - about: null unless ae.isNewToDataSkate = true (from scout-s2.md HTML Generation Context)",
+  "MuleSoft Scout — Proposal Generation (Session 3a — Step 9):\n  Read project.json for displayName, architect, architectEmail, confirmed flow count.\n  Use pre-computed pricing figures from scout-s2.md — do NOT re-compute.\n\n  OUTPUT: Write projects/{client}/intake/proposal-content.json — do NOT write raw HTML.\n  After writing the JSON, run: node commons/branding/fill-template.js --template proposal --client {client}\n  The script reads the JSON + commons/templates/proposal-template.html and writes proposal-{client}.html.\n\n  JSON SCHEMA — proposal-content.json:\n  {\n    \"meta\": {\n      \"clientName\": \"...\",\n      \"title\": \"MuleSoft Integration for {ClientName}\",\n      \"subtitle\": \"one-line tagline — AI journey angle, not 'connecting systems'\",\n      \"date\": \"Month YYYY\",\n      \"architect\": \"{architect display name}\",\n      \"architectEmail\": \"{architectEmail from project.json}\",\n      \"flowCount\": N\n    },\n    \"challenge\": {\n      \"headline\": \"short punchy headline about their pain\",\n      \"lead\": \"1-2 sentence lead with specific details from scoping\",\n      \"cards\": [\n        { \"label\": \"short label\", \"body\": \"1-2 sentence description with concrete detail\" }\n        /* 3-4 cards */\n      ]\n    },\n    \"solution\": {\n      \"lead\": \"1-2 sentence outcome statement\",\n      \"diagramNodes\": { \"sources\": [\"System A\"], \"targets\": [\"System B\", \"System C\"] },\n      \"diagramCaption\": \"one-line caption about monitoring / bidirectional / retries\"\n    },\n    \"journey\": {\n      \"headline\": \"short headline for journey section\",\n      \"stage1\": { \"label\": \"Year 1 · Connected\",  \"year\": \"Year 1\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"stage2\": { \"label\": \"Year 1 · Automated\",  \"year\": \"Year 1\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"stage3\": { \"label\": \"Year 2+ · Agentic\",   \"year\": \"Year 2+\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"closingLine\": \"verbatim closing line from proposal-structure.md\"\n    },\n    \"flows\": [\n      { \"num\": 1, \"name\": \"...\", \"route\": \"A → MuleSoft → B\", \"complexity\": \"high|medium|low\", \"value\": \"1-2 sentence business value\" }\n    ],\n    \"outcomes\": [\n      { \"icon\": \"⚡\", \"title\": \"...\", \"body\": \"...\" }\n      /* 3 cards; last must be AI-Ready Foundation verbatim from proposal-structure.md */\n    ],\n    \"roi\": null,\n    \"timeline\": [\n      { \"phase\": \"Phase 1\", \"weeks\": \"Weeks 1–N\", \"title\": \"...\", \"body\": \"...\" }\n    ],\n    \"pricing\": {\n      \"timelineWeeks\": N,\n      \"period1\": { \"rate\": \"825\" },\n      \"period2\": { \"rate\": \"700\" },\n      \"period3\": { \"rate\": \"600\" },\n      \"period4\": { \"rate\": \"500\" },\n      \"implOnly\": \"NNNNN\"\n    },\n    \"included\": [\n      { \"title\": \"...\", \"detail\": \"...\" }\n      /* 6 items */\n    ],\n    \"about\": null,\n    \"oos\": [\n      { \"title\": \"...\", \"detail\": \"...\" }\n      /* 4+ items, client-specific */\n    ],\n    \"assumptions\": [\n      { \"assumption\": \"...\", \"owner\": \"client|ds|both|vendor\", \"when\": \"...\", \"p0\": true|false }\n    ],\n    \"nextSteps\": [\n      { \"title\": \"...\", \"body\": \"...\" }\n      /* 4 steps */\n    ]\n  }\n\n  PRICING RULES (from proposal-structure.md and pricing-model.md):\n  - Timeline: Weeks = 2 + (N × 1.5), round up\n  - Period rates come from pricing-model.md\n  - implOnly: compute from pricing-model.md for N flows\n  - about: null unless ae.isNewToDataSkate = true (from scout-s2.md HTML Generation Context)",
 ]
 
 scoping_workflow = """
@@ -135,13 +135,17 @@ Step 0 — Business Vertical Research (MANDATORY — before reading scoping file
     "snapshot": "2–3 sentence description",
     "industry": "vertical name",
     "businessObjects": ["..."],
+    "hqLocation": "{city, state — from web research; null if not found}",
+    "revenueEstimate": "{e.g. '$85M' or 'not publicly available'}",
     "aiJourney": {
       "phase1": { "label": "Connected", "headline": "...", "body": "..." },
       "phase2": { "label": "Automated", "headline": "...", "body": "..." },
       "phase3": { "label": "Agentic", "headline": "...", "body": "..." }
     },
     "p0Blockers": [],
-    "systemFindings": []
+    "systemFindings": [],
+    "nearbyPeers": [],
+    "competitorFOMO": []
   }
   AI journey phases must be client-specific. Phase 1 = flows being built now. Phase 2 = automation possible with connected data. Phase 3 = AI that requires clean connected data as prerequisite.
 
@@ -149,6 +153,139 @@ Step 0b — System Prerequisites Research.
 - For each target system identified: document known prerequisites.
 - Derive scope boundary per target system (formatted into UC blocks by Session 2).
 - Log results as 'Prerequisites per System' in notes for scout-s1.md.
+
+Step 0c — Pitch Kit Research (MANDATORY — results stored in company_context.json).
+Run this AFTER Step 0 has confirmed industry + snapshot. Provides data for the architect pitch kit
+generated in Session 3a. Do NOT skip — this is the only session with sufficient research budget.
+
+0c-1. HQ location + revenue (if not already in company_context.json from Step 0 web research):
+  Search: "{ClientName} headquarters" AND "{ClientName} annual revenue OR estimated revenue"
+  Extract: city and state, revenue estimate (public or analyst estimate).
+  If not found: set hqLocation and revenueEstimate to null — do not invent.
+
+0c-2. Nearby peer research (web search — only real verified companies):
+  Using hqLocation from 0c-1, search:
+    "{industry} companies near {city} {state} MuleSoft integration" AND
+    "{industry} ERP CRM automation {city}" AND
+    "{ClientName} competitors {state}"
+  Goal: find 2–4 real companies within ~100 miles that have invested in integration or automation.
+  Sources: LinkedIn company pages, press releases, case studies, vendor partner directories, local business news.
+  For each peer found, record in company_context.json nearbyPeers[]:
+    { "name": "...", "distance": "~N mi", "location": "city, state",
+      "revenue": "...", "similarity": "industry + systems",
+      "what": "what they integrated", "outcome": "result or 'announced'",
+      "source": "URL or publication" }
+  If fewer than 2 found: broaden to 200 miles or adjacent metro.
+  If still none found: leave nearbyPeers as [] — do NOT invent companies.
+
+0c-3. Competitor FOMO research (deep — use-case specific, quantified, AI-layer focused).
+  This is not a generic "companies doing digital transformation" search.
+  The goal is to find companies doing the EXACT SAME integration use cases as this client
+  (same source + target systems, same entity type) who have ALSO layered AI on top —
+  and to surface what that AI is actually doing for them, with numbers.
+
+  SEARCH STRATEGY — run all of these, read results:
+  A. Use-case exact match:
+     "{source system} {target system} integration ROI case study 2023 2024 2025"
+     "{source system} {target system} AI automation {industry} results"
+     e.g. "Procore NetSuite integration ROI construction" or "Salesforce NetSuite AI construction company"
+
+  B. AI layer on the same data:
+     "{industry} AI {entity type} prediction automation savings 2024"
+     "{industry} machine learning {entity type} ROI hours saved"
+     e.g. "construction AI budget variance prediction savings" or "construction AI change order detection ROI"
+
+  C. Named competitor research:
+     "{direct ClientName competitors} digital transformation automation"
+     "{industry} {revenue bracket} company automation investment 2024"
+     e.g. "{CompanyName} competitors automation" if client is named publicly
+
+  D. Vendor case studies for this exact system pair:
+     "MuleSoft {source system} {target system} {industry} case study"
+     "{source system} customer story AI {industry}"
+     Check: mulesoft.com/case-studies, salesforce.com/customer-stories, netsuite.com/case-studies,
+             procore.com/customers, workato.com/customers — filter to this industry + company size
+
+  E. Industry analyst data if no named companies found:
+     "Gartner OR Forrester OR IDC {industry} integration automation ROI statistics 2024"
+     McKinsey, Deloitte, PwC industry reports for this vertical
+
+  FALLBACK CHAIN — attempt each tier in order; stop when you have 3–4 solid entries.
+  Industry stays the same as long as possible before broadening.
+
+  TIER 1 — Same industry, exact system pair + AI:
+    Same industry + same systems (e.g. Procore + NetSuite) + AI layer + quantified savings.
+    relevanceTier: "exact-match"
+    analogyNote: null (no explanation needed — it IS them, one year ahead)
+
+  TIER 2 — Same industry, any system pair + AI:
+    Same industry + different ERP or CRM combination + similar AI use case and outcome.
+    Example: another construction company using Sage + Salesforce with AI budget alerts.
+    relevanceTier: "same-industry"
+    analogyNote: 1 sentence bridging the system difference:
+      "They use Sage + Salesforce instead of your Procore + NetSuite stack, but the AI outcome is
+       identical — real-time job cost data surfaced before the problem becomes a change order."
+
+  TIER 3 — Adjacent industry, same or similar use case + AI:
+    Structurally similar industry (construction ↔ manufacturing ↔ field services) +
+    same type of AI use case (e.g. cost variance detection, invoice classification).
+    relevanceTier: "adjacent-industry"
+    analogyNote: 1–2 sentences explaining why it transfers:
+      "This is manufacturing, not construction, but the use case is structurally identical: connecting
+       an operations system to an ERP so AI can surface cost variance before it becomes a crisis.
+       Their savings data applies directly to your situation."
+
+  TIER 4 — Industry-level stat (when no named companies found at Tier 1–3):
+    Gartner, Forrester, McKinsey, IDC, PwC, Deloitte — pick the stat most specific to this
+    client's primary use case and vertical.
+    relevanceTier: "industry-stat"
+    analogyNote: 1 sentence making it personal:
+      "This is the average across your industry. Without connected systems, you are still in the
+       group not yet realizing these savings — which is exactly the gap we close in Year 1."
+
+  NEVER LEAVE competitorFOMO EMPTY. Tier 4 always exists for any vertical.
+  A verified Gartner stat with a sharp analogyNote beats an empty section every time.
+
+  FOR EACH ENTRY, extract ALL of the following (leave null if genuinely unknown — do not guess):
+  - name: company name or "Industry data (Gartner 2024)"
+  - location: city/state or "National" for stats
+  - revenue: revenue bracket (e.g. "$50M–$100M")
+  - systemsUsed: systems they connected — note if different from client's
+  - aiUseCase: what AI is specifically doing — precise, not generic:
+      NOT "AI for automation"
+      YES "AI flags budget overruns 3 weeks before a change order is filed"
+      YES "ML classifies invoices by vendor risk, routes high-risk for manual review"
+  - whatTheyBuilt: 1 sentence: the integration + AI layer
+  - savings: quantified savings — $, hours, %, cycle time — the number that makes the client wince
+      "$200K saved per project" / "8 hours/week per PM" / "62% fewer invoice exceptions"
+  - before: what the manual process looked like before (1 sentence)
+  - after: what changed operationally after integration + AI (1 sentence)
+  - status: "Live since Q? YYYY" / "Announced YYYY" / "Industry average (N=NNN companies)"
+  - source: URL, analyst report, or "MuleSoft case study 2024"
+  - relevanceTier: "exact-match" | "same-industry" | "adjacent-industry" | "industry-stat"
+  - analogyNote: null for exact-match; 1–2 sentence bridge explanation for all other tiers
+  - fomoAngle: ONE verbatim sentence the architect says on the call — sharpest version:
+      exact-match:     "Turner Construction connected Procore and NetSuite last year and catches budget
+                        problems 3 weeks earlier — one avoided change order per project, $150K back."
+      same-industry:   "A construction firm in Ohio running Sage instead of NetSuite built the same
+                        thing and saved 8 hours per PM per week — same outcome, different stack."
+      adjacent-industry: "A manufacturing company with the same ERP + ops setup cut variance detection
+                        from 4 weeks to 3 days — the pattern is identical to what you'd get here."
+      industry-stat:   "The average {industry} company that connected their ERP to field ops cut manual
+                        reporting time by 62% in year one. Your team is still in that group."
+
+  PRIORITY for the 3–4 entries to include:
+  1. Tier 1: same industry, same metro, exact system pair, AI savings quantified
+  2. Tier 1: same industry, anywhere, exact system pair, AI savings quantified
+  3. Tier 2: same industry, any system pair, analogyNote bridges the difference
+  4. Tier 3: adjacent industry, strong analogyNote — or Tier 4 industry stat
+
+  Record in company_context.json competitorFOMO[] using the full schema above.
+  DO NOT INVENT companies, outcomes, or numbers. Only include verified, sourced data.
+  Fields not found: set to null — do not guess.
+
+After completing 0c-1 through 0c-3: write updated company_context.json with hqLocation, revenueEstimate, nearbyPeers[], competitorFOMO[] populated.
+Show: 'Pitch Kit Research: HQ={city}, Revenue={estimate}, Peers={N}, Competitors={N}'
 
 Step 1 — Extract and read all source files.
 Run: node scaffold/extract-text.js projects/{client}/scoping
@@ -398,6 +535,91 @@ Output: projects/{client}/intake/proposal-content.json
 Then run: node commons/branding/fill-template.js --template proposal --client {client}
 This writes: projects/{client}/intake/proposal-{client}.html
 
+Step 9b — Generate architect-only pitch kit (MANDATORY — runs every Session 3a).
+Source data is already in company_context.json from Session 1 Step 0c.
+Do NOT re-run web research — Session 1 already did it. Just read and generate.
+
+9b-1. Read company_context.json. Extract: snapshot, industry, hqLocation, revenueEstimate,
+      systemFindings[] (for pain points), nearbyPeers[], competitorFOMO[], aiJourney.
+      Also read scout-s2.md for confirmed flow count.
+
+9b-2. Write projects/{client}/intake/pitch-kit-content.json:
+{
+  "meta": {
+    "clientName": "{displayName from project.json}",
+    "clientSlug": "{slug}",
+    "date": "{Month YYYY}",
+    "architect": "{architect from project.json}",
+    "architectEmail": "{architectEmail from project.json}",
+    "location": "{city, state from web research — or 'Location not found' if unavailable}",
+    "revenue": "{estimated revenue from web research — or 'not publicly available'}",
+    "industry": "{industry from company_context.json}",
+    "flowCount": {N from scout-s2.md confirmed flow count},
+    "searchRadius": "100 miles",
+    "revenueBracket": "{e.g. '$50M–$150M' — derived from revenue estimate}",
+    "subtitle": "{one-line: industry + N flows + key systems}"
+  },
+  "snapshot": {
+    "description": "{2–3 sentences from company_context.json snapshot}",
+    "systems": ["{system names from scout-s1.md Section 3}"],
+    "painPoints": ["{specific pain points inferred from scoping notes — max 5, concrete not generic}"]
+  },
+  "talkingPoints": [
+    {
+      "trigger": "{when to use — e.g. 'When they mention manual reporting'}",
+      "say": "{exact words to say — conversational, first-person, specific to their actual systems}",
+      "impact": "{measurable outcome to reference — tie to their industry and known system pair}"
+    }
+    /* 3–5 talking points; each grounded in their specific systems and pain points from scoping */
+  ],
+  "nearbyPeers": [
+    /* from Step 9b-2 research — only real verified companies; empty array [] if none found */
+    {
+      "name": "{company name}",
+      "distance": "{estimated mi}",
+      "location": "{city, state}",
+      "revenue": "{estimated revenue}",
+      "similarity": "{what makes them similar — industry + systems}",
+      "what": "{what they integrated or automated}",
+      "outcome": "{result if available, or 'announced / in progress'}",
+      "source": "{URL, publication, or 'LinkedIn / press release'}"
+    }
+  ],
+  "competitorFOMO": [
+    /* copy verbatim from company_context.json competitorFOMO[] — DO NOT re-research here */
+    {
+      "name": "{company name or 'Industry data (Gartner 2024)'}",
+      "revenue": "{revenue bracket}",
+      "location": "{city, state or 'National'}",
+      "systemsUsed": ["{systems they connected}"],
+      "aiUseCase": "{what AI is specifically doing — precise, not generic}",
+      "whatTheyBuilt": "{1 sentence: integration + AI layer}",
+      "savings": "{quantified: $, hours, %, cycle time}",
+      "before": "{manual process before}",
+      "after": "{operational change after}",
+      "status": "{Live since Q? YYYY / Announced / Industry average (N=NNN)}",
+      "source": "{URL or analyst report citation}",
+      "relevanceTier": "exact-match | same-industry | adjacent-industry | industry-stat",
+      "analogyNote": "{null for exact-match; 1–2 sentence explanation for all other tiers}",
+      "fomoAngle": "{sharpest verbatim sentence the architect says on the call}"
+    }
+  ],
+  "openingLines": [
+    { "context": "Opening — first 30 seconds",
+      "line": "{specific, client-name-personalized opener that references their industry and a pain from scoping}" },
+    { "context": "If they say they already have a plan",
+      "line": "{redirect using the sharpest fomoAngle from competitorFOMO — name the finding specifically}" },
+    { "context": "FOMO close — when deal stalls",
+      "line": "{window + consequence framing — tie to the quantified savings from competitorFOMO}" },
+    { "context": "AI question — how does this help with AI?",
+      "line": "{honest bridge: their systems → what Phase 1 unlocks → what the AI layer in competitorFOMO is doing for peers}" }
+  ],
+  "aiJourneyNarrative": "{3–4 sentence paragraph. Reference their actual system names and industry. Phase 1: what connecting these specific systems unlocks. Phase 2: what automation becomes possible. Phase 3: the agentic endgame for their specific role/industry. Never use placeholder language.}"
+}
+
+9b-3. Run: node commons/branding/fill-template.js --template pitch-kit --client {client}
+This writes: projects/{client}/intake/pitch-kit-{client}.html
+
 Step S3A-CLOSE — Write handoff and STOP.
 Write projects/{client}/intake/scout-s3a.md:
 
@@ -408,6 +630,15 @@ Write projects/{client}/intake/scout-s3a.md:
 ## Files Written This Session
 - projects/{client}/intake/proposal-content.json ✓
 - projects/{client}/intake/proposal-{client}.html ✓ (generated by fill-template.js)
+- projects/{client}/intake/pitch-kit-content.json ✓ (architect-only — internal)
+- projects/{client}/intake/pitch-kit-{client}.html ✓ (generated by fill-template.js)
+
+## Pitch Kit Research Summary
+- Client HQ: {city, state — or 'not found'}
+- Client revenue: {estimate — or 'not found'}
+- Nearby peers found: {N} (within {radius})
+- Competitor FOMO entries: {N}
+- Research confidence: {high/medium/low — based on quality of web results}
 
 ## Session 3b Context
 - Intake source: projects/{client}/intake/intake-questionnaire-{client}.md ✓
@@ -418,8 +649,11 @@ Write projects/{client}/intake/scout-s3a.md:
 After writing scout-s3a.md, output:
 
 === SESSION 3a COMPLETE ===
-Proposal JSON:  projects/{client}/intake/proposal-content.json
-Proposal HTML:  projects/{client}/intake/proposal-{client}.html
+Proposal JSON:     projects/{client}/intake/proposal-content.json
+Proposal HTML:     projects/{client}/intake/proposal-{client}.html
+Pitch Kit JSON:    projects/{client}/intake/pitch-kit-content.json  [architect-only]
+Pitch Kit HTML:    projects/{client}/intake/pitch-kit-{client}.html [architect-only]
+  Peers found: {N} | Competitors found: {N}
 
 Start a NEW Claude Code session and type: talk to Scout
 Scout will detect Session 3a is done and automatically start Session 3b (intake HTML).
