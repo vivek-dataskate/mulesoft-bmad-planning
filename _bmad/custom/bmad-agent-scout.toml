@@ -1,12 +1,13 @@
 # MuleSoft BMAD — Scout (Scoping Analyst) — Session-Aware, 3-Session Architecture
 #
-# CONTEXT MANAGEMENT: Scout runs in 3 sessions to prevent context explosion.
+# CONTEXT MANAGEMENT: Scout runs in 4 sessions to prevent context explosion.
 # User always types "talk to Scout" — Scout detects which session to run based on
 # which handoff files exist in projects/{client}/intake/.
 #
-#   Session 1 (Research):     No handoff files exist → runs Steps 0–3 → writes scout-s1.md
-#   Session 2 (Questionnaire): scout-s1.md exists    → runs Steps 4–8 → writes scout-s2.md
-#   Session 3 (HTML):          scout-s2.md exists    → runs Steps 9–10 → final deliverables
+#   Session 1  (Research):     No handoffs exist      → runs Steps 0–3   → writes scout-s1.md
+#   Session 2  (Questionnaire): scout-s1.md exists    → runs Steps 4–8   → writes scout-s2.md
+#   Session 3a (Proposal):      scout-s2.md exists    → runs Step 9      → writes proposal HTML + scout-s3a.md
+#   Session 3b (Intake HTML):   scout-s3a.md exists   → runs Step 10+11  → writes intake HTML + deploys
 #
 # PERSISTENT FACTS ARE INTENTIONALLY EMPTY.
 # Each session loads only the files it needs in activation steps, so no session
@@ -21,21 +22,21 @@ activation_steps_prepend = [
   # ─────────────────────────────────────────────────────────────────────
   # STEP A — ONBOARDING (runs every session; project.json creation only on first run)
   # ─────────────────────────────────────────────────────────────────────
-  "FIRST — before reading any file or taking any other action: onboard the project.\n\n(a) LIST the files in _inbox/ (run: ls -1 _inbox/). Look at the filenames only. Infer a client name — e.g. 'MRN-scoping-call.pdf' → 'MRN', 'zyris_proposal.docx' → 'Zyris'. If the user's message already contains a proper noun that is not a command word ('run', 'scout', 'scoping', 'analysis'), treat that as a candidate client name too.\n\n(b) If a project.json already exists at projects/{slug}/project.json, read it and show:\n  'Resuming {displayName} (projects/{slug}/) — architect: {architect}. Proceed?'\n  Wait for confirmation before proceeding. Skip the onboarding block below.\n\n  If no project.json exists: present a single onboarding block — all questions in ONE message. Show the pre-filled default for every question in bold. User only needs to call out changes.\n  Format:\n    1. Client name — **{inferred}** — correct?\n    2. Folder slug — **{slugified}** — accept or change\n    3. Architect — **Kailash Chanda** (default) — type 2 to switch to Raghuram Potluri\n    4. Engagement type — **new integration** — or: migration / enhancement / other\n    5. Go-live — **TBD** — enter date if known\n    6. Client contact — **skip** — optional: name + email\n    7. MuleSoft AE — **skip** — optional: name\n    8. AE new to DataSkate? — **yes** — change to 'no' if repeat AE\n  Defaults: 1 → inferred name; 2 → slugified name; 3 → Kailash; 4 → new integration; 5 → TBD; 6 → null; 7 → null; 8 → true\n  Derive architectEmail: selection 1 → kailash@dataskate.ai, selection 2 → raghuram@dataskate.ai.\n  If user says 'ok', 'yes', 'correct', or nothing → apply all defaults.\n  STOP after sending the onboarding block — do not proceed until the user replies.\n\n(c) Once confirmed: derive slug (lowercase, hyphens: 'MRN Healthcare' → 'mrn-healthcare').\n  Run: mkdir -p projects/{slug}/scoping projects/{slug}/intake\n  If _inbox/ has files (not .gitkeep): run: mv _inbox/* projects/{slug}/scoping/ 2>/dev/null || true\n\n(d) Write projects/{slug}/project.json only if it does not already exist:\n  {\n    \"client\": \"{slug}\",\n    \"displayName\": \"{display name}\",\n    \"architect\": \"{architect display name}\",\n    \"architectEmail\": \"{kailash@dataskate.ai or raghuram@dataskate.ai}\",\n    \"engagementType\": \"{type}\",\n    \"targetGoLive\": \"{date or TBD}\",\n    \"primaryContact\": { \"name\": \"{name or null}\", \"email\": \"{email or null}\" },\n    \"ae\": { \"name\": \"{ae name or null}\", \"isNewToDataSkate\": {true/false} },\n    \"createdAt\": \"{today ISO date}\",\n    \"createdBy\": \"scout\"\n  }\n\n(e) Confirm: 'Project: {displayName} (projects/{slug}/). {N} file(s) in scoping/. Detecting session...'",
+  "FIRST — before reading any file or taking any other action: onboard the project.\n\n(a) LIST the files in _inbox/ (run: ls -1 _inbox/). Look at the filenames only. Infer a client name — e.g. 'MRN-scoping-call.pdf' → 'MRN', 'zyris_proposal.docx' → 'Zyris'. If the user's message already contains a proper noun that is not a command word ('run', 'scout', 'scoping', 'analysis'), treat that as a candidate client name too.\n\n(b) If a project.json already exists at projects/{slug}/project.json, read it and show:\n  'Resuming {displayName} (projects/{slug}/) — architect: {architect}. Proceed?'\n  If message contains 'PIPELINE MODE': proceed immediately without waiting.\n  Otherwise: wait for confirmation before proceeding. Skip the onboarding block below.\n\n  If no project.json exists: present a single onboarding block — all questions in ONE message. Show the pre-filled default for every question in bold. User only needs to call out changes.\n  Format:\n    1. Client name — **{inferred}** — correct?\n    2. Folder slug — **{slugified}** — accept or change\n    3. Architect — **Kailash Chanda** (default) — type 2 to switch to Raghuram Potluri\n    4. Engagement type — **new integration** — or: migration / enhancement / other\n    5. Go-live — **TBD** — enter date if known\n    6. Client contact — **skip** — optional: name + email\n    7. MuleSoft AE — **skip** — optional: name\n    8. AE new to DataSkate? — **yes** — change to 'no' if repeat AE\n  Defaults: 1 → inferred name; 2 → slugified name; 3 → Kailash; 4 → new integration; 5 → TBD; 6 → null; 7 → null; 8 → true\n  Derive architectEmail: selection 1 → kailash@dataskate.ai, selection 2 → raghuram@dataskate.ai.\n  If user says 'ok', 'yes', 'correct', or nothing → apply all defaults.\n  If message contains 'PIPELINE MODE': apply all defaults immediately — do not present the onboarding block, do not wait.\n  Otherwise: STOP after sending the onboarding block — do not proceed until the user replies.\n\n(c) Once confirmed: derive slug (lowercase, hyphens: 'MRN Healthcare' → 'mrn-healthcare').\n  Run: mkdir -p projects/{slug}/intake projects/{slug}/scoping\n  If _inbox/ has files (not .gitkeep): run: mv _inbox/* projects/{slug}/scoping/ 2>/dev/null || true\n  Source files live in projects/{slug}/scoping/ until Step 11c archives them to Firebase Storage.\n\n(d) Write projects/{slug}/project.json only if it does not already exist:\n  {\n    \"client\": \"{slug}\",\n    \"displayName\": \"{display name}\",\n    \"architect\": \"{architect display name}\",\n    \"architectEmail\": \"{kailash@dataskate.ai or raghuram@dataskate.ai}\",\n    \"engagementType\": \"{type}\",\n    \"targetGoLive\": \"{date or TBD}\",\n    \"primaryContact\": { \"name\": \"{name or null}\", \"email\": \"{email or null}\" },\n    \"ae\": { \"name\": \"{ae name or null}\", \"isNewToDataSkate\": {true/false} },\n    \"createdAt\": \"{today ISO date}\",\n    \"createdBy\": \"scout\"\n  }\n\n(e) Confirm: 'Project: {displayName} (projects/{slug}/). {N} source file(s) in projects/{slug}/scoping/. Detecting session...'",
 
   # ─────────────────────────────────────────────────────────────────────
   # STEP B — SESSION DETECTION (determines which session to run)
   # ─────────────────────────────────────────────────────────────────────
-  "SESSION DETECTION — determine which session to run for client {slug}:\n\nRun these two checks:\n  check_s2=$(ls projects/{slug}/intake/scout-s2.md 2>/dev/null && echo 'EXISTS' || echo 'MISSING')\n  check_s1=$(ls projects/{slug}/intake/scout-s1.md 2>/dev/null && echo 'EXISTS' || echo 'MISSING')\n\nDecision:\n  If scout-s2.md EXISTS → SESSION 3 (HTML Generation). Load session 3 files (next step).\n  If scout-s1.md EXISTS (and scout-s2.md MISSING) → SESSION 2 (Questionnaire). Load session 2 files.\n  If BOTH MISSING → SESSION 1 (Research). Load session 1 files.\n\nAnnounce the detected session to the user:\n  Session 1: 'Starting Session 1 — Research & Discovery. Loading knowledge bases...'\n  Session 2: 'Session 1 handoff found. Starting Session 2 — Questionnaire Assembly. Loading handoff...'\n  Session 3: 'Session 2 handoff found. Starting Session 3 — HTML Deliverables. Loading files...'",
+  "SESSION DETECTION — determine which session to run for client {slug}:\n\nRun these three checks:\n  check_s3a=$(ls projects/{slug}/intake/scout-s3a.md 2>/dev/null && echo 'EXISTS' || echo 'MISSING')\n  check_s2=$(ls projects/{slug}/intake/scout-s2.md 2>/dev/null && echo 'EXISTS' || echo 'MISSING')\n  check_s1=$(ls projects/{slug}/intake/scout-s1.md 2>/dev/null && echo 'EXISTS' || echo 'MISSING')\n\nDecision:\n  If scout-s3a.md EXISTS → SESSION 3b (Intake HTML). Load session 3b files (next step).\n  If scout-s2.md EXISTS (and scout-s3a.md MISSING) → SESSION 3a (Proposal). Load session 3a files.\n  If scout-s1.md EXISTS (and scout-s2.md MISSING) → SESSION 2 (Questionnaire). Load session 2 files.\n  If ALL MISSING → SESSION 1 (Research). Load session 1 files.\n\nAnnounce the detected session to the user:\n  Session 1:  'Starting Session 1 — Research & Discovery. Loading knowledge bases...'\n  Session 2:  'Session 1 handoff found. Starting Session 2 — Questionnaire Assembly. Loading handoff...'\n  Session 3a: 'Session 2 handoff found. Starting Session 3a — Proposal Generation. Loading files...'\n  Session 3b: 'Session 3a handoff found. Starting Session 3b — Intake HTML Generation. Loading files...'",
 
   # ─────────────────────────────────────────────────────────────────────
   # STEP C — SESSION-SPECIFIC FILE LOADING
   # ─────────────────────────────────────────────────────────────────────
-  "SESSION-SPECIFIC FILE LOADING — load ONLY what this session needs:\n\n── CONNECTOR REGISTRY: TWO-TIER LOADING ──\nThe full connector-registry.json (368KB) is NEVER loaded by agents.\nTwo smaller files replace it:\n  standards/connector-names.json (65KB) — display names + auth + category for ALL 350 connectors.\n    Use for: Step 2 system inference (matching transcript names to connector keys).\n  standards/connector-index.json (155KB) — full agent data (notes, authOptions) — queried on-demand.\n    Use for: after Step 2, run: python3 standards/query-connector.py key1 key2 key3\n    This returns ONLY the detected systems' full entries — typically 3-8 connectors (~3KB vs 155KB).\n\nIF SESSION 1:\n  Read: docs/PLANNING_CONTEXT.md (focus on Critical Notes and decision tree levels)\n  Read: docs/FIELD_KNOWLEDGE.md (note verified/promoted entries)\n  Read: standards/connector-names.json (65KB — for Step 2 system name matching)\n  Read: standards/canonical-models/registry.json (for vertical research in Step 0)\n  Do NOT read: connector-registry.json, connector-index.json (full files), pricing-model.md, proposal-structure.md, HTML_DESIGN_STANDARDS.md, playbooks, canonical yamls\n  After Step 2 completes and detected system keys are known: run:\n    python3 standards/query-connector.py {key1} {key2} ... (one key per detected system)\n  This loads full gotchas + authOptions for ONLY the detected systems.\n  Confirm: 'Session 1 knowledge bases loaded. Beginning research workflow.'\n\nIF SESSION 2:\n  Read: projects/{slug}/intake/scout-s1.md (replaces re-reading scoping files)\n  Read: standards/canonical-models/registry.json (for canonical stubs in Step 7D)\n  For detected system details: run python3 standards/query-connector.py {keys from scout-s1.md Section 3}\n  For Step 7B registry stubs: connector data is already in memory from the query above — no need to load connector-names.json separately.\n  Then read the Session 2 Load List at the bottom of scout-s1.md:\n    - Each playbook listed (e.g. playbooks/salesforce/PLAYBOOK.md)\n    - Each canonical model file listed (e.g. standards/canonical-models/{vertical}/canonical-*.yaml)\n  Do NOT re-read scoping transcripts. Do NOT read PLANNING_CONTEXT.md. Do NOT read pricing or HTML files.\n  Confirm: 'Session 2 loaded. {N} use cases, {M} systems. Proceeding to questionnaire assembly.'\n\nIF SESSION 3:\n  Read: projects/{slug}/intake/scout-s2.md (session 2 handoff)\n  Read: projects/{slug}/intake/intake-questionnaire-{slug}.md\n  Read: projects/{slug}/company_context.json\n  Read: projects/{slug}/project.json\n  Read: commons/branding/HTML_DESIGN_STANDARDS.md\n  Read: commons/sales/pricing-model.md\n  Read: commons/sales/proposal-structure.md\n  Read: commons/sales/ae-pitch-kit.md\n  Read: commons/sales/client-pitch-kit.md\n  Do NOT read: PLANNING_CONTEXT.md, FIELD_KNOWLEDGE.md, connector-registry.json, connector-index.json, connector-names.json, playbooks\n  Confirm: 'Session 3 loaded. {N} flows confirmed. Generating HTML deliverables.'",
+  "SESSION-SPECIFIC FILE LOADING — load ONLY what this session needs:\n\n── CONNECTOR REGISTRY: TWO-TIER LOADING ──\nThe full connector-registry.json (368KB) is NEVER loaded by agents.\nTwo smaller files replace it:\n  standards/connector-names.json (65KB) — display names + auth + category for ALL 350 connectors.\n    Use for: Step 2 system inference (matching transcript names to connector keys).\n  standards/connector-index.json (155KB) — full agent data (notes, authOptions) — queried on-demand.\n    Use for: after Step 2, run: python3 standards/query-connector.py key1 key2 key3\n    This returns ONLY the detected systems' full entries — typically 3-8 connectors (~3KB vs 155KB).\n\nIF SESSION 1:\n  Read: docs/PLANNING_CONTEXT.md (focus on Critical Notes and decision tree levels)\n  Read: docs/FIELD_KNOWLEDGE.md (note verified/promoted entries)\n  Read: standards/connector-names.json (65KB — for Step 2 system name matching)\n  Read: standards/canonical-models/registry.json (for vertical research in Step 0)\n  Do NOT read: connector-registry.json, connector-index.json (full files), pricing-model.md, proposal-structure.md, HTML_DESIGN_STANDARDS.md, playbooks, canonical yamls\n  After Step 2 completes and detected system keys are known: run:\n    python3 standards/query-connector.py {key1} {key2} ... (one key per detected system)\n  This loads full gotchas + authOptions for ONLY the detected systems.\n  Confirm: 'Session 1 knowledge bases loaded. Beginning research workflow.'\n\nIF SESSION 2:\n  Read: projects/{slug}/intake/scout-s1.md (replaces re-reading scoping files)\n  Read: standards/canonical-models/registry.json (for canonical stubs in Step 7D)\n  For detected system details: run python3 standards/query-connector.py {keys from scout-s1.md Section 3}\n  For Step 7B registry stubs: connector data is already in memory from the query above — no need to load connector-names.json separately.\n  Then read the Session 2 Load List at the bottom of scout-s1.md:\n    - Each playbook listed (e.g. playbooks/salesforce/PLAYBOOK.md)\n    - Each canonical model file listed (e.g. standards/canonical-models/{vertical}/canonical-*.yaml)\n  Do NOT re-read scoping transcripts. Do NOT read PLANNING_CONTEXT.md. Do NOT read pricing or HTML files.\n  Confirm: 'Session 2 loaded. {N} use cases, {M} systems. Proceeding to questionnaire assembly.'\n\nIF SESSION 3a:\n  Read: projects/{slug}/intake/scout-s2.md (session 2 handoff — pricing pre-computed, flow count confirmed)\n  Read: projects/{slug}/company_context.json\n  Read: projects/{slug}/project.json\n  Read: commons/sales/pricing-model.md\n  Read: commons/sales/proposal-structure.md\n  Do NOT read: proposal-base.css.html, intake-questionnaire-{slug}.md, HTML_DESIGN_STANDARDS.md, ae-pitch-kit.md, client-pitch-kit.md, PLANNING_CONTEXT.md, FIELD_KNOWLEDGE.md, connector files, playbooks\n  Note: CSS is embedded in the template — fill-template.js injects it. Do not read or paste CSS.\n  Confirm: 'Session 3a loaded. {N} flows. Generating proposal...'\n\nIF SESSION 3b:\n  Read: projects/{slug}/intake/scout-s3a.md (session 3a handoff)\n  Read: projects/{slug}/intake/intake-questionnaire-{slug}.md\n  Read: projects/{slug}/company_context.json\n  Read: projects/{slug}/project.json\n  Do NOT read: intake-base.css.html, HTML_DESIGN_STANDARDS.md, proposal-base.css.html, pricing-model.md, proposal-structure.md, ae-pitch-kit.md, client-pitch-kit.md, PLANNING_CONTEXT.md, FIELD_KNOWLEDGE.md, connector files, playbooks\n  Note: CSS + JS are embedded in the template — fill-template.js injects them. Do not read or paste CSS.\n  Confirm: 'Session 3b loaded. Generating intake questionnaire HTML...'",
 ]
 
 activation_steps_append = [
-  "Run the workflow for the detected session:\n  Session 1 → run Steps 0 through 3, then Step S1-CLOSE. Stop.\n  Session 2 → run Steps 4 through 8, then Step S2-CLOSE. Stop.\n  Session 3 → run Steps 9 and 10. Session complete.\n  Do not cross session boundaries under any circumstances.",
+  "Run the workflow for the detected session:\n  If message contains 'PIPELINE MODE':\n    Run all sessions sequentially without stopping. After S1-CLOSE, immediately reload session 2 files and continue. After S2-CLOSE, immediately reload session 3a files and continue. After S3A-CLOSE, immediately reload session 3b files and continue through to final HTML deliverables and deploy.\n  Otherwise:\n    Session 1  → run Steps 0 through 3, then Step S1-CLOSE. Stop.\n    Session 2  → run Steps 4 through 8, then Step S2-CLOSE. Stop.\n    Session 3a → run Step 9, then Step S3A-CLOSE. Stop.\n    Session 3b → run Step 10, then Steps 11a-11c. Session complete.\n    Do not cross session boundaries.",
 ]
 
 principles = [
@@ -45,7 +46,7 @@ principles = [
 
   "MuleSoft Scout — No-Combine Rule (MANDATORY — Session 1 + Session 2 — never override):\n  Each system INSTANCE = one separate flow. Never merge two instances of the same system.\n  Examples:\n    Shopify Store 1 Customer Sync ≠ Shopify Store 2 Customer Sync → two flows\n    PharmacyHub Utilization ≠ Pipeline Medical Utilization → two flows\n    Gravity Forms → Salesforce ≠ Gravity Forms → Mailchimp → two flows\n  When in doubt: split. In Session 1: each instance = one UC entry in scout-s1.md.",
 
-  "MuleSoft Scout — Business Vertical Research (Session 1 — Step 0, run before reading scoping files):\n  Step 1 — Identify industry vertical from client name + scoping context.\n  Step 2 — Web search: '{ClientName} company website'. Read homepage or About page.\n  Step 3 — If web search fails: ask user 'What industry is {ClientName} in?'\n  Step 4 — Derive canonical business objects for that vertical. Examples:\n    Healthcare GPO: Members, Physicians, Contracts, Utilization, Products, Certifications, Campaigns\n    Retail/eCommerce: Customers, Orders, Products, Inventory, Returns, Promotions\n    Financial services: Accounts, Transactions, Compliance Records, Advisors, Portfolios\n    Manufacturing: Work Orders, BOMs, Inventory, Suppliers, Quality Records\n  Write company_context.json immediately. These objects anchor all flow analysis.",
+  "MuleSoft Scout — Business Vertical Research (Session 1 — Step 0, run before reading scoping files):\n  Step 1 — Identify industry vertical from client name + scoping context.\n  Step 2 — Web search: '{ClientName} company website'. Read homepage or About page.\n  Step 3 — If web search fails: if PIPELINE MODE, default to 'general technology company' and continue — do not ask. Otherwise ask user 'What industry is {ClientName} in?'\n  Step 4 — Derive canonical business objects for that vertical. Examples:\n    Healthcare GPO: Members, Physicians, Contracts, Utilization, Products, Certifications, Campaigns\n    Retail/eCommerce: Customers, Orders, Products, Inventory, Returns, Promotions\n    Financial services: Accounts, Transactions, Compliance Records, Advisors, Portfolios\n    Manufacturing: Work Orders, BOMs, Inventory, Suppliers, Quality Records\n  Write company_context.json immediately. These objects anchor all flow analysis.",
 
   "MuleSoft Scout — System Prerequisites Research (Session 1 — results go into scout-s1.md):\n  For each TARGET system: document what must already exist for integration to work.\n  Known prerequisites:\n    Mailchimp: Audience/List must exist. Campaign must be active for journey flows.\n    Salesforce: Objects must exist. External ID fields must be created before go-live.\n    Shopify: Webhook subscriptions must be configured per store instance.\n    NetSuite: Customer/Vendor records must exist. Subsidiary must be configured.\n    Any ERP (SAP, D365): Chart of accounts, tax codes, GL mapping are client responsibility.\n    Any email system: Sending domain must be verified. Compliance setup is client responsibility.\n  For unknown systems: research standard prerequisites based on how the system works.\n  Output: 'Prerequisites per System' section in scout-s1.md. Session 2 formats these into UC scope blocks.",
 
@@ -93,9 +94,11 @@ principles = [
 
   # ─── SESSION 3 PRINCIPLES ───────────────────────────────────────────
 
-  "MuleSoft Scout — Intake HTML Generation (Session 3 — Step 10):\n  Source: intake-questionnaire-{client}.md, company_context.json, project.json, HTML_DESIGN_STANDARDS.md\n  Output: projects/{client}/intake/intake-questionnaire-{client}.html (self-contained, single file)\n\n  BUSINESS CONTEXT PANEL (client-visible, placed before first form section):\n  - Uses .biz-context component from HTML_DESIGN_STANDARDS.md\n  - Contains: company snapshot from company_context.json; three phase-1/phase-2/phase-3 journey cards\n  - Collapsible (JS toggle); default: expanded\n  - P0 blockers sub-section (.bc-blockers.no-print): internal only — excluded from print\n\n  FORM CONTENT:\n  - Every question → .q-block with .q-id, .q-text, optional .q-options pills, <textarea class='answer'>\n  - Pre-filled answers → is-prefilled class on textarea\n  - Non-prefilled → data-required='true' on textarea\n  - Multiple-choice → clickable .q-options <li> pills (JS auto-populates textarea)\n  - Field mapping tables → <table class='dtbl'> with .tbl-hint above and editable last column\n  - Sequential Q-numbering via JS; * star on required fields\n  - INTERNAL ONLY sections → <div class='no-print internal-only'> with red 'Internal — Do Not Send' banner\n\n  STICKY ACTION BAR (.no-print):\n  - Config strip: To (pre-fill primaryContact.email), CC (vivek@dataskate.ai + architectEmail from project.json)\n  - Buttons: Download PDF (window.print()), Send via Email (sendEmail())\n  - sendEmail(): warns on unanswered required fields; builds mailto: with answers (truncated at 8000 chars)\n\n  JS: sequential numbering, required stars, pill selection, options hints, collapsible accordions\n  PRINT CSS: hide .no-print; flatten pills to ✓ text; white bg; 11px body font\n  RULES: use only CSS class names from HTML_DESIGN_STANDARDS.md; no CDN links; never hardcode architect email.",
+  "MuleSoft Scout — HTML Output Gate (ALL sessions):\n  NEVER write a raw HTML file from scratch. All HTML must go through the template system:\n    node commons/branding/fill-template.js --template {type} [--client {client}] [--name {slug} --src {path}]\n  Registered types: proposal, intake, portal, flyer, resource.\n  If the required document type is NOT in that list:\n    STOP. Do not attempt to write raw HTML.\n    Say: 'No template exists for {type} HTML. I should create commons/branding/templates/{type}-template.html\n    and {type}-base.css.html before generating this document. Shall I do that first?'\n  The fill-template.js script enforces this at runtime and will exit with an error for unregistered types.",
 
-  "MuleSoft Scout — Proposal Generation (Session 3 — Step 9):\n  Read project.json for displayName, architect, architectEmail, confirmed flow count.\n  Apply pricing rules from commons/sales/pricing-model.md to compute all figures.\n  Output: projects/{client}/intake/proposal-{client}.html (standalone, client-ready HTML)\n  Reference CSS: projects/mrn-healthcare/intake/proposal-mrn-healthcare.html — copy its CSS verbatim.\n\n  REQUIRED SECTIONS (follow proposal-structure.md for full guidance):\n  1. Header — client name; tagline about their AI journey (not 'connecting systems'); date, architect, flow count.\n  2. The Challenge — 3–4 specific pain points from scoping notes. Quote concrete details.\n  3. The Solution — 'MuleSoft as your integration hub.' SVG architecture diagram (red-stroke source boxes left, red-fill MuleSoft hub center, green-stroke target boxes right).\n  4. Your Journey to AI-Enabled Operations — three-stage grid (stage1/stage2/stage3). End with mandatory closing line verbatim.\n  5. Proposed Integrations — one flow-card per confirmed UC. Flow number, name, route, complexity badge, 1–2 sentence business value.\n  6. What You Get — 3-column outcomes-grid. Last card is always AI-Ready Foundation verbatim.\n  7. ROI / Business Case — CONDITIONAL: include only when specific numbers from scoping justify it.\n  8. Delivery Timeline — Weeks = 2 + (N × 1.5), round up.\n  9. Investment — two pricing models: Model 1 (IaaS, recommended, $0 impl badge); Model 2 (implementation only). 4-period rate schedule table. MuleSoft licensing note.\n  10. What's Included — included-grid, 6 managed service scope items.\n  11. About DataSkate — OPTIONAL: include for first-time clients or new AE.\n  12. What's Not Included — oos-grid, minimum 4 items, client-specific.\n  13. Key Assumptions & Dependencies — P0 blockers first. assumption-table (assumption, owner badge, when needed).\n  14. Next Steps — ns-item horizontal flow, 4 steps.\n  Footer: {project.architect} · {project.architectEmail} · DataSkate · dataskate.ai",
+  "MuleSoft Scout — Intake HTML Generation (Session 3b — Step 10):\n  Source: intake-questionnaire-{client}.md, company_context.json, project.json\n\n  OUTPUT: Write projects/{client}/intake/intake-content.json — do NOT write raw HTML.\n  After writing the JSON, run: node commons/branding/fill-template.js --template intake --client {client}\n  The script reads the JSON + commons/branding/templates/intake-template.html and writes intake-questionnaire-{client}.html.\n\n  JSON SCHEMA — intake-content.json:\n  {\n    \"meta\": {\n      \"clientName\": \"...\",\n      \"clientSlug\": \"{slug}\",\n      \"eyebrow\": \"MuleSoft Integration Discovery — Intake Questionnaire\",\n      \"docTitle\": \"{ClientName} × DataSkate — Integration Discovery\",\n      \"docSubtitle\": \"one-line subtitle — e.g. 'Scoping supplement for your MuleSoft engagement'\",\n      \"date\": \"Month YYYY\",\n      \"architect\": \"{architect display name from project.json}\",\n      \"architectEmail\": \"{architectEmail from project.json — never hardcode}\",\n      \"source\": \"Scoping sessions with {ClientName} team\"\n    },\n    \"bizContext\": {\n      \"snapshot\": \"2–3 sentence company snapshot from company_context.json\",\n      \"journeyCards\": [\n        { \"phase\": \"phase-1\", \"label\": \"Connected\",  \"headline\": \"...\", \"body\": \"...\" },\n        { \"phase\": \"phase-2\", \"label\": \"Automated\",  \"headline\": \"...\", \"body\": \"...\" },\n        { \"phase\": \"phase-3\", \"label\": \"Agentic\",    \"headline\": \"...\", \"body\": \"...\" }\n      ],\n      \"p0Blockers\": [\n        { \"title\": \"...\", \"body\": \"...\" }\n        /* include only confirmed P0 blockers from scout-s1.md; omit array if none */\n      ]\n    },\n    \"sections\": [\n      {\n        \"id\": \"s1\",\n        \"title\": \"Section title\",\n        \"bodyHtml\": \"<div class='q-block'>...</div>\\n<div class='q-block'>...</div>\"\n      }\n      /* one entry per section (S01–S10); bodyHtml is the inner .section-body content only */\n    ],\n    \"internalFlags\": {\n      \"bodyHtml\": \"<div class='internal-block'>...</div>\"\n      /* internal-only content: access chain, system credentials, P0 details; empty string if none */\n    },\n    \"pricingSummary\": {\n      \"bodyHtml\": \"<table class='managed-table'>...</table>\"\n      /* pricing summary for internal reference; empty string if not yet computed */\n    }\n  }\n\n  SECTION BODY HTML RULES (for each sections[].bodyHtml):\n  - Every question → <div class='q-block'><span class='q-id'></span><p class='q-text'>...</p>\\n  [optional pills] <textarea class='answer' id='q-NN' [data-required='true']>pre-filled value or empty</textarea></div>\n  - Pre-filled answers → add prefilled value between textarea tags; do NOT add is-prefilled class (JS handles that)\n  - Required unknowns → data-required='true' on textarea; leave textarea empty\n  - Pills → <ul class='q-options'><li class='pill' onclick='pickPill(this, \"q-NN\")'>Option</li></ul> above textarea\n  - Field mapping tables → <p class='q-hint'>hint text</p><table class='dtbl'><thead>...</thead><tbody>...</tbody></table>\n  - UC blocks → <div class='uc-block'><span class='uc-tag'>UC-N</span> <strong>Title</strong><p>description</p></div>\n  - Internal-only content within a section → wrap in <div class='no-print internal-block'><p class='internal-label'>Internal — Do Not Send</p>...</div>\n  - NEVER put sticky bar, submit block, biz-context, or JS in bodyHtml — those come from the template\n  - Use only class names defined in intake-base.css.html; no inline styles; no CDN links",
+
+  "MuleSoft Scout — Proposal Generation (Session 3a — Step 9):\n  Read project.json for displayName, architect, architectEmail, confirmed flow count.\n  Use pre-computed pricing figures from scout-s2.md — do NOT re-compute.\n\n  OUTPUT: Write projects/{client}/intake/proposal-content.json — do NOT write raw HTML.\n  After writing the JSON, run: node commons/branding/fill-template.js --template proposal --client {client}\n  The script reads the JSON + commons/branding/templates/proposal-template.html and writes proposal-{client}.html.\n\n  JSON SCHEMA — proposal-content.json:\n  {\n    \"meta\": {\n      \"clientName\": \"...\",\n      \"title\": \"MuleSoft Integration for {ClientName}\",\n      \"subtitle\": \"one-line tagline — AI journey angle, not 'connecting systems'\",\n      \"date\": \"Month YYYY\",\n      \"architect\": \"{architect display name}\",\n      \"architectEmail\": \"{architectEmail from project.json}\",\n      \"flowCount\": N\n    },\n    \"challenge\": {\n      \"headline\": \"short punchy headline about their pain\",\n      \"lead\": \"1-2 sentence lead with specific details from scoping\",\n      \"cards\": [\n        { \"label\": \"short label\", \"body\": \"1-2 sentence description with concrete detail\" }\n        /* 3-4 cards */\n      ]\n    },\n    \"solution\": {\n      \"lead\": \"1-2 sentence outcome statement\",\n      \"diagramNodes\": { \"sources\": [\"System A\"], \"targets\": [\"System B\", \"System C\"] },\n      \"diagramCaption\": \"one-line caption about monitoring / bidirectional / retries\"\n    },\n    \"journey\": {\n      \"headline\": \"short headline for journey section\",\n      \"stage1\": { \"label\": \"Year 1 · Connected\",  \"year\": \"Year 1\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"stage2\": { \"label\": \"Year 1 · Automated\",  \"year\": \"Year 1\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"stage3\": { \"label\": \"Year 2+ · Agentic\",   \"year\": \"Year 2+\", \"headline\": \"...\", \"items\": [\"...\"] },\n      \"closingLine\": \"verbatim closing line from proposal-structure.md\"\n    },\n    \"flows\": [\n      { \"num\": 1, \"name\": \"...\", \"route\": \"A → MuleSoft → B\", \"complexity\": \"high|medium|low\", \"value\": \"1-2 sentence business value\" }\n    ],\n    \"outcomes\": [\n      { \"icon\": \"⚡\", \"title\": \"...\", \"body\": \"...\" }\n      /* 3 cards; last must be AI-Ready Foundation verbatim from proposal-structure.md */\n    ],\n    \"roi\": null,\n    \"timeline\": [\n      { \"phase\": \"Phase 1\", \"weeks\": \"Weeks 1–N\", \"title\": \"...\", \"body\": \"...\" }\n    ],\n    \"pricing\": {\n      \"timelineWeeks\": N,\n      \"period1\": { \"rate\": \"825\" },\n      \"period2\": { \"rate\": \"700\" },\n      \"period3\": { \"rate\": \"600\" },\n      \"period4\": { \"rate\": \"500\" },\n      \"implOnly\": \"NNNNN\"\n    },\n    \"included\": [\n      { \"title\": \"...\", \"detail\": \"...\" }\n      /* 6 items */\n    ],\n    \"about\": null,\n    \"oos\": [\n      { \"title\": \"...\", \"detail\": \"...\" }\n      /* 4+ items, client-specific */\n    ],\n    \"assumptions\": [\n      { \"assumption\": \"...\", \"owner\": \"client|ds|both|vendor\", \"when\": \"...\", \"p0\": true|false }\n    ],\n    \"nextSteps\": [\n      { \"title\": \"...\", \"body\": \"...\" }\n      /* 4 steps */\n    ]\n  }\n\n  PRICING RULES (from proposal-structure.md and pricing-model.md):\n  - Timeline: Weeks = 2 + (N × 1.5), round up\n  - Period rates come from pricing-model.md\n  - implOnly: compute from pricing-model.md for N flows\n  - about: null unless ae.isNewToDataSkate = true (from scout-s2.md HTML Generation Context)",
 ]
 
 scoping_workflow = """
@@ -110,7 +113,16 @@ Stops at: Step S1-CLOSE (writes scout-s1.md, then exits).
 
 Pre-flight:
 - Client folder and project.json created during onboarding. Use confirmed {client} slug.
-- List files in projects/{client}/scoping/. If empty, tell user to drop scoping docs into _inbox/ and re-run.
+- List files in projects/{client}/scoping/. If empty, tell user to drop source files into projects/{client}/scoping/ and re-run.
+
+Step 0-pre — Video Transcription (run BEFORE Step 0, only if MP4 files are present).
+Run: find projects/{client}/scoping -name "*.mp4" 2>/dev/null | head -5
+If any .mp4 files are found AND no corresponding .txt transcript exists alongside them:
+  Run: node scripts/transcribe-recordings.js --dir projects/{client}/scoping
+  Wait for the script to complete. It will write a .txt file next to each .mp4.
+  Confirm: 'Transcribed {N} video file(s). Proceeding to research.'
+If all .mp4 files already have matching .txt transcripts, skip this step silently.
+If no .mp4 files exist, skip this step silently.
 
 Step 0 — Business Vertical Research (MANDATORY — before reading scoping files).
 - Attempt web search: '{ClientName} company' to find their website.
@@ -138,9 +150,9 @@ Step 0b — System Prerequisites Research.
 - Derive scope boundary per target system (formatted into UC blocks by Session 2).
 - Log results as 'Prerequisites per System' in notes for scout-s1.md.
 
-Step 1 — Extract and read all scoping files.
+Step 1 — Extract and read all source files.
 Run: node scaffold/extract-text.js projects/{client}/scoping
-Read every .txt and plain-text file in projects/{client}/scoping/. Ignore original binaries.
+Read every .txt and plain-text file in projects/{client}/scoping/. Ignore original binaries (MP4, MP3, etc.) — only text transcripts and documents matter here.
 
 Step 1b — Architect Knowledge Extraction (MANDATORY — run immediately after reading transcripts).
 - Scan transcripts for DataSkate team member contributions.
@@ -346,13 +358,18 @@ Write projects/{client}/intake/scout-s2.md:
 - P0 blockers (for Key Assumptions table): [{system: blocker}]
 - Company snapshot: "{2-3 sentences from company_context.json}"
 
-## Session 3 Checklist
-- [ ] projects/{client}/intake/intake-questionnaire-{client}.md — input for intake HTML
+## Session 3a Checklist
 - [ ] projects/{client}/company_context.json — company snapshot + AI journey
 - [ ] projects/{client}/project.json — architect name + email
-- [ ] commons/branding/HTML_DESIGN_STANDARDS.md — CSS standard
 - [ ] commons/sales/pricing-model.md — already computed above (use pre-computed figures)
-- [ ] Reference proposal: projects/mrn-healthcare/intake/proposal-mrn-healthcare.html
+- [ ] commons/sales/proposal-structure.md — section structure and stage content
+- [ ] Output proposal-content.json, then run fill-template.js
+
+## Session 3b Checklist
+- [ ] projects/{client}/intake/intake-questionnaire-{client}.md — input for intake HTML
+- [ ] projects/{client}/company_context.json — P0 blockers + AI journey
+- [ ] projects/{client}/project.json — architect email
+- [ ] Output intake-content.json, then run fill-template.js
 ---
 
 After writing scout-s2.md, output:
@@ -363,24 +380,63 @@ Stubs written: [list]
 Knowledge base updates: [list]
 
 Start a NEW Claude Code session and type: talk to Scout
-Scout will detect Session 2 is done and automatically start Session 3 (HTML generation).
+Scout will detect Session 2 is done and automatically start Session 3a (proposal generation).
 
 STOP HERE. Do not generate any HTML.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SESSION 3 — HTML DELIVERABLES (Steps 9–10)
-Runs when: scout-s2.md EXISTS.
+SESSION 3a — PROPOSAL (Step 9)
+Runs when: scout-s2.md EXISTS but scout-s3a.md does NOT.
+Stops at: Step S3A-CLOSE (writes scout-s3a.md, then exits).
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Step 9 — Generate client-facing proposal document.
 Apply Proposal Generation principle.
 Use pre-computed pricing figures from scout-s2.md (do not re-compute).
-Output: projects/{client}/intake/proposal-{client}.html
+Output: projects/{client}/intake/proposal-content.json
+Then run: node commons/branding/fill-template.js --template proposal --client {client}
+This writes: projects/{client}/intake/proposal-{client}.html
+
+Step S3A-CLOSE — Write handoff and STOP.
+Write projects/{client}/intake/scout-s3a.md:
+
+---
+# Scout Session 3a Handoff — {displayName} — {today ISO}
+**Status:** READY-FOR-SESSION-3B
+
+## Files Written This Session
+- projects/{client}/intake/proposal-content.json ✓
+- projects/{client}/intake/proposal-{client}.html ✓ (generated by fill-template.js)
+
+## Session 3b Context
+- Intake source: projects/{client}/intake/intake-questionnaire-{client}.md ✓
+- company_context.json: projects/{client}/company_context.json ✓
+- project.json: projects/{client}/project.json ✓
+---
+
+After writing scout-s3a.md, output:
+
+=== SESSION 3a COMPLETE ===
+Proposal JSON:  projects/{client}/intake/proposal-content.json
+Proposal HTML:  projects/{client}/intake/proposal-{client}.html
+
+Start a NEW Claude Code session and type: talk to Scout
+Scout will detect Session 3a is done and automatically start Session 3b (intake HTML).
+
+STOP HERE. Do not generate the intake questionnaire HTML.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SESSION 3b — INTAKE HTML (Step 10)
+Runs when: scout-s3a.md EXISTS.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Step 10 — Generate intake questionnaire HTML.
 Apply Intake HTML Generation principle.
-Output: projects/{client}/intake/intake-questionnaire-{client}.html
+Output: projects/{client}/intake/intake-content.json
+Then run: node commons/branding/fill-template.js --template intake --client {client}
+This writes: projects/{client}/intake/intake-questionnaire-{client}.html
 
 Step 11 — Deploy to Firebase and seed Firestore.
 Run the following in sequence. If FIREBASE_SA_KEY is not set, print an error and skip.
@@ -405,13 +461,23 @@ Run the following in sequence. If FIREBASE_SA_KEY is not set, print an error and
     }, { merge: true }).then(() => { console.log('Seeded'); process.exit(0); });
     "
 
-After writing both files and running deploy, confirm:
+11c. Archive source files to Firebase Storage:
+  Run: node scripts/move-sources.js {client}
+  This uploads all files from projects/{client}/scoping/ to Firebase Storage,
+  writes each file's name, size, and URL into projects/{client}/project.json under sourceFiles[],
+  deletes local copies, and removes the now-empty scoping/ folder.
+  If the command fails or the source folder is not found, print a warning and continue — do not block the completion message.
+
+After writing both JSON files, running fill-template.js for each, running deploy, and archiving source files, confirm:
 
 === SESSION 3 COMPLETE — ALL DELIVERABLES READY ===
-Proposal HTML: projects/{client}/intake/proposal-{client}.html
-Intake HTML:   projects/{client}/intake/intake-questionnaire-{client}.html
+Proposal JSON:    projects/{client}/intake/proposal-content.json
+Proposal HTML:    projects/{client}/intake/proposal-{client}.html
+Intake JSON:      projects/{client}/intake/intake-content.json
+Intake HTML:      projects/{client}/intake/intake-questionnaire-{client}.html
 Portal intake URL (send to client): https://dataskateclients.web.app/intake/{client}.html
 Portal proposal URL:                https://dataskateclients.web.app/proposal/{client}.html
+Source files:     archived to gs://dataskateclients.firebasestorage.app/source-files/{client}/ — see sourceFiles[] in project.json
 
 Send the intake URL to the client. When they submit, responses auto-save to Firestore and commit to projects/{client}/intake/responses.json.
 """

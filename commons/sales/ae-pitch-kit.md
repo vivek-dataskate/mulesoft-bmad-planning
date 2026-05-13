@@ -220,4 +220,4 @@ Phase 2 is a new SOW — not IaaS, not managed service. DataSkate designs and bu
 
 ---
 
-*DataSkate — dataskate.ai | vivek@dataskate.ai*
+*DataSkate — dataskate.ai | kailash@dataskate.ai*

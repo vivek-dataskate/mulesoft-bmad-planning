@@ -211,4 +211,4 @@ Each of those has a different answer and I don't want to send you generic follow
 
 ---
 
-*DataSkate — dataskate.ai | vivek@dataskate.ai | 196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550*
+*DataSkate — dataskate.ai | kailash@dataskate.ai | 196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550*
