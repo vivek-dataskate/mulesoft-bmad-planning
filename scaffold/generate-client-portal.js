@@ -385,27 +385,10 @@ async function buildPortal(slug) {
   // ── Source files link ──
   const sourceFilesUrl = proj.sourceFilesFolder || null;
 
-  // ── Planning docs (PRD, architecture, stories for display) ──
-  const docsOutDir  = path.join(PUBLIC, 'portal', 'docs', slug);
-  const docPortalBase = `${PORTAL}/portal/docs/${slug}`;
-  const planningDocs = [
-    { file: 'prd.md',           label: 'Product Requirements',  icon: '📝', outName: 'prd.html' },
-    { file: 'architecture.md',  label: 'Architecture Design',   icon: '🏗️', outName: 'architecture.html' },
-    { file: 'stories.md',       label: 'Epics & Stories',       icon: '🗂️', outName: 'stories.html' },
-  ];
-  const docLinks = {};
-  for (const doc of planningDocs) {
-    const srcFile = path.join(projectDir, doc.file);
-    if (fs.existsSync(srcFile)) {
-      fs.mkdirSync(docsOutDir, { recursive: true });
-      const mdContent = fs.readFileSync(srcFile, 'utf8');
-      const docHtml   = renderDocPage(mdContent, doc.label, displayName, architect, archEmail);
-      fs.writeFileSync(path.join(docsOutDir, doc.outName), docHtml);
-      docLinks[doc.file] = `${docPortalBase}/${doc.outName}`;
-    }
-  }
+  // ── Doc URLs — read from project.json docUrls (HTML files deployed separately) ──
+  const docUrls = proj.docUrls || {};
 
-  // ── Stories — fetch from client dev repo first, fall back to planning repo ──
+  // ── Stories — fetch from client dev repo for sprint board parsing only ──
   let storiesMd = null;
   const repoSlug = parseRepoSlug(devRepoUrl);
   if (repoSlug && GITHUB_TOKEN) {
@@ -419,13 +402,6 @@ async function buildPortal(slug) {
   let epics = [];
   if (storiesMd) {
     try { epics = parseStories(storiesMd); } catch {}
-    // Also write the stories doc page from wherever we got it
-    if (!docLinks['stories.md'] && storiesMd) {
-      fs.mkdirSync(docsOutDir, { recursive: true });
-      const docHtml = renderDocPage(storiesMd, 'Epics & Stories', displayName, architect, archEmail);
-      fs.writeFileSync(path.join(docsOutDir, 'stories.html'), docHtml);
-      docLinks['stories.md'] = `${docPortalBase}/stories.html`;
-    }
   }
 
   const lastUpdated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -617,12 +593,12 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
           responsesStatus === 'available' ? 'available' : 'pending'
         )}
         ${renderDocCard('📄', 'Proposal', proposalUrl ? 'View proposal →' : 'Not yet sent', proposalUrl, proposalUrl ? 'available' : 'na')}
-        ${docLinks['sow.md'] ? renderDocCard('📜', 'SOW', 'View SOW →', docLinks['sow.md'], 'available') : renderDocCard('📜', 'SOW', 'Not yet issued', null, 'na')}
-        ${docLinks['prd.md'] ? renderDocCard('📝', 'Requirements', 'View PRD →', docLinks['prd.md'], 'available') : renderDocCard('📝', 'Requirements', 'Not yet finalized', null, 'na')}
-        ${docLinks['architecture.md'] ? renderDocCard('🏗️', 'Architecture', 'View design doc →', docLinks['architecture.md'], 'available') : renderDocCard('🏗️', 'Architecture', 'Not yet finalized', null, 'na')}
+        ${docUrls.sow ? renderDocCard('📜', 'SOW', 'View SOW →', docUrls.sow, 'available') : renderDocCard('📜', 'SOW', 'Not yet issued', null, 'na')}
+        ${docUrls.prd ? renderDocCard('📝', 'Requirements', 'View PRD →', docUrls.prd, 'available') : renderDocCard('📝', 'Requirements', 'Not yet finalized', null, 'na')}
+        ${docUrls.architecture ? renderDocCard('🏗️', 'Architecture', 'View design doc →', docUrls.architecture, 'available') : renderDocCard('🏗️', 'Architecture', 'Not yet finalized', null, 'na')}
         ${renderDocCard('⚙️', 'Git Code', devRepoUrl ? 'View on GitHub →' : 'Not yet created', devRepoUrl, devRepoUrl ? 'available' : 'na')}
-        ${docLinks['test-cases.md'] ? renderDocCard('🧪', 'Test Cases', 'View test plan →', docLinks['test-cases.md'], 'available') : renderDocCard('🧪', 'Test Cases', 'Not yet created', null, 'na')}
-        ${docLinks['hypercare.md'] ? renderDocCard('🛡️', 'Hypercare', 'View plan →', docLinks['hypercare.md'], 'available') : renderDocCard('🛡️', 'Hypercare', 'Not yet started', null, 'na')}
+        ${docUrls.testCases ? renderDocCard('🧪', 'Test Cases', 'View test plan →', docUrls.testCases, 'available') : renderDocCard('🧪', 'Test Cases', 'Not yet created', null, 'na')}
+        ${docUrls.hypercare ? renderDocCard('🛡️', 'Hypercare', 'View plan →', docUrls.hypercare, 'available') : renderDocCard('🛡️', 'Hypercare', 'Not yet started', null, 'na')}
       </div>
     </div>
   </div>
