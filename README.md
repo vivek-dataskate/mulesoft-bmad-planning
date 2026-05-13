@@ -516,6 +516,42 @@ The agent asks for the system name, auth method, objects needing DWL transforms,
 
 ---
 
+## GitHub Actions — Automated Workflows
+
+Two workflows run automatically on GitHub's servers. No Codespace needs to be open.
+
+| Workflow | File | Trigger | What it does |
+|----------|------|---------|--------------|
+| **Regenerate Capabilities Portal** | `capabilities.yml` | Push to connector registry, playbooks, decisions, or generator script | Rebuilds `docs/capabilities/index.html` and commits it to main |
+| **Regenerate Client Portals** | `portal.yml` | Every 30 min + push to any `projects/*/` config file | Generates per-client portal HTML and deploys to Firebase Hosting |
+
+### Client Portal
+
+Each client gets a live portal at `https://dataskateclients.web.app/portal/{client}.html` showing:
+
+- **Engagement phase tracker** — Discovery → Requirements → Build → Testing → Go Live
+- **Documents** — intake form, responses, proposal, PRD, architecture, epics & stories, scoping files (popup with download links), source files, dev repo link
+- **Sprint status board** — epics with progress bars and story-level status chips (Planned / In Progress / Review / Done), pulled live from the client's dev repo every 30 minutes
+
+### Required Secrets (Settings → Secrets → Actions)
+
+| Secret | What it is |
+|--------|------------|
+| `FIREBASE_SA_KEY` | Firebase service account JSON — authenticates Hosting deploys |
+| `GITHUB_DEPLOY_TOKEN` | GitHub PAT — reads `stories.md` from client dev repos at deploy time |
+
+`GITHUB_TOKEN` is automatic — GitHub provides it, no setup needed.
+
+### Manual Deploy
+
+To push immediately from your Codespace (requires `FIREBASE_SA_KEY` as a Codespace secret):
+
+```bash
+cd firebase && bash deploy.sh
+```
+
+---
+
 ## Issue Tracking
 
 | Track | Tool | Who sees it |
