@@ -1,0 +1,89 @@
+<style>
+:root {
+  --brand:    #ed1c24;
+  --brand-dk: #a01019;
+  --dark:     #1A1A1A;
+  --mid:      #555F6E;
+  --light:    #FFF5F5;
+  --border:   #E8E0E0;
+  --green:    #2E9E6B;
+  --amber:    #D69E2E;
+  --amber-bg: #FFFBEB;
+  --blue-bg:  #F0F6FF;
+  --blue-br:  #3B82F6;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #fff;
+  color: var(--dark);
+  width: 210mm;
+  min-height: 297mm;
+}
+
+.page { padding: 14mm 14mm 10mm; display: flex; flex-direction: column; gap: 10px; }
+
+/* ── HEADER ── */
+.header { background: #fff; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 3px solid var(--brand); gap: 12px; }
+.header-tagline { font-size: 13px; color: var(--mid); font-weight: 500; text-align: right; }
+
+/* ── SECTION LABEL ── */
+.section-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--brand); margin-bottom: 5px; }
+
+/* ── MODEL CARDS ── */
+.models { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.model-card { border-radius: 8px; padding: 12px 14px; }
+.model-card.iaas { background: var(--light); border: 1.5px solid var(--brand); }
+.model-card.impl { background: #F0FFF4; border: 1.5px solid #68D391; }
+.model-title { font-size: 13px; font-weight: 800; margin-bottom: 2px; }
+.model-card.iaas .model-title { color: var(--brand-dk); }
+.model-card.impl .model-title { color: var(--green); }
+.model-sub { font-size: 10px; color: var(--mid); margin-bottom: 8px; }
+.model-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.model-row:last-of-type { border-bottom: none; }
+.model-row .lbl { color: var(--mid); }
+.model-row .val { font-weight: 700; color: var(--dark); }
+.model-row .val.big { font-size: 14px; color: var(--brand); }
+.badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-top: 6px; }
+.badge.recommended { background: var(--light); color: var(--brand-dk); }
+.badge.green { background: #D1FAE5; color: #065F46; }
+
+/* ── TWO-COLUMN LAYOUT ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── INFO BOX ── */
+.box { background: #FAFAFA; border-radius: 8px; padding: 10px 12px; border: 1px solid var(--border); }
+.box-title { font-size: 10px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+
+/* ── MINI TABLE ── */
+.mini-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.mini-table th { background: var(--dark); color: #fff; padding: 4px 8px; text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; }
+.mini-table td { padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table td strong { color: var(--brand); }
+.mini-table tr:nth-child(even) td { background: #FAFAFA; }
+
+/* ── TIMELINE ── */
+.timeline { display: flex; align-items: center; gap: 0; font-size: 9px; margin-top: 4px; }
+.tl-step { flex: 1; text-align: center; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); margin: 0 auto 3px; }
+.tl-dot.empty { background: var(--border); }
+.tl-line { flex: 0 0 20px; height: 2px; background: var(--border); }
+.tl-line.filled { background: var(--brand); }
+.tl-label { color: var(--dark); font-weight: 600; line-height: 1.3; }
+.tl-sub { color: var(--mid); line-height: 1.3; }
+
+/* ── PHASE 2 BANNER ── */
+.phase2 { background: var(--dark); border-radius: 8px; padding: 10px 14px; color: #fff; display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--brand); }
+.phase2-icon { font-size: 22px; flex-shrink: 0; }
+.phase2-title { font-size: 11px; font-weight: 800; margin-bottom: 2px; }
+.phase2-body { font-size: 10px; opacity: 0.85; line-height: 1.5; }
+
+/* ── FOOTER ── */
+.footer { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid var(--border); font-size: 9px; color: var(--mid); }
+.footer strong { color: var(--dark); }
+
+@media print { body { -webkit-print-color-adjust: exact; } }
+</style>
