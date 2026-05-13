@@ -224,6 +224,12 @@ function renderDocCard(icon, title, subtitle, href, status) {
   return content;
 }
 
+function fileIcon(filename) {
+  const ext = (filename.split('.').pop() || '').toLowerCase();
+  const map = { pdf: '📄', docx: '📝', doc: '📝', txt: '📃', md: '📃', xlsx: '📊', csv: '📊', mp3: '🎙️', mp4: '🎥', mov: '🎥' };
+  return map[ext] || '📎';
+}
+
 function escHtml(str) {
   return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -348,11 +354,21 @@ async function buildPortal(slug) {
     } catch {}
   }
 
-  // ── Scoping files ──
-  const scopingDir = path.join(projectDir, 'scoping');
-  const scopingCount = fs.existsSync(scopingDir)
-    ? fs.readdirSync(scopingDir).filter(f => !f.startsWith('.')).length
-    : 0;
+  // ── Scoping files — copy to Firebase and build download links ──
+  const scopingDir     = path.join(projectDir, 'scoping');
+  const scopingOutDir  = path.join(PUBLIC, 'portal', 'docs', slug, 'scoping');
+  const scopingWebBase = `${PORTAL}/portal/docs/${slug}/scoping`;
+  let scopingFiles = [];
+  if (fs.existsSync(scopingDir)) {
+    const files = fs.readdirSync(scopingDir).filter(f => !f.startsWith('.'));
+    if (files.length > 0) {
+      fs.mkdirSync(scopingOutDir, { recursive: true });
+      for (const f of files) {
+        fs.copyFileSync(path.join(scopingDir, f), path.join(scopingOutDir, f));
+        scopingFiles.push({ name: f, url: `${scopingWebBase}/${encodeURIComponent(f)}` });
+      }
+    }
+  }
 
   // ── Decisions / dev repo ──
   const decisionsFile = path.join(projectDir, 'decisions.json');
@@ -596,7 +612,13 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
           responsesStatus === 'available' ? 'available' : 'pending'
         )}
         ${renderDocCard('📄', 'Proposal', proposalUrl ? 'View proposal →' : 'Not yet sent', proposalUrl, proposalUrl ? 'available' : 'na')}
-        ${renderDocCard('📁', 'Scoping Documents', scopingCount > 0 ? `${scopingCount} file${scopingCount !== 1 ? 's' : ''} on record` : 'In progress', null, scopingCount > 0 ? 'available' : 'pending')}
+        ${scopingFiles.length > 0
+          ? `<div class="doc-card doc-available" onclick="document.getElementById('scoping-modal').style.display='flex'" style="cursor:pointer">
+              <div class="doc-icon">📁</div>
+              <div class="doc-info"><div class="doc-title">Scoping Documents</div><div class="doc-sub">${scopingFiles.length} file${scopingFiles.length !== 1 ? 's' : ''} — click to view</div></div>
+              <div class="doc-arrow">↗</div>
+            </div>`
+          : renderDocCard('📁', 'Scoping Documents', 'In progress', null, 'pending')}
         ${docLinks['prd.md'] ? renderDocCard('📝', 'Product Requirements', 'View PRD →', docLinks['prd.md'], 'available') : renderDocCard('📝', 'Product Requirements', 'Not yet finalized', null, 'na')}
         ${docLinks['architecture.md'] ? renderDocCard('🏗️', 'Architecture Design', 'View design doc →', docLinks['architecture.md'], 'available') : renderDocCard('🏗️', 'Architecture Design', 'Not yet finalized', null, 'na')}
         ${docLinks['stories.md'] ? renderDocCard('🗂️', 'Epics & Stories', 'View full list →', docLinks['stories.md'], 'available') : renderDocCard('🗂️', 'Epics & Stories', 'Sprint planning pending', null, 'pending')}
@@ -620,6 +642,31 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
 <div class="footer">
   Powered by <a href="https://dataskate.ai" target="_blank">DataSkate</a> · This page updates automatically as your project progresses.
 </div>
+
+${scopingFiles.length > 0 ? `
+<!-- Scoping files modal -->
+<div id="scoping-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:24px" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:white;border-radius:12px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:#1A1A1A;color:white;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #ed1c24">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:2px">Scoping Documents</div>
+        <div style="font-size:16px;font-weight:800">${escHtml(displayName)}</div>
+      </div>
+      <button onclick="document.getElementById('scoping-modal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer;line-height:1">×</button>
+    </div>
+    <div style="padding:8px 0">
+      ${scopingFiles.map(f => `
+      <a href="${f.url}" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
+        <span style="font-size:20px">${fileIcon(f.name)}</span>
+        <span style="flex:1;font-size:13px;font-weight:600">${escHtml(f.name)}</span>
+        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
+      </a>`).join('')}
+    </div>
+    <div style="padding:14px 24px;background:#F9FAFB;border-top:1px solid #E8E0E0;font-size:11px;color:#6B7280;text-align:center">
+      Click a file to download · Contact your architect for questions
+    </div>
+  </div>
+</div>` : ''}
 
 </body>
 </html>`;

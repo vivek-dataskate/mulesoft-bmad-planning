@@ -202,10 +202,11 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
         <div class="doc-info"><div class="doc-title">Proposal</div><div class="doc-sub">View proposal →</div></div>
         <div class="doc-arrow">↗</div>
       </a>
-        <div class="doc-card doc-available">
-        <div class="doc-icon">📁</div>
-        <div class="doc-info"><div class="doc-title">Scoping Documents</div><div class="doc-sub">6 files on record</div></div>
-      </div>
+        <div class="doc-card doc-available" onclick="document.getElementById('scoping-modal').style.display='flex'" style="cursor:pointer">
+              <div class="doc-icon">📁</div>
+              <div class="doc-info"><div class="doc-title">Scoping Documents</div><div class="doc-sub">6 files — click to view</div></div>
+              <div class="doc-arrow">↗</div>
+            </div>
         <div class="doc-card doc-na">
         <div class="doc-icon">📝</div>
         <div class="doc-info"><div class="doc-title">Product Requirements</div><div class="doc-sub">Not yet finalized</div></div>
@@ -241,6 +242,56 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
 
 <div class="footer">
   Powered by <a href="https://dataskate.ai" target="_blank">DataSkate</a> · This page updates automatically as your project progresses.
+</div>
+
+
+<!-- Scoping files modal -->
+<div id="scoping-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:24px" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:white;border-radius:12px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:#1A1A1A;color:white;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #ed1c24">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:2px">Scoping Documents</div>
+        <div style="font-size:16px;font-weight:800">Peerless</div>
+      </div>
+      <button onclick="document.getElementById('scoping-modal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer;line-height:1">×</button>
+    </div>
+    <div style="padding:8px 0">
+      
+      <a href="https://dataskateclients.web.app/portal/docs/peerless/scoping/Peerless-DailySync%20Transcript_readai_4-15.txt" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
+        <span style="font-size:20px">📃</span>
+        <span style="flex:1;font-size:13px;font-weight:600">Peerless-DailySync Transcript_readai_4-15.txt</span>
+        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
+      </a>
+      <a href="https://dataskateclients.web.app/portal/docs/peerless/scoping/Peerless-DailySync%20Transcript_readai_4-16.txt" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
+        <span style="font-size:20px">📃</span>
+        <span style="flex:1;font-size:13px;font-weight:600">Peerless-DailySync Transcript_readai_4-16.txt</span>
+        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
+      </a>
+      <a href="https://dataskateclients.web.app/portal/docs/peerless/scoping/Peerless-DailySync%20Transcript_readai_4_17.txt" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
+        <span style="font-size:20px">📃</span>
+        <span style="flex:1;font-size:13px;font-weight:600">Peerless-DailySync Transcript_readai_4_17.txt</span>
+        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
+      </a>
+      <a href="https://dataskateclients.web.app/portal/docs/peerless/scoping/peerless-dailysync_transcript_krisp_4_14.txt" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
+        <span style="font-size:20px">📃</span>
+        <span style="flex:1;font-size:13px;font-weight:600">peerless-dailysync_transcript_krisp_4_14.txt</span>
+        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
+      </a>
+      <a href="https://dataskateclients.web.app/portal/docs/peerless/scoping/peerless_mulesoft_automation_starter_scope.docx" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
+        <span style="font-size:20px">📝</span>
+        <span style="flex:1;font-size:13px;font-weight:600">peerless_mulesoft_automation_starter_scope.docx</span>
+        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
+      </a>
+      <a href="https://dataskateclients.web.app/portal/docs/peerless/scoping/peerless_mulesoft_automation_starter_scope.txt" download target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid #F3F4F6;text-decoration:none;color:#1A1A1A;transition:background .1s" onmouseover="this.style.background='#FFF5F5'" onmouseout="this.style.background=''">
+        <span style="font-size:20px">📃</span>
+        <span style="flex:1;font-size:13px;font-weight:600">peerless_mulesoft_automation_starter_scope.txt</span>
+        <span style="font-size:12px;color:#ed1c24;font-weight:700">↓ Download</span>
+      </a>
+    </div>
+    <div style="padding:14px 24px;background:#F9FAFB;border-top:1px solid #E8E0E0;font-size:11px;color:#6B7280;text-align:center">
+      Click a file to download · Contact your architect for questions
+    </div>
+  </div>
 </div>
 
 </body>
