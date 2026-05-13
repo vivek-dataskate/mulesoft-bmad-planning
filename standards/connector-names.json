@@ -1,9 +1,9 @@
 {
   "_metadata": {
-    "description": "Tier-1 connector lookup \u2014 used by agents for system inference ONLY. Contains displayName, auth, category, licenseRequired per connector key. For gotchas and authOptions, use connector-index.json (targeted per-system query). For Maven/build fields, use connector-registry.json.",
-    "howToUse": "Load this file to identify connector keys from system names found in transcripts. Then run: python3 standards/query-connector.py salesforce netsuite shopify \u2014 to get full agent entries from connector-index.json for detected systems only.",
-    "totalConnectors": 350,
-    "regenerate": "node standards/build-connector-index.js"
+    "description": "Tier-1 names lookup — for system inference only. Load this to match system names from transcripts to connector keys. For gotchas and authOptions, call: python3 standards/query-connector.py <key> [<key> ...]",
+    "howToUse": "1. Load this file. 2. Match detected system names to connector keys. 3. Run query-connector.py with matched keys to get full gotchas/auth from connector-index.json.",
+    "regenerate": "node standards/build-connector-index.js",
+    "totalConnectors": 353
   },
   "connectors": {
     "salesforce": {
@@ -155,6 +155,20 @@
     "quickbooks-online": {
       "displayName": "QuickBooks Online",
       "auth": "oauth2",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "quickbooks-enterprise": {
+      "displayName": "QuickBooks Enterprise (Desktop)",
+      "auth": "qbxml-web-connector",
+      "category": "erp_finance",
+      "licenseRequired": false,
+      "_category": "erp_finance"
+    },
+    "paylocity": {
+      "displayName": "Paylocity",
+      "auth": "oauth2-client-credentials",
       "category": "erp_finance",
       "licenseRequired": false,
       "_category": "erp_finance"
@@ -434,7 +448,7 @@
     "pharmacyhub": {
       "displayName": "PharmacyHub",
       "type": "via-sftp",
-      "auth": "unknown \u2014 to be confirmed by Architect",
+      "auth": "unknown — to be confirmed by Architect",
       "category": "crm_marketing",
       "licenseRequired": false,
       "_category": "crm_marketing"
@@ -442,7 +456,7 @@
     "pipeline-medical": {
       "displayName": "Pipeline Medical",
       "type": "via-sftp",
-      "auth": "unknown \u2014 to be confirmed by Architect",
+      "auth": "unknown — to be confirmed by Architect",
       "category": "crm_marketing",
       "licenseRequired": false,
       "_category": "crm_marketing"
@@ -456,9 +470,9 @@
       "_category": "crm_marketing"
     },
     "computerease": {
-      "displayName": "ComputerEase (Deltek \u2014 specialty contractor ERP)",
+      "displayName": "ComputerEase (Deltek — specialty contractor ERP)",
       "type": "via-http",
-      "auth": "unknown \u2014 to be confirmed via Deltek support",
+      "auth": "unknown — to be confirmed via Deltek support",
       "category": "crm_marketing",
       "licenseRequired": false,
       "_category": "crm_marketing"
@@ -480,6 +494,13 @@
     "asana": {
       "displayName": "Asana",
       "auth": "oauth2",
+      "category": "itsm_service",
+      "licenseRequired": false,
+      "_category": "itsm_service"
+    },
+    "docuware": {
+      "displayName": "DocuWare",
+      "auth": "token",
       "category": "itsm_service",
       "licenseRequired": false,
       "_category": "itsm_service"
@@ -649,7 +670,7 @@
       "_category": "google_cloud"
     },
     "database": {
-      "displayName": "Database (Generic \u2014 MySQL, PostgreSQL, Oracle, MSSQL, MariaDB)",
+      "displayName": "Database (Generic — MySQL, PostgreSQL, Oracle, MSSQL, MariaDB)",
       "auth": "username-password",
       "category": "database",
       "licenseRequired": false,
@@ -1153,7 +1174,7 @@
       "_category": "ai_ml"
     },
     "anypoint-idp": {
-      "displayName": "Anypoint IDP via HTTP (Fallback \u2014 use mulesoft-forge-idp instead)",
+      "displayName": "Anypoint IDP via HTTP (Fallback — use mulesoft-forge-idp instead)",
       "auth": "oauth2-client-credentials",
       "category": "ai_ml",
       "licenseRequired": false,
@@ -1543,21 +1564,21 @@
       "_category": "dataweave_libraries"
     },
     "apm-payload-storage-s3": {
-      "displayName": "APM Payload Storage \u2014 S3 Implementation",
+      "displayName": "APM Payload Storage — S3 Implementation",
       "auth": "aws-credentials",
       "category": "anypoint_partner_manager",
       "licenseRequired": false,
       "_category": "anypoint_partner_manager"
     },
     "apm-payload-storage-db": {
-      "displayName": "APM Payload Storage \u2014 Database (MySQL/Postgres) Implementation",
+      "displayName": "APM Payload Storage — Database (MySQL/Postgres) Implementation",
       "auth": "username-password",
       "category": "anypoint_partner_manager",
       "licenseRequired": false,
       "_category": "anypoint_partner_manager"
     },
     "apm-payload-storage-object-store": {
-      "displayName": "APM Payload Storage \u2014 Object Store Implementation",
+      "displayName": "APM Payload Storage — Object Store Implementation",
       "auth": "none",
       "category": "anypoint_partner_manager",
       "licenseRequired": false,
@@ -2226,7 +2247,7 @@
       "_category": "life_sciences"
     },
     "medidata": {
-      "displayName": "Medidata (Dassault Syst\u00e8mes)",
+      "displayName": "Medidata (Dassault Systèmes)",
       "auth": "oauth2",
       "category": "life_sciences",
       "licenseRequired": false,

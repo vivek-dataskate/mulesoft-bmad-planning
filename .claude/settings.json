@@ -20,6 +20,21 @@
             "type": "command",
             "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE 'playbooks/.*/PLAYBOOK\\.md|standards/connector-registry\\.json|standards/snippet-registry\\.json|projects/.*/decisions\\.json' && cd /workspaces/mulesoft-bmad-planning && node scaffold/generate-capabilities.js 2>/dev/null || true",
             "statusMessage": "Regenerating capabilities portal…"
+          },
+          {
+            "type": "command",
+            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -q 'connector-registry.json' && cd /workspaces/mulesoft-bmad-planning && node standards/build-connector-index.js 2>/dev/null || true",
+            "statusMessage": "Rebuilding connector index files…"
+          },
+          {
+            "type": "command",
+            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE '\\.html$' && echo \"$fp\" | grep -qv 'node_modules' && cd /workspaces/mulesoft-bmad-planning && node commons/branding/lint-html.js \"$fp\" 2>&1 || true",
+            "statusMessage": "Validating HTML against design standards…"
+          },
+          {
+            "type": "command",
+            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); (echo \"$fp\" | grep -qE 'firebase/public/.*\\.html$|projects/.*/intake/.*\\.html$') && (echo \"$fp\" | grep -qv 'node_modules') && node /workspaces/mulesoft-bmad-planning/commons/branding/lint-html.js \"$fp\" > /dev/null 2>&1 && bash /workspaces/mulesoft-bmad-planning/firebase/deploy.sh 2>&1 | tail -8 || true",
+            "statusMessage": "Lint passed — deploying to Firebase…"
           }
         ]
       }

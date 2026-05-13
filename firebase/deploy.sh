@@ -20,14 +20,11 @@ export GOOGLE_APPLICATION_CREDENTIALS="/tmp/firebase-sa.json"
 echo "→ Publishing sales resources..."
 mkdir -p "$PUBLIC/resources"
 
-# Copy pre-built HTML resources (e.g. proposals, intake forms copied for reference)
-for f in "$REPO_ROOT"/commons/sales/*.html; do
-  [ -f "$f" ] || continue
-  cp "$f" "$PUBLIC/resources/$(basename "$f")"
-  echo "   resources/$(basename "$f")"
-done
+# Generate the pricing flyer from pricing-model.md via fill-template.js
+node "$REPO_ROOT/commons/branding/fill-template.js" --template flyer
+echo "   resources/architect-flyer.html (from pricing-model.md)"
 
-# Convert markdown resources to HTML via the resource template
+# Generate markdown resources via the resource template (all write to firebase/public/resources/)
 for f in "$REPO_ROOT"/commons/sales/*.md; do
   [ -f "$f" ] || continue
   base="$(basename "$f" .md)"

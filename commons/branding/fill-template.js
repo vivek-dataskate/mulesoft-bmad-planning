@@ -452,7 +452,7 @@ function buildPortal(c) {
       : `<div class="${cls}">${inner}</div>`;
   }).join('\n'));
 
-  // Sprint section — empty state or epic/story blocks
+  // Sprint section — empty state or stats bar + epic/story blocks
   if (!c.sprints || c.sprints.length === 0) {
     fill('sprint-section', `<div class="sprint-empty">
       <div class="sprint-empty-icon">📋</div>
@@ -460,7 +460,15 @@ function buildPortal(c) {
       <div class="sprint-empty-body">Stories and epics will appear here once your project moves into the Build phase.</div>
     </div>`);
   } else {
-    fill('sprint-section', c.sprints.map(epic =>
+    const st = c.sprintStats;
+    const statBar = st ? `<div class="sprint-stats">
+      <div class="sprint-stat"><span class="sn sn-total">${st.total}</span><span class="sl">Total Stories</span></div>
+      <div class="sprint-stat"><span class="sn sn-done">${st.done}</span><span class="sl">Done</span></div>
+      <div class="sprint-stat"><span class="sn sn-active">${st.active}</span><span class="sl">In Progress</span></div>
+      <div class="sprint-stat"><span class="sn sn-review">${st.review}</span><span class="sl">Review</span></div>
+      <div class="sprint-stat"><span class="sn sn-planned">${st.planned}</span><span class="sl">Planned</span></div>
+    </div>` : '';
+    fill('sprint-section', statBar + c.sprints.map(epic =>
       `<details class="epic-block" open>
         <summary class="epic-header">
           <span class="epic-num">${esc(epic.id)}</span>
@@ -476,7 +484,7 @@ function buildPortal(c) {
             `<div class="story-row">
               <span class="story-id">${esc(s.id)}</span>
               <span class="story-title">${esc(s.title)}</span>
-              <span class="chip chip-${esc(s.status || 'planned')}">${esc(s.status || 'Planned')}</span>
+              <span class="chip chip-${esc(s.status || 'planned')}">${esc(s.statusLabel || s.status || 'Planned')}</span>
               ${s.desc ? `<span class="story-desc">${esc(s.desc)}</span>` : ''}
             </div>`
           ).join('\n')}
