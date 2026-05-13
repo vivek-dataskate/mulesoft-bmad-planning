@@ -490,8 +490,8 @@ a{color:var(--brand);text-decoration:none;}
 .phase-future .phase-dot{background:#F3F4F6;border-color:#D1D5DB;}
 
 /* ── DOC CARDS ── */
-.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;}
-.doc-card{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;transition:border-color .15s,box-shadow .15s;cursor:default;}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;grid-auto-rows:1fr;}
+.doc-card{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;transition:border-color .15s,box-shadow .15s;cursor:default;min-height:64px;}
 a.doc-card{cursor:pointer;}
 a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.1);}
 .doc-available{border-color:#A7F3D0;}
@@ -601,6 +601,11 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
     </div>
     <div class="section-body">
       <div class="doc-grid">
+        ${archivedFiles.length > 0
+          ? renderDocCard('📁', 'Scoping Documents', `${archivedFiles.length} file${archivedFiles.length !== 1 ? 's' : ''} archived →`, sourceFilesUrl, 'available')
+          : localScopingCount > 0
+            ? renderDocCard('📁', 'Scoping Documents', `${localScopingCount} file${localScopingCount !== 1 ? 's' : ''} — pending archive`, null, 'pending')
+            : renderDocCard('📁', 'Scoping Documents', 'Not yet uploaded', null, 'na')}
         ${renderDocCard('📋', 'Intake Questionnaire', intakeUrl ? 'Open form →' : 'Not yet sent', intakeUrl, intakeUrl ? 'available' : 'na')}
         ${renderDocCard(
           responsesStatus === 'available' ? '✅' : '⏳',
@@ -612,15 +617,12 @@ a.doc-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.
           responsesStatus === 'available' ? 'available' : 'pending'
         )}
         ${renderDocCard('📄', 'Proposal', proposalUrl ? 'View proposal →' : 'Not yet sent', proposalUrl, proposalUrl ? 'available' : 'na')}
-        ${archivedFiles.length > 0
-          ? renderDocCard('📁', 'Scoping Documents', `${archivedFiles.length} file${archivedFiles.length !== 1 ? 's' : ''} archived →`, sourceFilesUrl, 'available')
-          : localScopingCount > 0
-            ? renderDocCard('📁', 'Scoping Documents', `${localScopingCount} file${localScopingCount !== 1 ? 's' : ''} — pending archive`, null, 'pending')
-            : renderDocCard('📁', 'Scoping Documents', 'Not yet uploaded', null, 'na')}
-        ${docLinks['prd.md'] ? renderDocCard('📝', 'Product Requirements', 'View PRD →', docLinks['prd.md'], 'available') : renderDocCard('📝', 'Product Requirements', 'Not yet finalized', null, 'na')}
-        ${docLinks['architecture.md'] ? renderDocCard('🏗️', 'Architecture Design', 'View design doc →', docLinks['architecture.md'], 'available') : renderDocCard('🏗️', 'Architecture Design', 'Not yet finalized', null, 'na')}
-        ${docLinks['stories.md'] ? renderDocCard('🗂️', 'Epics & Stories', 'View full list →', docLinks['stories.md'], 'available') : renderDocCard('🗂️', 'Epics & Stories', 'Not yet started', null, 'na')}
-        ${devRepoUrl ? renderDocCard('⚙️', 'Dev Repository', 'View on GitHub →', devRepoUrl, 'available') : ''}
+        ${docLinks['sow.md'] ? renderDocCard('📜', 'SOW', 'View SOW →', docLinks['sow.md'], 'available') : renderDocCard('📜', 'SOW', 'Not yet issued', null, 'na')}
+        ${docLinks['prd.md'] ? renderDocCard('📝', 'Requirements', 'View PRD →', docLinks['prd.md'], 'available') : renderDocCard('📝', 'Requirements', 'Not yet finalized', null, 'na')}
+        ${docLinks['architecture.md'] ? renderDocCard('🏗️', 'Architecture', 'View design doc →', docLinks['architecture.md'], 'available') : renderDocCard('🏗️', 'Architecture', 'Not yet finalized', null, 'na')}
+        ${renderDocCard('⚙️', 'Git Code', devRepoUrl ? 'View on GitHub →' : 'Not yet created', devRepoUrl, devRepoUrl ? 'available' : 'na')}
+        ${docLinks['test-cases.md'] ? renderDocCard('🧪', 'Test Cases', 'View test plan →', docLinks['test-cases.md'], 'available') : renderDocCard('🧪', 'Test Cases', 'Not yet created', null, 'na')}
+        ${docLinks['hypercare.md'] ? renderDocCard('🛡️', 'Hypercare', 'View plan →', docLinks['hypercare.md'], 'available') : renderDocCard('🛡️', 'Hypercare', 'Not yet started', null, 'na')}
       </div>
     </div>
   </div>
