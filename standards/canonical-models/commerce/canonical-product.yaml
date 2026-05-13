@@ -1,0 +1,124 @@
+title: Canonical Product / Item
+version: "1.0.0"
+standard: "OAGIS 10.x — SyncItem BOD"
+standardBody: "Open Applications Group (OAGi)"
+standardRef: "https://www.oagi.org/dnn5/Home/DownloadaStandard"
+deviations:
+  - "Field names use camelCase (not OAGIS PascalCase) — DataWeave convention"
+  - "productId maps to OAGIS Item/ItemID/ID — simplified to flat string"
+  - "status enum simplified (ACTIVE/INACTIVE/DISCONTINUED) — OAGIS uses Status/Code free text"
+  - "inventory{} sub-object is a canonical addition — OAGIS Item does not standardize QOH fields"
+  - "pricing{} flattens OAGIS Price/Amount/CurrencyID hierarchy"
+  - "classification{} maps to OAGIS Item/Classification/Codes — renamed for clarity"
+description: |
+  Canonical product/item entity schema across all client integrations.
+  Maps from: QuickBooks Item, Salesforce Product2, NetSuite Item, ERP SKU catalogs.
+  Maps to: any target inventory, CRM, or commerce system.
+  OAGIS alignment: ItemType — key fields productId→ItemID/ID,
+  name→Description/ShortDescription, classification→Classification/Codes,
+  inventory.quantityOnHand→Quantity/QuantityTypeCode=OnHand.
+
+type: object
+required:
+  - productId
+  - name
+  - status
+  - timestamps
+
+properties:
+  productId:
+    type: string
+    description: Canonical product identifier (use source system's primary key; prefix with system for cross-system uniqueness e.g. "QB-1234")
+    example: "QB-1234"
+
+  externalIds:
+    type: object
+    description: Source system identifiers — enables lookup from any system
+    properties:
+      quickbooksItemId:    { type: string, example: "1234" }
+      salesforceProduct2Id: { type: string, example: "01t0000001234" }
+      netsuiteInternalId:  { type: string, example: "5678" }
+      erpSkuId:            { type: string }
+      isbn:                { type: string, description: "ISBN-13 for physical books/publications", example: "978-0-306-40615-7" }
+
+  name:
+    type: string
+    description: Product display name / short description
+    example: "Intensified Algebra Volume 1 Student Activity Book"
+
+  description:
+    type: string
+    description: Full product description
+
+  status:
+    type: string
+    enum: [ACTIVE, INACTIVE, DISCONTINUED]
+
+  type:
+    type: string
+    enum: [INVENTORY, NON_INVENTORY, SERVICE, BUNDLE, DIGITAL]
+    description: Product type — determines whether QOH tracking applies (INVENTORY only)
+
+  classification:
+    type: object
+    description: Categorisation and taxonomy
+    properties:
+      category:      { type: string, description: "Top-level product category" }
+      subcategory:   { type: string }
+      productLine:   { type: string, description: "Product family or series" }
+      vendor:        { type: string, description: "Primary vendor / supplier" }
+      unitOfMeasure: { type: string, example: "EA", description: "Each, CASE, BOX, etc." }
+
+  pricing:
+    type: object
+    properties:
+      listPrice:     { type: number, description: "Standard unit price" }
+      costPrice:     { type: number, description: "Unit cost (for margin calculations)" }
+      currency:      { type: string, pattern: "^[A-Z]{3}$", example: "USD" }
+
+  inventory:
+    type: object
+    description: Inventory tracking fields — applies to INVENTORY type only
+    properties:
+      quantityOnHand:     { type: integer, description: "Current quantity on hand in warehouse" }
+      quantityCommitted:  { type: integer, description: "Quantity committed to open orders (not yet fulfilled)" }
+      quantityAvailable:  { type: integer, description: "quantityOnHand minus quantityCommitted" }
+      reorderPoint:       { type: integer, description: "QOH threshold that triggers reorder" }
+      preferredVendorId:  { type: string, description: "Preferred vendor for reorder" }
+      warehouseLocation:  { type: string, description: "Bin / aisle / shelf location" }
+
+  variants:
+    type: array
+    description: Region- or edition-specific variants of this product (e.g. state ISBN variants for educational publishers)
+    items:
+      $ref: '#/ProductVariant'
+
+  timestamps:
+    $ref: '#/Timestamps'
+
+ProductVariant:
+  type: object
+  description: A variant of the base product distinguished by region, edition, or version
+  properties:
+    variantId:   { type: string }
+    variantKey:  { type: string, description: "Discriminator value (e.g. state code, edition label)", example: "CA" }
+    label:       { type: string, description: "Human-readable variant label", example: "California Edition" }
+    externalIds:
+      type: object
+      properties:
+        isbn:               { type: string, description: "ISBN-13 for this variant" }
+        quickbooksItemId:   { type: string }
+        salesforceProduct2Id: { type: string }
+    inventory:
+      type: object
+      properties:
+        quantityOnHand:    { type: integer }
+        quantityCommitted: { type: integer }
+        quantityAvailable: { type: integer }
+
+Timestamps:
+  type: object
+  properties:
+    createdAt:   { type: string, format: date-time }
+    updatedAt:   { type: string, format: date-time }
+    discontinuedAt: { type: string, format: date-time }
