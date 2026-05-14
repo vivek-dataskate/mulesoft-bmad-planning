@@ -57,7 +57,7 @@ principles = [
   "Step 7A — Playbook stubs: for each detected system:\n  If no playbook exists at standards/playbooks/{slug}/{slug}_playbook.json: create stub JSON:\n    {\n      \"system\": \"{full name}\",\n      \"maturity\": \"stub\",\n      \"lastUpdated\": \"{today}\",\n      \"clients\": [\"{client}\"],\n      \"status\": \"Stub — enriched by Architect after design, completed by CO after delivery.\",\n      \"knownQuirks\": [\"{findings from web research this session}\"],\n      \"supportedObjects\": [],\n      \"maturityLog\": [\n        { \"date\": \"{today}\", \"clientCount\": 1, \"knowledgeAdded\": \"Initial stub from {client} engagement\", \"status\": \"stub\" }\n      ]\n    }\n  If playbook exists: increment clientCount, add log entry, append new quirks found.",
 
   # ── STUB CREATION — 7B: CONNECTOR REGISTRY ───────────────────────────
-  "Step 7B — Connector registry stubs: for each detected system with no entry in connector-registry.json:\n  Add stub: key: {slug}, displayName: {full name}, type: unknown, authType: unknown,\n    notes: 'stub — verify connector type and auth', lastVerified: {today}, lastVerifiedBy: rex-stub\n  After adding: run `node standards/build-connector-index.js` to rebuild connector-names.json and connector-registry.json.",
+  "Step 7B — Connector registry stubs: for each detected system with no entry in connector-registry.json:\n  Add stub: key: {slug}, displayName: {full name}, type: unknown, authType: unknown,\n    notes: 'stub — verify connector type and auth', lastVerified: {today}, lastVerifiedBy: rex-stub\n  Do NOT run build-connector-index.js — orchestrate.js runs it post-Rex.",
 
   # ── STUB CREATION — 7C: INTAKE CHECKLIST ────────────────────────────
   "Step 7C — intake-checklist.json autoWarnings: for each new system with no existing entry:\n  Add: { id: {slug}_new, trigger: {slug keyword}, severity: medium, warning: 'New system — verify connector type, auth, and sandbox availability.' }",
@@ -66,7 +66,7 @@ principles = [
   "Step 7D — Canonical model stubs: read vera.json company.businessObjects[] and company.industry.\n  For each business object not yet covered by an existing canonical YAML:\n    Read standards/canonical-models/registry.json for this vertical's standard/standardBody/standardRef/keyFieldAlignments.\n    Create standards/canonical-models/{vertical}/canonical-{record}.yaml:\n      title, version: '1.0.0-stub', standard (from registry), standardBody, standardRef, deviations, description\n      type, required[], properties{} — derive fields from registry keyFieldAlignments + playbook DWL files + web research\n    Mark: version: '1.0.0-stub — created from {client} engagement'\n  For stubs that already exist: note field gaps in rex.json internalFlags[].",
 
   # ── KNOWLEDGE WRITE-BACK — 8D: CONNECTOR REGISTRY ───────────────────
-  "Step 8d — Connector registry write-back: for every system where research verified auth type, API style, or gotchas that differ from the registry stub: update connector-registry.json with verified values and lastVerified: {today}, lastVerifiedBy: rex. After update: run `node standards/build-connector-index.js`.",
+  "Step 8d — Connector registry write-back: for every system where research verified auth type, API style, or gotchas that differ from the registry stub: update connector-registry.json with verified values and lastVerified: {today}, lastVerifiedBy: rex. Do NOT run build-connector-index.js — orchestrate.js runs it post-Rex.",
 
   # ── CANONICAL-EXTENSIONS.YAML ─────────────────────────────────────────
   "Create or update projects/{client}/canonical-extensions.yaml as a shell:\n  This is the per-client field extension map, populated later by the Analyst (Mary). Rex creates the shell with known record types from vera.json businessObjects[]. For each record type: list addedFields: [], renamedFields: [], omittedFields: [] — all empty at this stage. Analyst fills them during PRD development.",
@@ -121,7 +121,7 @@ STEP 5 — Stub Creation (7A-7D)
 ─────────────────────────────────────────────────────────────────────
 Apply Stub Creation principles for every detected system:
   7A: Create or update playbook stubs.
-  7B: Add connector registry stubs. Run build-connector-index.js.
+  7B: Add connector registry stubs. (build-connector-index.js runs via orchestrate.js post-Rex)
   7C: Add intake-checklist.json autoWarnings entries.
   7D: Create canonical model stubs from vera.json businessObjects[].
 Create or update projects/{client}/canonical-extensions.yaml shell.
@@ -130,7 +130,7 @@ Create or update projects/{client}/canonical-extensions.yaml shell.
 STEP 6 — Connector Registry Write-back (8d)
 ─────────────────────────────────────────────────────────────────────
 Apply Knowledge Write-back 8d principle.
-Update registry for verified systems. Run build-connector-index.js.
+Update registry for verified systems. (build-connector-index.js runs via orchestrate.js post-Rex)
 
 ─────────────────────────────────────────────────────────────────────
 STEP 7 — Write rex.json

@@ -1,0 +1,711 @@
+Pasted text(15).txt
+
+Document
+
+can you prepare a implementation scope
+
+
+
+
+
+
+
+Based on the discussion in your transcript, here’s a clean, client-ready Implementation Scope you can use for SOW or proposal. I’ve aligned it to what was actually discussed: Salesforce + QuickBooks + Excel (inventory) integration, IDP not included here.
+
+
+
+Implementation Scope – Salesforce, QuickBooks & Inventory Integration
+
+1. Objective
+
+Design and implement an integration solution using MuleSoft Anypoint Platform to:
+
+Eliminate manual data entry between systems
+
+Provide real-time inventory visibility
+
+Synchronize financial and sales data across platforms
+
+Improve operational efficiency and reporting accuracy
+
+This directly addresses the current inefficiencies where users manually re-enter data across systems, costing time and introducing errors .
+
+
+
+2. Systems in Scope
+
+Salesforce (Primary system of engagement)
+
+QuickBooks (Financial system of record)
+
+Excel / Google Sheets (Inventory source data)
+
+
+
+3. In-Scope Use Cases
+
+3.1 Salesforce ↔ QuickBooks Integration (Order-to-Cash)
+
+Scope Includes:
+
+Sync Opportunities (Closed Won) from Salesforce to QuickBooks
+
+Auto-create Invoices in QuickBooks from Salesforce data
+
+Sync Invoice IDs and status back to Salesforce
+
+Ensure financial data consistency across systems
+
+Business Outcome:
+
+Eliminate duplicate data entry
+
+Reduce billing delays and errors
+
+Improve finance visibility
+
+
+
+3.2 Inventory Data Integration (Excel/QuickBooks → Salesforce)
+
+Scope Includes:
+
+Extract inventory data from Excel / QuickBooks
+
+Transform and load inventory data into Salesforce
+
+Maintain near real-time or scheduled sync
+
+Data Points:
+
+Product / Book Titles
+
+Quantities
+
+Cost / Value
+
+Inventory availability
+
+Business Outcome:
+
+Centralized inventory visibility
+
+Faster decision making
+
+Reduced manual tracking effort
+
+
+
+3.3 Inventory Visibility Dashboard (Salesforce)
+
+Scope Includes:
+
+Custom dashboard in Salesforce displaying:
+
+Inventory levels
+
+Demand vs supply
+
+Cost insights
+
+Inventory by district/program
+
+Role-based access controls (restricted visibility)
+
+Business Outcome:
+
+Real-time insights instead of manual lookup
+
+Faster executive reporting
+
+Controlled access to sensitive inventory data
+
+
+
+3.4 Pipeline-Based Demand Visibility
+
+Scope Includes:
+
+Include Open Opportunities in inventory planning
+
+Track demand based on pipeline stages
+
+Enable forecasting of inventory needs
+
+Business Outcome:
+
+Better demand planning
+
+Reduced over/under stocking
+
+
+
+4. Data Flow Overview
+
+Future-State Flow
+
+Opportunities created in Salesforce
+
+Inventory demand captured (products + quantity)
+
+Data flows into:
+
+QuickBooks for invoicing
+
+Salesforce dashboards for reporting
+
+Inventory data flows from Excel/QuickBooks → Salesforce
+
+Real-time dashboards provide unified visibility
+
+This replaces the current fragmented process where data lives across spreadsheets and systems with no unified view .
+
+
+
+5. Integration Approach
+
+API-led connectivity using MuleSoft
+
+Prebuilt connectors (Salesforce, QuickBooks, etc.)
+
+Scalable architecture for future integrations
+
+Batch + real-time processing where applicable
+
+
+
+6. Implementation Phases
+
+Phase 1: Discovery & Design
+
+Requirements validation
+
+Data mapping (Salesforce ↔ QuickBooks ↔ Excel)
+
+Architecture design
+
+Access & environment setup
+
+
+
+Phase 2: Build & Integration
+
+Develop integration flows
+
+Configure connectors
+
+Build data transformations
+
+Develop Salesforce dashboards
+
+
+
+Phase 3: Testing
+
+Unit Testing
+
+System Integration Testing
+
+User Acceptance Testing (UAT)
+
+
+
+Phase 4: Deployment & Go-Live
+
+Production deployment
+
+Data validation
+
+Monitoring setup
+
+
+
+Phase 5: Hypercare
+
+Post go-live support
+
+Issue resolution
+
+Performance tuning
+
+
+
+7. Assumptions
+
+Salesforce, QuickBooks, and Excel access will be provided
+
+Required APIs/connectivity are available
+
+Data mapping and business rules will be shared by client
+
+Users will maintain data discipline (e.g., opportunity quantities)
+
+
+
+8. Out of Scope
+
+Data cleansing or historical data correction
+
+Major QuickBooks reconfiguration
+
+Advanced forecasting algorithms
+
+IDP / document processing (unless added separately)
+
+
+
+9. Expected Business Impact
+
+Reduce manual effort (10–12 hrs/week during peak periods) 
+
+Eliminate duplicate data entry
+
+Improve billing accuracy
+
+Real-time inventory visibility
+
+Better planning and decision-making
+
+
+
+10. Timeline (Indicative)
+
+Implementation Start: Mid-February
+
+Go-Live Target: April 1
+
+Duration: ~6–8 weeks
+
+
+
+If you want, I can convert this into:
+
+A formal SOW document format
+
+Or a client-facing executive summary (5–6 lines)
+
+Or even break pricing + effort per use case
+
+Just tell me how you plan to use it.
+
+Salesforce / Agile Mind: Quickbooks
+
+Inventory Integration Sync -Transcript00:00:00Samantha Telson: we could send everything.Jonathan Garfunkel: Uh, did looks like you just got it or you'reSamantha Telson: Sweet.Jonathan Garfunkel: transcribing.Samantha Telson: I think I just did a I don't know. I clicked I clicked something.Jonathan Garfunkel: All right,Samantha Telson: Okay,Jonathan Garfunkel: we're recording.Samantha Telson: great. Okay,Holly Wale: Okay.Samantha Telson: so gonna kind of go fast because a lot of the stuff we talked abouton the phone, but I do want to at least show you everything that we put together. Um, sofirst looking at this, so like I said, our integration platform is is Mulesoft, which is goingto be able to connect into anything for you guys. So I didn't even I didn't even put theQuickBooks and the Excel logo on here. They were already on here, and I know that'skind of the ones that we're talking about, but we're able to integrate into everything, notum everything.Holly Wale: Mhm.Samantha Telson: And it doesn't have to be Salesforce related. So um like it doesn'thave to touch Salesforce. So in your guys' case, like if we just need an integrationbetween QuickBooks and Excel for the inventory piece to auto update from the Excelsheet into QuickBooks or if we need again that QuickBooks to Salesforce piece which ismainly Crystal, uh we can do that as well.00:01:06Samantha Telson: Um so really we have the ability to connect into anything. Everythingis within the platform and it's all very um business user friendly. It's not um you don'tneed to be an IT developer to use the platform. It's all drag and drop. There's no coding.Um it's very business user friendly. So that's kind of just an overview of Muleoft as awhole.Holly Wale: Okay.Samantha Telson: Yeah. Any questions?Holly Wale: No, I think we I saw this part last time,Samantha Telson: Okay.Holly Wale: so I'm good.Samantha Telson: Good. Okay. So, this is what I originally had when we went over withCrystal. So again, this was for her, but just kind of what are we actually trying to do? Sowe want to give, at least for Crystal's piece, stop her having to enter information inQuickBooks and stop her having to enter the same information in Salesforce, right?Saving her, I think I went back and looked like almost like 10 to 12 hours a week, whichis, you know,00:02:02Holly Wale: It is. It is.Samantha Telson: a decent amount when you look at it.Holly Wale: But just to put it in context, that's like for like maybe two months of the year.It's not like the whole year. Yeah. So,Samantha Telson: the whole year.Holly Wale: I mean, we all have our like busy pockets and I think that's definitely aproblem to fix,Samantha Telson: Okay.Holly Wale: but it isn't like every week.Samantha Telson: Okay, that is helpful. Um, the clarification is helpful, but like still wecan still save the time.Holly Wale: Yeah.Samantha Telson: I didn't I didn't price this out of like that much to do with that, but thatis helpful.Holly Wale: Okay.Samantha Telson: the clarification. The second thing is obviously help you get that viewof inventory. How many books are on the shelf? How much is six books that you needthat taken you days to to to go find when Linda asks? um giving more of that holisticview whether that's in QuickBooks or whether that's in Salesforce but still giving you theproper information of where is the inventory, how much inventory, how much do we havein terms of dollars and cents and then ultimately like giving you guys more of a scalableprocess as we look into next year, as we look into um school seasons coming up, youknow, helping those systems speak to each other.00:03:16Samantha Telson: That's kind of what I had. I like to kind of focus on how this is actuallygoing to impact your business rather than just what we heard and what you guys said.So, that's kind of what I had on here.Holly Wale: Okay.Samantha Telson: Um, any other call outs on your end of like what's important to you ordo you think just, you know, what we've talked about the inventory piece and so on andsoHolly Wale: Yeah.Samantha Telson: forth.Holly Wale: So for inventory, I think that my biggest question is where if it it is if itdoesn't if it starts out in spreadsheets I own or Google Sheets and gets into Salesforce,then it is managed in Salesforce and I'll have like we have a ton of Salesforce reportsalready. Like I'll just like build another report to see what I need to anytime I see it andanytime I need to. That'll be like theSamantha Telson: Exactly. So, yeah. So, what we can do, and when I get to my proposal,Holly Wale: database.00:04:11Samantha Telson: I'll walk you through. we have a partner that can help you guys setthis up for um pretty low cost. Um if we move a little faster, maybe we could even do likea free implementation. That just depends on your guys' feedback on the proposal. Butwhat they can do and what I put in is like a custom dashboard directly for inventory. Sowhen you open up your Salesforce, you're going to be able to see everything that lives inspreadsheets or even everything that lives in QuickBooks because I know Maria calledout that some of this lives in QuickBooks. you are going to be able to see like and youcan formulate format it however you want but like in the table okay algebra 6 books sixequals x amount and like it will like be in a um reports when you click on like yourSalesforce report dashboard Jonathan and I use obviously we use Salesforce forSalesforce but we have Salesforce dashboards that can show like literally anything andthey can be formatted however you want and pull whatever data you want so that's kindof the way that I was thinking about it but I'm glad that you00:05:00Holly Wale: Okay.Samantha Telson: kind of were on the same page with thatHolly Wale: Well, and most of our reports where we use them are not limited to a certainnumber ofSamantha Telson: too.Holly Wale: users. We have a couple that are li that are set up that way. Is this onewhere we could set it up any way we want? Because my problem with like like inventoryneeds to live somewhere, but I don't want everyone in the whole company to think wehave a hundred left of something because everyone thinks that's their 100. So right nowthey have to come to me like,Samantha Telson: Uh oh.Holly Wale: "Hey, I've got this thing popping and you know they need something thatwasn't on our radar. Can you help?" And since I'm the funnel, I always know if we'vealready committed that to somebody else. So just like thinking about access to likevisibility for some things is going to be really important that that it's only me or only afew of us and then I'll have to manage um what we say about it if it's00:06:00Samantha Telson: We can set Yeah.Holly Wale: everybody.Samantha Telson: like we can set permissions um on the report to ensure that like if it'sonly you and Jonathan that are allowed to have access to just the inventory report, wecan do that too. If that's what you're getting at. Okay. Yeah, we can kind of determinethat.Holly Wale: Yeah.Samantha Telson: And that's when they build it out and they can customize it howeveryou want just for that reason. Okay, any other questions or I'm I'm good to keep rolling.Holly Wale: Keep rolling.Samantha Telson: Okay, sweet. Okay, so I'm going to skip this because we kind of wentover this. This is what I made for Crystal, but this was like the flow for just the um theway that Crystal was workingHolly Wale: Mhm.Samantha Telson: today. This is the future state that I had made for again Crystal thatQuickBooks workflow, the QuickBooks Salesforce piece. um how we can make sure wecan take the the contracts, put the line items directly into Salesforce, and then we canpush directly into QuickBooks to make a matching invoice, get the number sync backinto Salesforce.00:07:07Samantha Telson: Um, but I know this kind of isn't your realm. This is more her realm,but this is kind of the flow that we walk through in the future state of that. Um, anyquestions before I move on to your piece, Holly? Okay. Okay. Okay. So, I made anotherfuture state. Um, but this was kind of what I made directly into um your state and thevisibility we can give you. Again, I don't think this is perfect. I would rather you correctme in different ways that you'd want it, but this is just my first pass of how we can do it.So, it'd be similar to the last flow, but what we would do is have again once inopportunities one in Salesforce. We would have it include the book titles that's needed,the quantities, the variance. So, right, you called out the inventory data that you need isin Excel. So, what we would do is push the data directly um and the details directly fromExcel in real time or from QuickBooks if it's living in QuickBooks.00:08:03Samantha Telson: And so then we can push that inventory data directly into Salesforceinto those dashboards like you just called out. Um,Holly Wale: Mhm.Samantha Telson: and then we also can have Salesforce reflect different opportunitystages, different quantities, have the dollar amounts be um, amounts go in. And then soyour team will be able to see everything directly in Excel, Salesforce, and QuickBooks.So I called out kind of at the bottom like you can see the demand, you can see thequantities, you can see the cost and that would all be formulated into a dashboard. Sothen when you open your Salesforce instance, you can click on it, be like, "Okay, I want tosee inventory dashboard." Um, and so then we'd not only be doing the inventory piece,but you'd also be able to see the contract piece on Crystal sites, QuickBooks data. Um,and then you can see books by district, cost per district, cost per program, all thedifferent things that you would need. Um, and so on. So what are your thoughts? Um,just looking at this first pass, is this kind of how you were thinking about it?00:09:07Samantha Telson: Is there any call outs or anything that IHolly Wale: Well,Samantha Telson: missed?Holly Wale: let me just finish reading this. So, I think to me there might be a flaw at thebeginning, but you said it differently later.Samantha Telson: Okay.Holly Wale: So, let me just tell you what I'm thinking. That first box says closed one.Samantha Telson: Okay.Holly Wale: And while closed one are the ones that I have a now have a commitment tofulfill, I actually look at all open ops in a range a date range with all print on it so that Ican see what is in demand which you have over here on the right.Samantha Telson: Okay.Holly Wale: So the sales one like I do care about those the most because those are acommitment we've already made to somebody. But I can't also not see anytime I wantto what's kind of in the pipeline. So, as long as those are somewhere, that's fine. And theother thing is, and this is just something we'll have to manage internally,00:10:03Samantha Telson: Okay.Holly Wale: our sales reps are horrible about putting the quantities in Salesforce for theteacher books. And that's that's a thing for us because they're included.Samantha Telson: Okay. Yeah,Holly Wale: But what I tell them is I have to know how many friends you invited to dinnerto have what we need in the fridge. So even though they're included doesn't mean I Ineed to know how many and whichSamantha Telson: right. That'sHolly Wale: flavors.Samantha Telson: funny.Holly Wale: So um we'll have to really do a little massaging on our side because rightnow I build a ton into our buffer and that's dangerous because if they don't comethrough then we've invested in inventory we don't need. So this will probably help us kindof kind of refine that portion.Jonathan Garfunkel: Holly. Oh,Samantha Telson: And um go ahead,Jonathan Garfunkel: go ahead. I was just gonna ask, so you mentioned they're not greatat putting quantities into Salesforce.Samantha Telson: Jonathan.Jonathan Garfunkel: I'm wondering, you know, would it something as simple as if a dealis at a specific stage?00:11:03Jonathan Garfunkel: Uh, you know, here on our end, we do stages one through eight,right? And each it has a different significance. you know, if we require the sellers atstage four out of eight to update that quantity and then include on your reporting, youknow, these are the different stage deals. This is, you know, once we get to stage four,okay, we now know this is real and we require um that the quantities be included pastthat stage. Would that be something that could be helpful for you?Holly Wale: Well, we already do that. And here's why.Jonathan Garfunkel: Okay.Holly Wale: It's a seems like a great idea and somehow it just does not make it off theground isJonathan Garfunkel: Alternative.Holly Wale: that we do have something that because in our how our world works,almost everything comes with a teacher book. you sell math six and it's going to comewith a teacher book whether or not they buy the student books. So those fields arerequired because those are supposed to come with it.00:12:00Holly Wale: But what they'll do is they'll put a placeholder of a one in there. And then asit progresses and we meet with them like hey this is what we're looking they're like yeahand they'reSamantha Telson: I hearHolly Wale: like you know we get to June and we have to place our production order.Samantha Telson: you.Holly Wale: We need to know how many to buy. They're like oh that's a placeholder. I'mlike it's June. Like how many sixth grade teachers do they have? like if if it's one, it's one,but they they don't always go back and update it, which is something we just have towork on. I think we do that stage thing. Um, but I've introduced levels of meetings withtheir boss with like you can meet with me and go over your pipeline. So, we're workingon it. Um, but it's a really tough one to get right.Samantha Telson: adoption is hard.Holly Wale: Yeah. Yeah.Samantha Telson: Uh this isn't the like you're not the only like I hear we hear that a lot.00:12:47Holly Wale: Yeah.Samantha Telson: I'm sure Jonathan probably hears it more than I do.Holly Wale: Yeah.Samantha Telson: Sometimes in what I've seen is even like on the simply like justgetting an integration with QuickBooks, reps will then be more willing to do stuff withinSalesforce because they're not having to manually enter stuff, right? Like just simplefixes of like,Holly Wale: Mhm.Samantha Telson: hey, like my job is my job isn't data entry, right? Um so we've seenkind of I've seen some improvement on that end. Um just like, hey, if we can help them alittle and then get them more involved and be like, hey, we only now need you to enterone thing, not five things. Um,Holly Wale: Mhm.Samantha Telson: so just like little things like that. But I will edit the beginning piece ofthis in regards to like the way that this flow works. But again,Holly Wale: Okay.Samantha Telson: the end state is all the same of making sure like you can seeeverything in Salesforce. It will flow in real time and kind of, you know, make sure thatwe're conquering your piece, too.00:13:39Samantha Telson: So,Holly Wale: Okay.Samantha Telson: um, did want to at least do a custom one for you. And then a couplemore slides I do have. So, um I did just kind of want to like recap on like the businessimpact and like the ROI that you can see.Holly Wale: Huh?Samantha Telson: It's like regardless of your side or Crystal's side, like this manual entrylike is slowing billing.Holly Wale: Mhm.Samantha Telson: It's it's increasing risk. You guys are having to type everything out. Umand then like how we can kind of help is making sure like we're not having duplicatedata across QuickBooks and Salesforce or Excel and Salesforce. making sure that atleast like on the billing side that everything happens in real time. Um and then also likegiving you the the visibility so when your CEO does ask you questions like you cananswer them in 30 minutes rather than um a week. And then you also like for thebusiness as a whole being able to see what is your inventory and how00:14:25Holly Wale: Yeah.Samantha Telson: much this costs will like help you guys in different factors of beinglike okay we know we're going to need toHolly Wale: Mhm.Samantha Telson: order X or we don't have enough of this and gives you more of thatvisibility to then like make those decisions and then like make actions for everything inthe future. Okay. So now I'm kind of gonna switch gears and go into like I don't I don'tthink it doesn't seem like Maria's joining.Holly Wale: I'm going to Yeah,Samantha Telson: So,Holly Wale: I think she hasn't responded to meSamantha Telson: I'm I still going to Okay.Holly Wale: either.Samantha Telson: I think like I'm just going to run through pricing with you and like getyour first thoughts and then like if you're likeHolly Wale: Okay.Samantha Telson: this is a good deal or this is way too expensive, we can make somechanges, get your feedback and then ultimately you give the yes, we you know, we'll setwe'll we'll do what we can do with with what we have. So um just to just for background,Mulesoft is priced a little bit differently than Salesforce.00:15:26Samantha Telson: So Salesforce is a a licensebased platform. So again, like if it's meand Jonathan using Salesforce, you'd get two licenses. Mulesoft um isn't alicensebased platform. It's a capacity platform. Oh, hi Maria.Maria Gonzalez-Pettway: I am so sorry, guys.Samantha Telson: It's okay.Maria Gonzalez-Pettway: I am I'm working on reports and I am like, "Oh my gosh." Like itwas It took your text, Sam, for me to look atSamantha Telson: Oh my gosh, I'm I feel bad.Maria Gonzalez-Pettway: it.Samantha Telson: I I showed them. I was like, I have been blowing Maria up and I feelbad and I don't I don't know if I have the rightMaria Gonzalez-Pettway: And I feel And I feel bad because I've been so swamped withreports that I'm like,Samantha Telson: number.Maria Gonzalez-Pettway: "Okay, I'll respond or I'll get back." and I don't and right now it'slike oh my gosh I knew the meeting was today because hello I set the time but I wasworking with Linda on reports and had a meeting with her and I just I'm so sorry my00:16:16Samantha Telson: Oh my gosh.Maria Gonzalez-Pettway: apologies.Samantha Telson: Um, no worries. Okay, so we had what we've done. I'll tell you whatwe've done so far because I don't want to go back,Maria Gonzalez-Pettway: Okay.Samantha Telson: but you kind of came you kind of came at a just the pricing part.Holly Wale: Mhm.Samantha Telson: So, um,Maria Gonzalez-Pettway: Okay.Samantha Telson: what we did is we went over I went over I had a flow built out forCrystal and a flow built out for Holly. So, we talked about just like the benefit of theSalesforce to QuickBooks integration for Crystal. Um, we know that this the time thatshe's spending isn't all the time and all year, but we do know that it is still manual andshe's double entering in both QuickBooks and Salesforce. And then we also went overfor Holly how we can get the inventory data, whether that's living in Excel or whetherthat's living in QuickBooks to be reflected intoMaria Gonzalez-Pettway: Mhm.Samantha Telson: Salesforce so that we can build out almost like a a customdashboard to show like we have six algebra six books.00:17:05Samantha Telson: it costs $100 so that she doesn't have to wait for Linda or when Lindaasks her how many books do we have she doesn't have to wait um or go track down allthe information within her custom Excel doc.Maria Gonzalez-Pettway: Okay.Samantha Telson: So that's kind of what we walked through so far and then um I did gothrough some like rough like ROI and and business impact stuff and I could send youthe deck so far.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um and now we're going to transition into pricing. So I was just kindof going over how the Mulesoft piece is priced, our integration platform is priced. It's alittle different than Salesforce. It's a capacity based platform and the way that we umprices out is in terms of flows and messages. So flows I like to kind of break this downis like how many automations you guys build and then messages is the data that movesthrough the flows.Maria Gonzalez-Pettway: Mhm.Samantha Telson: So, if we're going to talk about I like to do a stupid analogy, but interms of like plumbing.00:17:59Samantha Telson: Um, if you think about it, like flows are kind of like the building's pipesand the messages is the water that runs through the pipes.Maria Gonzalez-Pettway: Mhm.Samantha Telson: So, in the package that I'm going to go over with you guys, you guysare going to have plenty of capacity to not only build the flows that you need for theintegrations between Excel, between QuickBooks, between Salesforce, but any othersystems that you have come on the horizon or any other integration needs that you dohave. You're going to have more than enough capacity for that um later on as well. I didwant to call it out,Maria Gonzalez-Pettway: Okay.Samantha Telson: but any questions on the capacity side of things?Maria Gonzalez-Pettway: No, Holly.Samantha Telson: Okay,Holly Wale: Okay.Samantha Telson: good. That means I explained it good.Maria Gonzalez-Pettway: Okay.Samantha Telson: No, I'm just kidding. U Okay, so um the second thing is Mulesoftagain is different from Salesforce. It comes with our premier success. So usually withSalesforce, this is an additional like contract fee of a certain percentage of yourcontract.00:18:54Samantha Telson: But with Mulesoft, it's free. Um, and what that means is you will haveaccess to 247 365day support throughout the duration of your contract. So, anytime youguys need to get on the phone with someone or have anything um that you need, youcan get on a call or um on the phone with someone within an hour. And we also I'mgoing to um I'm going to put in front of you like the license price, but we also havepartners um that I'm going to put um set you guys up with that can do exactly what youguys need uh for pretty low cost um with everything. So, I did want to call that out. Thisis just like extra support throughout the duration of a contract. And then um with thepremiere um success um youMaria Gonzalez-Pettway: Okay.Samantha Telson: also get an onboarding team. And what that onboarding team doesis they'll make sure um like you guys are getting kicked off. They'll do calls with you.They'll have calls throughout.00:19:52Samantha Telson: They'll make sure that everything is successful um through deliveryand so on and so forth. So um did want to at least like call out like this extra support likedoes come with the platform. um in addition to um everything that like we're also goingtoMaria Gonzalez-Pettway: Okay.Samantha Telson: put in front of you. So any questions on the premiereMaria Gonzalez-Pettway: Not for me.Samantha Telson: okay now to the fun stuff.Holly Wale: Yeah.Samantha Telson: So I'm going to walk you guys through this um and we can we canwalk through it, but just wanted to at least get some preliminary pricing in front of you.But again, Jonathan and I are willing to kind of work with you guys to make this makesense. Um,Holly Wale: Heat.Samantha Telson: so I'm gonna start with everything that's on the left of what's includedwith the platform and I'm gonna walk through the right because there's kind of a lot onthis slide. Um, so what's included in this platform? So you have the whole Muleoftintegration platform.00:20:47Samantha Telson: We call it our Anpoint platform. And with that, it comes with 30 flowsand 2 million messages. So for your guys' use case, again, like that's plenty. Um, and Ithink you guys will have at least like 10 extra flows um to do more work uh once theintegration that you guys need are done. Um, you also have access to the 400connectors that are within the platform.Maria Gonzalez-Pettway: Okay.Samantha Telson: So, we have a QuickBooks connector, we have an Excel connector, wehave Doc Sign connectors, we have connectors for again 400 different systems. So,you're not limited to any system. And then you have access to the Premier Successsupport plan as well as um monitoring within the platform as well.Maria Gonzalez-Pettway: Okay.Samantha Telson: So, that's just what's included. Um, any questions on that piecebefore I walk through the pricing and the discounting.Holly Wale: No.Samantha Telson: Okay. So, you can see here.Maria Gonzalez-Pettway: No.Samantha Telson: So, usually this uh platform goes for around $55,000. Um, and weknow that's obviously not cheap.00:21:44Samantha Telson: So, what I was able to kind of do right off the bat because it is ourend of fiscal year is come in pretty aggressive with that um discount to get the annualtotal down to that $15,000 mark.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um, and so with that, um, that is based on, uh, executing a contract.Um, we do have it by the end of this week, but what matters, um, at least for Jonathanand I is truly like by the end of this month. With that, um, standard contract withSalesforce is a 36-month term with annual billing. again, if that's kind of a non-starter foryou guys, um willing to work in terms of terms to make something work um to make thislike kind of a no-brainer for you guys. But, um I want to pause. What are your thoughts?Um is this kind of in range with what you were expecting? Is this out ofMaria Gonzalez-Pettway: Honestly,Samantha Telson: range?Maria Gonzalez-Pettway: I can't go either way with from me, you know, speaking on thefinancial standpoint of things, whether it's under or over.00:22:46Maria Gonzalez-Pettway: Um I guess in in just thinking this through, right, we're talkingabout 15,000 an annual total. Um we have a 36-month term, right? Which would be$15,000 every year, correct?Samantha Telson: Correct.Maria Gonzalez-Pettway: Um starting February 2nd through 28. Um and this is a$15,000 upfront fee that we're paying for it. Is that what we're looking at?Samantha Telson: So, so it is like annual billing, but if if it makes it helpful for you guysfor like cash flow purposes to do something like a quarterly or even like a monthly,Maria Gonzalez-Pettway: Right.Samantha Telson: I'm happy to go ask and see what I can getMaria Gonzalez-Pettway: Okay.Samantha Telson: approved.Maria Gonzalez-Pettway: I think that would probably um be more feasible for us at themoment.Samantha Telson: Okay.Maria Gonzalez-Pettway: Um definitely on the cash flow stand point of things.Samantha Telson: Okay.Maria Gonzalez-Pettway: Number one. Number two, um also be a being able toincorporate this into our upcoming budget for our upcoming fiscalSamantha Telson: Okay.Maria Gonzalez-Pettway: year. Um that would also be significant um help for us,00:23:45Samantha Telson: Okay.Maria Gonzalez-Pettway: right? versus trying to throw in this cost um right now up frontumSamantha Telson: Just uh update.Maria Gonzalez-Pettway: in the middle of a season where it does you know our ourcash flow slows down through these upcomingSamantha Telson: Thanks.Maria Gonzalez-Pettway: months due to the fact that we're in the heavy sales seasonright for the upcoming school year. So,Samantha Telson: Right.Maria Gonzalez-Pettway: um, that would be right now, I think, out of range for us to say,"Okay, I want to pay for this right now." Right.Samantha Telson: 15. Mhm.Maria Gonzalez-Pettway: Um, I think, you know,Samantha Telson: Okay.Maria Gonzalez-Pettway: if if this was something that obviously, you know, Holly and Iwill meet more about um, in reference to what she's looking for in um, on the standpointof inventory. Um but not only that, I mean I did, you know, have a brief conversation withLinda as far as to um what else this would how this would also help us um even onstandpoint of things and the amount of hours that it's taking her what the ROI could befor us on that aspect of okay, you know, in my department if I have four people at themoment and everybody's full-time, you know, if I say now I just need one person part likeone role would go part-time versus full-time.00:25:04Maria Gonzalez-Pettway: That's a return right on my investment.Samantha Telson: Right.Maria Gonzalez-Pettway: So, and so I'm looking at all of that and that is a conversationthat I'm also having with Linda and obviously I thinkSamantha Telson: Exactly.Maria Gonzalez-Pettway: ultimately to make it work all around um for you know Holly'sinventory side of things and then on the side of as a whole for accounting right becauseinventory fl um uh flows with everything else we do whenSamantha Telson: So,Maria Gonzalez-Pettway: we're doing our financials so our cost of goods and whatnot.So yes, um I think I I don't again I don't believe this seems to be, you know, especiallybecause it's if it will be able to give us everything we need, I think it's something for us toreally consider. Um again, I more so just how are we going to be able to split that upcoming on the on the cost of it, right?Samantha Telson: Okay.Maria Gonzalez-Pettway: Um and I don't know, I'll talk with Linda um and see again I'llhave those conversations with her against I'm proposingSamantha Telson: Okay.00:26:04Samantha Telson: If we're able to get um like something like a quarterly or monthlyapproved, do you think you'd be able to execute a contract by either the 23rd or withinthe next week once you talk to Linda?Maria Gonzalez-Pettway: potentially if we can if we can all align um between myself,Samantha Telson: Okay.Maria Gonzalez-Pettway: Linda, um and Holly's inventory needs, right? Because if this isnot going to fulfill everything that Holly is looking for either, then that we'll have tocontinue on a search for what Holly needs, which is going to add an additional cost toour bottom line.Samantha Telson: Right.Maria Gonzalez-Pettway: So, we have to all three be in alignment.Samantha Telson: Mhm.Maria Gonzalez-Pettway: So, um, that's that's where we'll we'll have to end up kind ofgoing with it asSamantha Telson: Okay. Um well, let me ask you this,Maria Gonzalez-Pettway: well.Samantha Telson: Holly. Like, what do you think? What are your thoughts? Um kind ofgoing off of what Maria just said.Holly Wale: Well, I I just need time to really think about it.00:26:57Holly Wale: So, you've said a lot of things that matter a lot, but I think that there's stillsome stuff in the QuickBooks part that Maria and I need to like just kind of lock armson. So,Samantha Telson: a line on.Holly Wale: yeah, I I don't want to get excited too early because there's still a few thingswe need toSamantha Telson: Yeah.Holly Wale: nailSamantha Telson: Yeah. Um well, let me ask you guys this.Holly Wale: down.Samantha Telson: So, what what I usually have to go do is get approval on these thingsfor like um quarterly and monthly. And the first thing that they ask me when I go to try toget approval is like, "Okay, when are they going to be able to sign a contract by?" So, um,funny. I know it's kind of annoying,Maria Gonzalez-Pettway: H.B.Samantha Telson: but that's just that's just the way they do. And then they make me likesubmit a whole business case and all this stuff because obviously they don't they don'tlove to give people these um different approvals.00:27:43Samantha Telson: So would it be more compelling? Like what would be helpful for me isI like usually submit like a little business case of like okay like this is the price, this is thecost, they said they can sign a contract um within the next week if it's approvedinternally. Um so what I might do is like send you that and then like put quarterly andmonthly billing in there and then have you like confirm it because then I can screenshotwhat that looks like. Um, my other question is like I don't want to be too like stuck on likethe 15,000 here. I can't obviously make this zero dollars, but um I do like want to makesure that you guys see the value in this. So, if it if it needs to go to anything like a littlebit different, if you know that like if if if you guys don't agree on the 15,000 and need it tobe kind of more in line with what you were looking at, like again, I'm committed tomaking this work for you guys um to kick off a partnership.00:28:41Samantha Telson: So, I don't want like price to be the factorMaria Gonzalez-Pettway: I think I think what my one of my other questions with this isalso going to be um you knowSamantha Telson: here.Maria Gonzalez-Pettway: the obviously like in in in on the other side of Salesforce andour contract right um there's been gradual annual increases right and starting off at15,000 you know what am I looking at is this the same thing with that in that sense ofthings are we going to see annual increases is this a set number for us um you knowwhat do we what do we have to look for in the upcoming years and be prepared to say,"Okay, we know that every year we're going to have some sort of percentage increasebetween this and this, right?" Um, and be able to justify that and be comfortable with itandSamantha Telson: Mhm.Maria Gonzalez-Pettway: not, you know, be surprised about, oh, we are going to have anincrease, right,Samantha Telson: Yeah.Maria Gonzalez-Pettway: or whatnot.Samantha Telson: Yeah. So, um that's unfortunately I just say kind of like whatSalesforce does.00:29:43Samantha Telson: they they do say like everyone's subject to an uplift at the time of therenewal. That's a benefit with going with the three-year, right? Otherwise, like if you dolike a shorter term, you're subject to that uplift every year.Maria Gonzalez-Pettway: Oh yeah.Samantha Telson: Um there are some things we can do in terms of seeing what we cando to lower it. Um because it's usually standards at 9%. So in the business case that I goto approve, do you want me to see how low I can get it?Maria Gonzalez-Pettway: Yes, absolutely. ForSamantha Telson: Okay. Okay. Okay. So,Maria Gonzalez-Pettway: sure.Samantha Telson: let me um let me actually send do is it okay if I send you this emailnow so then you can respond to it now and then we can so and then I'll walk youthrough it. Uh do you think you'll be able to talk toMaria Gonzalez-Pettway: Okay.Samantha Telson: like get a little pow-wow with Linda and Holly and chat about thisprior toMaria Gonzalez-Pettway: Um, yeah, I believe so.00:30:31Samantha Telson: Friday?Maria Gonzalez-Pettway: Now, let me ask you another question. I know we have herelike a start date of February 2nd, right? Um, one of the things that I definitely um lookingat as far as to even with um the the the inventory side of things, right, is I don't want tostart this before the new physical year. I want to be ready to start the new inventorypiece and the AR and everything that you know how this is going to help um crystal andinventory and everything. um April 1, right?Samantha Telson: No.Maria Gonzalez-Pettway: Because that's when our new fiscal year. So, for example, allof our new invoicing and all of our new billings and you know, all of that will have tochange. That's all going to change for us as well and how we're going to do it becausecurrently right now, we don't reflect, for example, our inventory. We don't reflect our ourbooks on our invoicing, right? So, it's reflected on the invoice as a line item with,Samantha Telson: Uh,00:31:29Maria Gonzalez-Pettway: okay, they purchased these number of licenses and we'reshipping x amount of books, but it's not it's not it's just like language versus,Samantha Telson: what's theMaria Gonzalez-Pettway: for example, an inventory item that she's going to select whenshe's billing or it's going to come through from Salesforce. I don't know how that's goingto work, right? But the idea would be that now in order for QuickBooks to do what weneeded to do is that when sheSamantha Telson: Okay.Maria Gonzalez-Pettway: invoices, they ordered 20 algebra one books. Right now thatline item, she's going to have to select it on the invoice or it's going to populateSalesforce,Samantha Telson: Right.Maria Gonzalez-Pettway: however it is. And now it's going to start to discount it out ofour inventory. And that's how we're going to be able to populate the reports that Hollyneeds for, you know, um, where our inventory counts are, what our inventory cost was,um, etc. Right? So, there's going to be a lot of changes that are going to happen and andand in how Crystal does her job in and how we're doing our inventory reporting, makingsure everything in QuickBooks is accurate,00:32:31Samantha Telson: It's like they hadMaria Gonzalez-Pettway: in convention for blogs, um, dollar amounts, whatnot. So it's aprocess that we still have to clean up on our end as well. And and that's why February2nd to start for us would not work becauseSamantha Telson: Yeah.Maria Gonzalez-Pettway: this is not something that I would be a we could say we canimplement in a couple of weeks.Samantha Telson: Yeah. So, a couple things I can do. So, I'm going to ask for a lot ofapprovals, but what I also can ask for approval on is the latest I can I can ask for ispushing the start date out to 215, so February 15th. So, I can ask them to push it out tothe latest possible. Um, sometimes that's a little bit tricky, but I will put that in there aswell. And I think that might align more so with the timeline because it does take time forthe partner to build things. So, um, we obviously want this live for the season of April1st.00:33:29Samantha Telson: Um, and I think that pushing it even like to the 15th will like they'regoing to have to get in. They're going to have to start getting getting access andeverything.Maria Gonzalez-Pettway: Right.Samantha Telson: So, um,Maria Gonzalez-Pettway: And that would be to start the implementation.Samantha Telson: IMaria Gonzalez-Pettway: Right. But going live for us would be April 1st,Samantha Telson: Yes.Maria Gonzalez-Pettway: but then start the implementation. Obviously, the sooner thebetter, right? So, February 15th gives us a couple of weeks to close out some stuff,close out the month of January on the accounting side of things and start being able tohave the time to redirect into going into the implementation of of this soft integration,right? um to be able to go live April 1st with it all, have testing done before that, youknow, make sure that everybody is on the same page on how everything is going to flowand how it's going to work. So, uh I think that's more of where I was going to or headingtowards as far as to the actual live date of00:34:19Samantha Telson: What?Maria Gonzalez-Pettway: things, right? Would be AprilJonathan Garfunkel: Yeah. Yeah.Maria Gonzalez-Pettway: 1st.Jonathan Garfunkel: And I think uh that makes a lot of sense and the timeline actually itdoes line up very very well um because of the time it takes for implementation. And so,you know, I I don't think we'll have much push back on the February 15th start date. Now,we can we'll loop in our implementation partner Sam has really really good ones.Samantha Telson: Yeah,Jonathan Garfunkel: Um, and you know, we'll make sure that they understand the go livedate is April 1st and then weSamantha Telson: there was aJonathan Garfunkel: back into okay for our target is go live on April 1st.Samantha Telson: Wow.Jonathan Garfunkel: What does that mean from a timeline perspective? How do westructure the implementation timeline? We obviously want to make sure your team hasthe bandwidth during that process uh as well as needed.Maria Gonzalez-Pettway: Right. And then and then I need to Okay.Jonathan Garfunkel: So um I do think the timeline works out very very well here.00:35:07Maria Gonzalez-Pettway: Yeah.Samantha Telson: Um,Maria Gonzalez-Pettway: Because I think I would definitely also need to get Chloe, he'sour engineering um director involved in he's over all the IT. He oversees our IT and I don'tknow what all that all what all you know is going to entail with what we're going to haveto do with the systems or or if there's anything that they're going to have to do on theirpart, but kind of get all of those pieces sorted and put together um versus I mean to tomake sure we know how all of this is going to work.Samantha Telson: Yeah. And then so then he'll be able to be involved like throughout theimplementation as well and like they'll also be able to train him on the platform so thatlike you guys ultimately aren't going to need to rely on a partner and that your in-houseteam will be able to, you know, use the platform. Like that's the good thing about thepartner that I'm going to set you guys up with as well as the premier support throughout.00:35:59Samantha Telson: like you're not going to be you have that throughout the whole lengthof your contract.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um soMaria Gonzalez-Pettway: And again, I don't know I don't know to what point are it orengineering like what to what pointSamantha Telson: okayMaria Gonzalez-Pettway: they need to even how involved they need to be in. But I thinkthat that's those are all the conversations, right? like I I don't know what all I don't knowit I don't know anything that has to do with how these systems are going to talk if there'sanything they need to do right um as far as to on their end on the IT side. So definitelyyou know um information for us to haveSamantha Telson: Okay. So, what I'm going to do, Maria, is I am going to shoot you anemail right now while I have you. And um I'm h I'm happy to walk through the email withyou. But basically what I put in this email is I said like okay annual price is X quarterlybilling terms ask for approval on the pushing the license start date ask for approval onthe lower uplift and then the lowcost implementation from the partner.00:37:00Samantha Telson: So that's what I have in this email. I'm going to send it to you rightnow. And then at the bottom of the email I have it say like Maria please reply to confirmthat if you guys approve this package internally you can execute the agreement by 123
+
+Maria Gonzalez-Pettway: Okay.Samantha Telson: um because then I screenshot that and then I could submit it with myjustification to get like the four different things approved. Um so let me send this to youright nowMaria Gonzalez-Pettway: Okay.Samantha Telson: and I see everyone. It's easier when I have everything in writing andthen I can show them. I don't know if you guys have any sort of like approval processyou have to go through, but sometimes it's just like this is the I try to take the path ofleast resistance, especially when I'm asking for multiple approvals because my managerand my manager's managers will ping me and they'll call me and I'm like, you guys, Ihave it right here. You can't argue with me.Maria Gonzalez-Pettway: Right.00:37:52Maria Gonzalez-Pettway: Okay.Samantha Telson: Okay,Maria Gonzalez-Pettway: So,Samantha Telson: did you get that?Maria Gonzalez-Pettway: okay. So, for the annual price, I know you have the 15,000, butthat is what's already been approved. So that's not an additional approval. Is thatcorrect?Samantha Telson: Yeah. No, that's just what I have.Maria Gonzalez-Pettway: Okay.Samantha Telson: I just I just outlined it. I like to outline the whole package.Maria Gonzalez-Pettway: Okay. Okay. Okay. Let me um let me look this over. Let me talkto Linda on this cost here. And think you know again uh I'm gonna have a meeting withHolly as well here just to make sure. um that we're aligning um especially when this toLinda so thatSamantha Telson: Okay.Maria Gonzalez-Pettway: way she can come back and Linda can come back and sayyou know give me her input on it but yeah I think everything else as far as to thequarterly billingSamantha Telson: Okay. Okay.Maria Gonzalez-Pettway: terms so the approval for okay so we're talking about licenseswhat um this 15,000 is that unlimited licenses what does that entail00:39:03Samantha Telson: Yeah. So, I think you missed the beginning part when I first started,Maria Gonzalez-Pettway: No.Samantha Telson: but so Salesforce is a license platform. So, if all of us wanted alicense to your Salesforce, it'd be four licenses. Mulesoft is a capacity platform. Soeveryone can log into Mulesoft. You're not limited on the licenses.Maria Gonzalez-Pettway: Okay.Samantha Telson: So um it's just those flows and messages that I went over. Um so likeanyone can log in which is called like this is aMaria Gonzalez-Pettway: Okay.Samantha Telson: licensing like technically like you have one license for Mulesoftbecause everyone can log in and use it.Maria Gonzalez-Pettway: Okay.Samantha Telson: That's why we say that.Maria Gonzalez-Pettway: Okay.Samantha Telson: Does that make sense?Maria Gonzalez-Pettway: Yes, itSamantha Telson: Okay.Maria Gonzalez-Pettway: does.Samantha Telson: Um, and then I did call out like trying to get that uplift lowered from9% to 5%.Maria Gonzalez-Pettway: So, I know we Okay. I I know we also spoke about thesethird-party um people we wouldSamantha Telson: UponMaria Gonzalez-Pettway: be what what are what am I looking for as far as to costassociated with that?00:39:55Samantha Telson: Yeah. So, I've sent them everything that they need in terms of like ascope just from the the previous calls of like, okay, this is what we're trying to do. Um,I'm waiting for a full like range back from them. It either can be zero, it's like anywherefrom like zero to $2,500 u on their end. So, I'm obviously trying to push for them to be onthe zero side. Um because we call it like our it's like a jump start.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um so, I'm trying to see if you guys qualify for the full jump start. It ison a first come first- serve basis. Um but I did like I submitted everything.Maria Gonzalez-Pettway: Okay.Samantha Telson: I've sent them um everything from the call. So, um I'm working onthat,Maria Gonzalez-Pettway: Okay.Samantha Telson: but it's not going to be anything like crazy in terms of dollars. So,Maria Gonzalez-Pettway: Okay.Samantha Telson: and they also can do the billing terms ifMaria Gonzalez-Pettway: Okay.Samantha Telson: needed.00:40:40Maria Gonzalez-Pettway: Okay. Okay. That's That sounds good.Samantha Telson: Okay. Um, so whenever you get a chance to talk to them and if youcan reply to that so then I can start getting the approvals ready. Um, and if there's anychanges we need to make to any of this, you have my cell. Um,Maria Gonzalez-Pettway: Okay.Samantha Telson: let's put a touch base on for Friday. um just in case like any questionscome up or if you need anything. And then um do we need to like add Linda to that or isit just do you guys feel like it's it's good with just you two?Maria Gonzalez-Pettway: as far as to the next the the nextSamantha Telson: Yeah. Like on Friday if we can like potentially review everything,Maria Gonzalez-Pettway: call.Samantha Telson: we can have a contract ready um or answer any questions that docomeMaria Gonzalez-Pettway: Let me ask her,Samantha Telson: up.Maria Gonzalez-Pettway: let me talk with her. Um I have a meeting with her today at 4.Samantha Telson: Okay.00:41:27Maria Gonzalez-Pettway: So,Samantha Telson: Okay.Maria Gonzalez-Pettway: I'm going to obviously this afternoon speak with her inreference to this call and then um I will I'll let you know if to go ahead and include her init. I'll I'll respond to you by the end of the day today. Um before I close my day out umand I'll respond to this email that you just sent me just to make sureSamantha Telson: Okay.Maria Gonzalez-Pettway: that I've already also discussed that pricing with her and gether input on it.Samantha Telson: Okay.Maria Gonzalez-Pettway: And then um I'll I'll send you an email letting you know if thatwe need to change anything on here and then if we're going to add her to our call for theupcoming call.Samantha Telson: Okay. Um, what is what time works for you guys on Friday? We cando I can do 900 a.m. I don't know if that's too early on a Friday. I can do 11:30 CT.Maria Gonzalez-Pettway: Let me look at my calendar.Samantha Telson: Some people don't want to meet in the morning on a Friday.00:42:20Samantha Telson: And I'm like, I totally understand.Maria Gonzalez-Pettway: I prefer not meeting in the morning on Mondays, but Mondaysare always the hardest days,Samantha Telson: That's also fair. My my team my team does an 8:30 meeting everyMaria Gonzalez-Pettway: right? So, okay. Um,Samantha Telson: Monday. I'm like that is just that is just brutal.Holly Wale: We start at 8 on Mondays.Maria Gonzalez-Pettway: we do eight o'clock.Holly Wale: Marie and I do.Samantha Telson: That's evenHolly Wale: Yeah.Samantha Telson: worse.Maria Gonzalez-Pettway: I'm like, can we push it to nine? That helps a little more.Samantha Telson: Yeah. You're like,Maria Gonzalez-Pettway: Exactly.Samantha Telson: "Let me at least get some coffee in me so I'm not Yeah.Maria Gonzalez-Pettway: Let me get some coffee and wake up. I actually start the nightbefore though. So I start prepping the night before. All right. Um Friday I can do I haveforecast callSamantha Telson: Oh.Maria Gonzalez-Pettway: on Friday. So that doesn't help. I can do 10 on Friday.00:43:09Maria Gonzalez-Pettway: Holly, are you good at 10 on Friday?Samantha Telson: Okay.Maria Gonzalez-Pettway: What does your calendar look like?Holly Wale: Yeah, I have something at 10:30. So, if we could do 30 minutes, that'd begreat.Maria Gonzalez-Pettway: I think so because that's going to be to finalize what we'recomingSamantha Telson: Yeah. Yeah.Jonathan Garfunkel: And I just so you know,Holly Wale: Okay.Maria Gonzalez-Pettway: up.Jonathan Garfunkel: I've got a conflict then,Samantha Telson: I'll call it likeJonathan Garfunkel: but I want to priorit if that's the time that works best for y'all.Samantha Telson: Okay.Jonathan Garfunkel: I don't want to be the reason to not do 10 o'clock.Maria Gonzalez-Pettway: Okay. Okay.Jonathan Garfunkel: So,Maria Gonzalez-Pettway: 10:00Holly Wale: Okay.Samantha Telson: Okay. I'll call it like contract finalization and then we can figure outany final details that we need.Maria Gonzalez-Pettway: works.Samantha Telson: And then what I'll do is um once you reply to me, I'm going to try tosubmit everything for approval so it's approved in time and then we can ultimately walkthrough it together on that call.00:43:45Maria Gonzalez-Pettway: and look my email. Like I said,Samantha Telson: Uh,Maria Gonzalez-Pettway: I will respond to you after my call with Linda today at fouro'clock. I'll respond to your email.Samantha Telson: okay.Maria Gonzalez-Pettway: Um this is I had a conversation with her about this particularconversation subject earlier today. So we'll just um I'll I'll update her on this meeting andand then we'll see where we're moving withSamantha Telson: Okay.Maria Gonzalez-Pettway: it.Samantha Telson: Okay. Awesome. Yeah. No,Maria Gonzalez-Pettway: Okay.Samantha Telson: we're really I'm willing to work with you guys. So,Maria Gonzalez-Pettway: Thank you,Samantha Telson: I'm excited that um we found something that can help.Maria Gonzalez-Pettway: Samantha.Samantha Telson: Um and I'm willing to like push stuff through approvals to see whatwe can do.Maria Gonzalez-Pettway: Sounds good. Sounds good. I'm I'm looking forward to it, too.I'm excited. I think it definitely has a lot of potential. Um I just need to work with Holly toAnd I haven't had time because she has been pinging me.00:44:23Maria Gonzalez-Pettway: She's like, "Do we have time? Do we have time? We do havesomething scheduled on the calendar for tomorrow." Um but to align with her to makesureSamantha Telson: Oh.Maria Gonzalez-Pettway: that, you know, she feels comfortable on the QuickBooks sideof things and how this is going to work and what it's going to provide her. Um becauseultimately, right, um she does do a lot of manual work um with inventory side of things.Samantha Telson: Yeah.Maria Gonzalez-Pettway: So definitely um gonna make sure we can get all onSamantha Telson: Yeah. Yeah. No, I mean our goal is not just to help Crystal,Maria Gonzalez-Pettway: board.Samantha Telson: but Holly and I now have multiple phone calls. We've kind of wentthrough some of her um processes. So, I think this will um help her as well, specificallyon like just being able to visualize everything and see where everything is.Maria Gonzalez-Pettway: Absolutely.Samantha Telson: Um okay. Well, I will throw the hold on for Friday. Um let me knowwhen you reply to that email and then I'll start working on my end. Um but I appreciateyou guys time.Transcription ended after 00:45:32This editable transcript was computer generated and might contain errors. People canalso change the text after it was created.
+
+Close
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pasted text(15).txt
+
+Document
+
+can you prepare a implementation scope
+
+
+
+
+
+
+
+Based on the discussion in your transcript, here’s a clean, client-ready Implementation Scope you can use for SOW or proposal. I’ve aligned it to what was actually discussed: Salesforce + QuickBooks + Excel (inventory) integration, IDP not included here.
+
+
+
+Implementation Scope – Salesforce, QuickBooks & Inventory Integration
+
+1. Objective
+
+Design and implement an integration solution using MuleSoft Anypoint Platform to:
+
+Eliminate manual data entry between systems
+
+Provide real-time inventory visibility
+
+Synchronize financial and sales data across platforms
+
+Improve operational efficiency and reporting accuracy
+
+This directly addresses the current inefficiencies where users manually re-enter data across systems, costing time and introducing errors .
+
+
+
+2. Systems in Scope
+
+Salesforce (Primary system of engagement)
+
+QuickBooks (Financial system of record)
+
+Excel / Google Sheets (Inventory source data)
+
+
+
+3. In-Scope Use Cases
+
+3.1 Salesforce ↔ QuickBooks Integration (Order-to-Cash)
+
+Scope Includes:
+
+Sync Opportunities (Closed Won) from Salesforce to QuickBooks
+
+Auto-create Invoices in QuickBooks from Salesforce data
+
+Sync Invoice IDs and status back to Salesforce
+
+Ensure financial data consistency across systems
+
+Business Outcome:
+
+Eliminate duplicate data entry
+
+Reduce billing delays and errors
+
+Improve finance visibility
+
+
+
+3.2 Inventory Data Integration (Excel/QuickBooks → Salesforce)
+
+Scope Includes:
+
+Extract inventory data from Excel / QuickBooks
+
+Transform and load inventory data into Salesforce
+
+Maintain near real-time or scheduled sync
+
+Data Points:
+
+Product / Book Titles
+
+Quantities
+
+Cost / Value
+
+Inventory availability
+
+Business Outcome:
+
+Centralized inventory visibility
+
+Faster decision making
+
+Reduced manual tracking effort
+
+
+
+3.3 Inventory Visibility Dashboard (Salesforce)
+
+Scope Includes:
+
+Custom dashboard in Salesforce displaying:
+
+Inventory levels
+
+Demand vs supply
+
+Cost insights
+
+Inventory by district/program
+
+Role-based access controls (restricted visibility)
+
+Business Outcome:
+
+Real-time insights instead of manual lookup
+
+Faster executive reporting
+
+Controlled access to sensitive inventory data
+
+
+
+3.4 Pipeline-Based Demand Visibility
+
+Scope Includes:
+
+Include Open Opportunities in inventory planning
+
+Track demand based on pipeline stages
+
+Enable forecasting of inventory needs
+
+Business Outcome:
+
+Better demand planning
+
+Reduced over/under stocking
+
+
+
+4. Data Flow Overview
+
+Future-State Flow
+
+Opportunities created in Salesforce
+
+Inventory demand captured (products + quantity)
+
+Data flows into:
+
+QuickBooks for invoicing
+
+Salesforce dashboards for reporting
+
+Inventory data flows from Excel/QuickBooks → Salesforce
+
+Real-time dashboards provide unified visibility
+
+This replaces the current fragmented process where data lives across spreadsheets and systems with no unified view .
+
+
+
+5. Integration Approach
+
+API-led connectivity using MuleSoft
+
+Prebuilt connectors (Salesforce, QuickBooks, etc.)
+
+Scalable architecture for future integrations
+
+Batch + real-time processing where applicable
+
+
+
+6. Implementation Phases
+
+Phase 1: Discovery & Design
+
+Requirements validation
+
+Data mapping (Salesforce ↔ QuickBooks ↔ Excel)
+
+Architecture design
+
+Access & environment setup
+
+
+
+Phase 2: Build & Integration
+
+Develop integration flows
+
+Configure connectors
+
+Build data transformations
+
+Develop Salesforce dashboards
+
+
+
+Phase 3: Testing
+
+Unit Testing
+
+System Integration Testing
+
+User Acceptance Testing (UAT)
+
+
+
+Phase 4: Deployment & Go-Live
+
+Production deployment
+
+Data validation
+
+Monitoring setup
+
+
+
+Phase 5: Hypercare
+
+Post go-live support
+
+Issue resolution
+
+Performance tuning
+
+
+
+7. Assumptions
+
+Salesforce, QuickBooks, and Excel access will be provided
+
+Required APIs/connectivity are available
+
+Data mapping and business rules will be shared by client
+
+Users will maintain data discipline (e.g., opportunity quantities)
+
+
+
+8. Out of Scope
+
+Data cleansing or historical data correction
+
+Major QuickBooks reconfiguration
+
+Advanced forecasting algorithms
+
+IDP / document processing (unless added separately)
+
+
+
+9. Expected Business Impact
+
+Reduce manual effort (10–12 hrs/week during peak periods) 
+
+Eliminate duplicate data entry
+
+Improve billing accuracy
+
+Real-time inventory visibility
+
+Better planning and decision-making
+
+
+
+10. Timeline (Indicative)
+
+Implementation Start: Mid-February
+
+Go-Live Target: April 1
+
+Duration: ~6–8 weeks
+
+
+
+If you want, I can convert this into:
+
+A formal SOW document format
+
+Or a client-facing executive summary (5–6 lines)
+
+Or even break pricing + effort per use case
+
+Just tell me how you plan to use it.
+
+Salesforce / Agile Mind: Quickbooks
+
+Inventory Integration Sync -Transcript00:00:00Samantha Telson: we could send everything.Jonathan Garfunkel: Uh, did looks like you just got it or you'reSamantha Telson: Sweet.Jonathan Garfunkel: transcribing.Samantha Telson: I think I just did a I don't know. I clicked I clicked something.Jonathan Garfunkel: All right,Samantha Telson: Okay,Jonathan Garfunkel: we're recording.Samantha Telson: great. Okay,Holly Wale: Okay.Samantha Telson: so gonna kind of go fast because a lot of the stuff we talked abouton the phone, but I do want to at least show you everything that we put together. Um, sofirst looking at this, so like I said, our integration platform is is Mulesoft, which is goingto be able to connect into anything for you guys. So I didn't even I didn't even put theQuickBooks and the Excel logo on here. They were already on here, and I know that'skind of the ones that we're talking about, but we're able to integrate into everything, notum everything.Holly Wale: Mhm.Samantha Telson: And it doesn't have to be Salesforce related. So um like it doesn'thave to touch Salesforce. So in your guys' case, like if we just need an integrationbetween QuickBooks and Excel for the inventory piece to auto update from the Excelsheet into QuickBooks or if we need again that QuickBooks to Salesforce piece which ismainly Crystal, uh we can do that as well.00:01:06Samantha Telson: Um so really we have the ability to connect into anything. Everythingis within the platform and it's all very um business user friendly. It's not um you don'tneed to be an IT developer to use the platform. It's all drag and drop. There's no coding.Um it's very business user friendly. So that's kind of just an overview of Muleoft as awhole.Holly Wale: Okay.Samantha Telson: Yeah. Any questions?Holly Wale: No, I think we I saw this part last time,Samantha Telson: Okay.Holly Wale: so I'm good.Samantha Telson: Good. Okay. So, this is what I originally had when we went over withCrystal. So again, this was for her, but just kind of what are we actually trying to do? Sowe want to give, at least for Crystal's piece, stop her having to enter information inQuickBooks and stop her having to enter the same information in Salesforce, right?Saving her, I think I went back and looked like almost like 10 to 12 hours a week, whichis, you know,00:02:02Holly Wale: It is. It is.Samantha Telson: a decent amount when you look at it.Holly Wale: But just to put it in context, that's like for like maybe two months of the year.It's not like the whole year. Yeah. So,Samantha Telson: the whole year.Holly Wale: I mean, we all have our like busy pockets and I think that's definitely aproblem to fix,Samantha Telson: Okay.Holly Wale: but it isn't like every week.Samantha Telson: Okay, that is helpful. Um, the clarification is helpful, but like still wecan still save the time.Holly Wale: Yeah.Samantha Telson: I didn't I didn't price this out of like that much to do with that, but thatis helpful.Holly Wale: Okay.Samantha Telson: the clarification. The second thing is obviously help you get that viewof inventory. How many books are on the shelf? How much is six books that you needthat taken you days to to to go find when Linda asks? um giving more of that holisticview whether that's in QuickBooks or whether that's in Salesforce but still giving you theproper information of where is the inventory, how much inventory, how much do we havein terms of dollars and cents and then ultimately like giving you guys more of a scalableprocess as we look into next year, as we look into um school seasons coming up, youknow, helping those systems speak to each other.00:03:16Samantha Telson: That's kind of what I had. I like to kind of focus on how this is actuallygoing to impact your business rather than just what we heard and what you guys said.So, that's kind of what I had on here.Holly Wale: Okay.Samantha Telson: Um, any other call outs on your end of like what's important to you ordo you think just, you know, what we've talked about the inventory piece and so on andsoHolly Wale: Yeah.Samantha Telson: forth.Holly Wale: So for inventory, I think that my biggest question is where if it it is if itdoesn't if it starts out in spreadsheets I own or Google Sheets and gets into Salesforce,then it is managed in Salesforce and I'll have like we have a ton of Salesforce reportsalready. Like I'll just like build another report to see what I need to anytime I see it andanytime I need to. That'll be like theSamantha Telson: Exactly. So, yeah. So, what we can do, and when I get to my proposal,Holly Wale: database.00:04:11Samantha Telson: I'll walk you through. we have a partner that can help you guys setthis up for um pretty low cost. Um if we move a little faster, maybe we could even do likea free implementation. That just depends on your guys' feedback on the proposal. Butwhat they can do and what I put in is like a custom dashboard directly for inventory. Sowhen you open up your Salesforce, you're going to be able to see everything that lives inspreadsheets or even everything that lives in QuickBooks because I know Maria calledout that some of this lives in QuickBooks. you are going to be able to see like and youcan formulate format it however you want but like in the table okay algebra 6 books sixequals x amount and like it will like be in a um reports when you click on like yourSalesforce report dashboard Jonathan and I use obviously we use Salesforce forSalesforce but we have Salesforce dashboards that can show like literally anything andthey can be formatted however you want and pull whatever data you want so that's kindof the way that I was thinking about it but I'm glad that you00:05:00Holly Wale: Okay.Samantha Telson: kind of were on the same page with thatHolly Wale: Well, and most of our reports where we use them are not limited to a certainnumber ofSamantha Telson: too.Holly Wale: users. We have a couple that are li that are set up that way. Is this onewhere we could set it up any way we want? Because my problem with like like inventoryneeds to live somewhere, but I don't want everyone in the whole company to think wehave a hundred left of something because everyone thinks that's their 100. So right nowthey have to come to me like,Samantha Telson: Uh oh.Holly Wale: "Hey, I've got this thing popping and you know they need something thatwasn't on our radar. Can you help?" And since I'm the funnel, I always know if we'vealready committed that to somebody else. So just like thinking about access to likevisibility for some things is going to be really important that that it's only me or only afew of us and then I'll have to manage um what we say about it if it's00:06:00Samantha Telson: We can set Yeah.Holly Wale: everybody.Samantha Telson: like we can set permissions um on the report to ensure that like if it'sonly you and Jonathan that are allowed to have access to just the inventory report, wecan do that too. If that's what you're getting at. Okay. Yeah, we can kind of determinethat.Holly Wale: Yeah.Samantha Telson: And that's when they build it out and they can customize it howeveryou want just for that reason. Okay, any other questions or I'm I'm good to keep rolling.Holly Wale: Keep rolling.Samantha Telson: Okay, sweet. Okay, so I'm going to skip this because we kind of wentover this. This is what I made for Crystal, but this was like the flow for just the um theway that Crystal was workingHolly Wale: Mhm.Samantha Telson: today. This is the future state that I had made for again Crystal thatQuickBooks workflow, the QuickBooks Salesforce piece. um how we can make sure wecan take the the contracts, put the line items directly into Salesforce, and then we canpush directly into QuickBooks to make a matching invoice, get the number sync backinto Salesforce.00:07:07Samantha Telson: Um, but I know this kind of isn't your realm. This is more her realm,but this is kind of the flow that we walk through in the future state of that. Um, anyquestions before I move on to your piece, Holly? Okay. Okay. Okay. So, I made anotherfuture state. Um, but this was kind of what I made directly into um your state and thevisibility we can give you. Again, I don't think this is perfect. I would rather you correctme in different ways that you'd want it, but this is just my first pass of how we can do it.So, it'd be similar to the last flow, but what we would do is have again once inopportunities one in Salesforce. We would have it include the book titles that's needed,the quantities, the variance. So, right, you called out the inventory data that you need isin Excel. So, what we would do is push the data directly um and the details directly fromExcel in real time or from QuickBooks if it's living in QuickBooks.00:08:03Samantha Telson: And so then we can push that inventory data directly into Salesforceinto those dashboards like you just called out. Um,Holly Wale: Mhm.Samantha Telson: and then we also can have Salesforce reflect different opportunitystages, different quantities, have the dollar amounts be um, amounts go in. And then soyour team will be able to see everything directly in Excel, Salesforce, and QuickBooks.So I called out kind of at the bottom like you can see the demand, you can see thequantities, you can see the cost and that would all be formulated into a dashboard. Sothen when you open your Salesforce instance, you can click on it, be like, "Okay, I want tosee inventory dashboard." Um, and so then we'd not only be doing the inventory piece,but you'd also be able to see the contract piece on Crystal sites, QuickBooks data. Um,and then you can see books by district, cost per district, cost per program, all thedifferent things that you would need. Um, and so on. So what are your thoughts? Um,just looking at this first pass, is this kind of how you were thinking about it?00:09:07Samantha Telson: Is there any call outs or anything that IHolly Wale: Well,Samantha Telson: missed?Holly Wale: let me just finish reading this. So, I think to me there might be a flaw at thebeginning, but you said it differently later.Samantha Telson: Okay.Holly Wale: So, let me just tell you what I'm thinking. That first box says closed one.Samantha Telson: Okay.Holly Wale: And while closed one are the ones that I have a now have a commitment tofulfill, I actually look at all open ops in a range a date range with all print on it so that Ican see what is in demand which you have over here on the right.Samantha Telson: Okay.Holly Wale: So the sales one like I do care about those the most because those are acommitment we've already made to somebody. But I can't also not see anytime I wantto what's kind of in the pipeline. So, as long as those are somewhere, that's fine. And theother thing is, and this is just something we'll have to manage internally,00:10:03Samantha Telson: Okay.Holly Wale: our sales reps are horrible about putting the quantities in Salesforce for theteacher books. And that's that's a thing for us because they're included.Samantha Telson: Okay. Yeah,Holly Wale: But what I tell them is I have to know how many friends you invited to dinnerto have what we need in the fridge. So even though they're included doesn't mean I Ineed to know how many and whichSamantha Telson: right. That'sHolly Wale: flavors.Samantha Telson: funny.Holly Wale: So um we'll have to really do a little massaging on our side because rightnow I build a ton into our buffer and that's dangerous because if they don't comethrough then we've invested in inventory we don't need. So this will probably help us kindof kind of refine that portion.Jonathan Garfunkel: Holly. Oh,Samantha Telson: And um go ahead,Jonathan Garfunkel: go ahead. I was just gonna ask, so you mentioned they're not greatat putting quantities into Salesforce.Samantha Telson: Jonathan.Jonathan Garfunkel: I'm wondering, you know, would it something as simple as if a dealis at a specific stage?00:11:03Jonathan Garfunkel: Uh, you know, here on our end, we do stages one through eight,right? And each it has a different significance. you know, if we require the sellers atstage four out of eight to update that quantity and then include on your reporting, youknow, these are the different stage deals. This is, you know, once we get to stage four,okay, we now know this is real and we require um that the quantities be included pastthat stage. Would that be something that could be helpful for you?Holly Wale: Well, we already do that. And here's why.Jonathan Garfunkel: Okay.Holly Wale: It's a seems like a great idea and somehow it just does not make it off theground isJonathan Garfunkel: Alternative.Holly Wale: that we do have something that because in our how our world works,almost everything comes with a teacher book. you sell math six and it's going to comewith a teacher book whether or not they buy the student books. So those fields arerequired because those are supposed to come with it.00:12:00Holly Wale: But what they'll do is they'll put a placeholder of a one in there. And then asit progresses and we meet with them like hey this is what we're looking they're like yeahand they'reSamantha Telson: I hearHolly Wale: like you know we get to June and we have to place our production order.Samantha Telson: you.Holly Wale: We need to know how many to buy. They're like oh that's a placeholder. I'mlike it's June. Like how many sixth grade teachers do they have? like if if it's one, it's one,but they they don't always go back and update it, which is something we just have towork on. I think we do that stage thing. Um, but I've introduced levels of meetings withtheir boss with like you can meet with me and go over your pipeline. So, we're workingon it. Um, but it's a really tough one to get right.Samantha Telson: adoption is hard.Holly Wale: Yeah. Yeah.Samantha Telson: Uh this isn't the like you're not the only like I hear we hear that a lot.00:12:47Holly Wale: Yeah.Samantha Telson: I'm sure Jonathan probably hears it more than I do.Holly Wale: Yeah.Samantha Telson: Sometimes in what I've seen is even like on the simply like justgetting an integration with QuickBooks, reps will then be more willing to do stuff withinSalesforce because they're not having to manually enter stuff, right? Like just simplefixes of like,Holly Wale: Mhm.Samantha Telson: hey, like my job is my job isn't data entry, right? Um so we've seenkind of I've seen some improvement on that end. Um just like, hey, if we can help them alittle and then get them more involved and be like, hey, we only now need you to enterone thing, not five things. Um,Holly Wale: Mhm.Samantha Telson: so just like little things like that. But I will edit the beginning piece ofthis in regards to like the way that this flow works. But again,Holly Wale: Okay.Samantha Telson: the end state is all the same of making sure like you can seeeverything in Salesforce. It will flow in real time and kind of, you know, make sure thatwe're conquering your piece, too.00:13:39Samantha Telson: So,Holly Wale: Okay.Samantha Telson: um, did want to at least do a custom one for you. And then a couplemore slides I do have. So, um I did just kind of want to like recap on like the businessimpact and like the ROI that you can see.Holly Wale: Huh?Samantha Telson: It's like regardless of your side or Crystal's side, like this manual entrylike is slowing billing.Holly Wale: Mhm.Samantha Telson: It's it's increasing risk. You guys are having to type everything out. Umand then like how we can kind of help is making sure like we're not having duplicatedata across QuickBooks and Salesforce or Excel and Salesforce. making sure that atleast like on the billing side that everything happens in real time. Um and then also likegiving you the the visibility so when your CEO does ask you questions like you cananswer them in 30 minutes rather than um a week. And then you also like for thebusiness as a whole being able to see what is your inventory and how00:14:25Holly Wale: Yeah.Samantha Telson: much this costs will like help you guys in different factors of beinglike okay we know we're going to need toHolly Wale: Mhm.Samantha Telson: order X or we don't have enough of this and gives you more of thatvisibility to then like make those decisions and then like make actions for everything inthe future. Okay. So now I'm kind of gonna switch gears and go into like I don't I don'tthink it doesn't seem like Maria's joining.Holly Wale: I'm going to Yeah,Samantha Telson: So,Holly Wale: I think she hasn't responded to meSamantha Telson: I'm I still going to Okay.Holly Wale: either.Samantha Telson: I think like I'm just going to run through pricing with you and like getyour first thoughts and then like if you're likeHolly Wale: Okay.Samantha Telson: this is a good deal or this is way too expensive, we can make somechanges, get your feedback and then ultimately you give the yes, we you know, we'll setwe'll we'll do what we can do with with what we have. So um just to just for background,Mulesoft is priced a little bit differently than Salesforce.00:15:26Samantha Telson: So Salesforce is a a licensebased platform. So again, like if it's meand Jonathan using Salesforce, you'd get two licenses. Mulesoft um isn't alicensebased platform. It's a capacity platform. Oh, hi Maria.Maria Gonzalez-Pettway: I am so sorry, guys.Samantha Telson: It's okay.Maria Gonzalez-Pettway: I am I'm working on reports and I am like, "Oh my gosh." Like itwas It took your text, Sam, for me to look atSamantha Telson: Oh my gosh, I'm I feel bad.Maria Gonzalez-Pettway: it.Samantha Telson: I I showed them. I was like, I have been blowing Maria up and I feelbad and I don't I don't know if I have the rightMaria Gonzalez-Pettway: And I feel And I feel bad because I've been so swamped withreports that I'm like,Samantha Telson: number.Maria Gonzalez-Pettway: "Okay, I'll respond or I'll get back." and I don't and right now it'slike oh my gosh I knew the meeting was today because hello I set the time but I wasworking with Linda on reports and had a meeting with her and I just I'm so sorry my00:16:16Samantha Telson: Oh my gosh.Maria Gonzalez-Pettway: apologies.Samantha Telson: Um, no worries. Okay, so we had what we've done. I'll tell you whatwe've done so far because I don't want to go back,Maria Gonzalez-Pettway: Okay.Samantha Telson: but you kind of came you kind of came at a just the pricing part.Holly Wale: Mhm.Samantha Telson: So, um,Maria Gonzalez-Pettway: Okay.Samantha Telson: what we did is we went over I went over I had a flow built out forCrystal and a flow built out for Holly. So, we talked about just like the benefit of theSalesforce to QuickBooks integration for Crystal. Um, we know that this the time thatshe's spending isn't all the time and all year, but we do know that it is still manual andshe's double entering in both QuickBooks and Salesforce. And then we also went overfor Holly how we can get the inventory data, whether that's living in Excel or whetherthat's living in QuickBooks to be reflected intoMaria Gonzalez-Pettway: Mhm.Samantha Telson: Salesforce so that we can build out almost like a a customdashboard to show like we have six algebra six books.00:17:05Samantha Telson: it costs $100 so that she doesn't have to wait for Linda or when Lindaasks her how many books do we have she doesn't have to wait um or go track down allthe information within her custom Excel doc.Maria Gonzalez-Pettway: Okay.Samantha Telson: So that's kind of what we walked through so far and then um I did gothrough some like rough like ROI and and business impact stuff and I could send youthe deck so far.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um and now we're going to transition into pricing. So I was just kindof going over how the Mulesoft piece is priced, our integration platform is priced. It's alittle different than Salesforce. It's a capacity based platform and the way that we umprices out is in terms of flows and messages. So flows I like to kind of break this downis like how many automations you guys build and then messages is the data that movesthrough the flows.Maria Gonzalez-Pettway: Mhm.Samantha Telson: So, if we're going to talk about I like to do a stupid analogy, but interms of like plumbing.00:17:59Samantha Telson: Um, if you think about it, like flows are kind of like the building's pipesand the messages is the water that runs through the pipes.Maria Gonzalez-Pettway: Mhm.Samantha Telson: So, in the package that I'm going to go over with you guys, you guysare going to have plenty of capacity to not only build the flows that you need for theintegrations between Excel, between QuickBooks, between Salesforce, but any othersystems that you have come on the horizon or any other integration needs that you dohave. You're going to have more than enough capacity for that um later on as well. I didwant to call it out,Maria Gonzalez-Pettway: Okay.Samantha Telson: but any questions on the capacity side of things?Maria Gonzalez-Pettway: No, Holly.Samantha Telson: Okay,Holly Wale: Okay.Samantha Telson: good. That means I explained it good.Maria Gonzalez-Pettway: Okay.Samantha Telson: No, I'm just kidding. U Okay, so um the second thing is Mulesoftagain is different from Salesforce. It comes with our premier success. So usually withSalesforce, this is an additional like contract fee of a certain percentage of yourcontract.00:18:54Samantha Telson: But with Mulesoft, it's free. Um, and what that means is you will haveaccess to 247 365day support throughout the duration of your contract. So, anytime youguys need to get on the phone with someone or have anything um that you need, youcan get on a call or um on the phone with someone within an hour. And we also I'mgoing to um I'm going to put in front of you like the license price, but we also havepartners um that I'm going to put um set you guys up with that can do exactly what youguys need uh for pretty low cost um with everything. So, I did want to call that out. Thisis just like extra support throughout the duration of a contract. And then um with thepremiere um success um youMaria Gonzalez-Pettway: Okay.Samantha Telson: also get an onboarding team. And what that onboarding team doesis they'll make sure um like you guys are getting kicked off. They'll do calls with you.They'll have calls throughout.00:19:52Samantha Telson: They'll make sure that everything is successful um through deliveryand so on and so forth. So um did want to at least like call out like this extra support likedoes come with the platform. um in addition to um everything that like we're also goingtoMaria Gonzalez-Pettway: Okay.Samantha Telson: put in front of you. So any questions on the premiereMaria Gonzalez-Pettway: Not for me.Samantha Telson: okay now to the fun stuff.Holly Wale: Yeah.Samantha Telson: So I'm going to walk you guys through this um and we can we canwalk through it, but just wanted to at least get some preliminary pricing in front of you.But again, Jonathan and I are willing to kind of work with you guys to make this makesense. Um,Holly Wale: Heat.Samantha Telson: so I'm gonna start with everything that's on the left of what's includedwith the platform and I'm gonna walk through the right because there's kind of a lot onthis slide. Um, so what's included in this platform? So you have the whole Muleoftintegration platform.00:20:47Samantha Telson: We call it our Anpoint platform. And with that, it comes with 30 flowsand 2 million messages. So for your guys' use case, again, like that's plenty. Um, and Ithink you guys will have at least like 10 extra flows um to do more work uh once theintegration that you guys need are done. Um, you also have access to the 400connectors that are within the platform.Maria Gonzalez-Pettway: Okay.Samantha Telson: So, we have a QuickBooks connector, we have an Excel connector, wehave Doc Sign connectors, we have connectors for again 400 different systems. So,you're not limited to any system. And then you have access to the Premier Successsupport plan as well as um monitoring within the platform as well.Maria Gonzalez-Pettway: Okay.Samantha Telson: So, that's just what's included. Um, any questions on that piecebefore I walk through the pricing and the discounting.Holly Wale: No.Samantha Telson: Okay. So, you can see here.Maria Gonzalez-Pettway: No.Samantha Telson: So, usually this uh platform goes for around $55,000. Um, and weknow that's obviously not cheap.00:21:44Samantha Telson: So, what I was able to kind of do right off the bat because it is ourend of fiscal year is come in pretty aggressive with that um discount to get the annualtotal down to that $15,000 mark.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um, and so with that, um, that is based on, uh, executing a contract.Um, we do have it by the end of this week, but what matters, um, at least for Jonathanand I is truly like by the end of this month. With that, um, standard contract withSalesforce is a 36-month term with annual billing. again, if that's kind of a non-starter foryou guys, um willing to work in terms of terms to make something work um to make thislike kind of a no-brainer for you guys. But, um I want to pause. What are your thoughts?Um is this kind of in range with what you were expecting? Is this out ofMaria Gonzalez-Pettway: Honestly,Samantha Telson: range?Maria Gonzalez-Pettway: I can't go either way with from me, you know, speaking on thefinancial standpoint of things, whether it's under or over.00:22:46Maria Gonzalez-Pettway: Um I guess in in just thinking this through, right, we're talkingabout 15,000 an annual total. Um we have a 36-month term, right? Which would be$15,000 every year, correct?Samantha Telson: Correct.Maria Gonzalez-Pettway: Um starting February 2nd through 28. Um and this is a$15,000 upfront fee that we're paying for it. Is that what we're looking at?Samantha Telson: So, so it is like annual billing, but if if it makes it helpful for you guysfor like cash flow purposes to do something like a quarterly or even like a monthly,Maria Gonzalez-Pettway: Right.Samantha Telson: I'm happy to go ask and see what I can getMaria Gonzalez-Pettway: Okay.Samantha Telson: approved.Maria Gonzalez-Pettway: I think that would probably um be more feasible for us at themoment.Samantha Telson: Okay.Maria Gonzalez-Pettway: Um definitely on the cash flow stand point of things.Samantha Telson: Okay.Maria Gonzalez-Pettway: Number one. Number two, um also be a being able toincorporate this into our upcoming budget for our upcoming fiscalSamantha Telson: Okay.Maria Gonzalez-Pettway: year. Um that would also be significant um help for us,00:23:45Samantha Telson: Okay.Maria Gonzalez-Pettway: right? versus trying to throw in this cost um right now up frontumSamantha Telson: Just uh update.Maria Gonzalez-Pettway: in the middle of a season where it does you know our ourcash flow slows down through these upcomingSamantha Telson: Thanks.Maria Gonzalez-Pettway: months due to the fact that we're in the heavy sales seasonright for the upcoming school year. So,Samantha Telson: Right.Maria Gonzalez-Pettway: um, that would be right now, I think, out of range for us to say,"Okay, I want to pay for this right now." Right.Samantha Telson: 15. Mhm.Maria Gonzalez-Pettway: Um, I think, you know,Samantha Telson: Okay.Maria Gonzalez-Pettway: if if this was something that obviously, you know, Holly and Iwill meet more about um, in reference to what she's looking for in um, on the standpointof inventory. Um but not only that, I mean I did, you know, have a brief conversation withLinda as far as to um what else this would how this would also help us um even onstandpoint of things and the amount of hours that it's taking her what the ROI could befor us on that aspect of okay, you know, in my department if I have four people at themoment and everybody's full-time, you know, if I say now I just need one person part likeone role would go part-time versus full-time.00:25:04Maria Gonzalez-Pettway: That's a return right on my investment.Samantha Telson: Right.Maria Gonzalez-Pettway: So, and so I'm looking at all of that and that is a conversationthat I'm also having with Linda and obviously I thinkSamantha Telson: Exactly.Maria Gonzalez-Pettway: ultimately to make it work all around um for you know Holly'sinventory side of things and then on the side of as a whole for accounting right becauseinventory fl um uh flows with everything else we do whenSamantha Telson: So,Maria Gonzalez-Pettway: we're doing our financials so our cost of goods and whatnot.So yes, um I think I I don't again I don't believe this seems to be, you know, especiallybecause it's if it will be able to give us everything we need, I think it's something for us toreally consider. Um again, I more so just how are we going to be able to split that upcoming on the on the cost of it, right?Samantha Telson: Okay.Maria Gonzalez-Pettway: Um and I don't know, I'll talk with Linda um and see again I'llhave those conversations with her against I'm proposingSamantha Telson: Okay.00:26:04Samantha Telson: If we're able to get um like something like a quarterly or monthlyapproved, do you think you'd be able to execute a contract by either the 23rd or withinthe next week once you talk to Linda?Maria Gonzalez-Pettway: potentially if we can if we can all align um between myself,Samantha Telson: Okay.Maria Gonzalez-Pettway: Linda, um and Holly's inventory needs, right? Because if this isnot going to fulfill everything that Holly is looking for either, then that we'll have tocontinue on a search for what Holly needs, which is going to add an additional cost toour bottom line.Samantha Telson: Right.Maria Gonzalez-Pettway: So, we have to all three be in alignment.Samantha Telson: Mhm.Maria Gonzalez-Pettway: So, um, that's that's where we'll we'll have to end up kind ofgoing with it asSamantha Telson: Okay. Um well, let me ask you this,Maria Gonzalez-Pettway: well.Samantha Telson: Holly. Like, what do you think? What are your thoughts? Um kind ofgoing off of what Maria just said.Holly Wale: Well, I I just need time to really think about it.00:26:57Holly Wale: So, you've said a lot of things that matter a lot, but I think that there's stillsome stuff in the QuickBooks part that Maria and I need to like just kind of lock armson. So,Samantha Telson: a line on.Holly Wale: yeah, I I don't want to get excited too early because there's still a few thingswe need toSamantha Telson: Yeah.Holly Wale: nailSamantha Telson: Yeah. Um well, let me ask you guys this.Holly Wale: down.Samantha Telson: So, what what I usually have to go do is get approval on these thingsfor like um quarterly and monthly. And the first thing that they ask me when I go to try toget approval is like, "Okay, when are they going to be able to sign a contract by?" So, um,funny. I know it's kind of annoying,Maria Gonzalez-Pettway: H.B.Samantha Telson: but that's just that's just the way they do. And then they make me likesubmit a whole business case and all this stuff because obviously they don't they don'tlove to give people these um different approvals.00:27:43Samantha Telson: So would it be more compelling? Like what would be helpful for me isI like usually submit like a little business case of like okay like this is the price, this is thecost, they said they can sign a contract um within the next week if it's approvedinternally. Um so what I might do is like send you that and then like put quarterly andmonthly billing in there and then have you like confirm it because then I can screenshotwhat that looks like. Um, my other question is like I don't want to be too like stuck on likethe 15,000 here. I can't obviously make this zero dollars, but um I do like want to makesure that you guys see the value in this. So, if it if it needs to go to anything like a littlebit different, if you know that like if if if you guys don't agree on the 15,000 and need it tobe kind of more in line with what you were looking at, like again, I'm committed tomaking this work for you guys um to kick off a partnership.00:28:41Samantha Telson: So, I don't want like price to be the factorMaria Gonzalez-Pettway: I think I think what my one of my other questions with this isalso going to be um you knowSamantha Telson: here.Maria Gonzalez-Pettway: the obviously like in in in on the other side of Salesforce andour contract right um there's been gradual annual increases right and starting off at15,000 you know what am I looking at is this the same thing with that in that sense ofthings are we going to see annual increases is this a set number for us um you knowwhat do we what do we have to look for in the upcoming years and be prepared to say,"Okay, we know that every year we're going to have some sort of percentage increasebetween this and this, right?" Um, and be able to justify that and be comfortable with itandSamantha Telson: Mhm.Maria Gonzalez-Pettway: not, you know, be surprised about, oh, we are going to have anincrease, right,Samantha Telson: Yeah.Maria Gonzalez-Pettway: or whatnot.Samantha Telson: Yeah. So, um that's unfortunately I just say kind of like whatSalesforce does.00:29:43Samantha Telson: they they do say like everyone's subject to an uplift at the time of therenewal. That's a benefit with going with the three-year, right? Otherwise, like if you dolike a shorter term, you're subject to that uplift every year.Maria Gonzalez-Pettway: Oh yeah.Samantha Telson: Um there are some things we can do in terms of seeing what we cando to lower it. Um because it's usually standards at 9%. So in the business case that I goto approve, do you want me to see how low I can get it?Maria Gonzalez-Pettway: Yes, absolutely. ForSamantha Telson: Okay. Okay. Okay. So,Maria Gonzalez-Pettway: sure.Samantha Telson: let me um let me actually send do is it okay if I send you this emailnow so then you can respond to it now and then we can so and then I'll walk youthrough it. Uh do you think you'll be able to talk toMaria Gonzalez-Pettway: Okay.Samantha Telson: like get a little pow-wow with Linda and Holly and chat about thisprior toMaria Gonzalez-Pettway: Um, yeah, I believe so.00:30:31Samantha Telson: Friday?Maria Gonzalez-Pettway: Now, let me ask you another question. I know we have herelike a start date of February 2nd, right? Um, one of the things that I definitely um lookingat as far as to even with um the the the inventory side of things, right, is I don't want tostart this before the new physical year. I want to be ready to start the new inventorypiece and the AR and everything that you know how this is going to help um crystal andinventory and everything. um April 1, right?Samantha Telson: No.Maria Gonzalez-Pettway: Because that's when our new fiscal year. So, for example, allof our new invoicing and all of our new billings and you know, all of that will have tochange. That's all going to change for us as well and how we're going to do it becausecurrently right now, we don't reflect, for example, our inventory. We don't reflect our ourbooks on our invoicing, right? So, it's reflected on the invoice as a line item with,Samantha Telson: Uh,00:31:29Maria Gonzalez-Pettway: okay, they purchased these number of licenses and we'reshipping x amount of books, but it's not it's not it's just like language versus,Samantha Telson: what's theMaria Gonzalez-Pettway: for example, an inventory item that she's going to select whenshe's billing or it's going to come through from Salesforce. I don't know how that's goingto work, right? But the idea would be that now in order for QuickBooks to do what weneeded to do is that when sheSamantha Telson: Okay.Maria Gonzalez-Pettway: invoices, they ordered 20 algebra one books. Right now thatline item, she's going to have to select it on the invoice or it's going to populateSalesforce,Samantha Telson: Right.Maria Gonzalez-Pettway: however it is. And now it's going to start to discount it out ofour inventory. And that's how we're going to be able to populate the reports that Hollyneeds for, you know, um, where our inventory counts are, what our inventory cost was,um, etc. Right? So, there's going to be a lot of changes that are going to happen and andand in how Crystal does her job in and how we're doing our inventory reporting, makingsure everything in QuickBooks is accurate,00:32:31Samantha Telson: It's like they hadMaria Gonzalez-Pettway: in convention for blogs, um, dollar amounts, whatnot. So it's aprocess that we still have to clean up on our end as well. And and that's why February2nd to start for us would not work becauseSamantha Telson: Yeah.Maria Gonzalez-Pettway: this is not something that I would be a we could say we canimplement in a couple of weeks.Samantha Telson: Yeah. So, a couple things I can do. So, I'm going to ask for a lot ofapprovals, but what I also can ask for approval on is the latest I can I can ask for ispushing the start date out to 215, so February 15th. So, I can ask them to push it out tothe latest possible. Um, sometimes that's a little bit tricky, but I will put that in there aswell. And I think that might align more so with the timeline because it does take time forthe partner to build things. So, um, we obviously want this live for the season of April1st.00:33:29Samantha Telson: Um, and I think that pushing it even like to the 15th will like they'regoing to have to get in. They're going to have to start getting getting access andeverything.Maria Gonzalez-Pettway: Right.Samantha Telson: So, um,Maria Gonzalez-Pettway: And that would be to start the implementation.Samantha Telson: IMaria Gonzalez-Pettway: Right. But going live for us would be April 1st,Samantha Telson: Yes.Maria Gonzalez-Pettway: but then start the implementation. Obviously, the sooner thebetter, right? So, February 15th gives us a couple of weeks to close out some stuff,close out the month of January on the accounting side of things and start being able tohave the time to redirect into going into the implementation of of this soft integration,right? um to be able to go live April 1st with it all, have testing done before that, youknow, make sure that everybody is on the same page on how everything is going to flowand how it's going to work. So, uh I think that's more of where I was going to or headingtowards as far as to the actual live date of00:34:19Samantha Telson: What?Maria Gonzalez-Pettway: things, right? Would be AprilJonathan Garfunkel: Yeah. Yeah.Maria Gonzalez-Pettway: 1st.Jonathan Garfunkel: And I think uh that makes a lot of sense and the timeline actually itdoes line up very very well um because of the time it takes for implementation. And so,you know, I I don't think we'll have much push back on the February 15th start date. Now,we can we'll loop in our implementation partner Sam has really really good ones.Samantha Telson: Yeah,Jonathan Garfunkel: Um, and you know, we'll make sure that they understand the go livedate is April 1st and then weSamantha Telson: there was aJonathan Garfunkel: back into okay for our target is go live on April 1st.Samantha Telson: Wow.Jonathan Garfunkel: What does that mean from a timeline perspective? How do westructure the implementation timeline? We obviously want to make sure your team hasthe bandwidth during that process uh as well as needed.Maria Gonzalez-Pettway: Right. And then and then I need to Okay.Jonathan Garfunkel: So um I do think the timeline works out very very well here.00:35:07Maria Gonzalez-Pettway: Yeah.Samantha Telson: Um,Maria Gonzalez-Pettway: Because I think I would definitely also need to get Chloe, he'sour engineering um director involved in he's over all the IT. He oversees our IT and I don'tknow what all that all what all you know is going to entail with what we're going to haveto do with the systems or or if there's anything that they're going to have to do on theirpart, but kind of get all of those pieces sorted and put together um versus I mean to tomake sure we know how all of this is going to work.Samantha Telson: Yeah. And then so then he'll be able to be involved like throughout theimplementation as well and like they'll also be able to train him on the platform so thatlike you guys ultimately aren't going to need to rely on a partner and that your in-houseteam will be able to, you know, use the platform. Like that's the good thing about thepartner that I'm going to set you guys up with as well as the premier support throughout.00:35:59Samantha Telson: like you're not going to be you have that throughout the whole lengthof your contract.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um soMaria Gonzalez-Pettway: And again, I don't know I don't know to what point are it orengineering like what to what pointSamantha Telson: okayMaria Gonzalez-Pettway: they need to even how involved they need to be in. But I thinkthat that's those are all the conversations, right? like I I don't know what all I don't knowit I don't know anything that has to do with how these systems are going to talk if there'sanything they need to do right um as far as to on their end on the IT side. So definitelyyou know um information for us to haveSamantha Telson: Okay. So, what I'm going to do, Maria, is I am going to shoot you anemail right now while I have you. And um I'm h I'm happy to walk through the email withyou. But basically what I put in this email is I said like okay annual price is X quarterlybilling terms ask for approval on the pushing the license start date ask for approval onthe lower uplift and then the lowcost implementation from the partner.00:37:00Samantha Telson: So that's what I have in this email. I'm going to send it to you rightnow. And then at the bottom of the email I have it say like Maria please reply to confirmthat if you guys approve this package internally you can execute the agreement by 123
+
+Maria Gonzalez-Pettway: Okay.Samantha Telson: um because then I screenshot that and then I could submit it with myjustification to get like the four different things approved. Um so let me send this to youright nowMaria Gonzalez-Pettway: Okay.Samantha Telson: and I see everyone. It's easier when I have everything in writing andthen I can show them. I don't know if you guys have any sort of like approval processyou have to go through, but sometimes it's just like this is the I try to take the path ofleast resistance, especially when I'm asking for multiple approvals because my managerand my manager's managers will ping me and they'll call me and I'm like, you guys, Ihave it right here. You can't argue with me.Maria Gonzalez-Pettway: Right.00:37:52Maria Gonzalez-Pettway: Okay.Samantha Telson: Okay,Maria Gonzalez-Pettway: So,Samantha Telson: did you get that?Maria Gonzalez-Pettway: okay. So, for the annual price, I know you have the 15,000, butthat is what's already been approved. So that's not an additional approval. Is thatcorrect?Samantha Telson: Yeah. No, that's just what I have.Maria Gonzalez-Pettway: Okay.Samantha Telson: I just I just outlined it. I like to outline the whole package.Maria Gonzalez-Pettway: Okay. Okay. Okay. Let me um let me look this over. Let me talkto Linda on this cost here. And think you know again uh I'm gonna have a meeting withHolly as well here just to make sure. um that we're aligning um especially when this toLinda so thatSamantha Telson: Okay.Maria Gonzalez-Pettway: way she can come back and Linda can come back and sayyou know give me her input on it but yeah I think everything else as far as to thequarterly billingSamantha Telson: Okay. Okay.Maria Gonzalez-Pettway: terms so the approval for okay so we're talking about licenseswhat um this 15,000 is that unlimited licenses what does that entail00:39:03Samantha Telson: Yeah. So, I think you missed the beginning part when I first started,Maria Gonzalez-Pettway: No.Samantha Telson: but so Salesforce is a license platform. So, if all of us wanted alicense to your Salesforce, it'd be four licenses. Mulesoft is a capacity platform. Soeveryone can log into Mulesoft. You're not limited on the licenses.Maria Gonzalez-Pettway: Okay.Samantha Telson: So um it's just those flows and messages that I went over. Um so likeanyone can log in which is called like this is aMaria Gonzalez-Pettway: Okay.Samantha Telson: licensing like technically like you have one license for Mulesoftbecause everyone can log in and use it.Maria Gonzalez-Pettway: Okay.Samantha Telson: That's why we say that.Maria Gonzalez-Pettway: Okay.Samantha Telson: Does that make sense?Maria Gonzalez-Pettway: Yes, itSamantha Telson: Okay.Maria Gonzalez-Pettway: does.Samantha Telson: Um, and then I did call out like trying to get that uplift lowered from9% to 5%.Maria Gonzalez-Pettway: So, I know we Okay. I I know we also spoke about thesethird-party um people we wouldSamantha Telson: UponMaria Gonzalez-Pettway: be what what are what am I looking for as far as to costassociated with that?00:39:55Samantha Telson: Yeah. So, I've sent them everything that they need in terms of like ascope just from the the previous calls of like, okay, this is what we're trying to do. Um,I'm waiting for a full like range back from them. It either can be zero, it's like anywherefrom like zero to $2,500 u on their end. So, I'm obviously trying to push for them to be onthe zero side. Um because we call it like our it's like a jump start.Maria Gonzalez-Pettway: Okay.Samantha Telson: Um so, I'm trying to see if you guys qualify for the full jump start. It ison a first come first- serve basis. Um but I did like I submitted everything.Maria Gonzalez-Pettway: Okay.Samantha Telson: I've sent them um everything from the call. So, um I'm working onthat,Maria Gonzalez-Pettway: Okay.Samantha Telson: but it's not going to be anything like crazy in terms of dollars. So,Maria Gonzalez-Pettway: Okay.Samantha Telson: and they also can do the billing terms ifMaria Gonzalez-Pettway: Okay.Samantha Telson: needed.00:40:40Maria Gonzalez-Pettway: Okay. Okay. That's That sounds good.Samantha Telson: Okay. Um, so whenever you get a chance to talk to them and if youcan reply to that so then I can start getting the approvals ready. Um, and if there's anychanges we need to make to any of this, you have my cell. Um,Maria Gonzalez-Pettway: Okay.Samantha Telson: let's put a touch base on for Friday. um just in case like any questionscome up or if you need anything. And then um do we need to like add Linda to that or isit just do you guys feel like it's it's good with just you two?Maria Gonzalez-Pettway: as far as to the next the the nextSamantha Telson: Yeah. Like on Friday if we can like potentially review everything,Maria Gonzalez-Pettway: call.Samantha Telson: we can have a contract ready um or answer any questions that docomeMaria Gonzalez-Pettway: Let me ask her,Samantha Telson: up.Maria Gonzalez-Pettway: let me talk with her. Um I have a meeting with her today at 4.Samantha Telson: Okay.00:41:27Maria Gonzalez-Pettway: So,Samantha Telson: Okay.Maria Gonzalez-Pettway: I'm going to obviously this afternoon speak with her inreference to this call and then um I will I'll let you know if to go ahead and include her init. I'll I'll respond to you by the end of the day today. Um before I close my day out umand I'll respond to this email that you just sent me just to make sureSamantha Telson: Okay.Maria Gonzalez-Pettway: that I've already also discussed that pricing with her and gether input on it.Samantha Telson: Okay.Maria Gonzalez-Pettway: And then um I'll I'll send you an email letting you know if thatwe need to change anything on here and then if we're going to add her to our call for theupcoming call.Samantha Telson: Okay. Um, what is what time works for you guys on Friday? We cando I can do 900 a.m. I don't know if that's too early on a Friday. I can do 11:30 CT.Maria Gonzalez-Pettway: Let me look at my calendar.Samantha Telson: Some people don't want to meet in the morning on a Friday.00:42:20Samantha Telson: And I'm like, I totally understand.Maria Gonzalez-Pettway: I prefer not meeting in the morning on Mondays, but Mondaysare always the hardest days,Samantha Telson: That's also fair. My my team my team does an 8:30 meeting everyMaria Gonzalez-Pettway: right? So, okay. Um,Samantha Telson: Monday. I'm like that is just that is just brutal.Holly Wale: We start at 8 on Mondays.Maria Gonzalez-Pettway: we do eight o'clock.Holly Wale: Marie and I do.Samantha Telson: That's evenHolly Wale: Yeah.Samantha Telson: worse.Maria Gonzalez-Pettway: I'm like, can we push it to nine? That helps a little more.Samantha Telson: Yeah. You're like,Maria Gonzalez-Pettway: Exactly.Samantha Telson: "Let me at least get some coffee in me so I'm not Yeah.Maria Gonzalez-Pettway: Let me get some coffee and wake up. I actually start the nightbefore though. So I start prepping the night before. All right. Um Friday I can do I haveforecast callSamantha Telson: Oh.Maria Gonzalez-Pettway: on Friday. So that doesn't help. I can do 10 on Friday.00:43:09Maria Gonzalez-Pettway: Holly, are you good at 10 on Friday?Samantha Telson: Okay.Maria Gonzalez-Pettway: What does your calendar look like?Holly Wale: Yeah, I have something at 10:30. So, if we could do 30 minutes, that'd begreat.Maria Gonzalez-Pettway: I think so because that's going to be to finalize what we'recomingSamantha Telson: Yeah. Yeah.Jonathan Garfunkel: And I just so you know,Holly Wale: Okay.Maria Gonzalez-Pettway: up.Jonathan Garfunkel: I've got a conflict then,Samantha Telson: I'll call it likeJonathan Garfunkel: but I want to priorit if that's the time that works best for y'all.Samantha Telson: Okay.Jonathan Garfunkel: I don't want to be the reason to not do 10 o'clock.Maria Gonzalez-Pettway: Okay. Okay.Jonathan Garfunkel: So,Maria Gonzalez-Pettway: 10:00Holly Wale: Okay.Samantha Telson: Okay. I'll call it like contract finalization and then we can figure outany final details that we need.Maria Gonzalez-Pettway: works.Samantha Telson: And then what I'll do is um once you reply to me, I'm going to try tosubmit everything for approval so it's approved in time and then we can ultimately walkthrough it together on that call.00:43:45Maria Gonzalez-Pettway: and look my email. Like I said,Samantha Telson: Uh,Maria Gonzalez-Pettway: I will respond to you after my call with Linda today at fouro'clock. I'll respond to your email.Samantha Telson: okay.Maria Gonzalez-Pettway: Um this is I had a conversation with her about this particularconversation subject earlier today. So we'll just um I'll I'll update her on this meeting andand then we'll see where we're moving withSamantha Telson: Okay.Maria Gonzalez-Pettway: it.Samantha Telson: Okay. Awesome. Yeah. No,Maria Gonzalez-Pettway: Okay.Samantha Telson: we're really I'm willing to work with you guys. So,Maria Gonzalez-Pettway: Thank you,Samantha Telson: I'm excited that um we found something that can help.Maria Gonzalez-Pettway: Samantha.Samantha Telson: Um and I'm willing to like push stuff through approvals to see whatwe can do.Maria Gonzalez-Pettway: Sounds good. Sounds good. I'm I'm looking forward to it, too.I'm excited. I think it definitely has a lot of potential. Um I just need to work with Holly toAnd I haven't had time because she has been pinging me.00:44:23Maria Gonzalez-Pettway: She's like, "Do we have time? Do we have time? We do havesomething scheduled on the calendar for tomorrow." Um but to align with her to makesureSamantha Telson: Oh.Maria Gonzalez-Pettway: that, you know, she feels comfortable on the QuickBooks sideof things and how this is going to work and what it's going to provide her. Um becauseultimately, right, um she does do a lot of manual work um with inventory side of things.Samantha Telson: Yeah.Maria Gonzalez-Pettway: So definitely um gonna make sure we can get all onSamantha Telson: Yeah. Yeah. No, I mean our goal is not just to help Crystal,Maria Gonzalez-Pettway: board.Samantha Telson: but Holly and I now have multiple phone calls. We've kind of wentthrough some of her um processes. So, I think this will um help her as well, specificallyon like just being able to visualize everything and see where everything is.Maria Gonzalez-Pettway: Absolutely.Samantha Telson: Um okay. Well, I will throw the hold on for Friday. Um let me knowwhen you reply to that email and then I'll start working on my end. Um but I appreciateyou guys time.Transcription ended after 00:45:32This editable transcript was computer generated and might contain errors. People canalso change the text after it was created.
+
+Close
