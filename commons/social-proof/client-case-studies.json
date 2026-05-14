@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-05-14",
+  "note": "Filtered per-client in buildProposal() — top 2 scored by system overlap + use-case relevance. Never show all 3 blindly.",
+  "caseStudies": [
+    {
+      "id": "clorox",
+      "company": "The Clorox Company",
+      "industry": "consumer-goods",
+      "industries": ["consumer-goods", "manufacturing", "retail", "cpg"],
+      "size": "Fortune 500 · $7B+ revenue",
+      "systems": ["SAP", "Salesforce", "ServiceNow"],
+      "useCaseTypes": ["erp-integration", "crm-integration", "service-desk", "order-management", "inventory-sync"],
+      "headline": "From 6-week manual order cycles to real-time retail partner sync",
+      "whatWeBuilt": "MuleSoft integration layer between SAP ERP and Salesforce — automated purchase order and inventory sync across 200+ retail partners. Eliminated manual EDI workarounds and cross-system reconciliation that required four people and a shared spreadsheet.",
+      "outcome": "74% reduction in order processing time. Finance ops recovered 12+ hours per week. New partners onboarded in days, not weeks.",
+      "aiAngle": "In Year 2, an AI agent monitors retail partner portals for demand signals and auto-flags reorder thresholds — surfaced every morning before the supply chain team opens their queue. The integration data layer built in Year 1 is exactly what the model reads.",
+      "relevanceTags": ["erp", "crm", "order-management", "manufacturing", "sap", "salesforce", "inventory", "retail-partner"]
+    },
+    {
+      "id": "rl-carriers",
+      "company": "R&L Carriers",
+      "industry": "logistics",
+      "industries": ["logistics", "transportation", "supply-chain", "freight", "b2b-services"],
+      "size": "$2B+ revenue · 10,000+ employees",
+      "systems": ["Oracle", "Salesforce", "TMS"],
+      "useCaseTypes": ["ops-automation", "billing-sync", "crm-erp", "customer-portal", "dispatch-automation", "invoice-automation"],
+      "headline": "Freight billing automated — the 48-hour dispatch-to-invoice relay eliminated",
+      "whatWeBuilt": "MuleSoft orchestration between Oracle ERP and Salesforce CRM — billing triggers automated from dispatch close events, real-time shipment status pushed to the customer portal. No manual handoffs between operations and finance.",
+      "outcome": "48-hour billing lag reduced to under 2 hours. Customer support tickets dropped 31%. Finance team stopped running daily reconciliation reports.",
+      "aiAngle": "In Year 2, an agent surfaces at-risk shipments — delay flagged with no outbound customer contact in 24 hours — every morning. The operations team responds to a short exception list, not a monitoring dashboard.",
+      "relevanceTags": ["billing", "invoice", "crm", "ops-automation", "erp", "logistics", "oracle", "salesforce", "dispatch", "freight"]
+    },
+    {
+      "id": "cole-schotz",
+      "company": "Cole Schotz",
+      "industry": "legal",
+      "industries": ["legal", "professional-services", "b2b-services", "finance", "b2b-saas"],
+      "size": "Top 100 US law firm · 500+ attorneys",
+      "systems": ["NetSuite", "Salesforce", "iManage"],
+      "useCaseTypes": ["crm-billing-sync", "matter-to-invoice", "revenue-automation", "billing-visibility", "crm-erp", "invoice-automation"],
+      "headline": "Matter open to invoiced in 30 minutes — closed the billing blind spot between Salesforce and NetSuite",
+      "whatWeBuilt": "MuleSoft connecting Salesforce matter records to NetSuite billing — invoice creation triggered automatically on matter open. Payment status and billing health syncs back to Salesforce so relationship partners see the full picture without running NetSuite reports.",
+      "outcome": "Invoice lag dropped from 3 days to under 30 minutes. Finance ops recovered 15 hours per week. Zero manual reconciliations at month-end.",
+      "aiAngle": "In Year 2, a weekly agent cross-references open matters against NetSuite billing records — flags any matter with no invoice after 45 days, before partners notice. Finance reviews the exception list, not the spreadsheet.",
+      "relevanceTags": ["netsuite", "salesforce", "billing", "invoice", "professional-services", "crm-billing-sync", "matter", "revenue", "hubspot", "crm-erp"]
+    }
+  ]
+}

@@ -90,6 +90,14 @@ const outFile      = cfg.outFile(client);
 
 let html      = fs.readFileSync(templateFile, 'utf8');
 const css     = fs.readFileSync(cssFile, 'utf8');
+const aboutMdPath = path.join(root, 'commons', 'sales', 'about-dataskate.md');
+const ABOUT_HTML  = fs.existsSync(aboutMdPath)
+  ? fs.readFileSync(aboutMdPath, 'utf8')
+      .split(/\n{2,}/)
+      .map(p => p.trim()).filter(Boolean)
+      .map(p => `<p>${p}</p>`)
+      .join('\n')
+  : '';
 
 // architect-guide and ds-pricing-model read directly from markdown — no JSON content file
 let content;
@@ -164,21 +172,11 @@ function buildProposal(c) {
   fill('architect-email',   m.architectEmail);
   fill('date',              m.date);
   fill('scope',             `${m.flowCount} integration flow${m.flowCount !== 1 ? 's' : ''}`);
-
   fill('client-slug',        m.clientSlug || client || '');
 
-  fill('challenge-headline', c.challenge.headline);
-  fill('challenge-lead',     c.challenge.lead);
-  fill('challenge-cards', c.challenge.cards.map(card =>
-    `<div class="challenge-card">
-      <div class="label">${esc(card.label)}</div>
-      <p>${card.body}</p>
-    </div>`
-  ).join('\n'));
-
-  fill('solution-lead',    c.solution.lead);
-  fill('solution-diagram', buildDiagramSvg(c.solution.diagramNodes));
-  fill('diagram-caption',  c.solution.diagramCaption || '');
+  // Optional pull-quote at top of Journey section (from challenge.lead or challenge.pullquote)
+  const pullquoteText = c.challenge && (c.challenge.pullquote || c.challenge.lead);
+  fill('challenge-pullquote', pullquoteText ? `<p class="pull-quote">${esc(pullquoteText)}</p>` : '');
 
   fill('journey-headline', c.journey.headline || 'From Connected to AI-Enabled');
   fill('stage-cards', ['stage1', 'stage2', 'stage3'].map(key => {
@@ -190,13 +188,14 @@ function buildProposal(c) {
       <ul>${(s.items || []).map(i => `<li>${i}</li>`).join('')}</ul>
     </div>`;
   }).join('\n'));
-  fill('journey-closing', c.journey.closingLine || '');
+  fill('journey-closing', c.journey.closingLine
+    ? `<p class="pull-quote">${esc(c.journey.closingLine)}</p>` : '');
 
   fill('flows-headline', `${m.flowCount} Proposed Integration Flow${m.flowCount !== 1 ? 's' : ''}`);
   fill('flow-cards', c.flows.map(f =>
     `<div class="flow-card">
       <div class="flow-num">Flow ${esc(String(f.num))}</div>
-      <span class="complexity-badge ${esc(f.complexity)}">${esc(f.complexity)}</span>
+      ${f.complexity ? `<span class="complexity-badge ${esc(f.complexity)}">${esc(f.complexity)}</span>` : ''}
       <div class="flow-name">${esc(f.name)}</div>
       <div class="flow-route">${esc(f.route)}</div>
       <div class="flow-value">${f.value}</div>
@@ -206,57 +205,54 @@ function buildProposal(c) {
   fill('outcome-cards', c.outcomes.map(o =>
     `<div class="outcome-card">
       <div class="outcome-icon">${o.icon}</div>
-      <h4>${esc(o.title)}</h4>
-      <p>${o.body}</p>
+      <div class="outcome-card-text"><h4>${esc(o.title)}</h4><p>${o.body}</p></div>
     </div>`
   ).join('\n'));
 
-  fill('roi-section', c.roi
-    ? `<section><h2>ROI / Business Case</h2><h3>${esc(c.roi.headline)}</h3>${c.roi.body}</section>`
+  const FOMO_TIERS = {
+    'exact-match':       { label: 'Exact match',       cls: 'tier-exact' },
+    'same-industry':     { label: 'Same industry',     cls: 'tier-adjacent' },
+    'adjacent-industry': { label: 'Adjacent industry', cls: 'tier-adjacent' },
+    'industry-stat':     { label: 'Industry data',     cls: 'tier-stat' },
+  };
+  const fomo = c.fomo || [];
+  fill('fomo-section', fomo.length > 0
+    ? `<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Peer Comparison</div>
+      <div class="section-title">Companies like yours are already doing this</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="fomo-grid">
+      ${fomo.map(f => {
+        const tier = FOMO_TIERS[f.relevanceTier] || { label: f.relevanceTier || '', cls: 'tier-stat' };
+        // Company name becomes the link when a source URL exists — max credibility
+        const coName = f.sourceUrl
+          ? `<a href="${esc(f.sourceUrl)}" target="_blank" rel="noopener" class="fomo-co-link">${esc(f.name)} ↗</a>`
+          : esc(f.name);
+        // Only show separate source line for industry stats (where the stat label ≠ the company name)
+        const sourceFooter = f.sourceUrl && f.sourceLabel && f.relevanceTier === 'industry-stat'
+          ? `<div class="fomo-source"><a href="${esc(f.sourceUrl)}" target="_blank" rel="noopener">${esc(f.sourceLabel)}</a></div>`
+          : '';
+        return `<div class="fomo-card">
+  <div class="fomo-card-head">
+    <div><div class="fomo-co">${coName}</div>${f.revenue ? `<div class="fomo-meta">${esc(f.revenue)}</div>` : ''}</div>
+    ${tier.label ? `<span class="fomo-tier-badge ${esc(tier.cls)}">${esc(tier.label)}</span>` : ''}
+  </div>
+  ${f.analogyNote ? `<div class="fomo-analogy">${esc(f.analogyNote)}</div>` : ''}
+  ${f.savings ? `<div class="fomo-savings-val">${esc(f.savings)}</div>` : ''}
+  <div class="fomo-built">${esc(f.whatTheyBuilt || f.what || '')}</div>
+  ${f.fomoAngle ? `<div class="fomo-angle">${esc(f.fomoAngle)}</div>` : ''}
+  ${sourceFooter}
+</div>`;
+      }).join('\n      ')}
+    </div>
+  </div>
+</details>`
     : '');
-
-  const { timelineWeeks } = c.pricing;
-  fill('timeline-headline', `${timelineWeeks}-week delivery from signed SOW`);
-  fill('timeline-items', c.timeline.map((t, i) => {
-    const cls = i === 0 ? '' : i === c.timeline.length - 1 ? 'phase3' : 'phase2';
-    return `<div class="tl-item">
-      <div class="tl-dot${cls ? ' ' + cls : ''}">${esc(t.phase)}</div>
-      <div class="tl-content">
-        <div class="tl-weeks">${esc(t.weeks)}</div>
-        <h4>${esc(t.title)}</h4>
-        <p>${t.body}</p>
-      </div>
-    </div>`;
-  }).join('\n'));
-
-  fill('investment-section', buildInvestmentSection(c.pricing, m.flowCount));
-
-  fill('included-items', c.included.map(i =>
-    `<div class="included-item">
-      <span class="check">✓</span>
-      <div class="text"><strong>${esc(i.title)}</strong><span>${esc(i.detail)}</span></div>
-    </div>`
-  ).join('\n'));
-
-  fill('about-section', c.about
-    ? `<section><h2>About DataSkate</h2>${c.about}</section>`
-    : '');
-
-  fill('oos-items', c.oos.map(o =>
-    `<div class="oos-item">
-      <span class="x-mark">✕</span>
-      <div class="text"><strong>${esc(o.title)}</strong><span>${esc(o.detail)}</span></div>
-    </div>`
-  ).join('\n'));
-
-  const ownerLabel = { ds: 'DataSkate', client: 'Client', both: 'Shared', vendor: 'Vendor' };
-  fill('assumption-rows', c.assumptions.map(a =>
-    `<tr>
-      <td>${a.p0 ? '<span class="p0-flag">P0</span>' : ''}${a.assumption}</td>
-      <td><span class="owner-badge owner-${esc(a.owner)}">${esc(ownerLabel[a.owner] || a.owner)}</span></td>
-      <td>${esc(a.when)}</td>
-    </tr>`
-  ).join('\n'));
 
   fill('next-steps', c.nextSteps.map((n, i) =>
     `<div class="ns-item">
@@ -265,87 +261,287 @@ function buildProposal(c) {
       <p>${n.body}</p>
     </div>`
   ).join('\n'));
+
+  // Challenge cards
+  fill('challenge-cards', (c.challenge && c.challenge.cards && c.challenge.cards.length)
+    ? `<div class="challenge-grid">${c.challenge.cards.map(card =>
+        `<div class="challenge-card">
+          <div class="card-label">${esc(card.label)}</div>
+          <p>${esc(card.text)}</p>
+        </div>`
+      ).join('\n')}</div>`
+    : '');
+
+  // Solution section
+  const sol = c.solution || {};
+  fill('solution-lead',    sol.lead          ? `<p class="lead">${esc(sol.lead)}</p>`                      : '');
+  fill('solution-diagram', sol.diagramNodes  ? buildDiagramSvg(sol.diagramNodes)                           : '');
+  fill('diagram-caption',  sol.diagramCaption? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
+
+  // ROI / Business Case — conditional full <details> block
+  fill('roi-section', c.roi
+    ? `<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">ROI / Business Case</div>
+      <div class="section-title">${esc(c.roi.headline || 'The business case')}</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <p>${c.roi.body || ''}</p>
+    ${(c.roi.stats || []).length ? `<div style="display:flex;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;">${c.roi.stats.map(s =>
+      `<div style="flex:1;min-width:120px;"><span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">${esc(s.value)}</span><div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">${esc(s.label)}</div></div>`
+    ).join('')}</div>` : ''}
+  </div>
+</details>`
+    : '');
+
+  // Included items — 2-col card grid
+  fill('included-items', (c.included || []).map(item =>
+    `<div class="inc-card">
+      <div class="inc-check">&#10003;</div>
+      <div><strong>${esc(item.title)}</strong><span>${esc(item.detail || '')}</span></div>
+    </div>`
+  ).join('\n'));
+
+  // Out-of-scope items — 2-col card grid
+  fill('oos-items', (c.oos || []).map(item =>
+    `<div class="oos-card">
+      <div class="oos-x">&#215;</div>
+      <div><strong>${esc(item.title)}</strong><span>${esc(item.detail || '')}</span></div>
+    </div>`
+  ).join('\n'));
+
+  // Assumption rows
+  const ownerClsMap = { DataSkate: 'owner-ds', Client: 'owner-client', Both: 'owner-both', Vendor: 'owner-vendor' };
+  fill('assumption-rows', (c.assumptions || []).map(a =>
+    `<tr>
+      <td>${a.p0 ? '<span class="p0-flag">P0</span>' : ''}${esc(a.assumption)}</td>
+      <td><span class="owner-badge ${ownerClsMap[a.owner] || 'owner-ds'}">${esc(a.owner)}</span></td>
+      <td>${esc(a.when || '')}</td>
+    </tr>`
+  ).join('\n'));
+
+  // Delivery Timeline — conditional full <details> block
+  fill('timeline-section', (c.timeline && c.timeline.length > 0)
+    ? `<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Delivery Timeline</div>
+      <div class="section-title">Indicative project schedule</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="timeline">
+      ${c.timeline.map((ph, i) => {
+        const dotCls = i === 0 ? '' : i === 1 ? ' phase2' : ' phase3';
+        return `<div class="tl-item">
+        <div class="tl-dot${dotCls}">${i + 1}</div>
+        <div class="tl-content">
+          <div class="tl-weeks">${esc(ph.weeks || '')}</div>
+          <h4>${esc(ph.label)}</h4>
+          ${(ph.tasks || []).length ? `<ul style="margin:4px 0 0;padding-left:16px;">${ph.tasks.map(t => `<li style="font-size:12px;color:#44546A;line-height:1.5;">${esc(t)}</li>`).join('')}</ul>` : ''}
+        </div>
+      </div>`;
+      }).join('\n      ')}
+    </div>
+  </div>
+</details>`
+    : '');
+
+  // Investment / Pricing — loads rates from pricing-model.md (single source of truth)
+  if (c.pricing) {
+    const pmPath = path.join(root, 'commons', 'sales', 'pricing-model.md');
+    const pmText = fs.existsSync(pmPath) ? fs.readFileSync(pmPath, 'utf8') : '';
+    const pm = parsePricingModelMd(pmText);
+    fill('investment-section', `<details class="section-block" id="investment-details">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Investment</div>
+      <div class="section-title">Pricing &amp; engagement model</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    ${buildInvestmentSection(pm, m.flowCount)}
+  </div>
+</details>`);
+  } else {
+    fill('investment-section', '');
+  }
+
+  // About DataSkate — read from commons/sales/about-dataskate.md at build time
+  fill('about-section', c.about || ABOUT_HTML);
+
+  // Case studies — load library, score against client's systems + flow use cases, pick top 2
+  const csLibPath = path.join(root, 'commons', 'social-proof', 'client-case-studies.json');
+  let selectedCS = [];
+  if (fs.existsSync(csLibPath)) {
+    const allCS = JSON.parse(fs.readFileSync(csLibPath, 'utf8')).caseStudies || [];
+
+    // Extract system signals from diagram nodes + flow routes
+    const clientSystems = [];
+    const sol = c.solution || {};
+    if (sol.diagramNodes) {
+      [...(sol.diagramNodes.sources || []), ...(sol.diagramNodes.targets || [])]
+        .forEach(s => clientSystems.push(s.toLowerCase()));
+    }
+    c.flows.forEach(f => {
+      f.route.split(/[→\-\s]+/).map(s => s.trim().toLowerCase())
+        .filter(s => s && s !== 'mulesoft').forEach(s => clientSystems.push(s));
+    });
+
+    // Extract use-case signals from flow names + routes
+    const flowSignals = c.flows.map(f => f.name.toLowerCase() + ' ' + f.route.toLowerCase()).join(' ');
+
+    const scored = allCS.map(cs => {
+      let score = 0;
+      cs.systems.forEach(sys => {
+        const sl = sys.toLowerCase();
+        if (clientSystems.some(s => s.includes(sl) || sl.includes(s))) score += 3;
+      });
+      (cs.relevanceTags || []).forEach(tag => {
+        if (flowSignals.includes(tag.toLowerCase())) score += 1;
+      });
+      return { cs, score };
+    }).sort((a, b) => b.score - a.score);
+
+    const relevant = scored.filter(x => x.score > 0).slice(0, 2);
+    selectedCS = relevant.length > 0 ? relevant.map(x => x.cs) : scored.slice(0, 2).map(x => x.cs);
+  }
+
+  fill('case-studies-section', selectedCS.length > 0
+    ? `<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Client Results</div>
+      <div class="section-title">How similar teams have used DataSkate</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="cs-grid">
+      ${selectedCS.map(cs => `<div class="cs-card">
+  <div class="cs-co">${esc(cs.company)}</div>
+  <div class="cs-meta">${esc(cs.size)} &middot; ${esc((cs.systems || []).join(', '))}</div>
+  <div class="cs-headline">${esc(cs.headline)}</div>
+  <div class="cs-built">${esc(cs.whatWeBuilt)}</div>
+  <div class="cs-outcome">&#10003; ${esc(cs.outcome)}</div>
+  <div class="cs-ai">AI in Year 2: ${esc(cs.aiAngle)}</div>
+</div>`).join('\n      ')}
+    </div>
+  </div>
+</details>`
+    : '');
 }
 
-function buildInvestmentSection(p, flowCount) {
-  const n      = flowCount;
-  const period = (rate, months) => (parseFloat(rate) * n * months).toLocaleString('en-US');
-  const total  = ['period1', 'period2', 'period3', 'period4'].reduce(
-    (sum, key) => sum + parseFloat(p[key].rate) * n * 6, 0
-  );
+function parsePricingModelMd(mdText) {
+  const num        = s => parseFloat(String(s).replace(/[,$]/g, ''));
+  const baseRate   = num((mdText.match(/\*\*Rate:\*\* \$([0-9,]+(?:\.\d+)?)/) || [,'300'])[1]);
+  const escalation = parseFloat(((mdText.match(/escalating (\d+)%/) || [,'5'])[1])) / 100;
+  const p2rate     = Math.round(baseRate * (1 + escalation) * 100) / 100;
+  const implPerFlow = num((mdText.match(/\| Standard \| \$([0-9,]+)/) || [,'3500'])[1]);
+  const retainer1  = num((mdText.match(/1[–\-]5 flows[^|]*\|\s*\$([0-9,]+)/) || [,'2500'])[1]);
+  const retainer2  = num((mdText.match(/6[–\-]10 flows[^|]*\|\s*\$([0-9,]+)/) || [,'5000'])[1]);
+  return { baseRate, p2rate, implPerFlow, retainer1, retainer2 };
+}
+
+function buildInvestmentSection(pm, flowCount) {
+  const n        = flowCount;
+  const fmt      = v => '$' + Math.round(v).toLocaleString('en-US');
+  const fmtD     = v => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const p1total  = pm.baseRate * n * 6;
+  const p2total  = pm.p2rate  * n * 6;
+  const yearTotal = p1total + p2total;
+  const implTotal = pm.implPerFlow * n;
+  const retainer  = n <= 5 ? pm.retainer1 : pm.retainer2;
+  const weeks     = Math.ceil(2 + 1.5 * n);
+
+  const diff = yearTotal - implTotal;
 
   return `<div class="model-grid">
   <div class="model-card recommended" data-model="iaas">
     <div class="rec-badge">Recommended</div>
     <div class="model-name">Model 1 — IaaS (Managed Service)</div>
-    <div class="model-impl">$0</div>
-    <div class="model-impl-label">Implementation — included in managed service</div>
-    <div class="model-service">$${esc(p.period1.rate)}/flow/month</div>
-    <div class="model-service-label">Period 1 rate (Month 1–6) · ${n} flow${n !== 1 ? 's' : ''}</div>
+    <div class="model-impl">${fmt(yearTotal)}</div>
+    <div class="model-impl-label">1-year total · two 6-month payments · billing starts at go-live</div>
+    <div class="model-service">${fmtD(pm.baseRate)}/flow/month</div>
+    <div class="model-service-label">Period 1 rate · ${n} flow${n !== 1 ? 's' : ''} · DataSkate owns support all year</div>
+    <div class="model-retainer">${fmt(retainer)} kickoff retainer — credited at go-live</div>
     <hr class="model-divider">
-    <div class="best-for">Best for</div>
-    <div class="model-vp">Predictable monthly spend. DataSkate owns design, build, and ongoing support. No upfront capital.</div>
-    <p class="model-instruction no-print"><em>Select this model to proceed with a managed service. You can propose a different entry rate before sending.</em></p>
-    <button class="btn btn-primary model-select-btn no-print" onclick="selectModel('iaas','Model 1 — IaaS (Managed Service)','$${esc(p.period1.rate)}/flow/month (Period 1)')">Select this Model →</button>
+    <div class="best-for">What's covered</div>
+    <div class="model-vp">Design, build, deployment, monitoring, and all support for 12 months. At month 12: renew at the same rate, or take full code ownership — your choice.</div>
+    <div class="iaas-ai-callout">
+      <div class="iaas-ai-callout-head">AI Included — Within Year 1</div>
+      <p>By month 12, DataSkate begins building your first AI agent within the same engagement — full data automation and AI agent stack. No separate SOW, no Year 2 wait. The field structure and data layer we establish in week one is exactly what the model reads.</p>
+    </div>
+    <button class="btn btn-primary model-select-btn no-print" onclick="selectModel('iaas','Model 1 — IaaS (Managed Service)','${fmtD(pm.baseRate)}/flow/month (Period 1)')">Select this Model →</button>
   </div>
   <div class="model-card" data-model="impl">
     <div class="model-name">Model 2 — Implementation Only</div>
-    <div class="model-impl">$${Number(p.implOnly).toLocaleString('en-US')}</div>
-    <div class="model-impl-label">One-time fee · ${esc(String(p.timelineWeeks))}-week delivery</div>
+    <div class="model-impl">${fmt(implTotal)}</div>
+    <div class="model-impl-label">One-time fee · ${n} flows × ${fmt(pm.implPerFlow)}/flow · ${weeks}-week delivery</div>
     <hr class="model-divider">
-    <div class="best-for">Best for</div>
-    <div class="model-vp">Client owns post-go-live support. Optional managed service available at renewal.</div>
-    <p class="model-instruction no-print"><em>Select this model if you prefer a one-time build. You can propose a different project fee before sending.</em></p>
-    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$${Number(p.implOnly).toLocaleString('en-US')} one-time fee')">Select this Model →</button>
+    <div class="best-for">What's covered</div>
+    <div class="model-vp">Design, build, and deployment. Code ownership transfers at go-live. Your team handles support after handoff.</div>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','${fmt(implTotal)} one-time fee')">Select this Model →</button>
   </div>
 </div>
-<div class="managed-intro">
-  <h3>Managed Service Rate Schedule</h3>
-  <p>IaaS pricing adjusts each period as flows stabilize and value is realized.</p>
+
+<div id="iaas-rate-section">
+  <div class="managed-intro">
+    <h3>IaaS Payment Schedule</h3>
+    <p>Two payments over 12 months. Billing begins at go-live — not at signing.</p>
+  </div>
+  <table class="managed-table">
+    <thead>
+      <tr><th>Period</th><th>Duration</th><th>Rate / flow / month</th><th>6-month payment (${n} flows)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Period 1</td><td>Month 1–6</td><td>${fmtD(pm.baseRate)}</td><td>${fmt(p1total)}</td></tr>
+      <tr><td>Period 2</td><td>Month 7–12</td><td>${fmtD(pm.p2rate)}</td><td>${fmt(p2total)}</td></tr>
+      <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>${fmt(yearTotal)}</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer (${fmt(retainer)}) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
 </div>
-<table class="managed-table">
-  <thead>
-    <tr>
-      <th>Period</th><th>Duration</th>
-      <th>Rate / flow / month</th><th>Period total (${n} flows)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td>Period 1</td><td>Month 1–6</td><td>$${esc(p.period1.rate)}</td><td>$${period(p.period1.rate, 6)}</td></tr>
-    <tr><td>Period 2</td><td>Month 7–12</td><td>$${esc(p.period2.rate)}</td><td>$${period(p.period2.rate, 6)}</td></tr>
-    <tr><td>Period 3</td><td>Year 2, H1</td><td>$${esc(p.period3.rate)}</td><td>$${period(p.period3.rate, 6)}</td></tr>
-    <tr><td>Period 4</td><td>Year 2, H2</td><td>$${esc(p.period4.rate)}</td><td>$${period(p.period4.rate, 6)}</td></tr>
-    <tr>
-      <td colspan="3"><strong>2-year managed service total</strong></td>
-      <td><strong>$${total.toLocaleString('en-US')}</strong></td>
-    </tr>
-  </tbody>
-</table>
-<p style="font-size:12px;color:var(--mid);margin-top:12px;">
-  MuleSoft Anypoint Platform license sold separately by your MuleSoft AE.
-  DataSkate manages the integration layer; platform licensing is a direct relationship
-  between your organization and MuleSoft/Salesforce.
-</p>
+
+<div id="impl-persuasion" style="display:none">
+  <div class="impl-pitch">
+    <div class="impl-pitch-head">Here's how the two models compare at the 12-month mark</div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only ${fmt(implTotal)} · IaaS ${fmt(yearTotal)} — a difference of ${fmt(diff)}. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Support:</strong> IaaS — DataSkate owns all monitoring, incident response, and fixes for 12 months. Implementation Only — your team owns support from go-live.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>At month 12:</strong> IaaS clients choose to renew at the current rate or take code ownership. Either way, they've had 12 months of DataSkate-managed uptime.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>MuleSoft expertise:</strong> Implementation Only requires someone on your team who can administer Anypoint Platform after handoff. IaaS does not.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>AI readiness — included at no charge:</strong> Before go-live, DataSkate delivers a personalized Agentic Readiness Document — mapping your integrated data layer to specific AI agents, with timing and cost estimates. Free for all implementation clients.</span></div>
+    <p class="impl-pitch-note">If Implementation Only is still the right fit, continue below.</p>
+  </div>
+</div>
+
 <div class="negotiate-panel no-print" id="negotiate-panel" style="display:none">
   <div class="negotiate-header">
     <div class="negotiate-label">Your Selection</div>
     <h3 id="selected-model-name">—</h3>
-    <p>Listed rate: <strong id="selected-rate">—</strong>. Leave the rate field blank to accept as listed, or enter a proposed rate below.</p>
+    <p>Listed: <strong id="selected-rate">—</strong>. Leave the field blank to accept as listed, or enter a proposed figure to discuss.</p>
   </div>
   <div class="negotiate-grid">
     <div>
-      <label class="negotiate-field-label">Proposed rate <span class="negotiate-optional">(optional)</span></label>
-      <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $700/flow/month" />
+      <label class="negotiate-field-label">Your name <span class="negotiate-required">*</span></label>
+      <input class="cta-input" type="text" id="negotiate-name" placeholder="Your full name" autocomplete="name" />
     </div>
     <div>
-      <label class="negotiate-field-label">Notes or questions <span class="negotiate-optional">(optional)</span></label>
-      <textarea class="cta-input" id="negotiate-notes" placeholder="What's driving this for you?"></textarea>
+      <label class="negotiate-field-label" id="negotiate-rate-label">Proposed rate (optional)</label>
+      <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $275/flow/month" oninput="onRateInput(this.value)" />
     </div>
   </div>
-  <button class="btn btn-primary btn-submit" onclick="submitSelection()">Send Selection to DataSkate →</button>
-  <div class="accept-success" id="selection-success">
-    ✓ Selection sent — your email app should open. We'll follow up within one business day.
+  <div style="margin-bottom:20px">
+    <label class="negotiate-field-label">Notes <span class="negotiate-optional">(optional)</span></label>
+    <textarea class="cta-input" id="negotiate-notes" placeholder="Any context or questions?" oninput="onNotesInput(this)"></textarea>
   </div>
+  <button class="btn btn-primary btn-submit" id="negotiate-btn" onclick="submitSelection()">Confirm Selection →</button>
+  <div class="accept-success" id="selection-success">&#10003; Your email app should open. We'll follow up within one business day.</div>
 </div>`;
 }
 

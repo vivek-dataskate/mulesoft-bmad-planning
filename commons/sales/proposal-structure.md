@@ -59,26 +59,55 @@ Source from the client's biggest manual/repetitive processes mentioned in scopin
 CSS class: `stage3` (background `#F2F4F8`, top border dark navy `#1C2B3A`)
 Badge label: `Year 2+` (CSS class: `next`)
 
-What to write here: AI agent actions specific to this client's domain. Must be grounded in the data their Stage 1 flows will create. Examples by vertical:
+**Salesforce clients — AgentForce is the co-sell, not a footnote:**
+When Salesforce is one of the client's systems, Stage 3 must name **Salesforce AgentForce** explicitly — not "AI agents" generically. This is a deliberate sales alignment: the Salesforce AE on this deal is already trying to sell AgentForce. DataSkate's proposal should make that AE's job easier, not harder. The message to both the AE and the client is the same: DataSkate builds what AgentForce needs to work. Without clean, connected, event-driven data underneath it, AgentForce underdelivers. With it, Year 2 is an activation, not a new project.
+
+Frame it this way in Stage 3:
+- AgentForce is already in the Salesforce ecosystem the client is paying for — or available as an add-on within their existing relationship. No new vendor. No new procurement cycle.
+- The MuleSoft flows built in Year 1 are the exact data pipelines AgentForce reads. The field schemas, sync triggers, and object models DataSkate designs are what the AgentForce agent queries when it acts.
+- Name the specific AgentForce action using the client's real Salesforce objects: "An AgentForce agent watches open opportunities in Salesforce against QuickBooks invoice status — when a deal closes and no invoice appears within 24 hours, it alerts finance and logs the exception." Not "AgentForce automates your workflows."
+
+**Writing rules — read these before drafting a single word:**
+
+1. **Name the specific operational question the AI answers** — not what technology does it use. Wrong: "AI agents analyze data." Right: "Which district agreements are at risk of not renewing before the April procurement window closes?"
+
+2. **Ground every item in Stage 1 data** — each bullet must directly reference a data source created by the flows in Stage 1. If the Stage 1 flows connect Salesforce and QuickBooks, the AI reads Salesforce and QuickBooks data — not "connected systems."
+
+3. **No AI noise words** — banned: "AI-powered," "data contracts," "agentic platform," "leverage AI," "drive insights," "unlock value," "data-driven decisions." These are marketing filler. Write what the AI actually does in one concrete sentence.
+
+4. **Never repeat the peer comparison's AI use case** — if the FOMO section shows a company that used a churn-risk model, do not write "churn-risk model" in Stage 3. Pick a different angle from the same data — same data, different question the AI answers.
+
+5. **Use the client's real language** — use the exact terms from the scoping transcript: the names of their systems, their job titles, their seasonal windows, their specific pain points. If they said "the April procurement window," write "April procurement window" — not "seasonal demand."
+
+**Examples of right vs. wrong (all for the same B2B SaaS client):**
+
+Wrong (AI noise): "AI agents score churn risk across your customer base using connected data."
+Right (specific): "Which of our 80 accounts is likely to miss renewal — and why — based on invoice payment pattern and HubSpot activity over the last 90 days?"
+
+Wrong (AI noise): "Automated forecasting replaces manual reconciliation."
+Right (specific): "The weekly spreadsheet your finance team builds to reconcile HubSpot pipeline against NetSuite actuals disappears — the model runs it every Monday at 7am and flags the two or three deals where the numbers don't match."
+
+**Vertical examples — use as inspiration, not copy-paste:**
 
 **Healthcare GPO / Member Organizations:**
-- Agents surface at-risk members before they churn (utilization drop + engagement drop)
-- Anomalies in vendor utilization reports flagged before vendors report them
-- Next-best-action for sales reps based on purchase patterns and certification status
+- Which members haven't submitted a utilization report in 90 days — flagged before the vendor escalation window opens?
+- Which sales rep's territory shows purchase patterns that signal a certification lapse risk?
 
-**Home Services / Contractor (e.g. fencing, HVAC, roofing):**
-- AI monitors job cycle times across ERP and CRM — surfaces at-risk installs before customer complaints
-- Contract compliance patterns scored over time — high-error reps identified for coaching
-- Seasonal demand signals from lead volume alert operations proactively
+**Home Services / Contractor:**
+- Which jobs are 3 days behind cycle-time benchmarks right now — before the customer calls?
+- Which installers generated the most rework requests last quarter — pattern visible only once job data lives in the ERP?
 
 **Manufacturing / Distribution:**
-- Agents flag inventory anomalies across ERP and order management
-- Demand signals from CRM feed proactive procurement recommendations
-- Agents monitor SLA compliance and escalate before breach
+- Which SKUs are trending toward stockout based on open CRM opportunities not yet converted to orders?
+- Which vendors are late on SLA delivery more than 2× in the last 60 days — pattern invisible until ERP and order data connect?
 
-**SaaS / Tech:**
-- Agents detect trial-to-paid conversion risk and surface to account team
-- Usage pattern monitoring triggers proactive CSM outreach
+**B2B SaaS / Tech:**
+- Which accounts have had zero product activity in 30 days and an invoice overdue — and who on the CSM team owns them?
+- Which closed-won deals from last quarter still don't have a NetSuite subscription — and how much ARR is sitting unrecognized?
+
+**EdTech / K-12:**
+- Which district agreements are in the renewal window but haven't had a Salesforce touchpoint in 45 days?
+- Which inventory items are trending below safety stock heading into the April procurement season — visible because QuickBooks purchase orders are now connected to Salesforce opportunity data?
 
 ### Closing line for the journey section
 Always end with this verbatim:
