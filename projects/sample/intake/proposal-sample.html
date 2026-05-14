@@ -33,7 +33,7 @@ a { color: var(--brand); }
 </style>
 
 <style>
-body { max-width: 900px; margin: 0 auto; padding: 0 0 80px; }
+body { max-width: 1080px; margin: 0 auto; padding: 0 0 80px; }
 p { font-size: 13px; color: #44546A; margin-bottom: 12px; line-height: 1.65; }
 p:last-child { margin-bottom: 0; }
 p strong, li strong { color: var(--dark); font-weight: 600; }
@@ -139,20 +139,20 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .tl-weeks { font-size: 11px; color: var(--mid); margin-bottom: 2px; }
 
 /* ── JOURNEY / STAGES ── */
-.stage-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 8px 0 14px; }
-.stage-card { border-radius: 8px; padding: 16px 14px; }
+.stage-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 6px 0 12px; }
+.stage-card { border-radius: 8px; padding: 10px 12px; }
 .stage-card.stage1 { background: #FFF0F0; border-top: 4px solid var(--brand); }
 .stage-card.stage2 { background: #F0FFF6; border-top: 4px solid var(--green); }
 .stage-card.stage3 { background: #F2F4F8; border-top: 4px solid #1C2B3A; }
-.stage-card .stage-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+.stage-card .stage-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px; }
 .stage-card.stage1 .stage-label { color: var(--brand); }
 .stage-card.stage2 .stage-label { color: var(--green); }
 .stage-card.stage3 .stage-label { color: #1C2B3A; }
-.stage-card .stage-year { font-size: 11px; color: var(--mid); margin-bottom: 6px; }
-.stage-card h4 { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 6px; }
+.stage-card .stage-year { font-size: 10px; color: var(--mid); margin-bottom: 3px; }
+.stage-card h4 { font-size: 12px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
 .stage-card ul { list-style: none; padding: 0; margin: 0; }
-.stage-card ul li { font-size: 12px; color: #44546A; padding: 3px 0 3px 14px; position: relative; line-height: 1.45; }
-.stage-card ul li::before { content: '→'; position: absolute; left: 0; font-size: 10px; top: 4px; }
+.stage-card ul li { font-size: 11px; color: #44546A; padding: 2px 0 2px 13px; position: relative; line-height: 1.4; }
+.stage-card ul li::before { content: '→'; position: absolute; left: 0; font-size: 9px; top: 3px; }
 .stage-card.stage1 ul li::before { color: var(--brand); }
 .stage-card.stage2 ul li::before { color: var(--green); }
 .stage-card.stage3 ul li::before { color: #1C2B3A; }
@@ -175,6 +175,14 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .fomo-co-link:hover { text-decoration: underline; }
 .fomo-source { font-size: 11px; color: var(--mid); margin-top: 8px; font-style: italic; }
 .fomo-source a { color: var(--brand); text-decoration: underline; }
+.fomo-agent { font-size: 11px; color: #1D4ED8; background: #EFF6FF; border-radius: 4px; padding: 5px 8px; margin-bottom: 6px; line-height: 1.5; }
+.fomo-agent::before { content: '\26A1 AI agent: '; font-weight: 600; }
+/* ── AI THOUGHT STARTERS (standalone block, bottom of AI tab) ── */
+.ai-starters { padding: 16px 40px 22px; background: #F0F4FF; border-top: 2px solid var(--brand); }
+.ai-starters-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand); margin-bottom: 10px; }
+.ai-starters-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ai-starters-list li { font-size: 13px; color: var(--dark); line-height: 1.55; padding-left: 18px; position: relative; }
+.ai-starters-list li::before { content: '\2192'; position: absolute; left: 0; color: var(--brand); font-size: 12px; top: 1px; }
 
 /* ── INVESTMENT / PRICING ── */
 .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
@@ -834,13 +842,14 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="fomo-grid">
       <div class="fomo-card">
   <div class="fomo-card-head">
-    <div><div class="fomo-co">B2B SaaS company (anonymized)</div><div class="fomo-meta">$25M–$40M ARR</div></div>
-    <span class="fomo-tier-badge tier-exact">Exact match</span>
+    <div><div class="fomo-co">Rapid7</div><div class="fomo-meta">B2B SaaS · Cybersecurity platform · Public company</div></div>
+    <span class="fomo-tier-badge tier-adjacent">Same industry</span>
   </div>
-  <div class="fomo-analogy">Same revenue range, same B2B SaaS motion, same finance-ops disconnect</div>
-  <div class="fomo-savings-val">11 hrs/week recovered in finance ops</div>
-  <div class="fomo-built">Connected HubSpot deals to Stripe subscriptions and NetSuite billing — eliminated manual billing relay that mirrored Vertex's exact HubSpot → NetSuite handoff</div>
-  <div class="fomo-angle">11 hours a week recovered in finance ops by connecting HubSpot deals to NetSuite billing — same relay Vertex is running today, same systems, same pain. In Year 2, the Monday reconciliation runs automatically and emails only exceptions. Two people. Three hours each. Back.</div>
+  <div class="fomo-analogy">Rapid7 is a larger public company, but their Salesforce → NetSuite friction was identical to Vertex's HubSpot → NetSuite relay today. Same handoff, same manual work, same fix.</div>
+  <div class="fomo-savings-val">CSM research time: 7–8 hrs/week → minutes; invoice delivery fully automated</div>
+  <div class="fomo-built">Connected Salesforce (CRM) to NetSuite (ERP) — bi-directional account sync, automated quote-to-order conversion, invoice delivery, and Slack-delivered customer summaries replacing 7+ hours of weekly manual research</div>
+  <div class="fomo-agent">An automation agent pulls customer data from Salesforce + NetSuite → assembles a Customer Success Report → delivers it to the CSM via Slack before each call, replacing 7 hours of weekly manual prep</div>
+  <div class="fomo-angle">Rapid7 is larger than Vertex — but the CRM-to-ERP relay they eliminated is exactly what Vertex's finance team does today. Their CSM team recovered 7 hours a week. Their invoice workflow now runs without anyone touching it.</div>
   
 </div>
       <div class="fomo-card">
@@ -851,6 +860,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   
   <div class="fomo-savings-val">74% reduction in integration maintenance cost</div>
   <div class="fomo-built">MuleSoft's 2024 Connectivity Benchmark Report: organizations using an integration platform reduce custom integration maintenance costs by 74% and accelerate new integration delivery by 3.5x versus point-to-point builds</div>
+  
   <div class="fomo-angle">Every manual handoff you keep running today is a maintenance liability. The companies that systematically eliminated them in Year 1 are the ones running AI-driven workflows in Year 2.</div>
   <div class="fomo-source"><a href="https://www.mulesoft.com/resources/research/connectivity-benchmark" target="_blank" rel="noopener">MuleSoft 2024 Connectivity Benchmark Report</a></div>
 </div>
@@ -862,12 +872,22 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   
   <div class="fomo-savings-val">26% more time selling vs. manual data entry</div>
   <div class="fomo-built">Salesforce's 2024 State of Sales report (7,700 sales professionals): reps at companies with integrated CRM-to-ERP spend 26% more time on revenue-generating activities versus reps managing manual cross-system entry</div>
+  
   <div class="fomo-angle">The operational drag on your team is a documented industry pattern — not unique to your stage. The companies that close it early convert the freed capacity into pipeline and forecasting accuracy, not backfill hires.</div>
   <div class="fomo-source"><a href="https://www.salesforce.com/resources/research-reports/state-of-sales/" target="_blank" rel="noopener">Salesforce State of Sales 2024</a></div>
 </div>
     </div>
   </div>
 </details>
+
+<!-- AI THOUGHT STARTERS — conditional, standalone block -->
+<div class="ai-starters">
+  <div class="ai-starters-eyebrow">What else teams like yours are exploring</div>
+  <ul class="ai-starters-list">
+    <li>B2B SaaS teams are using AI agents to monitor HubSpot deal activity and surface at-risk renewals to the CSM before the renewal owner notices — two weeks earlier than the current process.</li>
+    <li>Some teams in your space are letting AI agents scan NetSuite subscription records nightly and flag any billing mismatch against the signed contract before the invoice runs.</li>
+  </ul>
+</div>
 
 </div><!-- /tab-ai -->
 

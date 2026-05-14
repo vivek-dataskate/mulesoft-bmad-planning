@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE 'playbooks/.*/PLAYBOOK\\.md|standards/connector-registry\\.json|standards/snippet-registry\\.json|projects/.*/decisions\\.json' && cd /workspaces/mulesoft-bmad-planning && node scaffold/generate-capabilities.js 2>/dev/null || true",
+            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE 'standards/playbooks/.*/PLAYBOOK\\.md|standards/connector-registry\\.json|standards/snippet-registry\\.json|projects/.*/decisions\\.json' && cd /workspaces/mulesoft-bmad-planning && node scaffold/generate-capabilities.js 2>/dev/null || true",
             "statusMessage": "Regenerating capabilities portal…"
           },
           {
