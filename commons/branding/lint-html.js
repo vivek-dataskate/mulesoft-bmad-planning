@@ -9,6 +9,10 @@ const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const COMPETITORS = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'competitors.json'), 'utf8')
+);
+
 const ROOT = path.resolve(__dirname, '../..');
 
 // Full-scan targets (used when no file arg is passed)
@@ -122,6 +126,20 @@ const CHECKS = [
     test: c => !/\.logo\s*\{[^}]*font-size/.test(c),
     message: 'CSS text logo (.logo { font-size... }) detected — use the inline SVG wordmark only, never a text/CSS logo',
   },
+
+  // ── Competitor links ───────────────────────────────────────────────────────
+  {
+    name: 'No competitor href links',
+    test: c => {
+      const found = COMPETITORS.domains.filter(domain =>
+        new RegExp(`href=["'][^"']*${domain.replace('.', '\\.')}`, 'i').test(c)
+      );
+      if (found.length === 0) return true;
+      CHECKS._competitorDomainsFound = found;
+      return false;
+    },
+    message: () => `Competitor domain linked in href — remove the link but keep the use case text. Found: ${(CHECKS._competitorDomainsFound || []).join(', ')}. See commons/branding/competitors.json.`,
+  },
 ];
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -167,7 +185,7 @@ for (const rel of targets) {
   if (failures.length) {
     anyFail = true;
     console.error(`\n✗  ${rel}`);
-    failures.forEach(f => console.error(`   • [${f.name}] ${f.message}`));
+    failures.forEach(f => console.error(`   • [${f.name}] ${typeof f.message === 'function' ? f.message() : f.message}`));
   } else {
     console.log(`✓  ${rel}`);
   }
