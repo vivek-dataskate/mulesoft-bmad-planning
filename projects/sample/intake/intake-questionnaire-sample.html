@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataSkate × Acme Corp — Intake Questionnaire</title>
+<title>DataSkate × Vertex Cloud Solutions — Intake Questionnaire</title>
 <style>
 /* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
 :root {
@@ -293,12 +293,12 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 <!-- DOCUMENT HEADER -->
 <div class="doc-header">
   <div class="eyebrow">MuleSoft Integration Discovery — Intake Questionnaire</div>
-  <h1>Acme Corp × DataSkate — Integration Discovery</h1>
-  <div class="subtitle">Scoping supplement for your MuleSoft engagement</div>
+  <h1>Vertex Cloud Solutions × DataSkate — Integration Discovery</h1>
+  <div class="subtitle">Scoping supplement for your MuleSoft engagement · HubSpot · NetSuite · Slack</div>
   <div class="meta-row">
     <span><strong>Prepared by</strong> · Kailash Chanda · DataSkate</span>
     <span><strong>Date</strong> · May 2026</span>
-    <span class="meta-wide"><strong>Source</strong> · Discovery session with Acme Corp team (May 12, 2026)</span>
+    <span class="meta-wide"><strong>Source</strong> · Discovery session with Vertex Cloud Solutions team (May 12, 2026)</span>
   </div>
 </div>
 
@@ -309,30 +309,30 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <span class="bc-chevron" id="bc-chevron">▲</span>
   </div>
   <div class="bc-body" id="bc-body">
-    <p class="bc-snapshot">Acme Corp is a mid-market specialty retailer with 280 locations across 14 states, running Salesforce for CRM and NetSuite for ERP. The sales team closes deals in Salesforce, but order fulfillment, inventory visibility, and invoicing all live in NetSuite — creating a data gap that forces ops to manually reconcile both systems daily.</p>
+    <p class="bc-snapshot">Vertex Cloud Solutions closes $50K–$500K cloud infrastructure contracts through HubSpot. Every Closed-Won deal triggers a manual relay to finance: a rep notifies finance, finance logs into NetSuite, someone creates the subscription and invoice by hand. The 48-hour lag delays provisioning, defers ARR recognition, and leaves account managers blind to billing health until the next NetSuite report run.</p>
     <div class="journey-grid">
       <div class="journey-card phase-1">
       <div class="jc-phase">Phase 1</div>
       <div class="jc-label">Connected</div>
-      <div class="jc-headline">Order-to-Fulfillment Without Manual Handoffs</div>
-      <div class="jc-body">Closed Salesforce opportunities trigger order creation in NetSuite automatically. Inventory availability and shipment status flow back into Salesforce so reps stop calling ops for updates.</div>
+      <div class="jc-headline">Closed-Won to Invoiced in Minutes, Not Days</div>
+      <div class="jc-body">HubSpot Closed-Won deals trigger NetSuite subscription and invoice creation automatically. Payment status syncs back to HubSpot so account managers see billing health without leaving their CRM. Slack ops-alerts fire on subscription created, invoice overdue, and renewal approaching — no dashboard monitoring required.</div>
     </div>
 <div class="journey-card phase-2">
       <div class="jc-phase">Phase 2</div>
       <div class="jc-label">Automated</div>
-      <div class="jc-headline">Demand-Driven Inventory Alerts</div>
-      <div class="jc-body">With live pipeline data and inventory in one place, automated alerts fire when open opportunity demand exceeds available stock — giving procurement a 3-week lead time instead of reactive scrambling.</div>
+      <div class="jc-headline">Revenue Health Monitoring, Automatic Escalations</div>
+      <div class="jc-body">Overdue invoices trigger automatic escalation sequences: 30-day → account manager task + Slack ping, 60-day → revenue ops, 90-day → leadership flag. Renewal opportunities auto-create in HubSpot 90 days before contract end — renewal pipeline is always current without anyone running NetSuite reports.</div>
     </div>
 <div class="journey-card phase-3">
       <div class="jc-phase">Phase 3</div>
       <div class="jc-label">Agentic</div>
-      <div class="jc-headline">AI-Powered Reorder Optimization</div>
-      <div class="jc-body">An AI agent reads closed-won velocity, current stock levels, and supplier lead times to recommend optimal reorder quantities per SKU — reducing both overstock carrying costs and stockout-driven lost sales.</div>
+      <div class="jc-headline">Revenue Questions That Answer Themselves</div>
+      <div class="jc-body">An AI agent reads HubSpot pipeline, NetSuite subscription data, and billing history to surface accounts at risk before the CSM team opens their queue each Monday. The weekly finance reconciliation between HubSpot pipeline and NetSuite actuals runs automatically — your team reviews exceptions, not spreadsheets.</div>
     </div>
     </div>
     <div class="action-required">
         <h4>Action Required Before We Begin</h4>
-        <ul><li><strong>NetSuite REST API Access</strong>NetSuite REST API requires a custom integration record + OAuth 2.0 setup by a NetSuite admin. Must be completed before any architecture work. Owner: Acme IT (Jason Park).</li><li><strong>Salesforce Connected App</strong>A Connected App for JWT server-to-server OAuth must be created in the Salesforce org before integration testing can begin. Owner: Salesforce admin (TBD).</li></ul>
+        <ul><li><strong>HubSpot Private App Authorization</strong> — A HubSpot Private App token with read/write access to Deals, Contacts, Companies, and Custom Properties must be created by a HubSpot Super Admin before API configuration can begin. DataSkate will provide the required scope list. Owner: Vertex HubSpot admin.</li><li><strong>NetSuite REST API + OAuth 2.0 Setup</strong> — NetSuite REST Web Services must be enabled and an OAuth 2.0 integration record created by a NetSuite admin. DataSkate provides step-by-step setup instructions. Credentials stored in CloudHub Secrets Manager. This is a hard blocker — no architecture work can begin until confirmed. Owner: Vertex NetSuite admin.</li></ul>
       </div>
   </div>
 </div>
@@ -348,19 +348,19 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <details class='uc'>
   <summary class='uc-hd'>
     <span class='uc-tag'>UC-1</span>
-    <h3>Salesforce Opportunity → NetSuite Sales Order (Event-Driven)</h3>
+    <h3>HubSpot Closed-Won Deal → NetSuite Subscription + Invoice (Event-Driven)</h3>
     <span class='uc-chevron'>▼</span>
   </summary>
   <div class='uc-body'>
-    <p class='uc-note'>Triggered when a Salesforce Opportunity reaches Closed-Won. Creates a NetSuite Sales Order from the opportunity line items. NS Order ID written back to Salesforce as an external reference field.</p>
+    <p class='uc-note'>Triggered when a HubSpot deal moves to Closed-Won. Creates a NetSuite customer (if not exists), subscription, and first invoice from the deal line items. NetSuite subscription ID written back to HubSpot deal as an external reference property.</p>
 
     <div class='q'>
       <span class='q-num'></span>
       <div class='q-body'>
-        <div class='q-text'>Which Salesforce Opportunity Stage value should trigger order creation in NetSuite? <em>"Closed Won" was referenced in sessions — confirm the exact picklist value.</em> <span class='req'>*</span></div>
+        <div class='q-text'>What is the exact HubSpot deal stage value that triggers subscription creation in NetSuite? <em>"Closed Won" was referenced in the discovery session — confirm the exact pipeline stage name.</em> <span class='req'>*</span></div>
         <div class='q-options'>
           <span class='pill' onclick='pickPill(this,"q-01")'>Closed Won</span>
-          <span class='pill' onclick='pickPill(this,"q-01")'>Approved — different value</span>
+          <span class='pill' onclick='pickPill(this,"q-01")'>Different stage name — specify below</span>
         </div>
         <textarea class='answer is-prefilled' id='q-01' data-required='true'>Closed Won</textarea>
       </div>
@@ -369,11 +369,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <div class='q'>
       <span class='q-num'></span>
       <div class='q-body'>
-        <div class='q-text'>If a NetSuite Sales Order already exists for an Opportunity (re-trigger scenario), what should happen? <span class='req'>*</span></div>
+        <div class='q-text'>If a NetSuite subscription already exists for this HubSpot deal (re-trigger scenario), what should happen? <span class='req'>*</span></div>
         <div class='q-options'>
-          <span class='pill' onclick='pickPill(this,"q-02")'>Skip — leave existing NS order unchanged</span>
-          <span class='pill' onclick='pickPill(this,"q-02")'>Update existing order</span>
-          <span class='pill' onclick='pickPill(this,"q-02")'>Create a new order regardless</span>
+          <span class='pill' onclick='pickPill(this,"q-02")'>Skip — leave existing subscription unchanged</span>
+          <span class='pill' onclick='pickPill(this,"q-02")'>Update the existing subscription</span>
+          <span class='pill' onclick='pickPill(this,"q-02")'>Create a new subscription regardless</span>
         </div>
         <textarea class='answer' id='q-02' data-required='true'></textarea>
       </div>
@@ -382,16 +382,16 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <div class='q'>
       <span class='q-num'></span>
       <div class='q-body'>
-        <div class='q-text'>Which Salesforce fields should be updated after the NetSuite order is created (sync-back)?</div>
-        <div class='q-hint'>From sessions: NS Order ID, order status, and estimated ship date were mentioned. Confirm or add fields.</div>
-        <textarea class='answer is-prefilled' id='q-03'>NS_Order_ID__c, NS_Order_Status__c, Estimated_Ship_Date__c — confirm or correct API names</textarea>
+        <div class='q-text'>Which HubSpot deal properties should be written back after the NetSuite subscription is created?</div>
+        <div class='q-hint'>From the session: NetSuite subscription ID, subscription status, and invoice ID were mentioned. Confirm or update the list.</div>
+        <textarea class='answer is-prefilled' id='q-03'>netsuite_subscription_id (custom), netsuite_invoice_id (custom), netsuite_customer_id (custom) — confirm or correct HubSpot property names</textarea>
       </div>
     </div>
 
     <div class='scope-grid'>
-      <div class='scope-item scope-in'><span class='scope-label'>In Scope</span>Event-driven Opp→Order creation; NS Order ID written back to Salesforce; line item mapping from Opportunity Products</div>
-      <div class='scope-item scope-assumed'><span class='scope-label'>Assumed Pre-Exists</span>NetSuite Customer records match Salesforce Accounts by name; NS_Order_ID__c external ID field created before dev starts</div>
-      <div class='scope-item scope-out'><span class='scope-label'>Out of Scope</span>Creating NetSuite Customer records from Salesforce Accounts; credit checks or order approval workflows</div>
+      <div class='scope-item scope-in'><span class='scope-label'>In Scope</span>Event-driven deal→subscription creation; NS subscription ID written back to HubSpot; deal line items mapped to NS subscription items</div>
+      <div class='scope-item scope-assumed'><span class='scope-label'>Assumed Pre-Exists</span>NetSuite Customer records can be matched to HubSpot Companies by email domain; custom HubSpot properties created before dev starts</div>
+      <div class='scope-item scope-out'><span class='scope-label'>Out of Scope</span>NetSuite credit checks or approval workflows; creating HubSpot line item objects from scratch</div>
     </div>
   </div>
 </details>
@@ -399,32 +399,33 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 <details class='uc'>
   <summary class='uc-hd'>
     <span class='uc-tag'>UC-2</span>
-    <h3>NetSuite Inventory → Salesforce (Scheduled Nightly)</h3>
+    <h3>NetSuite Invoice Status → HubSpot Deal (Scheduled Sync)</h3>
     <span class='uc-chevron'>▼</span>
   </summary>
   <div class='uc-body'>
-    <p class='uc-note'>Nightly pull of NetSuite inventory levels (quantity on hand, committed, available) into a Salesforce Inventory custom object. Enables sales reps to check stock without leaving Salesforce.</p>
+    <p class='uc-note'>Hourly or near-real-time pull of NetSuite invoice payment status into HubSpot deal records. Enables account managers to see billing health (paid, overdue, partial) in HubSpot without running NetSuite reports.</p>
 
     <div class='q'>
       <span class='q-num'></span>
       <div class='q-body'>
-        <div class='q-text'>What is the desired sync schedule for the nightly inventory pull? <span class='req'>*</span></div>
+        <div class='q-text'>How frequently should invoice payment status sync from NetSuite to HubSpot? <span class='req'>*</span></div>
         <div class='q-options'>
-          <span class='pill' onclick='pickPill(this,"q-04")'>Once nightly (2 AM local)</span>
-          <span class='pill' onclick='pickPill(this,"q-04")'>Twice daily</span>
-          <span class='pill' onclick='pickPill(this,"q-04")'>Real-time webhook from NS</span>
+          <span class='pill' onclick='pickPill(this,"q-04")'>Hourly</span>
+          <span class='pill' onclick='pickPill(this,"q-04")'>Every 15 minutes</span>
+          <span class='pill' onclick='pickPill(this,"q-04")'>Daily (end of day)</span>
         </div>
-        <textarea class='answer is-prefilled' id='q-04' data-required='true'>Once nightly (2 AM CT)</textarea>
+        <textarea class='answer is-prefilled' id='q-04' data-required='true'>Hourly</textarea>
       </div>
     </div>
 
     <div class='q'>
       <span class='q-num'></span>
       <div class='q-body'>
-        <div class='q-text'>Should this sync cover ALL NetSuite inventory items, or only items in specific subsidiaries, locations, or item classes? <span class='req'>*</span></div>
+        <div class='q-text'>Which HubSpot deal property should store the invoice payment status (e.g. Paid, Overdue, Partial)? <span class='req'>*</span></div>
+        <div class='q-hint'>If this property does not exist yet, DataSkate can provide the field spec for your HubSpot admin to create it.</div>
         <div class='q-options'>
-          <span class='pill' onclick='pickPill(this,"q-05")'>All inventory items</span>
-          <span class='pill' onclick='pickPill(this,"q-05")'>Filter by location or class — specify below</span>
+          <span class='pill' onclick='pickPill(this,"q-05")'>invoice_payment_status (create new)</span>
+          <span class='pill' onclick='pickPill(this,"q-05")'>Existing property — specify below</span>
         </div>
         <textarea class='answer' id='q-05' data-required='true'></textarea>
       </div>
@@ -433,21 +434,59 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <div class='q'>
       <span class='q-num'></span>
       <div class='q-body'>
-        <div class='q-text'>Has the Salesforce Inventory custom object (Inventory__c) already been created, or does Acme IT need to build it before development starts?</div>
-        <div class='q-hint'>DataSkate will provide a field specification document if the object needs to be created.</div>
+        <div class='q-text'>Should overdue invoices (30+ days) automatically create a HubSpot task or update the deal owner?</div>
         <div class='q-options'>
-          <span class='pill' onclick='pickPill(this,"q-06")'>Already exists in Salesforce</span>
-          <span class='pill' onclick='pickPill(this,"q-06")'>Not yet — please send field spec</span>
-          <span class='pill' onclick='pickPill(this,"q-06")'>Unknown</span>
+          <span class='pill' onclick='pickPill(this,"q-06")'>Yes — create a HubSpot task on 30-day overdue</span>
+          <span class='pill' onclick='pickPill(this,"q-06")'>No — property update only, HubSpot workflows handle the rest</span>
         </div>
-        <textarea class='answer' id='q-06' data-required='true'></textarea>
+        <textarea class='answer' id='q-06'></textarea>
       </div>
     </div>
 
     <div class='scope-grid'>
-      <div class='scope-item scope-in'><span class='scope-label'>In Scope</span>Nightly NS inventory pull; upsert by SKU into Salesforce Inventory__c; QOH, committed, available fields</div>
-      <div class='scope-item scope-assumed'><span class='scope-label'>Assumed Pre-Exists</span>Salesforce Inventory__c with SKU__c as External ID; NetSuite REST API OAuth configured</div>
-      <div class='scope-item scope-out'><span class='scope-label'>Out of Scope</span>Writing inventory adjustments back to NetSuite from Salesforce; cost/valuation fields</div>
+      <div class='scope-item scope-in'><span class='scope-label'>In Scope</span>Scheduled NS→HubSpot invoice status sync; overdue flag update; optional HubSpot task creation on overdue</div>
+      <div class='scope-item scope-assumed'><span class='scope-label'>Assumed Pre-Exists</span>HubSpot deal matched to NS subscription via netsuite_subscription_id written in UC-1</div>
+      <div class='scope-item scope-out'><span class='scope-label'>Out of Scope</span>Sending invoice PDFs to HubSpot; creating HubSpot workflows (client manages those)</div>
+    </div>
+  </div>
+</details>
+
+<details class='uc'>
+  <summary class='uc-hd'>
+    <span class='uc-tag'>UC-3</span>
+    <h3>NetSuite Billing Events → Slack Notifications (Event-Driven)</h3>
+    <span class='uc-chevron'>▼</span>
+  </summary>
+  <div class='uc-body'>
+    <p class='uc-note'>Billing events in NetSuite — subscription created, invoice overdue, renewal approaching — trigger formatted Slack messages to designated channels. Eliminates the need for anyone to monitor a NetSuite dashboard.</p>
+
+    <div class='q'>
+      <span class='q-num'></span>
+      <div class='q-body'>
+        <div class='q-text'>Which Slack channels should receive billing event notifications? <span class='req'>*</span></div>
+        <div class='q-hint'>From the session: #ops-alerts was mentioned for subscription created events. Confirm the channel name and whether overdue + renewal events go to the same channel or separate ones.</div>
+        <textarea class='answer is-prefilled' id='q-07' data-required='true'>#ops-alerts — confirm. Overdue invoices: same channel or separate (e.g. #revenue-ops)?</textarea>
+      </div>
+    </div>
+
+    <div class='q'>
+      <span class='q-num'></span>
+      <div class='q-body'>
+        <div class='q-text'>Which billing events should trigger Slack notifications? <span class='req'>*</span></div>
+        <div class='q-options'>
+          <span class='pill' onclick='pickPill(this,"q-08")'>Subscription created</span>
+          <span class='pill' onclick='pickPill(this,"q-08")'>Invoice overdue (30 days)</span>
+          <span class='pill' onclick='pickPill(this,"q-08")'>Renewal approaching (90 days)</span>
+          <span class='pill' onclick='pickPill(this,"q-08")'>All of the above</span>
+        </div>
+        <textarea class='answer is-prefilled' id='q-08' data-required='true'>All of the above — confirm or remove any events that are not needed</textarea>
+      </div>
+    </div>
+
+    <div class='scope-grid'>
+      <div class='scope-item scope-in'><span class='scope-label'>In Scope</span>Subscription created, invoice overdue, renewal approaching events → formatted Slack messages with NetSuite record link</div>
+      <div class='scope-item scope-assumed'><span class='scope-label'>Assumed Pre-Exists</span>Slack workspace app with incoming webhook or bot token available; target channels exist</div>
+      <div class='scope-item scope-out'><span class='scope-label'>Out of Scope</span>Interactive Slack commands (e.g. /lookup invoice); writing back to NetSuite from Slack actions</div>
     </div>
   </div>
 </details>
@@ -461,32 +500,31 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
-    <h3>2A — Salesforce</h3>
+    <h3>2A — HubSpot</h3>
 
 <div class='q'>
   <span class='q-num'></span>
   <div class='q-body'>
-    <div class='q-text'>Which Salesforce edition is Acme Corp on?</div>
+    <div class='q-text'>Which HubSpot subscription tier is Vertex on?</div>
     <div class='q-options'>
-      <span class='pill' onclick='pickPill(this,"q-07")'>Professional</span>
-      <span class='pill' onclick='pickPill(this,"q-07")'>Enterprise</span>
-      <span class='pill' onclick='pickPill(this,"q-07")'>Unlimited</span>
+      <span class='pill' onclick='pickPill(this,"q-09")'>Sales Hub Professional</span>
+      <span class='pill' onclick='pickPill(this,"q-09")'>Sales Hub Enterprise</span>
+      <span class='pill' onclick='pickPill(this,"q-09")'>Operations Hub (separate)</span>
     </div>
-    <textarea class='answer is-prefilled' id='q-07'>Enterprise</textarea>
+    <textarea class='answer' id='q-09'></textarea>
   </div>
 </div>
 
 <div class='q'>
   <span class='q-num'></span>
   <div class='q-body'>
-    <div class='q-text'>Is there a Salesforce sandbox DataSkate can use for integration testing? <span class='req'>*</span></div>
+    <div class='q-text'>Is there a HubSpot developer test portal (sandbox) DataSkate can use for integration testing? <span class='req'>*</span></div>
     <div class='q-options'>
-      <span class='pill' onclick='pickPill(this,"q-08")'>Yes — full-copy sandbox</span>
-      <span class='pill' onclick='pickPill(this,"q-08")'>Yes — Developer sandbox</span>
-      <span class='pill' onclick='pickPill(this,"q-08")'>No — testing against production</span>
-      <span class='pill' onclick='pickPill(this,"q-08")'>Unknown</span>
+      <span class='pill' onclick='pickPill(this,"q-10")'>Yes — developer test portal available</span>
+      <span class='pill' onclick='pickPill(this,"q-10")'>No — testing against production (coordinate access carefully)</span>
+      <span class='pill' onclick='pickPill(this,"q-10")'>Unknown</span>
     </div>
-    <textarea class='answer' id='q-08' data-required='true'></textarea>
+    <textarea class='answer' id='q-10' data-required='true'></textarea>
   </div>
 </div>
 
@@ -495,22 +533,57 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 <div class='q'>
   <span class='q-num'></span>
   <div class='q-body'>
-    <div class='q-text'>Who is the NetSuite administrator who will create the OAuth integration record and assign the integration role? DataSkate will provide setup instructions. <span class='req'>*</span></div>
-    <textarea class='answer is-prefilled' id='q-09' data-required='true'>Jason Park (IT Director) — please confirm or provide direct contact details</textarea>
+    <div class='q-text'>Who is the NetSuite administrator who will create the OAuth 2.0 integration record and enable REST Web Services? DataSkate provides step-by-step setup instructions. <span class='req'>*</span></div>
+    <textarea class='answer' id='q-11' data-required='true'></textarea>
   </div>
 </div>
 
 <div class='q'>
   <span class='q-num'></span>
   <div class='q-body'>
-    <div class='q-text'>Is NetSuite REST Web Services (RESTlets or SuiteTalk REST) currently enabled in your account?</div>
-    <div class='q-hint'>This is required for the MuleSoft NetSuite connector. Found under Setup → Company → Enable Features → SuiteCloud.</div>
+    <div class='q-text'>Is NetSuite REST Web Services currently enabled in your account?</div>
+    <div class='q-hint'>Found under Setup → Company → Enable Features → SuiteCloud → REST Web Services. Required for the MuleSoft NetSuite connector.</div>
     <div class='q-options'>
-      <span class='pill' onclick='pickPill(this,"q-10")'>Yes — already enabled</span>
-      <span class='pill' onclick='pickPill(this,"q-10")'>Not enabled — IT can enable it</span>
-      <span class='pill' onclick='pickPill(this,"q-10")'>Unknown</span>
+      <span class='pill' onclick='pickPill(this,"q-12")'>Yes — already enabled</span>
+      <span class='pill' onclick='pickPill(this,"q-12")'>Not enabled — IT can enable it</span>
+      <span class='pill' onclick='pickPill(this,"q-12")'>Unknown</span>
     </div>
-    <textarea class='answer' id='q-10' data-required='true'></textarea>
+    <textarea class='answer' id='q-12' data-required='true'></textarea>
+  </div>
+</div>
+
+<div class='q'>
+  <span class='q-num'></span>
+  <div class='q-body'>
+    <div class='q-text'>Is there a NetSuite sandbox account DataSkate can use for development and testing? <span class='req'>*</span></div>
+    <div class='q-options'>
+      <span class='pill' onclick='pickPill(this,"q-13")'>Yes — sandbox available</span>
+      <span class='pill' onclick='pickPill(this,"q-13")'>No — development against production (risk: increased coordination)</span>
+      <span class='pill' onclick='pickPill(this,"q-13")'>Unknown</span>
+    </div>
+    <textarea class='answer' id='q-13' data-required='true'></textarea>
+  </div>
+</div>
+
+<h3>2C — Slack</h3>
+
+<div class='q'>
+  <span class='q-num'></span>
+  <div class='q-body'>
+    <div class='q-text'>What is the Slack workspace name DataSkate will post to?</div>
+    <textarea class='answer' id='q-14'></textarea>
+  </div>
+</div>
+
+<div class='q'>
+  <span class='q-num'></span>
+  <div class='q-body'>
+    <div class='q-text'>Does Vertex have an existing Slack app / bot DataSkate can use, or should DataSkate set up a new one?</div>
+    <div class='q-options'>
+      <span class='pill' onclick='pickPill(this,"q-15")'>Use an existing bot — provide token</span>
+      <span class='pill' onclick='pickPill(this,"q-15")'>DataSkate sets up a new Slack app</span>
+    </div>
+    <textarea class='answer' id='q-15'></textarea>
   </div>
 </div>
   </div>
@@ -526,29 +599,43 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <div class='q'>
   <span class='q-num'></span>
   <div class='q-body'>
-    <div class='q-text'>Planned go-live is <strong>August 15, 2026</strong>. Is this date still the target? <span class='req'>*</span></div>
+    <div class='q-text'>The discovery session referenced a <strong>go-live target before Q3 end</strong>. Is the target still September 2026? <span class='req'>*</span></div>
     <div class='q-options'>
-      <span class='pill' onclick='pickPill(this,"q-11")'>August 15, 2026 confirmed</span>
-      <span class='pill' onclick='pickPill(this,"q-11")'>Prefer Q4 — specify below</span>
+      <span class='pill' onclick='pickPill(this,"q-16")'>September 2026 confirmed</span>
+      <span class='pill' onclick='pickPill(this,"q-16")'>Earlier — specify below</span>
+      <span class='pill' onclick='pickPill(this,"q-16")'>Q4 is fine — specify below</span>
     </div>
-    <textarea class='answer is-prefilled' id='q-11'>August 15, 2026</textarea>
+    <textarea class='answer is-prefilled' id='q-16' data-required='true'>September 2026 — confirm exact date target if possible</textarea>
   </div>
 </div>
 
 <div class='q'>
   <span class='q-num'></span>
   <div class='q-body'>
-    <div class='q-text'>Who from Acme Corp will serve as the primary testing contact and UAT sign-off approver? <span class='req'>*</span></div>
-    <textarea class='answer' id='q-12' data-required='true'></textarea>
+    <div class='q-text'>Who from Vertex will serve as the primary testing contact and UAT sign-off approver? <span class='req'>*</span></div>
+    <textarea class='answer' id='q-17' data-required='true'></textarea>
   </div>
 </div>
 
 <div class='q'>
   <span class='q-num'></span>
   <div class='q-body'>
-    <div class='q-text'>Are there any deployment freeze windows DataSkate should be aware of?</div>
-    <div class='q-hint'>e.g. no production deploys during month-end close (last 3 business days of each month).</div>
-    <textarea class='answer' id='q-13'></textarea>
+    <div class='q-text'>Are there any production deployment freeze windows DataSkate should be aware of?</div>
+    <div class='q-hint'>e.g. no deploys during month-end close (last 3 business days), no deploys during a board reporting window, etc.</div>
+    <textarea class='answer' id='q-18'></textarea>
+  </div>
+</div>
+
+<div class='q'>
+  <span class='q-num'></span>
+  <div class='q-body'>
+    <div class='q-text'>For UAT: will Vertex be testing with synthetic (fake) deal data in HubSpot, or with real historical deals cloned to a sandbox?</div>
+    <div class='q-options'>
+      <span class='pill' onclick='pickPill(this,"q-19")'>Synthetic test deals in HubSpot test portal</span>
+      <span class='pill' onclick='pickPill(this,"q-19")'>Real deal data in a HubSpot sandbox</span>
+      <span class='pill' onclick='pickPill(this,"q-19")'>To be determined</span>
+    </div>
+    <textarea class='answer' id='q-19'></textarea>
   </div>
 </div>
   </div>
@@ -557,15 +644,16 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 <!-- INTERNAL FLAGS — no-print -->
 <div class="internal-block no-print">
         <h3>Internal Technical Flags — Do Not Send to Client</h3>
-        <div class='flag-item'><span class='flag-num'>1</span><div class='flag-body'><strong>Auth model:</strong> Salesforce = OAuth JWT (service account). NetSuite = OAuth 2.0 with token-based auth (TBA). NS Consumer Key/Secret + Token ID/Secret stored in CloudHub Secrets Manager.</div></div>
-<div class='flag-item'><span class='flag-num'>2</span><div class='flag-body'><strong>P0 gate:</strong> Both P0 blockers (NS REST API access + SF Connected App) must be confirmed resolved before architecture kickoff. If either is unresolved at requirements start, project timeline slips.</div></div>
-<div class='flag-item'><span class='flag-num'>3</span><div class='flag-body'><strong>NS upsert key:</strong> Use externalId (Salesforce Opportunity ID) on the NetSuite Sales Order to prevent duplicate creation on re-trigger. NS supports externalId as a upsert key on SalesOrder records.</div></div>
+        <div class='flag-item'><span class='flag-num'>1</span><div class='flag-body'><strong>Auth model:</strong> HubSpot = Private App token (no OAuth callback required — simplest path). NetSuite = OAuth 2.0 token-based auth (TBA). All credentials in CloudHub Secrets Manager, rotated every 90 days.</div></div>
+<div class='flag-item'><span class='flag-num'>2</span><div class='flag-body'><strong>P0 gate:</strong> Both P0 blockers must be confirmed resolved before architecture kickoff. If HubSpot app token or NS REST API setup is pending at discovery start, project timeline slips accordingly.</div></div>
+<div class='flag-item'><span class='flag-num'>3</span><div class='flag-body'><strong>Deal→Subscription idempotency:</strong> Use HubSpot Deal ID as the external ID on the NetSuite Subscription record to prevent duplicate creation on re-trigger. Confirm that NetSuite supports externalId on Subscription records (it does — confirm with NS admin at field mapping session).</div></div>
+<div class='flag-item'><span class='flag-num'>4</span><div class='flag-body'><strong>Buyer profile detected:</strong> roi-analytical (primary) + operational-pragmatist (secondary). Challenge framing uses the 48-hour lag number. Journey Stage 1 items lead with specific stopped behaviors. ROI section included in proposal.</div></div>
       </div>
 
 <!-- PRICING SUMMARY — no-print -->
 <div class="internal-block no-print">
         <h3>Pricing Summary — Internal Only</h3>
-        <table class='dtbl'><thead><tr><th>Model</th><th>Impl</th><th>Period 1 (6mo)</th><th>Period 2 (6mo)</th><th>1-yr Total</th></tr></thead><tbody><tr><td>IaaS / Managed Service</td><td>$0</td><td>$3,000</td><td>$3,150</td><td><strong>$6,150</strong></td></tr><tr><td>Implementation Only</td><td>$7,000</td><td>—</td><td>—</td><td><strong>$7,000</strong></td></tr></tbody></table><p style='margin-top:8px;font-size:12px;'>2 flows. Period 1: $250/flow/mo. Period 2: $262.50/flow/mo. Timeline: 8 weeks from signed SOW.</p>
+        <table class='dtbl'><thead><tr><th>Model</th><th>Impl</th><th>Period 1 (6mo)</th><th>Period 2 (6mo)</th><th>1-yr Total</th></tr></thead><tbody><tr><td>IaaS / Managed Service</td><td>$0</td><td>$5,400</td><td>$5,670</td><td><strong>$11,070</strong></td></tr><tr><td>Implementation Only</td><td>$10,500</td><td>—</td><td>—</td><td><strong>$10,500</strong></td></tr></tbody></table><p style='margin-top:8px;font-size:12px;'>3 flows. Period 1: $300/flow/mo × 6 months. Period 2: $315/flow/mo × 6 months. IaaS includes full managed service — no internal MuleSoft admin required. Timeline: 10 weeks from signed SOW.</p>
       </div>
 
 <!-- BOTTOM SUBMIT BLOCK -->
