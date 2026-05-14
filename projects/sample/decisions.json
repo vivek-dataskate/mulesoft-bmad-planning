@@ -1,0 +1,168 @@
+{
+  "client": "sample",
+  "createdAt": "2026-05-14",
+  "note": "Reasoning audit trail for every significant Scout decision. Append-only — never modify existing entries. Read this file to understand why specific content was sent to the client.",
+  "decisions": [
+    {
+      "id": "D-001",
+      "session": "session1",
+      "step": "0c-3",
+      "type": "fomo-selection",
+      "decision": "Selected 3 FOMO entries: one exact-match B2B SaaS anonymized company, two industry-stat benchmarks (MuleSoft 2024 Benchmark, Salesforce State of Sales 2024).",
+      "rationale": "No named public case study for HubSpot + NetSuite + B2B SaaS at this revenue range was found with a verifiable sourceUrl. Tier 1 anonymized entry used (same systems, same relay pain). Two industry stats added for quantified reinforcement — both have public sourceUrls and cite surveyed populations of 1,000+ companies.",
+      "alternatives": [
+        "A Workato case study appeared in search results but the URL resolved to a gated PDF — excluded per naming rule (no public sourceUrl, cannot verify claims).",
+        "A HubSpot-to-QuickBooks case study was found but mismatches on billing system — excluded as adjacent-industry only, not exact-match."
+      ],
+      "evidence": {
+        "searchQueries": ["HubSpot NetSuite integration ROI B2B SaaS case study 2024", "B2B SaaS CRM billing integration hours saved"],
+        "tier1Found": true,
+        "namedCompanySourceUrl": null,
+        "industryStatSources": ["mulesoft.com/resources/research/connectivity-benchmark", "salesforce.com/resources/research-reports/state-of-sales/"]
+      },
+      "impact": "proposal-content.json fomo[] — 3 entries, ordered by relevanceTier. FOMO section rendered in proposal-sample.html.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-002",
+      "session": "session1",
+      "step": "1d",
+      "type": "psychology-profile",
+      "decision": "Assigned primaryProfile = 'roi-analytical' based on 6 matched signal phrases from the scoping transcript.",
+      "rationale": "The buyer repeatedly anchored their pain in financial terms: 'deferred ARR recognition', '$400K per quarter', 'business case'. Six distinct signal phrases matched roi-analytical, outscoring operational-pragmatist (4 signals) and peer-pressure (1 signal). roi-analytical won without tie-breaker.",
+      "alternatives": [
+        "operational-pragmatist scored 4 signals ('manual handoff chain', 'relay fails at least once a week', '48 hours. Every time.', 'we keep doing it by hand') — assigned as secondaryProfile to blend Stage 1 'things that stop' framing into the proposal.",
+        "peer-pressure had 1 signal ('are we behind competitors') — below the 2-signal threshold for secondaryProfile; not applied."
+      ],
+      "evidence": {
+        "signalCounts": { "roi-analytical": 6, "operational-pragmatist": 4, "peer-pressure": 1, "visionary-strategic": 0, "risk-averse-conservative": 0 },
+        "matchedPhrases": {
+          "roi-analytical": ["what's the ROI", "business case", "deferred ARR recognition"],
+          "operational-pragmatist": ["manual handoff chain", "relay fails at least once a week", "48 hours. Every time.", "we keep doing it by hand"]
+        },
+        "primaryPainQuote": "Every Closed-Won deal triggers a manual relay — sales tells finance, finance logs into NetSuite, someone creates the record. 48 hours. Every time.",
+        "aspirationQuote": "I want the deal to close and the invoice to go out the same day."
+      },
+      "impact": "challenge.lead anchored with $400K ARR figure first. fomo[] sorted by savings amount. journey.closingLine uses roi-analytical variant. bizContext.snapshot in intake form ends with cost anchor.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-003",
+      "session": "session1",
+      "step": "1d",
+      "type": "psychology-profile",
+      "decision": "Assigned secondaryProfile = 'operational-pragmatist' (4 signals). Blended 'things that stop' framing into Stage 1 bullet items.",
+      "rationale": "Runner-up score of 4 met the secondaryProfileThreshold of 2. The secondary profile contributed the visceral 'relay fails at least once a week' anchor in challenge cards and the 'stops happening on go-live day' tone in Stage 1 bullets — without changing the primary ROI-first structure.",
+      "alternatives": [
+        "Not blending the secondary profile would have made the proposal feel clinical — all numbers, no visceral hook. The blend preserves the ROI anchor while giving the buyer a recognizable operational image of their pain."
+      ],
+      "evidence": {
+        "blendRule": "Primary drives structure; secondary contributes one element: Stage 1 bullets read as a 'stops happening' list while challenge.lead leads with the $400K figure."
+      },
+      "impact": "Stage 1 bullet items use active past-tense outcomes ('created automatically in minutes', 'no one monitors a dashboard'). Challenge card bodies name the specific manual action and the person doing it.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-004",
+      "session": "session1",
+      "step": "2",
+      "type": "flow-classification",
+      "decision": "Classified UC1 Deal-to-Subscription (HubSpot → NetSuite) as confirmed.",
+      "rationale": "Client explicitly stated: 'every Closed-Won deal, someone has to create the NetSuite record manually.' The source system (HubSpot), target system (NetSuite), entity (subscription/customer), and trigger (deal stage = Closed Won) were all named without ambiguity.",
+      "alternatives": [],
+      "evidence": {
+        "transcriptQuote": "every Closed-Won deal, someone has to create the NetSuite record manually — finance does it, takes 48 hours sometimes"
+      },
+      "impact": "UC1 included in flow count (N=3), pricing, proposal flows[], and questionnaire Section 1.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-005",
+      "session": "session1",
+      "step": "2",
+      "type": "flow-classification",
+      "decision": "Classified UC2 Invoice & Payment Sync (NetSuite → HubSpot) as confirmed.",
+      "rationale": "Client stated: 'account managers have no idea what's happening in NetSuite — they find out about overdue invoices on the renewal call.' The reverse sync from NetSuite to HubSpot was implied and confirmed when asked. Entity (invoice status), direction (NetSuite → HubSpot), and trigger (scheduled real-time sync) are unambiguous.",
+      "alternatives": [
+        "Considered classifying as potential (client did not explicitly request this flow — they named the pain, not the solution). Promoted to confirmed because the pain directly implies this specific flow and no alternative data path exists for surfacing NetSuite data in HubSpot."
+      ],
+      "evidence": {
+        "transcriptQuote": "account managers have no idea what's happening in NetSuite — they find out about overdue invoices on the renewal call"
+      },
+      "impact": "UC2 included in flow count, pricing, and proposal. Questionnaire Section 1 includes UC2 scope block.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-006",
+      "session": "session1",
+      "step": "2",
+      "type": "flow-classification",
+      "decision": "Classified UC3 Revenue Alerts (NetSuite → Slack) as confirmed.",
+      "rationale": "Client explicitly mentioned Slack as their team communication tool and said 'we want to know immediately when an invoice goes overdue.' The Slack notification flow is a direct fulfillment of a named client request.",
+      "alternatives": [],
+      "evidence": {
+        "transcriptQuote": "we want to know immediately when an invoice goes overdue — we use Slack for everything"
+      },
+      "impact": "UC3 included in flow count (N=3 confirmed). Slack added as target system in proposal architecture diagram.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-007",
+      "session": "session1",
+      "step": "3c",
+      "type": "content-adaptation",
+      "decision": "Rewrote challenge.lead to anchor with $400K deferred ARR figure before naming the manual relay.",
+      "rationale": "roi-analytical contentModifiers.challengeFraming: 'Open with a cost or time figure from their transcript — anchor the challenge in a number they recognized when they said it.' The buyer named $400K deferred ARR as a specific figure during scoping. Leading with it matches their decision-making language before describing the operational mechanics.",
+      "alternatives": [
+        "Default challenge.lead opened with the operational pain ('every deal triggers a manual handoff chain') — correct for operational-pragmatist but suboptimal for roi-analytical primary. A numbers-first buyer sees the operational description and asks 'so what does that cost me?' — we preempt that question."
+      ],
+      "evidence": {
+        "defaultWouldHaveBeen": "Vertex closes $50K–$500K cloud infrastructure contracts — but every deal triggers a manual handoff chain between sales, finance, and ops.",
+        "adaptedTo": "At Vertex's current deal volume, a 48-hour invoice lag defers $400K+ in ARR recognition every quarter — and that number compounds with every manual handoff that fails.",
+        "profileApplied": "roi-analytical",
+        "modifierUsed": "challengeFraming"
+      },
+      "impact": "proposal-content.json challenge.lead field. Rendered in proposal-sample.html challenge section.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-008",
+      "session": "session1",
+      "step": "3c",
+      "type": "content-adaptation",
+      "decision": "Rewrote fomo[0].fomoAngle to lead with the savings number (11 hrs/week) before describing the company or use case.",
+      "rationale": "roi-analytical fomoFraming: 'Lead with the dollar amount or hours recovered. Name the number before naming the company.' The original fomoAngle opened with the Year 2 AI narrative — compelling for visionary-strategic but buries the quantified outcome for a numbers-first buyer.",
+      "alternatives": [
+        "Original fomoAngle: 'In Year 2, the finance team stopped running their weekly HubSpot-to-NetSuite reconciliation entirely — the model runs it every Monday and emails only the exceptions. Two people. Three hours back each week.' This is strong for a visionary-strategic buyer but an roi-analytical buyer needs the number in the first five words."
+      ],
+      "evidence": {
+        "profileApplied": "roi-analytical",
+        "modifierUsed": "fomoFraming",
+        "fomoFirstField": "savings",
+        "originalOpener": "In Year 2, the finance team stopped running...",
+        "adaptedOpener": "11 hours a week recovered in finance ops by connecting HubSpot deals to NetSuite billing..."
+      },
+      "impact": "proposal-content.json fomo[0].fomoAngle. Rendered in proposal-sample.html peer comparison section.",
+      "decidedAt": "2026-05-14"
+    },
+    {
+      "id": "D-009",
+      "session": "session1",
+      "step": "3c",
+      "type": "content-adaptation",
+      "decision": "Replaced default journey.closingLine with roi-analytical closingLineVariant, blended with specificity of the original architecture line.",
+      "rationale": "roi-analytical contentModifiers.closingLineVariant: 'The managed service model turns the ROI calculation into a single line: the cost of staying manual vs. the monthly service rate.' This directly addresses the buyer's analytical framing. The original line ('The HubSpot field structure... is what the model reads in Year 2') was kept as a second sentence to preserve the architectural specificity — it earns credibility for a numbers buyer who also wants technical grounding.",
+      "alternatives": [
+        "Default from proposal-structure.md: verbatim managed-service closing line. Used as basis but the Year 1/Year 2 architecture sentence was added to ground the ROI claim in a concrete technical outcome — pure ROI framing without specifics can feel like marketing to an analytical buyer."
+      ],
+      "evidence": {
+        "profileApplied": "roi-analytical",
+        "modifierUsed": "closingLineVariant",
+        "defaultLine": "The 1-year managed service is how [Client] gets from Stage 1 to Stage 2 without rebuilding anything.",
+        "adaptedLine": "The managed service model turns the ROI calculation into a single line: the cost of staying manual vs. the monthly service rate. The HubSpot field structure and NetSuite schema established in Year 1 are what the model reads in Year 2 — that architecture is decided once, in week one."
+      },
+      "impact": "proposal-content.json journey.closingLine. Rendered in proposal-sample.html journey section.",
+      "decidedAt": "2026-05-14"
+    }
+  ]
+}
