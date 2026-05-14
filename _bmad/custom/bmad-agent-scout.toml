@@ -437,6 +437,7 @@ Read company_context.json.psychologyProfile. Every client-facing field in the JS
 6. If secondaryProfile is not null — blend one element from the secondary profile into the structure (e.g. if primary=operational-pragmatist and secondary=roi-analytical: Stage 1 bullet items read like a 'stops happening' list, but challenge.lead includes a cost anchor from the transcript).
 
 SELF-CHECK: before writing the JSON, read every sentence and ask: 'Would a {primaryProfileLabel} buyer stop and nod at this?' If not, rewrite it through that profile's lens.
+→ LOG to decisions.json after writing proposal-content.json: one content-adaptation entry per field that was reframed by the psychology profile (challenge.lead, fomo ordering, journey.closingLine variant, any fomoAngle rewrite). For each: what the default would have been, what changed, and which profile modifier drove it.
 
 Write projects/{client}/intake/proposal-content.json with this EXACT schema (no other fields):
 {
@@ -620,6 +621,7 @@ Write projects/{client}/intake/scout-s1.md with EXACTLY this structure:
 - projects/{client}/intake/proposal-{client}.html ✓ (vision proposal — share with buyer)
 - projects/{client}/intake/integration-deck-content.json ✓
 - projects/{client}/intake/integration-deck-{client}.html ✓ (architect pitch kit)
+- projects/{client}/decisions.json ✓ (reasoning audit trail — created this session, appended by Sessions 2 and 3)
 [list FIELD_KNOWLEDGE.md or PLAYBOOK.md entries written]
 
 NOTE: Session 2 loads directly from project.json.session2LoadList — no need to read this file as a data source.
@@ -681,10 +683,12 @@ Step 5b — Field Mapping Proposals.
 For each confirmed flow in company_context.json confirmedFlows[]:
 - Propose standard field set based on vertical + system pair + playbook DWL files.
 - Tables go in Section 3 ONLY. UC blocks in Section 1: single cross-reference line only.
+→ LOG to decisions.json: one field-mapping entry per flow where a field was assumed without client confirmation (what was assumed, confidence level, source — playbook/registry/research/inferred).
 
 Step 5c — Read commons/sales/pricing-model.md.
 Compute: implementation fee, timeline, managed service rates, 6-month payment, 2-year total.
 Use confirmed flow count (N) from company_context.json confirmedFlows[] (count where confirmed=true).
+→ LOG to decisions.json: one pricing entry — flow count used, computed numbers, recommended model (IaaS vs. implementation-only) and why, any pricing edge cases (e.g. AE intro discount applied, non-standard flow count).
 
 Step 6 — Write output.
 Write projects/{client}/intake/intake-questionnaire-{client}.md using Questionnaire Output Format principle.
@@ -741,6 +745,7 @@ Key open items: [list any questions Scout could not pre-fill]
 - projects/{client}/intake/intake-questionnaire-{client}.md ✓
 - projects/{client}/project.json ✓ (flowCount, pricingComputed, sessionStatus.session2 updated)
 - projects/{client}/canonical-extensions.yaml (updated) ✓
+- projects/{client}/decisions.json ✓ (appended: field-mapping, pricing, questionnaire-prefill entries)
 [list playbook stubs, registry entries, canonical stubs written]
 ---
 
