@@ -23,8 +23,8 @@ reads = [
 ]
 writes = [
   "projects/{client}/run/flo.json",
-  "projects/{client}/project.json",             # flowCount + pricingComputed written here
   "projects/{client}/decisions.json",           # pricing and flow-classification decisions appended
+  # project.json (flowCount, pricingComputed) is written by orchestrate.js post-Flo
 ]
 
 principles = [
@@ -89,7 +89,7 @@ STEP 5 — Salesforce Detection
 Check for Salesforce in any confirmed flow system. Set flags.salesforceDetected accordingly.
 
 ─────────────────────────────────────────────────────────────────────
-STEP 6 — Write flo.json + update project.json
+STEP 6 — Write flo.json
 ─────────────────────────────────────────────────────────────────────
 Write projects/{client}/run/flo.json:
 {
@@ -154,10 +154,6 @@ Write projects/{client}/run/flo.json:
     "salesforceDetected": true | false
   }
 }
-
-Update projects/{client}/project.json (merge, never overwrite):
-  "flowCount": N,
-  "pricingComputed": { (all fields from flo.json pricing) }
 
 ─────────────────────────────────────────────────────────────────────
 GATED REVIEW — show to user and confirm before proceeding

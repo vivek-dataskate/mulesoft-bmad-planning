@@ -383,16 +383,136 @@ function assembleContext(slug, agentSlug) {
 
     case 'hawk':
     case 'petra':
-    case 'quinn':
     case 'mira': {
-      // These agents don't contribute structured fields to company_context.
-      // Quinn updates project.json (intakeUrl) directly.
+      ctx.generatedAt = isoNow();
+      break;
+    }
+
+    case 'quinn': {
+      // 8e: Quinn surfaces final p0Blockers, aiJourney updates, and systemFindings
+      // during questionnaire assembly — merge them into company_context here.
+      if (Array.isArray(data.p0Blockers) && data.p0Blockers.length > 0) {
+        ctx.p0Blockers = data.p0Blockers;
+      }
+      if (data.aiJourney) ctx.aiJourney = data.aiJourney;
+      if (Array.isArray(data.systemFindings) && data.systemFindings.length > 0) {
+        const existing = ctx.systemFindings || [];
+        const merged   = [...existing];
+        for (const f of data.systemFindings) {
+          if (!merged.find(e => e.system === f.system && e.finding === f.finding)) {
+            merged.push(f);
+          }
+        }
+        ctx.systemFindings = merged;
+      }
       ctx.generatedAt = isoNow();
       break;
     }
   }
 
   writeJson(ctxPath, ctx);
+}
+
+// ─── Client Registry Write (post-Flo) ────────────────────────────────────────
+// Writes a complete entry to standards/client-registry.json once Flo has confirmed
+// the flow list (systems[]) and Vera has confirmed vertical + sizeSegment.
+
+function writeClientRegistry(slug) {
+  const registryPath = path.join(ROOT, 'standards', 'client-registry.json');
+  const projectDir   = path.join(PROJECTS_DIR, slug);
+  const project      = readJson(path.join(projectDir, 'project.json')) || {};
+  const vera         = readJson(path.join(projectDir, 'run', 'vera.json')) || {};
+  const flo          = readJson(path.join(projectDir, 'run', 'flo.json')) || {};
+
+  const systems = (flo.confirmedFlows || [])
+    .flatMap(f => f.systems || [])
+    .filter((v, i, a) => a.indexOf(v) === i);
+
+  const entry = {
+    slug,
+    displayName:     project.displayName || slug,
+    vertical:        vera.company?.verticalSlug || null,
+    sizeSegment:     vera.company?.revenueBracket || null,
+    systems,
+    architect:       project.architect || null,
+    architectEmail:  project.architectEmail || null,
+    status:          'scoping',
+    engagementDate:  project.engagementDate || today(),
+    projectContext:  vera.company?.snapshot || null,
+  };
+
+  const registry = readJson(registryPath) || { clients: [] };
+  if (!Array.isArray(registry.clients)) registry.clients = [];
+
+  const existingIdx = registry.clients.findIndex(c => c.slug === slug);
+  if (existingIdx >= 0) {
+    registry.clients[existingIdx] = { ...registry.clients[existingIdx], ...entry };
+  } else {
+    registry.clients.push(entry);
+  }
+
+  writeJson(registryPath, registry);
+}
+
+// ─── Firebase Deploy (post-Mira) ─────────────────────────────────────────────
+// Runs 11a-11c after Mira has audited all client-facing documents.
+
+function deployFirebase(slug) {
+  const { execSync } = require('child_process');
+  const projectDir   = path.join(PROJECTS_DIR, slug);
+  const project      = readJson(path.join(projectDir, 'project.json')) || {};
+
+  if (!process.env.FIREBASE_SA_KEY && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    console.log(`  ${yellow('⚠')}  FIREBASE_SA_KEY not set — skipping Firebase deploy.`);
+    return;
+  }
+
+  // 11a — Deploy hosting
+  console.log('  Deploying to Firebase Hosting...');
+  try {
+    execSync('bash firebase/deploy.sh', { cwd: ROOT, stdio: 'inherit' });
+    console.log(`  ${green('✓')} Hosting deployed`);
+  } catch (e) {
+    console.log(`  ${yellow('⚠')}  firebase/deploy.sh failed — check output above`);
+    return;
+  }
+
+  // 11b — Seed Firestore
+  const intakeUrl   = `https://dataskateclients.web.app/intake/${slug}.html`;
+  const proposalUrl = `https://dataskateclients.web.app/proposal/${slug}.html`;
+  console.log('  Seeding Firestore...');
+  try {
+    const seedScript = `
+      const admin = require('./firebase/functions/node_modules/firebase-admin');
+      admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId: 'dataskateclients' });
+      admin.firestore().collection('projects').doc('${slug}').set({
+        name: ${JSON.stringify(project.displayName || slug)},
+        status: 'intake_sent',
+        architect: ${JSON.stringify(project.architect || '')},
+        architectEmail: ${JSON.stringify(project.architectEmail || '')},
+        intakeUrl: '${intakeUrl}',
+        proposalUrl: '${proposalUrl}',
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).then(() => { console.log('Seeded'); process.exit(0); });
+    `;
+    execSync(`node -e "${seedScript.replace(/\n/g, ' ')}"`, { cwd: ROOT, stdio: 'inherit' });
+    console.log(`  ${green('✓')} Firestore seeded`);
+  } catch (e) {
+    console.log(`  ${yellow('⚠')}  Firestore seed failed — seed manually`);
+  }
+
+  // 11c — Archive source files
+  console.log('  Archiving source files...');
+  try {
+    execSync(`node scripts/move-sources.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+    console.log(`  ${green('✓')} Sources archived`);
+  } catch (e) {
+    console.log(`  ${yellow('⚠')}  move-sources.js failed — archive manually`);
+  }
+
+  // Write intakeUrl + proposalUrl to project.json
+  mergeJson(path.join(projectDir, 'project.json'), { intakeUrl, proposalUrl });
+  console.log(`  ${green('✓')} project.json updated with intakeUrl and proposalUrl`);
 }
 
 // ─── Agent Gate Display ───────────────────────────────────────────────────────
@@ -479,6 +599,35 @@ async function runPipeline(slug) {
     // Post-agent: assemble company_context.json
     assembleContext(slug, agent.slug);
     console.log(`  ${green('✓')} company_context.json updated`);
+
+    // Post-Rex: rebuild connector index (Rex may have added/updated registry stubs)
+    if (agent.slug === 'rex') {
+      try {
+        require('child_process').execSync('node standards/build-connector-index.js', { cwd: ROOT, stdio: 'inherit' });
+        console.log(`  ${green('✓')} connector-names.json + connector-index.json rebuilt`);
+      } catch (e) {
+        console.log(`  ${yellow('⚠')}  build-connector-index.js failed — run manually`);
+      }
+    }
+
+    // Post-Flo: write flowCount + pricingComputed to project.json, write client-registry.json entry
+    if (agent.slug === 'flo') {
+      const floData = readJson(path.join(projectDir, 'run', 'flo.json')) || {};
+      if (floData.pricing) {
+        mergeJson(path.join(projectDir, 'project.json'), {
+          flowCount:       floData.pricing.flowCount,
+          pricingComputed: floData.pricing,
+        });
+        console.log(`  ${green('✓')} project.json updated (flowCount, pricingComputed)`);
+      }
+      writeClientRegistry(slug);
+      console.log(`  ${green('✓')} standards/client-registry.json updated`);
+    }
+
+    // Post-Mira: deploy to Firebase (all docs audited — safe to publish)
+    if (agent.slug === 'mira') {
+      deployFirebase(slug);
+    }
 
     // Mark complete in state
     markComplete(slug, agent.slug, durationMs);

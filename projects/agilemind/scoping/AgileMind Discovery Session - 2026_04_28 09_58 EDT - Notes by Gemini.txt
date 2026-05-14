@@ -1,0 +1,201 @@
+Apr 28, 2026
+AgileMind Discovery Session 
+Invited   
+afera@salesforce.comadawson@agilemind.com
+   
+mgonzalez@agilemind.comhwale@agilemind.comiflor es@agilemind.com
+   
+Ryan Albretsencrystal@agilemind.comkailash chanda
+Attachments  
+AgileMind Discovery Session
+Meeting records (Some recordings unavailable) 
+ 
+ 
+Summary
+ 
+Sales process and opportunity creation review focused on current inventory 
+tracking and invoicing systems. 
+ 
+Sales Opportunity Tracking Process 
+The current process tracks programs under consideration, where print 
+materials are manually tracked via separate sections to match contract 
+quantities. It was confirmed that the sales team is not restricted from 
+placing orders due to low stock, as inventory is managed manually by 1 
+person on the back end. 
+ 
+Inventory Management and Options 
+The meeting established that inventory is manually tracked and maintained 
+in QuickBooks, not Salesforce, with QuickBooks chosen for inventory 
+maintenance due to existing reporting and access. A major complication is 
+mapping regional product variations with separate ISBNs, which requires 
+significant manual oversight. 
+ 
+Multi-Year Agreements and Invoicing 
+An agreement is manually created in Salesforce when an opportunity is 
+
+closed won, which then leads to a manual invoice creation in QuickBooks. 
+The major decision was made to build a configurable logic table in 
+Salesforce to automate the lookup of the correct ISBN based on state and 
+school, which will standardize inventory tracking in QuickBooks. 
+ 
+ 
+Next steps 
+ 
+[Holly Wale] Document ISBN Logic: Compile current ISBN mapping logic into an 
+Excel file. Use this data for system automation purposes. 
+ 
+[kailash chanda] Finalize Process Scope: Develop the proposed integration flow 
+diagram and detailed process overview documentation. Schedule a follow up 
+meeting for Thursday to review the scope and finaliz e requirements. 
+ 
+[Maria Gonzalez-Pettway, Abby Dawson, Crystal Robinson, Holly Wale] Review 
+Flow Diagram: Review the flow diagram and overview documentation sent by 
+Kailash. Provide feedback on any missing gaps or necessary changes before 
+finalizing the scope. 
+ 
+ 
+Details 
+● 
+Sales Process and Opportunity Creation Overview: Maria Gonzalez-Pettway 
+proposed starting the discussion with the order process, beginning with 
+salespeople creating opportunities and them converting into contracts, involving 
+Abby Dawson and Crystal Robinson, with inventory as a mixed component. Abby 
+Dawson presented the opportunity tracking process, which includes monitoring 
+the amount, closed date, and programs considered; once an opportunity is 
+marked as "closed won," an agreement is created. Kailash Chanda asked how 
+products are added to build the order before sending out contracts. 
+● 
+Product and Print Media Tracking in Opportunities: Abby Dawson explained that 
+programs the customers are considering are tracked using a drag-and-drop 
+feature for all offered programs. If customers are interested in print materials, 
+such as student activity books, those are tracked in separate sections based on 
+the courses being viewed, with quantities being entered manually to match the 
+
+contract or quote. Abby Dawson clarified that while products are typically online 
+and print, sometimes only online access is purchased, and digital access is 
+always included, with print being an add-on. 
+● 
+Inventory Checking and Order Placement Policy: Kailash Chanda inquired about 
+the process for checking inventory against print material orders, such as 150 
+copies, to confirm stock availability. Abby Dawson confirmed that they do not 
+have a systematic way to check inventory at the time of order entry; Holly Wale 
+tracks inventory manually. Holly Wale explained that orders are taken irrespective 
+of current stock levels, especially for back-to-school season, as it is their job to 
+ensure inventory exists before back-to-school distribution. 
+● 
+Inventory Management and Sales Team Restrictions: Holly Wale confirmed that 
+the sales team does not need to check inventory before placing orders; they can 
+place the order, and the inventory is tracked separately to forecast demand and 
+plan for production to ensure availability before school starts. The team does not 
+want to implement a restriction at the order level to block sales due to low 
+inventory, as this would be managed on the back end by Holly Wale and 
+accounting, who would plan production based on the forecast. Exceptions, like 
+large orders placed later in the year (e.g., January), are managed as one-offs, as 
+they do not want to pass up a sale due to projected shortages. 
+● 
+Current Inventory System Location: The meeting established that an inventory 
+object currently does not exist within Salesforce. Abby Dawson and Holly Wale 
+confirmed that Holly Wale manually manages the inventory and that the expected 
+system for maintaining inventory is QuickBooks, where Maria Gonzalez-Pettway 
+has already inputted the items. Maria Gonzalez-Pettway suggested that since 
+orders start in Salesforce, and QuickBooks only handles invoicing and billing, 
+Salesforce should ideally manage the inventory on hand, comparing it to 
+opportunities to determine ordering needs, though they sought expertise on the 
+best place for maintenance. 
+● 
+Inventory Maintenance Options and Proposal: Kailash Chanda offered two 
+options for inventory maintenance: either maintaining inventory in QuickBooks by 
+subtracting the order quantity to create a deficit report for Holly Wale, or creating 
+an inventory object in Salesforce and syncing it back from QuickBooks, which 
+would require additional work. They noted that if Holly Wale is the only person 
+accessing the inventory data, maintaining it in QuickBooks would be simpler. 
+Maria Gonzalez-Pettway confirmed that QuickBooks has good reports, and Holly 
+Wale has access to run them, making it acceptable to maintain inventory there. 
+
+● 
+Decision on Inventory Syncing to Salesforce: Kailash Chanda clarified that 
+because the sales team is not restricted from taking orders, they would not sync 
+inventory back to Salesforce initially, maintaining inventory only in QuickBooks. 
+Maria Gonzalez-Pettway expressed a belief that having the inventory data in 
+Salesforce is beneficial for various reasons, including detailed reporting 
+requirements for external partners. Kailash Chanda agreed that if beneficial, they 
+would proceed with syncing the data to Salesforce. 
+● 
+Complexities of Inventory Mapping and Variant Handling: Holly Wale introduced 
+a complication: products often have multiple, region-specific variations (e.g., 
+California vs. National versions) with separate International Standard Book 
+Numbers (ISBNs) and inventory, while the opportunity only tracks a single item. 
+Holly Wale noted that they use the mailing state to map the correct product 
+version, but the process requires significant manual oversight due to numerous 
+exceptions, such as specific titles being regional while others are national. 
+Kailash Chanda suggested building a configurable logic table in Salesforce to 
+automate the lookup of the correct ISBN based on state and school, which would 
+then be used for inventory tracking in QuickBooks. 
+● 
+Agreement Creation and Manual Invoicing Process: Abby Dawson explained that 
+after an opportunity is closed won, Crystal Robinson manually creates an 
+agreement. Crystal Robinson confirmed that once the agreement is created, it 
+remains in draft mode until approved and is then used to create an invoice in 
+QuickBooks. Maria Gonzalez-Pettway clarified that the action in QuickBooks is 
+the creation of an invoice, not an order, based on the Salesforce agreement. The 
+integration should automate this process: when an agreement is created in 
+Salesforce, it will generate a new invoice in QuickBooks for an existing account. 
+● 
+Invoice Detail and Payment Tracking: Crystal Robinson confirmed that they 
+manually transfer the account details and line items to the QuickBooks invoice. 
+After the QuickBooks invoice is created, Crystal Robinson manually updates the 
+invoice number, date, and other payment information back into the Salesforce 
+agreement using a custom field. The expectation for automation is to create a 
+regular invoice in Salesforce, update the number, amount, dates, and track 
+payment updates from QuickBooks to Salesforce, including the open balance. 
+The follow-up date and escalation notes related to collections are expected to 
+remain manual. 
+● 
+Handling Multi-Year Agreements (Prepaid): Crystal Robinson asked how 
+multi-year agreements, especially invoicing, would be handled. Abby Dawson 
+explained that for prepaid multi-year agreements, the full amount is contained in 
+
+the first opportunity, and subsequent years are set to zero. Holly Wale added that 
+for inventory purposes, they only focus on the current year's needs, not the full 
+term of the multi-year agreement. They track future year agreements using 
+internal naming conventions (e.g., R27, R29) and close dates set to the relevant 
+school year. 
+● 
+Multi-Year Inventory Planning and ISBN Challenges: Holly Wale mentioned that 
+they begin forecasting inventory needs for the back-to-school year in 
+mid-January, with serious planning beginning in April. A challenge is that not all 
+print inventory is reused, and if the ISBN changes for new inventory, a new logic 
+needs to be implemented in the system. Kailash Chanda concluded that a logic 
+must be put in place to standardize how new ISBNs are added and used to 
+update inventory in QuickBooks, particularly for multi-year contracts, and this 
+logic must be finaliz ed before the solution is built. 
+● 
+Handling Multi-Year Agreements (Annual Payments): For multi-year agreements 
+that are not prepaid, Abby Dawson explained that they are treated similarly to 
+regular year-to-year opportunities; they are set at 90% and only "closed won" 
+when the customer confirms they will submit payment for that year. Therefore, 
+these contracts are handled as individual opportunities and agreements for each 
+year's payment. 
+● 
+Contingency Planning for Inventory Anomalies: Holly Wale raised concerns 
+about on-the-fly changes and new titles that do not yet have ISBNs. Maria 
+Gonzalez-Pettway acknowledged that anomalies will require some manual work, 
+such as tracking new books until an ISBN is available. Kailash Chanda proposed 
+creating a configurable table in Salesforce that the process would query to find 
+the correct ISBN based on state and school, which could be updated by the team. 
+If no ISBN is found, the system would mark the order for manual review. 
+● 
+Inventory Management System Location Reconfirmation: Holly Wale expressed 
+reservations about putting inventory in Salesforce, arguing it would create three 
+systems and additional, potentially failure-prone layers when their primary 
+problem—inventory valuation over time—is already tracked in QuickBooks. 
+Kailash Chanda committed to creating a process flow diagram to share with 
+Holly Wale for review and to schedule a follow-up call on Thursday to ensure the 
+finaliz ed scope addresses the needs of all teams. 
+ 
+ 
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how 
+Gemini takes notes 
+How is the quality of these specific notes? Take a short survey to let us know your 
+feedback, including how helpful the notes were for your needs.
