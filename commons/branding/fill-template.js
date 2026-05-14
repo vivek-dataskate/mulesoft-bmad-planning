@@ -92,11 +92,11 @@ let html      = fs.readFileSync(templateFile, 'utf8');
 const css     = fs.readFileSync(cssFile, 'utf8');
 const aboutMdPath = path.join(root, 'commons', 'sales', 'about-dataskate.md');
 const ABOUT_HTML  = fs.existsSync(aboutMdPath)
-  ? fs.readFileSync(aboutMdPath, 'utf8')
-      .split(/\n{2,}/)
-      .map(p => p.trim()).filter(Boolean)
-      .map(p => `<p>${p}</p>`)
-      .join('\n')
+  ? (() => {
+      const raw = fs.readFileSync(aboutMdPath, 'utf8').trim();
+      return raw.startsWith('<') ? raw
+        : raw.split(/\n{2,}/).map(p => p.trim()).filter(Boolean).map(p => `<p>${p}</p>`).join('\n');
+    })()
   : '';
 
 // architect-guide and ds-pricing-model read directly from markdown — no JSON content file
@@ -164,6 +164,9 @@ if (templateType === 'proposal' && client) {
 
 function buildProposal(c) {
   const m = c.meta;
+  const bp = c.buyerProfile || {};
+  const primaryProfile   = bp.primary   || '';
+  const secondaryProfile = bp.secondary || '';
 
   fill('client-name',       m.clientName);
   fill('proposal-title',    m.title  || `MuleSoft Integration for ${esc(m.clientName)}`);
@@ -173,6 +176,7 @@ function buildProposal(c) {
   fill('date',              m.date);
   fill('scope',             `${m.flowCount} integration flow${m.flowCount !== 1 ? 's' : ''}`);
   fill('client-slug',        m.clientSlug || client || '');
+  fill('buyer-profile',      primaryProfile);
 
   // Optional pull-quote at top of Journey section (from challenge.lead or challenge.pullquote)
   const pullquoteText = c.challenge && (c.challenge.pullquote || c.challenge.lead);
@@ -279,8 +283,10 @@ function buildProposal(c) {
   fill('diagram-caption',  sol.diagramCaption? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
 
   // ROI / Business Case — conditional full <details> block
+  // roi-analytical profile: opens by default so numbers are immediately visible
+  const roiOpen = primaryProfile === 'roi-analytical' ? ' open' : '';
   fill('roi-section', c.roi
-    ? `<details class="section-block">
+    ? `<details class="section-block"${roiOpen}>
   <summary class="section-head">
     <div class="section-summary">
       <div class="section-eyebrow">ROI / Business Case</div>
