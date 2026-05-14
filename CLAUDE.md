@@ -11,6 +11,8 @@ Do not wait to be asked. The goal is that no UI mistake is ever repeated across 
 
 **HTML lint enforcement:** `commons/branding/lint-html.js` runs automatically (via PostToolUse hook) after every `.html` file is written or edited. If it reports violations, fix them immediately — do not defer or explain them away. Every `.html` file in this repo must pass all lint checks before the session ends.
 
+**FROZEN TEMPLATE — `commons/templates/intake-template.html`:** This file is frozen as of 2026-05-14. The current design (collapsible section tiles, compact Q grid, sticky bar, UC details/summary, white-page standards) is the approved baseline. Do NOT modify this file without explicit user approval. If a change is needed, state what will change and wait for confirmation before touching the file.
+
 **Recurring HTML violations — never repeat these:**
 - No dark header (`.header { background: var(--dark) }`) — headers must be white
 - No gray page background (`background: #F5F5F5`) — body must be `background: #fff`

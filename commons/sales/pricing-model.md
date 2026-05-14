@@ -175,7 +175,7 @@ If the client wants to decommission a flow with **no replacement**: remaining ba
 ## Rules & Policies
 
 - **Decommissioning a flow does not cancel its payment obligation.** The 1-year term per flow is a contract commitment. If a flow is decommissioned before term end, remaining balance accelerates and is payable immediately — unless a flow replacement is agreed (see Flow Replacement section), in which case the $1,500 replacement fee applies and a fresh 12-month contract starts.
-- **Client has in-house developer and will self-maintain:** Always propose Implementation Only (standard per-flow rate). Do not push IaaS — the managed service value proposition does not apply if the client is staffed to own operations. Scope the build, hand off the code, done. Then pivot to Phase 2: position agent development and automation roadmap as a follow-on SOW. Their developer runs the integration layer; DataSkate builds the intelligence layer on top. See ae-pitch-kit.md — "When the Client Self-Maintains" section.
+- **Client has in-house developer and will self-maintain:** Always propose Implementation Only (standard per-flow rate). Do not push IaaS — the managed service value proposition does not apply if the client is staffed to own operations. Scope the build, hand off the code, done. Then pivot to Phase 2: position agent development and automation roadmap as a follow-on SOW. Their developer runs the integration layer; DataSkate builds the intelligence layer on top. See architect-guide.md — "When the Client Self-Maintains" section.
 - No bundling discounts across flows
 - No multi-year prepay discounts — 6-month upfront is the only payment cadence
 - Contract renewal after 1-year term: renegotiated at then-current catalog rate, new 1-year term required

@@ -3,11 +3,12 @@
 // Merges a content JSON file into an HTML shell template.
 //
 // Usage:
-//   node commons/branding/fill-template.js --template proposal  --client acme
-//   node commons/branding/fill-template.js --template intake    --client acme
-//   node commons/branding/fill-template.js --template portal    --client acme
-//   node commons/branding/fill-template.js --template flyer
-//   node commons/branding/fill-template.js --template resource  --name architect-guide --src commons/sales/architect-guide.md
+//   node commons/branding/fill-template.js --template proposal          --client acme
+//   node commons/branding/fill-template.js --template intake            --client acme
+//   node commons/branding/fill-template.js --template integration-deck  --client acme
+//   node commons/branding/fill-template.js --template client-portal     --client acme
+//   node commons/branding/fill-template.js --template ds-pricing-model
+//   node commons/branding/fill-template.js --template architect-guide   [--src path/to/file.md]
 
 'use strict';
 const fs   = require('fs');
@@ -22,7 +23,7 @@ const resourceName = nameIdx !== -1 ? args[nameIdx + 1] : null;
 const srcIdx       = args.indexOf('--src');
 const resourceSrc  = srcIdx !== -1 ? args[srcIdx + 1] : null;
 
-const KNOWN_TEMPLATES = ['proposal', 'intake', 'portal', 'flyer', 'resource', 'pitch-kit'];
+const KNOWN_TEMPLATES = ['proposal', 'intake', 'integration-deck', 'client-portal', 'ds-pricing-model', 'architect-guide'];
 
 if (!templateType) {
   console.error('Usage: node fill-template.js --template <proposal|intake|portal|flyer|resource> [--client <slug>] [--name <slug> --src <path>]');
@@ -35,9 +36,9 @@ if (!KNOWN_TEMPLATES.includes(templateType)) {
   console.error(`   Known types: ${KNOWN_TEMPLATES.join(', ')}`);
   console.error(`\n   To add a new document type:`);
   console.error(`     1. Create commons/templates/${templateType}-template.html`);
-  console.error(`     2. Create commons/templates/${templateType}-base.css.html`);
-  console.error(`     3. Add "${templateType}" to KNOWN_TEMPLATES in fill-template.js`);
-  console.error(`     4. Add a build${cap}() function`);
+  console.error(`        (add template-specific <style> after <!-- FILL:__css -->)`);
+  console.error(`     2. Add "${templateType}" to KNOWN_TEMPLATES in fill-template.js`);
+  console.error(`     3. Add a build${cap}() function`);
   console.error(`\n   Do NOT write raw HTML outside this system.`);
   process.exit(1);
 }
@@ -56,27 +57,25 @@ const typeConfig = {
     contentFile: (c) => path.join(root, 'projects', c, 'intake', 'intake-content.json'),
     outFile:     (c) => path.join(root, 'projects', c, 'intake', `intake-questionnaire-${c}.html`),
   },
-  portal: {
+  'client-portal': {
     requiresClient: true,
     contentFile: (c) => path.join(root, 'projects', c, 'portal-content.json'),
     outFile:     (c) => path.join(root, 'firebase', 'public', 'portal', `${c}.html`),
   },
-  flyer: {
+  'ds-pricing-model': {
     requiresClient: false,
     contentFile: () => null,  // reads pricing-model.md directly — no JSON file needed
-    outFile:     () => path.join(root, 'firebase', 'public', 'resources', 'architect-flyer.html'),
+    outFile:     () => path.join(root, 'firebase', 'public', 'resources', 'ds-pricing-model.html'),
   },
-  resource: {
+  'architect-guide': {
     requiresClient: false,
-    requiresName: true,
-    // contentFile not used — resource reads its source markdown directly
-    contentFile: () => null,
-    outFile:     (_, name) => path.join(root, 'firebase', 'public', 'resources', `${name}.html`),
+    contentFile: () => null,  // reads architect-guide.md directly
+    outFile:     () => path.join(root, 'firebase', 'public', 'resources', 'architect-guide.html'),
   },
-  'pitch-kit': {
+  'integration-deck': {
     requiresClient: true,
-    contentFile: (c) => path.join(root, 'projects', c, 'intake', 'pitch-kit-content.json'),
-    outFile:     (c) => path.join(root, 'projects', c, 'intake', `pitch-kit-${c}.html`),
+    contentFile: (c) => path.join(root, 'projects', c, 'intake', 'integration-deck-content.json'),
+    outFile:     (c) => path.join(root, 'projects', c, 'intake', `integration-deck-${c}.html`),
   },
 };
 
@@ -85,34 +84,41 @@ if (cfg.requiresClient && !client) {
   console.error(`❌ --client <slug> is required for --template ${templateType}`);
   process.exit(1);
 }
-if (cfg.requiresName && !resourceName) {
-  console.error(`❌ --name <slug> is required for --template resource`);
-  console.error(`   Also provide --src <path/to/file.md> for markdown sources`);
-  process.exit(1);
-}
-
 const templateFile = path.join(root, 'commons', 'templates', `${templateType}-template.html`);
-const cssFile      = path.join(root, 'commons', 'templates', `${templateType}-base.css.html`);
-const outFile      = cfg.outFile(client, resourceName);
+const cssFile      = path.join(root, 'commons', 'templates', 'shared-base.css.html');
+const outFile      = cfg.outFile(client);
 
 let html      = fs.readFileSync(templateFile, 'utf8');
 const css     = fs.readFileSync(cssFile, 'utf8');
 
-// Flyer and resource types read directly from markdown — no JSON content file
+// architect-guide and ds-pricing-model read directly from markdown — no JSON content file
 let content;
-if (templateType === 'resource') {
+if (templateType === 'architect-guide') {
   const srcPath = resourceSrc
     ? path.resolve(process.cwd(), resourceSrc)
-    : path.join(root, 'commons', 'sales', `${resourceName}.md`);
+    : path.join(root, 'commons', 'sales', 'architect-guide.md');
   content = fs.readFileSync(srcPath, 'utf8');
-} else if (templateType === 'flyer') {
+} else if (templateType === 'ds-pricing-model') {
   const srcPath = resourceSrc
     ? path.resolve(process.cwd(), resourceSrc)
     : path.join(root, 'commons', 'sales', 'pricing-model.md');
   content = fs.readFileSync(srcPath, 'utf8');
 } else {
   const contentFilePath = cfg.contentFile(client);
-  content = JSON.parse(fs.readFileSync(contentFilePath, 'utf8'));
+  const fromMd = args.includes('--from-md');
+  const jsonExists = !fromMd && fs.existsSync(contentFilePath);
+  if (jsonExists) {
+    content = JSON.parse(fs.readFileSync(contentFilePath, 'utf8'));
+  } else if (templateType === 'intake') {
+    const mdPath = path.join(root, 'projects', client, 'intake', `intake-questionnaire-${client}.md`);
+    if (!fs.existsSync(mdPath)) {
+      console.error(`❌ No intake-content.json or intake-questionnaire-${client}.md found for client: ${client}`);
+      process.exit(1);
+    }
+    content = fs.readFileSync(mdPath, 'utf8');
+  } else {
+    content = JSON.parse(fs.readFileSync(contentFilePath, 'utf8'));
+  }
 }
 
 function fill(key, value) {
@@ -126,20 +132,25 @@ fill('__css', css);
 if (templateType === 'proposal') {
   buildProposal(content);
 } else if (templateType === 'intake') {
-  buildIntake(content);
-} else if (templateType === 'portal') {
+  if (typeof content === 'string') buildIntakeFromMd(content, client);
+  else buildIntake(content);
+} else if (templateType === 'client-portal') {
   buildPortal(content);
-} else if (templateType === 'flyer') {
+} else if (templateType === 'ds-pricing-model') {
   buildFlyer(content);
-} else if (templateType === 'pitch-kit') {
-  buildPitchKit(content);
-} else {
+} else if (templateType === 'integration-deck') {
+  buildIntegrationDeck(content);
+} else if (templateType === 'architect-guide') {
   buildResource(content);
 }
 
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, html, 'utf8');
 console.log(`✓ Written: ${outFile}`);
+
+if (templateType === 'proposal' && client) {
+  saveProposalContentToFirestore(content, client);
+}
 
 // ─── PROPOSAL ────────────────────────────────────────────────────────────────
 
@@ -153,6 +164,8 @@ function buildProposal(c) {
   fill('architect-email',   m.architectEmail);
   fill('date',              m.date);
   fill('scope',             `${m.flowCount} integration flow${m.flowCount !== 1 ? 's' : ''}`);
+
+  fill('client-slug',        m.clientSlug || client || '');
 
   fill('challenge-headline', c.challenge.headline);
   fill('challenge-lead',     c.challenge.lead);
@@ -262,7 +275,7 @@ function buildInvestmentSection(p, flowCount) {
   );
 
   return `<div class="model-grid">
-  <div class="model-card recommended">
+  <div class="model-card recommended" data-model="iaas">
     <div class="rec-badge">Recommended</div>
     <div class="model-name">Model 1 — IaaS (Managed Service)</div>
     <div class="model-impl">$0</div>
@@ -272,14 +285,18 @@ function buildInvestmentSection(p, flowCount) {
     <hr class="model-divider">
     <div class="best-for">Best for</div>
     <div class="model-vp">Predictable monthly spend. DataSkate owns design, build, and ongoing support. No upfront capital.</div>
+    <p class="model-instruction no-print"><em>Select this model to proceed with a managed service. You can propose a different entry rate before sending.</em></p>
+    <button class="btn btn-primary model-select-btn no-print" onclick="selectModel('iaas','Model 1 — IaaS (Managed Service)','$${esc(p.period1.rate)}/flow/month (Period 1)')">Select this Model →</button>
   </div>
-  <div class="model-card">
+  <div class="model-card" data-model="impl">
     <div class="model-name">Model 2 — Implementation Only</div>
     <div class="model-impl">$${Number(p.implOnly).toLocaleString('en-US')}</div>
     <div class="model-impl-label">One-time fee · ${esc(String(p.timelineWeeks))}-week delivery</div>
     <hr class="model-divider">
     <div class="best-for">Best for</div>
     <div class="model-vp">Client owns post-go-live support. Optional managed service available at renewal.</div>
+    <p class="model-instruction no-print"><em>Select this model if you prefer a one-time build. You can propose a different project fee before sending.</em></p>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$${Number(p.implOnly).toLocaleString('en-US')} one-time fee')">Select this Model →</button>
   </div>
 </div>
 <div class="managed-intro">
@@ -308,7 +325,28 @@ function buildInvestmentSection(p, flowCount) {
   MuleSoft Anypoint Platform license sold separately by your MuleSoft AE.
   DataSkate manages the integration layer; platform licensing is a direct relationship
   between your organization and MuleSoft/Salesforce.
-</p>`;
+</p>
+<div class="negotiate-panel no-print" id="negotiate-panel" style="display:none">
+  <div class="negotiate-header">
+    <div class="negotiate-label">Your Selection</div>
+    <h3 id="selected-model-name">—</h3>
+    <p>Listed rate: <strong id="selected-rate">—</strong>. Leave the rate field blank to accept as listed, or enter a proposed rate below.</p>
+  </div>
+  <div class="negotiate-grid">
+    <div>
+      <label class="negotiate-field-label">Proposed rate <span class="negotiate-optional">(optional)</span></label>
+      <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $700/flow/month" />
+    </div>
+    <div>
+      <label class="negotiate-field-label">Notes or questions <span class="negotiate-optional">(optional)</span></label>
+      <textarea class="cta-input" id="negotiate-notes" placeholder="What's driving this for you?"></textarea>
+    </div>
+  </div>
+  <button class="btn btn-primary btn-submit" onclick="submitSelection()">Send Selection to DataSkate →</button>
+  <div class="accept-success" id="selection-success">
+    ✓ Selection sent — your email app should open. We'll follow up within one business day.
+  </div>
+</div>`;
 }
 
 function buildDiagramSvg(nodes) {
@@ -380,22 +418,25 @@ function buildIntake(c) {
   ).join('\n'));
 
   fill('p0-blockers', bc.p0Blockers && bc.p0Blockers.length > 0
-    ? `<div class="bc-blockers no-print">
-        <h4>Internal — Technical Blockers (P0) — Not Shown in PDF</h4>
-        <ul>${bc.p0Blockers.map(b => `<li>${esc(b.title)}: ${b.body}</li>`).join('')}</ul>
+    ? `<div class="action-required">
+        <h4>Action Required Before We Begin</h4>
+        <ul>${bc.p0Blockers.map(b =>
+          `<li><strong>${esc(b.title)}</strong>${esc(b.clientAction || b.body)}</li>`
+        ).join('')}</ul>
       </div>`
     : '');
 
   fill('form-sections', (c.sections || []).map(sec =>
-    `<div class="section-block">
-  <div class="section-head">
+    `<details class="section-block">
+  <summary class="section-head">
     <div class="section-num">${esc(sec.id || '')}</div>
     <div class="section-title">${esc(sec.title)}</div>
-  </div>
+    <span class="section-chevron">▼</span>
+  </summary>
   <div class="section-body">
     ${sec.bodyHtml || ''}
   </div>
-</div>`
+</details>`
   ).join('\n\n'));
 
   fill('internal-flags', (c.internalFlags && c.internalFlags.bodyHtml)
@@ -411,6 +452,376 @@ function buildIntake(c) {
         ${c.pricingSummary.bodyHtml}
       </div>`
     : '');
+}
+
+// ─── INTAKE FROM MARKDOWN ────────────────────────────────────────────────────
+// Reads the Scout-generated intake-questionnaire-{client}.md and builds HTML.
+// No intake-content.json required — falls back to this when JSON is absent.
+
+function buildIntakeFromMd(md, clientSlug) {
+  // Load project.json + company_context.json for pre-fill and biz context
+  const slug    = clientSlug || '';
+  const projPath = path.join(root, 'projects', slug, 'project.json');
+  const ctxPath  = path.join(root, 'projects', slug, 'company_context.json');
+  const proj = slug && fs.existsSync(projPath) ? JSON.parse(fs.readFileSync(projPath, 'utf8')) : {};
+  const ctx  = slug && fs.existsSync(ctxPath)  ? JSON.parse(fs.readFileSync(ctxPath, 'utf8'))  : {};
+
+  const meta = parseMdIntakeMeta(md, proj);
+  const prefillCtx = buildPrefillContext(proj, ctx);
+
+  fill('client-name',     meta.clientName);
+  fill('client-slug',     slug || meta.clientName.toLowerCase().replace(/\s+/g, '-'));
+  fill('eyebrow',         `DataSkate × ${esc(meta.clientName)} — Intake Questionnaire`);
+  fill('doc-title',       `${esc(meta.clientName)} × DataSkate — Integration Discovery`);
+  fill('doc-subtitle',    'Scoping supplement for your MuleSoft engagement');
+  fill('date',            meta.date);
+  fill('architect',       meta.architect);
+  fill('architect-email', meta.architectEmail);
+  fill('source',          meta.source);
+
+  // Biz context — populate from company_context.json if available
+  fill('bc-snapshot', ctx.snapshot ? esc(ctx.snapshot) : '');
+  fill('journey-cards', ctx.aiJourney
+    ? Object.entries(ctx.aiJourney).map(([, s], i) =>
+        `<div class="journey-card phase-${i + 1}">
+          <div class="jc-phase">Phase ${i + 1}</div>
+          <div class="jc-label">${esc(s.label)}</div>
+          <div class="jc-headline">${esc(s.headline)}</div>
+          <div class="jc-body">${s.body}</div>
+        </div>`
+      ).join('\n')
+    : '');
+  fill('p0-blockers', ctx.p0Blockers && ctx.p0Blockers.length
+    ? `<div class="bc-blockers no-print">
+        <h4>Internal — Technical Blockers (P0) — Not Shown in PDF</h4>
+        <ul>${ctx.p0Blockers.map(b => `<li>${esc(b.system)}: ${esc(b.blocker)}</li>`).join('')}</ul>
+      </div>`
+    : '');
+
+  const sections    = splitMdIntakeSections(md);
+  const clientSecs  = sections.filter(s => !s.isInternal);
+  const internalSec = sections.find(s => s.isInternal);
+
+  fill('form-sections', clientSecs.map(sec =>
+    `<details class="section-block">
+  <summary class="section-head">
+    <div class="section-num">${esc(sec.id)}</div>
+    <div class="section-title">${esc(sec.title)}</div>
+    <span class="section-chevron">▼</span>
+  </summary>
+  <div class="section-body">${renderMdIntakeSection(sec.body, prefillCtx)}</div>
+</details>`
+  ).join('\n\n'));
+
+  fill('internal-flags', internalSec
+    ? `<div class="internal-block no-print">
+        <h3>${esc(internalSec.title)}</h3>
+        ${renderMdInternalSection(internalSec.body)}
+      </div>`
+    : '');
+
+  fill('pricing-summary', '');
+}
+
+function buildPrefillContext(proj, ctx) {
+  const patterns = [];
+  const contacts = ctx.namedContacts || [];
+  const primary  = proj.primaryContact || {};
+
+  // Go-live date
+  if (proj.targetGoLive && proj.targetGoLive !== 'TBD') {
+    patterns.push({ regex: /go[\s-]?live|target.*date|launch date|planned.*date/i, value: proj.targetGoLive });
+  }
+
+  // Primary / UAT / testing contact
+  if (primary.name) {
+    patterns.push({
+      regex: /primary.*contact|testing.*contact|uat.*contact|sign[- ]?off.*approver|who.*will.*test|main.*point.*contact/i,
+      value: `${primary.name} (primary contact — confirm role)`
+    });
+  }
+
+  // Named contacts by responsibility keyword + system
+  for (const c of contacts) {
+    const label = c.title ? `${c.name} (${c.title})` : c.name;
+    for (const resp of (c.responsibilities || [])) {
+      const kw = resp.toLowerCase();
+      if (kw.includes('admin') || kw.includes('oauth') || kw.includes('authorized')) {
+        const sysNames = (c.systems || []).join('|').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (sysNames) {
+          patterns.push({
+            regex: new RegExp(`(${sysNames}).*admin|(admin|authorize|consent|oauth).*${sysNames}`, 'i'),
+            value: `${label} — confirm`
+          });
+        }
+      }
+      if (kw.includes('custom object') || kw.includes('create') || kw.includes('it lead')) {
+        const sysNames = (c.systems || []).join('|').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (sysNames) {
+          patterns.push({
+            regex: new RegExp(`${sysNames}.*(object|field|custom|create)|who.*${sysNames}`, 'i'),
+            value: `${label} — confirm`
+          });
+        }
+      }
+    }
+  }
+
+  return patterns;
+}
+
+function parseMdIntakeMeta(md, proj) {
+  proj = proj || {};
+  const lines = md.split('\n');
+  const h1 = lines.find(l => l.startsWith('# ')) || '';
+  const clientName = h1.replace(/^# Intake Questionnaire[^—–-]*[—–-]\s*/, '').trim() || proj.displayName || 'Client';
+  const prepLine = lines.find(l => l.startsWith('**Prepared by:**')) || '';
+  let architect = proj.architect || 'Kailash Chanda';
+  let architectEmail = proj.architectEmail || 'kailash@dataskate.ai';
+  const pm = prepLine.match(/DataSkate\s*[·•]\s*(.+?)\s*\(([^)]+)\)/);
+  if (pm) { architect = pm[1].trim(); architectEmail = pm[2].trim(); }
+  const dateLine = lines.find(l => l.startsWith('**Date:**')) || '';
+  const date = dateLine.replace('**Date:**', '').trim();
+  const srcLine = lines.find(l => /^\*\*Source/.test(l)) || '';
+  const source = srcLine.replace(/^\*\*Source[^:]*:\*\*\s*/, '').trim();
+  return { clientName, architect, architectEmail, date, source };
+}
+
+function splitMdIntakeSections(md) {
+  const chunks = md.split(/^(?=## )/m).filter(s => s.trim().startsWith('## '));
+  return chunks.map(raw => {
+    const header = raw.split('\n')[0].trim();
+    const body   = raw.split('\n').slice(1).join('\n').trim();
+    const isInternal = /\[INTERNAL\]/i.test(header);
+    const numMatch = header.match(/Section\s+(\d+)/i);
+    const id    = numMatch ? `S${numMatch[1].padStart(2, '0')}` : '';
+    const title = header.replace(/^## /, '').replace(/\[INTERNAL\]\s*/i, '').replace(/Section\s+\d+:\s*/i, '').trim();
+    return { id, title, isInternal, body };
+  });
+}
+
+function renderMdIntakeSection(body, prefillCtx) {
+  const lines = body.split('\n');
+  const out   = [];
+  let i = 0;
+  while (i < lines.length) {
+    const t = lines[i].trim();
+    if (!t || t === '---' || t.startsWith('→ See Section') || t.startsWith('*End of intake')) { i++; continue; }
+    // skip "How to use" block
+    if (/^\*\*How to use/.test(t)) { while (i < lines.length && lines[i].trim() !== '---') i++; i++; continue; }
+
+    // UC block: ### UCN — Title
+    const ucM = t.match(/^### (UC[-\s]?\d+)\s*[—–-]+\s*(.+)/i);
+    if (ucM) {
+      const ucLines = [];
+      i++;
+      while (i < lines.length && !lines[i].trim().match(/^###/) && !lines[i].trim().match(/^## /)) {
+        ucLines.push(lines[i]); i++;
+      }
+      out.push(buildMdUcBlock(ucM[1].replace(/\s/g,'').toUpperCase(), ucM[2], ucLines, prefillCtx));
+      continue;
+    }
+
+    // Subsection header: ### 2A — Salesforce
+    const subM = t.match(/^### (.+)/);
+    if (subM) { out.push(`<h3>${esc(subM[1])}</h3>`); i++; continue; }
+
+    // P0 Blocker line
+    if (t.includes('[P0 BLOCKER]')) {
+      const txt = t.replace(/\*{0,2}\[P0 BLOCKER\]\*{0,2}\s*/, '').trim();
+      out.push(`<div class="p0-block"><div class="p0-label">P0 Blocker</div><p>${mdInline(txt)}</p></div>`);
+      i++; continue;
+    }
+
+    // Question: **Q1.1** text
+    const qM = t.match(/^\*\*(Q[\d.a-z]+)\*\*\s*(.*)/i);
+    if (qM) {
+      const qLines = [lines[i]]; i++;
+      while (i < lines.length) {
+        const nt = lines[i].trim();
+        if (nt.match(/^\*\*(Q[\d.a-z]+)\*\*/i) || nt.match(/^###/) || nt.match(/^## /)) break;
+        qLines.push(lines[i]); i++;
+      }
+      out.push(buildMdQuestion(qM[1], qM[2], qLines.slice(1), prefillCtx));
+      continue;
+    }
+
+    // Markdown table
+    if (t.startsWith('|') && i + 1 < lines.length && lines[i+1].trim().match(/^\|[-\s:|]+\|/)) {
+      const tbl = [];
+      while (i < lines.length && lines[i].trim().startsWith('|')) { tbl.push(lines[i].trim()); i++; }
+      out.push(buildMdFieldTable(tbl));
+      continue;
+    }
+
+    // Scope boundary
+    if (t.startsWith('**Scope Boundary') || t.startsWith('✅') || t.startsWith('⚠️') || t.startsWith('❌')) {
+      if (t.startsWith('**Scope Boundary')) { i++; while (i < lines.length && !lines[i].trim()) i++; }
+      const scope = [];
+      while (i < lines.length) {
+        const sl = lines[i].trim();
+        if (sl.startsWith('✅') || sl.startsWith('⚠️') || sl.startsWith('❌')) { scope.push(sl); i++; }
+        else break;
+      }
+      if (scope.length) out.push(buildMdScopeGrid(scope));
+      continue;
+    }
+
+    // Raw HTML passthrough (e.g. <div class="tbl-hint">)
+    if (t.startsWith('<')) { out.push(t); i++; continue; }
+
+    i++;
+  }
+  return out.join('\n');
+}
+
+function buildMdUcBlock(ucId, title, bodyLines, prefillCtx) {
+  const noteLines = [];
+  let j = 0;
+  while (j < bodyLines.length && !bodyLines[j].trim()) j++;
+  if (bodyLines[j] && bodyLines[j].trim() === '**What we understood:**') {
+    j++;
+    while (j < bodyLines.length) {
+      const lt = bodyLines[j].trim();
+      if (!lt || lt.startsWith('**') || lt.startsWith('[P0')) break;
+      if (lt.startsWith('- ')) noteLines.push(lt.slice(2));
+      j++;
+    }
+  }
+  const noteHtml = noteLines.length
+    ? `<p class="uc-note">${noteLines.map(n => mdInline(n)).join('<br>')}</p>` : '';
+  const bodyHtml = renderMdIntakeSection(bodyLines.join('\n'), prefillCtx);
+  return `<details class="uc">
+  <summary class="uc-hd">
+    <span class="uc-tag">${esc(ucId)}</span>
+    <h3>${esc(title)}</h3>
+    <span class="uc-chevron">▼</span>
+  </summary>
+  <div class="uc-body">${noteHtml}${bodyHtml}</div>
+</details>`;
+}
+
+function buildMdQuestion(qRef, qTextRaw, restLines, prefillCtx) {
+  const safeId = `q-${qRef.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+  let qText = qTextRaw.trim();
+  const hints = [];
+  let answerValue = null;
+  let pills = [];
+  let isRequired = false;
+
+  for (const rline of restLines) {
+    const rt = rline.trim();
+    if (!rt) continue;
+    // Session note: - *From sessions: ...*
+    if (/^-\s*\*.*\*\s*$/.test(rt) || /^-\s*\*From sessions/.test(rt)) {
+      hints.push(rt.replace(/^-\s*\*/, '').replace(/\*\s*$/, '').trim()); continue;
+    }
+    // Context/note line
+    if (/^-\s*(Context|Note|Risk flag):/.test(rt)) {
+      hints.push(rt.replace(/^-\s*(?:Context|Note|Risk flag):\s*/, '').trim()); continue;
+    }
+    // Answer line
+    if (rt.startsWith('Answer:')) {
+      const ans = rt.replace('Answer:', '').trim();
+      if (!ans) { answerValue = ''; isRequired = true; }
+      else if (ans.includes(' / ')) {
+        pills = ans.split(' / ').map(o => o.trim().replace(/:$/, '')).filter(Boolean);
+        answerValue = ''; isRequired = true;
+      } else if (/^(Confirm|Provide|Please|Check|Verify|Tbd)/i.test(ans)) {
+        hints.push(ans); answerValue = '';
+      } else {
+        answerValue = ans;
+      }
+      continue;
+    }
+    // Sub-options a) b) c) — append to question text
+    if (/^[abc]\)/.test(rt)) { qText += ' ' + rt; }
+  }
+
+  if (/\[P0/.test(qTextRaw)) isRequired = true;
+
+  // Auto pre-fill from context if answer is still blank
+  if (!answerValue && prefillCtx && prefillCtx.length) {
+    const qLower = qText.toLowerCase();
+    for (const { regex, value } of prefillCtx) {
+      if (regex.test(qLower)) { answerValue = value; break; }
+    }
+  }
+
+  const cleanQ = qText.replace(/\[P0[^\]]*\]\s*/g, '').trim();
+  const p0Badge = /\[P0/.test(qTextRaw)
+    ? ' <span style="font-size:10px;font-weight:700;color:#991B1B;background:#FEE2E2;padding:1px 5px;border-radius:3px;">P0</span>' : '';
+
+  const hintHtml = hints.length
+    ? `<div class="q-hint">${hints.map(h => esc(h)).join('<br>')}</div>` : '';
+  const pillHtml = pills.length
+    ? `<div class="q-options">${pills.map(p =>
+        `<span class="pill" onclick="pickPill(this,'${safeId}')">${esc(p)}</span>`
+      ).join('')}</div>` : '';
+
+  const isPrefilled = !!answerValue;
+  const cls = `answer${isPrefilled ? ' is-prefilled' : ''}`;
+  const req = isRequired ? ' data-required="true"' : '';
+  const reqStar = isRequired ? ' <span class="req">*</span>' : '';
+  const textarea = `<textarea class="${cls}" id="${safeId}"${req}>${isPrefilled ? esc(answerValue) : ''}</textarea>`;
+
+  return `<div class="q">
+  <span class="q-num"></span>
+  <div class="q-body">
+    <div class="q-text">${mdInline(cleanQ)}${p0Badge}${reqStar}</div>
+    ${hintHtml}${pillHtml}${textarea}
+  </div>
+</div>`;
+}
+
+function buildMdFieldTable(lines) {
+  const parseRow = l => l.split('|').slice(1, -1).map(c => c.trim());
+  const headers  = parseRow(lines[0]);
+  const confIdx  = headers.findIndex(h => /confirm/i.test(h));
+  const thead = `<thead><tr>${headers.map(h => `<th>${mdInline(h)}</th>`).join('')}</tr></thead>`;
+  const tbody = `<tbody>${lines.slice(2).map(row => {
+    const cells = parseRow(row);
+    return `<tr>${cells.map((c, idx) =>
+      idx === confIdx
+        ? `<td><input type="text" class="tbl-ans" placeholder="✓ confirm"></td>`
+        : `<td>${mdInline(c)}</td>`
+    ).join('')}</tr>`;
+  }).join('\n')}</tbody>`;
+  return `<table class="dtbl">${thead}${tbody}</table>`;
+}
+
+function buildMdScopeGrid(lines) {
+  const items = lines.map(l => {
+    let cls = 'scope-in', label = 'In Scope';
+    if (l.startsWith('⚠️')) { cls = 'scope-assumed'; label = 'Assumed'; }
+    if (l.startsWith('❌')) { cls = 'scope-out';     label = 'Out of Scope'; }
+    const text = l.replace(/^[✅⚠️❌]\s*(IN SCOPE|ASSUMED PRE-EXISTS|OUT OF SCOPE):\s*/i, '').trim();
+    return `<div class="scope-item ${cls}"><span class="scope-label">${label}</span>${esc(text)}</div>`;
+  });
+  return `<div class="scope-grid">${items.join('\n')}</div>`;
+}
+
+function renderMdInternalSection(body) {
+  const items = [];
+  let cur = null;
+  for (const line of body.split('\n')) {
+    const t = line.trim();
+    if (!t || t === '---') continue;
+    const m = t.match(/^(\d+)\.\s*\*\*([^*]+)\*\*:\s*(.*)/);
+    if (m) {
+      if (cur) items.push(cur);
+      cur = { num: m[1], title: m[2], body: m[3] };
+    } else if (cur) {
+      cur.body += ' ' + t;
+    }
+  }
+  if (cur) items.push(cur);
+  return items.map(it =>
+    `<div class="flag-item">
+      <div class="flag-num">${it.num}</div>
+      <div class="flag-body"><strong>${esc(it.title)}</strong>: ${mdInline(it.body)}</div>
+    </div>`
+  ).join('\n') || `<div class="flag-body">${mdToHtml(body)}</div>`;
 }
 
 // ─── PORTAL ──────────────────────────────────────────────────────────────────
@@ -539,9 +950,9 @@ function buildFlyer(md) {
   ).join('\n'));
 }
 
-// ─── PITCH KIT ───────────────────────────────────────────────────────────────
+// ─── INTEGRATION DECK ────────────────────────────────────────────────────────
 
-function buildPitchKit(c) {
+function buildIntegrationDeck(c) {
   const m = c.meta;
 
   fill('client-name',    m.clientName);
@@ -841,6 +1252,35 @@ function escText(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// ─── PROPOSAL FIRESTORE SAVE ─────────────────────────────────────────────────
+// Writes proposal-content.json to Firestore proposalContent/{clientSlug}
+// so the data is available for the architect portal and notifications.
+
+function saveProposalContentToFirestore(contentObj, clientSlug) {
+  const https   = require('https');
+  const API_KEY = 'AIzaSyDCpzgZAMWWGwedG5At5Ml3gn_yA0dRVZk';
+  const body    = JSON.stringify({
+    fields: {
+      client:      { stringValue: clientSlug },
+      contentJson: { stringValue: JSON.stringify(contentObj) },
+      generatedAt: { stringValue: new Date().toISOString() }
+    }
+  });
+  const options = {
+    hostname: 'firestore.googleapis.com',
+    path:     `/v1/projects/dataskateclients/databases/(default)/documents/proposalContent/${clientSlug}?key=${API_KEY}`,
+    method:   'PATCH',
+    headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+  };
+  const req = https.request(options, res => {
+    if (res.statusCode === 200) console.log(`✓ Proposal content saved to Firestore: proposalContent/${clientSlug}`);
+    else console.warn(`⚠ Firestore save returned HTTP ${res.statusCode} for proposalContent/${clientSlug}`);
+  });
+  req.on('error', err => console.warn(`⚠ Firestore save failed: ${err.message}`));
+  req.write(body);
+  req.end();
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────

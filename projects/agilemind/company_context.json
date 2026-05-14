@@ -14,6 +14,132 @@
     "Contact (Partner Services, Billing, IT)",
     "Payment"
   ],
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "name": "Salesforce Agreement → QuickBooks Invoice (Create)",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "direction": "Salesforce → QBO",
+      "trigger": "event-driven",
+      "triggerDetail": "Agreement status change to Approved or Active (exact picklist value TBC)",
+      "entity": "Invoice",
+      "pattern": "event-driven",
+      "confirmed": true
+    },
+    {
+      "id": "UC2",
+      "name": "QuickBooks Invoice → Salesforce Agreement (Sync-back)",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "direction": "QBO → Salesforce",
+      "trigger": "event-driven",
+      "triggerDetail": "QB invoice created — sync QB Invoice Number and payment status back to Agreement__c",
+      "entity": "Invoice",
+      "pattern": "event-driven",
+      "confirmed": true
+    },
+    {
+      "id": "UC3",
+      "name": "Excel/Google Sheets Inventory → Salesforce (Initial Load)",
+      "systems": ["Excel/Google Sheets", "Salesforce"],
+      "direction": "Spreadsheet → Salesforce",
+      "trigger": "manual/one-time",
+      "triggerDetail": "Holly's demand worksheet → Salesforce Inventory__c (initial historical load)",
+      "entity": "Inventory Item",
+      "pattern": "file-drop",
+      "confirmed": true
+    },
+    {
+      "id": "UC4",
+      "name": "QuickBooks Inventory → Salesforce (Scheduled Sync)",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "direction": "QBO → Salesforce",
+      "trigger": "scheduled",
+      "triggerDetail": "Nightly or twice-daily pull of inventory levels (QOH, committed, available) by ISBN into Salesforce Inventory__c",
+      "entity": "Inventory Item",
+      "pattern": "scheduled-sync",
+      "confirmed": true
+    }
+  ],
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "entity": "Payment",
+      "priority": "high",
+      "rationale": "QB has payment records but Maria runs manual QB reports to see payment status. Automating payment sync into Salesforce would eliminate the daily QB report loop."
+    },
+    {
+      "id": "UC6-potential",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "entity": "Account/Customer",
+      "priority": "medium",
+      "rationale": "New school districts in Salesforce may not exist as QB Customers. A sync could prevent 'customer not found' errors during invoice creation."
+    },
+    {
+      "id": "UC7-potential",
+      "systems": ["Salesforce", "Salesforce"],
+      "entity": "Overdue Invoice Alert",
+      "priority": "medium",
+      "rationale": "Automated overdue invoice reminders were mentioned as a desired Phase 2 automation."
+    }
+  ],
+  "signals": ["batch", "file", "scheduled"],
+  "namedContacts": [
+    {
+      "name": "Maria Gonzalez-Pettway",
+      "title": "Finance Lead",
+      "email": "mgonzalez@agilemind.com",
+      "systems": ["QuickBooks Online"],
+      "responsibilities": [
+        "QuickBooks admin",
+        "OAuth consent (QB Company Admin)",
+        "UAT testing contact",
+        "invoice sign-off",
+        "primary client contact"
+      ]
+    },
+    {
+      "name": "Chloe",
+      "title": "Engineering Director",
+      "email": null,
+      "systems": ["Salesforce"],
+      "responsibilities": [
+        "Salesforce custom object creation (Agreement__c, Inventory__c)",
+        "Salesforce IT lead",
+        "Connected App setup"
+      ]
+    },
+    {
+      "name": "Holly",
+      "title": "Operations",
+      "email": null,
+      "systems": ["Excel/Google Sheets"],
+      "responsibilities": [
+        "demand worksheet owner",
+        "inventory data source",
+        "print procurement planning"
+      ]
+    },
+    {
+      "name": "Crystal",
+      "title": "Sales Operations",
+      "email": null,
+      "systems": ["Salesforce"],
+      "responsibilities": [
+        "agreement entry and re-keying",
+        "Salesforce data entry"
+      ]
+    },
+    {
+      "name": "Linda",
+      "title": "Finance",
+      "email": null,
+      "systems": ["QuickBooks Online"],
+      "responsibilities": [
+        "QuickBooks co-admin (can authorize OAuth consent if Maria unavailable)"
+      ]
+    }
+  ],
   "aiJourney": {
     "phase1": {
       "label": "Connected",
