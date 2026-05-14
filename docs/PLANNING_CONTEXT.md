@@ -256,7 +256,7 @@ mulesoft-bmad-planning/
   │           └── (story template files)
   ├── standards/playbooks/
   │     └── {system}/
-  │           ├── PLAYBOOK.md
+  │           ├── {system}_playbook.json
   │           ├── objects/{object}/*.dwl
   │           └── system/*.xml
   ├── scaffold/
@@ -1504,7 +1504,7 @@ comment in the generated code.
 
 The client hires DataSkate because we are integration experts. Every question we ask them should reflect that. Before raising any question about a system, format, API, or data shape:
 
-1. **Check the playbook first** — `standards/playbooks/{system}/PLAYBOOK.md` may already have the answer.
+1. **Check the playbook first** — `standards/playbooks/{system}/{system}_playbook.json` may already have the answer.
 2. **Check FIELD_KNOWLEDGE.md** — a verified FK entry may cover the scenario.
 3. **Check the connector registry** — auth type, API style, and known gotchas are documented there.
 4. **Web search if needed** — for unknown systems, data formats, industry standards, or API behavior.

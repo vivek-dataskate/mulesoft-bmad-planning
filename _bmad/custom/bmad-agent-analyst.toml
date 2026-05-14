@@ -14,7 +14,7 @@ persistent_facts = [
   "file:{project-root}/standards/canonical-models/registry.json",
   "file:{project-root}/standards/canonical-models/**/*.yaml",
   "file:{project-root}/standards/intake-checklist.json",
-  "file:{project-root}/standards/playbooks/*/PLAYBOOK.md",
+  "file:{project-root}/standards/playbooks/*/*_playbook.json",
   "file:{project-root}/standards/doc-templates/prd-template.md",
 ]
 
@@ -101,7 +101,7 @@ After completing flow completeness check — run canonical model validation (man
 After completing prd.md — run commons stub enrichment (mandatory):
 
 For every system identified in the prd.md Systems table:
-1. standards/playbooks/{slug}/PLAYBOOK.md — if stub exists: add any auth type or object types now known from intake docs. If no stub: Scout should have created one — flag missing stub as an error.
+1. standards/playbooks/{slug}/{slug}_playbook.json — if stub exists: add any auth type or object types now known from intake docs. If no stub: Scout should have created one — flag missing stub as an error.
 2. standards/connector-registry.json — if entry is a stub (lastVerifiedBy=scout-stub): enrich with any auth type or connector type confirmed by intake docs or API Contract Discovery. Update lastVerifiedBy to analyst.
 3. standards/intake-checklist.json — if entry is a baseline stub: enrich warning text with any specific gotcha confirmed in intake docs or FIELD_KNOWLEDGE.md verified entries.
 

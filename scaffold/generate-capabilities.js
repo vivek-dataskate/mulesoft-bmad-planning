@@ -14,7 +14,7 @@
  *   standards/connector-registry.json     — Tier 0: connector catalog
  *   standards/snippet-registry.json       — Tier 1/2/3: all capabilities
  *   standards/exchange-registry.json      — Tier 3: Exchange assets (if exists)
- *   standards/playbooks/{system}/PLAYBOOK.md         — system playbooks
+ *   standards/playbooks/{system}/{system}_playbook.md         — system playbooks
  *   projects/{client}/decisions.json      — per-client usage tracking
  */
 
@@ -105,54 +105,37 @@ function loadSnippets() {
 }
 
 function loadPlaybooks() {
-  const playbooksDir = path.join(REPO_ROOT, 'playbooks');
+  const playbooksDir = path.join(REPO_ROOT, 'standards', 'playbooks');
   if (!fs.existsSync(playbooksDir)) return [];
   return fs.readdirSync(playbooksDir)
     .filter(d => fs.statSync(path.join(playbooksDir, d)).isDirectory())
     .map(name => {
-      const md = readFile(path.join(playbooksDir, name, 'PLAYBOOK.md')) ?? '';
-      const maturityMatch = md.match(/\*\*Maturity:\*\*\s+([^\n]+)/i);
-      const clientsMatch  = md.match(/\*\*Clients using this playbook:\*\*\s+([^\n]+)/i);
-      const systemMatch   = md.match(/\*\*System:\*\*\s+([^\n]+)/i);
-      const subFlowsMatch = [...md.matchAll(/\|\s*`([\w-]+)`\s*\|/g)].map(m => m[1]);
+      const jsonPath = path.join(playbooksDir, name, `${name}_playbook.json`);
+      let pb = {};
+      try { pb = JSON.parse(fs.readFileSync(jsonPath, 'utf8')); } catch {}
 
-      // Extract quirk bullets from "Known quirks" or "Known system quirks" section
-      const quirksSection = md.match(/##\s+Known\s+(?:system\s+)?quirks[^\n]*\n([\s\S]*?)(?=\n##\s|$)/i)?.[1] ?? '';
-      const quirks = quirksSection
-        .split('\n')
-        .filter(l => l.trim().startsWith('-') || l.trim().startsWith('*'))
-        .map(l => {
-          const text = l.replace(/^[\s\-*]+/, '').trim();
-          // Strip bold markers and truncate
-          const clean = text.replace(/\*\*([^*]+)\*\*/g, '$1');
-          return clean.length > 160 ? clean.slice(0, 157) + '…' : clean;
-        })
-        .filter(Boolean)
+      const quirks = (pb.knownQuirks ?? [])
+        .map(q => q.replace(/\*\*([^*]+)\*\*:\s*/g, '$1: '))
+        .map(q => q.length > 160 ? q.slice(0, 157) + '…' : q)
         .slice(0, 5);
 
-      // Extract supported objects list
-      const objectsSection = md.match(/##\s+Supported objects[^\n]*\n([\s\S]*?)(?=\n##\s|$)/i)?.[1] ?? '';
-      const objects = objectsSection
-        .split('\n')
-        .filter(l => l.includes('|') && !l.includes('---') && !l.includes('Object'))
-        .map(l => l.split('|')[1]?.trim())
-        .filter(Boolean)
-        .slice(0, 6);
-
-      // Auth summary
-      const authSection = md.match(/##\s+Auth[^\n]*\n([\s\S]*?)(?=\n##\s|$)/i)?.[1] ?? '';
-      const authLines = authSection.split('\n').filter(l => l.trim().startsWith('-')).slice(0, 2)
-        .map(l => l.replace(/^[\s\-*]+/, '').trim());
+      // Count DWL/XML sub-flow files in the system folder
+      const subFlowCount = (() => {
+        try {
+          return fs.readdirSync(path.join(playbooksDir, name), { recursive: true })
+            .filter(f => f.endsWith('.dwl') || f.endsWith('.xml')).length;
+        } catch { return 0; }
+      })();
 
       return {
         name,
-        systemName: systemMatch?.[1]?.split('—')[0]?.trim() ?? name,
-        maturity: maturityMatch?.[1]?.trim() ?? 'stub',
-        clients:  clientsMatch?.[1]?.split(',').map(s => s.trim()) ?? [],
-        subFlowCount: subFlowsMatch.length,
+        systemName: pb.displayName ?? name,
+        maturity:   pb.maturity ?? 'stub',
+        clients:    pb.clients ?? [],
+        subFlowCount,
         quirks,
-        objects,
-        authLines,
+        objects:    [],
+        authLines:  [],
       };
     });
 }
@@ -263,7 +246,7 @@ function playbookCard(p) {
     ${quirksHtml}
     ${objectsHtml}
     ${authHtml}
-    <a href="../../standards/playbooks/${esc(p.name)}/PLAYBOOK.md" class="pb-link" onclick="event.stopPropagation()">
+    <a href="../../standards/playbooks/${esc(p.name)}/${esc(p.name)}_playbook.json" class="pb-link" onclick="event.stopPropagation()">
       View full playbook →
     </a>
   </div>
