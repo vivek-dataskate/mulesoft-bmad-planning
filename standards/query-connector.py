@@ -10,7 +10,7 @@ Usage:
 """
 import json, sys, os
 
-INDEX_PATH = os.path.join(os.path.dirname(__file__), "connector-index.json")
+INDEX_PATH = os.path.join(os.path.dirname(__file__), "connector-registry.json")
 
 def load_index():
     with open(INDEX_PATH) as f:
