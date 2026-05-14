@@ -14,7 +14,7 @@
  *   standards/connector-registry.json     — Tier 0: connector catalog
  *   standards/snippet-registry.json       — Tier 1/2/3: all capabilities
  *   standards/exchange-registry.json      — Tier 3: Exchange assets (if exists)
- *   playbooks/{system}/PLAYBOOK.md         — system playbooks
+ *   standards/playbooks/{system}/PLAYBOOK.md         — system playbooks
  *   projects/{client}/decisions.json      — per-client usage tracking
  */
 
@@ -263,7 +263,7 @@ function playbookCard(p) {
     ${quirksHtml}
     ${objectsHtml}
     ${authHtml}
-    <a href="../../playbooks/${esc(p.name)}/PLAYBOOK.md" class="pb-link" onclick="event.stopPropagation()">
+    <a href="../../standards/playbooks/${esc(p.name)}/PLAYBOOK.md" class="pb-link" onclick="event.stopPropagation()">
       View full playbook →
     </a>
   </div>

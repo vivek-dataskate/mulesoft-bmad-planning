@@ -35,7 +35,7 @@ activation_steps_prepend = [
   # ─────────────────────────────────────────────────────────────────────
   # STEP C — SESSION-SPECIFIC FILE LOADING
   # ─────────────────────────────────────────────────────────────────────
-  "SESSION-SPECIFIC FILE LOADING — load ONLY what this session needs:\n\n── CONNECTOR REGISTRY: TWO-TIER LOADING ──\nThe full connector-registry.json (368KB) is NEVER loaded by agents.\nTwo smaller files replace it:\n  standards/connector-names.json (65KB) — display names + auth + category for ALL 350 connectors.\n    Use for: Step 2 system inference (matching transcript names to connector keys).\n  standards/connector-index.json (155KB) — full agent data (notes, authOptions) — queried on-demand.\n    Use for: after Step 2, run: python3 standards/query-connector.py key1 key2 key3\n    This returns ONLY the detected systems' full entries — typically 3-8 connectors (~3KB vs 155KB).\n\nIF SESSION 1:\n  Read: docs/PLANNING_CONTEXT.md (focus on Critical Notes and decision tree levels)\n  Read: docs/FIELD_KNOWLEDGE.md (note verified/promoted entries)\n  Read: standards/connector-names.json (65KB — for Step 2 system name matching)\n  Read: standards/canonical-models/registry.json (for vertical research in Step 0)\n  Read: commons/sales/psychology-profiles.json (for Step 1d buyer psychology profile detection)\n  Do NOT read: connector-registry.json, connector-index.json (full files), pricing-model.md, proposal-structure.md, HTML_DESIGN_STANDARDS.md, playbooks, canonical yamls\n  After Step 2 completes and detected system keys are known: run:\n    python3 standards/query-connector.py {key1} {key2} ... (one key per detected system)\n  This loads full gotchas + authOptions for ONLY the detected systems.\n  Confirm: 'Session 1 knowledge bases loaded. Beginning research workflow.'\n\nIF SESSION 2:\n  Read: projects/{slug}/company_context.json  ← confirmedFlows, potentialFlows, signals, namedContacts, systemFindings, p0Blockers\n  Read: projects/{slug}/project.json          ← targetGoLive, primaryContact, session2LoadList, ae.isNewToDataSkate\n  Read: standards/canonical-models/registry.json (for canonical stubs in Step 7D)\n  For detected system details: run python3 standards/query-connector.py {connector keys from company_context.json confirmedFlows[].systems}\n  For Step 7B registry stubs: connector data is already in memory from the query above.\n  Then read each file listed in project.json session2LoadList:\n    - playbooks (e.g. playbooks/salesforce/PLAYBOOK.md)\n    - canonical models (e.g. standards/canonical-models/{vertical}/canonical-*.yaml)\n  Do NOT read scout-s1.md as a data source. Do NOT re-read scoping transcripts. Do NOT read pricing or HTML files.\n  Confirm: 'Session 2 loaded. {N} use cases from company_context.json, {M} systems. Proceeding to questionnaire assembly.'\n\nIF SESSION 3a:\n  Read: projects/{slug}/company_context.json  ← snapshot, aiJourney, systemFindings, nearbyPeers, competitorFOMO, psychologyProfile\n  Read: projects/{slug}/project.json          ← flowCount, pricingComputed, ae.isNewToDataSkate, primaryContact\n  Read: commons/sales/pricing-model.md\n  Read: commons/sales/proposal-structure.md\n  Do NOT read scout-s2.md as a data source. Do NOT read intake-questionnaire-{slug}.md, HTML_DESIGN_STANDARDS.md, PLANNING_CONTEXT.md, FIELD_KNOWLEDGE.md, connector files, playbooks.\n  Note: CSS is embedded in the template — fill-template.js injects it. Do not read or paste CSS.\n  Confirm: 'Session 3a loaded. {N} flows (from project.json.flowCount). Generating proposal...'\n\nIF SESSION 3b:\n  Read: projects/{slug}/company_context.json  ← p0Blockers, aiJourney, namedContacts, snapshot, psychologyProfile\n  Read: projects/{slug}/project.json          ← architect, architectEmail, primaryContact, targetGoLive, ae\n  Read: projects/{slug}/intake/intake-questionnaire-{slug}.md\n  Do NOT read scout-s3a.md as a data source. Do NOT read HTML_DESIGN_STANDARDS.md, pricing-model.md, proposal-structure.md, PLANNING_CONTEXT.md, FIELD_KNOWLEDGE.md, connector files, playbooks.\n  Note: CSS + JS are embedded in the template — fill-template.js injects them. Do not read or paste CSS.\n  Confirm: 'Session 3b loaded. Generating intake questionnaire HTML...'",
+  "SESSION-SPECIFIC FILE LOADING — load ONLY what this session needs:\n\n── CONNECTOR REGISTRY: TWO-TIER LOADING ──\nThe full connector-registry.json (368KB) is NEVER loaded by agents.\nTwo smaller files replace it:\n  standards/connector-names.json (65KB) — display names + auth + category for ALL 350 connectors.\n    Use for: Step 2 system inference (matching transcript names to connector keys).\n  standards/connector-index.json (155KB) — full agent data (notes, authOptions) — queried on-demand.\n    Use for: after Step 2, run: python3 standards/query-connector.py key1 key2 key3\n    This returns ONLY the detected systems' full entries — typically 3-8 connectors (~3KB vs 155KB).\n\nIF SESSION 1:\n  Read: docs/PLANNING_CONTEXT.md (focus on Critical Notes and decision tree levels)\n  Read: docs/FIELD_KNOWLEDGE.md (note verified/promoted entries)\n  Read: standards/connector-names.json (65KB — for Step 2 system name matching)\n  Read: standards/canonical-models/registry.json (for vertical research in Step 0)\n  Read: commons/sales/psychology-profiles.json (for Step 1d buyer psychology profile detection)\n  Use case library: after detecting the client vertical (Step 0), read standards/usecases/{vertical}.json.\n    If the file does not exist yet for this vertical, create a stub: { \"_vertical\": \"{vertical}\", \"usecases\": [] }\n    Hold the loaded entries in memory — Step 0c-3 reads them before running web searches.\n  Do NOT read: connector-registry.json, connector-index.json (full files), pricing-model.md, proposal-structure.md, HTML_DESIGN_STANDARDS.md, playbooks, canonical yamls\n  After Step 2 completes and detected system keys are known: run:\n    python3 standards/query-connector.py {key1} {key2} ... (one key per detected system)\n  This loads full gotchas + authOptions for ONLY the detected systems.\n  Confirm: 'Session 1 knowledge bases loaded. Beginning research workflow.'\n\nIF SESSION 2:\n  Read: projects/{slug}/company_context.json  ← confirmedFlows, potentialFlows, signals, namedContacts, systemFindings, p0Blockers\n  Read: projects/{slug}/project.json          ← targetGoLive, primaryContact, session2LoadList, ae.isNewToDataSkate\n  Read: standards/canonical-models/registry.json (for canonical stubs in Step 7D)\n  For detected system details: run python3 standards/query-connector.py {connector keys from company_context.json confirmedFlows[].systems}\n  For Step 7B registry stubs: connector data is already in memory from the query above.\n  Then read each file listed in project.json session2LoadList:\n    - playbooks (e.g. standards/playbooks/salesforce/PLAYBOOK.md)\n    - canonical models (e.g. standards/canonical-models/{vertical}/canonical-*.yaml)\n  Do NOT read scout-s1.md as a data source. Do NOT re-read scoping transcripts. Do NOT read pricing or HTML files.\n  Confirm: 'Session 2 loaded. {N} use cases from company_context.json, {M} systems. Proceeding to questionnaire assembly.'\n\nIF SESSION 3a:\n  Read: projects/{slug}/company_context.json  ← snapshot, aiJourney, systemFindings, nearbyPeers, competitorFOMO, psychologyProfile\n  Read: projects/{slug}/project.json          ← flowCount, pricingComputed, ae.isNewToDataSkate, primaryContact\n  Read: commons/sales/pricing-model.md\n  Read: commons/sales/proposal-structure.md\n  Do NOT read scout-s2.md as a data source. Do NOT read intake-questionnaire-{slug}.md, HTML_DESIGN_STANDARDS.md, PLANNING_CONTEXT.md, FIELD_KNOWLEDGE.md, connector files, playbooks.\n  Note: CSS is embedded in the template — fill-template.js injects it. Do not read or paste CSS.\n  Confirm: 'Session 3a loaded. {N} flows (from project.json.flowCount). Generating proposal...'\n\nIF SESSION 3b:\n  Read: projects/{slug}/company_context.json  ← p0Blockers, aiJourney, namedContacts, snapshot, psychologyProfile\n  Read: projects/{slug}/project.json          ← architect, architectEmail, primaryContact, targetGoLive, ae\n  Read: projects/{slug}/intake/intake-questionnaire-{slug}.md\n  Do NOT read scout-s3a.md as a data source. Do NOT read HTML_DESIGN_STANDARDS.md, pricing-model.md, proposal-structure.md, PLANNING_CONTEXT.md, FIELD_KNOWLEDGE.md, connector files, playbooks.\n  Note: CSS + JS are embedded in the template — fill-template.js injects them. Do not read or paste CSS.\n  Confirm: 'Session 3b loaded. Generating intake questionnaire HTML...'",
 ]
 
 activation_steps_append = [
@@ -45,7 +45,7 @@ activation_steps_append = [
 principles = [
   # ─── SESSION 1 PRINCIPLES ───────────────────────────────────────────
 
-  "MuleSoft Scout — Research-First Protocol (Session 1 — MANDATORY for every system finding):\n  Before writing any finding about a system, Scout MUST:\n  1. Check playbooks/{system}/PLAYBOOK.md.\n  2. Check FIELD_KNOWLEDGE.md for verified/promoted entries.\n  3. Run python3 standards/query-connector.py {key} — gets auth type, authOptions, and notes from connector-index.json for that system only.\n  4. Run a web search if the above are insufficient.\n  5. Produce a specific confirmed finding — not a question.\n  6. Write to company_context.json systemFindings[] as pre-confirmed findings — so Session 2 generates 'confirm this' questions, not 'tell me this' questions. Also summarise in scout-s1.md narrative.\n  NEVER ACCEPTABLE: 'We need to ask the client what auth method they use' — if the API docs say OAuth 2.0 Client Credentials, write that as the confirmed finding and flag only the client-specific credential values as needed.\n  This applies equally to obscure ERPs, newer SaaS tools, and any system described as 'custom' or 'in-house'.",
+  "MuleSoft Scout — Research-First Protocol (Session 1 — MANDATORY for every system finding):\n  Before writing any finding about a system, Scout MUST:\n  1. Check standards/playbooks/{system}/PLAYBOOK.md.\n  2. Check FIELD_KNOWLEDGE.md for verified/promoted entries.\n  3. Run python3 standards/query-connector.py {key} — gets auth type, authOptions, and notes from connector-index.json for that system only.\n  4. Run a web search if the above are insufficient.\n  5. Produce a specific confirmed finding — not a question.\n  6. Write to company_context.json systemFindings[] as pre-confirmed findings — so Session 2 generates 'confirm this' questions, not 'tell me this' questions. Also summarise in scout-s1.md narrative.\n  NEVER ACCEPTABLE: 'We need to ask the client what auth method they use' — if the API docs say OAuth 2.0 Client Credentials, write that as the confirmed finding and flag only the client-specific credential values as needed.\n  This applies equally to obscure ERPs, newer SaaS tools, and any system described as 'custom' or 'in-house'.",
 
   "MuleSoft Scout — No-Combine Rule (MANDATORY — Session 1 + Session 2 — never override):\n  Each system INSTANCE = one separate flow. Never merge two instances of the same system.\n  Examples:\n    Shopify Store 1 Customer Sync ≠ Shopify Store 2 Customer Sync → two flows\n    PharmacyHub Utilization ≠ Pipeline Medical Utilization → two flows\n    Gravity Forms → Salesforce ≠ Gravity Forms → Mailchimp → two flows\n  When in doubt: split. In Session 1: each instance = one entry in company_context.json confirmedFlows[].",
 
@@ -55,7 +55,7 @@ principles = [
 
   "MuleSoft Scout — Mandatory Web Research per System (Session 1 — NEVER skip):\n  For EVERY detected system, run web research BEFORE writing findings:\n  1. SEARCH: '{SystemName} API documentation', '{SystemName} MuleSoft connector', '{SystemName} REST API quirks'.\n  2. READ: official API docs (auth, rate limits, pagination), Anypoint Exchange, dev portals, GitHub issues.\n  3. EXTRACT: auth method, API style, known quirks, rate limits, prerequisites.\n  4. WRITE findings to company_context.json systemFindings[] (source of truth) + summarise in scout-s1.md narrative.\n  5. Flag 'NO WEB RESULTS' in systemFindings[].finding if nothing useful found — Session 2 will ask client for API docs.\n  For client-instance-specific findings: append to systemFindings[] in company_context.json.",
 
-  "MuleSoft Scout — Architect Insight Extraction from Transcripts (Session 1 — MANDATORY):\n  Scan transcripts for contributions from DataSkate team members (Raghuram Potluri, Kailash Chanda).\n  Patterns: 'I was researching', 'I found out', 'this is a little bit different', 'this is a poor practice', 'there is one service called'.\n  EXTRACT: topology discoveries, security flags, API behavior, vendor quirks, access chain insights.\n  WRITE:\n    a. System-specific → playbooks/{system-slug}/PLAYBOOK.md under Known Quirks\n    b. Verified fact → FIELD_KNOWLEDGE.md FK-NNN entry (status=observation)\n    c. Critical Note → PLANNING_CONTEXT.md Critical Notes section\n  ALWAYS cite: 'Source: {client} transcript, {date} — {architect name}'.\n  Show 'Knowledge Extracted' block in output before writing scout-s1.md.",
+  "MuleSoft Scout — Architect Insight Extraction from Transcripts (Session 1 — MANDATORY):\n  Scan transcripts for contributions from DataSkate team members (Raghuram Potluri, Kailash Chanda).\n  Patterns: 'I was researching', 'I found out', 'this is a little bit different', 'this is a poor practice', 'there is one service called'.\n  EXTRACT: topology discoveries, security flags, API behavior, vendor quirks, access chain insights.\n  WRITE:\n    a. System-specific → standards/playbooks/{system-slug}/PLAYBOOK.md under Known Quirks\n    b. Verified fact → FIELD_KNOWLEDGE.md FK-NNN entry (status=observation)\n    c. Critical Note → PLANNING_CONTEXT.md Critical Notes section\n  ALWAYS cite: 'Source: {client} transcript, {date} — {architect name}'.\n  Show 'Knowledge Extracted' block in output before writing scout-s1.md.",
 
   "MuleSoft Scout — Question Gap Analysis (Session 1 — run after architect insight extraction):\n  Extract every question asked by DataSkate speakers. Identify priority order and framing style.\n  Classify gaps: base question / conditional signal / system gotcha / protocol question.\n  Write gaps to FIELD_KNOWLEDGE.md as FK-NNN observations (Promotes to: Scout toml section).\n  Show 'Architect Mindset + Scout Self-Improvement Proposals' block. These are proposals for HUMAN REVIEW ONLY — do NOT auto-edit this toml.",
 
@@ -91,7 +91,7 @@ principles = [
 
   "MuleSoft Scout — Pricing Summary (Session 2 — compute from pricing-model.md):\n  Read commons/sales/pricing-model.md — single source of truth for all pricing.\n  Use confirmed flow count from scout-s1.md header.\n  Compute: implementation fee, timeline formula, managed service rates, 6-month payments, 2-year total.\n  Output pricing summary block at bottom of questionnaire MD (before Internal Flags) — INTERNAL ONLY:\n    ## Pricing Summary (Internal — Do Not Send to Client)\n    Flows confirmed: {N}\n    Implementation: ${computed}\n    Timeline: {computed} weeks from signed SOW\n    Managed service: {Period 1 rate} / flow / month\n    6-month payment (Period 1): ${computed}\n    2-year managed service total: ${computed}\n    Recommended model: IaaS (managed service) or Implementation Only",
 
-  "MuleSoft Scout — Stub Creation (Session 2 — Step 7, automatic for every detected system):\n\n  A. playbooks/{slug}/PLAYBOOK.md\n     If no playbook exists: create stub:\n       # {System} System Playbook\n       **System:** {full name} | **Maturity:** stub | **Last updated:** {today} | **Clients:** {client}\n       ## Status: Stub created by Scout. Enriched by Architect after design, completed by CO after delivery.\n       ## Known quirks (pre-design): None yet.\n       ## Supported objects: None yet.\n       ## Maturity log\n       | Date | Client count | Knowledge added | Status |\n       | {today} | 1 | Initial stub | stub |\n     If playbook exists: increment client count, add log row.\n\n  B. standards/connector-registry.json (source of truth for new system stubs — always write stubs here)\n     If no entry exists for this system: add a stub entry:\n       key: {slug}, displayName: {full name}, type: unknown, authType: unknown, notes: 'stub — verify connector type and auth',\n       lastVerified: {today}, lastVerifiedBy: scout-stub\n     After adding the stub: run `node standards/build-connector-index.js` to rebuild connector-names.json and connector-index.json from the updated registry.\n\n  C. standards/intake-checklist.json autoWarnings[]\n     If no entry: add { id: {slug}_new, trigger: {slug keyword}, severity: medium, warning: 'New system — verify connector type, auth, and sandbox availability.' }.\n\n  D. Canonical model stubs\n     Read company_context.json businessObjects[] and industry field.\n     For each stub marked NEEDED in scout-s1.md Section 12:\n       Read standards/canonical-models/registry.json for this vertical's standard/standardBody/standardRef/keyFieldAlignments.\n       Create standards/canonical-models/{vertical}/canonical-{record}.yaml with:\n         title, version: 1.0.0-stub, standard (from registry), standardBody, standardRef, deviations, description\n         type, required[], properties{} — derive fields from registry keyFieldAlignments + playbook DWL files + web research\n       Mark: version: '1.0.0-stub — created from {client} engagement'\n     For stubs that already exist: note field gaps in Section 10 Internal Flags.",
+  "MuleSoft Scout — Stub Creation (Session 2 — Step 7, automatic for every detected system):\n\n  A. standards/playbooks/{slug}/PLAYBOOK.md\n     If no playbook exists: create stub:\n       # {System} System Playbook\n       **System:** {full name} | **Maturity:** stub | **Last updated:** {today} | **Clients:** {client}\n       ## Status: Stub created by Scout. Enriched by Architect after design, completed by CO after delivery.\n       ## Known quirks (pre-design): None yet.\n       ## Supported objects: None yet.\n       ## Maturity log\n       | Date | Client count | Knowledge added | Status |\n       | {today} | 1 | Initial stub | stub |\n     If playbook exists: increment client count, add log row.\n\n  B. standards/connector-registry.json (source of truth for new system stubs — always write stubs here)\n     If no entry exists for this system: add a stub entry:\n       key: {slug}, displayName: {full name}, type: unknown, authType: unknown, notes: 'stub — verify connector type and auth',\n       lastVerified: {today}, lastVerifiedBy: scout-stub\n     After adding the stub: run `node standards/build-connector-index.js` to rebuild connector-names.json and connector-index.json from the updated registry.\n\n  C. standards/intake-checklist.json autoWarnings[]\n     If no entry: add { id: {slug}_new, trigger: {slug keyword}, severity: medium, warning: 'New system — verify connector type, auth, and sandbox availability.' }.\n\n  D. Canonical model stubs\n     Read company_context.json businessObjects[] and industry field.\n     For each stub marked NEEDED in scout-s1.md Section 12:\n       Read standards/canonical-models/registry.json for this vertical's standard/standardBody/standardRef/keyFieldAlignments.\n       Create standards/canonical-models/{vertical}/canonical-{record}.yaml with:\n         title, version: 1.0.0-stub, standard (from registry), standardBody, standardRef, deviations, description\n         type, required[], properties{} — derive fields from registry keyFieldAlignments + playbook DWL files + web research\n       Mark: version: '1.0.0-stub — created from {client} engagement'\n     For stubs that already exist: note field gaps in Section 10 Internal Flags.",
 
   "MuleSoft Scout — Knowledge Write-back (Session 2 — Step 8, learning loop):\n\n  8a. FIELD_KNOWLEDGE.md — add FK-NNN observation entries for system behavior discovered in Session 1 or found while assembling the questionnaire. Status=observation.\n\n  8b. PLAYBOOK.md updates — for every loaded playbook: check whether Session 1 research or transcripts surfaced anything not yet in Known Quirks. Update maturity log row. Never overwrite — append.\n\n  8c. PLANNING_CONTEXT.md Critical Notes — if a discovery qualifies as a Critical Note (affects every future engagement with this system), add it under the relevant system entry.\n\n  8d. Connector Registry — if a system's auth type, API style, or gotchas have been verified and differ from the registry, update with verified values and lastVerified/lastVerifiedBy.\n\n  8e. company_context.json — update p0Blockers[] with final confirmed list. Update aiJourney phases if flow list changed. Append to systemFindings[] — never shrink it.\n\n  8f. commons/sales/psychology-profiles.json — if this engagement introduced a new profile in Step 1d, scan projects/*/company_context.json psychologyProfile.primaryProfile fields for any prior client that was assigned the same profile ID. Add a note entry to that profile in psychology-profiles.json: { 'source': 'observed in {client}', 'finding': 'signal phrases matched: {top 3 phrases}' }. This builds the empirical evidence log for each profile over time. Never delete or modify existing profile signalPhrases or contentModifiers — only append to notes[].",
 
@@ -152,7 +152,8 @@ Step 0 — Business Vertical Research (MANDATORY — before reading scoping file
     "p0Blockers": [],
     "systemFindings": [],
     "nearbyPeers": [],
-    "competitorFOMO": []
+    "competitorFOMO": [],
+    "aiThoughtStarters": []
   }
   AI journey phases must be client-specific. Phase 1 = flows being built now. Phase 2 = automation possible with connected data. Phase 3 = AI that requires clean connected data as prerequisite.
 
@@ -189,32 +190,66 @@ generated in Session 3a. Do NOT skip — this is the only session with sufficien
   This is not a generic "companies doing digital transformation" search.
   The goal is to find companies doing the EXACT SAME integration use cases as this client
   (same source + target systems, same entity type) who have ALSO layered AI on top —
-  and to surface what that AI is actually doing for them, with numbers.
+  and to surface what the AI agent is specifically doing for them, with numbers.
 
-  SEARCH STRATEGY — run all of these, read results:
-  A. Use-case exact match:
-     "{source system} {target system} integration ROI case study 2023 2024 2025"
-     "{source system} {target system} AI automation {industry} results"
-     e.g. "Procore NetSuite integration ROI construction" or "Salesforce NetSuite AI construction company"
+  USE CASE LIBRARY — CHECK FIRST (before any web search):
+  You already loaded standards/usecases/{vertical}.json at session start.
+  Run two passes:
 
-  B. AI layer on the same data:
-     "{industry} AI {entity type} prediction automation savings 2024"
-     "{industry} machine learning {entity type} ROI hours saved"
-     e.g. "construction AI budget variance prediction savings" or "construction AI change order detection ROI"
+  PASS 1 — FOMO candidates (vertical + sizeSegment + at least one system overlaps confirmedFlows[].systems):
+    These are direct FOMO entries. Add to competitorFOMO[] and skip the web search tier they satisfy.
+    Example: UC-001 covers Salesforce+NetSuite for midmarket b2b-saas → skip Tier 1/2 web search for that pair.
 
-  C. Named competitor research:
-     "{direct ClientName competitors} digital transformation automation"
-     "{industry} {revenue bracket} company automation investment 2024"
+  PASS 2 — AI thought starters (vertical + sizeSegment match, but systems do NOT overlap):
+    These do NOT become FOMO entries — the client can't directly compare since the systems differ.
+    Instead: add each to aiThoughtStarters[] as a "what others in your space are doing" pointer.
+    Format: "A {sizeSegment} {vertical} company automated {useCase} — {outcome}."
+    These render in the proposal's AI use case tiles as industry context, not peer comparison.
+    Deduplicate: do not add to aiThoughtStarters[] if the same use case is already covered by a FOMO entry.
+
+  Show: 'Use case library: {N} FOMO matches, {M} AI thought starter pointers for {vertical}/{sizeSegment}.'
+  If PASS 1 already covers 3+ FOMO tiers: skip web search entirely.
+
+  SEARCH STRATEGY — run only for tiers NOT already covered by the library:
+
+  A. GEO-FIRST — within 100 miles (MANDATORY first step):
+     Using hqLocation from 0c-1 (city, state):
+     "{source system} {target system} integration {city} {state}"
+     "{industry} company automation AI {city} OR {metro area}"
+     "{ClientName} competitors {state} integration automation"
+     Goal: find 1–2 real named companies within ~100 miles with a verifiable public case study or press release.
+     If found with sourceUrl: use as Tier 1 entry (exact-match or same-industry) — real name allowed.
+     If fewer than 2 found within 100 miles: broaden to 200 miles or adjacent metro.
+     If still none: proceed to national search (step B).
+
+  B. Use-case exact match (national) — SIZE-MATCHED first:
+     "{source system} {target system} integration case study {revenue bracket OR employee count} 2023 2024 2025"
+     "{source system} {target system} AI automation {industry} {size} results"
+     e.g. "HubSpot NetSuite integration case study 50-200 employees" or "Salesforce NetSuite mid-market SaaS automation"
+     If no same-size company found: broaden to any size — but note the size difference explicitly in analogyNote.
+
+  C. AI agent layer on the same data:
+     "{industry} AI agent {entity type} automation savings 2024"
+     "{industry} AI {entity type} prediction automation hours saved 2023 2024"
+     Focus on what the AI agent DOES: triggers, actions, outputs, decisions removed from humans.
+     e.g. "construction AI agent budget variance detection" or "AI agent invoice classification ROI"
+
+  D. Named competitor research:
+     "{direct ClientName competitors} AI automation integration 2024"
+     "{industry} {revenue bracket} company AI agent investment"
      e.g. "{CompanyName} competitors automation" if client is named publicly
 
-  D. Vendor case studies for this exact system pair:
+  E. Vendor case studies for this exact system pair:
      "MuleSoft {source system} {target system} {industry} case study"
-     "{source system} customer story AI {industry}"
+     "{source system} customer story AI agent {industry}"
      Check: mulesoft.com/case-studies, salesforce.com/customer-stories, netsuite.com/case-studies,
-             procore.com/customers, workato.com/customers — filter to this industry + company size
+             procore.com/customers — filter to this industry + company size
+             Competitor case study pages (workato.com/customers, boomi.com/customers, etc.) are valid research sources — read them to extract the use case, systems, and ROI numbers.
+             BUT: never use a competitor domain as sourceUrl in the output, and never credit the competitor platform in whatTheyBuilt copy (e.g. strip "via Workato", "using Boomi", "Workbot agent" — write platform-neutral language instead).
+             Full competitor list: commons/branding/competitors.json (domains[] and brandNames[]).
 
-  E. Industry analyst data if no named companies found:
-     "Gartner OR Forrester OR IDC {industry} integration automation ROI statistics 2024"
+  F. Industry analyst data if no named companies found:
+     "Gartner OR Forrester OR IDC {industry} integration AI automation ROI statistics 2024"
      McKinsey, Deloitte, PwC industry reports for this vertical
 
   FALLBACK CHAIN — attempt each tier in order; stop when you have 3–4 solid entries.
@@ -255,13 +290,19 @@ generated in Session 3a. Do NOT skip — this is the only session with sufficien
 
   FOR EACH ENTRY, extract ALL of the following (leave null if genuinely unknown — do not guess):
   - name: company name or "Industry data (Gartner 2024)"
-  - location: city/state or "National" for stats
+  - location: city/state or "National" for stats — include distance from client HQ if within 100 miles
   - revenue: revenue bracket (e.g. "$50M–$100M")
   - systemsUsed: systems they connected — note if different from client's
   - aiUseCase: what AI is specifically doing — precise, not generic:
       NOT "AI for automation"
       YES "AI flags budget overruns 3 weeks before a change order is filed"
       YES "ML classifies invoices by vendor risk, routes high-risk for manual review"
+  - aiAgentDescription: ONE sentence describing the AI agent's exact behavior — trigger, action, output:
+      Format: "An AI agent [trigger condition] → [action taken] → [human-readable output/decision removed]"
+      NOT "AI processes invoices faster"
+      YES "An AI agent scans every new NetSuite purchase order nightly → flags any vendor not in the approved list → routes exception to procurement lead before payment runs"
+      YES "An AI agent monitors deal stage changes in Salesforce → detects deals stuck >14 days → surfaces a prioritized risk list to the VP of Sales each Monday morning"
+      null for industry-stat entries where no agent behavior is documented
   - whatTheyBuilt: 1 sentence: the integration + AI layer
   - savings: quantified savings — $, hours, %, cycle time — the number that makes the client wince
       "$200K saved per project" / "8 hours/week per PM" / "62% fewer invoice exceptions"
@@ -270,6 +311,7 @@ generated in Session 3a. Do NOT skip — this is the only session with sufficien
   - status: "Live since Q? YYYY" / "Announced YYYY" / "Industry average (N=NNN companies)"
   - source: URL or citation string — the exact public URL if one exists, otherwise the publication name
   - sourceUrl: the direct public URL to the case study, press release, or analyst report page — null if not found
+    VERIFY THE URL: attempt to fetch the page. If it returns 404 or redirects to a home page, set sourceUrl to null.
   - sourceLabel: short human-readable label for the link — e.g. "MuleSoft case study", "Salesforce customer story", "Gartner 2024 report" — null if no sourceUrl
   - displayName: if sourceUrl is not null, use the real company name; if sourceUrl is null, use "A {industry} company (anonymized)" or "{Analyst} {year} benchmark" for industry-stat entries — NEVER show a real company name without a sourceUrl
   - relevanceTier: "exact-match" | "same-industry" | "adjacent-industry" | "industry-stat"
@@ -293,12 +335,60 @@ generated in Session 3a. Do NOT skip — this is the only session with sufficien
   Record in company_context.json competitorFOMO[] using the full schema above.
   DO NOT INVENT companies, outcomes, or numbers. Only include verified, sourced data.
   Fields not found: set to null — do not guess.
-  NAMING RULE: A real company name may appear in the proposal ONLY when sourceUrl is a real, public, working URL.
-  If sourceUrl is null (no public case study found), set displayName to "A {industry} company (anonymized)".
-  Industry-stat entries always use the analyst/report name as displayName (e.g. "MuleSoft 2024 Benchmark").
 
-After completing 0c-1 through 0c-3: write updated company_context.json with hqLocation, revenueEstimate, nearbyPeers[], competitorFOMO[] populated.
+  NAMING RULE (strictly enforced):
+  - A real company name may appear ONLY when sourceUrl is a verified, working public URL from a neutral source
+    (company blog, press release, MuleSoft/Salesforce/NetSuite case study page, neutral analyst report).
+  - EXCEPTION: if the only available sourceUrl for a real company is from a competitor domain (workato.com,
+    boomi.com, zapier.com, tray.io, informatica.com, talend.com, jitterbit.com, snaplogic.com, celigo.com,
+    or any other iPaaS competitor), set sourceUrl to null but keep the real company name — the use case facts
+    still stand. Never link to a competitor site in a MuleSoft proposal.
+  - Industry-stat entries always use the analyst/report name as displayName (e.g. "MuleSoft 2024 Benchmark").
+  - If sourceUrl is null (and the exception above does not apply): set displayName to "A {industry} company (anonymized)" — but ONLY for entries 2–4.
+  - THE FIRST ENTRY (highest relevanceTier) MUST have a real company name. A working sourceUrl is preferred
+    but may be omitted if the only available URL is a competitor domain (see exception above).
+    If you cannot find a real named company at all after exhausting searches A–E, upgrade the tier.
+    "Anonymized" is NEVER acceptable for the first FOMO card. Keep searching.
+
+  VERIFY ALL SOURCE URLS before recording:
+  - Attempt to fetch the URL. If it returns 404 or redirects to a home page: set sourceUrl to null.
+  - Test the URL in a browser-simulation fetch. Do not record a URL you have not verified resolves.
+
+  AFTER recording FOMO entries — generate aiThoughtStarters[]:
+  Start with any PASS 2 library entries (vertical + size match, systems differ) already queued from the library check above.
+  Then add original AI agent use cases this client has NOT thought of yet, up to a total of 4 entries.
+  All entries must be plausible given their systems and industry. These are thought-provokers — not case studies.
+  Format: "Teams in {industry} are using AI agents to [specific action] — [specific result]."
+  Rule: do NOT repeat any use case already covered in competitorFOMO[].aiAgentDescription.
+  Rule: ground original entries in the client's actual systems (e.g. "your Procore data", "using your HubSpot activity feed").
+  Rule: library-sourced entries may describe different systems — frame them as "other {vertical} companies" not "your {system}".
+  Example: "Teams in {industry} are using AI agents to monitor vendor payment terms in {ERP} and surface
+             early-payment discount windows before the CFO's weekly review."
+  Example: "Some {industry} teams are letting AI agents scan {CRM} stage history and flag at-risk deals
+             before reps notice — freeing the VP of Sales from the Friday pipeline review."
+  Write these as company_context.json.aiThoughtStarters[] — array of 2–4 strings.
+
+After completing 0c-1 through 0c-3: write updated company_context.json with hqLocation, revenueEstimate, nearbyPeers[], competitorFOMO[], aiThoughtStarters[] populated.
 → LOG to decisions.json: one fomo-selection entry — which entries were selected, which tiers were reached, which entries were excluded and why (missing sourceUrl, relevanceTier too low, etc.).
+
+USE CASE LIBRARY WRITE-BACK — append new entries found via web research this session:
+  For each competitorFOMO[] entry that did NOT come from the library (i.e., newly discovered via web search):
+    Append to standards/usecases/{vertical}.json usecases[] with:
+      id: next UC-NNN (read highest existing id and increment)
+      vertical, sizeSegment, systems (from confirmedFlows), useCase, whatWasBuilt, outcome, aiLayer
+      source: "web", sourceCompany, sourceUrl (null if competitor domain), addedDate: today
+      clients: []   ← empty; this was not a DataSkate delivery
+  For each confirmed flow in company_context.json confirmedFlows[] (DS-sourced use cases):
+    Check if a matching entry already exists in the library (same vertical + systems + useCase).
+    If yes: add this client slug to that entry's clients[] array.
+    If no: append a new entry with source: "DS", sourceCompany: "{client slug}",
+      vertical, sizeSegment (from company_context.json revenueEstimate → smb/midmarket/enterprise),
+      systems (from that flow's systems[]), useCase (flow name), whatWasBuilt (flow description),
+      outcome (from any confirmed ROI/savings notes in scoping), aiLayer (true if flow has AI component),
+      clientContext: "projects/{client}/", clients: ["{client slug}"], addedDate: today
+  Write the updated {vertical}.json file.
+  Show: 'Use case library updated — {N} new entries added, {M} existing entries updated.'
+
 Show: 'Pitch Kit Research: HQ={city}, Revenue={estimate}, Peers={N}, Competitors={N}'
 
 Step 1 — Extract and read all source files.
@@ -476,12 +566,14 @@ Write projects/{client}/intake/proposal-content.json with this EXACT schema (no 
       "relevanceTier": "exact-match | same-industry | adjacent-industry | industry-stat",
       "savings": "$X saved or X% or Xhrs/week recovered",
       "whatTheyBuilt": "what they connected and why it mattered",
+      "aiAgentDescription": "copy verbatim from competitorFOMO[].aiAgentDescription — null if not available",
       "fomoAngle": "verbatim from company_context.json competitorFOMO[].fomoAngle",
       "analogyNote": "why this company is analogous to client — optional, omit if not applicable",
       "sourceUrl": "copy verbatim from competitorFOMO[].sourceUrl — null if not available",
       "sourceLabel": "copy verbatim from competitorFOMO[].sourceLabel — null if no sourceUrl"
     }
   ],
+  "fomoThoughtStarters": "copy verbatim from company_context.json.aiThoughtStarters[] — array of 2 strings; empty array if not populated",
   "nextSteps": [
     { "title": "Fill Out Intake Form", "body": "Takes 20 minutes — confirms system access, contacts, and go-live target." },
     { "title": "Schedule Technical Deep Dive", "body": "30-minute call with {architect} to walk through the integration flows in detail." },
@@ -490,8 +582,9 @@ Write projects/{client}/intake/proposal-content.json with this EXACT schema (no 
   ]
 }
 
-FOMO rules: take the top 2–4 entries from company_context.json competitorFOMO[] ordered by relevanceTier (exact-match first, then same-industry, then adjacent-industry). If competitorFOMO is empty, set "fomo": [].
-NAMING RULE (enforced here, not in template): use competitorFOMO[].displayName for the "name" field. A real company name appears ONLY when competitorFOMO[].sourceUrl is a real public URL — the client can click it and verify the claim. If no sourceUrl, use the anonymized displayName. Pass sourceUrl and sourceLabel through verbatim; fill-template.js renders the company name as a clickable link when sourceUrl is present.
+FOMO rules: take the top 2–4 entries from company_context.json competitorFOMO[] ordered by relevanceTier (exact-match first, then same-industry, then adjacent-industry). Geo-proximity within 100 miles takes priority within the same tier — a nearby same-industry company beats a national same-industry company. If competitorFOMO is empty, set "fomo": [].
+NAMING RULE (enforced here, not in template): use competitorFOMO[].displayName for the "name" field. A real company name appears ONLY when competitorFOMO[].sourceUrl is a real public URL — the client can click it and verify the claim. If no sourceUrl, use the anonymized displayName. Pass sourceUrl, sourceLabel, and aiAgentDescription through verbatim; fill-template.js renders the company name as a clickable link when sourceUrl is present and shows the AI agent description as a highlighted inline callout.
+fomoThoughtStarters rules: copy company_context.json.aiThoughtStarters[] verbatim. These render at the bottom of the Peer Comparison section as a "thought starters" list. Do NOT invent new entries — only pass through what was generated in Step 0c-3.
 flows: derive from confirmedFlows[] — use entity + direction for name and route; value = 1–2 sentence business outcome (NOT technical detail); no complexity field.
 Then run: node commons/branding/fill-template.js --template proposal --client {client}
 This writes: projects/{client}/intake/proposal-{client}.html
@@ -544,7 +637,7 @@ SECOND — update project.json with session state and Session 2 load list.
 Merge into project.json:
   "sessionStatus": { "session1": "complete", "session3a": "complete" },
   "session2LoadList": {
-    "playbooks": ["{exact paths — e.g. 'playbooks/salesforce/PLAYBOOK.md'}"],
+    "playbooks": ["{exact paths — e.g. 'standards/playbooks/salesforce/PLAYBOOK.md'}"],
     "canonicalModels": ["{exact glob — e.g. 'standards/canonical-models/commerce/canonical-*.yaml'}"],
     "connectorKeys": ["{keys for python3 query — e.g. 'salesforce', 'quickbooks-online'}"]
   }
