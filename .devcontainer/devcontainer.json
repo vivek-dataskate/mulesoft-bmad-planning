@@ -42,7 +42,7 @@
     "FIREBASE_SA_KEY": "${localEnv:FIREBASE_SA_KEY}",
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}"
   },
-  "postCreateCommand": "sudo apt-get update -qq && sudo apt-get install -y ffmpeg && npm install -g mulesoft-mcp-server pdf-parse pnpm firebase-tools && npm install && cd firebase/functions && npm install && cd ../.. && if [ -n \"$FIREBASE_SA_KEY\" ]; then echo \"$FIREBASE_SA_KEY\" > dataskateclients-firebase-adminsdk-fbsvc-6d3f67e197.json && echo 'Service account restored from secret'; else echo 'WARNING: FIREBASE_SA_KEY secret not set — deploy and Storage uploads will fail'; fi && node scripts/restore-agents.js && echo 'Setup complete'",
+  "postCreateCommand": "sudo apt-get update -qq && sudo apt-get install -y ffmpeg && npm install -g mulesoft-mcp-server pdf-parse pnpm firebase-tools && npm install && cd firebase/functions && npm install && cd ../.. && if [ -n \"$FIREBASE_SA_KEY\" ]; then echo \"$FIREBASE_SA_KEY\" > dataskateclients-firebase-adminsdk-fbsvc-6d3f67e197.json && echo 'Service account restored from secret'; else echo 'WARNING: FIREBASE_SA_KEY secret not set — deploy and Storage uploads will fail'; fi && node scripts/restore-agents.js && node scripts/restore-memory.js && echo 'Setup complete'",
   "remoteUser": "node",
   "mounts": [],
   "forwardPorts": []

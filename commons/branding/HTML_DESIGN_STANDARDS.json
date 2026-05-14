@@ -1,0 +1,183 @@
+{
+  "version": "2.0",
+  "updated": "2026-05-14",
+  "note": "Machine-readable design standards. Agents read this before writing any HTML. Single source of truth for palette, forbidden patterns, component HTML, and template pipeline.",
+
+  "palette": {
+    "allowedVars": [
+      "--brand", "--brand-dk", "--dark", "--mid", "--light",
+      "--border", "--green", "--amber", "--amber-bg", "--blue-bg", "--blue-br"
+    ],
+    "forbiddenVars": ["--blue", "--gray", "--navy", "--purple", "--orange"],
+    "body": { "background": "#fff" },
+    "header": { "background": "#fff", "borderBottom": "3px solid var(--brand)" }
+  },
+
+  "logo": {
+    "format": "inline-svg",
+    "heights": {
+      "intake": "28px",
+      "proposal": "32px",
+      "guide": "32px",
+      "portal": "28px"
+    },
+    "required": true,
+    "note": "Always inline SVG wordmark — no text/CSS logo, no <img> tag"
+  },
+
+  "forbidden": [
+    {
+      "id": "dark-header",
+      "rule": "Headers must be white with 3px brand border-bottom",
+      "pattern": ".header { background: var(--dark) }",
+      "fix": ".header { background: #fff; border-bottom: 3px solid var(--brand) }"
+    },
+    {
+      "id": "gray-body",
+      "rule": "Body background must be #fff, never gray",
+      "pattern": "body { background: #F5F5F5 }",
+      "fix": "body { background: #fff }"
+    },
+    {
+      "id": "circle-section-numbers",
+      "rule": "Section numbers are plain colored text, no filled circles",
+      "pattern": ".section-num { border-radius: 50%; background: var(--brand) }",
+      "fix": ".section-num { font-size: 10px; font-weight: 700; color: var(--mid) }"
+    },
+    {
+      "id": "card-sections",
+      "rule": "Sections use flat border-bottom separators, not card wrappers",
+      "pattern": ".section { border-radius: 8px; border: 1px solid var(--border) }",
+      "fix": "details.section-block { border-bottom: 1px solid var(--border) }"
+    },
+    {
+      "id": "off-palette-vars",
+      "rule": "Only the 11 standard palette vars allowed",
+      "pattern": "--blue, --gray, --navy, --purple, or any custom color var",
+      "fix": "Use only vars from palette.allowedVars"
+    },
+    {
+      "id": "arbitrary-hex",
+      "rule": "No arbitrary hex colors — use CSS variables from shared-base.css.html",
+      "exceptions": ["#fff", "#44546A", "#FFF0F0", "#F0FFF6", "#F2F4F8", "#1C2B3A", "#276749", "#FEF3C7", "#92400E", "#065F46", "#FEE2E2", "#991B1B", "#FED7D7"]
+    },
+    {
+      "id": "external-css",
+      "rule": "No external CSS frameworks — all files must be self-contained"
+    },
+    {
+      "id": "external-fonts",
+      "rule": "No external font imports — system font stack only"
+    },
+    {
+      "id": "text-logo",
+      "rule": "Never use a text or CSS logo — always the inline SVG wordmark"
+    },
+    {
+      "id": "dark-metric-cards",
+      "rule": "No dark-background metric cards — use .stat-row/.stat (white bg, brand border-top)"
+    },
+    {
+      "id": "mailto-submit",
+      "rule": "Intake forms save to Firestore only — no mailto: in form submit",
+      "fix": "submitForm() calls saveToFirestore()"
+    },
+    {
+      "id": "hardcoded-emails",
+      "rule": "Never hardcode contact emails in templates — read architectEmail from project.json"
+    }
+  ],
+
+  "components": {
+    "collapsibleSection": {
+      "usage": "All proposal and multi-section documents. Replaces static <section> elements.",
+      "html": "<details class=\"section-block\" open>\n  <summary class=\"section-head\">\n    <div class=\"section-summary\">\n      <div class=\"section-eyebrow\">Section Label</div>\n      <div class=\"section-title\">Section Headline</div>\n    </div>\n    <span class=\"section-chevron\">&#9660;</span>\n  </summary>\n  <div class=\"section-body\">\n    <!-- content -->\n  </div>\n</details>",
+      "css": "details.section-block { border-bottom: 1px solid var(--border) } summary.section-head { display:flex; align-items:center; gap:12px; cursor:pointer; padding:14px 40px; list-style:none } .section-eyebrow { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--brand) } .section-title { font-size:16px; font-weight:700; color:var(--dark) } .section-chevron { font-size:11px; color:var(--mid); transition:transform 0.2s } details.section-block[open] .section-chevron { transform:rotate(180deg) } .section-body { padding:4px 40px 24px }",
+      "rules": [
+        "Key sections default open: Challenge, Solution, Flows, Investment, Next Steps",
+        "Secondary sections default collapsed: Journey, Outcomes, Timeline, Included, OOS, Assumptions",
+        "Conditional sections (ROI, About) emitted by fill-template.js when data present"
+      ]
+    },
+    "stickyBar": {
+      "usage": "Proposal documents — floats at top with navigation actions",
+      "html": "<div class=\"sticky-bar\">\n  <span class=\"bar-title\">DataSkate x Client Name</span>\n  <button class=\"btn btn-outline\" onclick=\"toggleAllSections(this)\">Expand All</button>\n  <button class=\"btn btn-outline\" onclick=\"window.print()\">Print / PDF</button>\n  <button class=\"btn btn-primary\" onclick=\"...\">Accept this Proposal &#8594;</button>\n</div>",
+      "css": ".sticky-bar { position:sticky; top:0; z-index:100; background:#fff; border-bottom:1px solid var(--border); padding:8px 40px; display:flex; align-items:center; gap:8px }",
+      "printBehavior": "Hidden on print via .sticky-bar { display:none !important } in @media print"
+    },
+    "ucBlock": {
+      "usage": "Intake form — use case collapsible blocks",
+      "html": "<details class=\"uc\">\n  <summary class=\"uc-hd\">\n    <span class=\"uc-tag\">UC1</span>\n    <h3>Use Case Title</h3>\n    <span class=\"uc-chevron\">&#9660;</span>\n  </summary>\n  <div class=\"uc-body\">\n    <p class=\"uc-note\">What we already know.</p>\n  </div>\n</details>",
+      "rules": ["Collapsed by default", "Chevron rotates when open"]
+    },
+    "questionBlock": {
+      "usage": "Intake form — individual questions",
+      "html": "<div class=\"q\">\n  <span class=\"q-num\"></span>\n  <div class=\"q-body\">\n    <div class=\"q-text\">Question text <span class=\"req\">*</span></div>\n    <div class=\"q-hint\">Hint text.</div>\n    <textarea class=\"answer is-prefilled\" id=\"q1\" data-required=\"true\">Pre-filled</textarea>\n  </div>\n</div>",
+      "answerStates": {
+        "is-prefilled": "amber left border — Scout pre-filled",
+        "is-answered": "green left border — user answered",
+        "mandatory-empty": "red border + bg — required but empty"
+      }
+    },
+    "badges": {
+      "complexity": {
+        "classes": {
+          "high": "background:#FEF3C7; color:#92400E",
+          "medium": "background:#EBEBEB; color:var(--mid)",
+          "low": "background:#D1FAE5; color:#065F46"
+        }
+      },
+      "owner": {
+        "classes": {
+          "owner-client": "background:var(--light); color:var(--brand-dk)",
+          "owner-ds": "background:#D1FAE5; color:#065F46",
+          "owner-both": "background:var(--amber-bg); color:#7C5E10",
+          "owner-vendor": "background:#FEF3C7; color:#92400E"
+        },
+        "rule": "Never use blue or purple in badges"
+      }
+    },
+    "businessContextPanel": {
+      "usage": "Intake form — journey phase cards",
+      "html": "<div class=\"journey-grid\">\n  <div class=\"journey-card phase-1\">\n    <div class=\"jc-phase\">Phase 1</div>\n    <div class=\"jc-label\">Connected</div>\n    <div class=\"jc-headline\">Short specific headline</div>\n    <div class=\"jc-body\">1-2 sentences specific to this client.</div>\n  </div>\n</div>",
+      "phaseColors": {
+        "phase-1": "border-top: green",
+        "phase-2": "border-top: amber",
+        "phase-3": "border-top: #C084FC"
+      },
+      "rules": [
+        "Phase labels always: Connected, Automated, Agentic",
+        "Descriptions specific to this client — never generic",
+        "P0 Blockers get .no-print — never shown in PDF"
+      ]
+    },
+    "scopeItems": {
+      "html": "<div class=\"scope-grid\">\n  <div class=\"scope-item scope-in\"><span class=\"scope-label\">In Scope</span> Description</div>\n  <div class=\"scope-item scope-assumed\"><span class=\"scope-label\">Assumed</span> Description</div>\n  <div class=\"scope-item scope-out\"><span class=\"scope-label\">Out of Scope</span> Description</div>\n</div>",
+      "rule": "Neutral #FAFAFA bg on all items — label color is the only differentiator"
+    }
+  },
+
+  "print": {
+    "rules": [
+      "All collapsible section bodies must show in print regardless of open state",
+      "Sticky bar hidden in print",
+      "No-print sections (.no-print) hidden in print",
+      "Use -webkit-print-color-adjust: exact on colored badges and headers"
+    ],
+    "css": "@media print { .no-print, .sticky-bar { display:none !important } details.section-block > .section-body { display:block !important } .section-chevron { display:none } }"
+  },
+
+  "templates": {
+    "proposal":         { "shell": "commons/templates/proposal-template.html",       "content": "projects/{client}/intake/proposal-content.json",        "output": "projects/{client}/intake/proposal-{client}.html",               "cmd": "node commons/branding/fill-template.js --template proposal --client {client}" },
+    "intake":           { "shell": "commons/templates/intake-template.html",          "content": "projects/{client}/intake/intake-content.json",           "output": "projects/{client}/intake/intake-questionnaire-{client}.html",   "cmd": "node commons/branding/fill-template.js --template intake --client {client}", "frozen": true },
+    "integration-deck": { "shell": "commons/templates/integration-deck-template.html","content": "projects/{client}/intake/integration-deck-content.json",  "output": "projects/{client}/intake/integration-deck-{client}.html",      "cmd": "node commons/branding/fill-template.js --template integration-deck --client {client}" },
+    "client-portal":    { "shell": "commons/templates/client-portal-template.html",   "content": "projects/{client}/portal-content.json",                  "output": "firebase/public/portal/{client}.html",                         "cmd": "node commons/branding/fill-template.js --template client-portal --client {client}" },
+    "ds-pricing-model": { "shell": "commons/templates/ds-pricing-model-template.html","content": null,                                                      "output": "firebase/public/resources/ds-pricing-model.html",             "cmd": "node commons/branding/fill-template.js --template ds-pricing-model" },
+    "architect-guide":  { "shell": "commons/templates/architect-guide-template.html", "content": null,                                                      "output": "firebase/public/resources/architect-guide.html",              "cmd": "node commons/branding/fill-template.js --template architect-guide" }
+  },
+
+  "accessRules": {
+    "internal": "Firebase Google auth required, restricted to @dataskate.ai",
+    "external": "Publicly accessible — share via direct link or embed in client portal"
+  }
+}
