@@ -13,7 +13,7 @@ persistent_facts = [
   "file:{project-root}/standards/connector-registry.json",
   "file:{project-root}/standards/decisions-schema.json",
   "file:{project-root}/standards/doc-templates/architecture-template.md",
-  "file:{project-root}/standards/playbooks/*/PLAYBOOK.md",
+  "file:{project-root}/standards/playbooks/*/*_playbook.json",
 ]
 
 # Executed before persona adoption and greeting — load context first.
@@ -48,7 +48,7 @@ principles = [
 
   "MuleSoft Anti-Patterns guard (check design against all 10 before finalizing architecture.md):\n  Shared Database integration — if present, flag and document specific justification.\n  Synchronous fan-out — replace with scatter-gather (I) or async fan-out (M).\n  Process Integration overuse — reserve orchestration (H) for true saga; EDA for autonomous consumers.\n  Polling without watermark — all scheduled-sync (D) flows MUST use watermark; write scheduling.watermarking=true.\n  Large payloads in MQ — enforce Claim Check above 1MB threshold.\n  DLQ as Invalid Message Channel — validate-first rule; structural failures go to invalid-messages-queue.\n  Fire-and-forget on critical mutations — MANUAL ack on all MQ consumers for financial/provisioning flows.\n  Correlating by payload field — always generate correlationId at gateway; never use payload field.\n  Inline complex DataWeave — external .dwl files for any transform > 10 lines.\n  Java class in DataWeave — flag and replace with DataWeave 2.0 native functions.",
 
-  "MuleSoft Playbook lookup — at Level 3, for EVERY system in the project check standards/playbooks/{system}/PLAYBOOK.md:\n  If a playbook exists: do NOT redesign what it already solves. Reference its auth pattern in architecture.md. List its existing DWL mapping files in the Field Mapping table as 'reuse: standards/playbooks/{system}/objects/{object}/{file}.dwl'. Note any known quirks from PLAYBOOK.md as Architecture Decisions.\n  If no playbook exists: flag it as a 'New Playbook Required' open item in architecture.md — the Architect Debrief NP workflow must be run after delivery to create it.\n  The playbook is the source of truth for system-specific implementation — never duplicate it.",
+  "MuleSoft Playbook lookup — at Level 3, for EVERY system in the project check standards/playbooks/{system}/{system}_playbook.json:\n  If a playbook exists: do NOT redesign what it already solves. Reference its auth pattern in architecture.md. List its existing DWL mapping files in the Field Mapping table as 'reuse: standards/playbooks/{system}/objects/{object}/{file}.dwl'. Note any known quirks from {system}_playbook.json as Architecture Decisions.\n  If no playbook exists: flag it as a 'New Playbook Required' open item in architecture.md — the Architect Debrief NP workflow must be run after delivery to create it.\n  The playbook is the source of truth for system-specific implementation — never duplicate it.",
 
   "MuleSoft Connector lookup — standards/connector-registry.json is the ONLY lookup:\n  If lastVerified > 30 days: call MuleSoft MCP search_asset, update lastVerified and lastVerifiedBy, then use.\n  Never look up the same connector twice.\n  Not found → classify REST (http connector) or SOAP (soap connector), add full entry to registry, commit.\n  Truly unknown → flag OPEN ITEM BLOCKER in architecture.md — do not produce decisions.json for that system.",
 
@@ -100,7 +100,7 @@ Walk the 6-level decision tree — enforce all rules; do not skip levels:
 
   Level 3 — Systems and Connectors
     For each system in prd.md:
-    1. Check standards/playbooks/{system}/PLAYBOOK.md — if exists, load it. Reference its auth pattern and list its DWL files as reusable assets in architecture.md Field Mapping table (prefix: "reuse: standards/playbooks/{system}/objects/{object}/{file}.dwl"). Flag any system without a playbook as "New Playbook Required" open item.
+    1. Check standards/playbooks/{system}/{system}_playbook.json — if exists, load it. Reference its auth pattern and list its DWL files as reusable assets in architecture.md Field Mapping table (prefix: "reuse: standards/playbooks/{system}/objects/{object}/{file}.dwl"). Flag any system without a playbook as "New Playbook Required" open item.
     2. Check standards/connector-registry.json. If lastVerified > 30 days: call MuleSoft MCP search_asset, update entry, then use. If not found: classify REST or SOAP, add full entry to registry, commit. If truly unknown: flag OPEN ITEM BLOCKER — do not produce decisions.json until resolved.
     Write to: decisions.json systems.connectors[]
 
@@ -162,7 +162,7 @@ Commons close-out (mandatory — do this before reporting done):
 1. FIELD_KNOWLEDGE.md — for every finding that deviated from scenario defaults, revealed a non-obvious API behaviour, or required an undocumented scaffold adjustment: add an FK-NNN observation entry. Be specific — what was expected, what was found, what the fix is.
 
 2. standards/playbooks/ — for every system in this project:
-   a. If no playbook exists: create standards/playbooks/{slug}/PLAYBOOK.md as a stub (maturity=observation, clients=this client, Status section explaining what is known so far from this project — auth type, any quirks discovered, object types touched).
+   a. If no playbook exists: create standards/playbooks/{slug}/{slug}_playbook.json as a stub (maturity=observation, clients=this client, Status section explaining what is known so far from this project — auth type, any quirks discovered, object types touched).
    b. If a playbook exists: update it — add this client to "Clients using this playbook", update maturity if this is a second engagement, add any new quirks or object types discovered.
 
 3. standards/intake-checklist.json autoWarnings — for every system in this project:

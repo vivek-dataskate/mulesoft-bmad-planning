@@ -10,7 +10,7 @@
 
 QuickBooks Online (this playbook) is the **cloud product**. It is NOT QuickBooks Desktop/Enterprise.
 The MuleSoft `quickbooks-online` connector uses OAuth 2.0 REST API v3 — **QBO only**.
-QB Desktop uses QBXML and the Windows Web Connector — see `playbooks/quickbooks-enterprise/PLAYBOOK.md`.
+QB Desktop uses QBXML and the Windows Web Connector — see `playbooks/quickbooks-enterprise/quickbooks-enterprise_playbook.md`.
 
 **Always confirm with client:** "Is your QuickBooks hosted by Intuit in the cloud, or installed on a local server/PC?"
 

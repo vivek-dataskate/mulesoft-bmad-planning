@@ -31,7 +31,7 @@ Scout reads the scoping notes, infers which systems are involved (explicit and i
 - `projects/{client}/intake/intake-questionnaire.md` — tailored questionnaire with pre-filled understandings from the scoping notes, base questions, and system-specific gotcha questions generated dynamically per detected system
 
 Scout also automatically registers every detected system in three commons artifacts (creating stubs if none exist):
-- `standards/playbooks/{system}/PLAYBOOK.md` — stub created on first detection, enriched as the project progresses
+- `standards/playbooks/{system}/{system}_playbook.json` — stub created on first detection, enriched as the project progresses
 - `standards/connector-registry.json` — stub entry with auth type to be confirmed
 - `standards/intake-checklist.json` — baseline autoWarning so the next project sees this system flagged immediately
 
@@ -75,7 +75,7 @@ or
 Talk to Winston (the architect). Read projects/{client}/prd.md. Walk the 6-level decision tree. Produce projects/{client}/architecture.md and projects/{client}/decisions.json
 ```
 
-The Architect reads `docs/FIELD_KNOWLEDGE.md` and all existing `standards/playbooks/*/PLAYBOOK.md` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
+The Architect reads `docs/FIELD_KNOWLEDGE.md` and all existing `standards/playbooks/*/*_playbook.json` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
 
 **Validate before proceeding:**
 ```bash
@@ -94,7 +94,7 @@ The three decisions a tech lead must personally review in `decisions.json`:
 
 Everything else the Architect decides autonomously.
 
-The Architect enriches all commons stubs before completing the MD run — playbook PLAYBOOK.md updated with design-confirmed auth and objects, connector-registry updated with confirmed auth type, intake-checklist updated with any specific gotchas found during architecture.
+The Architect enriches all commons stubs before completing the MD run — playbook {system}_playbook.json updated with design-confirmed auth and objects, connector-registry updated with confirmed auth type, intake-checklist updated with any specific gotchas found during architecture.
 
 ### Step 4: Run the PM
 
@@ -449,7 +449,7 @@ No new code needed. The full field mapping, null handling, and status enum trans
 
 | Stage | Who | What happens |
 |-------|-----|-------------|
-| Scout run | Scout | Stub PLAYBOOK.md created on first detection — marks system as known |
+| Scout run | Scout | Stub {system}_playbook.json created on first detection — marks system as known |
 | Analyst run | Analyst | Stub enriched with auth type and object types confirmed from intake |
 | Architect MD run | Architect | Stub enriched with design-confirmed auth, objects needed, and known quirks |
 | CO run (post-delivery) | Architect | Real implementation learnings added — confirmed DWL mappings, maturity updated, gotchas documented |
