@@ -18,5 +18,12 @@ service cloud.firestore {
       allow create, update: if true;
       allow read: if isArchitect();
     }
+
+    // Krisp meeting data — written only by the Cloud Function (server-side admin SDK)
+    // Architects can read; no direct client writes
+    match /krisp_meetings/{meetingId} {
+      allow read: if isArchitect();
+      allow write: if false;
+    }
   }
 }

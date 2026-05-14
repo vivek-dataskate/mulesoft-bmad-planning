@@ -11,7 +11,7 @@ The 368KB `connector-registry.json` is the source of truth (build manifest for s
 
 Two lightweight derived files are generated from it:
 - `standards/connector-names.json` (~65KB) — display names + auth + category for all 350 connectors. Loaded by Scout Session 1 for Step 2 name matching.
-- `standards/connector-index.json` (~155KB) — adds `notes` + `authOptions`. Queried on-demand after inference via `python3 standards/query-connector.py key1 key2 ...`.
+- `standards/connector-registry.json` (~155KB) — adds `notes` + `authOptions`. Queried on-demand after inference via `python3 standards/query-connector.py key1 key2 ...`.
 
 **Rebuild script:** `node standards/build-connector-index.js`
 

@@ -58,16 +58,29 @@ DSPipeline/
 
 ## DAG
 
+Sequential — no parallel execution:
+
 ```
-Sage
-  └── Vera + Rex + Ivy  (parallel — all read sage.json)
-        └── Flo  (depends_on: vera, rex)
-              └── Hawk + Quinn  (parallel — hawk needs flo+ivy+vera; quinn needs flo+rex)
-                    └── Petra  (depends_on: flo, ivy, hawk)
-                          └── Sol  (depends_on: petra, quinn)
-                                └── Mira  (depends_on: sol — audits all client/ files)
-                                      └── deliver
+Sage → Vera → Rex → Ivy → Flo → Hawk → Quinn → Petra → Mira
 ```
+
+Sol is parked — net-new capability (SOW), no Scout precedent. Design separately.
+
+## Interaction Mode
+
+| Agent | Mode | Reason |
+|---|---|---|
+| Sage | Gated | Pure extraction — summary + confirm |
+| Vera | Conversational | Vertical research — user may redirect or add nuance |
+| Rex | Conversational | Systems — user has insider knowledge not in transcripts |
+| Ivy | Conversational | Buyer psychology — qualitative, user knows the buyer |
+| Flo | Gated | Flow count + pricing is formulaic — confirm numbers |
+| Hawk | Conversational | Deal urgency + competitive strategy |
+| Quinn | Conversational | Intake form — user may customize questions per client |
+| Petra | Conversational | Proposal — highest stakes, tone and emphasis need direction |
+| Mira | Conversational | Final audit — user challenges findings before rewrites |
+
+**Correction propagation:** Corrections are baked into each agent's output file. Downstream agents read the finalized output file as normal — no automatic re-propagation.
 
 ---
 
@@ -147,22 +160,17 @@ CSV only — no database. `orchestrate.js` appends one row per agent to `DSPipel
 
 ---
 
-## Two Entry Points
+## Entry Point
 
 ```
-1. CLI (headless after onboarding)
-   node DSPipeline/scout/orchestrate.js
-   → reads _inbox/, infers client name from filenames
-   → onboarding block (company name + city, architect, go-live)
-   → fully headless from Sage to Mira
+node DSPipeline/scout/orchestrate.js
+  → reads _inbox/, infers client name from filenames
+  → onboarding block (company name + city, architect, go-live)
+  → runs agents sequentially: Sage → Vera → Rex → Ivy → Flo → Hawk → Quinn → Petra → Mira
+  → orchestrate.js is an event loop: after each agent completes, present output/questions,
+    wait for user input (gated: confirm; conversational: Q&A loop), then trigger next agent
 
-2. BMAD Scout (conversational)
-   "talk to Scout"
-   → same agent tomls in DSPipeline/agents/
-   → Scout presents output in Scout's voice
-   → user can steer mid-pipeline
-
-Advanced: node DSPipeline/scout/orchestrate.js --client mrn --skip-onboarding
+Advanced: --client mrn --skip-onboarding
 ```
 
 ---
