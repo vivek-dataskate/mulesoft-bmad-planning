@@ -15,7 +15,7 @@ Folder restructure completed 2026-05-11. All 123 tests pass.
 
 | Path | Purpose |
 |------|---------|
-| `standards/playbooks/{system}/` | System-specific IP — PLAYBOOK.md, DWL transforms, XML sub-flows. Was `commons/standards/playbooks/`. |
+| `standards/playbooks/{system}/` | System-specific IP — {system}_playbook.json, DWL transforms, XML sub-flows. Was `commons/standards/playbooks/`. |
 | `commons/` | Anypoint Exchange published module only — `src/`, `exchange/`, `sales/`, `pom.xml`, `publish.sh`. No playbooks here anymore. |
 | `standards/DESIGN_STANDARDS.md` | Design constitution. Was `standards/MULESOFT_DESIGN_STANDARDS.md`. |
 | `standards/scenarios/` | Integration pattern scenario files (A–W). Unchanged. |

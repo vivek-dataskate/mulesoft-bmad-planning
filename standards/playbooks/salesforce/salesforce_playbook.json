@@ -1,0 +1,46 @@
+{
+  "system": "salesforce",
+  "displayName": "Salesforce CRM / Platform",
+  "maturity": "verified",
+  "lastUpdated": "2026-05-11",
+  "clients": [
+    "leolabs",
+    "mrn-healthcare",
+    "cherish-care"
+  ],
+  "knownQuirks": [
+    "**API version pinning:** Always pin (`/services/data/v59.0/`). Never use `/latest/`.",
+    "**SOQL cursor pagination:** Use `nextRecordsUrl`. NEVER use OFFSET \u2014 fails silently on > 2,000 records.",
+    "**Bulk API 2.0:** Required for bulk loads. Different endpoint, different async pattern from REST.",
+    "**JWT auth:** Private key in Secrets Manager. Client ID safe in properties. Never swap.",
+    "**External IDs:** Mark `SF_{TargetSystem}_ID__c` as External ID on each synced object. Enables idempotent upsert via externalId endpoint.",
+    "**Rate limiting:** 15,000 API calls/day on Enterprise. Monitor `Sforce-Limit-Info` header. Alert at 12,000 (property: `salesforce.api.limit.warn.threshold`).",
+    "**PATCH semantics:** Only send fields being changed. Sending null erases the field \u2014 omit to leave unchanged.",
+    "**CDC vs polling:** CDC (Change Data Capture) preferred over SOQL polling for near-real-time. Subscribe to `ChangeEventHeader` channel.",
+    "**Compound fields:** Address is a compound field in Salesforce \u2014 query sub-fields explicitly (`BillingStreet`, `BillingCity`, etc.).",
+    "**BillingCountryCode / ShippingCountryCode:** Only exist when \"State and Country Picklists\" is enabled in Setup. On orgs without it, these fields throw `FIELD_INTEGRITY_EXCEPTION`. Check at project start. The `canonical-to-sf-account.dwl` function accepts a `useCountryCode` flag \u2014 default is `false` (safe free-text `BillingCountry`).",
+    "**CurrencyIsoCode on Account:** Only writable/readable on multi-currency orgs. Single-currency orgs do not expose this field on Account at all. Check at project start. The `canonical-to-sf-account.dwl` function accepts an `isMultiCurrency` flag.",
+    "**Connected App scopes:** Needs `api`, `refresh_token`. For CDC: also `cdp_ingest_api`."
+  ],
+  "p0Conditions": [],
+  "maturityLog": [
+    {
+      "date": "2026-05-11",
+      "client": "leolabs",
+      "finding": "Auth, SOQL pagination, Opportunity/Account objects, CDC awareness",
+      "status": "observation"
+    },
+    {
+      "date": "2026-05-11",
+      "client": "leolabs (Analyst)",
+      "finding": "CDC trigger for Flow 1 (Opportunity Closed Won) \u2014 trigger pattern OPEN (UC1-Q1). State/Country Picklists and multi-currency flags open. SF Connected App not yet created.",
+      "status": "observation"
+    },
+    {
+      "date": "2026-05-11",
+      "client": "mrn-healthcare (Scout)",
+      "finding": "10-flow engagement: Gravity Forms + Shopify x2 + Mailchimp + SFTP vendors all targeting Salesforce. Dual-target flow (UC1 \u2192 SF + Mailchimp). Utilization custom objects required. External ID fields not yet created. State/Country Picklists and multi-currency flags open.",
+      "status": "observation"
+    }
+  ]
+}

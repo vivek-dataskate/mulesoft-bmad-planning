@@ -761,7 +761,7 @@ What failed:
   CE Live Service must mediate all connections.
 
 Status: observation
-Promotes to: standards/playbooks/computerease/PLAYBOOK.md (once verified on second client, promote connectivity model to this entry)
+Promotes to: standards/playbooks/computerease/computerease_playbook.json (once verified on second client, promote connectivity model to this entry)
 
 ---
 
@@ -787,7 +787,7 @@ What failed:
   Assuming API key access implies full CRUD. Many partner APIs are intentionally read-only from the partner side.
 
 Status: observation
-Promotes to: standards/playbooks/hd-portal/PLAYBOOK.md (once write endpoint status confirmed, update playbook)
+Promotes to: standards/playbooks/hd-portal/hd-portal_playbook.json (once write endpoint status confirmed, update playbook)
 
 *Last updated: 2026-05-11*
 *Next review: after first project using Chunk 4+ agents*
@@ -828,7 +828,7 @@ What failed:
   Not yet observed in production. Flagged from web research on Intuit API behavior during Scout S1.
 
 Status: observation
-Promotes to: standards/playbooks/quickbooks-online/PLAYBOOK.md (create after first full engagement)
+Promotes to: standards/playbooks/quickbooks-online/quickbooks-online_playbook.json (create after first full engagement)
 
 *Added: 2026-05-12 — Source: web research during Scout S1 for agile-mind-customer*
 
@@ -868,7 +868,7 @@ What failed:
   The API exists and is the intended integration path — "Trimble Marketplace = API access point," not API absence.
 
 Status: observation
-Promotes to: standards/playbooks/trimble-vista/PLAYBOOK.md (create once Vista integration is confirmed and scoped)
+Promotes to: standards/playbooks/trimble-vista/trimble-vista_playbook.json (create once Vista integration is confirmed and scoped)
 
 *Added: 2026-05-12 — Source: web research during Scout S1 for bear-electrical-customer*
 
@@ -908,7 +908,7 @@ What failed:
   Sample spec files in scoping/ confirmed 100+ pages (City of Encinitas CS22B = 175+ page PDF).
 
 Status: observation
-Promotes to: standards/playbooks/mulesoft-idp/PLAYBOOK.md (create after first full IDP engagement delivery)
+Promotes to: standards/playbooks/mulesoft-idp/mulesoft-idp_playbook.json (create after first full IDP engagement delivery)
 
 *Added: 2026-05-12 — Source: connector-index.json + sample spec book analysis during Scout S1 for bear-electrical-customer*
 
@@ -1002,7 +1002,7 @@ What failed:
   Similar access request delays have been observed with other payroll platforms (ADP, Paychex).
 
 Status: observation
-Promotes to: standards/playbooks/paylocity/PLAYBOOK.md (create after first full engagement)
+Promotes to: standards/playbooks/paylocity/paylocity_playbook.json (create after first full engagement)
 
 *Added: 2026-05-12 — Source: developer.paylocity.com + web research during Scout S1 for cas-industries-customer*
 
@@ -1044,7 +1044,7 @@ Notes:
   - California DDS EVV compliance deadline: February 27, 2026 (QIP eligibility at stake).
 
 Status: observation
-Promotes to: standards/playbooks/sandata/PLAYBOOK.md (create stub in Session 2)
+Promotes to: standards/playbooks/sandata/sandata_playbook.json (create stub in Session 2)
 
 *Added: 2026-05-12 — Source: California DDS EVV page + Sandata web research during Scout S1 for cherish-care*
 
@@ -1084,6 +1084,6 @@ Applies to: any niche EVV platform, homecare scheduling software, legacy HCBS pl
 Similar platforms to watch: AlayaCare, ClearCare, WellSky, Therap.
 
 Status: observation
-Promotes to: standards/playbooks/dci/PLAYBOOK.md (create stub — flag API unavailability as permanent note)
+Promotes to: standards/playbooks/dci/dci_playbook.json (create stub — flag API unavailability as permanent note)
 
 *Added: 2026-05-12 — Source: Scoping transcripts + web research during Scout S1 for cherish-care*
