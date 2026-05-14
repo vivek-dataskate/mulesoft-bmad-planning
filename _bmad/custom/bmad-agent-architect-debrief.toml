@@ -55,7 +55,7 @@ principles = [
   "Update mode (architect matched an existing FK):\n  1. Increment Times by 1.\n  2. Update Last Seen to today.\n  3. If Times crosses verified threshold (≥2): change status to verified in both index row and detail entry.\n  4. If architect indicated promoted-to-standard: update status, add '— DONE {today}' to Promotes to line, draft the target file change.\n  5. Append a one-line note at the bottom of the detail entry: '_{today}: confirmed on additional engagement. Times now {N}._'",
 
   # --- New FK output format ---
-  "New FK entry format:\n\n  Index row (add at bottom of index table):\n  | [FK-NNN](#fk-nnn) | {Short title} | {Pattern / System} | {status} | {today} | {today} | {Times} |\n\n  Detail section (insert before the '*Last updated*' line at the bottom of the file):\n  ## FK-NNN — {Short title}\n  Date: {today}\n  Project: general\n  Trigger: {what condition or situation prompted this observation}\n\n  Scenario:\n    {what the architect observed — 2–5 sentences}\n\n  What worked / What failed:\n    {the fix and guidance from Q4. If unknown, write: 'Fix not yet determined — observation only.'}\n\n  Applies to:\n    {generalize beyond the specific system: which patterns, triggers, or system types this affects}\n\n  Promotes to: {commons artifact from Q5, e.g. 'standards/playbooks/netsuite/PLAYBOOK.md'} — planned\n  (If no commons update needed: 'Promotes to: N/A — FK entry sufficient')",
+  "New FK entry format:\n\n  Index row (add at bottom of index table):\n  | [FK-NNN](#fk-nnn) | {Short title} | {Pattern / System} | {status} | {today} | {today} | {Times} |\n\n  Detail section (insert before the '*Last updated*' line at the bottom of the file):\n  ## FK-NNN — {Short title}\n  Date: {today}\n  Project: general\n  Trigger: {what condition or situation prompted this observation}\n\n  Scenario:\n    {what the architect observed — 2–5 sentences}\n\n  What worked / What failed:\n    {the fix and guidance from Q4. If unknown, write: 'Fix not yet determined — observation only.'}\n\n  Applies to:\n    {generalize beyond the specific system: which patterns, triggers, or system types this affects}\n\n  Promotes to: {commons artifact from Q5, e.g. 'standards/playbooks/netsuite/netsuite_playbook.json'} — planned\n  (If no commons update needed: 'Promotes to: N/A — FK entry sufficient')",
 
   # --- Last updated line ---
   "After writing the new or updated entry: update the '*Last updated*' line at the bottom of FIELD_KNOWLEDGE.md to today.",
@@ -79,7 +79,7 @@ PRE-FLIGHT — read all of these before asking a single question:
 3. projects/{client}/decisions.json — extract systems.connectors[] and flows[].
 4. projects/{client}/stories.md — list every story and its acceptance criteria. These are what the developer actually built — use them to frame questions (e.g. "Story X required Y — did that work as written?").
 5. projects/{client}/prd.md — extract use case names and directions.
-6. standards/playbooks/*/PLAYBOOK.md — note which systems had existing playbooks going in and what was known.
+6. standards/playbooks/*/*_playbook.json — note which systems had existing playbooks going in and what was known.
 7. standards/connector-registry.json — note auth type and lastVerified for each system.
 8. standards/intake-checklist.json — note which systems already have autoWarning entries.
 9. docs/FIELD_KNOWLEDGE.md — note which FK entries were flagged as relevant to this project.
@@ -128,8 +128,8 @@ For every surprising or non-obvious answer from the interview:
 
 STEP 2 — standards/playbooks/
 For every system in BLOCK A:
-- If no playbook existed: create standards/playbooks/{slug}/PLAYBOOK.md with everything learned — auth type confirmed, quirks from A1-A4, object types touched, skeleton objects/ and system/ directories.
-- If playbook existed: update PLAYBOOK.md — correct any inaccurate sections, add new quirks, update maturity (observation → verified if this is second engagement), update "Clients using this playbook" count.
+- If no playbook existed: create standards/playbooks/{slug}/{slug}_playbook.json with everything learned — auth type confirmed, quirks from A1-A4, object types touched, skeleton objects/ and system/ directories.
+- If playbook existed: update {system}_playbook.json — correct any inaccurate sections, add new quirks, update maturity (observation → verified if this is second engagement), update "Clients using this playbook" count.
 - If new DWL mappings or system XML were written during delivery: add them to objects/ and system/ in the playbook.
 
 STEP 3 — standards/intake-checklist.json autoWarnings
@@ -188,7 +188,7 @@ Step 2: Identify the specific change needed in the target file:
   - Scenario file: which section, what rule or guidance to add
   - DESIGN_STANDARDS.md: which pattern or section, what to add or modify
   - Commons DWL: which function signature or behavior to update
-  - Playbook PLAYBOOK.md: which section (auth quirks, pagination, known issues)
+  - Playbook {system}_playbook.json: which section (auth quirks, pagination, known issues)
   - Commons XML sub-flow: which file, what structural change
 
 Step 3: Draft the specific change. Show before / after for the target file.
@@ -335,13 +335,13 @@ Q3: What objects need bidirectional DWL transforms?
 
 Q4: Are there any known quirks, gotchas, or non-obvious behaviours for this system?
     (auth edge cases, pagination limits, read-only entities, required hidden fields, rate limits)
-    List anything known — these go into PLAYBOOK.md as CRITICAL notes.
+    List anything known — these go into {system}_playbook.json as CRITICAL notes.
 
 After all answers:
 
 Step 1 — Create the folder structure:
   standards/playbooks/{system}/
-    PLAYBOOK.md
+    {system}_playbook.json
     system/{system}-auth.xml
     system/{system}-query.xml          (paginator sub-flow)
     system/{system}-upsert.xml         (if system supports write operations)
@@ -350,10 +350,10 @@ Step 1 — Create the folder structure:
       canonical-to-{system}-{object}.dwl
     (repeat objects/ for each object from Q3)
 
-Step 2 — Write PLAYBOOK.md:
+Step 2 — Write {system}_playbook.json:
   Lead with CRITICAL quirks from Q4 in a highlighted block.
   Sections: Authentication, Pagination, Known Limitations, Maturity Log.
-  Follow the structure of standards/playbooks/netsuite/PLAYBOOK.md.
+  Follow the structure of standards/playbooks/netsuite/netsuite_playbook.json.
 
 Step 3 — Write skeleton auth, query, and upsert XML sub-flows:
   Auth: use the appropriate connector config from scaffold/connectors/.

@@ -35,7 +35,7 @@ User asked to "do deep analysis on all Raghuram questions starting from first an
 **How to apply:**
 All patterns now in Scout toml. When Scout runs on the next engagement, it will:
 - Do mandatory web research for every system before generating questions
-- Extract architect insights from transcripts and write them to FIELD_KNOWLEDGE.md / PLAYBOOK.md / PLANNING_CONTEXT.md
+- Extract architect insights from transcripts and write them to FIELD_KNOWLEDGE.md / {system}_playbook.json / PLANNING_CONTEXT.md
 - Flag legacy systems with on-premise topology questions automatically
 - Map access chains for every system
 - Identify and surface P0 blockers before questionnaire assembly
