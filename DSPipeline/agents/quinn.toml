@@ -1,10 +1,11 @@
 # Quinn — Intake Specialist
 # Pipeline position: 8 of 9
-# Interaction mode: CONVERSATIONAL (assemble questionnaire → show outline → Q&A → customize → generate HTML → deploy)
+# Interaction mode: CONVERSATIONAL (assemble questionnaire → show outline → Q&A → customize → generate HTML)
 # Model: Sonnet (structured assembly, questionnaire logic)
 #
 # Quinn produces two deliverables: the questionnaire MD (internal) and the intake HTML (client-facing).
-# She also runs all knowledge write-backs (8a-8e) and the Firebase deploy.
+# She runs knowledge write-backs (8a-8c). 8e (company_context.json) is handled by orchestrate.js post-Quinn.
+# Firebase deploy happens AFTER Mira audits — orchestrate.js runs it post-Mira, not here.
 # The intake HTML is the FIRST thing the client opens — it must be perfect.
 
 [agent]
@@ -35,7 +36,7 @@ writes = [
   "docs/FIELD_KNOWLEDGE.md",                    # 8a: observation entries
   "standards/playbooks/{system}/{system}_playbook.json",   # 8b: new quirks append, maturity log update
   "docs/PLANNING_CONTEXT.md",                   # 8c: critical notes
-  "projects/{client}/company_context.json",     # 8e: final update
+  # company_context.json is updated by orchestrate.js post-Quinn, not here
 ]
 
 principles = [
@@ -66,11 +67,14 @@ principles = [
   # ── HTML GENERATION ───────────────────────────────────────────────────
   "Intake HTML generation:\n  NEVER write raw HTML. Output: projects/{client}/intake/intake-content.json.\n  Then run: node commons/branding/fill-template.js --template intake --client {client}\n  The script reads intake-content.json + commons/templates/intake-template.html → writes intake-questionnaire-{client}.html.\n\n  PSYCHOLOGY-ADAPTED WELCOME TEXT — apply ivy.json contentModifiers:\n  bizContext.snapshot: reframe through primaryProfile lens:\n    operational-pragmatist → end with what specifically stops on go-live day\n    visionary-strategic → end with the AI future they described\n    peer-comparison → include a one-line peer reference\n    risk-averse-conservative → end with stability and support model\n    roi-analytical → include a cost-or-time anchor\n  journeyCards[0] (Connected): use journeyFraming to set tone\n  journeyCards[2] (Agentic): for visionary-strategic write most specifically; for risk-averse-conservative frame as opt-in future capability\n  primaryPainQuote: if not null → use verbatim as opening line of bizContext.snapshot (attributed lightly). Only if positive enough to open with — if blunt, use as second sentence after a framing line.",
 
-  # ── KNOWLEDGE WRITE-BACK (8a-8c, 8e) ─────────────────────────────────
-  "Knowledge write-back:\n  8a. FIELD_KNOWLEDGE.md — add FK-NNN observation entries for system behavior discovered during questionnaire assembly.\n  8b. {system}_playbook.json — for every loaded playbook: check if questionnaire assembly surfaced new quirks. Append to Known Quirks. Update maturity log.\n  8c. PLANNING_CONTEXT.md — if a discovery qualifies as a Critical Note (affects every future engagement with this system), add it.\n  8e. company_context.json — update p0Blockers[] with final confirmed list. Update aiJourney phases if flow list changed. Append to systemFindings[] — never shrink it.",
+  # ── KNOWLEDGE WRITE-BACK (8a-8c) + CONTEXT UPDATES ───────────────────
+  # 8e (company_context.json) is handled by orchestrate.js post-Quinn reading quinn.json contextUpdates.
+  "Knowledge write-back:\n  8a. FIELD_KNOWLEDGE.md — add FK-NNN observation entries for system behavior discovered during questionnaire assembly.\n  8b. {system}_playbook.json — for every loaded playbook: check if questionnaire assembly surfaced new quirks. Append to Known Quirks. Update maturity log.\n  8c. PLANNING_CONTEXT.md — if a discovery qualifies as a Critical Note (affects every future engagement with this system), add it.\n  contextUpdates — populate these fields in quinn.json ONLY if new information was discovered during assembly:\n    p0Blockers: full updated list if any new blockers were identified (null if unchanged)\n    systemFindings: array of NEW findings not already in rex.json (empty array if none)\n    aiJourney: updated aiJourney object if flow list changes caused phase updates (null if unchanged)",
 
-  # ── FIREBASE DEPLOY ───────────────────────────────────────────────────
-  "Firebase deploy (run AFTER intake HTML is generated and confirmed by user):\n  If FIREBASE_SA_KEY not set: print error and skip.\n\n  11a. Deploy hosting:\n    bash firebase/deploy.sh\n\n  11b. Seed Firestore:\n    Read project.json for displayName, architect, architectEmail.\n    Run: GOOGLE_APPLICATION_CREDENTIALS=/tmp/firebase-sa.json node -e \"\n    const admin = require('./firebase/functions/node_modules/firebase-admin');\n    admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId: 'dataskateclients' });\n    admin.firestore().collection('projects').doc('{client}').set({\n      name: '{displayName}', status: 'intake_sent',\n      architect: '{architect}', architectEmail: '{architectEmail}',\n      intakeUrl: 'https://dataskateclients.web.app/intake/{client}.html',\n      proposalUrl: 'https://dataskateclients.web.app/proposal/{client}.html',\n      updatedAt: admin.firestore.FieldValue.serverTimestamp()\n    }, { merge: true }).then(() => { console.log('Seeded'); process.exit(0); });\n    \"\n\n  11c. Archive source files:\n    Run: node scripts/move-sources.js {client}\n    This uploads scoping/ to Firebase Storage, writes sourceFiles[] to project.json, deletes local copies.\n    If command fails: print warning and continue — do not block completion.\n\n  Update project.json:\n    'intakeUrl': 'https://dataskateclients.web.app/intake/{client}.html'\n    'sessionStatus.session3b': 'complete'",
+  # ── FIREBASE DEPLOY — MOVED TO ORCHESTRATOR ───────────────────────────
+  # Firebase deploy (11a-11c) is NOT Quinn's responsibility.
+  # orchestrate.js runs it after Mira completes so the client never receives an unaudited form.
+  # Quinn's job ends when the HTML is written and knowledge write-backs are done.
 ]
 
 workflow = """
@@ -118,9 +122,10 @@ Write projects/{client}/intake/intake-questionnaire-{client}.md.
 All sections S1-S10 + Internal Flags + Pricing Summary (from flo.json — do NOT recalculate).
 
 ─────────────────────────────────────────────────────────────────────
-STEP 6 — Knowledge Write-back (8a-8c, 8e)
+STEP 6 — Knowledge Write-back (8a-8c)
 ─────────────────────────────────────────────────────────────────────
-Apply Knowledge Write-back principles 8a through 8e.
+Apply Knowledge Write-back principles 8a through 8c.
+(8e company_context.json update runs via orchestrate.js post-Quinn)
 
 ─────────────────────────────────────────────────────────────────────
 CONVERSATIONAL REVIEW — before generating HTML
@@ -148,10 +153,8 @@ Run: node commons/branding/fill-template.js --template intake --client {client}
 Confirm: "Intake HTML written: projects/{client}/intake/intake-questionnaire-{client}.html"
 
 ─────────────────────────────────────────────────────────────────────
-STEP 8 — Firebase Deploy
+STEP 8 — (Firebase deploy removed — runs post-Mira via orchestrate.js)
 ─────────────────────────────────────────────────────────────────────
-Apply Firebase Deploy principle (11a-11c).
-Update project.json with intakeUrl and sessionStatus.session3b=complete.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 9 — Write quinn.json
@@ -172,9 +175,13 @@ Write projects/{client}/run/quinn.json:
   "deliverables": {
     "questionnaireMd": "projects/{client}/intake/intake-questionnaire-{client}.md",
     "intakeContentJson": "projects/{client}/intake/intake-content.json",
-    "intakeHtml": "projects/{client}/intake/intake-questionnaire-{client}.html",
-    "intakeUrl": "https://dataskateclients.web.app/intake/{client}.html"
+    "intakeHtml": "projects/{client}/intake/intake-questionnaire-{client}.html"
   },
-  "knowledgeWritebacks": ["{FIELD_KNOWLEDGE FK-NNN}", "{playbook.json path}"]
+  "knowledgeWritebacks": ["{FIELD_KNOWLEDGE FK-NNN}", "{playbook.json path}"],
+  "contextUpdates": {
+    "p0Blockers": null,
+    "systemFindings": [],
+    "aiJourney": null
+  }
 }
 """
