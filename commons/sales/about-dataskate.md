@@ -1,11 +1,36 @@
-Data integration is not a service DataSkate added to a broader practice. It is the only thing the people behind DataSkate have done for twenty years — across industries, at companies of every size, through every generation of middleware and every wave of "the next big platform." We have watched point-to-point connections fail at 3am. We have rebuilt pipelines another vendor called production-ready. We have learned, the slow way, which system boundaries matter and which ones do not. That knowledge does not come from reading documentation. It comes from shipping.
+<div class="about-hero">
+  <div class="about-stat">
+    <div class="about-stat-num">20</div>
+    <div class="about-stat-label">years, one discipline</div>
+  </div>
+  <div class="about-stat">
+    <div class="about-stat-num">1</div>
+    <div class="about-stat-label">service — nothing else</div>
+  </div>
+  <div class="about-stat">
+    <div class="about-stat-num">0</div>
+    <div class="about-stat-label">websites. consulting. mobile apps.</div>
+  </div>
+</div>
 
-We stayed narrow on purpose — because the problem kept getting harder. The systems multiplied. The data volumes grew. The expectations on operations teams never stopped. And now AI has arrived, and every vendor is promising their model will fix the operational chaos underneath. It will not. Not without connected, clean, trustworthy data to read. AI does not create order from disorder. It amplifies what is already there. That is why DataSkate exists at this moment. Not to sell integrations. To build the data infrastructure that makes AI actually work.
+<p class="about-lead">Data integration is not a service DataSkate added to a broader practice. It is the only thing the people behind DataSkate have ever done — across industries, at companies of every size, through every generation of middleware. We stayed narrow on purpose. The problem kept getting harder, and broad practices lose when things get complicated.</p>
 
-If you are already in the Salesforce ecosystem, you are already closer to an agentic operation than you may realise. Salesforce AgentForce is the platform Salesforce has built to put AI agents directly inside your CRM — agents that can take action, not just surface information. But AgentForce is only as good as the data it reads. Disconnected systems, stale records, manual handoffs — these are not just operational problems. They are the reason AgentForce underdelivers when organisations try to activate it without the right foundation underneath. DataSkate builds that foundation. The MuleSoft flows we design in Year 1 — the field schemas, the event triggers, the error handling, the sync frequencies — are the exact pipelines AgentForce reads in Year 2. We are not adding complexity to your Salesforce investment. We are making it finally deliver what was promised.
+<div class="about-ai-callout">
+  <div class="about-ai-label">Why this matters now</div>
+  <p>AI does not create order from disorder. It amplifies what is already there. Every vendor is promising their model will fix the operational chaos underneath your business. It will not — not without connected, clean, trustworthy data to read. DataSkate builds that foundation. The MuleSoft flows we design in Year 1 are the exact pipelines AgentForce reads in Year 2. We are not adding complexity to your Salesforce investment. We are making it finally deliver what was promised.</p>
+</div>
 
-We design every engagement with this endpoint in mind. Not because it is a good story, but because we have watched the alternative play out too many times — AI features bought, connected to messy data, and quietly abandoned six months later. Our development process is itself AI-assisted from the first scoping session. The architecture in this proposal, the field mapping logic, the use-case sequencing — assembled from patterns learned across twenty years of integration work and applied to your specific situation. Not a template. A diagnosis.
-
-DataSkate does not build websites. We do not do general IT consulting. We do not write mobile apps. When you have an integration problem, you reach people for whom this is the only question — and has been for years. That focus shows in the diagnosis. It shows in the build. It shows when something breaks at 2am and we already know the three most likely reasons why.
-
-The engagements we remember most are not the ones with the biggest contracts. They are the ones where we watched something unlock — where a finance team stopped spending Fridays reconciling spreadsheets, or a sales manager saw renewal risk 60 days before the call instead of on it. That is what connected operations actually looks like. Specific. Quiet. Real. That is what we are trying to give you.
+<div class="about-pillars">
+  <div class="about-pillar">
+    <div class="about-pillar-head">Narrow by design</div>
+    <p>We do not build websites. We do not do general IT consulting. When you have an integration problem, you reach people for whom this is the only question — and has been for years. That focus shows in the diagnosis. It shows in the build.</p>
+  </div>
+  <div class="about-pillar">
+    <div class="about-pillar-head">Not a template. A diagnosis.</div>
+    <p>The architecture in this proposal was assembled from patterns learned across twenty years and applied to your specific situation. Specific field schemas, event triggers, sync frequencies — built for this engagement, not the previous one.</p>
+  </div>
+  <div class="about-pillar">
+    <div class="about-pillar-head">Still there at 2am</div>
+    <p>We have watched point-to-point connections fail overnight. We have rebuilt pipelines another vendor called production-ready. When something breaks, you reach people who already know the three most likely reasons why.</p>
+  </div>
+</div>
