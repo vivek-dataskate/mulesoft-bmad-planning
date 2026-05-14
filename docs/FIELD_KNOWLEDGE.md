@@ -888,7 +888,7 @@ Scenario:
 Key facts:
   - IDP hard limits: 50 pages per submission, 10MB per file
   - Minimum polling interval after submit: 10 seconds (per IDP quota docs)
-  - P50 extraction latency: 7.6s, P99: 13.4s (per connector-index.json)
+  - P50 extraction latency: 7.6s, P99: 13.4s (per connector-registry.json)
   - Status flow: ACKNOWLEDGED → IN_PROGRESS → RESULTS_PENDING → SUCCEEDED / FAILED / PARTIAL_SUCCESS / MANUAL_VALIDATION_REQUIRED
   - PARTIAL_SUCCESS and MANUAL_VALIDATION_REQUIRED are valid outcomes — design flows to handle them, not just SUCCEEDED/FAILED
   - For 100+ page PDFs: split to 40-page chunks with 5-page overlap at boundaries to avoid splitting mid-clause
@@ -904,13 +904,13 @@ What to do:
   6. 90% accuracy threshold (set by Brent Paulson) applies to the full extraction pipeline — not just IDP.
 
 What failed:
-  Not yet observed in production. Flagged from connector-index.json research during Scout S1.
+  Not yet observed in production. Flagged from connector-registry.json research during Scout S1.
   Sample spec files in scoping/ confirmed 100+ pages (City of Encinitas CS22B = 175+ page PDF).
 
 Status: observation
 Promotes to: standards/playbooks/mulesoft-idp/mulesoft-idp_playbook.json (create after first full IDP engagement delivery)
 
-*Added: 2026-05-12 — Source: connector-index.json + sample spec book analysis during Scout S1 for bear-electrical-customer*
+*Added: 2026-05-12 — Source: connector-registry.json + sample spec book analysis during Scout S1 for bear-electrical-customer*
 
 ---
 

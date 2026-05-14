@@ -249,6 +249,7 @@ function buildProposal(c) {
   ${f.analogyNote ? `<div class="fomo-analogy">${esc(f.analogyNote)}</div>` : ''}
   ${f.savings ? `<div class="fomo-savings-val">${esc(f.savings)}</div>` : ''}
   <div class="fomo-built">${esc(f.whatTheyBuilt || f.what || '')}</div>
+  ${f.aiAgentDescription ? `<div class="fomo-agent">${esc(f.aiAgentDescription)}</div>` : ''}
   ${f.fomoAngle ? `<div class="fomo-angle">${esc(f.fomoAngle)}</div>` : ''}
   ${sourceFooter}
 </div>`;
@@ -256,6 +257,16 @@ function buildProposal(c) {
     </div>
   </div>
 </details>`
+    : '');
+
+  const starters = c.fomoThoughtStarters || [];
+  fill('fomo-thought-starters', starters.length > 0
+    ? `<div class="ai-starters">
+  <div class="ai-starters-eyebrow">What else teams like yours are exploring</div>
+  <ul class="ai-starters-list">
+    ${starters.map(s => `<li>${esc(s)}</li>`).join('\n    ')}
+  </ul>
+</div>`
     : '');
 
   fill('next-steps', c.nextSteps.map((n, i) =>
