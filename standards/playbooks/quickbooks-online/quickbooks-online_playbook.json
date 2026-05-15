@@ -1,18 +1,35 @@
 {
   "system": "quickbooks-online",
-  "displayName": "Intuit QuickBooks Online (QBO) | **Maturity:** stub | **Last updated:** 2026-05-13 | **Clients:** agilemind (1)",
+  "displayName": "Intuit QuickBooks Online (QBO)",
   "maturity": "stub",
-  "lastUpdated": "2026-05-13 | **Clients:** agilemind (1)",
-  "clients": [],
-  "knownQuirks": [],
-  "p0Conditions": [],
+  "lastUpdated": "2026-05-14",
+  "clients": ["agilemind"],
+  "connectorKey": "quickbooks-online",
+  "knownQuirks": [
+    "OAuth 2.0 refresh token expires after 100 days of non-use \u2014 automated token refresh or Secrets Manager rotation required in production; silent expiry will break all sync flows",
+    "QB customer record must pre-exist before invoice creation \u2014 Mule UC1 must look up QB Customer by name or by a QB_CustomerId stored on the Salesforce Account; name mismatches (e.g. 'Austin ISD' vs 'Austin Independent School District') cause invoice creation failures",
+    "Company ID (realmId) is required on every API call \u2014 must be stored in environment properties, never hardcoded",
+    "Batch API limited to 30 operations per call \u2014 bulk invoice or item operations must be chunked",
+    "Webhook events use Intuit verification header (intuit-signature) \u2014 HMAC-SHA256 signature must be verified before processing in UC1 webhook path",
+    "Fiscal year start is configurable in QB company settings \u2014 date-range filters for invoice and inventory queries must align to the configured FY start (AgileMind: April 1)",
+    "QB Item names and Salesforce Product names must align for UC4 cost lookup \u2014 divergence creates unmapped cost records; confirm naming convention with client before mapping"
+  ],
+  "p0Conditions": [
+    "Version not confirmed as Online vs Desktop/Enterprise \u2014 confirm before any connector selection (FK-020)",
+    "Connected App at developer.intuit.com must be registered before OAuth flow can be configured"
+  ],
   "maturityLog": [
     {
       "date": "2026-05-13",
-      "client": "1",
-      "finding": "Initial stub \u2014 agilemind engagement",
+      "clientCount": 1,
+      "knowledgeAdded": "Initial stub \u2014 AgileMind engagement",
+      "status": "stub"
+    },
+    {
+      "date": "2026-05-14",
+      "clientCount": 1,
+      "knowledgeAdded": "Rex research pass: OAuth refresh token expiry risk, QB customer name matching for invoice creation, realmId requirement, FY start alignment, batch API limit, webhook verification. Education-specific: fiscal year April 1 offset, K-12 district customer naming conventions.",
       "status": "stub"
     }
-  ],
-  "connectorKey": "quickbooks-online"
+  ]
 }

@@ -23,8 +23,8 @@ reads = [
 ]
 writes = [
   "projects/{client}/run/flo.json",
-  "projects/{client}/decisions.json",           # pricing and flow-classification decisions appended
-  # project.json (flowCount, pricingComputed) is written by orchestrate.js post-Flo
+  "projects/{client}/run/flo-decisions.json",   # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
+  # project.json (flowCount, pricingComputed) and decisions.json are written by orchestrate.js post-Flo
 ]
 
 principles = [
@@ -38,7 +38,7 @@ principles = [
   "Consolidate P0 blockers from rex.json p0Blockers[]:\n  1. De-duplicate (same system may have been flagged multiple times).\n  2. Apply Bundling Rule: group P0s resolvable in the same vendor support call.\n  3. Verify every P0 has all three fields: title, clientAction, body.\n  4. Assign priority: P0 (must resolve before contract), P1 (must resolve before kickoff), P2 (must resolve before UAT).\n  5. Write final consolidated list to flo.json p0Blockers[].",
 
   # ── PRICING COMPUTATION ───────────────────────────────────────────────
-  "Pricing computation — read commons/sales/pricing-model.md as the single source of truth.\n  INPUTS: confirmed flow count N (count confirmed=true in flo.json confirmedFlows[]).\n  COMPUTE:\n    Implementation fee: from pricing-model.md formula for N flows\n    Timeline weeks: from pricing-model.md formula (typically 2 + N × 1.5, rounded up)\n    Period 1 rate per flow per month: from pricing-model.md\n    Period 2, 3, 4 rates: from pricing-model.md\n    6-month payment (Period 1): rate × N × 6\n    2-year managed service total: sum of all period payments over 24 months\n    Implementation-only fee: from pricing-model.md for N flows\n    Recommended model: IaaS (managed service) vs. Implementation Only — document rationale\n  LOG to decisions.json: one pricing entry with flow count, all computed numbers, recommended model and why, any edge cases.",
+  "Pricing computation — read commons/sales/pricing-model.md as the single source of truth.\n  INPUTS: confirmed flow count N (count confirmed=true in flo.json confirmedFlows[]).\n  COMPUTE:\n    Implementation fee: from pricing-model.md formula for N flows\n    Timeline weeks: from pricing-model.md formula (typically 2 + N × 1.5, rounded up)\n    Period 1 rate per flow per month: from pricing-model.md\n    Period 2, 3, 4 rates: from pricing-model.md\n    6-month payment (Period 1): rate × N × 6\n    2-year managed service total: sum of all period payments over 24 months\n    Implementation-only fee: from pricing-model.md for N flows\n    Recommended model: IaaS (managed service) vs. Implementation Only — document rationale\n  LOG to flo-decisions.json: one pricing entry with flow count, all computed numbers, recommended model and why, any edge cases.",
 
   # ── DOWNSTREAM LOAD LIST ──────────────────────────────────────────────
   "Downstream load list (replaces Scout's session2LoadList): based on confirmed systems in flo.json confirmedFlows[], compute what playbooks, canonical models, and connector keys Quinn and Petra will need.\n  Write to flo.json downstreamLoadList:\n    playbooks: exact paths (e.g. 'standards/playbooks/salesforce/salesforce_playbook.json')\n    canonicalModels: glob patterns (e.g. 'standards/canonical-models/{vertical}/canonical-*.yaml')\n    connectorKeys: slugs for python3 query-connector.py (e.g. ['salesforce', 'quickbooks-online'])\n  This tells orchestrate.js what to pre-load before Quinn and Petra start.",
@@ -47,7 +47,7 @@ principles = [
   "Detect if Salesforce appears in any confirmed flow. If yes: set flo.json flags.salesforceDetected = true. Downstream agents (Petra, Quinn) use this flag to apply AgentForce-specific framing rules without re-checking system lists.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
-  "Log to decisions.json:\n  One flow-classification entry per confirmed flow (why confirmed, evidence from sage.json).\n  One flow-classification entry per potential flow (why potential not confirmed, what would promote it).\n  One pricing entry (flow count, all computed numbers, recommended model and rationale, any edge cases).\n  Append only — never modify existing entries. Prefix IDs as D-NNN continuing from last entry.",
+  "Log to run/flo-decisions.json (agent-scoped; orchestrate.js aggregates into decisions.json):\n  One flow-classification entry per confirmed flow (why confirmed, evidence from sage.json).\n  One flow-classification entry per potential flow (why potential not confirmed, what would promote it).\n  One pricing entry (flow count, all computed numbers, recommended model and rationale, any edge cases).\n  Append only — never modify existing entries. Prefix IDs as FD-NNN.",
 ]
 
 workflow = """

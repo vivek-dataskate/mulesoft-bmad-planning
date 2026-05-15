@@ -1,0 +1,78 @@
+title: Canonical Inventory Record — Education Vertical
+version: 1.0.0-stub — created from AgileMind engagement 2026-05-14
+standard: derived (no formal K-12 inventory standard; modeled from OAGIS ItemMaster + publisher conventions)
+standardBody: derived
+standardRef: derived
+deviations:
+  - Dual-source architecture: demand quantities from spreadsheet (UC3), cost values from QuickBooks (UC4)
+  - 3% buffer threshold is business-specific (AgileMind — Intensified Algebra Vol 1, Intensified Integrated Math Vol 1)
+  - ISBN is the primary product identifier (state-specific)
+  - Committed stock = pipeline at ≥50% probability stage (Salesforce Opportunity)
+description: >
+  Canonical inventory record for K-12 educational publishers tracking print student activity book (SAB)
+  inventory. Designed for dual-source sync: UC3 reads demand/quantity data from Holly's spreadsheet,
+  UC4 reads cost/value data from QuickBooks inventory items. Both write to Salesforce Inventory__c.
+  Field ownership is split to avoid overwrite conflicts.
+
+type: object
+required:
+  - inventoryId
+  - isbn
+  - titleName
+  - quantityOnHand
+  - lastSyncedAt
+
+properties:
+  inventoryId:
+    type: string
+    description: Salesforce Inventory__c record ID
+    sourceSystem: Salesforce
+  isbn:
+    type: string
+    description: State-specific ISBN — primary key for upsert (composite with titleName slug)
+    sourceSystem: both
+  titleName:
+    type: string
+    description: Curriculum book title (e.g. Intensified Algebra Volume 1 SAB)
+    sourceSystem: both
+  quantityOnHand:
+    type: integer
+    description: Current physical stock count
+    sourceSystem: QuickBooks (UC4) or Spreadsheet (UC3)
+    fieldOwner: UC4 (QuickBooks path preferred)
+  quantityCommitted:
+    type: integer
+    description: Units reserved for closed-won agreements and high-probability pipeline
+    sourceSystem: Spreadsheet (UC3)
+    fieldOwner: UC3
+  quantityAvailable:
+    type: integer
+    description: quantityOnHand - quantityCommitted
+    sourceSystem: computed
+  bufferThreshold:
+    type: number
+    description: Safety stock buffer as a decimal (e.g. 0.03 = 3%); title-specific
+    sourceSystem: Spreadsheet (UC3) or hardcoded in flow config
+    fieldOwner: UC3
+  projectedShort:
+    type: boolean
+    description: True when quantityAvailable < (quantityCommitted × bufferThreshold); drives shortage alert
+    sourceSystem: computed in Salesforce Flow / MuleSoft transform
+  unitCost:
+    type: number
+    description: Cost per unit (USD) — sourced from QuickBooks inventory item
+    sourceSystem: QuickBooks (UC4)
+    fieldOwner: UC4
+  totalInventoryValue:
+    type: number
+    description: quantityOnHand × unitCost — for Maria's 5-year spend analysis
+    sourceSystem: computed
+  state:
+    type: string
+    description: State for which this ISBN is valid (ISO code or free-text per SF Picklist setting)
+    sourceSystem: Spreadsheet (UC3)
+  lastSyncedAt:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of last successful sync — set by MuleSoft on each upsert
+    sourceSystem: MuleSoft

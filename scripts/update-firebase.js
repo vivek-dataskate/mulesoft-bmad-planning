@@ -177,7 +177,6 @@ function rebuildManifest() {
       if (!fs.existsSync(projFile)) continue;
 
       const proj = JSON.parse(fs.readFileSync(projFile, 'utf8'));
-      if (!proj.intakeUrl && !proj.proposalUrl && !proj.pitchKitUrl) continue;
 
       const entry = {
         id:             slug,
@@ -189,6 +188,8 @@ function rebuildManifest() {
       if (proj.intakeUrl)    entry.intakeUrl    = proj.intakeUrl;
       if (proj.proposalUrl)  entry.proposalUrl  = proj.proposalUrl;
       if (proj.pitchKitUrl)  entry.pitchKitUrl  = proj.pitchKitUrl;
+      const intakeFile = path.join(PUBLIC, 'intake', `${slug}.html`);
+      if (fs.existsSync(intakeFile)) entry.intakePublished = true;
       projects.push(entry);
     }
   }

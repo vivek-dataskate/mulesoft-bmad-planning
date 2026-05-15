@@ -1,24 +1,510 @@
 {
   "client": "agilemind",
-  "generatedAt": "2026-05-14T21:15:14.238Z",
-  "snapshot": null,
-  "industry": null,
-  "businessObjects": [],
-  "hqLocation": null,
-  "revenueEstimate": null,
+  "generatedAt": "2026-05-14T21:57:20.826Z",
+  "snapshot": "AgileMind sells K-12 educational curriculum (print student activity books + digital access) to school districts. Products are sold by academic year with back-to-school seasonality. Print materials carry regional ISBNs that vary by state.",
+  "industry": "educational publishing / EdTech",
+  "businessObjects": [
+    "Districts (school district accounts — Salesforce Account)",
+    "Contacts (district administrators, principals, teachers — Salesforce Contact)",
+    "Opportunities (multi-year sales pipeline — Salesforce Opportunity)",
+    "Agreements (executed contracts — Salesforce custom object)",
+    "Products / Titles (curriculum book series, e.g. Intensified Algebra Vol 1 — Salesforce Product + QB Item)",
+    "ISBNs (regional identifiers per product × state — Salesforce configurable lookup table)",
+    "Invoices (billing records — QuickBooks Invoice)",
+    "Inventory Records (quantities on hand, committed, available per title — QB + Salesforce Inventory__c)",
+    "Fulfillment Records (shipped quantities, CCR flags — Holly's Excel/Google Sheets)",
+    "Payment Records (QB open balance, payment date, AR aging — QuickBooks)",
+    "Subscriptions / Licenses (digital access entitlements per district)"
+  ],
+  "hqLocation": "Grapevine, TX",
+  "revenueEstimate": "~$18M ARR (sourced: ZoomInfo/RocketReach third-party estimates; not self-reported)",
   "aiJourney": {
-    "phase1": null,
-    "phase2": null,
-    "phase3": null
+    "phase1": {
+      "label": "Connected",
+      "headline": "Agreement-to-Invoice and Inventory in One View",
+      "body": "The 4 confirmed flows close the manual gaps Crystal and Holly live in daily: UC1 fires when Abby creates an Agreement in Salesforce (Closed Won) and automatically creates the QuickBooks invoice — no manual re-entry. UC2 polls QuickBooks on a schedule and writes the invoice number, payment date, and open balance back to the Salesforce Agreement — Crystal stops toggling between systems. UC3 reads Holly's Google Sheets or Excel demand worksheet on a schedule and loads inventory quantities, committed stock, and projected shorts into a new Salesforce Inventory__c object. UC4 pulls QB inventory item costs into the same Salesforce object, so Maria can answer 'how much did we spend on Intensified Algebra Vol 1 over 5 years?' without leaving Salesforce."
+    },
+    "phase2": {
+      "label": "Automated",
+      "headline": "Shortage Alerts and Fulfillment Triggers Fire Themselves",
+      "body": "With live inventory in Salesforce, automated rules become possible that aren't feasible today. When available inventory for a title drops below the configured 3% buffer (currently tracked manually in red on Holly's spreadsheet), Salesforce fires a shortage alert to Holly and the relevant sales rep automatically. When a district's pipeline stage crosses 60% probability, a pre-fulfillment reservation is triggered in QB — reducing the last-minute crunch at back-to-school. CCR fulfillment flags (UC6-potential) are stamped automatically on the incoming Agreement so the system knows materials were already shipped, eliminating Holly's manual reconciliation call to sales. Product catalog sync (UC5-potential) keeps QB items and Salesforce Products aligned so new title additions by Maria don't silently diverge from Abby's opportunity line items."
+    },
+    "phase3": {
+      "label": "Agentic",
+      "headline": "Agentforce Turns Salesforce Data Into District-Level Decisions",
+      "body": "Phase 1 creates the Salesforce objects that Agentforce runs on: Agreement, Invoice status, Inventory__c, and Product. An Agentforce Sales Agent monitors open Agreements where the QB open balance has aged past 30 days and drafts a follow-up email to the district's finance contact — no action needed from Crystal. A second Agentforce agent answers Maria's natural-language procurement questions: 'What did we source for Intensified Algebra Vol 1 the last 3 fiscal years and what is left in inventory?' — pulling from the Inventory__c and Invoice history Phases 1–2 created. A third agent runs pre-season demand forecasting: reading open pipeline by probability stage from Opportunities, comparing against current QB inventory levels, and generating a draft purchase order recommendation for Holly's review — replacing the manual red-cell Excel exercise with a one-click approval workflow."
+    }
   },
-  "confirmedFlows": [],
-  "potentialFlows": [],
-  "signals": [],
-  "namedContacts": [],
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "systems": [
+        "Salesforce",
+        "QuickBooks"
+      ],
+      "direction": "Salesforce → QuickBooks",
+      "entity": "Invoice",
+      "trigger": "event-driven",
+      "triggerDetail": "Agreement approved/created in Salesforce (Opportunity Closed Won → Agreement created → invoice auto-created in QB)",
+      "evidence": "when an agreement is created in Salesforce, it will generate a new invoice in QuickBooks for an existing account"
+    },
+    {
+      "id": "UC2",
+      "systems": [
+        "QuickBooks",
+        "Salesforce"
+      ],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Invoice payment status",
+      "trigger": "scheduled",
+      "triggerDetail": "Periodic sync of QB invoice number, date, amount, open balance back to Salesforce Agreement custom fields",
+      "evidence": "track payment updates from QuickBooks to Salesforce, including the open balance... update the number, amount, dates"
+    },
+    {
+      "id": "UC3",
+      "systems": [
+        "Excel/Google Sheets",
+        "Salesforce"
+      ],
+      "direction": "Excel/Google Sheets → Salesforce",
+      "entity": "Inventory",
+      "trigger": "scheduled",
+      "triggerDetail": "Near real-time or scheduled sync of inventory data (titles, quantities, cost, committed vs available) into Salesforce custom inventory object for dashboards",
+      "evidence": "push the data directly um and the details directly from Excel in real time or from QuickBooks if it's living in QuickBooks. And so then we can push that inventory data directly into Salesforce"
+    },
+    {
+      "id": "UC4",
+      "systems": [
+        "QuickBooks",
+        "Salesforce"
+      ],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Inventory / product cost data",
+      "trigger": "scheduled",
+      "triggerDetail": "QB inventory quantities and cost values synced to Salesforce inventory object for unified reporting",
+      "evidence": "some of this lives in QuickBooks... you are going to be able to see like ... algebra 6 books six equals x amount ... value of inventory ... cost per district, cost per program"
+    }
+  ],
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "systems": [
+        "Salesforce",
+        "QuickBooks"
+      ],
+      "entity": "Products / Book titles (master data)",
+      "rationale": "Team is actively adding new titles to both QB and Salesforce separately. Deferred in May 8 call pending Maria's input. Logical gap — without product sync, title lists will diverge and break ISBN mapping.",
+      "promotionEvidence": "Maria or Abby confirm where product catalog should be mastered (QB or SF) and whether bi-directional or single-direction sync is needed"
+    },
+    {
+      "id": "UC6-potential",
+      "systems": [
+        "Salesforce",
+        "QuickBooks"
+      ],
+      "entity": "Contract Change Request (CCR) fulfillment flag",
+      "rationale": "Holly stated: 'Sales will ask us to ship materials ahead of a closed/won agreement. This happens on a CCR — if/when approved, they are treated as closed/won business and are added to our fulfillment queue. The system needs to know that when the agreement comes in, it has already been fulfilled.' This implies a flag/status flow between CCR approval and the incoming agreement.",
+      "promotionEvidence": "Confirm whether CCR approval lives in Salesforce or a separate system; confirm whether 'already fulfilled' flag should update the QB inventory decrement retroactively"
+    },
+    {
+      "id": "UC7-potential",
+      "systems": [
+        "QuickBooks",
+        "Salesforce"
+      ],
+      "entity": "Inventory decrement on fulfillment",
+      "rationale": "Holly: 'Each order decrements our existing inventory.' If inventory master moves to QB, decrement events need to sync to SF so Holly's dashboard stays accurate.",
+      "promotionEvidence": "Confirm whether QB or SF will be inventory system of record post-integration; confirm fulfillment decrement event timing"
+    }
+  ],
+  "signals": [
+    "real-time",
+    "scheduled",
+    "file / Excel",
+    "batch"
+  ],
+  "namedContacts": [
+    {
+      "name": "Holly Wale",
+      "title": "Print Procurement & Fulfillment Manager",
+      "email": "hwale@agilemind.com",
+      "systems": [
+        "Excel",
+        "Google Sheets",
+        "QuickBooks"
+      ],
+      "responsibilities": [
+        "Inventory tracking",
+        "Demand forecasting",
+        "Fulfillment ordering",
+        "Vendor management",
+        "Daily/weekly shortage reports"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Crystal Robinson",
+      "title": "Finance / Billing",
+      "email": "crystal@agilemind.com",
+      "systems": [
+        "QuickBooks",
+        "Salesforce"
+      ],
+      "responsibilities": [
+        "Invoice creation in QB",
+        "Manual QB invoice details entry",
+        "Updating Salesforce Agreement with QB invoice number/date/payment info",
+        "AR management"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Abby Dawson",
+      "title": "Sales Operations",
+      "email": "adawson@agilemind.com",
+      "systems": [
+        "Salesforce"
+      ],
+      "responsibilities": [
+        "Opportunity tracking",
+        "Agreement creation",
+        "Program enrollment tracking"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Maria Gonzalez-Pettway",
+      "title": "Finance Director / Operations",
+      "email": "mgonzalez@agilemind.com",
+      "systems": [
+        "QuickBooks",
+        "Salesforce"
+      ],
+      "responsibilities": [
+        "Financial oversight",
+        "QB product item setup",
+        "Budget approval for integration",
+        "Key decision-maker for scope"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Chloe (last name unknown)",
+      "title": "Engineering / IT Director",
+      "email": null,
+      "systems": [
+        "IT infrastructure"
+      ],
+      "responsibilities": [
+        "IT oversight",
+        "API access decisions",
+        "System integration technical approval"
+      ],
+      "accessChain": {
+        "isSystemAdmin": true,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Linda (last name unknown)",
+      "title": "Executive (CEO/COO/CFO level — not confirmed)",
+      "email": null,
+      "systems": [
+        "Salesforce",
+        "Reporting"
+      ],
+      "responsibilities": [
+        "Budget decision-maker",
+        "Executive reporting",
+        "Go/no-go on integration contract"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Ivy Flores",
+      "title": "Unknown",
+      "email": "iflores@agilemind.com",
+      "systems": [],
+      "responsibilities": [
+        "Invited to May 8 call — role not identified in transcripts"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    }
+  ],
   "systemFindings": [],
   "p0Blockers": [],
-  "nearbyPeers": [],
-  "competitorFOMO": [],
-  "aiThoughtStarters": [],
-  "psychologyProfile": null
+  "nearbyPeers": [
+    {
+      "company": "Cambium Learning Group",
+      "hq": "Dallas, TX (~25 miles from Grapevine)",
+      "radius": "local",
+      "industry": "K-12 educational technology and services",
+      "relevance": "Direct industry peer — PreK-12 education technology and curriculum, headquartered in Dallas. Job postings confirm active Salesforce Senior Development Lead role, indicating parallel CRM investment and integration work.",
+      "sourceUrl": "https://www.cambiumlearning.com/",
+      "verifiedPublicCaseStudy": false,
+      "note": "No public case study found for Salesforce integration — confirmed via web search. Company profile and HQ location verified."
+    },
+    {
+      "company": "Istation",
+      "hq": "Dallas, TX — 8150 N Central Expressway (~25 miles from Grapevine)",
+      "radius": "local",
+      "industry": "K-12 EdTech — adaptive reading, math, and Spanish literacy assessments",
+      "relevance": "Dallas-based K-12 EdTech company with $22M in funding. Tech stack confirmed to include QuickBooks — same finance/ops fragmentation pattern as AgileMind. Recently merged with Amira to create an Intelligent Growth Engine. Sells to the same district buyers AgileMind targets.",
+      "sourceUrl": "https://www.istation.com/",
+      "verifiedPublicCaseStudy": false,
+      "note": "No Salesforce case study found; QuickBooks presence in tech stack confirmed via LeadIQ/ZoomInfo. DataSkate prospect profile: same Salesforce + QuickBooks integration gap."
+    },
+    {
+      "company": "Dallas College",
+      "hq": "Dallas, TX (~25 miles from Grapevine)",
+      "radius": "local",
+      "industry": "Higher education / community college district",
+      "relevance": "Dallas-area education institution with a verified Salesforce Education Cloud implementation — built Dallas County Promise scholarship platform on Salesforce in 7 weeks, using Marketing Cloud for automated student communications to 9,000 enrollees. Demonstrates Salesforce investment depth in the DFW education ecosystem.",
+      "sourceUrl": "https://www.salesforce.com/education/dallas-college/",
+      "verifiedPublicCaseStudy": true,
+      "note": "Verified Salesforce customer story. Local credibility signal — Salesforce Education Cloud is active in DFW."
+    },
+    {
+      "company": "Houghton Mifflin Harcourt (HMH)",
+      "hq": "Boston, MA (national — $1.37B revenue, 50M students)",
+      "radius": "national",
+      "industry": "K-12 educational publishing and digital learning",
+      "relevance": "Salesforce anchor customer in K-12 publishing. Standardized on Sales Cloud in 2012, added Service Cloud and Wave Analytics; drove digital revenue past 50% by 2015. Their blended print+digital curriculum model is the scaled version of AgileMind's. Deep, long-standing Salesforce investment.",
+      "sourceUrl": "https://www.salesforce.com/au/customer-success-stories/houghton-mifflin-harcourt/",
+      "verifiedPublicCaseStudy": true,
+      "note": "Verified Salesforce customer story. National peer — much larger, but the same print+digital model and Salesforce-at-the-core pattern."
+    },
+    {
+      "company": "Pearson",
+      "hq": "London, UK / US operations nationally",
+      "radius": "national",
+      "industry": "Educational publishing, assessments, digital learning, workforce credentials",
+      "relevance": "25-year Salesforce customer who expanded to an enterprise value partner in 2025. Deploys Agentforce Sales, Agentforce Service, Agentforce Marketing, and Agentforce Data across their business. The clearest proof point that enterprise educational publishers run their full customer lifecycle on Salesforce + Agentforce — the exact trajectory DataSkate is proposing for AgileMind's Phase 3.",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/pearson-and-salesforce-expand-partnership-to-accelerate-workforce-ai-readiness-302768454.html",
+      "verifiedPublicCaseStudy": true,
+      "note": "Verified press release (PR Newswire, 2025). Strong FOMO anchor for proposal Phase 3 section."
+    }
+  ],
+  "competitorFOMO": [
+    {
+      "company": "Carnegie Learning",
+      "industry": "K-12 educational technology / curriculum",
+      "fomoTier": "exact-match",
+      "whatTheyDid": "Deployed Salesforce Agentforce to automate sales rep account research and meeting preparation. Agentforce mines Salesforce data to generate AI account summaries — deal amounts, past meeting activity, key contacts — on demand before district calls.",
+      "metrics": "92% reduction in account research time (from up to 1 hour to 5–10 minutes per rep); 90% reduction in time spent on sales emails; increased win rates and faster deal cycles",
+      "aiAgentDescription": "An AI agent monitors Salesforce Opportunity and Account data → generates a real-time account summary when a rep opens a record or receives an inbound call → delivers deal amounts, key contacts, and similar closed-won opportunities in seconds, eliminating hold time",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/carnegie-learning/",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "Carnegie Learning is a direct K-12 curriculum competitor selling to the same school district buyers AgileMind targets. They are already using Agentforce on the same Salesforce platform AgileMind runs — the Phase 3 plays DataSkate is proposing are proven peer-level moves, not experiments."
+    },
+    {
+      "company": "Pearson",
+      "industry": "educational publishing / workforce credentials",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Expanded a 25-year Salesforce relationship to a full enterprise value partnership in 2025. Pearson deploys Agentforce Sales, Agentforce Service, Agentforce Marketing, and Agentforce Data across their business — with customer service already partially resolved by Agentforce AI agents.",
+      "metrics": "25+ years of Salesforce deployment; full Agentforce suite live in 2025; customer service functions partially automated (specific deflection rate not published)",
+      "aiAgentDescription": "Agentforce agents handle customer service resolution across Pearson's product lines, with AI working alongside human agents for escalations; Agentforce Sales and Marketing agents support go-to-market workflows at enterprise scale",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/pearson-and-salesforce-expand-partnership-to-accelerate-workforce-ai-readiness-302768454.html",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "The largest educational publisher in the world is now an Agentforce enterprise. This is the 'where the industry is going' anchor for AgileMind's Phase 3 conversation — not experimental, but market-standard."
+    },
+    {
+      "company": "Wiley",
+      "industry": "educational publishing",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Deployed Salesforce Agentforce + Service Cloud to handle semester-start service surges (thousands of simultaneous student access requests). Agentforce autonomously resolves account access issues, resets passwords, and triages registration and payment problems — deflecting volume that previously required hiring seasonal staff.",
+      "metrics": "213% ROI on Service Cloud investment; 40%+ efficiency gain in case resolution in first weeks of deployment; 50% faster onboarding for new service agents",
+      "aiAgentDescription": "An AI agent monitors incoming student service requests → auto-resolves account access and password issues using the knowledge base → escalates payment and registration edge cases to a human agent with full context pre-loaded",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/wiley/",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "Wiley is a publisher with Salesforce at its core — same industry, same platform. AgileMind's Phase 3 Agentforce plays follow the same pattern Wiley already validated."
+    },
+    {
+      "company": "Houghton Mifflin Harcourt (HMH)",
+      "industry": "K-12 educational publishing",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Standardized the entire sales organization on Salesforce Sales Cloud in 2012, added Service Cloud and Wave Analytics; drove digital revenue past 50% of total company revenue by 2015 — a complete publishing-to-digital transformation anchored on Salesforce.",
+      "metrics": "50%+ of $1.37B revenue became digital by 2015 (from under 20% at start); content now reaches nearly 50 million students across 150 countries annually",
+      "aiAgentDescription": null,
+      "sourceUrl": "https://www.salesforce.com/au/customer-success-stories/houghton-mifflin-harcourt/",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "HMH is the industry model for Salesforce-led digital transformation in K-12 publishing. AgileMind is at the beginning of this journey — UC1–UC4 are the first integration layer that HMH built years ago to reach their current state."
+    },
+    {
+      "company": "McGraw-Hill Education",
+      "industry": "educational publishing (K-12 + higher ed)",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Implemented Salesforce mobile sales tools enabling field reps to update Salesforce in real time during campus visits — eliminating evening data entry backlogs. Completed in 18 weeks; more than 90% of staff adopted Salesforce on day one of initial rollout.",
+      "metrics": "18-week implementation; 90%+ day-one adoption; more accurate pipeline data within weeks; sell-through opportunity insights previously inaccessible to business analysts",
+      "aiAgentDescription": null,
+      "sourceUrl": null,
+      "sourceVerified": true,
+      "sourceNote": "Verified case study: Computer Weekly (computerweekly.com/news/2240209443). sourceUrl null — publication domain not suitable as inline FOMO citation link.",
+      "relevanceToAgileMind": "McGraw-Hill had messy manual data-entry processes before systematizing Salesforce. AgileMind's current workflow (Crystal in QB + SF, Holly in Excel) is the same problem McGraw-Hill solved — at any company size."
+    },
+    {
+      "company": "Savvas Learning Company",
+      "industry": "K-12 educational publishing",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Named to the GSV 150 list of top transformational growth companies in digital learning for four consecutive years (2022–2026). Embedded AI curriculum tools (Savvas Studio, SavvyWriter) for teacher productivity and personalized student writing feedback. Parent company of AgileMind.",
+      "metrics": "GSV 150 for 4 consecutive years; AI curriculum tools launched in 2024–2025; specific operational ROI not publicly disclosed",
+      "aiAgentDescription": null,
+      "sourceUrl": null,
+      "sourceVerified": false,
+      "sourceNote": "GSV 150 listings are public (savvas.com/newsroom). No specific Salesforce or MuleSoft integration case study found. sourceUrl null — only sources are their own press releases.",
+      "relevanceToAgileMind": "Savvas is AgileMind's parent. The parent company's AI investment trajectory creates an implicit expectation that AgileMind will modernize its operational stack. DataSkate's integration positions AgileMind as the first Savvas brand to demonstrate an AI-ready data architecture."
+    },
+    {
+      "company": "A specialty services company (anonymized — Salesforce + QuickBooks invoice sync)",
+      "industry": "services / field operations",
+      "fomoTier": "adjacent-industry",
+      "whatTheyDid": "Integrated Salesforce CRM with QuickBooks Online using middleware — automating invoice creation, bill entry, and customer record transfers bidirectionally between the two systems.",
+      "metrics": "$25,000 saved on manual data entry annually; 2,000+ invoices, bills, and jobs automated; 90% reduction in integration maintenance costs",
+      "aiAgentDescription": null,
+      "sourceUrl": null,
+      "sourceVerified": false,
+      "note": "Source: Satva Solutions case study. Company anonymized per FOMO rules — competitor-adjacent domain as source. The Salesforce ↔ QuickBooks invoice sync pattern (UC1 + UC2) is directly analogous to AgileMind's flows.",
+      "relevanceToAgileMind": "The $25K annual savings figure is from automating exactly the same Salesforce-to-QuickBooks invoice and payment sync that UC1 and UC2 deliver for AgileMind."
+    },
+    {
+      "company": "Industry benchmark — Salesforce CRM + accounting integration",
+      "industry": "cross-industry stat",
+      "fomoTier": "industry-stat",
+      "whatTheyDid": "Organizations that fully integrate their CRM with accounting/ERP tools report measurable operational improvements across industries.",
+      "metrics": "30% increase in productivity; 25% reduction in administrative costs; 60% reduction in manual data entry errors (Bizdata360 / Salesforce integration benchmark, 2024–2025)",
+      "aiAgentDescription": null,
+      "sourceUrl": "https://www.bizdata360.com/quickbooks-salesforce-integration/",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "Baseline ROI framing for the UC1–UC4 integration proposal. Applies directly to Crystal and Holly's current manual workload."
+    }
+  ],
+  "aiThoughtStarters": [
+    {
+      "id": "AT1",
+      "headline": "Inventory Shortage Alert Agent",
+      "body": "Once UC3 loads Holly's inventory into Salesforce, a Salesforce Flow fires an alert to the sales rep and Holly whenever available stock for a title drops below the 3% buffer — no more checking red cells in Excel.",
+      "systems": [
+        "Salesforce",
+        "Google Sheets"
+      ],
+      "phase": "Phase 2 — Automated"
+    },
+    {
+      "id": "AT2",
+      "headline": "Pre-Season Demand Forecast Agent",
+      "body": "With Opportunity stage probabilities and inventory quantities both in Salesforce, an Agentforce agent multiplies pipeline units × probability, compares to QB on-hand quantities, and generates a draft purchase order recommendation for Holly's one-click approval — replacing the manual red-cell Excel exercise.",
+      "systems": [
+        "Salesforce",
+        "QuickBooks"
+      ],
+      "phase": "Phase 3 — Agentic"
+    },
+    {
+      "id": "AT3",
+      "headline": "AR Follow-Up Agent for District Finance",
+      "body": "Once UC2 syncs QB payment status, an Agentforce agent monitors for open balances aging past 30 days and drafts a personalized follow-up email to the district's finance contact — referencing the specific invoice number, amount due, and program — for Crystal's one-click send.",
+      "systems": [
+        "QuickBooks",
+        "Salesforce"
+      ],
+      "phase": "Phase 3 — Agentic"
+    },
+    {
+      "id": "AT4",
+      "headline": "ISBN Routing Intelligence — No More Manual Review Flags",
+      "body": "The ISBN lookup table Kailash proposed can be extended with an Agentforce agent: when no match is found, instead of flagging for manual review, the agent queries the district's state and enrolled program, checks for the closest ISBN match, and drafts a resolution note for Abby — reducing the manual review queue to true edge cases only.",
+      "systems": [
+        "Salesforce"
+      ],
+      "phase": "Phase 2 → Phase 3 — Automated to Agentic"
+    }
+  ],
+  "psychologyProfile": {
+    "primaryProfile": "operational-pragmatist",
+    "primaryProfileLabel": "Operational Pragmatist",
+    "secondaryProfile": "roi-analytical",
+    "secondaryProfileLabel": "ROI-First Analytical",
+    "signalCounts": {
+      "operational-pragmatist": 4,
+      "roi-analytical": 4,
+      "risk-averse-conservative": 3,
+      "visionary-strategic": 1,
+      "peer-pressure": 0
+    },
+    "matchedPhrases": {
+      "operational-pragmatist": [
+        "highly manual process in an Excel worksheet",
+        "Crystal Robinson manually transfers the account details and line items to the QuickBooks invoice",
+        "Crystal Robinson manually updates the invoice number, date, and other payment information back into the Salesforce agreement"
+      ],
+      "roi-analytical": [
+        "if I say now I just need one person part-time versus full-time. That's a return right on my investment",
+        "Over the last 5 years, what have we spent on Intensified Algebra - Volume 1 SABs?",
+        "cost per district, cost per program"
+      ],
+      "risk-averse-conservative": [
+        "I don't want to get excited too early because there's still a few things we need to nail down",
+        "I just need time to really think about it",
+        "potentially failure-prone layers"
+      ],
+      "visionary-strategic": [
+        "I'm excited. I think it definitely has a lot of potential"
+      ],
+      "peer-pressure": []
+    },
+    "primaryPainQuote": "Crystal Robinson manually creates an agreement... manually transfers the account details and line items to the QuickBooks invoice. After the QuickBooks invoice is created, Crystal Robinson manually updates the invoice number, date, and other payment information back into the Salesforce agreement using a custom field.",
+    "aspirationQuote": "Over the last 5 years, what have we spent on Intensified Algebra - Volume 1 SABs? How many did we source each year? How many of them remain in inventory at any given time?",
+    "skepticismSignals": [
+      "I don't want to get excited too early because there's still a few things we need to nail down",
+      "I just need time to really think about it",
+      "it would create three systems and additional, potentially failure-prone layers when their primary problem—inventory valuation over time—is already tracked in QuickBooks"
+    ],
+    "excitementPhrases": [
+      "I'm excited. I think it definitely has a lot of potential",
+      "if I say now I just need one person part-time versus full-time. That's a return right on my investment"
+    ],
+    "socialProofAngle": "time-saved",
+    "contentModifiers": {
+      "challengeFraming": "Name the exact manual process and the role of the person doing it. Use the specific words from their transcript. 'Your {job title} manually {exact process} every {frequency} — that stops on go-live day.' If they said it, use their exact phrasing.",
+      "fomoFraming": "Lead with hours saved and the specific manual task that disappears. Structure: '{X hours/week} recovered — {the exact task} is gone on go-live day.' No AI framing needed for the hook — Stage 1 outcomes carry the pitch.",
+      "journeyFraming": "Stage 1 bullet items should read like a 'things that stop happening Monday morning' list. Use active verbs: 'stops,' 'disappears,' 'no longer.' Stage 2 gets two sentences. Stage 3 gets one — plant the seed without over-pitching to someone who wants immediate relief.",
+      "closingLineVariant": "Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.",
+      "fomoFirstField": "savings"
+    },
+    "blendNote": "Secondary profile (roi-analytical) contributes one element: challenge.lead includes a cost anchor quantifying Crystal's manual invoicing time alongside the operational-pragmatist 'exact process' framing. ('Crystal spends X hours doing this manually — and that time has a dollar value.') This does not alter the overall structure — Stage 1 still reads as a 'things that stop' list.",
+    "detectedAt": "2026-05-15",
+    "newProfileCreated": false
+  }
 }

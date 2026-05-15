@@ -83,17 +83,21 @@ body {
 
 /* ── STATS BAR ── */
 .stats-bar {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
   margin-bottom: 40px;
 }
 .stat-card {
   background: #FAFAFA; border: 1px solid var(--border);
   border-radius: 8px; padding: 20px 20px 16px;
+  cursor: pointer; transition: border-color .15s, box-shadow .15s;
+  user-select: none;
 }
+.stat-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,.08); }
+.stat-card.filter-active { border-color: var(--brand); background: var(--light); box-shadow: 0 2px 8px rgba(237,28,36,.12); }
 .stat-card .stat-num { font-size: 28px; font-weight: 800; color: var(--dark); }
 .stat-card .stat-label { font-size: 12px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
-.stat-card.stat-active .stat-num { color: var(--brand); }
-.stat-card.stat-done .stat-num { color: var(--green); }
+.stat-card.stat-total  .stat-num { color: var(--brand); }
+.stat-card.stat-signed .stat-num { color: var(--green); }
 
 /* ── SECTION HEAD ── */
 .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; margin-top: 48px; }
@@ -251,18 +255,22 @@ body {
   </div>
 
   <!-- Stats -->
-  <div class="stats-bar" id="stats-bar">
-    <div class="stat-card stat-active">
+  <div class="stats-bar">
+    <div class="stat-card stat-total filter-active" data-filter="all" onclick="applyFilter('all')">
       <div class="stat-num" id="stat-total">—</div>
       <div class="stat-label">Total Engagements</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="stat-started">—</div>
-      <div class="stat-label">Intake In Progress</div>
+    <div class="stat-card" data-filter="intake_sent" onclick="applyFilter('intake_sent')">
+      <div class="stat-num" id="stat-intake-sent">—</div>
+      <div class="stat-label">Intake Sent</div>
     </div>
-    <div class="stat-card stat-done">
-      <div class="stat-num" id="stat-submitted">—</div>
+    <div class="stat-card" data-filter="intake_submitted" onclick="applyFilter('intake_submitted')">
+      <div class="stat-num" id="stat-intake-submitted">—</div>
       <div class="stat-label">Intake Submitted</div>
+    </div>
+    <div class="stat-card stat-signed" data-filter="sow_signed" onclick="applyFilter('sow_signed')">
+      <div class="stat-num" id="stat-sow-signed">—</div>
+      <div class="stat-label">SOW Signed</div>
     </div>
   </div>
 
@@ -275,7 +283,7 @@ body {
       <tr>
         <th>Client</th>
         <th>Architect</th>
-        <th>Intake Responses</th>
+        <th>Status</th>
         <th>Last Activity</th>
       </tr>
     </thead>
@@ -381,9 +389,12 @@ async function loadProjects() {
 
   const intakeMap = {};
   for (let i = 0; i < projects.length; i++) {
-    const doc = intakeDocs[i];
+    const proj = projects[i];
+    const doc  = intakeDocs[i];
+    const intakePublished = !!proj.intakePublished;
+
     if (!doc || !doc.exists) {
-      intakeMap[projects[i].id] = { state: 'none', count: 0, submittedAt: null, lastActivityAt: null };
+      intakeMap[proj.id] = { state: intakePublished ? 'sent' : 'none', count: 0, submittedAt: null, lastActivityAt: null };
       continue;
     }
     const data = doc.data();
@@ -391,48 +402,70 @@ async function loadProjects() {
     const count = Object.values(responses).filter(v => v && String(v).trim()).length;
     const submittedAt = data.submittedAt || data.completedAt || null;
     const lastActivityAt = data.lastActivityAt || submittedAt || null;
-    intakeMap[projects[i].id] = {
-      state: submittedAt ? 'submitted' : count > 0 ? 'progress' : 'none',
+    intakeMap[proj.id] = {
+      state: submittedAt ? 'submitted' : (intakePublished ? 'sent' : 'none'),
       count,
       submittedAt,
       lastActivityAt,
     };
   }
 
+  _projects  = projects;
+  _intakeMap = intakeMap;
   renderStats(projects, intakeMap);
   renderProjects(projects, intakeMap);
 }
 
+let _projects  = [];
+let _intakeMap = {};
+let _filter    = 'all';
+
 function renderStats(projects, intakeMap) {
-  const started   = projects.filter(p => intakeMap[p.id] && intakeMap[p.id].state === 'progress').length;
-  const submitted = projects.filter(p => intakeMap[p.id] && intakeMap[p.id].state === 'submitted').length;
-  document.getElementById('stat-total').textContent     = projects.length;
-  document.getElementById('stat-started').textContent   = started;
-  document.getElementById('stat-submitted').textContent = submitted;
+  const intakeSent      = projects.filter(p => intakeMap[p.id] && intakeMap[p.id].state === 'sent').length;
+  const intakeSubmitted = projects.filter(p => intakeMap[p.id] && intakeMap[p.id].state === 'submitted').length;
+  const sowSigned       = projects.filter(p => p.sowSigned).length;
+  document.getElementById('stat-total').textContent          = projects.length;
+  document.getElementById('stat-intake-sent').textContent    = intakeSent;
+  document.getElementById('stat-intake-submitted').textContent = intakeSubmitted;
+  document.getElementById('stat-sow-signed').textContent     = sowSigned;
+}
+
+function applyFilter(filter) {
+  _filter = filter;
+  document.querySelectorAll('.stat-card').forEach(c => {
+    c.classList.toggle('filter-active', c.dataset.filter === filter);
+  });
+  renderProjects(_projects, _intakeMap);
 }
 
 function renderProjects(projects, intakeMap) {
   const tbody = document.getElementById('project-tbody');
-  if (!projects.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No engagements yet.</td></tr>';
+
+  const visible = projects.filter(p => {
+    if (_filter === 'all')              return true;
+    if (_filter === 'intake_sent')      return intakeMap[p.id] && intakeMap[p.id].state === 'sent';
+    if (_filter === 'intake_submitted') return intakeMap[p.id] && intakeMap[p.id].state === 'submitted';
+    if (_filter === 'sow_signed')       return p.sowSigned;
+    return true;
+  });
+
+  if (!visible.length) {
+    const label = document.querySelector(`.stat-card[data-filter="${_filter}"] .stat-label`);
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No engagements with status "${label ? label.textContent : _filter}".</td></tr>`;
     return;
   }
-  tbody.innerHTML = projects.map(p => {
+  tbody.innerHTML = visible.map(p => {
     const intake = intakeMap[p.id] || { state: 'none', count: 0 };
 
     let badgeCls, badgeText, intakeSub;
     if (intake.state === 'submitted') {
       badgeCls  = 'badge-submitted';
-      badgeText = 'Submitted';
+      badgeText = 'Intake Submitted';
       intakeSub = intake.count + ' answer' + (intake.count !== 1 ? 's' : '');
-    } else if (intake.state === 'progress') {
-      badgeCls  = 'badge-progress';
-      badgeText = 'In Progress';
-      intakeSub = intake.count + ' answer' + (intake.count !== 1 ? 's' : '') + ' so far';
     } else {
       badgeCls  = 'badge-none';
-      badgeText = 'Not Started';
-      intakeSub = 'Click to check';
+      badgeText = 'Intake Sent';
+      intakeSub = 'Awaiting submission';
     }
 
     // Last activity: prefer intake Firestore timestamp, fall back to manifest
