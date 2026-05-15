@@ -50,6 +50,9 @@
 | [FK-021](#fk-021) | Paylocity API access requires formal signed Web Services Access Request Form — approval is multi-week; must submit before project kickoff | Paylocity / API access | observation | 2026-05-12 | 2026-05-12 | 1 |
 | [FK-022](#fk-022) | Sandata CalEVV aggregator: REST API, Basic Auth + EntityGuid header, JSON/XML; alternate EVV vendor registration required before integration can be tested | Sandata / California EVV aggregator | observation | 2026-05-12 | 2026-05-12 | 1 |
 | [FK-023](#fk-023) | Legacy EVV platforms (DCI et al.) have no public API — data migration requires file-based bulk export before account termination; schedule export request immediately at scoping | DCI / legacy EVV / data migration | observation | 2026-05-12 | 2026-05-12 | 1 |
+| [FK-024](#fk-024) | Always confirm QuickBooks product type at scoping — Online vs Desktop/Enterprise are incompatible integration paths; never proceed to architecture without version confirmation | QuickBooks / scoping question gap | observation | 2026-05-14 | 2026-05-14 | 1 |
+| [FK-025](#fk-025) | When Excel or Google Sheets is detected as a data source, confirm file storage location before designing the flow — local files are inaccessible from CloudHub 2.0; must be on SharePoint, OneDrive, or Google Drive | Excel / Google Sheets / CloudHub 2.0 file access | observation | 2026-05-14 | 2026-05-14 | 1 |
+| [FK-026](#fk-026) | Time-varying config (API pricing, rate limits, external identifiers) must never be hardcoded in source files — always externalize to a config file in the relevant folder | DSPipeline / tooling conventions | observation | 2026-05-15 | 2026-05-15 | 1 |
 
 ---
 
@@ -1087,3 +1090,103 @@ Status: observation
 Promotes to: standards/playbooks/dci/dci_playbook.json (create stub — flag API unavailability as permanent note)
 
 *Added: 2026-05-12 — Source: Scoping transcripts + web research during Scout S1 for cherish-care*
+
+---
+
+## FK-024 — Always confirm QuickBooks product type at scoping
+Date: 2026-05-14
+Project: agilemind (scoping — version unconfirmed in any transcript)
+Trigger: QuickBooks detected as a system in scoping transcripts without version specification.
+Scenario:
+  Client says "QuickBooks" without specifying Online vs Desktop/Enterprise. Two incompatible
+  connector paths exist: mule-quickbooks-online-connector (REST + OAuth 2.0) vs QB Desktop
+  (no REST API — requires QBXML Web Connector relay or third-party bridge like DBSync).
+  Architecture cannot be selected until version is confirmed.
+
+What failed:
+  Proceeding to architecture with "QuickBooks" as a system without confirming version.
+  FK-020 (verified) documents the incompatibility. This FK captures the scoping question gap.
+
+What worked:
+  Raise as P0 immediately at Sage stage. Question to ask:
+  "Which QuickBooks product are you using — QuickBooks Online (cloud), QuickBooks Pro,
+  QuickBooks Premier, or QuickBooks Enterprise? If you're not sure, check the Help menu →
+  About QuickBooks."
+
+Client question used:
+  "Which QuickBooks product are you using — QuickBooks Online, QuickBooks Pro/Premier
+  (desktop), or QuickBooks Enterprise? This determines whether we use a standard connector
+  or a different integration approach."
+
+Status: observation
+Promotes to: DSPipeline/agents/sage.toml — add QuickBooks to P0 system gotchas;
+             Scout toml — add QuickBooks version confirmation to system-specific question set
+
+*Added: 2026-05-14 — Source: AgileMind scoping transcripts — Sage pass*
+
+---
+
+## FK-025 — Excel / Google Sheets: confirm file storage location before designing flow
+Date: 2026-05-14
+Project: agilemind (scoping — Excel/Google Sheets location unconfirmed)
+Trigger: Excel or Google Sheets detected as a data source in scoping transcripts.
+Scenario:
+  Client mentions "Excel spreadsheets" or "Google Sheets" as a data source. CloudHub 2.0
+  has an ephemeral local filesystem — it cannot read files from a local machine or shared
+  Windows drive. If client's files are local, MuleSoft cannot access them without migrating
+  to cloud storage first.
+
+What failed:
+  Assuming Excel files are accessible. Local Excel files on a Windows shared drive or laptop
+  are completely inaccessible from CloudHub 2.0 without a bridge (SFTP server, etc.).
+
+What worked:
+  Raise as P0 at Sage stage. Determine file location first:
+  (a) Local machine / shared Windows drive → must migrate to SharePoint, OneDrive, or Google Drive first
+  (b) SharePoint / OneDrive → use microsoft-excel-online connector
+  (c) Google Drive / Google Sheets → use google-sheets connector
+  (d) SFTP server → use sftp connector
+
+Client question used:
+  "Where do your Excel inventory spreadsheets live — on a local machine or shared network
+  drive, SharePoint/OneDrive, Google Drive, or are they Google Sheets? This determines
+  which connector and architecture we use."
+
+Status: observation
+Promotes to: DSPipeline/agents/sage.toml — add Excel/Google Sheets to P0 system gotchas;
+             standards/scenarios/file-based-etl.md — add CloudHub 2.0 file access note
+
+*Added: 2026-05-14 — Source: AgileMind scoping transcripts — Sage pass*
+
+---
+
+## FK-026 — Time-varying config must never be hardcoded in source files
+Date: 2026-05-15
+Project: DSPipeline tooling (orchestrate.js)
+Trigger: Claude wrote `MODEL_PRICING` as a JS constant inside `orchestrate.js` instead of externalizing it.
+
+Scenario:
+  API pricing, rate limits, model IDs, and external identifiers change over time.
+  Hardcoding them in source files means every pricing update requires a code change,
+  creating noise in git history and risk of stale values persisting across models.
+
+What failed:
+  MODEL_PRICING written as a hardcoded constant in orchestrate.js — any Anthropic pricing
+  update would require editing source code rather than a config file.
+
+What worked:
+  Extracted to DSPipeline/telemetry/model-pricing.json.
+  orchestrate.js reads it at runtime via readJson(). Fallback default guards against
+  missing/corrupt file only — it is not the authoritative value.
+
+Rule:
+  Any value that changes independently of code belongs in a config file in the domain folder:
+    - API pricing → DSPipeline/telemetry/model-pricing.json
+    - Rate limits → standards/playbooks/{system}/{system}_playbook.json
+    - Model IDs → DSPipeline/telemetry/model-pricing.json (modelId field)
+    - Environment URLs → project.json or .env (never source)
+  Source code reads config; fallback literals in code are last-resort guards only.
+
+Promotes to: CLAUDE.md (No hardcoding of time-varying config — added 2026-05-15)
+
+*Added: 2026-05-15 — Source: DSPipeline telemetry implementation review*

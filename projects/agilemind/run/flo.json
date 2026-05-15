@@ -1,0 +1,161 @@
+{
+  "status": "complete",
+  "client": "agilemind",
+  "generatedAt": "2026-05-15T00:00:00.000Z",
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "name": "Salesforce Agreement → QuickBooks Invoice Creation",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "direction": "Salesforce → QuickBooks",
+      "entity": "Invoice",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce Platform Event or CDC on Agreement object (Closed Won / Agreement Created); Mule subscribes as consumer",
+      "pattern": "event-driven",
+      "complexity": "high",
+      "canonicalModel": "standards/canonical-models/education/canonical-invoice.yaml",
+      "confirmed": true,
+      "evidence": "when an agreement is created in Salesforce, it will generate a new invoice in QuickBooks for an existing account",
+      "complexityRationale": "Event-driven trigger (Platform Events/CDC must be enabled); ISBN lookup custom transformation required (state × product → ISBN before QB line items constructed); QB customer matching logic (Salesforce Account name must resolve to existing QB Customer record); P0 blocker on connector selection (QBO vs Desktop). Multiple custom transformation steps and an event infrastructure prerequisite."
+    },
+    {
+      "id": "UC2",
+      "name": "QuickBooks Invoice Status → Salesforce Agreement Sync",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Invoice payment status",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled poll of QB invoices (delta by LastModifiedDate using QB fiscal year April 1 offset); upsert to Salesforce Agreement using QB_InvoiceId__c external ID",
+      "pattern": "scheduled-sync",
+      "complexity": "medium",
+      "canonicalModel": "standards/canonical-models/education/canonical-invoice.yaml",
+      "confirmed": true,
+      "evidence": "track payment updates from QuickBooks to Salesforce, including the open balance... update the number, amount, dates",
+      "complexityRationale": "Unidirectional scheduled-sync. Standard pattern: QB query with LastModifiedDate watermark (April 1 fiscal year offset required), upsert to Salesforce Agreement via QB_InvoiceId__c external ID. Well-understood pattern with no novel transformations."
+    },
+    {
+      "id": "UC3",
+      "name": "Holly's Demand Worksheet → Salesforce Inventory__c",
+      "systems": ["Google Sheets (or Excel Online — conditional on storage P0)", "Salesforce"],
+      "direction": "Spreadsheet → Salesforce",
+      "entity": "Inventory quantities + demand forecast",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled poll of Holly's demand worksheet (connector TBD: google-sheets if Google Sheets, microsoft-excel-online if SharePoint/OneDrive); upsert into Salesforce Inventory__c custom object by Title/ISBN",
+      "pattern": "scheduled-sync",
+      "complexity": "medium",
+      "canonicalModel": "standards/canonical-models/education/canonical-inventory-record.yaml",
+      "confirmed": true,
+      "evidence": "push the data directly um and the details directly from Excel in real time or from QuickBooks if it's living in QuickBooks. And so then we can push that inventory data directly into Salesforce",
+      "complexityRationale": "Unidirectional scheduled-sync to a custom object that does not yet exist (Inventory__c must be created in sprint scope). Connector selection is conditional on storage location P0 resolution. Field ownership must be coordinated with UC4 (UC3 owns demand/quantity fields; UC4 owns cost/value fields). Core pattern is standard once prerequisites are resolved.",
+      "architectNotes": "UC3 owns: QuantityOnHand__c, QuantityCommitted__c, QuantityAvailable__c, projected shorts flag, 3% buffer threshold. UC4 owns: UnitCost__c. Upsert key: ISBN__c + Title__c composite. Schedule: run before UC4 so cost values don't overwrite quantity values."
+    },
+    {
+      "id": "UC4",
+      "name": "QuickBooks Inventory Items → Salesforce Inventory__c (Cost Data)",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Inventory / product cost data",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled poll of QB Inventory Items (Item type); upsert to Salesforce Inventory__c by QB Item name/ID for cost and quantity fields",
+      "pattern": "scheduled-sync",
+      "complexity": "medium",
+      "canonicalModel": "standards/canonical-models/education/canonical-inventory-record.yaml",
+      "confirmed": true,
+      "evidence": "some of this lives in QuickBooks... you are going to be able to see like ... algebra 6 books six equals x amount ... value of inventory ... cost per district, cost per program",
+      "complexityRationale": "Unidirectional scheduled-sync. QB Item query → DataWeave cost field mapping → Salesforce Inventory__c upsert. Requires composite upsert key (ISBN + title slug) and field ownership coordination with UC3 to avoid overwrite conflicts.",
+      "architectNotes": "UC4 owns: UnitCost__c, QB item ID reference. Must run after UC3 in the same scheduling window to prevent field overwrite. QB fiscal year April 1 offset applies to any date-range filters on Item queries."
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "entity": "Products / Book titles (master data sync)",
+      "priority": "high",
+      "rationale": "Maria is adding new titles to QB and Salesforce separately. Without sync, the QB Item list and SF Product catalog will diverge — breaking UC1 line item matching and UC4 cost lookup. Deferred in May 8 call pending Maria's input on system of record (QB or SF). This is a dependency risk for UC1 and UC4, not merely a nice-to-have. Promote to confirmed if Maria confirms one system of record and the divergence risk is real."
+    },
+    {
+      "id": "UC6-potential",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "entity": "Contract Change Request (CCR) pre-fulfillment flag",
+      "priority": "medium",
+      "rationale": "Holly: sales ships materials before a closed-won agreement on a CCR. When the Agreement arrives in Salesforce, UC1 would fire and create a QB invoice — but if materials were already shipped and invoiced via CCR, this creates a duplicate. The CCR fulfillment state must stamp the incoming Agreement before UC1 fires. Promote to confirmed once CCR workflow in Salesforce is mapped and the flag field identified."
+    },
+    {
+      "id": "UC7-potential",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "entity": "Inventory decrement on fulfillment",
+      "priority": "medium",
+      "rationale": "Each order decrements inventory in QB. UC4 (scheduled sync) covers inventory quantities but with a polling lag. Between sync runs, Salesforce Inventory__c shows stale available-stock figures. A real-time or near-real-time decrement event from QB would keep Holly's dashboard accurate between scheduled runs. Partially covered by UC4 — promote to confirmed only if clients identify the lag as a business problem post-UC4 go-live."
+    }
+  ],
+
+  "p0Blockers": [
+    {
+      "title": "QuickBooks Version Confirmation",
+      "system": "QuickBooks",
+      "clientAction": "Please confirm which QuickBooks product your team uses — we need this before any integration work can begin:\n  (a) QuickBooks Online — the web-based version you access at app.qbo.intuit.com in a browser.\n  (b) QuickBooks Desktop Pro or Premier — installed as a program on a Windows PC.\n  (c) QuickBooks Enterprise — the advanced desktop version.\n\nIf you're not sure: the easiest check is whether you open QuickBooks in a web browser (Online) or by clicking an icon on your desktop (Desktop/Enterprise). Maria Gonzalez-Pettway or Crystal Robinson should know which version is in use.",
+      "body": "QBO path: mule-quickbooks-online-connector 3.0.0 (REST/OAuth 2.0) — clean cloud-to-cloud integration. QB Desktop/Enterprise path: NO native MuleSoft connector; NO REST API. Requires QBXML Web Connector on the Windows machine running QB, then a bridge layer (CData JDBC or Conductor REST relay) to reach CloudHub 2.0 — adds $1,500–$5,000/yr licensing cost and on-prem relay maintenance. DataSkate recommendation if Desktop: assess upgrade to QB Online first. FK-020 verified: never assume QBO.",
+      "priority": "P0",
+      "bundledWith": ["QB Connected App setup at developer.intuit.com", "QB sandbox company provisioning for integration testing", "QB OAuth credentials authorization (Crystal or Maria to authorize)", "Confirm QB fiscal year April 1 is correctly set in company settings"]
+    },
+    {
+      "title": "Inventory Spreadsheet Storage Location",
+      "system": "Excel / Google Sheets",
+      "clientAction": "We need to know where Holly Wale's inventory demand worksheet is stored before we can build the integration. Please confirm one of the following:\n  (a) Holly's local laptop — this CANNOT work with our integration platform (cloud-hosted; no access to local files). The file would need to be moved to a shared cloud location before we can begin.\n  (b) SharePoint or OneDrive — we can connect to this; please provide the SharePoint site URL and file path.\n  (c) Google Drive or Google Sheets — we can connect to this; Chloe (IT) will need to provide a Google Service Account credential so our system can read the file.\n\nHolly Wale (hwale@agilemind.com) or Chloe (IT Director) can confirm this.",
+      "body": "CloudHub 2.0 has an ephemeral local filesystem — the File connector cannot read local PC paths. If client insists on local-only and will not migrate: SFTP drop-zone on a cloud server is the only bridge (adds operational overhead and manual step for Holly). If QB version confirms QB Online and inventory lives fully in QB, UC3 may be replaced by UC4 entirely (QB as sole inventory source) — making this P0 conditional on the UC3 design decision.",
+      "priority": "P0",
+      "bundledWith": ["Google Service Account provisioning (Chloe/IT) if Google Sheets path", "Azure AD app registration and Graph API permissions (Chloe/IT) if OneDrive/SharePoint path", "Holly column-header documentation for DataWeave mapping — headers must be stable before DWL is written"]
+    },
+    {
+      "title": "Salesforce State/Country Picklist Format",
+      "system": "Salesforce",
+      "clientAction": "Please confirm whether Salesforce State/Country Picklists are enabled in your org, and share a sample record showing the mailing state field value from an Opportunity or Agreement (e.g., 'California' vs 'CA' or 'US-CA'). This determines the key format used in the ISBN lookup table DataSkate will configure.",
+      "body": "If State/Country Picklists are enabled, mailing state values on Opportunity/Agreement are ISO 3166 subdivision codes (e.g., US-CA, not California). The configurable ISBN lookup table (State × Product → ISBN) must use whichever format Salesforce stores. Writing the DataWeave mapping before this is confirmed risks a silent key mismatch that produces no ISBN match and routes all invoices to manual review.",
+      "priority": "P1",
+      "bundledWith": ["ISBN lookup table data collection — AgileMind to provide the current state→ISBN mapping used today (even if informal/in someone's head)"]
+    }
+  ],
+
+  "pricing": {
+    "flowCount": 4,
+    "implementationFee": "0",
+    "kickoffRetainer": "2500",
+    "timelineWeeks": 8,
+    "period1RatePerFlow": "300",
+    "period2RatePerFlow": "315",
+    "period3RatePerFlow": "330.75",
+    "period4RatePerFlow": "347.29",
+    "period1Payment6mo": "7200",
+    "period2Payment6mo": "7560",
+    "period3Payment6mo": "7938",
+    "period4Payment6mo": "8335",
+    "oneYearTotal": "14760",
+    "twoYearManagedServiceTotal": "31033",
+    "implementationOnlyFee": "14000",
+    "recommendedModel": "IaaS",
+    "recommendedModelRationale": "AgileMind has no dedicated MuleSoft operations team — Chloe is IT Director but no integration engineer or MuleSoft developer is on staff. The $0 upfront IaaS model removes the budget barrier given their stated cash-flow sensitivity and '$0–$2,500' implementation partner cost expectation; the $2,500 kickoff retainer fits precisely within that range and is fully credited at go-live. Ongoing managed service covers the QB OAuth refresh token rotation risk (100-day expiry = a silent production break without automated rotation) and connector upgrades — both are operational concerns AgileMind cannot manage internally. At 4 flows, the implementation-only fee ($14,000) is relatively modest, making IaaS less financially dominant than at 10 flows, but the operational support argument is the primary driver at their team size and technical capacity."
+  },
+
+  "downstreamLoadList": {
+    "playbooks": [
+      "standards/playbooks/salesforce/salesforce_playbook.json",
+      "standards/playbooks/quickbooks-online/quickbooks-online_playbook.json",
+      "standards/playbooks/google-sheets/google-sheets_playbook.json"
+    ],
+    "canonicalModels": [
+      "standards/canonical-models/education/canonical-*.yaml"
+    ],
+    "connectorKeys": [
+      "salesforce",
+      "quickbooks-online",
+      "google-sheets"
+    ]
+  },
+
+  "flags": {
+    "salesforceDetected": true
+  }
+}

@@ -22,12 +22,15 @@ reads = [
 ]
 writes = [
   "projects/{client}/company_context.json",    # hqLocation, revenueEstimate, snapshot, industry, businessObjects, aiJourney, nearbyPeers, competitorFOMO, aiThoughtStarters
-  "standards/usecases/{vertical}.json",         # write-back: new FOMO entries discovered via web research
+  "projects/{client}/run/vera.json",            # all research output; libraryContributions[] promoted to standards/ by promote-library.js
 ]
 
 principles = [
   # ── VERTICAL RESEARCH ─────────────────────────────────────────────────
   "Step 1 — Identify industry vertical from sage.json businessContext.industry + company description. Then web search: '{ClientName} company website'. Read homepage or About page: what they sell, who their customers are, what data matters. From this, derive canonical business objects for that vertical:\n  Healthcare GPO: Members, Physicians, Contracts, Utilization, Products, Certifications, Campaigns\n  Retail/eCommerce: Customers, Orders, Products, Inventory, Returns, Promotions\n  Financial services: Accounts, Transactions, Compliance Records, Advisors, Portfolios\n  Manufacturing: Work Orders, BOMs, Inventory, Suppliers, Quality Records\n  Construction: Projects, Subcontractors, Budgets, Change Orders, Invoices, RFIs\n  B2B SaaS: Accounts, Contacts, Opportunities, Subscriptions, Usage, Renewals\nIf web search fails: ask the user 'What industry is {ClientName} in?' — do not guess.",
+
+  # ── LOGO ──────────────────────────────────────────────────────────────
+  "Step 1b — Client logo URL:\n  When reading the company homepage in Step 1, look for these tags in the HTML in order of preference:\n  1. <meta property=\"og:image\" content=\"...\"> — use this value directly\n  2. <link rel=\"apple-touch-icon\" href=\"...\"> — resolve relative URLs against the base domain\n  3. <link rel=\"icon\" type=\"image/png\" href=\"...\"> — resolve relative URLs against the base domain\n  Store the first found URL as logoUrl (absolute URL). If the href is relative, prepend https://{domain}.\n  If the homepage could not be fetched or no image tag was found: set logoUrl to null.\n  Do NOT invent or guess a URL. Only store URLs you actually saw in the HTML.",
 
   # ── HQ + REVENUE ──────────────────────────────────────────────────────
   "Step 2 — HQ location + revenue research:\n  Search: '{ClientName} headquarters' AND '{ClientName} annual revenue OR estimated revenue'\n  Extract: city and state, revenue estimate (public or analyst estimate).\n  If not found: set hqLocation and revenueEstimate to null — do NOT invent values.",
@@ -54,7 +57,7 @@ principles = [
   "After recording FOMO entries, generate aiThoughtStarters[]:\n  Start with any PASS 2 library entries already queued.\n  Then add original AI agent use cases the client has NOT thought of yet — up to 4 total.\n  Format: 'Teams in {industry} are using AI agents to [specific action] — [specific result].'\n  Rules:\n  - Do NOT repeat any use case already in competitorFOMO[].aiAgentDescription.\n  - Ground original entries in the client's actual systems (e.g. 'your Procore data', 'using your HubSpot activity feed').\n  - Library-sourced entries may describe different systems — frame as 'other {vertical} companies'.",
 
   # ── USE CASE LIBRARY WRITE-BACK ───────────────────────────────────────
-  "After completing FOMO research — write new entries back to the use case library.\n  For each competitorFOMO[] entry that came from web research (NOT the library):\n    Append to standards/usecases/{vertical}.json usecases[]:\n      id: next UC-NNN, vertical, sizeSegment, systems, useCase, whatWasBuilt, outcome, aiLayer\n      source: 'web', sourceCompany, sourceUrl (null if competitor domain), addedDate: today, clients: []\n  For each confirmed flow from sage.json confirmedFlows[]:\n    Check if a matching entry exists (same vertical + systems + useCase).\n    If yes: add this client slug to that entry's clients[] array.\n    If no: append with source: 'DS', all fields, clientContext: 'projects/{client}/', clients: ['{slug}'].\n  Show: 'Use case library updated — {N} new entries, {M} existing entries updated.'",
+  "After completing FOMO research — stage new entries in vera.json.libraryContributions[] only. Do NOT write directly to standards/usecases/{vertical}.json. Promotion is handled by promote-library.js.\n  For each competitorFOMO[] entry that came from web research (NOT already in the library):\n    Append to libraryContributions[]:\n      verticalSlug, pendingPromotion: true, source: 'web', sizeSegment, systems, useCase, whatWasBuilt, outcome, aiLayer\n      sourceCompany, sourceUrl (null if competitor domain), addedDate: today\n      isProspect: true if this company is a potential DataSkate client; false if reference/signal only\n      prospectNote: 1-2 sentences on why they are a prospect and what the DataSkate opportunity is\n  FIELD SEMANTICS (enforced by promote-library.js):\n    clients[] = who ACTUALLY HAS or BUILT this use case (always required):\n      source: 'DS' entries: clients[{displayName: DataSkate client name, projectContext}] — DataSkate built this for them\n      source: 'web' entries: clients[{displayName: sourceCompany}] — this is the source company's use case\n    relevantTo[] = which DataSkate engagement slugs surfaced this as research (web entries only):\n      Set to [currentClientSlug] when staging. promote-library.js appends if already in library.\n      NEVER put the current DataSkate client in clients[] on a web entry — they did not build it.\n  For each confirmed flow from sage.json confirmedFlows[]:\n    Check if a matching entry already exists in standards/usecases/{vertical}.json (same systems + useCase).\n    If yes: record in useCaseLibraryUpdates.alreadyInLibrary count — no write needed.\n    If no: append to libraryContributions[] with source: 'DS', all fields, clients: [{displayName, projectContext}], pendingPromotion: true.\n  Show: 'Library contributions staged — {N} entries queued. Run: node DSPipeline/promote-library.js --client {slug}'",
 
   # ── NO FABRICATION ────────────────────────────────────────────────────
   "NEVER fabricate companies, outcomes, or numbers. Only include verified, sourced data. Fields not found: set to null. A verified Gartner stat with a sharp analogyNote beats an invented case study every time.",
@@ -74,6 +77,12 @@ STEP 1 — Vertical Research
 Apply Vertical Research principle.
 Write company snapshot, industry, businessObjects to vera.json.
 Write aiJourney (phase1/2/3) — client-specific, not generic.
+
+─────────────────────────────────────────────────────────────────────
+STEP 1b — Client Logo URL
+─────────────────────────────────────────────────────────────────────
+Apply Logo principle. Extract domain from website URL found in Step 1.
+Write logoUrl to vera.json company object.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 2 — HQ + Revenue
@@ -106,7 +115,7 @@ Apply FOMO web search strategy (A → F) for tiers not covered by library.
 Apply FOMO tiers and naming rules.
 Verify all source URLs.
 Generate aiThoughtStarters[].
-Write use case library write-back.
+Stage library contributions in vera.json.libraryContributions[] — do NOT write directly to standards/usecases/. promote-library.js handles promotion.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 7 — Write vera.json
@@ -124,7 +133,8 @@ Write projects/{client}/run/vera.json:
     "hqLocation": "{city, state or null}",
     "revenueEstimate": "{e.g. '$85M' or null}",
     "revenueBracket": "{e.g. '$50M-$100M' — derived from estimate or null}",
-    "businessObjects": ["{object1}", "{object2}"]
+    "businessObjects": ["{object1}", "{object2}"],
+    "logoUrl": "https://logo.clearbit.com/{domain} or null"
   },
 
   "aiJourney": {
@@ -156,9 +166,37 @@ Write projects/{client}/run/vera.json:
 
   "aiThoughtStarters": ["{string1}", "{string2}"],
 
+  "libraryContributions": [
+    {
+      "verticalSlug": "{vertical}",
+      "pendingPromotion": true,
+      "source": "web | DS",
+      "sizeSegment": "...",
+      "systems": ["..."],
+      "useCase": "...",
+      "whatWasBuilt": "...",
+      "outcome": "...",
+      "aiLayer": "...",
+
+      "sourceCompany": "... or null (web only — the company that HAS this use case)",
+      "sourceUrl": "... or null",
+      "addedDate": "YYYY-MM-DD",
+
+      "isProspect": "true | false (web only — is sourceCompany a DataSkate sales prospect?)",
+      "prospectNote": "... or null (web only — 1-2 sentences on DataSkate opportunity)",
+
+      "clients": [
+        "(DS) { displayName: 'ClientName', projectContext: '...' }",
+        "(web) { displayName: sourceCompany } — promote-library.js builds this from sourceCompany"
+      ],
+      "relevantTo": ["currentClientSlug (web only — which DS engagement surfaced this)"]
+    }
+  ],
+
   "useCaseLibraryUpdates": {
-    "newEntries": N,
-    "updatedEntries": N
+    "stagedForPromotion": N,
+    "alreadyInLibrary": N,
+    "note": "run promote-library.js to write to standards/usecases/{vertical}.json"
   }
 }
 
@@ -174,7 +212,7 @@ AI Journey: Phase 1 ({stage1 headline}) → Phase 2 ({stage2 headline}) → Phas
 Nearby peers: {N}
 FOMO entries: {N} ({tier breakdown})
 Thought starters: {N}
-Library: {N} new entries written
+Library: {N} entries staged in libraryContributions[] — run promote-library.js to promote
 
 Ask: "Anything to correct, add, or redirect before I finalize? (e.g. wrong industry, missing competitor, different AI angle)"
 Wait for user response. Accept corrections and update vera.json accordingly.

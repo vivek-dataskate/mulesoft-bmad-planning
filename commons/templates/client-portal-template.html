@@ -12,6 +12,9 @@ a { text-decoration: none; }
 .header { background: #fff; padding: 24px 40px 0; border-bottom: 3px solid var(--brand); }
 .header-top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; }
 .header-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.client-logo-block { display: flex; align-items: center; gap: 8px; margin-left: 4px; }
+.client-logo-sep { width: 1px; height: 28px; background: var(--border); margin-right: 4px; }
+.client-logo-img { height: 28px; width: auto; max-width: 140px; object-fit: contain; }
 .header-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--brand-dk); }
 .header-client { font-size: 28px; font-weight: 900; line-height: 1.15; border-left: 4px solid var(--brand); padding-left: 16px; margin-top: 4px; color: var(--dark); }
 .header-sub { font-size: 13px; color: var(--mid); padding-left: 20px; margin-top: 2px; }
@@ -27,7 +30,7 @@ a { text-decoration: none; }
 .header-meta span:last-child { border-right: none; }
 
 /* ── LAYOUT ── */
-.container { max-width: 1100px; margin: 0 auto; padding: 0 32px 80px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 0 40px 80px; }
 
 /* ── SECTION ── */
 .section { border-bottom: 1px solid var(--border); padding: 40px 0; }
@@ -50,18 +53,18 @@ a { text-decoration: none; }
 .phase-future .phase-dot { background: #F3F4F6; border-color: #D1D5DB; }
 
 /* ── DOC CARDS ── */
-.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-.doc-card { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 8px; transition: border-color .15s, box-shadow .15s; cursor: default; }
+.doc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.doc-card { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 7px; transition: border-color .15s, box-shadow .15s; cursor: default; }
 a.doc-card { cursor: pointer; }
 a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,.1); }
 .doc-available { border-color: #A7F3D0; }
 .doc-pending { border-color: #FDE68A; background: var(--amber-bg); }
 .doc-na { border-color: var(--border); background: #FAFAFA; }
-.doc-icon { font-size: 22px; flex-shrink: 0; }
+.doc-icon { font-size: 18px; flex-shrink: 0; }
 .doc-info { flex: 1; min-width: 0; }
-.doc-title { font-size: 13px; font-weight: 700; color: var(--dark); }
-.doc-sub { font-size: 11px; color: var(--mid); margin-top: 1px; }
-.doc-arrow { font-size: 16px; color: var(--brand); flex-shrink: 0; }
+.doc-title { font-size: 12px; font-weight: 700; color: var(--dark); }
+.doc-sub { font-size: 10px; color: var(--mid); margin-top: 1px; }
+.doc-arrow { font-size: 14px; color: var(--brand); flex-shrink: 0; }
 .doc-na .doc-title { color: var(--mid); }
 
 /* ── SPRINT STATS ── */
@@ -111,6 +114,12 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
 .sprint-empty-title { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
 .sprint-empty-body { font-size: 13px; color: var(--mid); max-width: 380px; margin: 0 auto; }
 
+/* ── INTERNAL DOCS ── */
+.internal-docs { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.internal-docs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); }
+.internal-doc-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--mid); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; transition: border-color .15s, color .15s; }
+.internal-doc-link:hover { border-color: var(--brand); color: var(--brand); }
+
 /* ── FOOTER ── */
 .footer { text-align: center; padding: 32px; font-size: 12px; color: var(--mid); }
 .footer a { color: var(--brand); }
@@ -148,6 +157,7 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
           <path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
           <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
         </svg>
+        <!-- FILL:client-logo -->
       </div>
       <div class="header-eyebrow">DataSkate × <!-- FILL:client-name --> — Engagement Portal</div>
       <div class="header-client"><!-- FILL:client-name --></div>
@@ -180,14 +190,8 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
     <div class="section-body">
       <div class="doc-grid">
         <!-- FILL:doc-cards -->
-        <a class="doc-card doc-available" href="/resources/ds-pricing-model.html" target="_blank">
-          <div class="doc-icon">📄</div>
-          <div class="doc-info">
-            <div class="doc-title">DS Pricing Model</div>
-            <div class="doc-sub">Engagement pricing overview →</div>
-          </div>
-        </a>
       </div>
+      <!-- FILL:internal-docs -->
     </div>
   </div>
 
@@ -205,6 +209,46 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
 <div class="footer">
   Powered by <a href="https://dataskate.ai" target="_blank">DataSkate</a> · This page updates automatically as your project progresses.
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="/firebase-config.js"></script>
+<script>
+(function () {
+  const CLIENT_SLUG = '<!-- FILL:client-slug -->';
+  const SOW_SIGNED  = <!-- FILL:sow-signed -->;
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const db = firebase.firestore();
+
+  db.collection('intake_responses').doc(CLIENT_SLUG).get().then(doc => {
+    const card = document.getElementById('card-intake-questionnaire');
+    if (!card) return;
+
+    const submittedAt = doc.exists ? (doc.data().submittedAt || doc.data().completedAt || null) : null;
+
+    if (submittedAt) {
+      const date = new Date(submittedAt.seconds * 1000)
+        .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      card.outerHTML = `<div id="card-intake-questionnaire" class="doc-card doc-available">
+        <div class="doc-icon">✅</div>
+        <div class="doc-info">
+          <div class="doc-title">Intake Questionnaire</div>
+          <div class="doc-sub">Submitted ${date}</div>
+        </div>
+      </div>`;
+    }
+
+    if (SOW_SIGNED) {
+      document.querySelectorAll('a.doc-card').forEach(a => {
+        const div = document.createElement('div');
+        div.className = a.className;
+        div.innerHTML = a.innerHTML;
+        a.replaceWith(div);
+      });
+    }
+  }).catch(() => {});
+})();
+</script>
 
 </body>
 </html>

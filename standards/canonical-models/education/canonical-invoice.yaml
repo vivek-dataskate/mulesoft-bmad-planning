@@ -1,0 +1,102 @@
+title: Canonical Invoice — Education Vertical
+version: 1.0.0-stub — created from AgileMind engagement 2026-05-14
+standard: derived (OAGIS 10.x Invoice with education-specific extensions)
+standardBody: Open Applications Group (OAGi) + education-sector extensions
+standardRef: OAGIS 10.x BOD ProcessInvoice
+deviations:
+  - K-12 district as bill-to party (not a commercial customer)
+  - Fiscal year offset (publisher April 1 FY vs district June 30 FY) affects date semantics
+  - Line items reference ISBNs (state-specific regional identifiers) not generic product codes
+  - Invoice creation trigger is Agreement approval (Salesforce), not PO receipt directly
+description: >
+  Canonical invoice model for K-12 educational publishers integrating billing between
+  Salesforce (Agreement object) and QuickBooks (Invoice). Designed for the agreement-to-invoice
+  flow where a Salesforce Agreement Closed Won event triggers QuickBooks invoice creation.
+
+type: object
+required:
+  - invoiceId
+  - externalId
+  - billToDistrictId
+  - billToDistrictName
+  - agreementId
+  - invoiceDate
+  - dueDate
+  - totalAmount
+  - lineItems
+  - status
+
+properties:
+  invoiceId:
+    type: string
+    description: QuickBooks Invoice ID (server-generated; null at creation time)
+    sourceSystem: QuickBooks
+  externalId:
+    type: string
+    description: External ID for idempotent upsert — QB_InvoiceId__c on Salesforce Agreement
+    sourceSystem: both
+  billToDistrictId:
+    type: string
+    description: Salesforce Account ID for the school district
+    sourceSystem: Salesforce
+  billToDistrictName:
+    type: string
+    description: District name — must match QuickBooks Customer name exactly for UC1 lookup
+    sourceSystem: Salesforce
+  agreementId:
+    type: string
+    description: Salesforce Agreement object ID that triggered invoice creation
+    sourceSystem: Salesforce
+  invoiceDate:
+    type: string
+    format: date
+    description: Invoice creation date (ISO 8601)
+    sourceSystem: QuickBooks
+  dueDate:
+    type: string
+    format: date
+    description: Payment due date
+    sourceSystem: QuickBooks
+  totalAmount:
+    type: number
+    description: Total invoice amount (USD)
+    sourceSystem: QuickBooks
+  openBalance:
+    type: number
+    description: Unpaid balance — synced back to Salesforce Agreement via UC2
+    sourceSystem: QuickBooks
+  paymentDate:
+    type: string
+    format: date
+    description: Date payment received — synced back to Salesforce Agreement via UC2
+    sourceSystem: QuickBooks
+  status:
+    type: string
+    enum: [DRAFT, PENDING, SENT, PAID, OVERDUE, VOIDED]
+    description: Invoice lifecycle status
+    sourceSystem: QuickBooks
+  lineItems:
+    type: array
+    description: One entry per curriculum title ordered
+    items:
+      type: object
+      required: [isbn, title, quantity, unitPrice, lineTotal]
+      properties:
+        isbn:
+          type: string
+          description: State-specific ISBN resolved from Salesforce ISBN lookup table (state × product → ISBN)
+        title:
+          type: string
+          description: Curriculum book title (e.g. Intensified Algebra Volume 1 SAB)
+        quantity:
+          type: integer
+          description: Number of copies ordered
+        unitPrice:
+          type: number
+          description: Unit price per copy (USD)
+        lineTotal:
+          type: number
+          description: quantity × unitPrice
+        state:
+          type: string
+          description: State for which this ISBN applies — ISO code or free-text depending on SF Picklist setting

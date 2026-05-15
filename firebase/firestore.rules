@@ -25,5 +25,19 @@ service cloud.firestore {
       allow read: if isArchitect();
       allow write: if false;
     }
+
+    // Proposal acceptance — written by client browser (no auth required; public URL)
+    // Architects can read; merge: true on set means this is append-safe
+    match /proposals/{clientId} {
+      allow create, update: if true;
+      allow read: if isArchitect();
+    }
+
+    // Architect pitch kits — written by build pipeline (REST API, bypasses rules)
+    // Only architects can read; never writable from the browser
+    match /pitchKits/{clientSlug} {
+      allow read: if isArchitect();
+      allow write: if false;
+    }
   }
 }

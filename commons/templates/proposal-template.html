@@ -194,6 +194,11 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .negotiate-required { color: var(--brand); }
 .negotiate-optional { font-weight: 400; color: var(--mid); }
 
+/* ── ACCEPT PANEL ── */
+.accept-panel { position: fixed; top: 45px; right: 40px; z-index: 99; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,.12); display: none; }
+.accept-panel-head { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.accept-panel-sub  { font-size: 12px; color: var(--mid); margin-bottom: 14px; line-height: 1.5; }
+
 /* ── NEXT STEPS ── */
 .next-steps { display: flex; gap: 0; }
 .ns-item { flex: 1; text-align: center; padding: 0 10px; position: relative; }
@@ -299,6 +304,19 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <button class="btn btn-outline" onclick="toggleAllSections(this)">Expand All</button>
   <button class="btn btn-outline" onclick="window.print()">Print / PDF</button>
   <button class="btn btn-primary" onclick="goToInvestment()">Let's Talk →</button>
+  <button class="btn btn-primary" id="accept-btn" onclick="showAcceptPanel()" style="background:var(--green)">Accept Proposal ✓</button>
+</div>
+
+<!-- ACCEPT PROPOSAL PANEL -->
+<div class="accept-panel no-print" id="accept-panel">
+  <div class="accept-panel-head">Accept this Proposal</div>
+  <div class="accept-panel-sub">Your name and email confirm acceptance. We'll follow up with an SOW for signature.</div>
+  <input id="accept-name"  class="cta-input" type="text"  placeholder="Your full name *" style="margin-bottom:8px" />
+  <input id="accept-email" class="cta-input" type="email" placeholder="Your email *" style="margin-bottom:12px" />
+  <button class="btn btn-primary" style="width:100%" onclick="submitAcceptance()">Confirm Acceptance →</button>
+  <div class="accept-success" id="accept-success">
+    ✓ Acceptance recorded. Your DataSkate architect will be in touch shortly with the SOW.
+  </div>
 </div>
 
 <!-- TAB NAV -->
@@ -528,10 +546,13 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "620173241148",
   appId:             "1:620173241148:web:d5bf84e63e93ef94758c39"
 };
-const CLIENT_SLUG     = "<!-- FILL:client-slug -->";
-const CLIENT_NAME     = "<!-- FILL:client-name -->";
-const ARCHITECT_EMAIL = "<!-- FILL:architect-email -->";
-const ARCHITECT_NAME  = "<!-- FILL:architect -->";
+const CLIENT_SLUG         = "<!-- FILL:client-slug -->";
+const CLIENT_NAME         = "<!-- FILL:client-name -->";
+const ARCHITECT_EMAIL     = "<!-- FILL:architect-email -->";
+const ARCHITECT_NAME      = "<!-- FILL:architect -->";
+const PROPOSAL_RATE       = Number("<!-- FILL:proposal-rate -->")      || 0;
+const PROPOSAL_FLOW_COUNT = Number("<!-- FILL:proposal-flow-count -->") || 0;
+const PROPOSAL_MODEL      = "<!-- FILL:proposal-model -->";
 
 // ── FIREBASE INIT ─────────────────────────────────────────────────────────────
 (function () {
@@ -649,6 +670,59 @@ function onRateInput(val) {
 function onNotesInput(el) {
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
+}
+
+// ── ACCEPT PROPOSAL ──────────────────────────────────────────────────────────
+function showAcceptPanel() {
+  const panel = document.getElementById('accept-panel');
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+async function submitAcceptance() {
+  const nameEl  = document.getElementById('accept-name');
+  const emailEl = document.getElementById('accept-email');
+  const name    = (nameEl  || {}).value || '';
+  const email   = (emailEl || {}).value || '';
+  if (!name.trim())  { if (nameEl)  nameEl.focus();  return; }
+  if (!email.trim()) { if (emailEl) emailEl.focus(); return; }
+
+  const db = getDb();
+  if (!db) {
+    alert('Firebase not available. Please email ' + ARCHITECT_EMAIL + ' to confirm acceptance.');
+    return;
+  }
+
+  const btn = document.querySelector('#accept-panel .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    const ref      = db.collection('proposals').doc(CLIENT_SLUG);
+    const snap     = await ref.get();
+    const existing = snap.exists ? snap.data() : {};
+
+    const payload = {
+      acceptedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      acceptedBy: { name: name.trim(), email: email.trim() },
+      client:     CLIENT_SLUG,
+    };
+    // If rate was never written (first acceptance) — record full context for lockedPricing seed
+    if (!existing.ratePerFlow) {
+      payload.ratePerFlow = PROPOSAL_RATE;
+      payload.flowCount   = PROPOSAL_FLOW_COUNT;
+      payload.model       = PROPOSAL_MODEL;
+    }
+    await ref.set(payload, { merge: true });
+
+    const success = document.getElementById('accept-success');
+    if (success) success.style.display = 'block';
+    if (btn) btn.style.display = 'none';
+    if (nameEl)  nameEl.disabled = true;
+    if (emailEl) emailEl.disabled = true;
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirm Acceptance →'; }
+    alert('Could not save acceptance. Please try again or email ' + ARCHITECT_EMAIL);
+  }
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────

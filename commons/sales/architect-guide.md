@@ -1,6 +1,9 @@
 # DataSkate Architect Guide
 **For: Kailash / Raghuram — Internal Reference | DataSkate Confidential**
 
+> The deployed version of this guide lives at `firebase/public/resources/architect-guide.html` (3-column docs layout, Firebase-gated).
+> This file is the content source of truth — keep both in sync when updating.
+
 ---
 
 ## Part 1 — The DataSkate Proposition
@@ -17,14 +20,11 @@ That is the arc. Integrations are step one — but the destination is an operati
 
 ### The Three-Stage Journey
 
-**Stage 1 — Connected (Year 1)**
-Systems talk to each other. Data moves automatically, in real time or on schedule. The team stops doing manual data entry, stops running exports, stops being the integration layer between their software.
-
-**Stage 2 — Automated (Year 1)**
-Rules and triggers fire without human involvement. A customer goes quiet — a re-engagement sequence starts automatically. A vendor report arrives — it is parsed, matched, and loaded without anyone touching their inbox.
-
-**Stage 3 — Agentic (Renewal+ or Phase 2 SOW)**
-AI agents monitor connected systems, detect patterns, and take actions. They surface next-best-action recommendations. They flag anomalies before vendors do. They operate business processes with the team in the loop for approvals, not execution.
+| Stage | Name | When | What Happens |
+|---|---|---|---|
+| Stage 1 | Connected | Year 1 | Systems talk to each other. Data moves automatically. The team stops doing manual data entry, stops running exports, stops being the integration layer between their software. |
+| Stage 2 | Automated | Year 1 | Rules and triggers fire without human involvement. A customer goes quiet — a re-engagement sequence starts automatically. A vendor report arrives — it is parsed, matched, and loaded without anyone touching their inbox. |
+| Stage 3 | Agentic | Renewal+ or Phase 2 SOW | AI agents monitor connected systems, detect patterns, and take actions. They surface next-best-action recommendations. They flag anomalies before vendors do. They operate business processes with the team in the loop for approvals, not execution. |
 
 The 1-year managed service gets the client to Stage 2. Renewal opens Stage 3.
 
@@ -66,12 +66,12 @@ None of these companies started with AI. They started by connecting their system
 
 *Rates are in `commons/sales/pricing-model.md` — always read that file. Never quote numbers from memory.*
 
-### Two Models
+### Two Engagement Models
 
-| Model | Implementation Fee | Ongoing | How It Works |
-|---|---|---|---|
-| **IaaS (Managed Service)** | $0 — included in monthly rate | $300/flow/month · 1-year minimum | DataSkate builds and runs everything. |
-| **Implementation Only** | $3,500/flow (standard) | None — code ownership transfers | DataSkate builds and hands off. |
+| Model | Implementation Fee | Ongoing | How It Works | Use When |
+|---|---|---|---|---|
+| **IaaS (Managed Service)** | $0 — included in monthly rate | $300/flow/month · 1-year minimum | DataSkate builds and runs everything. 24/7 uptime, connector upgrades, minor enhancements all included. | Client does not have a dedicated integration engineer. Recommended for most engagements. |
+| **Implementation Only** | $3,500/flow · 50% at SOW, 50% at UAT | None — code ownership transfers | DataSkate builds and hands off. Client owns all ops from day one. | Client has a developer who will maintain the integration. Pivot to Phase 2 at go-live. |
 
 Every proposal shows exactly these two models. No hybrids, no bundles.
 
@@ -94,28 +94,22 @@ Non-refundable if client cancels. Fully credited against first 6-month payment a
 | Period 3 | Year 2 H1 | $330.75 |
 | Period 4 | Year 2 H2 | $347.29 |
 
-Escalates 5% every 6 months. No discounts, no exceptions.
+Escalates 5% every 6 months. No discounts, no exceptions. Flows scoped now lock in Period 1.
 
 ### Change Orders
 
 | Tier | What It Covers | Fee |
 |---|---|---|
-| Config | Field mapping, credentials, tuning | Free |
+| Config | Field mapping, credentials, performance tuning | Free |
 | Modification | New logic, branch, transform | $750 |
 | Extension | New object type, new secondary system | $1,500 |
-| Flow Replacement | New trigger/target/process — old flow closes | $1,500 + fresh 12-month contract |
+| Flow Replacement | New trigger/target/process — old flow closes + fresh 12-month contract | $1,500 |
 
 ### Timeline Formula
 
-- Requirements phase: 2 weeks (flat)
+- Requirements phase: 2 weeks (flat, all engagements)
 - Development: 1.5 weeks per flow
 - 5 flows → 9.5 weeks | 7 flows → 12.5 weeks | 10 flows → 17 weeks
-
-### When to Use Each Model
-
-**IaaS:** Client does not have a dedicated integration engineer. DataSkate owns ops. Recommended for most engagements.
-
-**Implementation Only:** Client has a developer who will maintain the integration. Build and hand off cleanly. Then pivot to Phase 2 (see below).
 
 ---
 
@@ -242,7 +236,7 @@ Share the DS Pricing Model one-pager. Give them 30 seconds to read it before you
 
 ### Reading the Room Before You Pitch
 
-| Signal | What It Means | How You Lead |
+| What They Say | What It Means | How You Lead |
 |---|---|---|
 | "We have too much manual work" | Stage 1 problems — connections don't exist | Lead with reliability and time savings |
 | "Our data is always out of sync" | Stage 1/2 — connections exist but aren't maintained | Lead with managed service and uptime |
@@ -252,8 +246,6 @@ Share the DS Pricing Model one-pager. Give them 30 seconds to read it before you
 
 ### The Cost Conversation
 
-**What clients compare you to:**
-
 | Option | What It Costs | What's Missing |
 |---|---|---|
 | Internal developer hire | $100k–$120k/year | No 24/7, single point of failure, slow to scale |
@@ -261,7 +253,6 @@ Share the DS Pricing Model one-pager. Give them 30 seconds to read it before you
 | DIY tools (Zapier, Make) | Low upfront, variable | Breaks at enterprise data volumes |
 | **DataSkate managed service** | **Fixed monthly rate/flow** | **Nothing — all included** |
 
-**How to frame the rate:**
 > *"The rate is transparent and predictable — you'll know every payment amount before you commit. It steps up modestly every 6 months, less than inflation for what it covers. What stays constant is the scope: uptime, performance, upgrades, minor enhancements — all included at every rate, every period."*
 
 Don't lead with the escalation. Lead with: you pay when you are live, you know every number before you sign, nothing is hidden.
@@ -362,20 +353,23 @@ Subject: Re: DataSkate proposal — one question
 
 When a client has a developer and plans to own integration maintenance, do not push IaaS. Agree with them, close Implementation Only, and plant the Phase 2 seed immediately.
 
-**What you say at scoping:**
-> *"That makes sense — Implementation Only is the right structure for you. Your developer runs the integration layer, you own the code. What I want to put on the roadmap now is Phase 2: once your systems are connected, the next unlock is agents — AI that uses those connections to automate decisions and surface what your team doesn't have time to find manually. Separate engagement, separate timeline. Let's get Phase 1 right and come back to this at go-live."*
-
-**What you say at go-live:**
-> *"Your flows are live. This is exactly the moment to scope Phase 2 — your data is clean, connected, and ready. We know where the agent opportunities are in your stack. Worth 30 minutes to map it out?"*
-
-**The Phase 2 pitch:**
+### The Phase 2 Pivot
 
 | Phase | Who Owns It | What It Is |
 |---|---|---|
 | Phase 1 — Connected | Client's developer | Integration flows built by DataSkate, maintained in-house |
 | Phase 2 — Automated & Agentic | DataSkate (SOW) | AI agents that use the connected data to automate workflows |
 
-**Signals that Phase 2 is ready:**
+### What to Say
+
+**At scoping:**
+> *"That makes sense — Implementation Only is the right structure for you. Your developer runs the integration layer, you own the code. What I want to put on the roadmap now is Phase 2: once your systems are connected, the next unlock is agents — AI that uses those connections to automate decisions and surface what your team doesn't have time to find manually. Separate engagement, separate timeline. Let's get Phase 1 right and come back to this at go-live."*
+
+**At go-live:**
+> *"Your flows are live. This is exactly the moment to scope Phase 2 — your data is clean, connected, and ready. We know where the agent opportunities are in your stack. Worth 30 minutes to map it out?"*
+
+### Signals That Phase 2 is Ready
+
 - Flows have been live 60–90 days and are stable
 - Client team is using the connected data in their workflows
 - Client mentions manual reporting, repetitive decisions, or "we still export to Excel"

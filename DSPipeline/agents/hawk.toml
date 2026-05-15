@@ -29,7 +29,7 @@ reads = [
 ]
 writes = [
   "projects/{client}/run/hawk.json",
-  "projects/{client}/decisions.json",           # content-adaptation decisions appended
+  "projects/{client}/run/hawk-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
 ]
 
 principles = [
@@ -58,7 +58,7 @@ principles = [
   "AE talking point — one sentence the AE says verbatim when presenting the integration deck:\n  'For a {primaryProfileLabel} buyer, lead with: {fomoFraming first sentence from contentModifiers}.'\n  Write hawk.json aeTalkingPoint.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
-  "Log to decisions.json: one content-adaptation entry per major framing decision (challengeLead, fomoAngle rewrites, closingLine variant choice, journeyHeadline). For each: what the default would have been, what changed, which profile modifier drove it.",
+  "Log to run/hawk-decisions.json (agent-scoped; orchestrate.js aggregates into decisions.json): one content-adaptation entry per major framing decision (challengeLead, fomoAngle rewrites, closingLine variant choice, journeyHeadline). For each: what the default would have been, what changed, which profile modifier drove it. Prefix IDs as HD-NNN.",
 ]
 
 workflow = """
@@ -75,14 +75,14 @@ STEP 1 — FOMO Ordering + Angle Rewrite
 Read ivy.json psychologyProfile.socialProofAngle.
 Apply FOMO Ordering principle — sort vera.json competitorFOMO[] accordingly.
 Apply FOMO Angle Rewrite — check each fomoAngle against the profile lens. Rewrite where needed.
-Log D-NNN content-adaptation entries for each rewrite.
+Log HD-NNN content-adaptation entries for each rewrite.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 2 — Challenge Framing
 ─────────────────────────────────────────────────────────────────────
 Apply Challenge Framing principle.
 Write challengeLead (1-2 sentences, verbatim primaryPainQuote anchor, profile framing applied).
-Log D-NNN content-adaptation entry.
+Log HD-NNN content-adaptation entry.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 3 — Closing Line

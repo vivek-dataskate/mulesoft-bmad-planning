@@ -17,6 +17,7 @@
 const fs   = require('fs');
 const path = require('path');
 const https = require('https');
+const http  = require('http');
 const { spawnSync } = require('child_process');
 
 const REPO_ROOT     = path.resolve(__dirname, '..');
@@ -24,18 +25,17 @@ const GITHUB_TOKEN  = process.env.GITHUB_TOKEN || process.env.GITHUB_DEPLOY_TOKE
 const PUBLIC        = path.join(REPO_ROOT, 'firebase', 'public');
 const FILL_TEMPLATE = path.join(REPO_ROOT, 'commons', 'branding', 'fill-template.js');
 
-const PHASES = ['Discovery', 'Requirements', 'Build', 'Testing', 'Go Live'];
+const STATUSES = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'standards', 'project-statuses.json'), 'utf8'));
+const PHASES   = STATUSES.phases;
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
 function statusToPhase(status) {
-  const s = (status || '').toLowerCase();
-  if (s === 'live')                                     return { done: 5, active: 4 };
-  if (s === 'testing')                                  return { done: 3, active: 3 };
-  if (s === 'dev' || s === 'development')               return { done: 2, active: 2 };
-  if (s === 'architecture_ready' || s === 'prd_ready')  return { done: 1, active: 1 };
-  if (s === 'intake_complete')                          return { done: 0, active: 1 };
-  return { done: 0, active: 0 };
+  const s   = (status || '').toLowerCase();
+  const def = STATUSES.statuses.find(p => p.value === s);
+  const idx = def ? def.phaseIndex : 0;
+  if (s === 'live') return { done: 5, active: 4 };
+  return { done: idx, active: idx };
 }
 
 function buildPhasesArray(status) {
@@ -136,6 +136,73 @@ function parseRepoSlug(repoUrl) {
   return m ? { owner: m[1], repo: m[2].replace(/\.git$/, '') } : null;
 }
 
+// ── Logo download ─────────────────────────────────────────────────────────────
+
+function fetchUrl(url, opts = {}) {
+  return new Promise((resolve) => {
+    const lib = url.startsWith('https') ? https : http;
+    const req = lib.get(url, { headers: { 'User-Agent': 'dataskate-portal', ...opts.headers }, timeout: 8000 }, (res) => {
+      if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+        const next = res.headers.location.startsWith('http') ? res.headers.location : new URL(res.headers.location, url).href;
+        fetchUrl(next, opts).then(resolve);
+        return;
+      }
+      const chunks = [];
+      res.on('data', d => chunks.push(d));
+      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
+    });
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+  });
+}
+
+function extFromContentType(ct) {
+  if (/svg/i.test(ct)) return '.svg';
+  if (/webp/i.test(ct)) return '.webp';
+  if (/png/i.test(ct)) return '.png';
+  if (/jpe?g/i.test(ct)) return '.jpg';
+  if (/ico/i.test(ct)) return '.ico';
+  return '.png';
+}
+
+async function fetchLogoFromSite(domain) {
+  const baseUrl = `https://${domain}`;
+  const res = await fetchUrl(baseUrl);
+  if (!res || res.status !== 200) return null;
+  const html = res.body.toString('utf8');
+  const candidates = [];
+  const ogImg = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+               || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+  if (ogImg) candidates.push(ogImg[1]);
+  const ati = html.match(/<link[^>]+rel=["']apple-touch-icon["'][^>]+href=["']([^"']+)["']/i);
+  if (ati) candidates.push(ati[1]);
+  const iconPng = html.match(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]+type=["']image\/png["'][^>]+href=["']([^"']+)["']/i);
+  if (iconPng) candidates.push(iconPng[1]);
+  for (const candidate of candidates) {
+    const logoUrl = candidate.startsWith('http') ? candidate : `${baseUrl}${candidate.startsWith('/') ? '' : '/'}${candidate}`;
+    return logoUrl;
+  }
+  return null;
+}
+
+async function downloadLogo(logoUrl, destPaths) {
+  const res = await fetchUrl(logoUrl);
+  if (!res || res.status !== 200) return { saved: false, ext: '.png' };
+  const contentType = res.headers['content-type'] || '';
+  if (!/image\//i.test(contentType)) return { saved: false, ext: '.png' };
+  const ext = extFromContentType(contentType);
+  let saved = false;
+  for (const dest of destPaths) {
+    const finalDest = dest.replace(/\.\w+$/, ext);
+    try {
+      fs.mkdirSync(path.dirname(finalDest), { recursive: true });
+      fs.writeFileSync(finalDest, res.body);
+      saved = true;
+    } catch {}
+  }
+  return { saved, ext };
+}
+
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 function storyStats(epics) {
@@ -154,7 +221,7 @@ function storyStats(epics) {
 
 // ── Doc card builder ──────────────────────────────────────────────────────────
 
-function buildDocCards({ archivedFiles, sourceFilesUrl, localScopingCount, intakeUrl, responsesStatus, responsesDate, proposalUrl, pitchKitUrl, devRepoUrl, docUrls }) {
+function buildDocCards({ archivedFiles, sourceFilesUrl, localScopingCount, intakeUrl, proposalUrl, devRepoUrl, docUrls }) {
   const card = (icon, title, sub, href, status) => ({ icon, title, sub: sub || '', href: href || null, status });
   const docUrls2 = docUrls || {};
 
@@ -164,18 +231,8 @@ function buildDocCards({ archivedFiles, sourceFilesUrl, localScopingCount, intak
       : localScopingCount > 0
         ? card('📁', 'Scoping Documents', `${localScopingCount} file${localScopingCount !== 1 ? 's' : ''} — pending archive`, null, 'pending')
         : card('📁', 'Scoping Documents', 'Not yet uploaded', null, 'na'),
-    card('📋', 'Intake Questionnaire', intakeUrl ? 'Open form →' : 'Not yet sent', intakeUrl, intakeUrl ? 'available' : 'na'),
-    card(
-      responsesStatus === 'available' ? '✅' : '⏳',
-      'Intake Responses',
-      responsesStatus === 'available'
-        ? (responsesDate ? `Submitted ${responsesDate}` : 'Submitted')
-        : 'Awaiting your submission',
-      null,
-      responsesStatus === 'available' ? 'available' : 'pending'
-    ),
+    { ...card('📋', 'Intake Questionnaire', intakeUrl ? 'Awaiting response' : 'Not yet sent', intakeUrl, intakeUrl ? 'pending' : 'na'), id: 'intake-questionnaire' },
     card('📄', 'Proposal', proposalUrl ? 'View proposal →' : 'Not yet sent', proposalUrl, proposalUrl ? 'available' : 'na'),
-    card('🎯', 'Pitch Kit', pitchKitUrl ? 'View pitch kit →' : 'Not yet generated', pitchKitUrl, pitchKitUrl ? 'available' : 'na'),
     docUrls2.sow         ? card('📜', 'SOW',          'View SOW →',         docUrls2.sow,          'available') : card('📜', 'SOW',          'Not yet issued',    null, 'na'),
     docUrls2.prd         ? card('📝', 'Requirements', 'View PRD →',         docUrls2.prd,          'available') : card('📝', 'Requirements', 'Not yet finalized', null, 'na'),
     docUrls2.architecture? card('🏗️', 'Architecture', 'View design doc →',  docUrls2.architecture, 'available') : card('🏗️', 'Architecture', 'Not yet finalized', null, 'na'),
@@ -199,6 +256,54 @@ async function buildPortalContent(slug) {
   const targetGoLive = proj.targetGoLive || 'TBD';
   const createdAt   = proj.createdAt     || '';
 
+  // Client logo — read from vera.json, download to intake/ and firebase/public/logos/
+  let clientLogoPath = null;
+  const veraFile = path.join(projectDir, 'run', 'vera.json');
+  if (fs.existsSync(veraFile)) {
+    try {
+      const vera = JSON.parse(fs.readFileSync(veraFile, 'utf8'));
+      let logoUrl = vera.company?.logoUrl || null;
+
+      // Resolve domain: from Clearbit pattern, logoUrl hostname, or company snapshot
+      function extractDomain(url) {
+        if (!url) return null;
+        const clearbitM = url.match(/clearbit\.com\/([a-z0-9.-]+\.[a-z]{2,})/i);
+        if (clearbitM) return clearbitM[1];
+        try { return new URL(url).hostname.replace(/^www\./, ''); } catch {}
+        return null;
+      }
+
+      const intakeDest = path.join(projectDir, 'intake', `logo-${slug}.png`);
+      const publicDest = path.join(PUBLIC, 'logos', `${slug}.png`);
+
+      // Try the stored logoUrl first (skip Clearbit — it's dead)
+      if (logoUrl && !/clearbit/i.test(logoUrl)) {
+        const { saved, ext } = await downloadLogo(logoUrl, [intakeDest, publicDest]);
+        if (saved) clientLogoPath = `/logos/${slug}${ext}`;
+      }
+
+      // If still no logo, scrape the company website for og:image / apple-touch-icon
+      if (!clientLogoPath) {
+        const domain = extractDomain(logoUrl) ||
+          (() => { const m = (vera.company?.snapshot || '').match(/https?:\/\/(?:www\.)?([a-z0-9.-]+\.[a-z]{2,})/i); return m ? m[1] : null; })();
+        if (domain) {
+          console.log(`  Fetching logo from ${domain}...`);
+          const scraped = await fetchLogoFromSite(domain);
+          if (scraped) {
+            const { saved, ext } = await downloadLogo(scraped, [intakeDest, publicDest]);
+            if (saved) clientLogoPath = `/logos/${slug}${ext}`;
+          }
+        }
+      }
+
+      if (clientLogoPath) {
+        console.log(`  ✓  Logo saved → ${clientLogoPath}`);
+      }
+    } catch (e) {
+      console.log(`  ⚠  Logo fetch failed: ${e.message}`);
+    }
+  }
+
   // Manifest: status + document URLs
   const manifestFile = path.join(PUBLIC, 'projects-manifest.json');
   let manifest = [];
@@ -207,20 +312,10 @@ async function buildPortalContent(slug) {
   }
   const entry      = manifest.find(m => m.id === slug) || {};
   const status     = entry.status      || 'intake_sent';
-  const intakeUrl  = entry.intakeUrl   || null;
+  const intakeUrl   = entry.intakeUrl   || null;
   const proposalUrl = entry.proposalUrl || null;
   const pitchKitUrl = entry.pitchKitUrl || null;
-
-  // Intake responses
-  const responsesFile = path.join(projectDir, 'intake', 'responses.json');
-  let responsesStatus = 'pending', responsesDate = null;
-  if (fs.existsSync(responsesFile)) {
-    try {
-      const r = JSON.parse(fs.readFileSync(responsesFile, 'utf8'));
-      responsesStatus = 'available';
-      responsesDate   = r.submittedAt || r.timestamp || null;
-    } catch {}
-  }
+  const sowSigned   = entry.sowSigned   || false;
 
   // Scoping files
   const scopingDir       = path.join(projectDir, 'scoping');
@@ -270,13 +365,17 @@ async function buildPortalContent(slug) {
       projectStarted: createdAt,
       targetGoLive,
       updated:        lastUpdated,
+      clientLogoPath: clientLogoPath || null,
     },
     phases: buildPhasesArray(status),
+    sowSigned,
     docCards: buildDocCards({
       archivedFiles, sourceFilesUrl, localScopingCount,
-      intakeUrl, responsesStatus, responsesDate,
-      proposalUrl, pitchKitUrl, devRepoUrl, docUrls,
+      intakeUrl, proposalUrl, devRepoUrl, docUrls,
     }),
+    internalDocs: pitchKitUrl
+      ? [{ icon: '📊', title: 'Pitch Kit', href: pitchKitUrl }]
+      : [],
     sprintStats: stats.total > 0
       ? { total: stats.total, done: stats.done, active: stats.active, review: stats.review, planned: stats.planned }
       : null,
@@ -324,7 +423,7 @@ async function main() {
     fs.writeFileSync(contentFile, JSON.stringify(content, null, 2), 'utf8');
     console.log(`  ✓  projects/${slug}/portal-content.json`);
 
-    const result = spawnSync('node', [FILL_TEMPLATE, '--template', 'portal', '--client', slug], {
+    const result = spawnSync('node', [FILL_TEMPLATE, '--template', 'client-portal', '--client', slug], {
       cwd: REPO_ROOT, stdio: 'inherit',
     });
     if (result.status !== 0) {

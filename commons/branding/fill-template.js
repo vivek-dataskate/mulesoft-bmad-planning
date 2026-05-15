@@ -1047,9 +1047,13 @@ function buildPortal(c) {
   fill('engagement-type',  m.engagementType || 'Integration Project');
   fill('architect',        m.architect);
   fill('architect-email',  m.architectEmail);
+  fill('client-logo', m.clientLogoPath
+    ? `<div class="client-logo-block"><div class="client-logo-sep"></div><img src="${esc(m.clientLogoPath)}" alt="${esc(m.clientName)}" class="client-logo-img" onerror="this.parentNode.style.display=\'none\'"></div>`
+    : '');
   fill('project-started',  m.projectStarted || '');
   fill('target-go-live',   m.targetGoLive   || 'TBD');
   fill('updated',          m.updated        || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+  fill('sow-signed',       c.sowSigned ? 'true' : 'false');
 
   // Phase bar — phases array: [{ label, status: 'done'|'active'|'future' }]
   const phases = c.phases || [
@@ -1065,15 +1069,27 @@ function buildPortal(c) {
     return parts.join('');
   }).join(''));
 
+  // Internal docs — project-level gated links (e.g. Pitch Kit) — not shown in client doc-grid
+  const internalDocs = (c.internalDocs || []).filter(d => d.href);
+  fill('internal-docs', internalDocs.length > 0
+    ? `<div class="internal-docs">
+        <span class="internal-docs-label">Internal</span>
+        ${internalDocs.map(d =>
+          `<a class="internal-doc-link" href="${esc(d.href)}" target="_blank">${d.icon || '📄'} ${esc(d.title)} ›</a>`
+        ).join('')}
+      </div>`
+    : '');
+
   // Doc cards — array of { icon, title, sub, status: 'available'|'pending'|'na', href? }
   fill('doc-cards', (c.docCards || []).map(d => {
     const cls = `doc-card doc-${esc(d.status || 'na')}`;
+    const idAttr = d.id ? ` id="card-${esc(d.id)}"` : '';
     const inner = `<div class="doc-icon">${d.icon || '📄'}</div>
       <div class="doc-info"><div class="doc-title">${esc(d.title)}</div><div class="doc-sub">${esc(d.sub || '')}</div></div>
       ${d.status === 'available' ? '<div class="doc-arrow">→</div>' : ''}`;
     return d.href
-      ? `<a class="${cls}" href="${esc(d.href)}" target="_blank">${inner}</a>`
-      : `<div class="${cls}">${inner}</div>`;
+      ? `<a${idAttr} class="${cls}" href="${esc(d.href)}" target="_blank">${inner}</a>`
+      : `<div${idAttr} class="${cls}">${inner}</div>`;
   }).join('\n'));
 
   // Sprint section — empty state or stats bar + epic/story blocks
