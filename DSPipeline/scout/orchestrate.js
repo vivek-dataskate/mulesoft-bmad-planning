@@ -12,6 +12,8 @@
  *   node DSPipeline/scout/orchestrate.js --client mrn       # resume specific client
  *   node DSPipeline/scout/orchestrate.js --client mrn --skip-onboarding
  *   node DSPipeline/scout/orchestrate.js --client mrn --pipeline  # auto-confirm all gates
+ *   node DSPipeline/scout/orchestrate.js --client mrn --mode delta --recording scoping/may-amendment.txt
+ *   node DSPipeline/scout/orchestrate.js --client mrn --check-acceptance
  */
 
 const fs   = require('fs');
@@ -36,9 +38,12 @@ const args = process.argv.slice(2);
 const getFlag  = (flag) => { const i = args.indexOf(flag); return i !== -1; };
 const getArg   = (flag) => { const i = args.indexOf(flag); return i !== -1 ? args[i + 1] : null; };
 
-const clientArg      = getArg('--client');
-const skipOnboarding = getFlag('--skip-onboarding');
-const pipelineMode   = getFlag('--pipeline');   // auto-confirm all gates
+const clientArg           = getArg('--client');
+const skipOnboarding      = getFlag('--skip-onboarding');
+const pipelineMode        = getFlag('--pipeline');        // auto-confirm all gates
+const deltaMode           = getArg('--mode') === 'delta'; // scope amendment run
+const recordingArg        = getArg('--recording');        // recording file for delta
+const checkAcceptanceMode = getFlag('--check-acceptance'); // read Firestore acceptance → lockedPricing
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -288,7 +293,7 @@ function writeState(slug, state) {
   writeJson(statePath, state);
 }
 
-function markComplete(slug, agentSlug, durationMs) {
+function markComplete(slug, agentSlug, durationMs, tokens = {}) {
   const state = readState(slug);
   if (!state.completed.includes(agentSlug)) {
     state.completed.push(agentSlug);
@@ -296,10 +301,18 @@ function markComplete(slug, agentSlug, durationMs) {
   state.currentStep = state.completed.length + 1;
   state[`${agentSlug}CompletedAt`] = isoNow();
   writeState(slug, state);
-  appendTelemetry(slug, agentSlug, durationMs, 'complete');
+  appendTelemetry(slug, agentSlug, durationMs, 'complete', tokens);
 }
 
 // ─── Telemetry ────────────────────────────────────────────────────────────────
+
+// Loaded from telemetry/model-pricing.json — edit that file when rates change
+const MODEL_PRICING = readJson(path.join(ROOT, 'DSPipeline/telemetry/model-pricing.json')) || {};
+
+function calcCost(model, inputTokens, outputTokens) {
+  const p = MODEL_PRICING[model] || MODEL_PRICING.sonnet || { input: 3.00, output: 15.00 };
+  return ((inputTokens * p.input + outputTokens * p.output) / 1_000_000).toFixed(4);
+}
 
 function appendTelemetry(slug, agentSlug, durationMs, status, tokens = {}) {
   const row = [
@@ -413,6 +426,25 @@ function assembleContext(slug, agentSlug) {
   writeJson(ctxPath, ctx);
 }
 
+// ─── Decisions Aggregation ────────────────────────────────────────────────────
+// Called after every agent. Reads all run/*-decisions.json and rebuilds decisions.json.
+
+function aggregateDecisions(slug) {
+  const projectDir    = path.join(PROJECTS_DIR, slug);
+  const runDir        = path.join(projectDir, 'run');
+  const decisionsPath = path.join(projectDir, 'decisions.json');
+  const decisionFiles = fs.existsSync(runDir)
+    ? fs.readdirSync(runDir).filter(f => f.endsWith('-decisions.json')).sort()
+    : [];
+  if (!decisionFiles.length) return;
+  const allDecisions = [];
+  for (const file of decisionFiles) {
+    const d = readJson(path.join(runDir, file));
+    if (d && Array.isArray(d.decisions)) allDecisions.push(...d.decisions);
+  }
+  writeJson(decisionsPath, { client: slug, updatedAt: isoNow(), decisions: allDecisions });
+}
+
 // ─── Client Registry Write (post-Flo) ────────────────────────────────────────
 // Writes a complete entry to standards/client-registry.json once Flo has confirmed
 // the flow list (systems[]) and Vera has confirmed vertical + sizeSegment.
@@ -424,9 +456,11 @@ function writeClientRegistry(slug) {
   const vera         = readJson(path.join(projectDir, 'run', 'vera.json')) || {};
   const flo          = readJson(path.join(projectDir, 'run', 'flo.json')) || {};
 
-  const systems = (flo.confirmedFlows || [])
-    .flatMap(f => f.systems || [])
-    .filter((v, i, a) => a.indexOf(v) === i);
+  // Prefer flo.confirmedFlows (most accurate); fall back to sage.systems[] before Flo runs
+  const sage = readJson(path.join(projectDir, 'run', 'sage.json')) || {};
+  const systems = flo.confirmedFlows?.length
+    ? (flo.confirmedFlows).flatMap(f => f.systems || []).filter((v, i, a) => a.indexOf(v) === i)
+    : (sage.systems || []).map(s => s.name).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
 
   const entry = {
     slug,
@@ -501,24 +535,36 @@ function deployFirebase(slug) {
     console.log(`  ${yellow('⚠')}  Firestore seed failed — seed manually`);
   }
 
-  // 11c — Archive source files
-  console.log('  Archiving source files...');
-  try {
-    execSync(`node scripts/move-sources.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
-    console.log(`  ${green('✓')} Sources archived`);
-  } catch (e) {
-    console.log(`  ${yellow('⚠')}  move-sources.js failed — archive manually`);
-  }
-
   // Write intakeUrl + proposalUrl to project.json
   mergeJson(path.join(projectDir, 'project.json'), { intakeUrl, proposalUrl });
   console.log(`  ${green('✓')} project.json updated with intakeUrl and proposalUrl`);
+}
+
+// ─── Source File Archival ─────────────────────────────────────────────────────
+// Runs once at the end of the full pipeline, after all agents complete.
+// Independent of Firebase hosting — archives regardless of deploy status.
+
+function archiveScopingFiles(slug) {
+  const { execSync } = require('child_process');
+  const scopingDir = path.join(PROJECTS_DIR, slug, 'scoping');
+  if (!fs.existsSync(scopingDir) || fs.readdirSync(scopingDir).filter(f => f !== '.gitkeep').length === 0) {
+    console.log(`  ${dim('scoping/ already empty — nothing to archive')}`);
+    return;
+  }
+  console.log('  Archiving scoping source files to Firebase Storage...');
+  try {
+    execSync(`node scripts/move-sources.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+    console.log(`  ${green('✓')} Source files archived`);
+  } catch (e) {
+    console.log(`  ${yellow('⚠')}  move-sources.js failed — run manually: node scripts/move-sources.js ${slug}`);
+  }
 }
 
 // ─── Agent Gate Display ───────────────────────────────────────────────────────
 
 function printAgentBanner(agent, slug) {
   const totalAgents = 9;
+  const cmd = `claude --agent-file ${agent.toml}`;
   console.log('\n' + bold('━'.repeat(60)));
   console.log(bold(`  NEXT: ${agent.name} — ${agent.role}  [${agent.position}/${totalAgents}]`));
   console.log(bold('━'.repeat(60)));
@@ -526,10 +572,10 @@ function printAgentBanner(agent, slug) {
   console.log(`  Model:   ${agent.model}`);
   console.log(`  Client:  ${slug}`);
   console.log();
-  console.log(`  ${bold('Load this agent in Claude Code:')}`);
-  console.log(`  ${dim('─'.repeat(54))}`);
-  console.log(`  ${cyan('Talk to ' + agent.name)} — load: ${bold(agent.toml)}`);
-  console.log(`  ${dim('─'.repeat(54))}`);
+  console.log(`  ${bold('Run in a new terminal:')}`);
+  console.log(`  ┌${'─'.repeat(56)}┐`);
+  console.log(`  │  ${green(cmd)}${' '.repeat(Math.max(0, 54 - cmd.length))}│`);
+  console.log(`  └${'─'.repeat(56)}┘`);
   console.log();
   console.log(`  When ${agent.name} is complete and you have confirmed the output:`);
 }
@@ -596,9 +642,39 @@ async function runPipeline(slug) {
 
     const durationMs = Date.now() - startMs;
 
-    // Post-agent: assemble company_context.json
+    // Prompt for token usage (optional — skip with Enter)
+    let tokens = { model: agent.model };
+    if (!pipelineMode) {
+      const tokStr = await prompt(`  Token usage [input output] or Enter to skip: `);
+      if (tokStr.trim()) {
+        const parts = tokStr.trim().split(/\s+/);
+        if (parts.length >= 2) {
+          const inp = parseInt(parts[0], 10);
+          const out = parseInt(parts[1], 10);
+          if (!isNaN(inp) && !isNaN(out)) {
+            tokens = { model: agent.model, input: inp, output: out, cost: calcCost(agent.model, inp, out) };
+            console.log(`  ${dim(`Cost: $${tokens.cost} (${agent.model} — ${inp.toLocaleString()} in / ${out.toLocaleString()} out)`)}`);
+          }
+        }
+      }
+    }
+
+    // Post-agent: assemble company_context.json + rebuild decisions.json
     assembleContext(slug, agent.slug);
     console.log(`  ${green('✓')} company_context.json updated`);
+    aggregateDecisions(slug);
+
+    // Post-Vera: write initial client-registry entry + promote library contributions
+    if (agent.slug === 'vera') {
+      writeClientRegistry(slug);
+      console.log(`  ${green('✓')} standards/client-registry.json — initial entry written (status: scoping)`);
+      try {
+        require('child_process').execSync(`node DSPipeline/promote-library.js --client ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+        console.log(`  ${green('✓')} Library contributions promoted to standards/usecases/`);
+      } catch (e) {
+        console.log(`  ${yellow('⚠')}  promote-library.js failed — run manually: node DSPipeline/promote-library.js --client ${slug}`);
+      }
+    }
 
     // Post-Rex: rebuild connector index (Rex may have added/updated registry stubs)
     if (agent.slug === 'rex') {
@@ -610,7 +686,7 @@ async function runPipeline(slug) {
       }
     }
 
-    // Post-Flo: write flowCount + pricingComputed to project.json, write client-registry.json entry
+    // Post-Flo: write flowCount + pricingComputed to project.json, aggregate decisions, write registry
     if (agent.slug === 'flo') {
       const floData = readJson(path.join(projectDir, 'run', 'flo.json')) || {};
       if (floData.pricing) {
@@ -620,6 +696,10 @@ async function runPipeline(slug) {
         });
         console.log(`  ${green('✓')} project.json updated (flowCount, pricingComputed)`);
       }
+
+      aggregateDecisions(slug);
+      console.log(`  ${green('✓')} decisions.json aggregated`);
+
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} standards/client-registry.json updated`);
     }
@@ -630,7 +710,7 @@ async function runPipeline(slug) {
     }
 
     // Mark complete in state
-    markComplete(slug, agent.slug, durationMs);
+    markComplete(slug, agent.slug, durationMs, tokens);
     console.log(`  ${green('✓')} ${agent.name} marked complete (${(durationMs / 1000).toFixed(0)}s)`);
 
     // Gate prompt for next agent (unless this is the last)
@@ -639,7 +719,9 @@ async function runPipeline(slug) {
     }
   }
 
-  // Pipeline complete
+  // Pipeline complete — archive scoping files now that all agents are done
+  archiveScopingFiles(slug);
+
   console.log('\n' + bold('═'.repeat(60)));
   console.log(bold('  PIPELINE COMPLETE'));
   console.log(bold('═'.repeat(60)));
@@ -662,9 +744,210 @@ async function runPipeline(slug) {
   `);
 }
 
+// ─── Delta Pipeline (scope amendment) ────────────────────────────────────────
+// Runs Sage → Flo → Quinn → Petra → Mira on a new recording.
+// Preserves lockedPricing, answered intake questions, and existing proposal flows.
+
+async function runDeltaPipeline(slug, recordingFile) {
+  const projectDir = path.join(PROJECTS_DIR, slug);
+  const project    = readJson(path.join(projectDir, 'project.json')) || {};
+  const amendments = project.amendments || [];
+  const amdNum     = String(amendments.length + 1).padStart(3, '0');
+  const amdId      = `AMD-${amdNum}`;
+
+  console.log('\n' + bold('━'.repeat(60)));
+  console.log(bold(`  DSPipeline DELTA — ${project.displayName || slug} — ${amdId}`));
+  if (project.lockedPricing) {
+    console.log(`  ${dim('Locked rate:')} $${project.lockedPricing.ratePerFlowPerMonth}/flow/month`);
+  } else {
+    console.log(`  ${yellow('⚠')}  No lockedPricing — Flo will recalculate. Run --check-acceptance first if client has accepted.`);
+  }
+  console.log(bold('━'.repeat(60)));
+
+  // Copy recording to scoping/ if it lives outside the project folder
+  const scopingDir   = path.join(projectDir, 'scoping');
+  const recordingAbs = path.isAbsolute(recordingFile) ? recordingFile : path.join(ROOT, recordingFile);
+  let   recordingDest = recordingAbs;
+  if (!recordingAbs.startsWith(scopingDir)) {
+    const destName  = `${amdId.toLowerCase()}-${path.basename(recordingAbs)}`;
+    recordingDest   = path.join(scopingDir, destName);
+    if (!fs.existsSync(recordingDest)) {
+      fs.copyFileSync(recordingAbs, recordingDest);
+    }
+    console.log(`  ${green('✓')} Recording copied → scoping/${path.basename(recordingDest)}`);
+  }
+
+  const relRecording = path.relative(ROOT, recordingDest);
+
+  const deltaAgents = [
+    { slug: 'sage',  name: 'Sage',  role: 'Document Intelligence', outputFile: 'run/sage.json',  note: `Point Sage at: ${relRecording}` },
+    { slug: 'flo',   name: 'Flo',   role: 'Flow Analyst + Pricing', outputFile: 'run/flo.json',   note: 'Flo reads sage.json — will flag new flows vs existing' },
+    { slug: 'quinn', name: 'Quinn', role: 'Intake Questionnaire',   outputFile: 'run/quinn.json', note: 'Quinn preserves answered questions; new gaps get [NEW] badge' },
+    { slug: 'petra', name: 'Petra', role: 'Proposal Writer',        outputFile: 'run/petra.json', note: 'Petra appends [NEW] flows — preserves pricing section' },
+    { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       outputFile: 'run/mira.json',  note: 'Final audit before re-deploy' },
+  ];
+
+  for (const agent of deltaAgents) {
+    const cmd = `claude --agent-file DSPipeline/agents/${agent.slug}.toml`;
+    console.log('\n' + bold('─'.repeat(60)));
+    console.log(bold(`  DELTA: ${agent.name} — ${agent.role}`));
+    if (agent.note) console.log(`  ${dim(agent.note)}`);
+    console.log();
+    console.log(`  ${bold('Run in a new terminal:')}`);
+    console.log(`  ┌${'─'.repeat(56)}┐`);
+    console.log(`  │  ${green(cmd)}${' '.repeat(Math.max(0, 54 - cmd.length))}│`);
+    console.log(`  └${'─'.repeat(56)}┘`);
+
+    const startMs = Date.now();
+    const ans = await prompt('\n  Press Enter when complete (or "quit" to stop): ');
+    if (ans.toLowerCase() === 'quit') {
+      console.log(`\n  ${yellow('Paused.')} Re-run with --client ${slug} --mode delta --recording ${recordingFile}`);
+      process.exit(0);
+    }
+
+    // Post-Flo: if lockedPricing exists, override Flo's recalculated pricing with locked rate
+    if (agent.slug === 'flo' && project.lockedPricing && project.lockedPricing.ratePerFlowPerMonth) {
+      const lockedRate = project.lockedPricing.ratePerFlowPerMonth;
+      const floPath    = path.join(projectDir, 'run', 'flo.json');
+      const floData    = readJson(floPath);
+      if (floData && floData.pricing) {
+        const n  = Number(floData.pricing.flowCount) || (floData.confirmedFlows || []).length;
+        const p1 = lockedRate;
+        const p2 = Math.round(p1 * 1.05 * 100) / 100;
+        const p3 = Math.round(p2 * 1.05 * 100) / 100;
+        const p4 = Math.round(p3 * 1.05 * 100) / 100;
+        floData.pricing.period1RatePerFlow          = String(p1);
+        floData.pricing.period2RatePerFlow          = String(p2);
+        floData.pricing.period3RatePerFlow          = String(p3);
+        floData.pricing.period4RatePerFlow          = String(p4);
+        floData.pricing.period1Payment6mo           = String(n * p1 * 6);
+        floData.pricing.period2Payment6mo           = String(n * p2 * 6);
+        floData.pricing.period3Payment6mo           = String(n * p3 * 6);
+        floData.pricing.period4Payment6mo           = String(n * p4 * 6);
+        floData.pricing.oneYearTotal                = String(n * p1 * 6 + n * p2 * 6);
+        floData.pricing.twoYearManagedServiceTotal  = String(n * p1 * 6 + n * p2 * 6 + n * p3 * 6 + n * p4 * 6);
+        writeJson(floPath, floData);
+        console.log(`  ${green('✓')} flo.json pricing anchored to locked rate $${lockedRate}/flow/month (${n} flows)`);
+        mergeJson(path.join(projectDir, 'project.json'), {
+          flowCount: floData.pricing.flowCount,
+          pricingComputed: floData.pricing,
+        });
+        aggregateDecisions(slug);
+        writeClientRegistry(slug);
+        console.log(`  ${green('✓')} decisions.json + client-registry updated`);
+      }
+    }
+
+    assembleContext(slug, agent.slug);
+    markComplete(slug, agent.slug, Date.now() - startMs);
+    console.log(`  ${green('✓')} ${agent.name} delta complete`);
+  }
+
+  // Record amendment in project.json
+  const newAmendment = {
+    id:        amdId,
+    date:      today(),
+    recording: relRecording,
+    trigger:   'scope-expansion',
+    note:      `Delta run for ${path.basename(recordingDest)}`,
+  };
+  mergeJson(path.join(projectDir, 'project.json'), { amendments: [...amendments, newAmendment] });
+
+  console.log('\n' + bold('═'.repeat(60)));
+  console.log(bold(`  DELTA COMPLETE — ${amdId}`));
+  console.log(bold('═'.repeat(60)));
+  console.log(`\n  Amendment recorded in project.json.`);
+  console.log(`  Re-deploy to Firebase to publish updated proposal.\n`);
+}
+
+// ─── Check Proposal Acceptance ────────────────────────────────────────────────
+// Reads Firestore proposals/{slug} — if accepted, writes lockedPricing to project.json.
+
+async function checkAcceptance(slug) {
+  const projectDir  = path.join(PROJECTS_DIR, slug);
+  const projectPath = path.join(projectDir, 'project.json');
+  const project     = readJson(projectPath) || {};
+
+  console.log('\n' + bold('━'.repeat(60)));
+  console.log(bold(`  Check Proposal Acceptance — ${project.displayName || slug}`));
+  console.log(bold('━'.repeat(60)));
+
+  if (project.lockedPricing) {
+    console.log(`\n  ${green('✓')} lockedPricing already set in project.json`);
+    console.log(`     Rate:    $${project.lockedPricing.ratePerFlowPerMonth}/flow/month`);
+    console.log(`     Locked:  ${project.lockedPricing.lockedAt}`);
+    if (project.lockedPricing.acceptedAt) {
+      console.log(`     Accepted: ${project.lockedPricing.acceptedAt} by ${project.lockedPricing.acceptedBy}`);
+    }
+    return;
+  }
+
+  if (!process.env.FIREBASE_SA_KEY && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    console.log(`\n  ${yellow('⚠')}  No Firebase credentials found (GOOGLE_APPLICATION_CREDENTIALS not set).`);
+    console.log(`\n  Manual check — Firestore console:`);
+    console.log(`  dataskateclients → proposals → ${slug}`);
+    console.log(`\n  If accepted, add to projects/${slug}/project.json:`);
+    console.log(`  "lockedPricing": {`);
+    console.log(`    "ratePerFlowPerMonth": <rate>,`);
+    console.log(`    "scope": "all-flows-current-and-future",`);
+    console.log(`    "lockedAt": "${today()}",`);
+    console.log(`    "lockedBy": "client-acceptance",`);
+    console.log(`    "acceptedAt": "<ISO timestamp>",`);
+    console.log(`    "acceptedBy": "<client email>"`);
+    console.log(`  }`);
+    return;
+  }
+
+  try {
+    const { execSync } = require('child_process');
+    const readScript = [
+      `const admin = require('./firebase/functions/node_modules/firebase-admin');`,
+      `if (!admin.apps.length) admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId: 'dataskateclients' });`,
+      `admin.firestore().collection('proposals').doc('${slug}').get().then(doc => {`,
+      `  if (!doc.exists) { console.log(JSON.stringify({ found: false })); process.exit(0); }`,
+      `  const d = doc.data();`,
+      `  console.log(JSON.stringify({ found: true, acceptedAt: d.acceptedAt ? d.acceptedAt.toDate().toISOString() : null, acceptedBy: d.acceptedBy, ratePerFlow: d.ratePerFlow, flowCount: d.flowCount, model: d.model }));`,
+      `  process.exit(0);`,
+      `}).catch(e => { console.error(e.message); process.exit(1); });`,
+    ].join(' ');
+    const result = execSync(`node -e "${readScript}"`, { cwd: ROOT, encoding: 'utf8' });
+    const data   = JSON.parse(result.trim());
+
+    if (!data.found || !data.acceptedAt) {
+      console.log(`\n  ${yellow('○')}  No acceptance recorded yet in proposals/${slug}`);
+      return;
+    }
+
+    const acceptedByEmail = data.acceptedBy && typeof data.acceptedBy === 'object'
+      ? data.acceptedBy.email
+      : data.acceptedBy;
+    console.log(`\n  ${green('✓')} Accepted by ${acceptedByEmail} on ${data.acceptedAt}`);
+
+    mergeJson(projectPath, {
+      lockedPricing: {
+        ratePerFlowPerMonth: data.ratePerFlow,
+        scope:               'all-flows-current-and-future',
+        lockedAt:            today(),
+        lockedBy:            'client-acceptance',
+        acceptedAt:          data.acceptedAt,
+        acceptedBy:          acceptedByEmail,
+      },
+    });
+    console.log(`  ${green('✓')} lockedPricing written to project.json — $${data.ratePerFlow}/flow/month`);
+  } catch (e) {
+    console.log(`  ${red('✗')}  Firestore read failed: ${e.message}`);
+  }
+}
+
 // ─── Entry Point ─────────────────────────────────────────────────────────────
 
 async function main() {
+  // Delta and acceptance modes require an explicit --client slug
+  if ((deltaMode || checkAcceptanceMode) && !clientArg) {
+    console.error(red('\n  Error: --mode delta and --check-acceptance require --client <slug>'));
+    process.exit(1);
+  }
+
   let slug = clientArg;
 
   if (!slug) {
@@ -706,6 +989,25 @@ async function main() {
   if (!fs.existsSync(projectPath)) {
     console.error(red(`\n  Error: No project found at projects/${slug}/. Run without --client to onboard.`));
     process.exit(1);
+  }
+
+  if (checkAcceptanceMode) {
+    await checkAcceptance(slug);
+    return;
+  }
+
+  if (deltaMode) {
+    if (!recordingArg) {
+      console.error(red('\n  Error: --mode delta requires --recording <file>'));
+      process.exit(1);
+    }
+    const recordingPath = path.isAbsolute(recordingArg) ? recordingArg : path.join(ROOT, recordingArg);
+    if (!fs.existsSync(recordingPath)) {
+      console.error(red(`\n  Error: Recording file not found: ${recordingArg}`));
+      process.exit(1);
+    }
+    await runDeltaPipeline(slug, recordingArg);
+    return;
   }
 
   await runPipeline(slug);

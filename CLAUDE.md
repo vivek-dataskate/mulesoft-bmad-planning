@@ -2,6 +2,10 @@
 
 Read `docs/PLANNING_CONTEXT.md` at the start of every session before doing anything else.
 
+**DSPipeline agent boundary rule:** Each agent does exactly one thing — reads its designated inputs and writes to its own output file (`{agent}.json`). No agent touches file lifecycle (move, archive, upload, delete), pipeline state, or any other between-agent coordination. All such housekeeping belongs in `DSPipeline/scout/orchestrate.js`. When reviewing or designing an agent, flag any step that is not "read → transform → write own output" as a boundary violation.
+
+**No hardcoding of time-varying config in source files:** Any value that can change independently of code — API pricing, rate limits, model IDs, external identifiers, environment URLs — must live in a config file in the relevant folder (e.g. `DSPipeline/telemetry/model-pricing.json`), not inside a `.js`/`.ts` file. Source code reads the config at runtime. Fallback defaults in code are acceptable as a guard against missing files only.
+
 **UI feedback rule:** Any time the user gives negative feedback on UI or HTML output (e.g. "this is wrong", "fix this", "don't do that"), immediately save that feedback to three places:
 1. `commons/branding/HTML_DESIGN_STANDARDS.json` — add to the `forbidden` array (keep the .md as a human pointer only)
 2. `memory/` — save or update a feedback memory file

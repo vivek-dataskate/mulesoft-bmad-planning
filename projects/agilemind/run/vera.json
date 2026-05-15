@@ -1,0 +1,539 @@
+{
+  "status": "complete",
+  "client": "agilemind",
+  "generatedAt": "2026-05-14",
+
+  "company": {
+    "snapshot": "AgileMind is a Grapevine, Texas-based educational technology company founded in 2002 that develops research-based mathematics and science curriculum programs (grades 6–12) for U.S. school districts. Their blended learning model combines print student activity books (SABs) with digital instructional platforms; products are sold on annual contracts to districts and carry regional ISBNs that vary by state. AgileMind was acquired by Savvas Learning Company in 2020 and operates with approximately 51–100 employees.",
+    "industry": "educational publishing / EdTech",
+    "verticalSlug": "education",
+    "hqLocation": "Grapevine, TX",
+    "revenueEstimate": "~$18M ARR (sourced: ZoomInfo/RocketReach third-party estimates; not self-reported)",
+    "revenueBracket": "SMB ($10M–$25M)",
+    "logoUrl": "https://logo.clearbit.com/agilemind.com",
+    "businessObjects": [
+      "Districts (school district accounts — Salesforce Account)",
+      "Contacts (district administrators, principals, teachers — Salesforce Contact)",
+      "Opportunities (multi-year sales pipeline — Salesforce Opportunity)",
+      "Agreements (executed contracts — Salesforce custom object)",
+      "Products / Titles (curriculum book series, e.g. Intensified Algebra Vol 1 — Salesforce Product + QB Item)",
+      "ISBNs (regional identifiers per product × state — Salesforce configurable lookup table)",
+      "Invoices (billing records — QuickBooks Invoice)",
+      "Inventory Records (quantities on hand, committed, available per title — QB + Salesforce Inventory__c)",
+      "Fulfillment Records (shipped quantities, CCR flags — Holly's Excel/Google Sheets)",
+      "Payment Records (QB open balance, payment date, AR aging — QuickBooks)",
+      "Subscriptions / Licenses (digital access entitlements per district)"
+    ]
+  },
+
+  "aiJourney": {
+    "phase1": {
+      "label": "Connected",
+      "headline": "Agreement-to-Invoice and Inventory in One View",
+      "body": "The 4 confirmed flows close the manual gaps Crystal and Holly live in daily: UC1 fires when Abby creates an Agreement in Salesforce (Closed Won) and automatically creates the QuickBooks invoice — no manual re-entry. UC2 polls QuickBooks on a schedule and writes the invoice number, payment date, and open balance back to the Salesforce Agreement — Crystal stops toggling between systems. UC3 reads Holly's Google Sheets or Excel demand worksheet on a schedule and loads inventory quantities, committed stock, and projected shorts into a new Salesforce Inventory__c object. UC4 pulls QB inventory item costs into the same Salesforce object, so Maria can answer 'how much did we spend on Intensified Algebra Vol 1 over 5 years?' without leaving Salesforce."
+    },
+    "phase2": {
+      "label": "Automated",
+      "headline": "Shortage Alerts and Fulfillment Triggers Fire Themselves",
+      "body": "With live inventory in Salesforce, automated rules become possible that aren't feasible today. When available inventory for a title drops below the configured 3% buffer (currently tracked manually in red on Holly's spreadsheet), Salesforce fires a shortage alert to Holly and the relevant sales rep automatically. When a district's pipeline stage crosses 60% probability, a pre-fulfillment reservation is triggered in QB — reducing the last-minute crunch at back-to-school. CCR fulfillment flags (UC6-potential) are stamped automatically on the incoming Agreement so the system knows materials were already shipped, eliminating Holly's manual reconciliation call to sales. Product catalog sync (UC5-potential) keeps QB items and Salesforce Products aligned so new title additions by Maria don't silently diverge from Abby's opportunity line items."
+    },
+    "phase3": {
+      "label": "Agentic",
+      "headline": "Agentforce Turns Salesforce Data Into District-Level Decisions",
+      "body": "Phase 1 creates the Salesforce objects that Agentforce runs on: Agreement, Invoice status, Inventory__c, and Product. An Agentforce Sales Agent monitors open Agreements where the QB open balance has aged past 30 days and drafts a follow-up email to the district's finance contact — no action needed from Crystal. A second Agentforce agent answers Maria's natural-language procurement questions: 'What did we source for Intensified Algebra Vol 1 the last 3 fiscal years and what is left in inventory?' — pulling from the Inventory__c and Invoice history Phases 1–2 created. A third agent runs pre-season demand forecasting: reading open pipeline by probability stage from Opportunities, comparing against current QB inventory levels, and generating a draft purchase order recommendation for Holly's review — replacing the manual red-cell Excel exercise with a one-click approval workflow."
+    }
+  },
+
+  "systemPrerequisites": [
+    {
+      "system": "Salesforce",
+      "prerequisites": [
+        "Custom Inventory__c object must be created with fields: Title__c, ISBN__c, State__c, QuantityOnHand__c, QuantityCommitted__c, QuantityAvailable__c, UnitCost__c, LastSyncedAt__c",
+        "External ID field (e.g. QB_InvoiceId__c) must be added to the Agreement object before go-live to support upsert idempotency",
+        "ISBN lookup table (configurable object or custom metadata) mapping State × Product → ISBN must be built and populated before UC1 can route correctly",
+        "Platform Events or Change Data Capture must be enabled for Agreement object to support event-driven UC1 trigger",
+        "State/Country Picklist format must be confirmed (ISO codes vs free-text) before DataWeave ISBN mapping is written",
+        "Connected App must be registered in Salesforce for MuleSoft OAuth 2.0 credential (Chloe / IT Director to provision)"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate creates the Inventory__c object schema, External ID fields, and Connected App during the integration build sprint",
+        "assumedPreExists": "Opportunity stages 1–8, Agreement custom object, existing QB Invoice # / date / payment custom fields on Agreement — all noted as already present in transcripts",
+        "outOfScope": "Salesforce org licensing, Einstein / Agentforce licensing for Phase 3, Education Cloud upgrade decisions"
+      }
+    },
+    {
+      "system": "QuickBooks Online (assumed — P0 unconfirmed)",
+      "prerequisites": [
+        "CRITICAL P0: Client must confirm QuickBooks Online vs Desktop/Enterprise before any connector selection",
+        "If QuickBooks Online: register a Connected App in Intuit Developer Console; obtain OAuth 2.0 Client ID and Secret; authorize the app from a QB admin account (Crystal or Maria)",
+        "If QuickBooks Online: confirm sandbox company available for integration testing before touching production",
+        "If QuickBooks Desktop/Enterprise: QBXML Web Connector must be installed on the machine running QB; or a third-party bridge (DBSync, Breadwinner) must be licensed — no native REST API",
+        "QB Items (Products) must be named/coded consistently with Salesforce Products for matching logic — Maria to confirm item naming convention",
+        "Confirm QB fiscal year start (April 1 per transcripts) is set correctly in QB settings — affects date-range queries"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate configures the MuleSoft QBO connector (OAuth flow) or, if Desktop, architects the bridge approach and documents the relay configuration",
+        "assumedPreExists": "QB accounts, customers, and product items already set up by Maria (confirmed in transcripts)",
+        "outOfScope": "QuickBooks licensing or plan upgrades, migration from Desktop to Online if client decides to switch"
+      }
+    },
+    {
+      "system": "Excel / Google Sheets",
+      "prerequisites": [
+        "CRITICAL P0: Holly must confirm file storage location — local machine files cannot be read by CloudHub 2.0",
+        "If Google Sheets: file must be shared with a Google Service Account; credentials (JSON key) provisioned by IT (Chloe); use google-sheets MuleSoft connector",
+        "If SharePoint / OneDrive: file must be accessible via Microsoft Graph API; use microsoft-excel-online connector; SharePoint site URL and file path required",
+        "If local machine only: file must be migrated to Google Drive or OneDrive — or client sets up an SFTP drop zone as a bridge",
+        "Spreadsheet column headers must be stable and agreed upon before mapping — any header rename breaks the DataWeave transform",
+        "Confirm whether the demand worksheet is updated in real-time throughout the day or only at end-of-day — determines polling frequency design"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate builds the connector and scheduled polling flow once storage location is confirmed",
+        "assumedPreExists": "Holly's worksheet structure and column names (to be confirmed via intake)",
+        "outOfScope": "File migration from local to cloud storage (client IT responsibility if needed), Google Workspace or Microsoft 365 licensing"
+      }
+    }
+  ],
+
+  "nearbyPeers": [
+    {
+      "company": "Cambium Learning Group",
+      "hq": "Dallas, TX (~25 miles from Grapevine)",
+      "radius": "local",
+      "industry": "K-12 educational technology and services",
+      "relevance": "Direct industry peer — PreK-12 education technology and curriculum, headquartered in Dallas. Job postings confirm active Salesforce Senior Development Lead role, indicating parallel CRM investment and integration work.",
+      "sourceUrl": "https://www.cambiumlearning.com/",
+      "verifiedPublicCaseStudy": false,
+      "note": "No public case study found for Salesforce integration — confirmed via web search. Company profile and HQ location verified."
+    },
+    {
+      "company": "Istation",
+      "hq": "Dallas, TX — 8150 N Central Expressway (~25 miles from Grapevine)",
+      "radius": "local",
+      "industry": "K-12 EdTech — adaptive reading, math, and Spanish literacy assessments",
+      "relevance": "Dallas-based K-12 EdTech company with $22M in funding (as of December 2025). Tech stack publicly confirmed to include QuickBooks — meaning they carry the same finance/ops fragmentation pattern AgileMind has. Recently merged with Amira to create an 'Intelligent Growth Engine' for student growth. Sells to the same district buyers AgileMind targets.",
+      "sourceUrl": "https://www.istation.com/",
+      "verifiedPublicCaseStudy": false,
+      "note": "No Salesforce case study found; QuickBooks presence in tech stack confirmed via LeadIQ/ZoomInfo data. A DataSkate prospect in the education vertical — same Salesforce + QuickBooks integration gap profile."
+    },
+    {
+      "company": "Dallas College",
+      "hq": "Dallas, TX (~25 miles from Grapevine)",
+      "radius": "local",
+      "industry": "Higher education / community college district",
+      "relevance": "Dallas-area education institution with a verified Salesforce Education Cloud implementation — built the Dallas County Promise scholarship platform on Salesforce in 7 weeks, using Marketing Cloud for automated student communications to 9,000 enrollees. Adjacent to K-12 but demonstrates Salesforce investment depth in the Dallas education ecosystem.",
+      "sourceUrl": "https://www.salesforce.com/education/dallas-college/",
+      "verifiedPublicCaseStudy": true,
+      "note": "Verified Salesforce customer story. Shows Education Cloud + Marketing Cloud automation is active in the DFW region — useful local credibility signal in proposals."
+    },
+    {
+      "company": "Houghton Mifflin Harcourt (HMH)",
+      "hq": "Boston, MA (national — $1.37B revenue, 50M students)",
+      "radius": "national",
+      "industry": "K-12 educational publishing and digital learning",
+      "relevance": "One of the largest K-12 publishers in the US and a Salesforce anchor customer. HMH standardized on Sales Cloud in 2012, added Service Cloud and Wave Analytics, and drove digital revenue past 50% by 2015. Their digital transformation — content delivered via app, platform, iPad, and Android — represents the scaled version of the blended print+digital model AgileMind runs. The Salesforce investment is deep and long-standing.",
+      "sourceUrl": "https://www.salesforce.com/au/customer-success-stories/houghton-mifflin-harcourt/",
+      "verifiedPublicCaseStudy": true,
+      "note": "Verified Salesforce customer story. National peer — much larger, but the same print+digital curriculum model and Salesforce-at-the-core pattern. Useful as a 'where AgileMind is headed' reference."
+    },
+    {
+      "company": "Pearson",
+      "hq": "London, UK / US operations nationally",
+      "radius": "national",
+      "industry": "Educational publishing, assessments, digital learning, workforce credentials",
+      "relevance": "One of the world's largest education companies and a 25-year Salesforce customer who recently expanded to an enterprise value partner (2025). Pearson uses Agentforce Sales, Agentforce Service, Agentforce Marketing, and Agentforce Data across their business. They are the clearest proof point that enterprise educational publishers run their entire customer lifecycle on Salesforce + Agentforce — validating the exact trajectory DataSkate is proposing for AgileMind's Phase 3.",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/pearson-and-salesforce-expand-partnership-to-accelerate-workforce-ai-readiness-302768454.html",
+      "verifiedPublicCaseStudy": true,
+      "note": "Verified press release (PR Newswire, 2025). National peer — much larger, but the Agentforce Sales + Service pattern is directly analogous to Phase 3 plays. Strong FOMO anchor for the proposal."
+    }
+  ],
+
+  "competitorFOMO": [
+    {
+      "company": "Wiley",
+      "industry": "educational publishing",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Deployed Salesforce Agentforce + Service Cloud to handle semester-start service surges (thousands of simultaneous student access requests). Agentforce autonomously resolves account access issues, resets passwords, and triages registration and payment problems — deflecting volume that previously required hiring seasonal staff.",
+      "metrics": "213% ROI on Service Cloud investment; 40%+ efficiency gain in case resolution in first weeks of deployment; 50% faster onboarding for new service agents",
+      "aiAgentDescription": "An AI agent monitors incoming student service requests → auto-resolves account access and password issues using the knowledge base → escalates payment and registration edge cases to a human agent with full context pre-loaded",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/wiley/",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "Wiley is a publisher with Salesforce at its core — same industry, same platform. AgileMind's Phase 3 Agentforce plays (AR follow-up, procurement recommendations) follow the same pattern Wiley already validated."
+    },
+    {
+      "company": "Carnegie Learning",
+      "industry": "K-12 educational technology / curriculum",
+      "fomoTier": "exact-match",
+      "whatTheyDid": "Deployed Salesforce Agentforce to automate sales rep account research and meeting preparation. Agentforce mines Salesforce data to generate AI account summaries — deal amounts, past meeting activity, key contacts — on demand before district calls.",
+      "metrics": "92% reduction in account research time (from up to 1 hour to 5–10 minutes per rep); 90% reduction in time spent on sales emails; increased win rates and faster deal cycles",
+      "aiAgentDescription": "An AI agent monitors Salesforce Opportunity and Account data → generates a real-time account summary when a rep opens a record or receives an inbound call → delivers deal amounts, key contacts, and similar closed-won opportunities in seconds, eliminating hold time",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/carnegie-learning/",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "Carnegie Learning is a direct K-12 curriculum competitor selling to the same school district buyers AgileMind targets. They are already using Agentforce on the same Salesforce platform AgileMind runs — the Phase 3 plays DataSkate is proposing are proven peer-level moves, not experiments."
+    },
+    {
+      "company": "Pearson",
+      "industry": "educational publishing / workforce credentials",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Expanded a 25-year Salesforce relationship to a full enterprise value partnership in 2025. Pearson deploys Agentforce Sales, Agentforce Service, Agentforce Marketing, and Agentforce Data across their business — moving from Salesforce CRM customer to AI-native enterprise, with customer service already supported by Agentforce-powered resolution.",
+      "metrics": "25+ years of Salesforce deployment; expanded to full Agentforce suite in 2025; customer service functions already partially resolved by AI agents (specific deflection rate not published)",
+      "aiAgentDescription": "Agentforce agents handle customer service resolution across Pearson's product lines, with AI working alongside human agents for escalations; Agentforce Sales and Marketing agents support go-to-market workflows at enterprise scale",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/pearson-and-salesforce-expand-partnership-to-accelerate-workforce-ai-readiness-302768454.html",
+      "sourceVerified": true,
+      "prospectNote": "Pearson is also AgileMind's parent company's (Savvas) sector peer — and Pearson is a future DataSkate prospect in its own right. They have the budget, the Salesforce infrastructure, and the integration complexity (global publishing operations) that would benefit from MuleSoft. sourceUrl is PR Newswire, not a competitor domain.",
+      "relevanceToAgileMind": "The largest educational publisher in the world is now an Agentforce enterprise. This is the 'where the industry is going' anchor for AgileMind's Phase 3 conversation — not experimental, not early-adopter, but market-standard."
+    },
+    {
+      "company": "Houghton Mifflin Harcourt (HMH)",
+      "industry": "K-12 educational publishing",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Standardized the entire sales organization on Salesforce Sales Cloud in 2012, added Service Cloud, Chatter, and Wave Analytics; drove digital revenue past 50% of total company revenue by 2015 — a complete publishing-to-digital transformation anchored on Salesforce. Used Wave Analytics dashboards to visualize pipeline data, uncover insights, and take immediate commercial action.",
+      "metrics": "50%+ of $1.37B revenue became digital by 2015 (from under 20% at transformation start); content now reaches nearly 50 million students across 150 countries annually",
+      "aiAgentDescription": null,
+      "sourceUrl": "https://www.salesforce.com/au/customer-success-stories/houghton-mifflin-harcourt/",
+      "sourceVerified": true,
+      "prospectNote": "HMH was acquired by Veritas Capital in 2022 and rebranded. Post-acquisition tech stack may be in flux — potential DataSkate integration modernization prospect. sourceUrl is Salesforce.com.",
+      "relevanceToAgileMind": "HMH is the industry model for Salesforce-led digital transformation in K-12 publishing. AgileMind is at the beginning of this journey — UC1–UC4 are the first integration layer that HMH built years ago to get to their current state."
+    },
+    {
+      "company": "McGraw-Hill Education",
+      "industry": "educational publishing (K-12 + higher ed)",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Implemented Salesforce mobile sales tools, enabling field reps to update Salesforce in real time during campus visits — eliminating evening data entry backlogs. Completed the project in 18 weeks; within weeks of deployment, pipeline data accuracy improved materially and business analysts gained access to sell-through opportunity insights they previously couldn't see.",
+      "metrics": "18-week implementation to full mobile deployment; more accurate pipeline data within weeks; more than 90% of staff using Salesforce on day one of rollout (initial adoption from years prior)",
+      "aiAgentDescription": null,
+      "sourceUrl": null,
+      "sourceVerified": true,
+      "sourceNote": "Verified case study published by Computer Weekly (computerweekly.com/news/2240209443). sourceUrl set null — source is a tech publication, not a competitor domain, but URL not suitable as a FOMO citation link. Company is a potential DataSkate prospect.",
+      "prospectNote": "McGraw-Hill (now owned by Platinum Equity) runs Salesforce and has an established pattern of iterative Salesforce investments. Their cloud infrastructure modernization (Rackspace) and Agile platform work (Apptio) indicate ongoing digital evolution. A DataSkate integration engagement for ERP/QuickBooks sync is plausible at their scale.",
+      "relevanceToAgileMind": "McGraw-Hill's Salesforce mobile rollout shows that even large publishers had messy data-entry processes before systematizing Salesforce — AgileMind's current manual workflow (Crystal in QB + SF, Holly in Excel) is the same problem McGraw-Hill solved."
+    },
+    {
+      "company": "Savvas Learning Company",
+      "industry": "K-12 educational publishing",
+      "fomoTier": "same-industry",
+      "whatTheyDid": "Named to the GSV 150 list of top transformational growth companies in digital learning for four consecutive years (2022–2026). Embedded AI tools into curriculum (Savvas Studio, SavvyWriter) for teacher productivity and personalized student writing feedback. Parent company of AgileMind — the AI tooling investment at the Savvas level is likely to flow downstream to AgileMind's operational infrastructure.",
+      "metrics": "Named GSV 150 for 4 consecutive years; AI curriculum tools launched in 2024–2025 (SavvyWriter, Savvas Studio); specific operational ROI metrics not publicly disclosed",
+      "aiAgentDescription": null,
+      "sourceUrl": null,
+      "sourceVerified": false,
+      "sourceNote": "Savvas is AgileMind's parent. No specific Salesforce or MuleSoft integration case study found. GSV 150 listings are public (savvas.com/newsroom). sourceUrl set null — only source is their own press releases.",
+      "prospectNote": "Savvas is itself a DataSkate prospect — they own AgileMind plus other curriculum brands (enVision, myPerspectives, Experience Math). If DataSkate delivers successfully for AgileMind, there is a natural expansion path into the Savvas parent organization's integration needs.",
+      "relevanceToAgileMind": "The parent company's AI investment trajectory creates an implicit expectation that AgileMind will modernize its operational stack. DataSkate's integration work positions AgileMind to be the first Savvas brand to demonstrate an AI-ready data architecture."
+    },
+    {
+      "company": "A specialty services company (anonymized — flooring industry, comparable AR workflow)",
+      "industry": "services / field operations",
+      "fomoTier": "adjacent-industry",
+      "whatTheyDid": "Integrated Salesforce CRM with QuickBooks Online using a custom middleware sync — automating invoice creation, bill entry, and customer record transfers bidirectionally between the two systems.",
+      "metrics": "$25,000 saved on manual data entry annually; 2,000+ invoices, bills, and jobs automated; 90% reduction in maintenance costs for the integration",
+      "aiAgentDescription": null,
+      "sourceUrl": null,
+      "sourceVerified": false,
+      "note": "Source is Satva Solutions case study (satvasolutions.com/case-study/quickbooks-salesforce-sync-flooring-industry). Company anonymized per FOMO rules — competitor domain is the source. The Salesforce ↔ QuickBooks invoice sync pattern (UC1 + UC2) is directly analogous to AgileMind's flows.",
+      "relevanceToAgileMind": "The $25K annual savings figure is from automating exactly the same Salesforce-to-QuickBooks invoice and payment sync that UC1 and UC2 deliver for AgileMind. Crystal Robinson's manual workflow is the same problem solved here."
+    },
+    {
+      "company": "Industry benchmark — Salesforce CRM + accounting integration",
+      "industry": "cross-industry stat",
+      "fomoTier": "industry-stat",
+      "whatTheyDid": "Organizations that fully integrate their CRM with accounting/ERP tools report measurable operational improvements across industries.",
+      "metrics": "30% increase in productivity; 25% reduction in administrative costs; 60% reduction in manual data entry errors (Bizdata360 / Salesforce integration benchmark research, 2024–2025)",
+      "aiAgentDescription": null,
+      "sourceUrl": "https://www.bizdata360.com/quickbooks-salesforce-integration/",
+      "sourceVerified": true,
+      "relevanceToAgileMind": "Baseline ROI framing for the UC1–UC4 integration proposal. Applies directly to Crystal and Holly's current manual workload."
+    }
+  ],
+
+  "aiThoughtStarters": [
+    {
+      "id": "AT1",
+      "headline": "Inventory Shortage Alert Agent",
+      "body": "Once UC3 loads Holly's inventory into Salesforce, a simple Salesforce Flow (Phase 2) can fire an alert to the sales rep and Holly whenever available stock for a title drops below the 3% buffer. No more checking red cells in Excel — the system calls it out automatically before a district order creates a short.",
+      "systems": ["Salesforce", "Google Sheets"],
+      "phase": "Phase 2 — Automated"
+    },
+    {
+      "id": "AT2",
+      "headline": "Pre-Season Demand Forecast Agent",
+      "body": "With Opportunity stage probabilities and inventory quantities both living in Salesforce (post-UC3/UC4), an Agentforce agent can run a demand forecast each week: multiply pipeline units at each probability tier × probability → compare to QB on-hand quantities → generate a draft purchase order recommendation for Holly's one-click approval. Replaces the manual Excel red-cell exercise with an agent that does it automatically.",
+      "systems": ["Salesforce", "QuickBooks"],
+      "phase": "Phase 3 — Agentic"
+    },
+    {
+      "id": "AT3",
+      "headline": "AR Follow-Up Agent for District Finance",
+      "body": "Once UC2 syncs QB payment status to Salesforce Agreements, an Agentforce agent can monitor for open balances aging past 30 days and draft a personalized follow-up email to the district's finance contact — referencing the specific invoice number, amount due, and program — and queue it for Crystal's one-click send. Turns AR follow-up from a weekly manual task into an automated daily watch.",
+      "systems": ["QuickBooks", "Salesforce"],
+      "phase": "Phase 3 — Agentic"
+    },
+    {
+      "id": "AT4",
+      "headline": "ISBN Routing Intelligence — No More Manual Review Flags",
+      "body": "The configurable ISBN lookup table Kailash proposed (state × school → correct ISBN) can be extended with an Agentforce agent: when no ISBN match is found, instead of just flagging for manual review, the agent queries the district's state and enrolled program, checks for the closest ISBN match, and drafts a resolution note for Abby — reducing the manual review queue to true edge cases only.",
+      "systems": ["Salesforce"],
+      "phase": "Phase 2 → Phase 3 — Automated to Agentic"
+    }
+  ],
+
+  "proposalHooks": {
+    "whatWeKnowAboutYou": [
+      "AgileMind carries regional ISBNs that vary by state — meaning every fulfillment order requires a state-lookup step to resolve the correct ISBN before an invoice can be generated. This lookup currently has no automated path; when it breaks, it lands on Abby's desk for manual resolution.",
+      "Your QuickBooks fiscal year starts April 1, which is three months ahead of the K-12 school district budget cycle (districts close June 30). This mismatch means Holly's demand forecast and Crystal's AR aging reports are always out of phase with district purchasing timelines — and the April–June procurement surge hits before AgileMind's own books close.",
+      "Crystal manually toggles between QuickBooks and Salesforce for every invoice: she creates the invoice in QB, then re-enters the invoice number, date, and open balance into the Salesforce Agreement. Based on typical billing volumes for a company your size, this is a 15–30 minute task per agreement — multiplied across a back-to-school pipeline that compresses into a 60-day window.",
+      "Holly's inventory worksheet lives in Excel (or Google Sheets — still unconfirmed as of the last call), which means the moment she closes her laptop, the rest of the team is working from stale data. Maria has no way to answer 'what is the current available inventory for Intensified Algebra Vol 1?' without calling Holly directly.",
+      "AgileMind is owned by Savvas Learning Company, which has been named to the GSV 150 list of top transformational growth companies in digital learning four years running. That means there is a parent-company expectation of AI-forward operational infrastructure — and AgileMind is the subsidiary that can demonstrate it first."
+    ]
+  },
+
+  "fieldKnowledgeCandidates": [
+    {
+      "id": "FKC-001",
+      "title": "K-12 publisher regional ISBN complexity — state adoption drives per-state ISBN variants",
+      "trigger": "AgileMind engagement — UC1 ISBN routing discovery",
+      "scenario": "K-12 curriculum publishers who sell physical student activity books (SABs) to school districts assign distinct ISBNs per title × state. This is driven by state textbook adoption processes: 19 states plus DC make decisions at the state level, while the remainder delegate to local education agencies. Publishers adapt content per state (standards alignment, demographic content) and the ISBN reflects those variants. For an integration that routes fulfillment orders, the ISBN is not a static field — it is a function of (product, state, program year).",
+      "whatFailed": "No automated ISBN resolution path at AgileMind — Abby manually reviews any order where the ISBN lookup table returns no match, creating a bottleneck during the back-to-school crunch.",
+      "whatWorked": "Proposed solution: Salesforce custom metadata type or configurable lookup object (State × Product → ISBN), maintained by Sales Ops, queried at invoice creation time in the MuleSoft UC1 flow before QB invoice is generated.",
+      "clientQuestionUsed": "What happens today when a district in a new state orders a title that hasn't been set up in your lookup table?",
+      "promotesTo": "standards/playbooks/ as a K-12 publisher integration pattern note; candidate for FIELD_KNOWLEDGE.md FK entry"
+    },
+    {
+      "id": "FKC-002",
+      "title": "K-12 publisher fiscal year mismatch — publisher April 1 FY vs district June 30 FY creates seasonal AR pressure",
+      "trigger": "AgileMind engagement — QB fiscal year April 1 confirmed in transcripts",
+      "scenario": "K-12 curriculum publishers often run a fiscal year starting April 1 (aligned to their parent company or historical reporting cycles), while K-12 school district budgets almost universally run July 1 – June 30. This creates a structural lag: the publisher's Q4 (January–March) is the district's budget-planning season; the publisher's new fiscal year (April) opens while districts are still finalizing budgets and approving POs. The April–June window is simultaneously the publisher's Q1 and the district's year-end 'use it or lose it' spending crunch — creating a compressed billing and fulfillment window that hits both parties at the same time.",
+      "whatFailed": "AgileMind's AR aging reports and inventory demand forecasts are misaligned with district purchasing timelines. Crystal and Holly are managing peak workflow manually in a 60-day window (May–July) with no automation.",
+      "whatWorked": "Integration design must account for fiscal year offset in date-range queries: QB invoice date-range filters should use the publisher's April 1 FY, while Opportunity close-date filters and demand forecast horizon should use the district June 30 FY. Both ranges are needed to produce accurate pre-season forecasts.",
+      "clientQuestionUsed": "Is your QuickBooks fiscal year April 1, and does your team track district budget approval cycles separately?",
+      "promotesTo": "standards/playbooks/ as a K-12 publisher date-range integration pattern; candidate for FIELD_KNOWLEDGE.md FK entry"
+    },
+    {
+      "id": "FKC-003",
+      "title": "K-12 publisher back-to-school seasonality — 60-day order crunch compresses all fulfillment and billing into one window",
+      "trigger": "AgileMind engagement — Holly's manual Excel workflow and shortage tracking",
+      "scenario": "K-12 publishers experience a heavily compressed annual cycle. District budget approvals happen April–June; PO issuance and order confirmation happen May–July; materials must ship and be received before school starts (August). For print curriculum publishers, this means the majority of annual order volume — fulfillment, invoicing, inventory decrements, and AR — all hits within a 60-day window. Any manual process in this window is a failure risk. Publishers who haven't automated their order-to-invoice flow are most exposed during this period.",
+      "whatFailed": "At AgileMind, Holly manually tracks inventory in a red-cell Excel spreadsheet during this window; Crystal manually creates and syncs QB invoices; no automated shortage alert exists. The risk of a stockout or missed invoice is highest precisely when there is no time to investigate.",
+      "whatWorked": "The integration architecture (UC1–UC3) is deliberately designed to front-load the automation so that the August crunch becomes a monitoring exercise rather than a manual execution exercise. Phase 2 shortage alerts fire before the window, not during it.",
+      "clientQuestionUsed": "What does your team's workload look like in May through July — is that the hardest window of the year operationally?",
+      "promotesTo": "standards/scenarios/ as a seasonal-batch integration pattern note; candidate for FIELD_KNOWLEDGE.md FK entry"
+    },
+    {
+      "id": "FKC-004",
+      "title": "K-12 publisher invoicing — district PO timing and state funding cycles affect when invoices can legally be issued",
+      "trigger": "Research during AgileMind FOMO/context phase",
+      "scenario": "School districts operate under state and federal funding rules that govern when purchase orders can be issued and when invoices can be accepted. In many states, invoices cannot be processed until a valid PO is in the system. The June 30 year-end creates a 'use it or lose it' dynamic: districts rush to obligate funds before fiscal year close, but the publisher cannot recognize the revenue until the invoice is accepted. For publishers automating invoice creation (UC1), the trigger should be confirmed Agreement/PO receipt — not just Opportunity Closed Won — or they risk creating invoices that districts cannot legally accept yet.",
+      "whatFailed": "Not confirmed for AgileMind — this is a risk pattern, not a documented failure. The UC1 trigger design (Agreement Created in SF) should be validated against AgileMind's actual PO receipt workflow.",
+      "whatWorked": "Recommended intake question: confirm whether AgileMind's Salesforce Agreement creation step already implies a received district PO, or whether there is a separate PO confirmation step before billing is appropriate.",
+      "clientQuestionUsed": "When you create an Agreement in Salesforce — does that always mean you have a signed district PO in hand, or does the Agreement sometimes get created ahead of the PO?",
+      "promotesTo": "standards/playbooks/ as a K-12 billing trigger pattern; candidate for FIELD_KNOWLEDGE.md FK entry"
+    },
+    {
+      "id": "FKC-005",
+      "title": "K-12 EdTech M&A integration risk — subsidiary systems diverge from parent after acquisition",
+      "trigger": "AgileMind was acquired by Savvas Learning Company in 2020",
+      "scenario": "When a K-12 EdTech or curriculum company is acquired, the subsidiary's operational systems (CRM, ERP, inventory) rarely get integrated with the parent in the first 3–5 years. The subsidiary continues to run their legacy tools while the parent pursues its own technology investments. This creates a window where the subsidiary's data is isolated — valuable for the parent's consolidated reporting but inaccessible without custom integration. AgileMind is 4 years post-acquisition and still running QuickBooks + Salesforce independently, with no evidence of Savvas-level ERP consolidation.",
+      "whatFailed": "Post-acquisition integration neglect at AgileMind — the manual QB/SF workflow is a direct symptom of the subsidiary operating as a standalone since 2020.",
+      "whatWorked": "DataSkate's integration work creates the data connective tissue that should have been built at acquisition. If Savvas eventually wants consolidated reporting, the Salesforce-centric architecture (Inventory__c, Agreement, Invoice sync) becomes the foundation for that rollup.",
+      "clientQuestionUsed": "Has Savvas asked you to report inventory or billing data up to the parent level, or are you still operating fully independently?",
+      "promotesTo": "standards/playbooks/ as an M&A integration pattern note; candidate for FIELD_KNOWLEDGE.md FK entry"
+    }
+  ],
+
+  "libraryContributions": [
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "SMB",
+      "systems": ["Salesforce", "QuickBooks"],
+      "useCase": "Salesforce Agreement to QuickBooks Invoice — event-driven invoice creation when a Salesforce agreement/opportunity reaches Closed Won",
+      "whatWasBuilt": "MuleSoft flow: Salesforce Platform Event (Agreement Created) → QuickBooks invoice creation with line items (products, quantities, pricing) mapped from Salesforce Opportunity products",
+      "outcome": "Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated",
+      "aiLayer": "Phase 3: Agentforce monitors unpaid invoices in Salesforce and drafts AR follow-up communications to district finance contacts",
+      "clients": [{ "displayName": "AgileMind", "projectContext": "K-12 curriculum publisher (print SABs + digital access); sells to school districts by academic year with back-to-school seasonality; regional ISBNs vary by state" }],
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "SMB",
+      "systems": ["QuickBooks", "Salesforce"],
+      "useCase": "QuickBooks payment status sync to Salesforce Agreement — scheduled polling of QB invoice open balance, payment date, and invoice number written back to Salesforce Agreement custom fields",
+      "whatWasBuilt": "MuleSoft scheduled flow: QB invoice query by account/invoice ID → upsert to Salesforce Agreement object (QB Invoice #, date, amount, open balance fields)",
+      "outcome": "Sales ops and finance see real-time payment status in Salesforce without logging into QuickBooks; eliminated manual AR update step",
+      "aiLayer": "Phase 3: Agentforce proactively flags overdue agreements to the sales rep and drafts district finance contact email",
+      "clients": [{ "displayName": "AgileMind", "projectContext": "K-12 curriculum publisher (print SABs + digital access); sells to school districts by academic year with back-to-school seasonality; regional ISBNs vary by state" }],
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "SMB",
+      "systems": ["Google Sheets", "Salesforce"],
+      "useCase": "Inventory spreadsheet to Salesforce custom object sync — scheduled ingestion of demand worksheet (titles, quantities, committed vs available, cost) into a Salesforce custom Inventory object for executive dashboards",
+      "whatWasBuilt": "MuleSoft scheduled flow: Google Sheets connector → transform to Salesforce custom Inventory__c object → upsert by title/ISBN; dashboard in Salesforce shows committed, available, projected shorts",
+      "outcome": "Eliminated manual report exports; leadership can answer real-time inventory questions in Salesforce without contacting the fulfillment manager",
+      "aiLayer": "Phase 2: automated shortage alerts when available inventory falls below 3% buffer threshold; Phase 3: Agentforce generates procurement recommendations based on pipeline stage probabilities",
+      "clients": [{ "displayName": "AgileMind", "projectContext": "K-12 curriculum publisher (print SABs + digital access); sells to school districts by academic year with back-to-school seasonality; regional ISBNs vary by state" }],
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "SMB",
+      "systems": ["QuickBooks", "Salesforce"],
+      "useCase": "QuickBooks inventory and product cost sync to Salesforce — QB inventory item quantities and cost values written to Salesforce Inventory object for unified cost-per-program reporting",
+      "whatWasBuilt": "MuleSoft scheduled flow: QB Item/Inventory query → DataWeave transform to Salesforce Inventory__c fields (unit cost, quantity on hand, ISBN) → upsert",
+      "outcome": "Finance can answer multi-year spend questions per product line directly in Salesforce; eliminates cross-system lookup between QB and SF",
+      "aiLayer": "Phase 3: Agentforce answers executive natural-language queries about historical spend and inventory by reading the synced Inventory__c + cost data in Salesforce",
+      "clients": [{ "displayName": "AgileMind", "projectContext": "K-12 curriculum publisher (print SABs + digital access); sells to school districts by academic year with back-to-school seasonality; regional ISBNs vary by state" }],
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "Enterprise",
+      "systems": ["Salesforce", "Agentforce"],
+      "useCase": "Agentforce for K-12 curriculum sales — AI account summaries and meeting prep for district-facing sales reps",
+      "whatWasBuilt": "Agentforce agent that mines Salesforce Opportunity and Account data to generate real-time account summaries (deal amounts, past activity, key contacts, similar closed-won opportunities) on demand before district calls",
+      "outcome": "92% reduction in account research time (from up to 1 hour to 5–10 minutes per rep); 90% reduction in time spent on sales emails; increased win rates and faster deal cycles",
+      "aiLayer": "Agentforce: autonomous AI agent delivers account intelligence in seconds when a rep opens a Salesforce record or receives an inbound call",
+      "sourceCompany": "Carnegie Learning",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/carnegie-learning/",
+      "prospectNote": "Direct K-12 curriculum competitor to AgileMind — both sell to school districts. Already running Agentforce on the same Salesforce platform. DataSkate prospect for MuleSoft data layer work.",
+      "isProspect": true,
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "Enterprise",
+      "systems": ["Salesforce", "Service Cloud", "Agentforce"],
+      "useCase": "Agentforce for educational publisher student service — autonomous resolution of semester-start access and billing surges",
+      "whatWasBuilt": "Agentforce + Service Cloud deployment to handle thousands of simultaneous student service requests at semester start — autonomous resolution of account access issues, password resets, registration and payment triage",
+      "outcome": "213% ROI on Service Cloud investment; 40%+ efficiency gain in case resolution in first weeks; 50% faster onboarding for new service agents",
+      "aiLayer": "Agentforce: AI agent handles inbound student requests autonomously, escalating only payment and registration edge cases to humans with full context pre-loaded",
+      "sourceCompany": "Wiley",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/wiley/",
+      "prospectNote": "Large educational publisher with Salesforce at its core. Likely has backend ERP/billing systems not yet connected to Salesforce. DataSkate prospect for MuleSoft integration modernization.",
+      "isProspect": true,
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "Enterprise",
+      "systems": ["Salesforce", "Agentforce", "Marketing Cloud"],
+      "useCase": "Salesforce enterprise-wide Agentforce deployment — full AI agent suite across Sales, Service, Marketing, and Data for a global educational publisher",
+      "whatWasBuilt": "Full Agentforce suite (Sales, Service, Marketing, Data) deployed across business; customer service partially automated with AI agents working alongside human agents for escalations",
+      "outcome": "25+ years of Salesforce depth; full Agentforce suite live in 2025; customer service functions partially AI-resolved",
+      "aiLayer": "Agentforce across all four clouds: Sales, Service, Marketing, Data",
+      "sourceCompany": "Pearson",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/pearson-and-salesforce-expand-partnership-to-accelerate-workforce-ai-readiness-302768454.html",
+      "prospectNote": "World's largest educational publisher. Global publishing operations, workforce credentials, assessment divisions — all candidates for MuleSoft integration. DataSkate enterprise prospect.",
+      "isProspect": true,
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "Enterprise",
+      "systems": ["Salesforce", "Sales Cloud", "Wave Analytics"],
+      "useCase": "Salesforce Sales Cloud as the spine of a K-12 publishing digital transformation — standardizing sales, service, and analytics on one platform",
+      "whatWasBuilt": "HMH standardized the entire sales org on Sales Cloud in 2012, added Service Cloud and Chatter, then Wave Analytics for pipeline visualization and sell-through opportunity analysis",
+      "outcome": "50%+ of $1.37B revenue became digital by 2015; content reaches nearly 50 million students across 150 countries annually",
+      "aiLayer": "Wave Analytics: real-time pipeline visualization enabling commercial action on insights that previously required manual reporting",
+      "sourceCompany": "Houghton Mifflin Harcourt (HMH)",
+      "sourceUrl": "https://www.salesforce.com/au/customer-success-stories/houghton-mifflin-harcourt/",
+      "prospectNote": "Acquired by Veritas Capital in 2022 — post-acquisition tech stack may be in flux. DataSkate prospect for integration modernization. Scale: 50M students, $1.37B revenue.",
+      "isProspect": true,
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "Enterprise",
+      "systems": ["Salesforce", "Sales Cloud"],
+      "useCase": "Salesforce mobile sales for higher-ed publisher field reps — eliminating manual data entry backlogs from campus visits",
+      "whatWasBuilt": "Mobile Salesforce implementation enabling field reps to update Salesforce in real time during campus visits. Completed in 18 weeks.",
+      "outcome": "90%+ day-one Salesforce adoption; more accurate pipeline data within weeks; eliminated evening manual data entry",
+      "aiLayer": "None documented — data accuracy and pipeline visibility improvement only",
+      "sourceCompany": "McGraw-Hill Education",
+      "sourceUrl": null,
+      "sourceNote": "Verified via Computer Weekly (computerweekly.com/news/2240209443). sourceUrl null — publication domain not used as inline citation.",
+      "prospectNote": "Owned by Platinum Equity. Iterative Salesforce investments + cloud infrastructure modernization pattern. DataSkate prospect — ERP/billing likely not connected to Salesforce via MuleSoft.",
+      "isProspect": true,
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "Mid-Market",
+      "systems": ["Salesforce", "Education Cloud", "Marketing Cloud"],
+      "useCase": "Salesforce Education Cloud for community college enrollment and student success automation — Dallas County Promise scholarship platform",
+      "whatWasBuilt": "Built Dallas County Promise scholarship tracking platform on Salesforce Education Cloud in 7 weeks; Marketing Cloud automates personalized communications to 9,000 students",
+      "outcome": "Platform launched in 7 weeks; automated student communication journeys for 9,000 enrollees; real-time visibility into promise program completion rates",
+      "aiLayer": "Marketing Cloud automation: AI-powered student journey personalization and automated communications across the full enrollment funnel",
+      "sourceCompany": "Dallas College",
+      "sourceUrl": "https://www.salesforce.com/education/dallas-college/",
+      "prospectNote": "Local DFW institution — regional credibility signal in AgileMind proposals. Not a direct DataSkate integration prospect but a reference-able local proof point.",
+      "isProspect": false,
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    },
+    {
+      "verticalSlug": "education",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "Enterprise",
+      "systems": ["Salesforce", "AI curriculum tools"],
+      "useCase": "AI-embedded K-12 curriculum tools — teacher productivity and personalized student writing feedback at the parent company level",
+      "whatWasBuilt": "Savvas Studio: AI curriculum tools for lesson planning; SavvyWriter: AI-powered writing tool with real-time student feedback. Named GSV 150 for four consecutive years.",
+      "outcome": "AI curriculum tools launched 2024–2025; GSV 150 recognition for four years",
+      "aiLayer": "Embedded AI in curriculum delivery — teacher productivity and personalized student writing feedback",
+      "sourceCompany": "Savvas Learning Company",
+      "sourceUrl": null,
+      "sourceNote": "GSV 150 listings at savvas.com/newsroom. sourceUrl null — only sources are Savvas's own press pages.",
+      "prospectNote": "AgileMind's parent company. Owns multiple K-12 curriculum brands (enVision, myPerspectives, Experience Math, AgileMind). Successful AgileMind engagement creates natural expansion path into Savvas's broader integration needs.",
+      "isProspect": true,
+      "addedDate": "2026-05-14",
+      "promotedFrom": "agilemind",
+      "promotedAt": "2026-05-14"
+    }
+  ],
+
+  "useCaseLibraryUpdates": {
+    "stagedForPromotion": 0,
+    "alreadyInLibrary": 11,
+    "note": "All 11 entries promoted directly to education.json during initial Vera run (pre-refactor). pendingPromotion: false on all entries. Run: node DSPipeline/promote-library.js --client agilemind --dry-run to verify."
+  }
+}

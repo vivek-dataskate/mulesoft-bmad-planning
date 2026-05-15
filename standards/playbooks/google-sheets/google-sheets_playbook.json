@@ -1,0 +1,30 @@
+{
+  "system": "google-sheets",
+  "maturity": "stub",
+  "lastUpdated": "2026-05-14",
+  "clients": ["agilemind"],
+  "status": "Stub — enriched by Architect after design, completed by CO after delivery.",
+  "knownQuirks": [
+    "Service Account approach preferred over user OAuth for MuleSoft server-to-server — eliminates user token rotation issues",
+    "Spreadsheet ID (from the URL between /d/ and /edit) and Sheet tab name must be stable in connector config — any rename breaks the integration",
+    "Column headers must be a single flat row — merged cells or multi-row headers must be normalized before DataWeave mapping",
+    "Connector returns rows as arrays indexed by position — DataWeave must map positional columns to named fields using header row as key",
+    "Rate limits: 300 reads/min and 60 writes/min per Google Cloud project — not a concern at typical polling frequencies",
+    "Sheet must be shared with the Service Account email (Editor access minimum) before the connector can read it",
+    "If spreadsheet is in a Shared Drive (Team Drive), Service Account needs domain-wide delegation or Drive API access enabled"
+  ],
+  "supportedObjects": [
+    "Spreadsheet ranges (A1 notation)",
+    "Named ranges",
+    "Sheet metadata",
+    "Row append / update / delete"
+  ],
+  "maturityLog": [
+    {
+      "date": "2026-05-14",
+      "clientCount": 1,
+      "knowledgeAdded": "Initial stub from AgileMind engagement — Holly's inventory demand worksheet UC3",
+      "status": "stub"
+    }
+  ]
+}

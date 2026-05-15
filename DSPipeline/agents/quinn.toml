@@ -32,7 +32,7 @@ writes = [
   "projects/{client}/intake/intake-content.json",
   "projects/{client}/intake/intake-questionnaire-{client}.html",   # via fill-template.js
   "projects/{client}/run/quinn.json",
-  "projects/{client}/decisions.json",           # field-mapping, questionnaire-prefill entries appended
+  "projects/{client}/run/quinn-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
   "docs/FIELD_KNOWLEDGE.md",                    # 8a: observation entries
   "standards/playbooks/{system}/{system}_playbook.json",   # 8b: new quirks append, maturity log update
   "docs/PLANNING_CONTEXT.md",                   # 8c: critical notes
@@ -50,10 +50,10 @@ principles = [
   "SYSTEM-SPECIFIC QUESTIONS — for each confirmed system in flo.json:\n  1. Use rex.json systemFindings[] auth type, API style, quirks as PRE-CONFIRMED context. Ask client to confirm their SPECIFIC credential values — not what auth method the system uses.\n  2. Check loaded playbook for additional known quirks → each quirk becomes a specific confirmation question.\n  3. Apply Known System Gotchas from rex.toml → each unresolved gotcha = a direct question.\n  NEVER ask what auth method a system uses if rex.json already has it confirmed at high/medium confidence.\n  Label each: [SYSTEM: {SystemName}].\n  Max 3 questions per system — prioritize hard blockers.",
 
   # ── AGGRESSIVE PRE-FILL ────────────────────────────────────────────────
-  "AGGRESSIVE PRE-FILL (mandatory — minimize blank Answer lines):\n  Before writing the questionnaire, scan project.json and flo.json and pre-fill EVERY matching question:\n    Go-live date questions → project.json.targetGoLive\n    Primary/testing/UAT contact questions → project.json.primaryContact (label 'from scoping — confirm')\n    P0 blocker owner questions → flo.json p0Blockers[].body for the matching system\n    System admin/IT contact questions → sage.json namedContacts[] matching system + responsibility\n    System version/edition questions → rex.json systemFindings[] medium-or-high confidence → pre-fill and mark 'confirm'\n    Named contacts → wherever sage.json namedContacts[] has a person for a responsibility\n  Principle: if there is ANY evidence — even medium confidence — pre-fill with 'Evidence suggests: {value} — confirm or correct'. A client correcting a pre-filled answer is faster than typing from scratch.\n  LOG to decisions.json: one questionnaire-prefill entry per question pre-filled at medium-or-lower confidence.\n  Never leave a question blank when scoping data gives a reasonable candidate.",
+  "AGGRESSIVE PRE-FILL (mandatory — minimize blank Answer lines):\n  Before writing the questionnaire, scan project.json and flo.json and pre-fill EVERY matching question:\n    Go-live date questions → project.json.targetGoLive\n    Primary/testing/UAT contact questions → project.json.primaryContact (label 'from scoping — confirm')\n    P0 blocker owner questions → flo.json p0Blockers[].body for the matching system\n    System admin/IT contact questions → sage.json namedContacts[] matching system + responsibility\n    System version/edition questions → rex.json systemFindings[] medium-or-high confidence → pre-fill and mark 'confirm'\n    Named contacts → wherever sage.json namedContacts[] has a person for a responsibility\n  Principle: if there is ANY evidence — even medium confidence — pre-fill with 'Evidence suggests: {value} — confirm or correct'. A client correcting a pre-filled answer is faster than typing from scratch.\n  LOG to run/quinn-decisions.json: one questionnaire-prefill entry (QD-NNN) per question pre-filled at medium-or-lower confidence.\n  Never leave a question blank when scoping data gives a reasonable candidate.",
 
   # ── FIELD MAPPING PROPOSALS ───────────────────────────────────────────
-  "FIELD MAPPING PROPOSALS — for each confirmed flow in flo.json:\n  Propose standard field set from: vertical + system pair + loaded playbook DWL files + canonical model.\n  Present as pre-filled mapping table: Source Field → Target Field | Notes\n  Ask client to: (a) confirm, (b) add custom fields, (c) flag naming differences.\n  FIELD MAPPING TABLES GO IN SECTION 3 ONLY.\n  Inside Section 1 UC blocks: single cross-reference line only: '→ See Section 3.{N} for pre-filled field mapping.'\n  LOG to decisions.json: one field-mapping entry per flow where fields were assumed without confirmation.",
+  "FIELD MAPPING PROPOSALS — for each confirmed flow in flo.json:\n  Propose standard field set from: vertical + system pair + loaded playbook DWL files + canonical model.\n  Present as pre-filled mapping table: Source Field → Target Field | Notes\n  Ask client to: (a) confirm, (b) add custom fields, (c) flag naming differences.\n  FIELD MAPPING TABLES GO IN SECTION 3 ONLY.\n  Inside Section 1 UC blocks: single cross-reference line only: '→ See Section 3.{N} for pre-filled field mapping.'\n  LOG to run/quinn-decisions.json: one field-mapping entry (QD-NNN) per flow where fields were assumed without confirmation.",
 
   # ── SCOPE BOUNDARY BLOCKS ─────────────────────────────────────────────
   "SCOPE BOUNDARY — every UC block in Section 1 must end with:\n  **Scope Boundary for this flow:**\n  ✅ IN SCOPE: [specific action — e.g. 'Create or update Contact record in Salesforce when form is submitted']\n  ⚠️ ASSUMED PRE-EXISTS: [from vera.json systemPrerequisites[] for target system]\n  ❌ OUT OF SCOPE: [what DataSkate will not do]\n  Marketing systems: always add 'Campaign/Journey creation, email template design, send scheduling are out of scope.'\n  ERP systems: always add 'Chart of accounts, GL mapping, tax configuration are out of scope.'",
@@ -105,14 +105,14 @@ STEP 3 — Aggressive Pre-Fill
 ─────────────────────────────────────────────────────────────────────
 Apply Aggressive Pre-Fill principle.
 Pre-fill every question that has any supporting evidence.
-Log D-NNN questionnaire-prefill entries for medium/low confidence pre-fills.
+Log QD-NNN questionnaire-prefill entries for medium/low confidence pre-fills.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 4 — Field Mapping Proposals
 ─────────────────────────────────────────────────────────────────────
 Apply Field Mapping Proposals principle.
 Build Section 3 tables per confirmed flow.
-Log D-NNN field-mapping entries for assumed fields.
+Log QD-NNN field-mapping entries for assumed fields.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 5 — Write Questionnaire MD

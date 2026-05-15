@@ -1,6 +1,4 @@
 {
-  "client": "agilemind",
-  "updatedAt": "2026-05-15T00:00:00.000Z",
   "decisions": [
     {
       "id": "SD-001",
@@ -105,77 +103,6 @@
       "decision": "Industry vertical set to educational publishing / EdTech — not a standard BMAD vertical slug",
       "rationale": "AgileMind sells curriculum to K-12 districts. No canonical vertical slug exists for educational publishing. Closest standard model is commerce (OAGIS 10.x) for order/invoice flows. Will need canonical-extensions.yaml for education-specific fields.",
       "evidence": "AgileMind sells educational programs (print + digital) to school districts... products are sold by academic year"
-    },
-    {
-      "id": "FD-001",
-      "type": "flow-classification",
-      "decision": "UC1 confirmed — HIGH complexity: Salesforce Agreement → QuickBooks Invoice Creation",
-      "rationale": "Event-driven trigger (Platform Events/CDC); ISBN lookup custom transformation required (state × product → ISBN before QB line items constructed); QB customer matching logic required before invoice creation. Multiple custom transformation steps and event infrastructure prerequisites push this to high complexity.",
-      "evidence": "when an agreement is created in Salesforce, it will generate a new invoice in QuickBooks for an existing account"
-    },
-    {
-      "id": "FD-002",
-      "type": "flow-classification",
-      "decision": "UC2 confirmed — MEDIUM complexity: QuickBooks Invoice Status → Salesforce Agreement Sync",
-      "rationale": "Unidirectional scheduled-sync with watermark. Standard pattern: QB LastModifiedDate delta query (April 1 fiscal year offset), upsert to Salesforce Agreement via QB_InvoiceId__c external ID. No novel transformations — well-understood pattern.",
-      "evidence": "track payment updates from QuickBooks to Salesforce, including the open balance... update the number, amount, dates"
-    },
-    {
-      "id": "FD-003",
-      "type": "flow-classification",
-      "decision": "UC3 confirmed — MEDIUM complexity: Holly's Demand Worksheet → Salesforce Inventory__c",
-      "rationale": "Unidirectional scheduled-sync. Core pattern is standard once prerequisites resolve, but two conditions add operational complexity: (1) connector selection is conditional on storage location P0 (google-sheets vs microsoft-excel-online); (2) Inventory__c custom object must be created in sprint scope. Field ownership (demand/quantity fields) coordinated with UC4 (cost fields) to prevent overwrite conflicts.",
-      "evidence": "push the data directly um and the details directly from Excel in real time or from QuickBooks if it's living in QuickBooks. And so then we can push that inventory data directly into Salesforce"
-    },
-    {
-      "id": "FD-004",
-      "type": "flow-classification",
-      "decision": "UC4 confirmed — MEDIUM complexity: QuickBooks Inventory Items → Salesforce Inventory__c (Cost Data)",
-      "rationale": "Unidirectional scheduled-sync. QB Item query → DataWeave cost field mapping → Salesforce Inventory__c upsert with composite key (ISBN + title slug). Field ownership defined: UC4 owns UnitCost__c; UC3 owns quantity/demand fields. Schedule coordination: UC4 runs after UC3 in the same window.",
-      "evidence": "some of this lives in QuickBooks... you are going to be able to see like ... algebra 6 books six equals x amount ... value of inventory ... cost per district, cost per program"
-    },
-    {
-      "id": "FD-005",
-      "type": "flow-classification",
-      "decision": "UC5 classified as potential (high priority): Product/book title master data sync between QB and Salesforce",
-      "rationale": "Maria is adding new titles to QB and Salesforce separately. Without sync, item lists diverge — breaking UC1 line item matching and UC4 cost lookup. Deferred pending Maria's confirmation of system of record. High dependency risk makes this a likely Phase 2 scope addition.",
-      "evidence": "Product title maintenance process deferred — the strategy for maintaining product titles across QuickBooks and Salesforce is placed on hold pending input from Maria"
-    },
-    {
-      "id": "FD-006",
-      "type": "flow-classification",
-      "decision": "UC6 classified as potential (medium priority): CCR pre-fulfillment flag on incoming Salesforce Agreement",
-      "rationale": "Holly's notes describe CCR fulfillment occurring before Agreement is formally closed. Without a pre-fulfillment flag on the Agreement, UC1 would create a duplicate QB invoice for already-shipped materials. Promote to confirmed once the CCR workflow in Salesforce is mapped and the flag field identified.",
-      "evidence": "Sales will ask us to ship materials ahead of a closed/won agreement. This happens on a CCR — if/when approved, they are treated as closed/won business and are added to our fulfillment queue. The system needs to know that when the agreement comes in, it has already been fulfilled."
-    },
-    {
-      "id": "FD-007",
-      "type": "flow-classification",
-      "decision": "UC7 classified as potential (medium priority): Inventory decrement sync from QB to Salesforce on fulfillment",
-      "rationale": "UC4 (scheduled sync) covers inventory quantities but with a polling lag. Between UC4 runs, Salesforce Inventory__c available-stock figures are stale. A real-time or near-real-time decrement event would keep Holly's dashboard accurate. Partially covered by UC4 — promote only if the polling lag is identified as a business problem post-go-live.",
-      "evidence": "Each order decrements our existing inventory. I run a daily/weekly report to look for any potential shortages."
-    },
-    {
-      "id": "FD-008",
-      "type": "pricing",
-      "decision": "Pricing computed for 4 confirmed flows — IaaS model recommended",
-      "rationale": "IaaS recommended over Implementation Only: (1) No dedicated MuleSoft operations staff at AgileMind — managed service covers production monitoring, QB OAuth token rotation (100-day expiry risk), and connector upgrades. (2) $0 upfront removes the budget barrier given stated cash-flow sensitivity and '$0–$2,500' implementation cost expectation; $2,500 retainer fits exactly within that range. (3) At 4 flows the implementation-only fee ($14,000) is modest, but operational support need is the primary driver.",
-      "pricingDetail": {
-        "flowCount": 4,
-        "timelineWeeks": 8,
-        "iaas": {
-          "implementationFee": 0,
-          "kickoffRetainer": 2500,
-          "period1Payment6mo": 7200,
-          "period2Payment6mo": 7560,
-          "oneYearTotal": 14760,
-          "twoYearTotal": 31033
-        },
-        "implementationOnly": {
-          "totalFee": 14000,
-          "paymentSchedule": "50% at SOW signing ($7,000), 50% at UAT sign-off ($7,000)"
-        }
-      }
     }
   ]
 }
