@@ -119,7 +119,7 @@
     {
       "id": "anypoint_idp",
       "trigger": "idp|intelligent document|document processing|document extraction|invoice scan|invoice processing|pdf extract|pdf parsing|ocr|form digitization|contract extraction|anypoint idp",
-      "warning": "Anypoint IDP (Intelligent Document Processing) detected. IDP has no dedicated Mule connector — it is called via HTTP connector against the Anypoint Platform IDP REST API. The call is async: POST execution → poll GET until COMPLETED (default 10 attempts × 3s = 30s timeout). Auth: Anypoint Connected App (OAuth 2.0 client credentials). Required intake: (1) IDP action ID + version ID from Anypoint IDP UI, (2) Anypoint org ID, (3) document source type (HTTP upload / S3 / SFTP / email attachment), (4) output entity name and target system. Budget one story for the IDP sub-flow + one story for the DataWeave result mapping. Add an IDP manual-review queue — all failed extractions route there.",
+      "warning": "Anypoint IDP (Intelligent Document Processing) detected. IDP has no dedicated Mule connector \u2014 it is called via HTTP connector against the Anypoint Platform IDP REST API. The call is async: POST execution \u2192 poll GET until COMPLETED (default 10 attempts \u00d7 3s = 30s timeout). Auth: Anypoint Connected App (OAuth 2.0 client credentials). Required intake: (1) IDP action ID + version ID from Anypoint IDP UI, (2) Anypoint org ID, (3) document source type (HTTP upload / S3 / SFTP / email attachment), (4) output entity name and target system. Budget one story for the IDP sub-flow + one story for the DataWeave result mapping. Add an IDP manual-review queue \u2014 all failed extractions route there.",
       "severity": "high"
     },
     {
@@ -149,38 +149,50 @@
     {
       "id": "mailchimp_new",
       "trigger": "mailchimp",
-      "warning": "Mailchimp connector (mule4-mailchimp-marketing-connector v1.0) is a low-version connector — verify operation coverage on Anypoint Exchange before committing. Per FK-013 pattern, registry entries and actual connector operation coverage can diverge for recently added connectors. Confirm: list member add/update, tag management, audience sync, and webhook subscription are all supported. If partial — fall back to HTTP connector with API key auth.",
+      "warning": "Mailchimp connector (mule4-mailchimp-marketing-connector v1.0) is a low-version connector \u2014 verify operation coverage on Anypoint Exchange before committing. Per FK-013 pattern, registry entries and actual connector operation coverage can diverge for recently added connectors. Confirm: list member add/update, tag management, audience sync, and webhook subscription are all supported. If partial \u2014 fall back to HTTP connector with API key auth.",
       "severity": "medium"
     },
     {
       "id": "gravity_forms_new",
       "trigger": "gravity forms|gravity-forms|wordpress",
-      "warning": "No MuleSoft connector exists for WordPress or Gravity Forms. Integration via inbound HTTP webhook (Gravity Forms Webhook Add-On — requires Developer or Elite license) or outbound HTTP polling (WordPress REST API). Confirm Webhook Add-On is installed before committing to Pattern J (webhook-ingestion); fall back to Pattern D (scheduled-sync) if not.",
+      "warning": "No MuleSoft connector exists for WordPress or Gravity Forms. Integration via inbound HTTP webhook (Gravity Forms Webhook Add-On \u2014 requires Developer or Elite license) or outbound HTTP polling (WordPress REST API). Confirm Webhook Add-On is installed before committing to Pattern J (webhook-ingestion); fall back to Pattern D (scheduled-sync) if not.",
       "severity": "medium"
     },
     {
       "id": "hd_portal_new",
       "trigger": "hd portal|home depot|hdportal|home depot service center",
-      "warning": "HD Portal (Home Depot Service Center) has no MuleSoft native connector — use HTTP connector with API key auth. CRITICAL: GET operations confirmed but WRITE endpoints (POST/PATCH) not tested as of 2026-05-11. Document download endpoint (299A/299B PDFs) not confirmed. API access requires coordination through the client's HD partner contact — not self-service. Confirm write endpoint availability before scoping any Salesforce→HD Portal flow. See standards/playbooks/hd-portal/hd-portal_playbook.json.",
+      "warning": "HD Portal (Home Depot Service Center) has no MuleSoft native connector \u2014 use HTTP connector with API key auth. CRITICAL: GET operations confirmed but WRITE endpoints (POST/PATCH) not tested as of 2026-05-11. Document download endpoint (299A/299B PDFs) not confirmed. API access requires coordination through the client's HD partner contact \u2014 not self-service. Confirm write endpoint availability before scoping any Salesforce\u2192HD Portal flow. See standards/playbooks/hd-portal/hd-portal_playbook.json.",
       "severity": "high"
     },
     {
       "id": "computerease_new",
       "trigger": "computerease|computer ease|computer-ease|ce live service|deltek ce",
-      "warning": "ComputerEase (Deltek) has no MuleSoft native connector — use HTTP connector. CRITICAL BLOCKER: API routes through CE Live Service (a Deltek routing service that must be installed on the client's VM) — NOT directly internet-accessible. CE Live Service must be configured by Deltek support before any development begins. API is NOT available in sandbox (P3) — production API only, requiring strict access guardrails. Budget extra time for Deltek support coordination. See standards/playbooks/computerease/computerease_playbook.json.",
+      "warning": "ComputerEase (Deltek) has no MuleSoft native connector \u2014 use HTTP connector. CRITICAL BLOCKER: API routes through CE Live Service (a Deltek routing service that must be installed on the client's VM) \u2014 NOT directly internet-accessible. CE Live Service must be configured by Deltek support before any development begins. API is NOT available in sandbox (P3) \u2014 production API only, requiring strict access guardrails. Budget extra time for Deltek support coordination. See standards/playbooks/computerease/computerease_playbook.json.",
       "severity": "high"
     },
     {
       "id": "pharmacyhub_new",
       "trigger": "pharmacyhub|pharmacy hub",
-      "warning": "New system — PharmacyHub has no MuleSoft native connector. Integration is SFTP file-based (Pattern E). Confirm: SFTP server host/auth, file format (CSV/XML/other), file naming convention, processing frequency, and Salesforce target object before architecture. File format unknown is a blocker for DataWeave design.",
+      "warning": "New system \u2014 PharmacyHub has no MuleSoft native connector. Integration is SFTP file-based (Pattern E). Confirm: SFTP server host/auth, file format (CSV/XML/other), file naming convention, processing frequency, and Salesforce target object before architecture. File format unknown is a blocker for DataWeave design.",
       "severity": "medium"
     },
     {
       "id": "pipeline_medical_new",
       "trigger": "pipeline medical|pipeline-medical",
-      "warning": "New system — Pipeline Medical has no MuleSoft native connector. Integration is SFTP file-based (Pattern E). Separate flow from PharmacyHub — no-combine rule applies even if SFTP server is shared. Confirm: file format, naming convention, and whether it matches PharmacyHub structure.",
+      "warning": "New system \u2014 Pipeline Medical has no MuleSoft native connector. Integration is SFTP file-based (Pattern E). Separate flow from PharmacyHub \u2014 no-combine rule applies even if SFTP server is shared. Confirm: file format, naming convention, and whether it matches PharmacyHub structure.",
       "severity": "medium"
+    },
+    {
+      "id": "google_sheets_new",
+      "trigger": "google-sheets",
+      "severity": "medium",
+      "warning": "Google Sheets detected \u2014 confirm file storage location (Google Drive vs local). Service Account JSON key must be provisioned by client IT before connector config. Spreadsheet column headers must be stable and documented before DataWeave mapping is written."
+    },
+    {
+      "id": "qb_version_unconfirmed",
+      "trigger": "quickbooks",
+      "severity": "high",
+      "warning": "QuickBooks detected \u2014 CONFIRM version before any connector selection: QuickBooks Online (REST/OAuth) vs Desktop/Enterprise (no REST API, QBXML relay required). Two incompatible integration paths. See FK-020."
     }
   ]
 }

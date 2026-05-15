@@ -1,0 +1,70 @@
+title: Canonical Product Title — Education Vertical
+version: 1.0.0-stub — created from AgileMind engagement 2026-05-14
+standard: derived (OAGIS 10.x Item + education ISBN conventions)
+standardBody: derived
+standardRef: derived
+deviations:
+  - Products carry multiple ISBNs (one per state where the title is adopted)
+  - Same physical product has different ISBNs per state due to state textbook adoption processes
+  - Product exists in both Salesforce (Product2 object) and QuickBooks (Item) — sync gap UC5-potential
+description: >
+  Canonical product/title model for K-12 educational publishers. Represents a curriculum book series
+  (Student Activity Book) that carries state-specific ISBNs. Used for product catalog sync (UC5-potential)
+  between Salesforce and QuickBooks. Stub — promoted to full schema when UC5 is confirmed in scope.
+
+type: object
+required:
+  - productId
+  - titleName
+  - series
+  - isbns
+
+properties:
+  productId:
+    type: string
+    description: Salesforce Product2 ID (system of record if SF is master)
+    sourceSystem: Salesforce
+  qbItemId:
+    type: string
+    description: QuickBooks Item ID — external ID for cross-system matching
+    sourceSystem: QuickBooks
+  titleName:
+    type: string
+    description: Full product name (e.g. Intensified Algebra Volume 1 SAB)
+    sourceSystem: both
+  series:
+    type: string
+    description: Curriculum series (e.g. Intensified Algebra, Intensified Integrated Math)
+    sourceSystem: Salesforce
+  gradeLevel:
+    type: string
+    description: Grade level target (e.g. Grade 6-8, Grade 9-10)
+    sourceSystem: Salesforce
+  isbns:
+    type: array
+    description: State-specific ISBNs for this title
+    items:
+      type: object
+      required: [isbn, state]
+      properties:
+        isbn:
+          type: string
+          description: ISBN-13 format
+        state:
+          type: string
+          description: US state code (ISO or free-text per SF Picklist setting)
+        adoptionStatus:
+          type: string
+          enum: [state-adopted, district-adopted, pending]
+  unitPrice:
+    type: number
+    description: List price per unit (USD)
+    sourceSystem: Salesforce
+  unitCost:
+    type: number
+    description: Cost per unit from QuickBooks
+    sourceSystem: QuickBooks
+  activeForSale:
+    type: boolean
+    description: Whether the title is available for new orders in the current academic year
+    sourceSystem: Salesforce

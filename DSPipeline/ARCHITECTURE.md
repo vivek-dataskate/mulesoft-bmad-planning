@@ -146,6 +146,19 @@ Nothing goes to the client without passing through Mira. She reads Ivy's psychol
 ### 9. Telemetry
 CSV only — no database. `orchestrate.js` appends one row per agent to `DSPipeline/telemetry/usage.csv`. Queryable by client, day, agent, pipeline in Excel. Move to database only if concurrent writers cause conflicts.
 
+### 10. Library promotion via promote-library.js
+Vera stages discovered use cases (competitors, DS flows) in `vera.json.libraryContributions[]` with `pendingPromotion: true`. She never writes directly to `standards/usecases/{vertical}.json`. Promotion is a separate explicit step:
+
+```
+node DSPipeline/promote-library.js --client agilemind   # one client
+node DSPipeline/promote-library.js                       # all clients
+node DSPipeline/promote-library.js --dry-run             # preview
+```
+
+The script deduplicates by `(systems + useCase)` for DS entries and `(sourceCompany + useCase)` for web entries, then appends new entries with `promotedFrom` and `promotedAt` fields. After promotion, `pendingPromotion` is set to `false` in vera.json.
+
+**Why this pattern:** per-client research artifacts (`vera.json`) stay isolated from shared knowledge (`standards/`). Promotion is reviewable and explicit — a Vera run never silently modifies the shared library.
+
 ---
 
 ## BMAD vs DSPipeline Split

@@ -1,0 +1,337 @@
+{
+  "status": "complete",
+  "client": "agilemind",
+  "generatedAt": "2026-05-14",
+
+  "sourceFiles": [
+    { "filename": "AgileMind Discovery Session - 2026_04_28 09_58 EDT - Notes by Gemini.txt", "type": "transcript", "wordCount": 1380 },
+    { "filename": "Agile Mind +Dataskate - 2026_05_08 10_00 PDT - Notes by Gemini.txt", "type": "transcript", "wordCount": 780 },
+    { "filename": "AgileMind_Discusssion_With_AE.txt", "type": "transcript", "wordCount": 4900 },
+    { "filename": "Answers from the Print Procurement and Print Fulfillment side_.txt", "type": "notes", "wordCount": 520 }
+  ],
+
+  "businessContext": {
+    "companyDescription": "AgileMind sells K-12 educational curriculum (print student activity books + digital access) to school districts. Products are sold by academic year with back-to-school seasonality. Print materials carry regional ISBNs that vary by state.",
+    "industry": "educational publishing / EdTech",
+    "engagementType": "new-integration",
+    "goLiveUrgency": "hard deadline stated",
+    "goLiveDate": "2026-04-01",
+    "budgetSignals": "$15,000/year MuleSoft platform (discounted from $55k); quarterly billing preferred; implementation partner cost $0–$2,500. Fiscal year starts April 1. Cash-flow constrained during heavy sales season."
+  },
+
+  "systems": [
+    {
+      "name": "Salesforce",
+      "connectorKey": "salesforce",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": null
+    },
+    {
+      "name": "QuickBooks",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "P0 UNRESOLVED — QuickBooks Online (quickbooks-online) or Desktop/Enterprise (quickbooks-enterprise) not confirmed in any transcript. Connector selection and architecture path differ completely. Vera to confirm."
+    },
+    {
+      "name": "Excel",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "source",
+      "instanceNote": "Holly's demand worksheet. Storage location unconfirmed — local machine, SharePoint/OneDrive, or Google Drive all possible. CloudHub 2.0 cannot access local filesystem. If Google Sheets, use google-sheets key instead."
+    },
+    {
+      "name": "Google Sheets",
+      "connectorKey": "google-sheets",
+      "inferenceType": "explicit",
+      "inferencePhrase": "if it starts out in spreadsheets I own or Google Sheets",
+      "role": "source",
+      "instanceNote": "Holly mentioned as alternative to Excel. May be same data source. Confirm which is authoritative."
+    }
+  ],
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "systems": ["Salesforce", "QuickBooks"],
+      "direction": "Salesforce → QuickBooks",
+      "entity": "Invoice",
+      "trigger": "event-driven",
+      "triggerDetail": "Agreement approved/created in Salesforce (Opportunity Closed Won → Agreement created → invoice auto-created in QB)",
+      "evidence": "when an agreement is created in Salesforce, it will generate a new invoice in QuickBooks for an existing account"
+    },
+    {
+      "id": "UC2",
+      "systems": ["QuickBooks", "Salesforce"],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Invoice payment status",
+      "trigger": "scheduled",
+      "triggerDetail": "Periodic sync of QB invoice number, date, amount, open balance back to Salesforce Agreement custom fields",
+      "evidence": "track payment updates from QuickBooks to Salesforce, including the open balance... update the number, amount, dates"
+    },
+    {
+      "id": "UC3",
+      "systems": ["Excel/Google Sheets", "Salesforce"],
+      "direction": "Excel/Google Sheets → Salesforce",
+      "entity": "Inventory",
+      "trigger": "scheduled",
+      "triggerDetail": "Near real-time or scheduled sync of inventory data (titles, quantities, cost, committed vs available) into Salesforce custom inventory object for dashboards",
+      "evidence": "push the data directly um and the details directly from Excel in real time or from QuickBooks if it's living in QuickBooks. And so then we can push that inventory data directly into Salesforce"
+    },
+    {
+      "id": "UC4",
+      "systems": ["QuickBooks", "Salesforce"],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Inventory / product cost data",
+      "trigger": "scheduled",
+      "triggerDetail": "QB inventory quantities and cost values synced to Salesforce inventory object for unified reporting",
+      "evidence": "some of this lives in QuickBooks... you are going to be able to see like ... algebra 6 books six equals x amount ... value of inventory ... cost per district, cost per program"
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "systems": ["Salesforce", "QuickBooks"],
+      "entity": "Products / Book titles (master data)",
+      "rationale": "Team is actively adding new titles to both QB and Salesforce separately. Deferred in May 8 call pending Maria's input. Logical gap — without product sync, title lists will diverge and break ISBN mapping.",
+      "promotionEvidence": "Maria or Abby confirm where product catalog should be mastered (QB or SF) and whether bi-directional or single-direction sync is needed"
+    },
+    {
+      "id": "UC6-potential",
+      "systems": ["Salesforce", "QuickBooks"],
+      "entity": "Contract Change Request (CCR) fulfillment flag",
+      "rationale": "Holly stated: 'Sales will ask us to ship materials ahead of a closed/won agreement. This happens on a CCR — if/when approved, they are treated as closed/won business and are added to our fulfillment queue. The system needs to know that when the agreement comes in, it has already been fulfilled.' This implies a flag/status flow between CCR approval and the incoming agreement.",
+      "promotionEvidence": "Confirm whether CCR approval lives in Salesforce or a separate system; confirm whether 'already fulfilled' flag should update the QB inventory decrement retroactively"
+    },
+    {
+      "id": "UC7-potential",
+      "systems": ["QuickBooks", "Salesforce"],
+      "entity": "Inventory decrement on fulfillment",
+      "rationale": "Holly: 'Each order decrements our existing inventory.' If inventory master moves to QB, decrement events need to sync to SF so Holly's dashboard stays accurate.",
+      "promotionEvidence": "Confirm whether QB or SF will be inventory system of record post-integration; confirm fulfillment decrement event timing"
+    }
+  ],
+
+  "signals": [
+    {
+      "signal": "real-time",
+      "triggerPhrase": "push that inventory data directly into Salesforce in real time",
+      "questionSet": "real-time sync latency requirements; event-driven vs scheduled for inventory"
+    },
+    {
+      "signal": "scheduled",
+      "triggerPhrase": "near real-time or scheduled sync",
+      "questionSet": "scheduler frequency; watermark required for incremental delta; QB polling strategy"
+    },
+    {
+      "signal": "file / Excel",
+      "triggerPhrase": "spreadsheets I own or Google Sheets",
+      "questionSet": "file storage location (local vs cloud); CloudHub 2.0 accessibility; connector selection (google-sheets vs microsoft-excel-online vs sftp)"
+    },
+    {
+      "signal": "batch",
+      "triggerPhrase": "batch + real-time processing where applicable",
+      "questionSet": "batch scope required for bulk inventory load; one-time vs recurring"
+    }
+  ],
+
+  "namedContacts": [
+    {
+      "name": "Holly Wale",
+      "title": "Print Procurement & Fulfillment Manager",
+      "email": "hwale@agilemind.com",
+      "systems": ["Excel", "Google Sheets", "QuickBooks"],
+      "responsibilities": ["Inventory tracking", "Demand forecasting", "Fulfillment ordering", "Vendor management", "Daily/weekly shortage reports"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Crystal Robinson",
+      "title": "Finance / Billing",
+      "email": "crystal@agilemind.com",
+      "systems": ["QuickBooks", "Salesforce"],
+      "responsibilities": ["Invoice creation in QB", "Manual QB invoice details entry", "Updating Salesforce Agreement with QB invoice number/date/payment info", "AR management"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Abby Dawson",
+      "title": "Sales Operations",
+      "email": "adawson@agilemind.com",
+      "systems": ["Salesforce"],
+      "responsibilities": ["Opportunity tracking", "Agreement creation", "Program enrollment tracking"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Maria Gonzalez-Pettway",
+      "title": "Finance Director / Operations",
+      "email": "mgonzalez@agilemind.com",
+      "systems": ["QuickBooks", "Salesforce"],
+      "responsibilities": ["Financial oversight", "QB product item setup", "Budget approval for integration", "Key decision-maker for scope"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Chloe (last name unknown)",
+      "title": "Engineering / IT Director",
+      "email": null,
+      "systems": ["IT infrastructure"],
+      "responsibilities": ["IT oversight", "API access decisions", "System integration technical approval"],
+      "accessChain": {
+        "isSystemAdmin": true,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Linda (last name unknown)",
+      "title": "Executive (CEO/COO/CFO level — not confirmed)",
+      "email": null,
+      "systems": ["Salesforce", "Reporting"],
+      "responsibilities": ["Budget decision-maker", "Executive reporting", "Go/no-go on integration contract"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Ivy Flores",
+      "title": "Unknown",
+      "email": "iflores@agilemind.com",
+      "systems": [],
+      "responsibilities": ["Invited to May 8 call — role not identified in transcripts"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    }
+  ],
+
+  "systemFindings": [
+    {
+      "system": "QuickBooks",
+      "connectorKey": null,
+      "finding": "Used for invoice creation (from Salesforce agreements) and for inventory management/reporting. Products/items already set up in QB by Maria. Fiscal year starts April 1.",
+      "confidence": "high",
+      "sourceQuote": "QuickBooks chosen for inventory maintenance due to existing reporting and access... Maria Gonzalez-Pettway confirmed that QuickBooks has good reports, and Holly Wale has access to run them"
+    },
+    {
+      "system": "QuickBooks",
+      "connectorKey": null,
+      "finding": "VERSION UNCONFIRMED — transcript mentions 'QuickBooks' without specifying Online vs Desktop/Enterprise. Critical: these require entirely different integration approaches.",
+      "confidence": "high",
+      "sourceQuote": "QuickBooks... Maria Gonzalez-Pettway has already inputted the items [no version specified in any transcript]"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "No inventory object currently exists in Salesforce. Custom fields exist on the Agreement object for QB invoice number, date, and payment information. Opportunity stages 1–8. Programs tracked via drag-and-drop. State/Country Picklists usage not confirmed.",
+      "confidence": "high",
+      "sourceQuote": "The meeting established that an inventory object currently does not exist within Salesforce... Crystal Robinson manually updates the invoice number, date, and other payment information back into the Salesforce agreement using a custom field"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "ISBN logic table to be built as a configurable object in Salesforce — maps state + school → correct ISBN. If no ISBN found, order marked for manual review.",
+      "confidence": "high",
+      "sourceQuote": "Kailash Chanda suggested building a configurable logic table in Salesforce to automate the lookup of the correct ISBN based on state and school"
+    },
+    {
+      "system": "Excel",
+      "connectorKey": null,
+      "finding": "Holly's demand worksheet tracks: closed-won committed inventory, open pipeline by probability stage (50–60%, 10–90%), 3% buffer for specific titles (Intensified Algebra Vol 1, Intensified Integrated Math Vol 1), teacher book allocations. Projected shorts marked in red. Storage location not confirmed.",
+      "confidence": "high",
+      "sourceQuote": "highly manual process in an Excel worksheet where projected shorts are marked in red... demand worksheet also includes a 3% buffer for specific products (intensified algebra volume one and intensified integrated math volume one)"
+    }
+  ],
+
+  "quotes": {
+    "primaryPainQuote": "Crystal Robinson manually creates an agreement... manually transfers the account details and line items to the QuickBooks invoice. After the QuickBooks invoice is created, Crystal Robinson manually updates the invoice number, date, and other payment information back into the Salesforce agreement using a custom field.",
+    "aspirationQuote": "Over the last 5 years, what have we spent on Intensified Algebra - Volume 1 SABs? How many did we source each year? How many of them remain in inventory at any given time?",
+    "skepticismSignals": [
+      "I don't want to get excited too early because there's still a few things we need to nail down",
+      "I just need time to really think about it",
+      "it would create three systems and additional, potentially failure-prone layers when their primary problem—inventory valuation over time—is already tracked in QuickBooks"
+    ],
+    "excitementPhrases": [
+      "I'm excited. I think it definitely has a lot of potential",
+      "if I have four people at the moment and everybody's full-time... if I say now I just need one person part-time versus full-time. That's a return right on my investment"
+    ]
+  },
+
+  "architectKnowledge": [],
+
+  "questionGaps": [
+    {
+      "question": "How are products added to build the order before sending out contracts?",
+      "type": "base",
+      "fkId": "FK-024"
+    },
+    {
+      "question": "What is your process for checking inventory against print material orders to confirm stock availability?",
+      "type": "base",
+      "fkId": "FK-024"
+    },
+    {
+      "question": "Which QuickBooks product are you using — QuickBooks Online, QuickBooks Pro, QuickBooks Premier, or QuickBooks Enterprise (Desktop)?",
+      "type": "system-gotcha",
+      "fkId": "FK-024"
+    },
+    {
+      "question": "Where do your Excel inventory spreadsheets live — local machine, SharePoint/OneDrive, Google Drive, or are they Google Sheets?",
+      "type": "system-gotcha",
+      "fkId": "FK-025"
+    }
+  ],
+
+  "p0Flags": [
+    {
+      "system": "QuickBooks",
+      "gotcha": "QuickBooks Online vs Desktop/Enterprise not confirmed. Two incompatible connector paths: quickbooks-online (REST/OAuth) vs quickbooks-enterprise (QBXML Web Connector or third-party bridge). FK-020 verified.",
+      "severity": "P0",
+      "clientAction": "Confirm which QuickBooks product is in use: QuickBooks Online (cloud), QuickBooks Pro/Premier (desktop), or QuickBooks Enterprise. If desktop/enterprise, there is no native REST API — integration approach differs completely.",
+      "architectNote": "QBO: mule-quickbooks-online-connector (REST + OAuth 2.0). QB Desktop/Enterprise: no REST API — requires QBXML Web Connector relay or third-party bridge (DBSync, Breadwinner). FK-020: never assume QBO."
+    },
+    {
+      "system": "Excel / Google Sheets",
+      "gotcha": "Excel file storage location unconfirmed. CloudHub 2.0 local filesystem is ephemeral — cannot read local Excel files. Must be hosted on SharePoint, OneDrive, or Google Drive for MuleSoft to access.",
+      "severity": "P0",
+      "clientAction": "Confirm where Holly's inventory spreadsheets live: (a) Local machine — must migrate to SharePoint/OneDrive/Google Drive before integration can read them. (b) SharePoint/OneDrive — use microsoft-excel-online connector. (c) Google Drive/Sheets — use google-sheets connector.",
+      "architectNote": "CloudHub 2.0 has no persistent local filesystem. File connector cannot reach a local path. If client insists on local file: consider SFTP drop zone on a cloud server as bridge. Prefer migration to cloud storage."
+    },
+    {
+      "system": "Salesforce",
+      "gotcha": "ISBN mapping uses mailing state. If State/Country Picklists are enabled in Salesforce, state field values are ISO codes (e.g., 'CA'), not full names ('California'). Configurable logic table must align to whichever format Salesforce stores.",
+      "severity": "flag",
+      "clientAction": "Confirm whether Salesforce State/Country Picklists are enabled. Share a sample record showing the state field value format used in Opportunity mailing address.",
+      "architectNote": "If Picklists enabled: state values are ISO 3166 subdivision codes (US-CA). If not enabled: free-text. DataWeave ISBN lookup table must match the exact format stored in SF."
+    }
+  ]
+}

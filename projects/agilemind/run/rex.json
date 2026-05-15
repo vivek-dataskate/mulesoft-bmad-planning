@@ -1,0 +1,347 @@
+{
+  "status": "complete",
+  "client": "agilemind",
+  "generatedAt": "2026-05-14",
+
+  "systems": [
+    {
+      "name": "Salesforce",
+      "connectorKey": "salesforce",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "OAuth2",
+      "authDetail": "OAuth 2.0 JWT Bearer — dedicated integration user required; Connected App must be registered by Chloe (IT Director)",
+      "apiStyle": "REST",
+      "sandboxAvailable": true,
+      "rateLimits": "Org-dependent — Enterprise Edition baseline ~15,000 API calls/24h; Bulk API v2 for record sets >1000",
+      "knownQuirks": [
+        "State/Country Picklists: if enabled, state field values are ISO codes (US-CA) not free-text — DataWeave ISBN lookup must match exact format stored on Opportunity/Agreement mailing address",
+        "SOQL OFFSET limit: breaks at 2000 records; use watermark (LastModifiedDate filter) not OFFSET for incremental sync",
+        "Platform Events or CDC must be enabled on Agreement object for UC1 event-driven trigger — confirm with Chloe if enabled",
+        "External ID field (QB_InvoiceId__c) must be added to Agreement object before go-live for idempotent upsert — covered in Vera prerequisites",
+        "Custom Inventory__c object does not yet exist — must be created as part of integration sprint scope"
+      ],
+      "prerequisites": [
+        "Connected App registered with OAuth 2.0 JWT flow (Chloe/IT to provision)",
+        "Platform Events or Change Data Capture enabled on Agreement object",
+        "Custom Inventory__c object created (in scope for DataSkate)",
+        "External ID field QB_InvoiceId__c added to Agreement object",
+        "ISBN lookup table (custom metadata or configurable object) built and populated before UC1",
+        "State/Country Picklist format confirmed before DataWeave ISBN mapping is written"
+      ],
+      "playbook": "standards/playbooks/salesforce/salesforce_playbook.json",
+      "confidence": "high"
+    },
+    {
+      "name": "QuickBooks Online (assumed — P0 unconfirmed)",
+      "connectorKey": "quickbooks-online",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "OAuth2",
+      "authDetail": "OAuth 2.0 Authorization Code — Intuit Connected App registered at developer.intuit.com; Client ID + Secret + Company ID + Refresh Token required",
+      "apiStyle": "REST",
+      "sandboxAvailable": true,
+      "rateLimits": "500 req/min per app per realm (company); batch API limited to 30 operations per call",
+      "knownQuirks": [
+        "CRITICAL P0: QBO vs Desktop/Enterprise not confirmed — two entirely different integration architectures",
+        "OAuth 2.0 refresh token expires after 100 days of non-use — automated token refresh must be built into MuleSoft config or rotation will break production sync",
+        "Webhook events use Intuit verification header (intuit-signature) — must verify HMAC-SHA256 signature before processing",
+        "QB customer record must exist before invoice creation — Salesforce Account must map to an existing QB Customer by name or QB CustomerId; no QB customer auto-creation in UC1 scope",
+        "QB fiscal year starts April 1 (confirmed in transcript) — date-range filters for inventory and invoice queries must use April 1 offset",
+        "QB Company ID (realmId) required on every API call — must be stored in properties, not hardcoded"
+      ],
+      "prerequisites": [
+        "CONFIRM QBO vs Desktop/Enterprise — entire connector path changes",
+        "If QBO: register Connected App at developer.intuit.com; obtain Client ID + Secret (Maria or Crystal to authorize)",
+        "If QBO: provision sandbox company for integration testing before touching production",
+        "QB customer names must align with Salesforce Account names — or a QB CustomerId lookup field must be added to SF Account for idempotent invoice creation",
+        "Confirm QB fiscal year April 1 setting is correct in QB company settings"
+      ],
+      "playbook": "standards/playbooks/quickbooks-online/quickbooks-online_playbook.json",
+      "confidence": "high (for the finding that version is unconfirmed)"
+    },
+    {
+      "name": "QuickBooks Desktop/Enterprise (alternative path if P0 resolves Desktop)",
+      "connectorKey": "quickbooks-enterprise",
+      "inferenceType": "explicit",
+      "deploymentType": "on-premise",
+      "authType": "QBXML",
+      "authDetail": "QBXML Web Connector running on Windows machine hosting QB Desktop — no REST API; CloudHub 2.0 cannot reach local QBXML relay directly",
+      "apiStyle": "Proprietary",
+      "sandboxAvailable": false,
+      "rateLimits": "N/A — QBXML is synchronous, serial processing only",
+      "knownQuirks": [
+        "NO native MuleSoft connector for QB Desktop/Enterprise",
+        "QBXML Web Connector is Windows-only and must run on the same machine as QB — cannot be reached from CloudHub 2.0 directly",
+        "Integration options if Desktop: (a) CData JDBC Driver — REST wrapper over QBXML; (b) Conductor REST — cloud relay for QB Desktop API; (c) Upgrade client to QB Online",
+        "Any Desktop bridge solution adds cost ($1,500–$5,000/yr for CData or Conductor) and operational complexity",
+        "DataSkate recommendation: strongly advise QB Online upgrade if client is on Desktop — saves relay complexity and cost at their scale"
+      ],
+      "prerequisites": [
+        "Confirm QB version first — if Desktop, assess upgrade-to-Online cost vs bridge cost for client",
+        "If bridge required: Conductor or CData licensing must be procured before integration build starts"
+      ],
+      "playbook": "standards/playbooks/quickbooks-enterprise/quickbooks-enterprise_playbook.json",
+      "confidence": "high (for the finding that this is the alternative architecture)"
+    },
+    {
+      "name": "Google Sheets",
+      "connectorKey": "google-sheets",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "OAuth2",
+      "authDetail": "Service Account JSON key (preferred for MuleSoft server-to-server) or OAuth 2.0 user credentials; Service Account email must be granted Editor access to Holly's spreadsheet",
+      "apiStyle": "REST",
+      "sandboxAvailable": true,
+      "rateLimits": "300 reads/min per project; 60 writes/min per project — no concern at UC3 polling frequency",
+      "knownQuirks": [
+        "Service Account approach preferred over user OAuth for MuleSoft — no user token rotation issues",
+        "Spreadsheet ID (from the URL) and Sheet name (tab name) must be stable — any rename breaks the connector config",
+        "Column headers in Holly's worksheet must be stable and documented before DataWeave mapping is written — header rename = mapping break",
+        "If Holly uses merged cells or multi-row headers: must normalize to a flat single-row header structure for the connector to parse correctly",
+        "Google Sheets connector returns rows as arrays — DataWeave must handle variable row counts and map positional columns to named fields"
+      ],
+      "prerequisites": [
+        "Confirm Google Sheets is the actual storage location (vs local Excel — P0)",
+        "Google Service Account provisioned by Chloe (IT) — JSON key file issued to DataSkate for connector config",
+        "Spreadsheet shared with Service Account email with Editor access",
+        "Holly confirms spreadsheet column headers are stable and provides a sample export"
+      ],
+      "playbook": "standards/playbooks/google-sheets/google-sheets_playbook.json",
+      "confidence": "medium (connector confirmed; storage location still P0)"
+    },
+    {
+      "name": "Microsoft Excel Online (conditional — if Holly's file is on SharePoint/OneDrive)",
+      "connectorKey": "microsoft-excel-online",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "OAuth2",
+      "authDetail": "OAuth 2.0 Client Credentials via Azure AD app registration; requires SharePoint site URL + file path",
+      "apiStyle": "REST",
+      "sandboxAvailable": true,
+      "rateLimits": "Microsoft Graph API: 10,000 requests/10 min per app; no concern at UC3 polling frequency",
+      "knownQuirks": [
+        "Requires Azure AD app registration — Chloe (IT) must create the app and grant Files.ReadWrite.All or Sites.ReadWrite.All permission",
+        "SharePoint site URL and file path must be exact — case-sensitive in Graph API calls",
+        "Excel Online connector reads named tables or cell ranges — Holly's worksheet must have data in a named Table object for reliable parsing",
+        "OneDrive Personal vs SharePoint: connector uses different base URLs — confirm which storage type"
+      ],
+      "prerequisites": [
+        "Confirm SharePoint/OneDrive is the storage location for Holly's worksheet",
+        "Azure AD app registered with appropriate Graph API permissions (Chloe/IT)",
+        "Exact SharePoint site URL and file path confirmed",
+        "Holly's data structured as a named Excel Table (not just a range)"
+      ],
+      "playbook": null,
+      "confidence": "medium (conditional on storage location confirmation)"
+    }
+  ],
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "name": "Salesforce Agreement → QuickBooks Invoice Creation",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "direction": "Salesforce → QuickBooks",
+      "entity": "Invoice",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce Platform Event or CDC on Agreement object (Closed Won / Agreement Created); Mule subscribes as consumer",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/education/canonical-invoice.yaml",
+      "confirmed": true,
+      "evidence": "when an agreement is created in Salesforce, it will generate a new invoice in QuickBooks for an existing account",
+      "architectNotes": "ISBN lookup step required in flow before QB invoice creation — query Salesforce ISBN lookup table (state × product → ISBN) before constructing QB line items. Missing ISBN = route to manual review queue, not to DLQ. QB customer must pre-exist by name match or QB_CustomerId__c lookup field on SF Account."
+    },
+    {
+      "id": "UC2",
+      "name": "QuickBooks Invoice Status → Salesforce Agreement Sync",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Invoice payment status",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled poll of QB invoices (delta by LastModifiedDate using QB fiscal year April 1 offset); upsert to Salesforce Agreement using QB_InvoiceId__c external ID",
+      "pattern": "scheduled-sync",
+      "canonicalModel": "standards/canonical-models/education/canonical-invoice.yaml",
+      "confirmed": true,
+      "evidence": "track payment updates from QuickBooks to Salesforce, including the open balance... update the number, amount, dates",
+      "architectNotes": "Watermark required — use QB transaction ModifyTime for incremental delta. Persistent Object Store for watermark. External ID QB_InvoiceId__c on Agreement enables safe upsert without duplication risk."
+    },
+    {
+      "id": "UC3",
+      "name": "Holly's Demand Worksheet → Salesforce Inventory__c",
+      "systems": ["Google Sheets (or Excel Online)", "Salesforce"],
+      "direction": "Spreadsheet → Salesforce",
+      "entity": "Inventory quantities + demand forecast",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled poll of Holly's demand worksheet (connector TBD based on storage location P0); upsert into Salesforce Inventory__c custom object by Title/ISBN",
+      "pattern": "scheduled-sync",
+      "canonicalModel": "standards/canonical-models/education/canonical-inventory-record.yaml",
+      "confirmed": true,
+      "evidence": "push the data directly um and the details directly from Excel in real time or from QuickBooks if it's living in QuickBooks. And so then we can push that inventory data directly into Salesforce",
+      "architectNotes": "Connector key is conditional: google-sheets if Holly uses Google Sheets; microsoft-excel-online if SharePoint/OneDrive. Cannot be finalized until storage P0 is resolved. Fields to map: title, quantity on hand, committed, available, 3% buffer threshold, projected shorts flag."
+    },
+    {
+      "id": "UC4",
+      "name": "QuickBooks Inventory Items → Salesforce Inventory__c (Cost Data)",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "direction": "QuickBooks → Salesforce",
+      "entity": "Inventory / product cost data",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled poll of QB Inventory Items (Item type); upsert to Salesforce Inventory__c by QB Item name/ID for cost and quantity fields",
+      "pattern": "scheduled-sync",
+      "canonicalModel": "standards/canonical-models/education/canonical-inventory-record.yaml",
+      "confirmed": true,
+      "evidence": "some of this lives in QuickBooks... you are going to be able to see like ... algebra 6 books six equals x amount ... value of inventory ... cost per district, cost per program",
+      "architectNotes": "UC3 and UC4 both write to Inventory__c — must agree on field ownership to avoid overwrite conflicts. Proposed: UC3 owns quantity/demand fields; UC4 owns cost/value fields. Upsert key should be a composite of ISBN + title slug. Polling schedule should be coordinated so UC4 runs after UC3."
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "entity": "Products / Book titles (master data sync)",
+      "priority": "high",
+      "rationale": "Maria is adding new titles to QB and SF separately. Without sync, the QB Item list and SF Product catalog will diverge — breaking UC1 line item matching and UC4 cost lookup. Deferred pending Maria's input on system of record (QB or SF). This is a dependency risk for UC1 and UC4, not just a nice-to-have."
+    },
+    {
+      "id": "UC6-potential",
+      "systems": ["Salesforce", "QuickBooks Online"],
+      "entity": "Contract Change Request (CCR) pre-fulfillment flag",
+      "priority": "medium",
+      "rationale": "Holly: sales ships materials ahead of a closed-won agreement on a CCR. When the agreement comes in, the system must know materials were already shipped — otherwise UC1 would create a duplicate fulfillment QB invoice. Flag must stamp the incoming Agreement before UC1 fires."
+    },
+    {
+      "id": "UC7-potential",
+      "systems": ["QuickBooks Online", "Salesforce"],
+      "entity": "Inventory decrement on fulfillment",
+      "priority": "medium",
+      "rationale": "Each order decrements inventory. If inventory master moves to QB (post UC4), decrement events need to sync to Salesforce Inventory__c so Holly's dashboard stays accurate in near real-time. Currently implicit in UC3/UC4 scheduled sync — but a lag means Salesforce could show incorrect available stock between sync runs."
+    }
+  ],
+
+  "p0Blockers": [
+    {
+      "title": "QuickBooks Version Confirmation",
+      "system": "QuickBooks",
+      "clientAction": "Please confirm which QuickBooks product your team uses — we need this before any integration work can begin:\n  (a) QuickBooks Online — the web-based version you access at app.qbo.intuit.com in a browser.\n  (b) QuickBooks Desktop Pro or Premier — installed as a program on a Windows PC.\n  (c) QuickBooks Enterprise — the advanced desktop version.\n\nIf you're not sure: the easiest check is whether you open QuickBooks in a web browser (Online) or by clicking an icon on your desktop (Desktop/Enterprise). Maria Gonzalez-Pettway or Crystal Robinson should know which version is in use.",
+      "body": "QBO path: mule-quickbooks-online-connector 3.0.0 (REST/OAuth 2.0) — clean cloud-to-cloud integration. QB Desktop/Enterprise path: NO native MuleSoft connector; NO REST API. Requires QBXML Web Connector on the Windows machine running QB, then a bridge layer (CData JDBC or Conductor REST relay) to reach CloudHub 2.0 — adds $1,500–$5,000/yr licensing cost and on-prem relay maintenance. DataSkate recommendation if Desktop: assess upgrade to QB Online first. FK-020 verified: never assume QBO.",
+      "bundledWith": ["QB Connected App setup", "QB sandbox company provisioning", "QB OAuth credentials (Crystal or Maria to authorize)"]
+    },
+    {
+      "title": "Inventory Spreadsheet Storage Location",
+      "system": "Excel / Google Sheets",
+      "clientAction": "We need to know where Holly Wale's inventory demand worksheet is stored before we can build the integration. Please confirm one of the following:\n  (a) Holly's local laptop — this CANNOT work with our integration platform (cloud-hosted; no access to local files). The file would need to be moved to a shared cloud location before we can begin.\n  (b) SharePoint or OneDrive — we can connect to this; please provide the SharePoint site URL and file path.\n  (c) Google Drive or Google Sheets — we can connect to this; Chloe (IT) will need to provide a Google Service Account credential so our system can read the file.\n\nHolly Wale (hwale@agilemind.com) or Chloe (IT Director) can confirm this.",
+      "body": "CloudHub 2.0 has an ephemeral local filesystem — the File connector cannot read local PC paths. If client insists on local-only and will not migrate: SFTP drop-zone on a cloud server is the only bridge (adds operational overhead and manual step for Holly). If QB version confirms QB Online and inventory lives fully in QB, UC3 may be replaced by UC4 entirely (QB as sole inventory source) — making this P0 conditional on the UC3 design decision.",
+      "bundledWith": ["Google Service Account provisioning (Chloe/IT)", "SharePoint Graph API app registration (if OneDrive path)", "Holly column-header documentation for DataWeave mapping"]
+    }
+  ],
+
+  "systemFindings": [
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Connector confirmed in registry: mule-salesforce-connector 11.4.0, OAuth JWT. Platform Events and CDC supported on custom objects. Inventory__c object does not yet exist — must be created in scope. Custom Agreement object confirmed with existing QB invoice custom fields.",
+      "source": "connector-registry.json + sage.json systemFindings",
+      "confidence": "high"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "State/Country Picklists: if enabled, mailing state values on Opportunity/Agreement are ISO codes (US-CA not California). DataWeave ISBN lookup table keys must match the exact stored format. Must be confirmed before UC1 DWL is written.",
+      "source": "sage.json p0Flags + PLANNING_CONTEXT.md known gotchas",
+      "confidence": "high"
+    },
+    {
+      "system": "QuickBooks Online",
+      "connectorKey": "quickbooks-online",
+      "finding": "IF QBO confirmed: mule-quickbooks-online-connector 3.0.0, Intuit REST API v3, OAuth 2.0. Sandbox company available at developer.intuit.com. OAuth refresh token expires after 100 days non-use — automated rotation needed in MuleSoft properties/Secrets Manager.",
+      "source": "connector-registry.json + Intuit Developer API docs",
+      "confidence": "high (conditional on QBO confirmation)"
+    },
+    {
+      "system": "QuickBooks Online",
+      "connectorKey": "quickbooks-online",
+      "finding": "QB customer record must pre-exist before invoice creation in UC1. Salesforce Account names may not match QB Customer names exactly. If no QB CustomerId stored on SF Account, UC1 flow must do a QB customer lookup by name — risk of false negatives on name mismatches (e.g. 'Austin ISD' vs 'Austin Independent School District').",
+      "source": "Intuit QBO API documentation + sage.json analysis",
+      "confidence": "high"
+    },
+    {
+      "system": "Google Sheets",
+      "connectorKey": "google-sheets",
+      "finding": "Connector confirmed in registry: mule4-google-sheets-connector 1.1, OAuth2 / Service Account. No playbook exists — stub created this session. Service Account approach preferred for server-to-server MuleSoft integration — eliminates user token rotation. Holly's spreadsheet must be shared with the Service Account email.",
+      "source": "connector-registry.json + Google Sheets API v4 documentation",
+      "confidence": "medium (storage location still P0)"
+    },
+    {
+      "system": "Microsoft Excel Online",
+      "connectorKey": "microsoft-excel-online",
+      "finding": "IF SharePoint/OneDrive confirmed: mule4-microsoft-excel-online-connector 1.1, OAuth2 client credentials, Microsoft Graph API. Requires Azure AD app registration by Chloe (IT). Excel table structure (named Table, not raw range) strongly preferred for reliable row parsing.",
+      "source": "connector-registry.json + Microsoft Graph API documentation",
+      "confidence": "medium (conditional on storage location)"
+    }
+  ],
+
+  "openQuestions": [
+    {
+      "question": "QuickBooks Online vs Desktop/Enterprise — which version is AgileMind using? (P0 — entire connector selection depends on this answer)",
+      "system": "QuickBooks"
+    },
+    {
+      "question": "Where does Holly's inventory demand worksheet live — local machine, SharePoint/OneDrive, or Google Drive/Sheets? (P0 — connector selection for UC3 depends on this)",
+      "system": "Excel / Google Sheets"
+    },
+    {
+      "question": "Are Salesforce State/Country Picklists enabled? If yes, sample mailing state value from an Opportunity record would confirm the format (ISO code vs free text) needed for the ISBN lookup DataWeave mapping.",
+      "system": "Salesforce"
+    },
+    {
+      "question": "QuickBooks customer names — do QB Customer names match Salesforce Account names exactly? If not, is there a QB Customer ID that can be stored on the SF Account as an external ID for lookup?",
+      "system": "QuickBooks / Salesforce"
+    }
+  ],
+
+  "stubsCreated": {
+    "playbooks": [
+      "standards/playbooks/google-sheets/google-sheets_playbook.json"
+    ],
+    "connectorRegistry": [],
+    "intakeChecklist": [
+      "google_sheets_new",
+      "qb_version_unconfirmed"
+    ],
+    "canonicalModels": [
+      "standards/canonical-models/education/canonical-invoice.yaml",
+      "standards/canonical-models/education/canonical-inventory-record.yaml",
+      "standards/canonical-models/education/canonical-product-title.yaml"
+    ]
+  },
+
+  "internalFlags": [
+    {
+      "flag": "UC3 and UC4 both write to Salesforce Inventory__c — field ownership conflict risk. Must define which flow owns which fields before scaffold DWL is written. Proposed split: UC3 owns demand/quantity fields; UC4 owns cost/value fields.",
+      "system": "Salesforce / QuickBooks / Google Sheets",
+      "severity": "medium"
+    },
+    {
+      "flag": "Education vertical not in canonical model registry (standards/canonical-models/registry.json). Stubs created as 'derived' standard. Registry should be updated to add education vertical with appropriate industry standard reference (SIF — Schools Interoperability Framework — is the closest education data standard for K-12).",
+      "system": "canonical-models",
+      "severity": "low"
+    },
+    {
+      "flag": "UC1 trigger design: Agreement Created in SF must imply a confirmed district PO in hand (per FKC-004 from vera.json). If Agreement is sometimes created ahead of PO, UC1 would generate QB invoices that districts cannot legally accept. Confirm with Maria/Abby that Agreement creation = PO received.",
+      "system": "Salesforce / QuickBooks",
+      "severity": "medium"
+    },
+    {
+      "flag": "Chloe (IT Director) last name unknown, no email confirmed. She is the key provisioner for: Salesforce Connected App, Google Service Account (if Google Sheets path), Azure AD app registration (if SharePoint path). Must get Chloe's email from primary contacts before onboarding can proceed.",
+      "system": "cross-system",
+      "severity": "medium"
+    },
+    {
+      "flag": "QBO OAuth refresh token (100-day expiry): if not handled, production sync will break silently after first refresh window. Architect must specify automated token refresh strategy — either Secrets Manager rotation or MuleSoft OAuth2 provider with token refresh endpoint configured.",
+      "system": "QuickBooks Online",
+      "severity": "high"
+    }
+  ]
+}
