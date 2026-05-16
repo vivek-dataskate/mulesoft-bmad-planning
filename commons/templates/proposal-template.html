@@ -158,7 +158,13 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .ai-starters-list li::before { content: '\2192'; position: absolute; left: 0; color: var(--brand); font-size: 12px; top: 1px; }
 
 /* ── INVESTMENT / PRICING ── */
-.model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.model-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+@media (max-width: 860px) { .model-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .model-grid { grid-template-columns: 1fr; } }
+.tm-rate-table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 10px 0 14px; }
+.tm-rate-table th { background: var(--blue-bg); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #1e40af; padding: 4px 8px; border-bottom: 1px solid #BFDBFE; text-align: left; }
+.tm-rate-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); color: var(--dark); }
+.tm-rate-table tr:last-child td { border-bottom: none; }
 .model-card { border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; }
 .model-card.recommended { border-color: var(--brand); border-width: 2px; }
 .rec-badge { position: absolute; top: -11px; left: 20px; background: var(--brand); color: #fff; font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px; }
@@ -620,11 +626,13 @@ function selectModel(type, name, rate) {
   if (card) card.style.borderColor = 'var(--brand)';
   const el = id => document.getElementById(id);
 
-  // Toggle: IaaS → show rate schedule; Impl → show comparison panel
+  // Toggle detail sections
   const rateSection = el('iaas-rate-section');
   const implPitch   = el('impl-persuasion');
+  const tmSection   = el('tm-rate-section');
   if (rateSection) rateSection.style.display = type === 'iaas' ? '' : 'none';
   if (implPitch)   implPitch.style.display   = type === 'impl' ? '' : 'none';
+  if (tmSection)   tmSection.style.display   = type === 'tm'   ? '' : 'none';
 
   // Update negotiate panel header
   if (el('selected-model-name')) el('selected-model-name').textContent = name;
@@ -636,6 +644,9 @@ function selectModel(type, name, rate) {
   if (type === 'impl') {
     if (rateLabel) rateLabel.textContent = 'Proposed fee (optional)';
     if (rateInput) rateInput.placeholder = 'e.g. $9,000 total';
+  } else if (type === 'tm') {
+    if (rateLabel) rateLabel.textContent = 'Proposed total estimate (optional)';
+    if (rateInput) rateInput.placeholder = 'e.g. $25,000 total';
   } else {
     if (rateLabel) rateLabel.textContent = 'Proposed rate (optional)';
     if (rateInput) rateInput.placeholder = 'e.g. $275/flow/month';
@@ -660,6 +671,35 @@ function submitSelection() {
     '?subject=' + encodeURIComponent('Proposal Selection — ' + CLIENT_NAME + ' — ' + model) +
     '&body='    + encodeURIComponent(bodyText);
   if (el('selection-success')) el('selection-success').style.display = 'block';
+  // Always log to Firestore — captures both confirmations and discount proposals
+  logDiscount({ model, listed, proposed: rate, contactName: name, notes });
+}
+
+async function logDiscount({ model, listed, proposed, contactName, notes }) {
+  const db = getDb();
+  if (!db || !CLIENT_SLUG) return;
+  const entry = {
+    ts:           new Date().toISOString(),
+    project:      CLIENT_SLUG,
+    client:       CLIENT_NAME,
+    architect:    ARCHITECT_EMAIL,
+    model,
+    listedRate:   listed,
+    proposedRate: proposed || '',
+    hasDiscount:  !!(proposed && proposed.trim()),
+    contactName,
+    notes:        notes || ''
+  };
+  try {
+    await db.collection('discountLog').doc(CLIENT_SLUG).set({
+      project:     CLIENT_SLUG,
+      client:      CLIENT_NAME,
+      entries:     firebase.firestore.FieldValue.arrayUnion(entry),
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn('discount log failed:', e.message);
+  }
 }
 
 function onRateInput(val) {

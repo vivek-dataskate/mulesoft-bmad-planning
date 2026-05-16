@@ -546,9 +546,14 @@ function buildInvestmentSection(pm, flowCount, tm, primaryProfile) {
 </div>`;
   }
 
+  const iaasRecBadge = iaasRec ? '<div class="rec-badge">Recommended for you</div>' : '';
+  const implRecBadge = implRec ? '<div class="rec-badge">Recommended for you</div>' : '';
+  // IaaS detail section visible by default only when iaas is the recommended model
+  const iaasDisplay = recModel !== 'iaas' ? ' style="display:none"' : '';
+
   return `<div class="model-grid">
   <div class="model-card${iaasRec}" data-model="iaas">
-    <div class="rec-badge">Recommended</div>
+    ${iaasRecBadge}
     <div class="model-name">Model 1 — IaaS (Managed Service)</div>
     <div class="model-impl">${fmt(yearTotal)}</div>
     <div class="model-impl-label">1-year total · two 6-month payments · billing starts at go-live</div>
@@ -564,7 +569,8 @@ function buildInvestmentSection(pm, flowCount, tm, primaryProfile) {
     </div>
     <button class="btn btn-primary model-select-btn no-print" onclick="selectModel('iaas','Model 1 — IaaS (Managed Service)','${fmtD(pm.baseRate)}/flow/month (Period 1)')">Select this Model →</button>
   </div>
-  <div class="model-card" data-model="impl">
+  <div class="model-card${implRec}" data-model="impl">
+    ${implRecBadge}
     <div class="model-name">Model 2 — Implementation Only</div>
     <div class="model-impl">${fmt(implTotal)}</div>
     <div class="model-impl-label">One-time fee · ${n} flows × ${fmt(pm.implPerFlow)}/flow · ${weeks}-week delivery</div>
@@ -573,9 +579,10 @@ function buildInvestmentSection(pm, flowCount, tm, primaryProfile) {
     <div class="model-vp">Design, build, and deployment. Code ownership transfers at go-live. Your team handles support after handoff.</div>
     <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','${fmt(implTotal)} one-time fee')">Select this Model →</button>
   </div>
+  ${tmCardHtml}
 </div>
 
-<div id="iaas-rate-section">
+<div id="iaas-rate-section"${iaasDisplay}>
   <div class="managed-intro">
     <h3>IaaS Payment Schedule</h3>
     <p>Two payments over 12 months. Billing begins at go-live — not at signing.</p>
@@ -595,7 +602,7 @@ function buildInvestmentSection(pm, flowCount, tm, primaryProfile) {
 
 <div id="impl-persuasion" style="display:none">
   <div class="impl-pitch">
-    <div class="impl-pitch-head">Here's how the two models compare at the 12-month mark</div>
+    <div class="impl-pitch-head">Here's how the three models compare at the 12-month mark</div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only ${fmt(implTotal)} · IaaS ${fmt(yearTotal)} — a difference of ${fmt(diff)}. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Support:</strong> IaaS — DataSkate owns all monitoring, incident response, and fixes for 12 months. Implementation Only — your team owns support from go-live.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>At month 12:</strong> IaaS clients choose to renew at the current rate or take code ownership. Either way, they've had 12 months of DataSkate-managed uptime.</span></div>
@@ -604,6 +611,8 @@ function buildInvestmentSection(pm, flowCount, tm, primaryProfile) {
     <p class="impl-pitch-note">If Implementation Only is still the right fit, continue below.</p>
   </div>
 </div>
+
+${tmSectionHtml}
 
 <div class="negotiate-panel no-print" id="negotiate-panel" style="display:none">
   <div class="negotiate-header">
