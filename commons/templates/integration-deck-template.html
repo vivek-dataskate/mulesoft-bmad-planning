@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Integration Deck — <!-- FILL:client-name --> — DataSkate</title>
+<title>Architect Pitch Kit — DataSkate</title>
 <!-- FILL:__css -->
 <style>
 a { text-decoration: none; }
@@ -110,6 +110,14 @@ section p:last-child{margin-bottom:0}
 .btn-google:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(237,28,36,.1)}
 .btn-google svg{width:20px;height:20px;flex-shrink:0}
 #login-error{color:var(--brand-dk);font-size:13px;font-weight:600;background:var(--light);border:1px solid var(--brand);padding:10px 18px;border-radius:6px;display:none}
+
+/* ── Loading ── */
+#deck-loading{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fff}
+#deck-loading p{font-size:14px;color:var(--mid)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Deck shell ── */
 #deck-content{display:none}
 
 /* ── Print ── */
@@ -150,10 +158,15 @@ section p:last-child{margin-bottom:0}
   <div id="login-error"></div>
 </div>
 
-<!-- DECK CONTENT (hidden until auth) -->
+<!-- LOADING -->
+<div id="deck-loading">
+  <div class="spinner"></div>
+  <p>Loading pitch kit&hellip;</p>
+</div>
+
+<!-- DECK SHELL — populated by renderDeck() after auth + Firestore fetch -->
 <div id="deck-content">
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-top">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:28px;width:auto;display:block;" aria-label="DataSkate">
@@ -172,84 +185,57 @@ section p:last-child{margin-bottom:0}
     <span class="eyebrow">Architect Pitch Kit <span class="internal-badge">Internal Only</span></span>
   </div>
   <div class="header-title-block">
-    <h1><!-- FILL:client-name --> — Call Prep</h1>
-    <div class="subtitle"><!-- FILL:subtitle --></div>
+    <h1 id="dk-client-name"></h1>
+    <div class="subtitle" id="dk-subtitle"></div>
   </div>
-  <div class="header-meta">
-    <span><strong>Client</strong><!-- FILL:client-name --></span>
-    <span><strong>Location</strong><!-- FILL:location --></span>
-    <span><strong>Industry</strong><!-- FILL:industry --></span>
-    <span><strong>Revenue</strong><!-- FILL:revenue --></span>
-    <span><strong>Architect</strong><!-- FILL:architect --></span>
-    <span><strong>Date</strong><!-- FILL:date --></span>
-  </div>
+  <div class="header-meta" id="dk-header-meta"></div>
 </div>
 
 <div class="page">
 
-<!-- SNAPSHOT -->
 <section>
   <h2>Client Snapshot</h2>
-  <p><!-- FILL:snapshot-description --></p>
-  <div class="snapshot-grid">
-    <!-- FILL:snapshot-cards -->
-  </div>
+  <p id="dk-snapshot-desc"></p>
+  <div class="snapshot-grid" id="dk-snapshot-cards"></div>
   <h3 style="margin-top:20px">Known Pain Points</h3>
-  <ul class="pain-list">
-    <!-- FILL:pain-points -->
-  </ul>
+  <ul class="pain-list" id="dk-pain-points"></ul>
 </section>
 
-<!-- TALKING POINTS -->
 <section>
   <h2>Personalized Talking Points</h2>
-  <!-- FILL:talking-points -->
+  <div id="dk-talking-points"></div>
 </section>
 
-<!-- NEARBY PEERS -->
 <section>
   <h2>Similar Companies Nearby</h2>
-  <p style="color:var(--mid);font-size:13px;margin-bottom:0">Companies within <!-- FILL:search-radius --> of <!-- FILL:location --> that have made comparable integration investments. Use for social proof — not as named references without permission.</p>
+  <p style="color:var(--mid);font-size:13px;margin-bottom:0">Companies within <span id="dk-search-radius"></span> of <span id="dk-location"></span> that have made comparable integration investments. Use for social proof — not as named references without permission.</p>
   <table class="peer-table">
-    <thead>
-      <tr>
-        <th>Company</th>
-        <th>What They Did</th>
-        <th>Outcome</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- FILL:peer-rows -->
-    </tbody>
+    <thead><tr><th>Company</th><th>What They Did</th><th>Outcome</th></tr></thead>
+    <tbody id="dk-peer-rows"></tbody>
   </table>
 </section>
 
-<!-- COMPETITOR FOMO -->
 <section>
   <h2>Competitor FOMO</h2>
-  <p style="color:var(--mid);font-size:13px;margin-bottom:4px">Companies in the <!-- FILL:revenue-bracket --> revenue bracket doing the exact same integration + AI use case. Each entry includes the sharpest thing you can say on a call.</p>
-  <!-- FILL:fomo-cards -->
+  <p style="color:var(--mid);font-size:13px;margin-bottom:4px">Companies in the <span id="dk-revenue-bracket"></span> revenue bracket doing the exact same integration + AI use case. Each entry includes the sharpest thing you can say on a call.</p>
+  <div id="dk-fomo-cards"></div>
 </section>
 
-<!-- OPENING LINES -->
 <section>
   <h2>Opening Lines</h2>
-  <!-- FILL:opening-lines -->
+  <div id="dk-opening-lines"></div>
 </section>
 
-<!-- AI JOURNEY NARRATIVE -->
 <section>
   <h2>Their AI Journey — Personalized Frame</h2>
-  <div class="narrative-block">
-    <!-- FILL:ai-narrative -->
-  </div>
+  <div class="narrative-block" id="dk-ai-narrative"></div>
 </section>
 
 </div><!-- /page -->
 
 <div class="page">
   <div class="footer no-print">
-    <span><!-- FILL:architect --> · DataSkate Internal</span>
+    <span id="dk-footer-architect"></span>
     <span>dataskate.ai</span>
   </div>
 </div>
@@ -258,35 +244,152 @@ section p:last-child{margin-bottom:0}
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="/firebase-config.js"></script>
 <script>
 (function () {
+  const CLIENT_SLUG = '<!-- FILL:client-slug -->';
+
   firebase.initializeApp(FIREBASE_CONFIG);
   const auth     = firebase.auth();
+  const db       = firebase.firestore();
   const provider = new firebase.auth.GoogleAuthProvider();
 
-  auth.onAuthStateChanged(user => {
+  auth.onAuthStateChanged(async user => {
     if (user && user.email && user.email.endsWith('@dataskate.ai')) {
-      document.getElementById('login-screen').style.display  = 'none';
-      document.getElementById('deck-content').style.display  = 'block';
-    } else {
-      if (user) {
-        auth.signOut();
-        showError('Access restricted to @dataskate.ai accounts.');
+      show('deck-loading');
+      try {
+        const doc = await db.collection('pitchKits').doc(CLIENT_SLUG).get();
+        if (!doc.exists) { showError('Pitch kit not yet generated for this client.'); return; }
+        renderDeck(JSON.parse(doc.data().contentJson));
+        hide('deck-loading');
+        show('deck-content');
+      } catch (e) {
+        showError('Failed to load: ' + e.message);
       }
-      document.getElementById('login-screen').style.display  = '';
-      document.getElementById('deck-content').style.display  = 'none';
+    } else {
+      if (user) { auth.signOut(); showError('Access restricted to @dataskate.ai accounts.'); }
+      hide('deck-loading');
+      hide('deck-content');
+      show('login-screen');
     }
   });
 
-  window.signIn = function () {
-    auth.signInWithPopup(provider).catch(err => showError(err.message));
-  };
+  window.signIn = () => auth.signInWithPopup(provider).catch(e => showError(e.message));
+
+  function show(id) { document.getElementById(id).style.display = id === 'deck-loading' ? 'flex' : ''; }
+  function hide(id) { document.getElementById(id).style.display = 'none'; }
 
   function showError(msg) {
     const el = document.getElementById('login-error');
-    el.textContent = msg;
-    el.style.display = 'block';
+    el.textContent = msg; el.style.display = 'block';
+    hide('deck-loading'); hide('deck-content'); show('login-screen');
+  }
+
+  function e(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function set(id, html)  { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+  function txt(id, val)   { const el = document.getElementById(id); if (el) el.textContent = val || ''; }
+
+  function renderDeck(c) {
+    const m = c.meta || {};
+
+    txt('dk-client-name',   (m.clientName || '') + ' — Call Prep');
+    txt('dk-subtitle',      m.subtitle || '');
+    txt('dk-footer-architect', (m.architect || '') + ' · DataSkate Internal');
+
+    set('dk-header-meta', [
+      ['Client', m.clientName], ['Location', m.location], ['Industry', m.industry],
+      ['Revenue', m.revenue],   ['Architect', m.architect], ['Date', m.date],
+    ].map(([k, v]) => `<span><strong>${k}</strong>${e(v)}</span>`).join(''));
+
+    // Snapshot
+    txt('dk-snapshot-desc', (c.snapshot || {}).description || '');
+    set('dk-snapshot-cards', [
+      { label: 'Industry', value: m.industry },
+      { label: 'Revenue',  value: m.revenue },
+      { label: 'Location', value: m.location },
+      { label: 'Flows',    value: (m.flowCount || '—') + ' integration flows' },
+      ...((c.snapshot || {}).systems || []).map(s => ({ label: 'System', value: s })),
+    ].map(card =>
+      `<div class="snapshot-card"><div class="sc-label">${e(card.label)}</div><div class="sc-value">${e(card.value || '—')}</div></div>`
+    ).join(''));
+    set('dk-pain-points', ((c.snapshot || {}).painPoints || []).map(p => `<li>${e(p)}</li>`).join(''));
+
+    // Talking points
+    set('dk-talking-points', (c.talkingPoints || []).map(tp =>
+      `<div class="tp-block">
+        <div class="tp-trigger">${e(tp.trigger)}</div>
+        <div class="tp-say">${e(tp.say)}</div>
+        ${tp.impact ? `<div class="tp-impact"><strong>Impact:</strong> ${e(tp.impact)}</div>` : ''}
+      </div>`
+    ).join(''));
+
+    // Nearby peers
+    txt('dk-search-radius', m.searchRadius || '100 miles');
+    txt('dk-location', m.location || '');
+    const peers = c.nearbyPeers || [];
+    set('dk-peer-rows', peers.length > 0
+      ? peers.map(p =>
+          `<tr>
+            <td>
+              <div class="peer-name">${e(p.name)}</div>
+              <div><span class="peer-dist">${e(p.distance)}</span></div>
+              <div style="font-size:12px;color:var(--mid);margin-top:4px">${e(p.location || '')}${p.revenue ? ' · ' + e(p.revenue) : ''}</div>
+              ${p.source ? `<div class="peer-source">${e(p.source)}</div>` : ''}
+            </td>
+            <td>${e(p.what)}</td>
+            <td>${e(p.outcome)}</td>
+          </tr>`
+        ).join('')
+      : `<tr><td colspan="3" style="text-align:center;color:var(--mid);padding:20px">No peer companies found within search radius.</td></tr>`
+    );
+
+    // Competitor FOMO
+    txt('dk-revenue-bracket', m.revenueBracket || m.revenue || 'comparable');
+    const TIERS = {
+      'exact-match':       { label: 'Exact match',       cls: 'tier-exact' },
+      'same-industry':     { label: 'Same industry',     cls: 'tier-adjacent' },
+      'adjacent-industry': { label: 'Adjacent industry', cls: 'tier-adjacent' },
+      'industry-stat':     { label: 'Industry data',     cls: 'tier-stat' },
+    };
+    const fomo = c.competitorFOMO || [];
+    set('dk-fomo-cards', fomo.length > 0
+      ? fomo.map(f => {
+          const systems = (f.systemsUsed || []).join(' → ');
+          const tier = TIERS[f.relevanceTier] || { label: '', cls: 'tier-stat' };
+          return `<div class="fomo-card">
+  <div class="fomo-card-head">
+    <span class="fomo-co-name">${e(f.name)}</span>
+    <span class="fomo-co-meta">${[f.location, f.revenue, systems].filter(Boolean).map(e).join(' · ')}</span>
+    ${tier.label ? `<span class="fomo-tier-badge ${e(tier.cls)}">${e(tier.label)}</span>` : ''}
+  </div>
+  ${f.analogyNote ? `<div class="fomo-analogy">${e(f.analogyNote)}</div>` : ''}
+  <div class="fomo-card-body">
+    <div class="fomo-cell"><span class="fomo-cell-label">What They Built</span><span class="fomo-cell-value">${e(f.whatTheyBuilt || f.what || '')}</span></div>
+    <div class="fomo-cell"><span class="fomo-cell-label">AI Use Case</span><span class="fomo-cell-value">${e(f.aiUseCase || '—')}</span></div>
+    <div class="fomo-cell"><span class="fomo-cell-label">Savings / ROI</span><span class="fomo-savings">${e(f.savings || '—')}</span></div>
+    <div class="fomo-cell"><span class="fomo-cell-label">Status</span><span class="fomo-cell-value"><span class="fomo-status">${e(f.status || '')}</span></span>${f.source ? `<span style="font-size:11px;color:var(--mid);margin-top:4px;font-style:italic">${e(f.source)}</span>` : ''}</div>
+  </div>
+  ${(f.before || f.after) ? `<div class="fomo-before-after"><div class="fomo-before"><div class="fomo-ba-label">Before</div><div class="fomo-ba-text">${e(f.before || '—')}</div></div><div class="fomo-after"><div class="fomo-ba-label">After</div><div class="fomo-ba-text">${e(f.after || '—')}</div></div></div>` : ''}
+  ${f.fomoAngle ? `<div class="fomo-angle">${e(f.fomoAngle)}</div>` : ''}
+</div>`;
+        }).join('\n')
+      : `<div style="text-align:center;color:var(--mid);padding:24px;border:1px dashed var(--border);border-radius:6px;margin-top:14px">No verified competitor data found for this revenue bracket and use case.</div>`
+    );
+
+    // Opening lines
+    set('dk-opening-lines', (c.openingLines || []).map(ol =>
+      `<div class="ol-block">
+        <div class="ol-context">${e(ol.context)}</div>
+        <div class="ol-line">${e(ol.line)}</div>
+      </div>`
+    ).join(''));
+
+    // AI journey narrative
+    txt('dk-ai-narrative', c.aiJourneyNarrative || '');
   }
 })();
 </script>

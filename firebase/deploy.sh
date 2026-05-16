@@ -15,25 +15,19 @@ if [ -z "$FIREBASE_SA_KEY" ]; then
 fi
 echo "$FIREBASE_SA_KEY" > /tmp/firebase-sa.json
 export GOOGLE_APPLICATION_CREDENTIALS="/tmp/firebase-sa.json"
+unset FIREBASE_TOKEN  # expired token overrides service account — always use SA key
 
 # ── Sales resources ───────────────────────────────────────────────────────────
 echo "→ Publishing sales resources..."
 mkdir -p "$PUBLIC/resources"
 
 # Generate the pricing flyer from pricing-model.md via fill-template.js
-node "$REPO_ROOT/commons/branding/fill-template.js" --template flyer
+node "$REPO_ROOT/commons/branding/fill-template.js" --template ds-pricing-model
 echo "   resources/architect-flyer.html (from pricing-model.md)"
 
-# Generate markdown resources via the resource template (all write to firebase/public/resources/)
-for f in "$REPO_ROOT"/commons/sales/*.md; do
-  [ -f "$f" ] || continue
-  base="$(basename "$f" .md)"
-  node "$REPO_ROOT/commons/branding/fill-template.js" \
-    --template resource \
-    --name "$base" \
-    --src "$f"
-  echo "   resources/${base}.html (from .md)"
-done
+# Generate architect-guide from markdown
+node "$REPO_ROOT/commons/branding/fill-template.js" --template architect-guide
+echo "   resources/architect-guide.html (from architect-guide.md)"
 
 # ── Function dependencies ─────────────────────────────────────────────────────
 echo "→ Installing function dependencies..."

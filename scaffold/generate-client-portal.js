@@ -231,7 +231,7 @@ function buildDocCards({ archivedFiles, sourceFilesUrl, localScopingCount, intak
       : localScopingCount > 0
         ? card('📁', 'Scoping Documents', `${localScopingCount} file${localScopingCount !== 1 ? 's' : ''} — pending archive`, null, 'pending')
         : card('📁', 'Scoping Documents', 'Not yet uploaded', null, 'na'),
-    { ...card('📋', 'Intake Questionnaire', intakeUrl ? 'Awaiting response' : 'Not yet sent', intakeUrl, intakeUrl ? 'pending' : 'na'), id: 'intake-questionnaire' },
+    { ...card('📋', 'Intake Questionnaire', intakeUrl ? 'Please complete →' : 'Not yet sent', intakeUrl, intakeUrl ? 'pending' : 'na'), id: 'intake-questionnaire' },
     card('📄', 'Proposal', proposalUrl ? 'View proposal →' : 'Not yet sent', proposalUrl, proposalUrl ? 'available' : 'na'),
     docUrls2.sow         ? card('📜', 'SOW',          'View SOW →',         docUrls2.sow,          'available') : card('📜', 'SOW',          'Not yet issued',    null, 'na'),
     docUrls2.prd         ? card('📝', 'Requirements', 'View PRD →',         docUrls2.prd,          'available') : card('📝', 'Requirements', 'Not yet finalized', null, 'na'),
@@ -254,7 +254,10 @@ async function buildPortalContent(slug) {
   const architect   = proj.architect     || 'DataSkate Team';
   const archEmail   = proj.architectEmail || 'kailash@dataskate.ai';
   const targetGoLive = proj.targetGoLive || 'TBD';
-  const createdAt   = proj.createdAt     || '';
+  const fmtDate = iso => iso
+    ? new Date(iso + (iso.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '';
+  const createdAt = fmtDate(proj.createdAt);
 
   // Client logo — read from vera.json, download to intake/ and firebase/public/logos/
   let clientLogoPath = null;

@@ -2,17 +2,35 @@
   "version": "2.0",
   "updated": "2026-05-14",
   "note": "Machine-readable design standards. Agents read this before writing any HTML. Single source of truth for palette, forbidden patterns, component HTML, and template pipeline.",
-
   "palette": {
     "allowedVars": [
-      "--brand", "--brand-dk", "--dark", "--mid", "--light",
-      "--border", "--green", "--amber", "--amber-bg", "--blue-bg", "--blue-br"
+      "--brand",
+      "--brand-dk",
+      "--dark",
+      "--mid",
+      "--light",
+      "--border",
+      "--green",
+      "--amber",
+      "--amber-bg",
+      "--blue-bg",
+      "--blue-br"
     ],
-    "forbiddenVars": ["--blue", "--gray", "--navy", "--purple", "--orange"],
-    "body": { "background": "#fff" },
-    "header": { "background": "#fff", "borderBottom": "3px solid var(--brand)" }
+    "forbiddenVars": [
+      "--blue",
+      "--gray",
+      "--navy",
+      "--purple",
+      "--orange"
+    ],
+    "body": {
+      "background": "#fff"
+    },
+    "header": {
+      "background": "#fff",
+      "borderBottom": "3px solid var(--brand)"
+    }
   },
-
   "logo": {
     "format": "inline-svg",
     "heights": {
@@ -22,9 +40,8 @@
       "portal": "28px"
     },
     "required": true,
-    "note": "Always inline SVG wordmark — no text/CSS logo, no <img> tag"
+    "note": "Always inline SVG wordmark \u2014 no text/CSS logo, no <img> tag"
   },
-
   "forbidden": [
     {
       "id": "dark-header",
@@ -58,36 +75,49 @@
     },
     {
       "id": "arbitrary-hex",
-      "rule": "No arbitrary hex colors — use CSS variables from shared-base.css.html",
-      "exceptions": ["#fff", "#44546A", "#FFF0F0", "#F0FFF6", "#F2F4F8", "#1C2B3A", "#276749", "#FEF3C7", "#92400E", "#065F46", "#FEE2E2", "#991B1B", "#FED7D7"]
+      "rule": "No arbitrary hex colors \u2014 use CSS variables from shared-base.css.html",
+      "exceptions": [
+        "#fff",
+        "#44546A",
+        "#FFF0F0",
+        "#F0FFF6",
+        "#F2F4F8",
+        "#1C2B3A",
+        "#276749",
+        "#FEF3C7",
+        "#92400E",
+        "#065F46",
+        "#FEE2E2",
+        "#991B1B",
+        "#FED7D7"
+      ]
     },
     {
       "id": "external-css",
-      "rule": "No external CSS frameworks — all files must be self-contained"
+      "rule": "No external CSS frameworks \u2014 all files must be self-contained"
     },
     {
       "id": "external-fonts",
-      "rule": "No external font imports — system font stack only"
+      "rule": "No external font imports \u2014 system font stack only"
     },
     {
       "id": "text-logo",
-      "rule": "Never use a text or CSS logo — always the inline SVG wordmark"
+      "rule": "Never use a text or CSS logo \u2014 always the inline SVG wordmark"
     },
     {
       "id": "dark-metric-cards",
-      "rule": "No dark-background metric cards — use .stat-row/.stat (white bg, brand border-top)"
+      "rule": "No dark-background metric cards \u2014 use .stat-row/.stat (white bg, brand border-top)"
     },
     {
       "id": "mailto-submit",
-      "rule": "Intake forms save to Firestore only — no mailto: in form submit",
+      "rule": "Intake forms save to Firestore only \u2014 no mailto: in form submit",
       "fix": "submitForm() calls saveToFirestore()"
     },
     {
       "id": "hardcoded-emails",
-      "rule": "Never hardcode contact emails in templates — read architectEmail from project.json"
+      "rule": "Never hardcode contact emails in templates \u2014 read architectEmail from project.json"
     }
   ],
-
   "components": {
     "collapsibleSection": {
       "usage": "All proposal and multi-section documents. Replaces static <section> elements.",
@@ -100,23 +130,26 @@
       ]
     },
     "stickyBar": {
-      "usage": "Proposal documents — floats at top with navigation actions",
+      "usage": "Proposal documents \u2014 floats at top with navigation actions",
       "html": "<div class=\"sticky-bar\">\n  <span class=\"bar-title\">DataSkate x Client Name</span>\n  <button class=\"btn btn-outline\" onclick=\"toggleAllSections(this)\">Expand All</button>\n  <button class=\"btn btn-outline\" onclick=\"window.print()\">Print / PDF</button>\n  <button class=\"btn btn-primary\" onclick=\"...\">Accept this Proposal &#8594;</button>\n</div>",
       "css": ".sticky-bar { position:sticky; top:0; z-index:100; background:#fff; border-bottom:1px solid var(--border); padding:8px 40px; display:flex; align-items:center; gap:8px }",
       "printBehavior": "Hidden on print via .sticky-bar { display:none !important } in @media print"
     },
     "ucBlock": {
-      "usage": "Intake form — use case collapsible blocks",
+      "usage": "Intake form \u2014 use case collapsible blocks",
       "html": "<details class=\"uc\">\n  <summary class=\"uc-hd\">\n    <span class=\"uc-tag\">UC1</span>\n    <h3>Use Case Title</h3>\n    <span class=\"uc-chevron\">&#9660;</span>\n  </summary>\n  <div class=\"uc-body\">\n    <p class=\"uc-note\">What we already know.</p>\n  </div>\n</details>",
-      "rules": ["Collapsed by default", "Chevron rotates when open"]
+      "rules": [
+        "Collapsed by default",
+        "Chevron rotates when open"
+      ]
     },
     "questionBlock": {
-      "usage": "Intake form — individual questions",
+      "usage": "Intake form \u2014 individual questions",
       "html": "<div class=\"q\">\n  <span class=\"q-num\"></span>\n  <div class=\"q-body\">\n    <div class=\"q-text\">Question text <span class=\"req\">*</span></div>\n    <div class=\"q-hint\">Hint text.</div>\n    <textarea class=\"answer is-prefilled\" id=\"q1\" data-required=\"true\">Pre-filled</textarea>\n  </div>\n</div>",
       "answerStates": {
-        "is-prefilled": "amber left border — Scout pre-filled",
-        "is-answered": "green left border — user answered",
-        "mandatory-empty": "red border + bg — required but empty"
+        "is-prefilled": "amber left border \u2014 Scout pre-filled",
+        "is-answered": "green left border \u2014 user answered",
+        "mandatory-empty": "red border + bg \u2014 required but empty"
       }
     },
     "badges": {
@@ -138,7 +171,7 @@
       }
     },
     "businessContextPanel": {
-      "usage": "Intake form — journey phase cards",
+      "usage": "Intake form \u2014 journey phase cards",
       "html": "<div class=\"journey-grid\">\n  <div class=\"journey-card phase-1\">\n    <div class=\"jc-phase\">Phase 1</div>\n    <div class=\"jc-label\">Connected</div>\n    <div class=\"jc-headline\">Short specific headline</div>\n    <div class=\"jc-body\">1-2 sentences specific to this client.</div>\n  </div>\n</div>",
       "phaseColors": {
         "phase-1": "border-top: green",
@@ -147,16 +180,15 @@
       },
       "rules": [
         "Phase labels always: Connected, Automated, Agentic",
-        "Descriptions specific to this client — never generic",
-        "P0 Blockers get .no-print — never shown in PDF"
+        "Descriptions specific to this client \u2014 never generic",
+        "P0 Blockers get .no-print \u2014 never shown in PDF"
       ]
     },
     "scopeItems": {
       "html": "<div class=\"scope-grid\">\n  <div class=\"scope-item scope-in\"><span class=\"scope-label\">In Scope</span> Description</div>\n  <div class=\"scope-item scope-assumed\"><span class=\"scope-label\">Assumed</span> Description</div>\n  <div class=\"scope-item scope-out\"><span class=\"scope-label\">Out of Scope</span> Description</div>\n</div>",
-      "rule": "Neutral #FAFAFA bg on all items — label color is the only differentiator"
+      "rule": "Neutral #FAFAFA bg on all items \u2014 label color is the only differentiator"
     }
   },
-
   "print": {
     "rules": [
       "All collapsible section bodies must show in print regardless of open state",
@@ -166,18 +198,63 @@
     ],
     "css": "@media print { .no-print, .sticky-bar { display:none !important } details.section-block > .section-body { display:block !important } .section-chevron { display:none } }"
   },
-
   "templates": {
-    "proposal":         { "shell": "commons/templates/proposal-template.html",       "content": "projects/{client}/intake/proposal-content.json",        "output": "projects/{client}/intake/proposal-{client}.html",               "cmd": "node commons/branding/fill-template.js --template proposal --client {client}" },
-    "intake":           { "shell": "commons/templates/intake-template.html",          "content": "projects/{client}/intake/intake-content.json",           "output": "projects/{client}/intake/intake-questionnaire-{client}.html",   "cmd": "node commons/branding/fill-template.js --template intake --client {client}", "frozen": true },
-    "integration-deck": { "shell": "commons/templates/integration-deck-template.html","content": "projects/{client}/intake/integration-deck-content.json",  "output": "projects/{client}/intake/integration-deck-{client}.html",      "cmd": "node commons/branding/fill-template.js --template integration-deck --client {client}" },
-    "client-portal":    { "shell": "commons/templates/client-portal-template.html",   "content": "projects/{client}/portal-content.json",                  "output": "firebase/public/portal/{client}.html",                         "cmd": "node commons/branding/fill-template.js --template client-portal --client {client}" },
-    "ds-pricing-model": { "shell": "commons/templates/ds-pricing-model-template.html","content": null,                                                      "output": "firebase/public/resources/ds-pricing-model.html",             "cmd": "node commons/branding/fill-template.js --template ds-pricing-model" },
-    "architect-guide":  { "shell": "commons/templates/architect-guide-template.html", "content": null,                                                      "output": "firebase/public/resources/architect-guide.html",              "cmd": "node commons/branding/fill-template.js --template architect-guide" }
+    "proposal": {
+      "shell": "commons/templates/proposal-template.html",
+      "content": "projects/{client}/intake/proposal-content.json",
+      "output": "projects/{client}/intake/proposal-{client}.html",
+      "cmd": "node commons/branding/fill-template.js --template proposal --client {client}"
+    },
+    "intake": {
+      "shell": "commons/templates/intake-template.html",
+      "content": "projects/{client}/intake/intake-content.json",
+      "output": "projects/{client}/intake/intake-questionnaire-{client}.html",
+      "cmd": "node commons/branding/fill-template.js --template intake --client {client}",
+      "frozen": true
+    },
+    "integration-deck": {
+      "shell": "commons/templates/integration-deck-template.html",
+      "content": "projects/{client}/intake/integration-deck-content.json",
+      "output": "projects/{client}/intake/integration-deck-{client}.html",
+      "cmd": "node commons/branding/fill-template.js --template integration-deck --client {client}"
+    },
+    "client-portal": {
+      "shell": "commons/templates/client-portal-template.html",
+      "content": "projects/{client}/portal-content.json",
+      "output": "firebase/public/portal/{client}.html",
+      "cmd": "node commons/branding/fill-template.js --template client-portal --client {client}"
+    },
+    "ds-pricing-model": {
+      "shell": "commons/templates/ds-pricing-model-template.html",
+      "content": null,
+      "output": "firebase/public/resources/ds-pricing-model.html",
+      "cmd": "node commons/branding/fill-template.js --template ds-pricing-model"
+    },
+    "architect-guide": {
+      "shell": "commons/templates/architect-guide-template.html",
+      "content": null,
+      "output": "firebase/public/resources/architect-guide.html",
+      "cmd": "node commons/branding/fill-template.js --template architect-guide"
+    }
   },
-
   "accessRules": {
     "internal": "Firebase Google auth required, restricted to @dataskate.ai",
-    "external": "Publicly accessible — share via direct link or embed in client portal"
+    "external": "Publicly accessible \u2014 share via direct link or embed in client portal"
+  },
+  "dateFormat": {
+    "standard": "Month DD, YYYY",
+    "example": "May 15, 2026",
+    "locale": "en-US",
+    "localeOptions": {
+      "year": "numeric",
+      "month": "long",
+      "day": "numeric"
+    },
+    "forbidden": [
+      "ISO 8601 (2026-05-14)",
+      "MM/DD/YYYY",
+      "DD/MM/YYYY"
+    ],
+    "note": "All user-visible dates across portals, proposals, and intake forms must use this format. ISO dates from JSON/storage must be converted at render time."
   }
 }
