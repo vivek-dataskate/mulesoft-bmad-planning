@@ -376,7 +376,7 @@ async function loadProjects() {
     projects = await r.json();
   } catch {
     document.getElementById('project-tbody').innerHTML =
-      '<tr class="empty-row"><td colspan="4">Could not load projects manifest.</td></tr>';
+      '<tr class="empty-row"><td colspan="4">Could not load projects manifest. <a href="#" onclick="loadProjects();return false;" style="color:var(--brand);font-weight:700;">Retry</a></td></tr>';
     return;
   }
 
@@ -462,11 +462,17 @@ function renderProjects(projects, intakeMap) {
       badgeCls  = 'badge-submitted';
       badgeText = 'Intake Submitted';
       intakeSub = intake.count + ' answer' + (intake.count !== 1 ? 's' : '');
-    } else {
-      badgeCls  = 'badge-none';
+    } else if (intake.state === 'sent') {
+      badgeCls  = 'badge-progress';
       badgeText = 'Intake Sent';
       intakeSub = 'Awaiting submission';
+    } else {
+      badgeCls  = 'badge-none';
+      badgeText = 'Not Sent';
+      intakeSub = '';
     }
+
+    const clickable = intake.state !== 'none';
 
     // Last activity: prefer intake Firestore timestamp, fall back to manifest
     let lastActivity = '—';
@@ -477,20 +483,22 @@ function renderProjects(projects, intakeMap) {
       lastActivity = 'Created ' + p.createdAt;
     }
 
+    const statusCell = clickable
+      ? `<div class="intake-cell" onclick="viewResponses('${esc(p.id)}', '${esc(p.name)}')">
+          <div>
+            <span class="intake-badge ${badgeCls}">${badgeText}</span>
+            <div style="font-size:11px;color:var(--mid);margin-top:4px">${intakeSub}</div>
+          </div>
+        </div>`
+      : `<span class="intake-badge ${badgeCls}">${badgeText}</span>`;
+
     return `<tr>
       <td>
         <a class="client-name" href="/portal/${esc(p.id)}.html" target="_blank">${esc(p.name)}</a>
         <div class="client-sub">${esc(p.createdAt || '')}</div>
       </td>
       <td style="font-size:13px;color:var(--mid)">${esc(p.architect || '—')}</td>
-      <td>
-        <div class="intake-cell" onclick="viewResponses('${esc(p.id)}', '${esc(p.name)}')">
-          <div>
-            <span class="intake-badge ${badgeCls}">${badgeText}</span>
-            <div style="font-size:11px;color:var(--mid);margin-top:4px">${intakeSub}</div>
-          </div>
-        </div>
-      </td>
+      <td>${statusCell}</td>
       <td style="font-size:12px;color:var(--mid)">${lastActivity}</td>
     </tr>`;
   }).join('');
