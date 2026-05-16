@@ -28,6 +28,29 @@ That is the arc. Integrations are step one — but the destination is an operati
 
 The 1-year managed service gets the client to Stage 2. Renewal opens Stage 3.
 
+<div class="dg-flow">
+  <div class="dg-step">
+    <div class="dg-step-num">Stage 1</div>
+    <div class="dg-step-name">Connected</div>
+    <div class="dg-step-tag">Year 1</div>
+    <div class="dg-step-desc">Systems talk to each other. Data moves automatically. Manual exports stop.</div>
+  </div>
+  <div class="dg-arrow">→</div>
+  <div class="dg-step">
+    <div class="dg-step-num">Stage 2</div>
+    <div class="dg-step-name">Automated</div>
+    <div class="dg-step-tag">Year 1</div>
+    <div class="dg-step-desc">Rules and triggers fire without human involvement. Workflows run on their own.</div>
+  </div>
+  <div class="dg-arrow">→</div>
+  <div class="dg-step highlight">
+    <div class="dg-step-num">Stage 3</div>
+    <div class="dg-step-name">Agentic</div>
+    <div class="dg-step-tag">Renewal+</div>
+    <div class="dg-step-desc">AI agents monitor, detect patterns, and act. The team approves — not executes.</div>
+  </div>
+</div>
+
 ### What We Guarantee
 
 - **Delivery timeline is contractual.** 2 weeks for requirements, then 1.5 weeks per flow.
@@ -75,6 +98,27 @@ None of these companies started with AI. They started by connecting their system
 
 Every proposal shows exactly these two models. No hybrids, no bundles.
 
+<div class="dg-cards">
+  <div class="dg-card primary">
+    <div class="dg-card-label">Recommended</div>
+    <div class="dg-card-title">IaaS — Managed Service</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Implementation fee</span><strong>$0 — included</strong></div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Ongoing</span><strong>$300/flow/month</strong></div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Commitment</span>1-year minimum per flow</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Who runs it</span>DataSkate — 24/7 uptime, upgrades, tuning</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Use when</span>Client has no dedicated integration engineer</div>
+  </div>
+  <div class="dg-card">
+    <div class="dg-card-label">Alternative</div>
+    <div class="dg-card-title">Implementation Only</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Implementation fee</span><strong>$3,500/flow</strong></div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Ongoing</span>None — code transfers at UAT</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Commitment</span>None after delivery</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Who runs it</span>Client owns all ops from day one</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Use when</span>Client has a developer who will maintain it</div>
+  </div>
+</div>
+
 ### IaaS Kickoff Retainer
 
 | Engagement Size | Retainer |
@@ -110,6 +154,29 @@ Escalates 5% every 6 months. No discounts, no exceptions. Flows scoped now lock 
 - Requirements phase: 2 weeks (flat, all engagements)
 - Development: 1.5 weeks per flow
 - 5 flows → 9.5 weeks | 7 flows → 12.5 weeks | 10 flows → 17 weeks
+
+<div class="dg-timeline">
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">Requirements</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar req" style="width:12%">2 wks</div></div>
+    <div class="dg-tl-weeks">2 weeks</div>
+  </div>
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">5 flows</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:56%">+ 7.5 wks dev</div></div>
+    <div class="dg-tl-weeks">9.5 weeks</div>
+  </div>
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">7 flows</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:74%">+ 10.5 wks dev</div></div>
+    <div class="dg-tl-weeks">12.5 weeks</div>
+  </div>
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">10 flows</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:100%">+ 15 wks dev</div></div>
+    <div class="dg-tl-weeks">17 weeks</div>
+  </div>
+</div>
 
 ---
 
@@ -359,6 +426,22 @@ When a client has a developer and plans to own integration maintenance, do not p
 |---|---|---|
 | Phase 1 — Connected | Client's developer | Integration flows built by DataSkate, maintained in-house |
 | Phase 2 — Automated & Agentic | DataSkate (SOW) | AI agents that use the connected data to automate workflows |
+
+<div class="dg-flow">
+  <div class="dg-step">
+    <div class="dg-step-num">Phase 1</div>
+    <div class="dg-step-name">Connected</div>
+    <div class="dg-step-tag">Client owns ops</div>
+    <div class="dg-step-desc">DataSkate builds. Client developer maintains. Code lives in their GitHub.</div>
+  </div>
+  <div class="dg-arrow">→</div>
+  <div class="dg-step highlight">
+    <div class="dg-step-num">Phase 2</div>
+    <div class="dg-step-name">Agentic</div>
+    <div class="dg-step-tag">DataSkate SOW</div>
+    <div class="dg-step-desc">AI agents act on connected data. Separate engagement, scoped at go-live.</div>
+  </div>
+</div>
 
 ### What to Say
 
