@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataSkate × <!-- FILL:client-name --> — Engagement Portal</title>
+<title>DataSkate — Engagement Portal</title>
 <!-- FILL:__css -->
 <style>
 a { text-decoration: none; }
@@ -13,11 +13,9 @@ a { text-decoration: none; }
 .header-top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; }
 .header-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .client-logo-block { display: flex; align-items: center; gap: 8px; margin-left: 4px; }
-.client-logo-sep { width: 1px; height: 28px; background: var(--border); margin-right: 4px; }
-.client-logo-img { height: 28px; width: auto; max-width: 140px; object-fit: contain; }
-.header-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--brand-dk); }
-.header-client { font-size: 28px; font-weight: 900; line-height: 1.15; border-left: 4px solid var(--brand); padding-left: 16px; margin-top: 4px; color: var(--dark); }
-.header-sub { font-size: 13px; color: var(--mid); padding-left: 20px; margin-top: 2px; }
+.client-logo-sep { width: 1px; height: 56px; background: var(--border); margin-right: 4px; }
+.client-logo-img { height: 56px; width: auto; max-width: 200px; object-fit: contain; }
+.header-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand-dk); }
 .header-phase-col { display: flex; align-items: center; padding: 8px 16px 14px; }
 .header-phase-col .phase-bar { width: 100%; padding: 0; }
 .arch-badge { background: var(--light); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; min-width: 180px; }
@@ -26,18 +24,16 @@ a { text-decoration: none; }
 .arch-email { font-size: 12px; color: var(--mid); margin-top: 2px; }
 .arch-email a { color: var(--brand); }
 .header-meta { display: flex; gap: 0; border-top: 1px solid var(--border); font-size: 12px; color: var(--mid); flex-wrap: wrap; margin: 16px -40px 0; padding: 0 40px; }
-.header-meta span { padding: 8px 24px 8px 0; margin-right: 24px; border-right: 1px solid var(--border); }
-.header-meta span:last-child { border-right: none; }
+.header-meta span { padding: 8px 24px 8px 0; margin-right: 24px; }
 
 /* ── LAYOUT ── */
-.container { max-width: 1400px; margin: 0 auto; padding: 0 40px 80px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 0 40px 48px; }
 
 /* ── SECTION ── */
-.section { border-bottom: 1px solid var(--border); padding: 40px 0; }
-.section:last-child { border-bottom: none; }
-.section-head { display: flex; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--border); margin-bottom: 20px; padding-bottom: 12px; }
+.section { padding: 24px 0; }
+.section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; padding-bottom: 10px; }
 .section-num { font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.5px; }
-.section-title { font-size: 18px; font-weight: 700; color: var(--dark); }
+.section-title { font-size: 20px; font-weight: 700; color: var(--dark); }
 .section-body { padding: 0; }
 
 /* ── PHASE BAR ── */
@@ -53,17 +49,19 @@ a { text-decoration: none; }
 .phase-future .phase-dot { background: #F3F4F6; border-color: #D1D5DB; }
 
 /* ── DOC CARDS ── */
-.doc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.doc-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 10px; }
+.doc-grid > *:nth-child(-n+4) { grid-column: span 5; }
+.doc-grid > *:nth-child(n+5)  { grid-column: span 4; }
 .doc-card { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 7px; transition: border-color .15s, box-shadow .15s; cursor: default; }
 a.doc-card { cursor: pointer; }
 a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,.1); }
 .doc-available { border-color: #A7F3D0; }
 .doc-pending { border-color: #FDE68A; background: var(--amber-bg); }
 .doc-na { border-color: var(--border); background: #FAFAFA; }
-.doc-icon { font-size: 18px; flex-shrink: 0; }
+.doc-icon { font-size: 22px; flex-shrink: 0; }
 .doc-info { flex: 1; min-width: 0; }
-.doc-title { font-size: 12px; font-weight: 700; color: var(--dark); }
-.doc-sub { font-size: 10px; color: var(--mid); margin-top: 1px; }
+.doc-title { font-size: 14px; font-weight: 700; color: var(--dark); }
+.doc-sub { font-size: 12px; color: var(--mid); margin-top: 2px; }
 .doc-arrow { font-size: 14px; color: var(--brand); flex-shrink: 0; }
 .doc-na .doc-title { color: var(--mid); }
 
@@ -159,9 +157,7 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
         </svg>
         <!-- FILL:client-logo -->
       </div>
-      <div class="header-eyebrow">DataSkate × <!-- FILL:client-name --> — Engagement Portal</div>
-      <div class="header-client"><!-- FILL:client-name --></div>
-      <div class="header-sub"><!-- FILL:engagement-type --></div>
+      <div class="header-eyebrow">Engagement Portal</div>
     </div>
     <div class="header-phase-col">
       <div class="phase-bar"><!-- FILL:phase-bar --></div>
@@ -174,8 +170,6 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
   </div>
   <div class="header-meta">
     <span>Project started: <!-- FILL:project-started --></span>
-    <span>Target go-live: <!-- FILL:target-go-live --></span>
-    <span>Updated: <!-- FILL:updated --></span>
   </div>
 </div>
 
@@ -220,23 +214,43 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
   firebase.initializeApp(FIREBASE_CONFIG);
   const db = firebase.firestore();
 
-  db.collection('intake_responses').doc(CLIENT_SLUG).get().then(doc => {
+  Promise.all([
+    db.collection('intake_responses').doc(CLIENT_SLUG).get().catch(() => null),
+    fetch('/projects-manifest.json').then(r => r.json()).catch(() => [])
+  ]).then(([intakeDoc, manifest]) => {
     const card = document.getElementById('card-intake-questionnaire');
     if (!card) return;
 
-    const submittedAt = doc.exists ? (doc.data().submittedAt || doc.data().completedAt || null) : null;
+    const proj = (manifest || []).find(p => p.id === CLIENT_SLUG) || {};
+    const intakePublished = !!proj.intakePublished;
+    const submittedAt = intakeDoc && intakeDoc.exists
+      ? (intakeDoc.data().submittedAt || intakeDoc.data().completedAt || null)
+      : null;
 
-    if (submittedAt) {
+    const state = submittedAt ? 'submitted' : (intakePublished ? 'sent' : 'none');
+
+    if (state === 'submitted') {
       const date = new Date(submittedAt.seconds * 1000)
         .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      card.outerHTML = `<div id="card-intake-questionnaire" class="doc-card doc-available">
+      card.outerHTML = `<div class="doc-card doc-available">
         <div class="doc-icon">✅</div>
         <div class="doc-info">
           <div class="doc-title">Intake Questionnaire</div>
           <div class="doc-sub">Submitted ${date}</div>
         </div>
       </div>`;
+    } else if (state === 'sent') {
+      const href = proj.intakeUrl ? ` href="${proj.intakeUrl}" target="_blank"` : '';
+      card.outerHTML = `<a class="doc-card doc-pending"${href}>
+        <div class="doc-icon">📋</div>
+        <div class="doc-info">
+          <div class="doc-title">Intake Questionnaire</div>
+          <div class="doc-sub">Please complete →</div>
+        </div>
+        ${href ? '<div class="doc-arrow">→</div>' : ''}
+      </a>`;
     }
+    // state === 'none': card stays as static doc-na "Not yet sent"
 
     if (SOW_SIGNED) {
       document.querySelectorAll('a.doc-card').forEach(a => {
@@ -246,7 +260,7 @@ a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28
         a.replaceWith(div);
       });
     }
-  }).catch(() => {});
+  });
 })();
 </script>
 

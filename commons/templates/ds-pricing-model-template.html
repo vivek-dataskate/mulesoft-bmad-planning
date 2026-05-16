@@ -9,29 +9,33 @@ body { width: 210mm; min-height: 297mm; }
 .page { padding: 14mm 14mm 10mm; display: flex; flex-direction: column; gap: 10px; }
 
 /* ── HEADER ── */
-.header { background: #fff; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 3px solid var(--brand); gap: 12px; }
+.header { background: #fff; display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 3px solid var(--brand); gap: 12px; }
 .header-tagline { font-size: 13px; color: var(--mid); font-weight: 500; text-align: right; }
 
 /* ── SECTION LABEL ── */
 .section-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--brand); margin-bottom: 5px; }
 
 /* ── MODEL CARDS ── */
-.models { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.models { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .model-card { border-radius: 8px; padding: 12px 14px; }
 .model-card.iaas { background: var(--light); border: 1.5px solid var(--brand); }
 .model-card.impl { background: #F0FFF4; border: 1.5px solid #68D391; }
+.model-card.tm   { background: var(--blue-bg); border: 1.5px solid var(--blue-br); }
 .model-title { font-size: 13px; font-weight: 800; margin-bottom: 2px; }
 .model-card.iaas .model-title { color: var(--brand-dk); }
 .model-card.impl .model-title { color: var(--green); }
+.model-card.tm   .model-title { color: #1e40af; }
 .model-sub { font-size: 10px; color: var(--mid); margin-bottom: 8px; }
 .model-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
 .model-row:last-of-type { border-bottom: none; }
 .model-row .lbl { color: var(--mid); }
 .model-row .val { font-weight: 700; color: var(--dark); }
 .model-row .val.big { font-size: 14px; color: var(--brand); }
+.model-card.tm .model-row .val.big { color: #1e40af; }
 .badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-top: 6px; }
 .badge.recommended { background: var(--light); color: var(--brand-dk); }
 .badge.green { background: #D1FAE5; color: #065F46; }
+.badge.blue  { background: #DBEAFE; color: #1e40af; }
 
 /* ── TWO-COLUMN LAYOUT ── */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -92,8 +96,8 @@ body { width: 210mm; min-height: 297mm; }
     <div class="header-tagline"><!-- FILL:header-tagline --><br><span style="font-size:10px;">Confidential — For AE &amp; Client Discussion</span></div>
   </div>
 
-  <!-- Two Models -->
-  <div class="section-label">Two Models. That's It.</div>
+  <!-- Three Models -->
+  <div class="section-label">Three Models. Pick One.</div>
   <div class="models">
 
     <div class="model-card iaas">
@@ -118,6 +122,15 @@ body { width: 210mm; min-height: 297mm; }
       <div class="model-row"><span class="lbl">Ongoing fees</span><span class="val">None — code transfers at UAT</span></div>
       <div class="model-row"><span class="lbl">Phase 2 path</span><span class="val">Agent development SOW</span></div>
       <span class="badge green">Use when client self-maintains</span>
+    </div>
+
+    <div class="model-card tm">
+      <div class="model-title">T&amp;M — Time &amp; Materials</div>
+      <div class="model-sub">Pay for actual hours; scope can flex mid-project</div>
+      <!-- FILL:tm-card-rows -->
+      <div class="model-row"><span class="lbl">Invoicing</span><span class="val"><!-- FILL:tm-invoice -->, actual hrs</span></div>
+      <div class="model-row"><span class="lbl">Minimum</span><span class="val"><!-- FILL:tm-minimum --></span></div>
+      <span class="badge blue">Use when scope is flexible</span>
     </div>
 
   </div>

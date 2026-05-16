@@ -75,7 +75,7 @@ const typeConfig = {
   'integration-deck': {
     requiresClient: true,
     contentFile: (c) => path.join(root, 'projects', c, 'intake', 'integration-deck-content.json'),
-    outFile:     (c) => path.join(root, 'projects', c, 'intake', `integration-deck-${c}.html`),
+    outFile:     (c) => path.join(root, 'firebase', 'public', 'internal', `integration-deck-${c}.html`),
   },
 };
 
@@ -147,7 +147,8 @@ if (templateType === 'proposal') {
 } else if (templateType === 'ds-pricing-model') {
   buildFlyer(content);
 } else if (templateType === 'integration-deck') {
-  buildIntegrationDeck(content);
+  // Shell only — content lives in Firestore, fetched post-auth at runtime
+  fill('client-slug', client);
 } else if (templateType === 'architect-guide') {
   buildResource(content);
 }
@@ -158,6 +159,10 @@ console.log(`✓ Written: ${outFile}`);
 
 if (templateType === 'proposal' && client) {
   saveProposalContentToFirestore(content, client);
+}
+
+if (templateType === 'integration-deck' && client) {
+  savePitchKitToFirestore(content, client);
 }
 
 // ─── PROPOSAL ────────────────────────────────────────────────────────────────
@@ -368,11 +373,13 @@ function buildProposal(c) {
 </details>`
     : '');
 
-  // Investment / Pricing — loads rates from pricing-model.md (single source of truth)
+  // Investment / Pricing — loads rates from pricing-model.md and tm-rates.json
   if (c.pricing) {
     const pmPath = path.join(root, 'commons', 'sales', 'pricing-model.md');
     const pmText = fs.existsSync(pmPath) ? fs.readFileSync(pmPath, 'utf8') : '';
     const pm = parsePricingModelMd(pmText);
+    const tmPath2 = path.join(root, 'commons', 'sales', 'tm-rates.json');
+    const tmData = fs.existsSync(tmPath2) ? JSON.parse(fs.readFileSync(tmPath2, 'utf8')) : null;
     fill('investment-section', `<details class="section-block" id="investment-details">
   <summary class="section-head">
     <div class="section-summary">
@@ -382,11 +389,18 @@ function buildProposal(c) {
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    ${buildInvestmentSection(pm, m.flowCount)}
+    ${buildInvestmentSection(pm, m.flowCount, tmData, primaryProfile)}
   </div>
 </details>`);
+    // Fill proposal JS constants so Firestore acceptance records real values
+    fill('proposal-rate',       String(pm.baseRate));
+    fill('proposal-flow-count', String(m.flowCount));
+    fill('proposal-model',      'iaas');
   } else {
     fill('investment-section', '');
+    fill('proposal-rate',       '0');
+    fill('proposal-flow-count', '0');
+    fill('proposal-model',      '');
   }
 
   // About DataSkate — read from commons/sales/about-dataskate.md at build time
@@ -465,7 +479,16 @@ function parsePricingModelMd(mdText) {
   return { baseRate, p2rate, implPerFlow, retainer1, retainer2 };
 }
 
-function buildInvestmentSection(pm, flowCount) {
+// Psychology profile → recommended model mapping
+const PROFILE_RECOMMENDED_MODEL = {
+  'roi-analytical':     'iaas',   // predictable ROI, structured commitment
+  'risk-averse':        'iaas',   // DataSkate owns outcomes
+  'relationship-builder': 'iaas', // ongoing engagement, renewal
+  'technical-champion': 'tm',     // sees every hour, maximum control
+  'budget-conscious':   'impl',   // one-time fee, no recurring
+};
+
+function buildInvestmentSection(pm, flowCount, tm, primaryProfile) {
   const n        = flowCount;
   const fmt      = v => '$' + Math.round(v).toLocaleString('en-US');
   const fmtD     = v => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -475,11 +498,56 @@ function buildInvestmentSection(pm, flowCount) {
   const implTotal = pm.implPerFlow * n;
   const retainer  = n <= 5 ? pm.retainer1 : pm.retainer2;
   const weeks     = Math.ceil(2 + 1.5 * n);
-
   const diff = yearTotal - implTotal;
 
+  // Psychology-driven model highlight
+  const recModel = PROFILE_RECOMMENDED_MODEL[primaryProfile] || 'iaas';
+  const iaasRec  = recModel === 'iaas' ? ' recommended' : '';
+  const implRec  = recModel === 'impl' ? ' recommended' : '';
+  const tmRec    = recModel === 'tm'   ? ' recommended' : '';
+
+  // T&M calculations
+  let tmCardHtml = '';
+  let tmSectionHtml = '';
+  if (tm) {
+    const tmPerFlow = tm.resources.reduce((s, r) => s + r.ratePerHour * r.typicalHoursPerFlow, 0);
+    const tmTotal   = tmPerFlow * n;
+    tmCardHtml = `<div class="model-card${tmRec}" data-model="tm">
+  ${tmRec ? '<div class="rec-badge">Recommended for you</div>' : ''}
+  <div class="model-name">Model 3 — Time &amp; Materials</div>
+  <div class="model-impl">${fmt(tmTotal)}</div>
+  <div class="model-impl-label">Estimated total · ${n} flow${n !== 1 ? 's' : ''} · billed on actual hours logged</div>
+  <hr class="model-divider">
+  <div class="best-for">Resource rates</div>
+  <table class="tm-rate-table">
+    <thead><tr><th>Role</th><th>Rate/hr</th><th>~hrs/flow</th></tr></thead>
+    <tbody>
+      ${tm.resources.map(r => `<tr><td>${esc(r.role)}</td><td>${fmtD(r.ratePerHour)}</td><td>~${r.typicalHoursPerFlow}h</td></tr>`).join('\n      ')}
+    </tbody>
+  </table>
+  <div class="model-vp">Scope can evolve mid-engagement. DataSkate logs hours in a shared sheet; you only pay for actual work done. Ideal when requirements are still forming.</div>
+  <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('tm','Model 3 — Time &amp; Materials','${fmt(tmPerFlow)}/flow est.')">Select this Model →</button>
+</div>`;
+    tmSectionHtml = `<div id="tm-rate-section" style="display:none">
+  <div class="managed-intro">
+    <h3>T&amp;M Resource Breakdown</h3>
+    <p>Estimates based on typical hours per flow. Actual hours may vary; scope increases require written approval before work begins.</p>
+  </div>
+  <table class="managed-table">
+    <thead>
+      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (${n} flows)</th><th>Estimated cost</th></tr>
+    </thead>
+    <tbody>
+      ${tm.resources.map(r => `<tr><td>${esc(r.role)}</td><td>${fmtD(r.ratePerHour)}</td><td>~${r.typicalHoursPerFlow * n}h</td><td>${fmt(r.ratePerHour * r.typicalHoursPerFlow * n)}</td></tr>`).join('\n      ')}
+      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>${fmt(tm.resources.reduce((s, r) => s + r.ratePerHour * r.typicalHoursPerFlow * n, 0))}</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced ${esc(tm.invoiceCycle)} based on actual hours logged. Minimum engagement: ${tm.minimumHours} hours. Time tracked via shared sheet provided at SOW signing.</p>
+</div>`;
+  }
+
   return `<div class="model-grid">
-  <div class="model-card recommended" data-model="iaas">
+  <div class="model-card${iaasRec}" data-model="iaas">
     <div class="rec-badge">Recommended</div>
     <div class="model-name">Model 1 — IaaS (Managed Service)</div>
     <div class="model-impl">${fmt(yearTotal)}</div>
@@ -1158,9 +1226,24 @@ function buildFlyer(md) {
   fill('iaas-period2',   `${fmtD(p2rate)}/flow/mo`);
   fill('retainer-range', `${fmt(retainer1)}–${fmt(retainer2)}`);
   fill('impl-rate',      fmt(stdImpl));
-  fill('phase2-body',    'Once systems are connected, DataSkate returns for a Phase 2 SOW: AI agents that use those integrations to automate workflows, surface decisions, and reduce manual operations. Available under both models.');
+  fill('phase2-body',    'Once systems are connected, DataSkate returns for a Phase 2 SOW: AI agents that use those integrations to automate workflows, surface decisions, and reduce manual operations. Available under all three models.');
   fill('footer-address', '196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550');
   fill('footer-contact', 'dataskate.ai | kailash@dataskate.ai');
+
+  // T&M model
+  const tmPath = path.join(root, 'commons', 'sales', 'tm-rates.json');
+  const tm = fs.existsSync(tmPath) ? JSON.parse(fs.readFileSync(tmPath, 'utf8')) : null;
+  if (tm) {
+    fill('tm-card-rows', tm.resources.map(r =>
+      `<div class="model-row"><span class="lbl">${esc(r.role)}</span><span class="val big">$${r.ratePerHour}<span style="font-size:9px;font-weight:400;color:var(--mid);">/hr · ~${r.typicalHoursPerFlow}h/flow</span></span></div>`
+    ).join('\n      '));
+    fill('tm-invoice', esc(tm.invoiceCycle));
+    fill('tm-minimum', `${tm.minimumHours} hrs`);
+  } else {
+    fill('tm-card-rows', '');
+    fill('tm-invoice', 'bi-weekly');
+    fill('tm-minimum', '80 hrs');
+  }
 
   fill('change-order-rows', [
     ['Config',       'Field mapping, credentials, tuning',    '<strong>Free</strong>'],
@@ -1365,6 +1448,24 @@ function mdToHtml(md) {
       }
     }
 
+    // Raw HTML block — pass through verbatim (for inline diagrams/SVGs)
+    if (/^<(div|figure|svg|section|aside|details|summary)[\s>]/.test(trimmed)) {
+      const htmlLines = [];
+      const openTag = trimmed.match(/^<(\w+)/)[1];
+      let depth = 0;
+      while (i < lines.length) {
+        const l = lines[i];
+        const t = l.trim();
+        depth += (t.match(new RegExp(`<${openTag}[\\s>]`, 'g')) || []).length;
+        depth -= (t.match(new RegExp(`</${openTag}>`, 'g')) || []).length;
+        htmlLines.push(l);
+        i++;
+        if (depth <= 0) break;
+      }
+      blocks.push(htmlLines.join('\n'));
+      continue;
+    }
+
     // Horizontal rule
     if (/^[-*_]{3,}$/.test(trimmed)) {
       blocks.push('<hr>');
@@ -1508,6 +1609,31 @@ function saveProposalContentToFirestore(contentObj, clientSlug) {
     else console.warn(`⚠ Firestore save returned HTTP ${res.statusCode} for proposalContent/${clientSlug}`);
   });
   req.on('error', err => console.warn(`⚠ Firestore save failed: ${err.message}`));
+  req.write(body);
+  req.end();
+}
+
+function savePitchKitToFirestore(contentObj, clientSlug) {
+  const https   = require('https');
+  const API_KEY = 'AIzaSyDCpzgZAMWWGwedG5At5Ml3gn_yA0dRVZk';
+  const body    = JSON.stringify({
+    fields: {
+      client:      { stringValue: clientSlug },
+      contentJson: { stringValue: JSON.stringify(contentObj) },
+      generatedAt: { stringValue: new Date().toISOString() }
+    }
+  });
+  const options = {
+    hostname: 'firestore.googleapis.com',
+    path:     `/v1/projects/dataskateclients/databases/(default)/documents/pitchKits/${clientSlug}?key=${API_KEY}`,
+    method:   'PATCH',
+    headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+  };
+  const req = https.request(options, res => {
+    if (res.statusCode === 200) console.log(`✓ Pitch kit saved to Firestore: pitchKits/${clientSlug}`);
+    else console.warn(`⚠ Firestore save returned HTTP ${res.statusCode} for pitchKits/${clientSlug}`);
+  });
+  req.on('error', err => console.warn(`⚠ Firestore pitch kit save failed: ${err.message}`));
   req.write(body);
   req.end();
 }

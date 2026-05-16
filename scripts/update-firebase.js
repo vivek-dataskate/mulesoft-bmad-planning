@@ -111,25 +111,32 @@ async function archiveScoping(slug) {
 }
 
 // ── 2. Upload intake + proposal HTML → Firebase Storage (public) ─────────────
-// HTML files are uploaded directly to Storage and served via public Storage URL.
-// No local firebase/public/ copy needed — files go straight from intake/ to Storage.
+// Files are kept locally in firebase/public/{type}/ for git tracking and also
+// uploaded to Storage for serving. Source files in projects/{slug}/intake/ are
+// not deleted.
 async function uploadHtmlToStorage(slug) {
   const intakeDir = path.join(ROOT, 'projects', slug, 'intake');
   if (!fs.existsSync(intakeDir)) return;
 
+  // [localFilename, storageDest, projectJsonKey, firebase/public/ subdir]
   const pairs = [
-    [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,        'intakeUrl'],
-    [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`,       'proposalUrl'],
-    [`pitch-kit-${slug}.html`,            `internal/${slug}/pitch-kit.html`,         'pitchKitUrl'],
+    [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,  'intakeUrl',   'intake'],
+    [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`, 'proposalUrl', 'proposal'],
+    [`pitch-kit-${slug}.html`,            `internal/${slug}/pitch-kit.html`,   'pitchKitUrl', 'pitch-kit'],
   ];
 
   const projPath = path.join(ROOT, 'projects', slug, 'project.json');
   const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
   let changed = false;
 
-  for (const [src, dest, urlKey] of pairs) {
+  for (const [src, dest, urlKey, pubSubdir] of pairs) {
     const srcPath = path.join(intakeDir, src);
     if (!fs.existsSync(srcPath)) continue;
+
+    // Copy to firebase/public/{subdir}/ for git tracking
+    const pubDir = path.join(PUBLIC, pubSubdir);
+    fs.mkdirSync(pubDir, { recursive: true });
+    fs.copyFileSync(srcPath, path.join(pubDir, `${slug}.html`));
 
     const bucket = getBucket();
     process.stdout.write(`  [${slug}] uploading ${src} → Storage ... `);
@@ -141,7 +148,6 @@ async function uploadHtmlToStorage(slug) {
     const url = `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedDest}?alt=media`;
     console.log('done');
 
-    fs.unlinkSync(srcPath);
     if (proj[urlKey] !== url) {
       proj[urlKey] = url;
       changed = true;
@@ -155,13 +161,17 @@ async function uploadHtmlToStorage(slug) {
 }
 
 
-// ── Clean up generated HTML from local disk after deploy ─────────────────────
-function cleanupLocal() {
-  for (const dir of ['portal']) {
-    const p = path.join(PUBLIC, dir);
-    if (fs.existsSync(p)) fs.rmSync(p, { recursive: true, force: true });
+// ── Commit all generated HTML in firebase/public/ to git ─────────────────────
+function gitCommitHtml() {
+  try {
+    execSync('git add firebase/public/', { cwd: ROOT, stdio: 'pipe' });
+    const status = execSync('git status --porcelain firebase/public/', { cwd: ROOT }).toString().trim();
+    if (!status) { log('git: no HTML changes to commit'); return; }
+    execSync('git commit -m "chore: sync generated HTML to firebase/public"', { cwd: ROOT, stdio: 'inherit' });
+    log('HTML files committed to git');
+  } catch (e) {
+    log(`git commit skipped: ${e.message}`);
   }
-  log('Local portal HTML cleaned up');
 }
 
 // ── 4. Regenerate projects-manifest.json ─────────────────────────────────────
@@ -210,9 +220,13 @@ function rebuildPortals() {
 // ── 5. Deploy to Firebase Hosting ────────────────────────────────────────────
 function deploy() {
   log('Deploying to Firebase Hosting...');
+  const env = { ...process.env };
+  // Always use the service account key — never the expired FIREBASE_TOKEN
+  if (fs.existsSync(SA_PATH)) env.GOOGLE_APPLICATION_CREDENTIALS = SA_PATH;
+  delete env.FIREBASE_TOKEN;
   execSync(
     `npx firebase-tools deploy --only hosting,storage --project ${FB_PROJ} --force`,
-    { cwd: path.join(ROOT, 'firebase'), stdio: 'inherit' }
+    { cwd: path.join(ROOT, 'firebase'), stdio: 'inherit', env }
   );
   log(`Live: ${PORTAL}`);
 }
@@ -250,12 +264,12 @@ async function main() {
 
   rebuildManifest();
   rebuildPortals();
+  gitCommitHtml();
 
   if (!noDeploy) {
     deploy();
-    cleanupLocal();  // remove portal HTML from disk after deploy
   } else {
-    log('--no-deploy: skipping deployment and local cleanup');
+    log('--no-deploy: skipping deployment');
   }
 }
 
