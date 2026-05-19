@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataSkate — MuleSoft Capabilities</title>
+<title>DataSkate — How We Deliver</title>
 <style>
-/* ── PALETTE (HTML_DESIGN_STANDARDS.json §palette) ── */
 :root {
   --brand:    #ed1c24;
   --brand-dk: #a01019;
@@ -22,10 +21,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--dark);
-  background: #fff;
+  font-size: 14px; line-height: 1.6; color: var(--dark); background: #fff;
 }
 a { color: var(--brand); text-decoration: none; }
 
@@ -34,224 +30,145 @@ a { color: var(--brand); text-decoration: none; }
   position: sticky; top: 0; z-index: 200;
   background: #fff; border-bottom: 3px solid var(--brand);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px; height: 48px;
+  padding: 0 40px; height: 48px;
 }
 .top-bar-left { display: flex; align-items: center; gap: 14px; }
 .top-bar-divider { width: 1px; height: 26px; background: var(--border); }
 .top-bar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mid); }
 .top-bar-title { font-size: 13px; font-weight: 700; color: var(--dark); }
-.top-bar-right { font-size: 10px; color: var(--mid); font-weight: 500; }
+.top-bar-right { font-size: 10px; color: var(--mid); }
 
-/* ── HERO STATS ── */
-.hero {
-  display: flex; border-bottom: 1px solid var(--border);
+/* ── SECTIONS ── */
+.section {
+  padding: 40px 48px; border-bottom: 1px solid var(--border);
+  max-width: 1100px; margin: 0 auto;
 }
-.stat {
-  flex: 1; text-align: center; padding: 22px 12px;
-  border-right: 1px solid var(--border);
-}
-.stat:last-child { border-right: none; }
-.stat-n { font-size: 34px; font-weight: 800; color: var(--brand); line-height: 1; }
-.stat-l { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--mid); margin-top: 5px; }
-
-/* ── CONTENT SECTIONS ── */
-.content-section {
-  padding: 36px 48px;
-  border-bottom: 1px solid var(--border);
-  max-width: 1100px;
-  margin: 0 auto;
-}
-.section-eyebrow {
+.eyebrow {
   font-size: 9px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 1.8px; color: var(--brand); margin-bottom: 4px;
 }
-.section-title {
-  font-size: 20px; font-weight: 800; color: var(--dark); margin-bottom: 4px;
-}
-.section-sub {
-  font-size: 12px; color: var(--mid); margin-bottom: 24px;
-}
+.section-title { font-size: 20px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+.section-sub   { font-size: 12px; color: var(--mid); margin-bottom: 28px; line-height: 1.6; }
 
-/* ── INTEGRATION PATTERNS ── */
-.patterns-grid {
+/* ── BMAD PIPELINE SVG WRAPPER ── */
+.bmad-wrap { overflow-x: auto; }
+
+/* ── SCOUT AGENT GRID ── */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.agent-grid-row2 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
 }
-.pattern-card {
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 18px 14px 14px;
+.agent-card {
+  padding: 14px 14px 12px;
+  border-right: 1px solid var(--border);
   background: #fff;
+  position: relative;
 }
-.pattern-card-label {
+.agent-card:last-child { border-right: none; }
+.agent-grid .agent-card { border-top: 3px solid var(--border); }
+.agent-card.model-haiku  { border-top-color: var(--amber); }
+.agent-card.model-sonnet { border-top-color: var(--blue-br); }
+.agent-card.model-opus   { border-top-color: var(--brand); }
+.agent-num  { font-size: 8px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+.agent-name { font-size: 15px; font-weight: 800; color: var(--dark); margin-bottom: 2px; }
+.agent-role { font-size: 10px; color: var(--mid); line-height: 1.35; margin-bottom: 8px; }
+.agent-badge {
+  display: inline-block; font-size: 8px; font-weight: 700;
+  padding: 2px 6px; border-radius: 3px; margin-bottom: 6px;
+}
+.model-haiku  .agent-badge { background: var(--amber-bg); color: #92400E; }
+.model-sonnet .agent-badge { background: var(--blue-bg);  color: #1e40af; }
+.model-opus   .agent-badge { background: var(--light);    color: var(--brand-dk); }
+.agent-out { font-size: 9px; color: var(--mid); font-style: italic; border-top: 1px solid var(--border); padding-top: 6px; margin-top: 2px; line-height: 1.4; }
+
+/* connector between rows */
+.row-connector {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; max-width: 1100px; margin: 0 auto;
+}
+.row-connector-line {
+  flex: 1; height: 1px; background: var(--border);
+}
+.row-connector-label {
+  font-size: 10px; font-weight: 700; color: var(--mid);
+  white-space: nowrap;
+}
+
+/* ── OUTPUT DELIVERABLES ── */
+.deliverables {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+.deliv-card {
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; position: relative;
+}
+.deliv-card.primary { border-color: var(--brand); }
+.deliv-tag {
   font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--brand); margin-bottom: 6px;
+  letter-spacing: 1px; color: var(--mid); margin-bottom: 4px;
 }
-.pattern-card-title {
-  font-size: 12px; font-weight: 800; color: var(--dark);
-  margin-bottom: 14px;
+.deliv-card.primary .deliv-tag { color: var(--brand); }
+.deliv-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+.deliv-items { list-style: none; }
+.deliv-items li {
+  font-size: 11px; color: var(--mid); padding: 4px 0;
+  border-top: 1px solid var(--border); display: flex; align-items: baseline; gap: 6px;
 }
-.pattern-diagram { margin: 0 auto 12px; display: block; }
-.pattern-caption {
-  font-size: 10px; color: var(--mid); line-height: 1.5;
-  border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px;
-}
+.deliv-items li:first-child { border-top: none; }
+.deliv-items li::before { content: '›'; color: var(--brand); font-weight: 700; flex-shrink: 0; }
 
-/* ── ECOSYSTEM ── */
-.ecosystem-wrap { display: flex; justify-content: center; }
+/* ── MODEL LEGEND ── */
+.legend {
+  display: flex; gap: 18px; align-items: center;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+}
+.legend-label { font-size: 10px; font-weight: 700; color: var(--mid); }
+.legend-item  { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--mid); }
+.legend-pip   { width: 12px; height: 3px; border-radius: 2px; }
+.legend-pip.haiku  { background: var(--amber); }
+.legend-pip.sonnet { background: var(--blue-br); }
+.legend-pip.opus   { background: var(--brand); }
 
-/* ── PIPELINE ── */
-.pipeline {
+/* ── NEXT STAGES STRIP ── */
+.next-stages {
   display: flex; gap: 0;
   border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
 }
-.pipe-step {
+.stage {
   flex: 1; padding: 16px 14px;
   border-right: 1px solid var(--border);
-  position: relative;
 }
-.pipe-step:last-child { border-right: none; }
-.pipe-step.ds-owned { border-top: 3px solid var(--brand); }
-.pipe-step.dev-owned { border-top: 3px solid var(--green); }
-.pipe-step-num {
-  font-size: 9px; font-weight: 700; color: var(--mid);
-  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px;
+.stage:last-child { border-right: none; }
+.stage.coming-soon { opacity: 0.55; }
+.stage-tag {
+  font-size: 8px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--mid); margin-bottom: 3px;
 }
-.pipe-step-name {
-  font-size: 12px; font-weight: 800; color: var(--dark); margin-bottom: 2px;
+.stage-name { font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 3px; }
+.stage-agents {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;
 }
-.pipe-step-owner {
-  font-size: 9px; font-weight: 700; border-radius: 4px;
-  padding: 1px 6px; display: inline-block; margin-bottom: 8px;
+.stage-agent-chip {
+  font-size: 9px; font-weight: 600; padding: 1px 6px;
+  border-radius: 3px; background: var(--light); color: var(--brand-dk);
 }
-.pipe-step.ds-owned .pipe-step-owner { background: var(--light); color: var(--brand-dk); }
-.pipe-step.dev-owned .pipe-step-owner { background: #D1FAE5; color: #065F46; }
-.pipe-step-desc {
-  font-size: 10px; color: var(--mid); line-height: 1.45;
+.stage-agent-chip.planned {
+  background: #F2F4F8; color: var(--mid);
 }
-
-/* ── SCOUT AGENT DETAIL ── */
-.scout-detail {
-  margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border);
-}
-.scout-detail-eyebrow {
-  font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.5px; color: var(--brand); margin-bottom: 4px;
-}
-.scout-detail-title {
-  font-size: 15px; font-weight: 800; color: var(--dark); margin-bottom: 6px;
-}
-.scout-detail-sub {
-  font-size: 11px; color: var(--mid); margin-bottom: 18px;
-}
-.agent-flow-wrap { display: flex; flex-direction: column; gap: 0; }
-.agent-row { display: flex; align-items: stretch; gap: 0; }
-.agent-row.row2 { margin-top: -1px; }
-.agent-card {
-  flex: 1; border: 1px solid var(--border); padding: 10px 11px;
-  position: relative; background: #fff;
-}
-.agent-card:first-child { border-radius: 7px 0 0 7px; }
-.agent-row.row1 .agent-card:last-child { border-radius: 0 7px 0 0; }
-.agent-row.row2 .agent-card:first-child { border-radius: 0 0 0 7px; }
-.agent-row.row2 .agent-card:last-child { border-radius: 0 7px 7px 0; }
-.agent-card + .agent-card { border-left: none; }
-.agent-card.model-haiku { border-top: 2px solid var(--amber); }
-.agent-card.model-sonnet { border-top: 2px solid var(--blue-br); }
-.agent-card.model-opus   { border-top: 2px solid var(--brand); }
-.agent-pos {
-  font-size: 8px; font-weight: 700; color: var(--mid);
-  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 2px;
-}
-.agent-name {
-  font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 1px;
-}
-.agent-role {
-  font-size: 9px; color: var(--mid); line-height: 1.35; margin-bottom: 6px;
-}
-.agent-model-badge {
-  display: inline-block; font-size: 8px; font-weight: 700;
-  padding: 1px 5px; border-radius: 3px;
-}
-.model-haiku .agent-model-badge { background: var(--amber-bg); color: #92400E; }
-.model-sonnet .agent-model-badge { background: var(--blue-bg); color: #1e40af; }
-.model-opus   .agent-model-badge { background: var(--light);   color: var(--brand-dk); }
-.agent-output {
-  font-size: 8px; color: var(--mid); margin-top: 3px; font-style: italic;
-}
-/* corner connector between rows */
-.agent-row-connector {
-  display: flex; align-items: center; justify-content: flex-end;
-  padding: 4px 10px 4px 0;
-}
-.corner-arrow {
-  font-size: 14px; color: var(--mid); line-height: 1;
-}
-/* model legend */
-.agent-legend {
-  display: flex; gap: 14px; margin-top: 12px; align-items: center;
-}
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--mid); }
-.legend-dot { width: 10px; height: 3px; border-radius: 2px; }
-.legend-dot.haiku  { background: var(--amber); }
-.legend-dot.sonnet { background: var(--blue-br); }
-.legend-dot.opus   { background: var(--brand); }
-
-/* ── API-LED LAYERS ── */
-.layers { display: flex; flex-direction: column; gap: 10px; }
-.layer {
-  border-radius: 8px; padding: 18px 24px;
-  display: flex; align-items: center; gap: 24px;
-}
-.layer.exp  { background: var(--light);  border: 1.5px solid var(--brand); }
-.layer.proc { background: var(--blue-bg); border: 1.5px solid var(--blue-br); }
-.layer.sys  { background: #F0FFF4;       border: 1.5px solid #68D391; }
-.layer-meta { min-width: 160px; flex-shrink: 0; }
-.layer-eyebrow {
-  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;
-}
-.layer.exp  .layer-eyebrow { color: var(--brand-dk); }
-.layer.proc .layer-eyebrow { color: #1e40af; }
-.layer.sys  .layer-eyebrow { color: var(--green); }
-.layer-name { font-size: 14px; font-weight: 800; color: var(--dark); }
-.layer-desc { font-size: 11px; color: var(--mid); margin-top: 2px; }
-.layer-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.layer-tag {
-  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px;
-}
-.layer.exp  .layer-tag { background: #FDDEDE; color: var(--brand-dk); }
-.layer.proc .layer-tag { background: #DBEAFE; color: #1e40af; }
-.layer.sys  .layer-tag { background: #D1FAE5; color: #065F46; }
-.layer-svg-wrap { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-/* ── ENGAGEMENT MODELS ── */
-.models-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-}
-.model-card { border-radius: 8px; padding: 18px 20px; }
-.model-card.iaas { background: var(--light);  border: 1.5px solid var(--brand); }
-.model-card.impl { background: #F0FFF4;       border: 1.5px solid #68D391; }
-.model-card.tm   { background: var(--blue-bg); border: 1.5px solid var(--blue-br); }
-.model-tag {
-  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-  margin-bottom: 4px;
-}
-.model-card.iaas .model-tag { color: var(--brand-dk); }
-.model-card.impl .model-tag { color: var(--green); }
-.model-card.tm   .model-tag { color: #1e40af; }
-.model-name { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 10px; }
-.model-price { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 2px; }
-.model-card.iaas .model-price { color: var(--brand); }
-.model-card.impl .model-price { color: var(--green); }
-.model-card.tm   .model-price { color: #1e40af; }
-.model-price-unit { font-size: 11px; font-weight: 500; color: var(--mid); margin-bottom: 12px; }
-.model-row {
-  display: flex; justify-content: space-between;
-  font-size: 11px; padding: 4px 0; border-top: 1px solid var(--border);
-}
-.model-row .lbl { color: var(--mid); }
-.model-row .val { font-weight: 700; color: var(--dark); }
+.stage-desc { font-size: 10px; color: var(--mid); line-height: 1.45; }
 
 /* ── FOOTER ── */
 .doc-footer {
@@ -269,7 +186,7 @@ a { color: var(--brand); text-decoration: none; }
 </head>
 <body>
 
-<!-- ── TOP BAR ── -->
+<!-- TOP BAR -->
 <div class="top-bar">
   <div class="top-bar-left">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:22px;width:auto;display:block;flex-shrink:0;" aria-label="DataSkate">
@@ -287,529 +204,318 @@ a { color: var(--brand); text-decoration: none; }
     </svg>
     <div class="top-bar-divider"></div>
     <div>
-      <div class="top-bar-label">DataSkate Integration Intelligence</div>
-      <div class="top-bar-title">MuleSoft Capabilities Overview</div>
+      <div class="top-bar-label">DataSkate Delivery Intelligence</div>
+      <div class="top-bar-title">How We Deliver — BMAD Pipeline</div>
     </div>
   </div>
-  <div class="top-bar-right">Sales Reference &mdash; For AE &amp; Client Discussion</div>
+  <div class="top-bar-right">Internal Reference</div>
 </div>
 
-<!-- ── HERO: 5 STATS ── -->
-<div class="hero">
-  <div class="stat"><div class="stat-n">200+</div><div class="stat-l">Connectors</div></div>
-  <div class="stat"><div class="stat-n">4</div><div class="stat-l">Integration Patterns</div></div>
-  <div class="stat"><div class="stat-n">12</div><div class="stat-l">System Playbooks</div></div>
-  <div class="stat"><div class="stat-n">1.5 wk</div><div class="stat-l">Avg. Flow Delivery</div></div>
-  <div class="stat"><div class="stat-n">3</div><div class="stat-l">Engagement Models</div></div>
-</div>
+<!-- ══ SECTION 1: BMAD HIGH-LEVEL ══ -->
+<div class="section">
+  <div class="eyebrow">The BMAD Pipeline — High Level</div>
+  <div class="section-title">From Call Recording to Live Integration</div>
+  <div class="section-sub">Seven stages. Scout (Stage 1) is fully automated by 9 AI agents. Stages 2–5 are DataSkate-owned. Developer implements in Stage 6, DataSkate verifies in Stage 7.</div>
 
-<!-- ── SECTION 1: INTEGRATION PATTERNS ── -->
-<div class="content-section">
-  <div class="section-eyebrow">01 — What We Build</div>
-  <div class="section-title">Four Integration Patterns</div>
-  <div class="section-sub">Every flow DataSkate delivers maps to one of these patterns. Each has a standard scaffold, known delivery time, and cost model.</div>
-
-  <div class="patterns-grid">
-
-    <!-- Pattern 1: Real-Time Sync -->
-    <div class="pattern-card">
-      <div class="pattern-card-label">Pattern 1</div>
-      <div class="pattern-card-title">Real-Time Sync</div>
-      <svg class="pattern-diagram" viewBox="0 0 220 100" width="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arr1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="#555F6E"/>
-          </marker>
-        </defs>
-        <!-- Webhook trigger -->
-        <rect x="4" y="4" width="64" height="22" rx="4" fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
-        <text x="36" y="15" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700">&#x26A1; Webhook</text>
-        <text x="36" y="23" font-size="7" font-family="system-ui" text-anchor="middle" fill="#555F6E">/ Poll</text>
-        <!-- Arrow down -->
-        <line x1="36" y1="26" x2="36" y2="42" stroke="#555F6E" stroke-width="1.5" marker-end="url(#arr1)"/>
-        <!-- Source -->
-        <rect x="4" y="42" width="64" height="26" rx="5" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-        <text x="36" y="53" font-size="8" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Source</text>
-        <text x="36" y="63" font-size="7" font-family="system-ui" text-anchor="middle" fill="#555F6E">CRM / ERP</text>
-        <!-- Arrow right -->
-        <line x1="68" y1="55" x2="86" y2="55" stroke="#555F6E" stroke-width="1.5" marker-end="url(#arr1)"/>
-        <!-- Mule -->
-        <rect x="86" y="40" width="48" height="30" rx="5" fill="#1A1A1A"/>
-        <text x="110" y="54" font-size="8" font-family="system-ui" text-anchor="middle" fill="#ed1c24" font-weight="800">MULE</text>
-        <text x="110" y="64" font-size="6.5" font-family="system-ui" text-anchor="middle" fill="#fff">Transform</text>
-        <!-- Arrow right -->
-        <line x1="134" y1="55" x2="152" y2="55" stroke="#555F6E" stroke-width="1.5" marker-end="url(#arr1)"/>
-        <!-- Target -->
-        <rect x="152" y="40" width="64" height="30" rx="5" fill="#F0F6FF" stroke="#3B82F6" stroke-width="1.5"/>
-        <text x="184" y="54" font-size="8" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Target</text>
-        <text x="184" y="64" font-size="7" font-family="system-ui" text-anchor="middle" fill="#555F6E">ERP / WH</text>
-        <!-- Timeline -->
-        <text x="110" y="90" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="700">&#x23F1; &lt; 30 sec latency</text>
-      </svg>
-      <div class="pattern-caption">Webhook or polling triggers an immediate record sync. Typical: CRM order → ERP fulfillment, inventory update → all channels.</div>
-    </div>
-
-    <!-- Pattern 2: Scheduled Batch -->
-    <div class="pattern-card">
-      <div class="pattern-card-label">Pattern 2</div>
-      <div class="pattern-card-title">Scheduled Batch</div>
-      <svg class="pattern-diagram" viewBox="0 0 220 100" width="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arr2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="#555F6E"/>
-          </marker>
-        </defs>
-        <!-- Cron -->
-        <rect x="4" y="36" width="52" height="30" rx="5" fill="#FFFBEB" stroke="#D69E2E" stroke-width="1.5"/>
-        <text x="30" y="50" font-size="9" font-family="system-ui" text-anchor="middle" fill="#92400E" font-weight="700">&#x1F4C5; CRON</text>
-        <text x="30" y="61" font-size="7" font-family="system-ui" text-anchor="middle" fill="#555F6E">Nightly</text>
-        <!-- Arrow right -->
-        <line x1="56" y1="51" x2="74" y2="51" stroke="#555F6E" stroke-width="1.5" marker-end="url(#arr2)"/>
-        <!-- Mule -->
-        <rect x="74" y="36" width="52" height="30" rx="5" fill="#1A1A1A"/>
-        <text x="100" y="50" font-size="8" font-family="system-ui" text-anchor="middle" fill="#ed1c24" font-weight="800">MULE</text>
-        <text x="100" y="60" font-size="6.5" font-family="system-ui" text-anchor="middle" fill="#fff">Bulk Read</text>
-        <!-- Arrow right -->
-        <line x1="126" y1="51" x2="144" y2="51" stroke="#555F6E" stroke-width="1.5" marker-end="url(#arr2)"/>
-        <!-- Bulk target stack -->
-        <rect x="148" y="28" width="60" height="18" rx="4" fill="#E8E0E0"/>
-        <rect x="144" y="36" width="60" height="18" rx="4" fill="#E8E0E0" stroke="#555F6E" stroke-width="0.5"/>
-        <rect x="140" y="44" width="60" height="20" rx="4" fill="#F0F6FF" stroke="#3B82F6" stroke-width="1.5"/>
-        <text x="170" y="57" font-size="8" font-family="system-ui" text-anchor="middle" fill="#1e40af" font-weight="700">Bulk Write</text>
-        <!-- count -->
-        <text x="110" y="88" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="700">&#x23F1; 1,000s of records / run</text>
-      </svg>
-      <div class="pattern-caption">Scheduler pulls data in bulk, transforms, and writes to the target. Typical: nightly inventory sync, daily invoice export.</div>
-    </div>
-
-    <!-- Pattern 3: API Experience Layer -->
-    <div class="pattern-card">
-      <div class="pattern-card-label">Pattern 3</div>
-      <div class="pattern-card-title">API Experience Layer</div>
-      <svg class="pattern-diagram" viewBox="0 0 220 100" width="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arr3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="#555F6E"/>
-          </marker>
-        </defs>
-        <!-- 3 callers -->
-        <rect x="2" y="12" width="48" height="17" rx="4" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-        <text x="26" y="24" font-size="7.5" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Mobile App</text>
-        <rect x="2" y="36" width="48" height="17" rx="4" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-        <text x="26" y="48" font-size="7.5" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Web Portal</text>
-        <rect x="2" y="60" width="48" height="17" rx="4" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-        <text x="26" y="72" font-size="7.5" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Partner API</text>
-        <!-- Lines to mule -->
-        <line x1="50" y1="20" x2="78" y2="45" stroke="#555F6E" stroke-width="1.2" marker-end="url(#arr3)"/>
-        <line x1="50" y1="44" x2="78" y2="48" stroke="#555F6E" stroke-width="1.2" marker-end="url(#arr3)"/>
-        <line x1="50" y1="68" x2="78" y2="54" stroke="#555F6E" stroke-width="1.2" marker-end="url(#arr3)"/>
-        <!-- Mule box -->
-        <rect x="78" y="32" width="58" height="35" rx="6" fill="#1A1A1A"/>
-        <text x="107" y="47" font-size="8" font-family="system-ui" text-anchor="middle" fill="#ed1c24" font-weight="800">MULE</text>
-        <text x="107" y="58" font-size="6" font-family="system-ui" text-anchor="middle" fill="#fff">API Gateway</text>
-        <!-- Arrow right -->
-        <line x1="136" y1="49" x2="156" y2="49" stroke="#555F6E" stroke-width="1.5" marker-end="url(#arr3)"/>
-        <!-- Experience API response -->
-        <rect x="156" y="33" width="60" height="34" rx="5" fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
-        <text x="186" y="47" font-size="7.5" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700">Experience</text>
-        <text x="186" y="57" font-size="7.5" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700">API</text>
-        <!-- caption -->
-        <text x="110" y="88" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="700">&#x1F517; One API, many backends</text>
-      </svg>
-      <div class="pattern-caption">Mule acts as the API facade — aggregates multiple backends into one clean endpoint for mobile, web, and partners.</div>
-    </div>
-
-    <!-- Pattern 4: Event-Driven -->
-    <div class="pattern-card">
-      <div class="pattern-card-label">Pattern 4</div>
-      <div class="pattern-card-title">Event-Driven / Async</div>
-      <svg class="pattern-diagram" viewBox="0 0 220 100" width="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arr4" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-            <polygon points="0 0, 7 2.5, 0 5" fill="#555F6E"/>
-          </marker>
-        </defs>
-        <!-- Queue/event source -->
-        <rect x="2" y="36" width="56" height="28" rx="5" fill="#FFFBEB" stroke="#D69E2E" stroke-width="1.5"/>
-        <text x="30" y="49" font-size="8" font-family="system-ui" text-anchor="middle" fill="#92400E" font-weight="700">&#x1F4EC; Queue</text>
-        <text x="30" y="59" font-size="6.5" font-family="system-ui" text-anchor="middle" fill="#555F6E">Kafka / SQS</text>
-        <!-- Arrow to mule -->
-        <line x1="58" y1="50" x2="76" y2="50" stroke="#555F6E" stroke-width="1.5" marker-end="url(#arr4)"/>
-        <!-- Mule -->
-        <rect x="76" y="34" width="50" height="32" rx="6" fill="#1A1A1A"/>
-        <text x="101" y="49" font-size="8" font-family="system-ui" text-anchor="middle" fill="#ed1c24" font-weight="800">MULE</text>
-        <text x="101" y="59" font-size="6" font-family="system-ui" text-anchor="middle" fill="#fff">Fan-Out</text>
-        <!-- 3 fan-out arrows -->
-        <line x1="126" y1="44" x2="150" y2="24" stroke="#555F6E" stroke-width="1.2" marker-end="url(#arr4)"/>
-        <line x1="126" y1="50" x2="150" y2="50" stroke="#555F6E" stroke-width="1.2" marker-end="url(#arr4)"/>
-        <line x1="126" y1="56" x2="150" y2="72" stroke="#555F6E" stroke-width="1.2" marker-end="url(#arr4)"/>
-        <!-- 3 targets -->
-        <rect x="150" y="14" width="66" height="18" rx="4" fill="#F0F6FF" stroke="#3B82F6" stroke-width="1.2"/>
-        <text x="183" y="26" font-size="7" font-family="system-ui" text-anchor="middle" fill="#1e40af" font-weight="600">ERP / Warehouse</text>
-        <rect x="150" y="41" width="66" height="18" rx="4" fill="#F0F6FF" stroke="#3B82F6" stroke-width="1.2"/>
-        <text x="183" y="53" font-size="7" font-family="system-ui" text-anchor="middle" fill="#1e40af" font-weight="600">Email / Notify</text>
-        <rect x="150" y="63" width="66" height="18" rx="4" fill="#F0F6FF" stroke="#3B82F6" stroke-width="1.2"/>
-        <text x="183" y="75" font-size="7" font-family="system-ui" text-anchor="middle" fill="#1e40af" font-weight="600">Analytics / BI</text>
-        <!-- caption -->
-        <text x="110" y="94" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="700">&#x26A1; Decoupled, high-volume async</text>
-      </svg>
-      <div class="pattern-caption">Message queue drives decoupled async processing. One event fans out to ERP, notifications, and analytics simultaneously.</div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── SECTION 2: SYSTEM ECOSYSTEM ── -->
-<div class="content-section">
-  <div class="section-eyebrow">02 — Systems We Connect</div>
-  <div class="section-title">The DataSkate Connector Ecosystem</div>
-  <div class="section-sub">200+ pre-verified connectors across six verticals — with auth, quirks, and DataWeave mappings already documented.</div>
-
-  <div class="ecosystem-wrap">
-    <svg viewBox="0 0 780 420" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:780px;">
+  <div class="bmad-wrap">
+    <svg viewBox="0 0 1020 160" width="100%" xmlns="http://www.w3.org/2000/svg" style="min-width:700px;">
       <defs>
-        <marker id="spoke" markerWidth="5" markerHeight="5" refX="5" refY="2.5" orient="auto">
-          <polygon points="0 0, 5 2.5, 0 5" fill="#E8E0E0"/>
+        <marker id="bmarr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#555F6E"/>
+        </marker>
+        <marker id="bmarr-brand" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#ed1c24"/>
         </marker>
       </defs>
 
-      <!-- ── Center: Mule ── -->
-      <rect x="320" y="170" width="140" height="80" rx="10" fill="#1A1A1A"/>
-      <text x="390" y="202" font-size="22" font-family="system-ui" text-anchor="middle" fill="#ed1c24" font-weight="800">MULE</text>
-      <text x="390" y="222" font-size="11" font-family="system-ui" text-anchor="middle" fill="#fff">CloudHub 2.0</text>
-      <text x="390" y="237" font-size="10" font-family="system-ui" text-anchor="middle" fill="#555F6E">Mule 4.8 · Java 17</text>
+      <!-- Input: Call Recording -->
+      <rect x="2" y="50" width="96" height="60" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="50" y="76" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="600">&#x1F3A4; Call</text>
+      <text x="50" y="89" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="600">Recording</text>
+      <text x="50" y="103" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E">+ Deck / Notes</text>
 
-      <!-- ── Spoke lines (from center edges to category boxes) ── -->
-      <!-- CRM: right -->
-      <line x1="460" y1="210" x2="600" y2="110" stroke="#E8E0E0" stroke-width="1.5" marker-end="url(#spoke)"/>
-      <!-- ERP: upper-right -->
-      <line x1="440" y1="175" x2="610" y2="40" stroke="#E8E0E0" stroke-width="1.5" marker-end="url(#spoke)"/>
-      <!-- Commerce: upper-left -->
-      <line x1="355" y1="172" x2="170" y2="40" stroke="#E8E0E0" stroke-width="1.5" marker-end="url(#spoke)"/>
-      <!-- HR: left -->
-      <line x1="320" y1="200" x2="100" y2="110" stroke="#E8E0E0" stroke-width="1.5" marker-end="url(#spoke)"/>
-      <!-- Payments: lower-left -->
-      <line x1="340" y1="248" x2="130" y2="340" stroke="#E8E0E0" stroke-width="1.5" marker-end="url(#spoke)"/>
-      <!-- Logistics: lower-right -->
-      <line x1="450" y1="248" x2="620" y2="340" stroke="#E8E0E0" stroke-width="1.5" marker-end="url(#spoke)"/>
+      <!-- Arrow to Scout -->
+      <line x1="98" y1="80" x2="116" y2="80" stroke="#ed1c24" stroke-width="2" marker-end="url(#bmarr-brand)"/>
 
-      <!-- ── CRM (upper-right) ── -->
-      <rect x="590" y="76" width="180" height="80" rx="8" fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
-      <text x="680" y="96" font-size="9" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="800" letter-spacing="1">CRM</text>
-      <text x="680" y="112" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Salesforce</text>
-      <text x="680" y="127" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">HubSpot &nbsp; Zoho</text>
-      <text x="680" y="142" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Pipedrive &nbsp; Close</text>
+      <!-- Stage 1: Scout (HIGHLIGHTED) -->
+      <rect x="116" y="4" width="152" height="152" rx="8" fill="#FFF5F5" stroke="#ed1c24" stroke-width="2.5"/>
+      <text x="192" y="28" font-size="9" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700" letter-spacing="0.8">STAGE 1</text>
+      <text x="192" y="48" font-size="19" font-family="system-ui" text-anchor="middle" fill="#ed1c24" font-weight="800">Scout</text>
+      <rect x="134" y="56" width="116" height="20" rx="4" fill="#ed1c24"/>
+      <text x="192" y="70" font-size="9" font-family="system-ui" text-anchor="middle" fill="#fff" font-weight="700">9 AI Agents · Fully Auto</text>
+      <text x="192" y="94" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Proposal · Intake Form</text>
+      <text x="192" y="108" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Integration Deck · Pricing</text>
+      <text x="192" y="130" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="600">Sage→Vera→Rex→Ivy→Flo</text>
+      <text x="192" y="143" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="600">→Hawk→Petra→Quinn→Mira</text>
 
-      <!-- ── ERP (top) ── -->
-      <rect x="590" y="4" width="180" height="66" rx="8" fill="#F0F6FF" stroke="#3B82F6" stroke-width="1.5"/>
-      <text x="680" y="22" font-size="9" font-family="system-ui" text-anchor="middle" fill="#1e40af" font-weight="800" letter-spacing="1">ERP / FINANCE</text>
-      <text x="680" y="38" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">NetSuite &nbsp; SAP</text>
-      <text x="680" y="54" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">QuickBooks &nbsp; Acumatica</text>
+      <!-- Arrow -->
+      <line x1="268" y1="80" x2="284" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
 
-      <!-- ── Commerce (upper-left) ── -->
-      <rect x="10" y="4" width="180" height="66" rx="8" fill="#F0FFF4" stroke="#68D391" stroke-width="1.5"/>
-      <text x="100" y="22" font-size="9" font-family="system-ui" text-anchor="middle" fill="#276749" font-weight="800" letter-spacing="1">COMMERCE</text>
-      <text x="100" y="38" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Shopify &nbsp; Magento</text>
-      <text x="100" y="54" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Orderful &nbsp; WooCommerce</text>
+      <!-- Stage 2: Analyst -->
+      <rect x="284" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
+      <text x="337" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 2</text>
+      <text x="337" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Analyst</text>
+      <text x="337" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">PRD · Flows</text>
+      <text x="337" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Canonical fields</text>
+      <text x="337" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Mary (AI)</text>
 
-      <!-- ── HR (left) ── -->
-      <rect x="10" y="76" width="180" height="80" rx="8" fill="#FFFBEB" stroke="#D69E2E" stroke-width="1.5"/>
-      <text x="100" y="95" font-size="9" font-family="system-ui" text-anchor="middle" fill="#92400E" font-weight="800" letter-spacing="1">HR / WORKFORCE</text>
-      <text x="100" y="111" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Workday &nbsp; ADP</text>
-      <text x="100" y="126" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">BambooHR &nbsp; Rippling</text>
-      <text x="100" y="141" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Gusto &nbsp; Paychex</text>
+      <!-- Arrow -->
+      <line x1="390" y1="80" x2="406" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
 
-      <!-- ── Payments (lower-left) ── -->
-      <rect x="10" y="310" width="180" height="66" rx="8" fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
-      <text x="100" y="328" font-size="9" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="800" letter-spacing="1">PAYMENTS</text>
-      <text x="100" y="344" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Stripe &nbsp; Braintree</text>
-      <text x="100" y="360" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">Square &nbsp; Authorize.net</text>
+      <!-- Stage 3: Architect -->
+      <rect x="406" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
+      <text x="459" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 3</text>
+      <text x="459" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Architect</text>
+      <text x="459" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Tech design</text>
+      <text x="459" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">decisions.json</text>
+      <text x="459" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Winston (AI)</text>
 
-      <!-- ── Logistics (lower-right) ── -->
-      <rect x="590" y="310" width="180" height="66" rx="8" fill="#F0F6FF" stroke="#3B82F6" stroke-width="1.5"/>
-      <text x="680" y="328" font-size="9" font-family="system-ui" text-anchor="middle" fill="#1e40af" font-weight="800" letter-spacing="1">LOGISTICS</text>
-      <text x="680" y="344" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">ShipStation &nbsp; ShipBob</text>
-      <text x="680" y="360" font-size="10" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="600">FedEx &nbsp; UPS &nbsp; EasyPost</text>
+      <!-- Arrow -->
+      <line x1="512" y1="80" x2="528" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
 
-      <!-- ── Bottom center: "+ 170 more" note ── -->
-      <text x="390" y="408" font-size="10" font-family="system-ui" text-anchor="middle" fill="#555F6E">+ 170 more connectors — databases, messaging, cloud storage, legacy, EDI</text>
+      <!-- Stage 4: PM -->
+      <rect x="528" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
+      <text x="581" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 4</text>
+      <text x="581" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">PM</text>
+      <text x="581" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">User stories</text>
+      <text x="581" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Jira · GitHub</text>
+      <text x="581" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">John (AI)</text>
+
+      <!-- Arrow -->
+      <line x1="634" y1="80" x2="650" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
+
+      <!-- Stage 5: Scaffold -->
+      <rect x="650" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
+      <text x="703" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 5</text>
+      <text x="703" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Scaffold</text>
+      <text x="703" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Mule project</text>
+      <text x="703" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">DWL · MUnit shells</text>
+      <text x="703" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Auto-generated</text>
+
+      <!-- Arrow -->
+      <line x1="756" y1="80" x2="772" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
+
+      <!-- Stage 6: Developer -->
+      <rect x="772" y="30" width="106" height="100" rx="7" fill="#F0FFF4" stroke="#68D391" stroke-width="1.5"/>
+      <text x="825" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#276749" font-weight="700" letter-spacing="0.8">STAGE 6</text>
+      <text x="825" y="70" font-size="14" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Developer</text>
+      <text x="825" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Implements flows</text>
+      <text x="825" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Anypoint Studio</text>
+      <text x="825" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#276749" font-weight="600">Engineer</text>
+
+      <!-- Arrow -->
+      <line x1="878" y1="80" x2="894" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
+
+      <!-- Stage 7: Verify -->
+      <rect x="894" y="30" width="120" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
+      <text x="954" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 7</text>
+      <text x="954" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Verify</text>
+      <text x="954" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">MUnit · FR/NFR</text>
+      <text x="954" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">PASS / gap report</text>
+      <text x="954" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Dev agent (VR)</text>
     </svg>
   </div>
 </div>
 
-<!-- ── SECTION 3: BMAD PIPELINE ── -->
-<div class="content-section">
-  <div class="section-eyebrow">03 — How We Deliver</div>
-  <div class="section-title">The BMAD Delivery Pipeline</div>
-  <div class="section-sub">Every engagement follows this 7-step pipeline. DataSkate owns steps 1–6. Developer implements in Anypoint Studio in steps 6–7.</div>
+<!-- ══ SECTION 2: SCOUT AGENT PIPELINE ══ -->
+<div class="section">
+  <div class="eyebrow">Stage 1 — Scout · Fully Automated</div>
+  <div class="section-title">9 AI Agents. One Pre-Sales Run.</div>
+  <div class="section-sub">Drop in a call recording (and optionally a deck or notes). Orchestrate.js runs each agent in sequence — each reads the prior agent's output and writes its own. Total wall-clock time: ~15–25 minutes. Output: a complete proposal, intake questionnaire, integration deck, and psychology-adapted talking points. No manual work.</div>
 
-  <div class="pipeline">
-    <div class="pipe-step ds-owned">
-      <div class="pipe-step-num">Step 1</div>
-      <div class="pipe-step-name">Scout</div>
-      <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">9 AI agents: transcript → proposal → intake form. Fully automated pre-sales.</div>
+  <!-- Row 1: Agents 1–5 -->
+  <div class="agent-grid">
+    <div class="agent-card model-haiku">
+      <div class="agent-num">Agent 1</div>
+      <div class="agent-name">Sage</div>
+      <div class="agent-role">Document Analyst</div>
+      <span class="agent-badge">Haiku · Fast</span>
+      <div class="agent-out">Reads transcripts + decks. Extracts pain points, flow signals, quotes, and key questions asked by DataSkate architects.</div>
     </div>
-    <div class="pipe-step ds-owned">
-      <div class="pipe-step-num">Step 2</div>
-      <div class="pipe-step-name">Analyst</div>
-      <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">Converts intake responses into PRD — flows, canonical fields, acceptance criteria.</div>
+    <div class="agent-card model-opus">
+      <div class="agent-num">Agent 2</div>
+      <div class="agent-name">Vera</div>
+      <div class="agent-role">Vertical Intelligence</div>
+      <span class="agent-badge">Opus · Deep Research</span>
+      <div class="agent-out">Web research: FOMO peers, industry benchmarks, competitor case studies, canonical model stubs. Stages library contributions.</div>
     </div>
-    <div class="pipe-step ds-owned">
-      <div class="pipe-step-num">Step 3</div>
-      <div class="pipe-step-name">Architect</div>
-      <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">Technical design — connector stack, API-led layers, security, decisions.json.</div>
+    <div class="agent-card model-sonnet">
+      <div class="agent-num">Agent 3</div>
+      <div class="agent-name">Rex</div>
+      <div class="agent-role">Systems Analyst</div>
+      <span class="agent-badge">Sonnet</span>
+      <div class="agent-out">Reads playbooks for detected systems. Maps auth patterns, known quirks, prerequisites, and canonical field extensions.</div>
     </div>
-    <div class="pipe-step ds-owned">
-      <div class="pipe-step-num">Step 4</div>
-      <div class="pipe-step-name">PM</div>
-      <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">User stories from PRD + architecture — Jira tickets, sprint plan, GitHub issues.</div>
+    <div class="agent-card model-sonnet">
+      <div class="agent-num">Agent 4</div>
+      <div class="agent-name">Ivy</div>
+      <div class="agent-role">Buyer Intelligence</div>
+      <span class="agent-badge">Sonnet</span>
+      <div class="agent-out">Scores transcript against 5 buyer psychology profiles. Outputs primary profile, content modifiers, and FOMO angle strategy.</div>
     </div>
-    <div class="pipe-step ds-owned">
-      <div class="pipe-step-num">Step 5</div>
-      <div class="pipe-step-name">Scaffold</div>
-      <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">Auto-generates Mule project, connector stubs, DWL transforms, MUnit test shells.</div>
-    </div>
-    <div class="pipe-step dev-owned">
-      <div class="pipe-step-num">Step 6</div>
-      <div class="pipe-step-name">Developer</div>
-      <div class="pipe-step-owner">Engineer</div>
-      <div class="pipe-step-desc">Fills TODO flows in Anypoint Studio / Code Builder. Runs MUnit tests.</div>
-    </div>
-    <div class="pipe-step dev-owned">
-      <div class="pipe-step-num">Step 7</div>
-      <div class="pipe-step-name">Verify</div>
-      <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">Automated: coverage floors, FR/NFR checklist, PASS / gap report.</div>
+    <div class="agent-card model-opus">
+      <div class="agent-num">Agent 5</div>
+      <div class="agent-name">Flo</div>
+      <div class="agent-role">Flow Analyst + Pricing</div>
+      <span class="agent-badge">Opus · Gated</span>
+      <div class="agent-out">Confirms integration flows, flags P0 blockers, computes SOW pricing per flow across all 3 engagement models.</div>
     </div>
   </div>
 
-  <!-- ── Scout Agent Detail ── -->
-  <div class="scout-detail">
-    <div class="scout-detail-eyebrow">Inside Step 1 — The Scout Agent Pipeline</div>
-    <div class="scout-detail-title">9 AI Agents. One Automated Pre-Sales Run.</div>
-    <div class="scout-detail-sub">A single call recording drops in. 9 specialised agents run in sequence — each reads the prior agent's output and writes its own. The output: intake form, proposal, integration deck, and psychology-adapted framing. No manual work.</div>
+  <!-- Row connector -->
+  <div class="row-connector">
+    <div class="row-connector-line"></div>
+    <div class="row-connector-label">&#x2193; continues</div>
+    <div class="row-connector-line"></div>
+  </div>
 
-    <div class="agent-flow-wrap">
-      <!-- Row 1: Sage → Vera → Rex → Ivy → Flo -->
-      <div class="agent-row row1">
-        <div class="agent-card model-haiku">
-          <div class="agent-pos">Agent 1</div>
-          <div class="agent-name">Sage</div>
-          <div class="agent-role">Document Analyst</div>
-          <span class="agent-model-badge">Haiku</span>
-          <div class="agent-output">→ sage.json (pain, flows, quotes)</div>
-        </div>
-        <div class="agent-card model-opus">
-          <div class="agent-pos">Agent 2</div>
-          <div class="agent-name">Vera</div>
-          <div class="agent-role">Vertical Intelligence</div>
-          <span class="agent-model-badge">Opus</span>
-          <div class="agent-output">→ vera.json (FOMO, benchmarks, peers)</div>
-        </div>
-        <div class="agent-card model-sonnet">
-          <div class="agent-pos">Agent 3</div>
-          <div class="agent-name">Rex</div>
-          <div class="agent-role">Systems Analyst</div>
-          <span class="agent-model-badge">Sonnet</span>
-          <div class="agent-output">→ rex.json (connectors, auth, gotchas)</div>
-        </div>
-        <div class="agent-card model-sonnet">
-          <div class="agent-pos">Agent 4</div>
-          <div class="agent-name">Ivy</div>
-          <div class="agent-role">Buyer Intelligence</div>
-          <span class="agent-model-badge">Sonnet</span>
-          <div class="agent-output">→ ivy.json (buyer profile, modifiers)</div>
-        </div>
-        <div class="agent-card model-opus">
-          <div class="agent-pos">Agent 5</div>
-          <div class="agent-name">Flo</div>
-          <div class="agent-role">Flow Analyst + Pricing</div>
-          <span class="agent-model-badge">Opus</span>
-          <div class="agent-output">→ flo.json (confirmed flows, SOW pricing)</div>
-        </div>
-      </div>
-      <!-- Corner connector -->
-      <div class="agent-row-connector"><span class="corner-arrow">↙</span></div>
-      <!-- Row 2: Hawk → Petra → Quinn → Mira -->
-      <div class="agent-row row2">
-        <div class="agent-card model-opus">
-          <div class="agent-pos">Agent 6</div>
-          <div class="agent-name">Hawk</div>
-          <div class="agent-role">Deal Urgency Strategist</div>
-          <span class="agent-model-badge">Opus</span>
-          <div class="agent-output">→ hawk.json (FOMO order, talking points)</div>
-        </div>
-        <div class="agent-card model-opus">
-          <div class="agent-pos">Agent 7</div>
-          <div class="agent-name">Petra</div>
-          <div class="agent-role">Proposal Writer</div>
-          <span class="agent-model-badge">Opus</span>
-          <div class="agent-output">→ proposal-content.json + integration deck</div>
-        </div>
-        <div class="agent-card model-sonnet">
-          <div class="agent-pos">Agent 8</div>
-          <div class="agent-name">Quinn</div>
-          <div class="agent-role">Intake Specialist</div>
-          <span class="agent-model-badge">Sonnet</span>
-          <div class="agent-output">→ intake-questionnaire-{client}.html</div>
-        </div>
-        <div class="agent-card model-opus">
-          <div class="agent-pos">Agent 9</div>
-          <div class="agent-name">Mira</div>
-          <div class="agent-role">Buyer Advocate · QA</div>
-          <span class="agent-model-badge">Opus</span>
-          <div class="agent-output">→ mira.json (psychology audit, gaps)</div>
-        </div>
-      </div>
+  <!-- Row 2: Agents 6–9 -->
+  <div class="agent-grid-row2">
+    <div class="agent-card model-opus">
+      <div class="agent-num">Agent 6</div>
+      <div class="agent-name">Hawk</div>
+      <div class="agent-role">Deal Urgency Strategist</div>
+      <span class="agent-badge">Opus</span>
+      <div class="agent-out">Orders FOMO entries by buyer psychology angle. Generates talking points, opening lines, objection responses, and journey framing.</div>
     </div>
+    <div class="agent-card model-opus">
+      <div class="agent-num">Agent 7</div>
+      <div class="agent-name">Petra</div>
+      <div class="agent-role">Proposal Writer</div>
+      <span class="agent-badge">Opus</span>
+      <div class="agent-out">Writes proposal-content.json and integration-deck-content.json. Applies psychology framing from Hawk verbatim throughout.</div>
+    </div>
+    <div class="agent-card model-sonnet">
+      <div class="agent-num">Agent 8</div>
+      <div class="agent-name">Quinn</div>
+      <div class="agent-role">Intake Specialist</div>
+      <span class="agent-badge">Sonnet</span>
+      <div class="agent-out">Generates the client intake questionnaire HTML. Pre-fills known answers from Sage. Flags unanswered gaps for the client.</div>
+    </div>
+    <div class="agent-card model-opus">
+      <div class="agent-num">Agent 9</div>
+      <div class="agent-name">Mira</div>
+      <div class="agent-role">Buyer Advocate · QA</div>
+      <span class="agent-badge">Opus · Final Gate</span>
+      <div class="agent-out">Psychology consistency audit. Verifies every proposal section passes the "would this buyer nod?" test. Flags misalignments for human review.</div>
+    </div>
+  </div>
 
-    <div class="agent-legend">
-      <span style="font-size:10px;font-weight:700;color:var(--mid);margin-right:4px;">Model:</span>
-      <div class="legend-item"><div class="legend-dot haiku"></div> Haiku — fast extraction</div>
-      <div class="legend-item"><div class="legend-dot sonnet"></div> Sonnet — structured analysis</div>
-      <div class="legend-item"><div class="legend-dot opus"></div> Opus — deep reasoning &amp; writing</div>
+  <!-- Legend -->
+  <div class="legend">
+    <span class="legend-label">Claude model used:</span>
+    <div class="legend-item"><div class="legend-pip haiku"></div>Haiku — fast extraction</div>
+    <div class="legend-item"><div class="legend-pip sonnet"></div>Sonnet — structured analysis</div>
+    <div class="legend-item"><div class="legend-pip opus"></div>Opus — deep research &amp; writing</div>
+  </div>
+</div>
+
+<!-- ══ SECTION 3: SCOUT OUTPUTS ══ -->
+<div class="section">
+  <div class="eyebrow">What Scout Produces</div>
+  <div class="section-title">Three Client-Ready Deliverables</div>
+  <div class="section-sub">Every Scout run produces these three artifacts — generated, formatted, and deployed automatically.</div>
+
+  <div class="deliverables">
+    <div class="deliv-card primary">
+      <div class="deliv-tag">Primary Deliverable</div>
+      <div class="deliv-title">Client Proposal</div>
+      <ul class="deliv-items">
+        <li>Challenge framing adapted to buyer psychology profile</li>
+        <li>Solution diagram — systems connected via MuleSoft</li>
+        <li>Flow-by-flow breakdown with business outcome per flow</li>
+        <li>ROI section with verified benchmarks from Vera research</li>
+        <li>3-stage AI journey (Connected → Automated → Agentic)</li>
+        <li>FOMO section ordered by buyer's social-proof angle</li>
+        <li>Pricing computed live from tm-rates.json + flow count</li>
+        <li>Timeline and next steps with architect name</li>
+      </ul>
+    </div>
+    <div class="deliv-card">
+      <div class="deliv-tag">Discovery Deliverable</div>
+      <div class="deliv-title">Client Intake Questionnaire</div>
+      <ul class="deliv-items">
+        <li>Pre-filled answers from what Sage extracted in the transcript</li>
+        <li>Unanswered gaps clearly flagged for the client to complete</li>
+        <li>Use cases collapsed by default — client expands to answer</li>
+        <li>Submits directly to Firestore on "Submit to DataSkate"</li>
+        <li>Deployed to firebase/public/intake/{client}.html</li>
+      </ul>
+    </div>
+    <div class="deliv-card">
+      <div class="deliv-tag">AE Pitch Kit</div>
+      <div class="deliv-title">Integration Deck</div>
+      <ul class="deliv-items">
+        <li>Geo-first FOMO: named companies within ~100 miles</li>
+        <li>Nearby peers with verified public case studies</li>
+        <li>4 opening lines for the architect — scripted by Hawk</li>
+        <li>AI journey narrative specific to their systems + industry</li>
+        <li>Talking points adapted to buyer psychology profile</li>
+        <li>Competitor FOMO ordered by social-proof angle</li>
+      </ul>
     </div>
   </div>
 </div>
 
-<!-- ── SECTION 4: API-LED ARCHITECTURE ── -->
-<div class="content-section">
-  <div class="section-eyebrow">04 — Architecture</div>
-  <div class="section-title">API-Led Connectivity Model</div>
-  <div class="section-sub">Every DataSkate engagement follows MuleSoft's three-layer architecture — isolating experience, orchestration, and system concerns for maintainability and reuse.</div>
+<!-- ══ SECTION 4: NEXT STAGES ══ -->
+<div class="section">
+  <div class="eyebrow">Stages 2–7 — What Follows Scout</div>
+  <div class="section-title">The Rest of the Pipeline</div>
+  <div class="section-sub">Each stage has its own AI agent (or is auto-generated). Sub-agent pipelines like Scout's are planned for later stages as volume grows.</div>
 
-  <div class="layers">
-
-    <div class="layer exp">
-      <div class="layer-meta">
-        <div class="layer-eyebrow">Experience Layer</div>
-        <div class="layer-name">What the consumer sees</div>
-        <div class="layer-desc">Client-specific APIs tailored to each consumer — mobile, web, partner.</div>
+  <div class="next-stages">
+    <div class="stage">
+      <div class="stage-tag">Stage 2</div>
+      <div class="stage-name">Analyst</div>
+      <div class="stage-agents">
+        <span class="stage-agent-chip">Mary (AI)</span>
       </div>
-      <div class="layer-tags">
-        <span class="layer-tag">Mobile Experience API</span>
-        <span class="layer-tag">Web Experience API</span>
-        <span class="layer-tag">Partner API</span>
-        <span class="layer-tag">Webhook Receiver</span>
-        <span class="layer-tag">B2B Gateway</span>
-      </div>
-      <div class="layer-svg-wrap" style="margin-left:auto;">
-        <svg viewBox="0 0 120 50" width="120" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="10" width="35" height="28" rx="5" fill="#FDDEDE" stroke="#ed1c24" stroke-width="1.5"/>
-          <text x="19" y="26" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700">&#x1F4F1; Mobile</text>
-          <rect x="43" y="10" width="35" height="28" rx="5" fill="#FDDEDE" stroke="#ed1c24" stroke-width="1.5"/>
-          <text x="60" y="26" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700">&#x1F310; Web</text>
-          <rect x="84" y="10" width="34" height="28" rx="5" fill="#FDDEDE" stroke="#ed1c24" stroke-width="1.5"/>
-          <text x="101" y="26" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700">&#x1F91D; Partner</text>
-        </svg>
-      </div>
+      <div class="stage-desc">Reads intake responses. Produces PRD — flows, acceptance criteria, canonical field mapping, edge cases. Validates against canonical-models registry.</div>
     </div>
-
-    <div class="layer proc">
-      <div class="layer-meta">
-        <div class="layer-eyebrow">Process Layer</div>
-        <div class="layer-name">Business logic &amp; orchestration</div>
-        <div class="layer-desc">Orchestrates system calls, applies business rules, transforms data.</div>
+    <div class="stage">
+      <div class="stage-tag">Stage 3</div>
+      <div class="stage-name">Architect</div>
+      <div class="stage-agents">
+        <span class="stage-agent-chip">Winston (AI)</span>
       </div>
-      <div class="layer-tags">
-        <span class="layer-tag">Order Orchestration</span>
-        <span class="layer-tag">Inventory Process API</span>
-        <span class="layer-tag">Customer 360</span>
-        <span class="layer-tag">DataWeave Transforms</span>
-        <span class="layer-tag">Error Handling</span>
-        <span class="layer-tag">Retry / DLQ</span>
-      </div>
-      <div class="layer-svg-wrap" style="margin-left:auto;">
-        <svg viewBox="0 0 120 50" width="120" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="10" width="100" height="28" rx="5" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
-          <text x="60" y="22" font-size="8" font-family="system-ui" text-anchor="middle" fill="#1e40af" font-weight="700">&#x2699;&#xFE0F; Process APIs</text>
-          <text x="60" y="34" font-size="7" font-family="system-ui" text-anchor="middle" fill="#1e40af">Orchestrate · Transform · Route</text>
-        </svg>
-      </div>
+      <div class="stage-desc">Technical design from PRD. Selects connectors, defines API-led layers, sets security level, writes architecture.md and decisions.json.</div>
     </div>
-
-    <div class="layer sys">
-      <div class="layer-meta">
-        <div class="layer-eyebrow">System Layer</div>
-        <div class="layer-name">Raw system access</div>
-        <div class="layer-desc">Thin connectors to each backend — no business logic, just CRUD.</div>
+    <div class="stage">
+      <div class="stage-tag">Stage 4</div>
+      <div class="stage-name">PM</div>
+      <div class="stage-agents">
+        <span class="stage-agent-chip">John (AI)</span>
       </div>
-      <div class="layer-tags">
-        <span class="layer-tag">Salesforce System API</span>
-        <span class="layer-tag">NetSuite System API</span>
-        <span class="layer-tag">Shopify System API</span>
-        <span class="layer-tag">DB System API</span>
-        <span class="layer-tag">Legacy / SOAP</span>
-      </div>
-      <div class="layer-svg-wrap" style="margin-left:auto;">
-        <svg viewBox="0 0 120 50" width="120" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="10" width="26" height="28" rx="4" fill="#D1FAE5" stroke="#68D391" stroke-width="1.2"/>
-          <text x="15" y="27" font-size="7" font-family="system-ui" text-anchor="middle" fill="#065F46" font-weight="600">CRM</text>
-          <rect x="32" y="10" width="26" height="28" rx="4" fill="#D1FAE5" stroke="#68D391" stroke-width="1.2"/>
-          <text x="45" y="27" font-size="7" font-family="system-ui" text-anchor="middle" fill="#065F46" font-weight="600">ERP</text>
-          <rect x="62" y="10" width="26" height="28" rx="4" fill="#D1FAE5" stroke="#68D391" stroke-width="1.2"/>
-          <text x="75" y="27" font-size="7" font-family="system-ui" text-anchor="middle" fill="#065F46" font-weight="600">COM</text>
-          <rect x="92" y="10" width="26" height="28" rx="4" fill="#D1FAE5" stroke="#68D391" stroke-width="1.2"/>
-          <text x="105" y="27" font-size="7" font-family="system-ui" text-anchor="middle" fill="#065F46" font-weight="600">DB</text>
-        </svg>
-      </div>
+      <div class="stage-desc">Converts architecture + PRD into user stories (stories.md). Creates Jira tickets and GitHub issues in the client dev repo. Sets sprint milestones.</div>
     </div>
-
+    <div class="stage">
+      <div class="stage-tag">Stage 5</div>
+      <div class="stage-name">Scaffold</div>
+      <div class="stage-agents">
+        <span class="stage-agent-chip">Auto-generated</span>
+      </div>
+      <div class="stage-desc">generate.js reads decisions.json and produces a complete Mule 4 project — connector stubs, DWL transforms, MUnit test shells, pom.xml, property files.</div>
+    </div>
+    <div class="stage">
+      <div class="stage-tag">Stage 6</div>
+      <div class="stage-name">Developer</div>
+      <div class="stage-agents">
+        <span class="stage-agent-chip" style="background:#D1FAE5;color:#065F46;">Engineer</span>
+      </div>
+      <div class="stage-desc">Opens scaffold in Anypoint Studio / Code Builder. Fills in TODO flow logic. Runs MUnit. Commits to client GitHub repo. No boilerplate — scaffold handles it.</div>
+    </div>
+    <div class="stage">
+      <div class="stage-tag">Stage 7</div>
+      <div class="stage-name">Verify</div>
+      <div class="stage-agents">
+        <span class="stage-agent-chip">Dev agent (VR)</span>
+      </div>
+      <div class="stage-desc">Runs MUnit suite. Checks coverage floors from decisions.json. Verifies every FR and NFR from stories.md is addressed. Produces PASS or gap report.</div>
+    </div>
   </div>
 </div>
 
-<!-- ── SECTION 5: ENGAGEMENT MODELS ── -->
-<div class="content-section">
-  <div class="section-eyebrow">05 — How to Engage</div>
-  <div class="section-title">Three Engagement Models</div>
-  <div class="section-sub">Pick the model that matches how your client wants to work. Full pricing detail at <a href="/resources/ds-pricing-model.html" target="_blank">ds-pricing-model.html</a>.</div>
-
-  <div class="models-grid">
-
-    <div class="model-card iaas">
-      <div class="model-tag">Managed Service — Recommended</div>
-      <div class="model-name">IaaS — DataSkate Owns Outcomes</div>
-      <div class="model-price">$300</div>
-      <div class="model-price-unit">per flow / per month · billed 6-monthly in advance</div>
-      <div class="model-row"><span class="lbl">Upfront build cost</span><span class="val">$0</span></div>
-      <div class="model-row"><span class="lbl">Kickoff retainer</span><span class="val">$2,500–$5,000 (credited)</span></div>
-      <div class="model-row"><span class="lbl">Minimum term</span><span class="val">12 months / flow</span></div>
-      <div class="model-row"><span class="lbl">Billing starts</span><span class="val">At go-live</span></div>
-      <div class="model-row"><span class="lbl">Month 7+ rate</span><span class="val">$315/flow/mo</span></div>
-    </div>
-
-    <div class="model-card impl">
-      <div class="model-tag">One-Time Build</div>
-      <div class="model-name">Implementation — Client Self-Maintains</div>
-      <div class="model-price">$3,500</div>
-      <div class="model-price-unit">per flow · fixed price</div>
-      <div class="model-row"><span class="lbl">50% due</span><span class="val">At SOW signing</span></div>
-      <div class="model-row"><span class="lbl">50% due</span><span class="val">At UAT sign-off</span></div>
-      <div class="model-row"><span class="lbl">Ongoing fees</span><span class="val">None — code transfers</span></div>
-      <div class="model-row"><span class="lbl">Best for</span><span class="val">Client has dev team</span></div>
-    </div>
-
-    <div class="model-card tm">
-      <div class="model-tag">Flexible Scope</div>
-      <div class="model-name">T&amp;M — Pay for Actual Hours</div>
-      <div class="model-price">$25–$45</div>
-      <div class="model-price-unit">per hour · offshore rates</div>
-      <div class="model-row"><span class="lbl">Architect</span><span class="val">$45/hr · ~20h/flow</span></div>
-      <div class="model-row"><span class="lbl">Sr Developer</span><span class="val">$35/hr · ~40h/flow</span></div>
-      <div class="model-row"><span class="lbl">Developer</span><span class="val">$25/hr · ~60h/flow</span></div>
-      <div class="model-row"><span class="lbl">Invoicing</span><span class="val">Bi-weekly, actual hrs</span></div>
-      <div class="model-row"><span class="lbl">Minimum</span><span class="val">80 hrs</span></div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── FOOTER ── -->
+<!-- FOOTER -->
 <div class="doc-footer">
   <div><strong>DataSkate</strong> — 196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550</div>
   <div>dataskate.ai &nbsp;|&nbsp; kailash@dataskate.ai</div>
