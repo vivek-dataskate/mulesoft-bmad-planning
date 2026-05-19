@@ -541,14 +541,14 @@ a { color: var(--brand); text-decoration: none; }
 <div class="content-section">
   <div class="section-eyebrow">03 — How We Deliver</div>
   <div class="section-title">The BMAD Delivery Pipeline</div>
-  <div class="section-sub">Every engagement follows this 7-step pipeline. DataSkate owns steps 1–6. Developer implements in steps 6–7.</div>
+  <div class="section-sub">Every engagement follows this 7-step pipeline. DataSkate owns steps 1–6. Developer implements in Anypoint Studio in steps 6–7.</div>
 
   <div class="pipeline">
     <div class="pipe-step ds-owned">
       <div class="pipe-step-num">Step 1</div>
       <div class="pipe-step-name">Scout</div>
       <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">Reads call notes, scores buyer profile, generates intake form &amp; FOMO research.</div>
+      <div class="pipe-step-desc">9 AI agents: transcript → proposal → intake form. Fully automated pre-sales.</div>
     </div>
     <div class="pipe-step ds-owned">
       <div class="pipe-step-num">Step 2</div>
@@ -572,19 +572,107 @@ a { color: var(--brand); text-decoration: none; }
       <div class="pipe-step-num">Step 5</div>
       <div class="pipe-step-name">Scaffold</div>
       <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">Generates Mule project structure, connector stubs, DWL transforms, MUnit shells.</div>
+      <div class="pipe-step-desc">Auto-generates Mule project, connector stubs, DWL transforms, MUnit test shells.</div>
     </div>
     <div class="pipe-step dev-owned">
       <div class="pipe-step-num">Step 6</div>
       <div class="pipe-step-name">Developer</div>
       <div class="pipe-step-owner">Engineer</div>
-      <div class="pipe-step-desc">Fills in TODO flows in Anypoint Studio / Code Builder. Runs MUnit tests.</div>
+      <div class="pipe-step-desc">Fills TODO flows in Anypoint Studio / Code Builder. Runs MUnit tests.</div>
     </div>
     <div class="pipe-step dev-owned">
       <div class="pipe-step-num">Step 7</div>
       <div class="pipe-step-name">Verify</div>
       <div class="pipe-step-owner">DataSkate</div>
-      <div class="pipe-step-desc">Automated verification: coverage floors, FR/NFR checklist, PASS / gap report.</div>
+      <div class="pipe-step-desc">Automated: coverage floors, FR/NFR checklist, PASS / gap report.</div>
+    </div>
+  </div>
+
+  <!-- ── Scout Agent Detail ── -->
+  <div class="scout-detail">
+    <div class="scout-detail-eyebrow">Inside Step 1 — The Scout Agent Pipeline</div>
+    <div class="scout-detail-title">9 AI Agents. One Automated Pre-Sales Run.</div>
+    <div class="scout-detail-sub">A single call recording drops in. 9 specialised agents run in sequence — each reads the prior agent's output and writes its own. The output: intake form, proposal, integration deck, and psychology-adapted framing. No manual work.</div>
+
+    <div class="agent-flow-wrap">
+      <!-- Row 1: Sage → Vera → Rex → Ivy → Flo -->
+      <div class="agent-row row1">
+        <div class="agent-card model-haiku">
+          <div class="agent-pos">Agent 1</div>
+          <div class="agent-name">Sage</div>
+          <div class="agent-role">Document Analyst</div>
+          <span class="agent-model-badge">Haiku</span>
+          <div class="agent-output">→ sage.json (pain, flows, quotes)</div>
+        </div>
+        <div class="agent-card model-opus">
+          <div class="agent-pos">Agent 2</div>
+          <div class="agent-name">Vera</div>
+          <div class="agent-role">Vertical Intelligence</div>
+          <span class="agent-model-badge">Opus</span>
+          <div class="agent-output">→ vera.json (FOMO, benchmarks, peers)</div>
+        </div>
+        <div class="agent-card model-sonnet">
+          <div class="agent-pos">Agent 3</div>
+          <div class="agent-name">Rex</div>
+          <div class="agent-role">Systems Analyst</div>
+          <span class="agent-model-badge">Sonnet</span>
+          <div class="agent-output">→ rex.json (connectors, auth, gotchas)</div>
+        </div>
+        <div class="agent-card model-sonnet">
+          <div class="agent-pos">Agent 4</div>
+          <div class="agent-name">Ivy</div>
+          <div class="agent-role">Buyer Intelligence</div>
+          <span class="agent-model-badge">Sonnet</span>
+          <div class="agent-output">→ ivy.json (buyer profile, modifiers)</div>
+        </div>
+        <div class="agent-card model-opus">
+          <div class="agent-pos">Agent 5</div>
+          <div class="agent-name">Flo</div>
+          <div class="agent-role">Flow Analyst + Pricing</div>
+          <span class="agent-model-badge">Opus</span>
+          <div class="agent-output">→ flo.json (confirmed flows, SOW pricing)</div>
+        </div>
+      </div>
+      <!-- Corner connector -->
+      <div class="agent-row-connector"><span class="corner-arrow">↙</span></div>
+      <!-- Row 2: Hawk → Petra → Quinn → Mira -->
+      <div class="agent-row row2">
+        <div class="agent-card model-opus">
+          <div class="agent-pos">Agent 6</div>
+          <div class="agent-name">Hawk</div>
+          <div class="agent-role">Deal Urgency Strategist</div>
+          <span class="agent-model-badge">Opus</span>
+          <div class="agent-output">→ hawk.json (FOMO order, talking points)</div>
+        </div>
+        <div class="agent-card model-opus">
+          <div class="agent-pos">Agent 7</div>
+          <div class="agent-name">Petra</div>
+          <div class="agent-role">Proposal Writer</div>
+          <span class="agent-model-badge">Opus</span>
+          <div class="agent-output">→ proposal-content.json + integration deck</div>
+        </div>
+        <div class="agent-card model-sonnet">
+          <div class="agent-pos">Agent 8</div>
+          <div class="agent-name">Quinn</div>
+          <div class="agent-role">Intake Specialist</div>
+          <span class="agent-model-badge">Sonnet</span>
+          <div class="agent-output">→ intake-questionnaire-{client}.html</div>
+        </div>
+        <div class="agent-card model-opus">
+          <div class="agent-pos">Agent 9</div>
+          <div class="agent-name">Mira</div>
+          <div class="agent-role">Buyer Advocate · QA</div>
+          <span class="agent-model-badge">Opus</span>
+          <div class="agent-output">→ mira.json (psychology audit, gaps)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-legend">
+      <span style="font-size:10px;font-weight:700;color:var(--mid);margin-right:4px;">Model:</span>
+      <div class="legend-item"><div class="legend-dot haiku"></div> Haiku — fast extraction</div>
+      <div class="legend-item"><div class="legend-dot sonnet"></div> Sonnet — structured analysis</div>
+      <div class="legend-item"><div class="legend-dot opus"></div> Opus — deep reasoning &amp; writing</div>
     </div>
   </div>
 </div>
