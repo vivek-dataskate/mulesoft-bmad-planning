@@ -265,6 +265,7 @@ section p:last-child{margin-bottom:0}
 
   auth.onAuthStateChanged(async user => {
     if (user && user.email && user.email.endsWith('@dataskate.ai')) {
+      hide('login-screen');
       show('deck-loading');
       try {
         const doc = await db.collection('pitchKits').doc(CLIENT_SLUG).get();
