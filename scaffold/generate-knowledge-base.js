@@ -212,21 +212,29 @@ function renderScoutSection() {
   const MODEL_LABEL = { haiku: 'Haiku', sonnet: 'Sonnet', opus: 'Opus' };
 
   function agentCard(a) {
-    const c   = MODEL_COLOR[a.model] || '#888';
-    const bg  = MODEL_BG[a.model]   || '#FAFAFA';
+    const parked = a.status === 'parked';
+    const c   = parked ? '#AAAAAA' : (MODEL_COLOR[a.model] || '#888');
+    const bg  = parked ? '#FAFAFA' : (MODEL_BG[a.model]   || '#FAFAFA');
     const isGated = a.mode === 'gated';
-    const modeHtml = isGated
-      ? `<span style="font-size:9px;font-weight:700;color:#92640A;background:var(--amber-bg);border:1px solid var(--amber);border-radius:3px;padding:1px 5px;">⊙ Gated</span>`
-      : `<span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>`;
-    return `<div style="flex:1;min-width:110px;max-width:148px;border:1px solid ${c}44;border-top:4px solid ${c};border-radius:6px;background:${bg};padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+    const modeHtml = parked
+      ? `<span style="font-size:9px;font-weight:700;color:#999;background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">⏸ Parked</span>`
+      : isGated
+        ? `<span style="font-size:9px;font-weight:700;color:#92640A;background:var(--amber-bg);border:1px solid var(--amber);border-radius:3px;padding:1px 5px;">⊙ Gated</span>`
+        : `<span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>`;
+    const borderStyle = parked ? `border:1.5px dashed #CCC;border-top:4px dashed ${c};` : `border:1px solid ${c}44;border-top:4px solid ${c};`;
+    const nameColor = parked ? 'color:#999;' : 'color:var(--dark);';
+    const modelLabel = parked
+      ? `<span style="font-size:9px;color:#AAAAAA;background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">${MODEL_LABEL[a.model] || a.model}</span>`
+      : `<span style="font-size:9px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}55;border-radius:3px;padding:1px 5px;">${MODEL_LABEL[a.model] || a.model}</span>`;
+    return `<div style="flex:1;min-width:110px;max-width:148px;${borderStyle}border-radius:6px;background:${bg};padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;opacity:${parked ? '0.72' : '1'};">
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <span style="font-size:9px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:0.8px;">Agent ${a.position}</span>
     ${modeHtml}
   </div>
-  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">${esc(a.name)}</div>
+  <div style="font-size:14px;font-weight:800;line-height:1.1;${nameColor}">${esc(a.name)}</div>
   <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">${esc(a.role)}</div>
   <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
-    <span style="font-size:9px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}55;border-radius:3px;padding:1px 5px;">${MODEL_LABEL[a.model] || a.model}</span>
+    ${modelLabel}
     <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(a.outputFile)}">${esc(a.outputFile.replace('run/', ''))}</span>
   </div>
   ${a.gatePrompt ? `<div style="font-size:9px;color:var(--mid);border-top:1px solid ${c}22;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">${esc(a.gatePrompt)}</div>` : ''}
@@ -239,7 +247,7 @@ function renderScoutSection() {
   }
 
   const row1 = pipeline.agents.slice(0, 5);
-  const row2 = pipeline.agents.slice(5);
+  const row2 = pipeline.agents.slice(5);  // 5 agents: Hawk→Petra→Quinn→Sol(parked)→Mira
 
   const row1Html = row1.map((a, i) => agentCard(a) + (i < row1.length - 1 ? arrow(false) : '')).join('');
   const row2Html = row2.map((a, i) => agentCard(a) + (i < row2.length - 1 ? arrow(false) : '')).join('');
@@ -256,13 +264,21 @@ function renderScoutSection() {
 
   // Reference table rows with h3 anchors (hidden visually, for right-nav)
   const refRows = pipeline.agents.map(a => {
-    const c = MODEL_COLOR[a.model] || '#888';
-    return `<tr>
-  <td><h3 id="sa-${esc(a.slug)}" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">${esc(a.position)}. ${esc(a.name)}</h3></td>
+    const parked = a.status === 'parked';
+    const c = parked ? '#AAAAAA' : (MODEL_COLOR[a.model] || '#888');
+    const modeCell = parked
+      ? `<span style="font-size:10px;color:#999;">⏸ Parked</span>`
+      : a.mode === 'gated'
+        ? `<span style="font-size:10px;font-weight:700;color:#92640A;">⊙ Gated</span>`
+        : `<span style="font-size:10px;color:var(--mid);">◎ Auto</span>`;
+    const rowStyle = parked ? ' style="opacity:0.6;"' : '';
+    return `<tr${rowStyle}>
+  <td><h3 id="sa-${esc(a.slug)}" style="font-size:12px;font-weight:800;color:${parked ? '#999' : 'var(--dark)'};margin:0;">${esc(a.position)}. ${esc(a.name)}</h3></td>
   <td style="font-size:11px;">${esc(a.role)}</td>
-  <td><span style="font-size:10px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}55;border-radius:3px;padding:1px 6px;">${MODEL_LABEL[a.model]}</span></td>
-  <td>${a.mode === 'gated' ? `<span style="font-size:10px;font-weight:700;color:#92640A;">⊙ Gated</span>` : `<span style="font-size:10px;color:var(--mid);">◎ Auto</span>`}</td>
+  <td><span style="font-size:10px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}55;border-radius:3px;padding:1px 6px;">${MODEL_LABEL[a.model] || a.model}</span></td>
+  <td>${modeCell}</td>
   <td><code style="font-size:10px;">${esc(a.outputFile)}</code></td>
+  ${a.note ? `<td style="font-size:10px;color:var(--mid);font-style:italic;">${esc(a.note)}</td>` : '<td></td>'}
 </tr>`;
   }).join('');
 
@@ -279,7 +295,7 @@ function renderScoutSection() {
 
 <h3 id="sa-reference">Agent Reference</h3>
 <table class="md-table">
-  <thead><tr><th>Agent</th><th>Role</th><th>Model</th><th>Mode</th><th>Output</th></tr></thead>
+  <thead><tr><th>Agent</th><th>Role</th><th>Model</th><th>Mode</th><th>Output</th><th>Notes</th></tr></thead>
   <tbody>${refRows}</tbody>
 </table>`;
 }
