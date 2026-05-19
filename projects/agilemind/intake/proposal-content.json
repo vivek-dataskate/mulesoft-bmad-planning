@@ -1,0 +1,371 @@
+{
+  "meta": {
+    "clientName": "AgileMind",
+    "clientSlug": "agilemind",
+    "title": "The Connected AgileMind: Your AI Integration Roadmap",
+    "subtitle": "From Crystal's manual invoicing loop to AgentForce — your three-stage roadmap",
+    "date": "2026-05-19",
+    "architect": "Kailash Chanda",
+    "architectEmail": "kailash@dataskate.ai",
+    "flowCount": 4
+  },
+
+  "challenge": {
+    "lead": "Before the solution — there are real questions left to answer: QuickBooks Online or Desktop, where Holly's spreadsheets live, whether the ISBN lookup table can be built before go-live. Those are worth nailing down — and they can be. Here is what is happening right now while those questions sit open: Crystal Robinson manually creates the QuickBooks invoice, manually transfers the account details and line items from the Salesforce Agreement, and then manually updates the invoice number, date, and payment information back into the Salesforce Agreement using a custom field. At 15 to 30 minutes per agreement, across a back-to-school pipeline that compresses into 60 days — that is the labor cost of the status quo, running every cycle.",
+    "cards": [
+      {
+        "label": "Crystal's Manual Invoicing Loop",
+        "text": "Crystal Robinson creates every QuickBooks invoice by hand — entering line items from the Salesforce Agreement, then updating the invoice number, date, and open balance back into Salesforce manually. At 15–30 minutes per agreement, this runs every time Abby closes a deal."
+      },
+      {
+        "label": "Holly's Spreadsheet Is the Only Source",
+        "text": "The moment Holly Wale closes her laptop, the rest of the team is working from stale inventory data. Maria cannot answer 'what is the current available stock for Intensified Algebra Vol 1?' without calling Holly directly."
+      },
+      {
+        "label": "60-Day Back-to-School Crunch",
+        "text": "District POs compress May through July — the same 60-day window where Crystal is manually processing the most invoices and Holly is manually tracking the most inventory demand at the same time. AgileMind's April 1 fiscal year means their books open while districts are still spending."
+      }
+    ]
+  },
+
+  "solution": {
+    "lead": "DataSkate manages a MuleSoft runtime between Salesforce, QuickBooks Online, and Holly's inventory worksheet — handling event triggers, field transforms, error recovery, and OAuth token rotation automatically. Unlike native marketplace connectors, the DataSkate layer includes retry logic, dead letter queuing, and an operations layer that runs without internal IT resources. No code changes are required in Salesforce or QuickBooks.",
+    "diagramNodes": {
+      "sources": ["Salesforce", "QuickBooks Online", "Google Sheets / Excel"],
+      "targets": ["QuickBooks Online", "Salesforce"]
+    },
+    "diagramCaption": "DataSkate-managed MuleSoft layer — no code changes required in Salesforce or QuickBooks. Salesforce and QuickBooks Online are both source and target: UC1 flows Salesforce → QB; UC2, UC4 flow QB → Salesforce; UC3 flows Google Sheets / Excel → Salesforce."
+  },
+
+  "roi": {
+    "headline": "The business case for moving now",
+    "body": "Crystal Robinson spends 15–30 minutes manually re-entering data between QuickBooks and Salesforce on every agreement. At AgileMind's back-to-school volume — even 150 agreements in the May–July window — that is 37–75 hours of billing labor per cycle doing nothing but moving data that already exists in Salesforce. Industry benchmarks for CRM + accounting integration (Bizdata360 / Salesforce, 2024–2025) report 30% productivity recovery and 60% reduction in data entry errors — consistent with what a comparable services company recovered when automating the same Salesforce ↔ QuickBooks invoice and payment sync: $25,000 in annual billing labor eliminated.",
+    "stats": [
+      {
+        "value": "15–30 min",
+        "label": "of manual work per agreement — Crystal's time re-entering invoice data between QuickBooks and Salesforce, running every cycle"
+      },
+      {
+        "value": "30%",
+        "label": "productivity gain reported by companies that connected CRM to accounting systems (Bizdata360 / Salesforce benchmark, 2024–2025)"
+      },
+      {
+        "value": "$25K/yr",
+        "label": "in annual billing labor eliminated by automating the same Salesforce-to-QuickBooks invoice and payment sync (comparable services company, verified)"
+      }
+    ]
+  },
+
+  "journey": {
+    "headline": "the path to answering 'what have we spent on Intensified Algebra Vol 1 over the last five years?' in Salesforce, without calling Holly",
+    "stage1": {
+      "label": "Connected",
+      "year": "Year 1",
+      "headline": "Agreement-to-Invoice and Inventory in One View",
+      "items": [
+        "Crystal stops manually creating QuickBooks invoices — when Abby marks an Agreement Closed Won, the invoice appears in QuickBooks automatically with line items, the correct state-based ISBN, and the customer account already matched",
+        "Crystal stops toggling between QuickBooks and Salesforce — invoice number, payment date, and open balance write back to the Salesforce Agreement automatically on a schedule",
+        "Holly's inventory quantities, committed stock, and projected shorts appear in Salesforce Inventory__c on a schedule — anyone on the team can see available stock for any title without calling Holly",
+        "Maria's cost-per-program question — 'what did we spend on Intensified Algebra Vol 1 over 5 years?' — becomes answerable from Salesforce without opening QuickBooks"
+      ]
+    },
+    "stage2": {
+      "label": "Automated",
+      "year": "Year 1–2",
+      "headline": "Shortage Alerts and Fulfillment Triggers Fire Themselves",
+      "items": [
+        "When available inventory for a title drops below Holly's 3% buffer threshold, a Salesforce alert fires automatically to Holly and the responsible sales rep — before the shortage becomes a fulfillment problem",
+        "When a district's Opportunity stage crosses 60% probability, a pre-fulfillment reservation triggers in QuickBooks — reducing the manual crunch at back-to-school",
+        "Product catalog sync keeps QuickBooks items and Salesforce Products aligned — new title additions by Maria don't silently diverge from Abby's opportunity line items"
+      ]
+    },
+    "stage3": {
+      "label": "Agentic",
+      "year": "Year 2+",
+      "headline": "AgentForce — Activated",
+      "items": [
+        "An AgentForce agent monitors Salesforce open Agreements where the QuickBooks open balance has aged past 30 days — and drafts a follow-up email to the district's finance contact that names the specific invoice number, amount due, and program. Crystal reviews and sends with one click.",
+        "Maria's question — 'What did we spend on Intensified Algebra Vol 1 the last five fiscal years and what is left in inventory?' — is answered in seconds by an AgentForce agent reading the Inventory__c object and Invoice history that Phases 1 and 2 built. No call to Holly required.",
+        "An AgentForce agent runs pre-season demand forecasting weekly: reading open Opportunity pipeline by probability stage from Salesforce, comparing to current QuickBooks inventory levels in Inventory__c, and generating a draft purchase order recommendation for Holly's one-click approval — replacing the manual red-cell Excel exercise."
+      ]
+    },
+    "closingLine": "The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once."
+  },
+
+  "flows": [
+    {
+      "num": 1,
+      "name": "Salesforce Agreement → QuickBooks Invoice Creation",
+      "route": "Salesforce → MuleSoft → QuickBooks Online",
+      "value": "When Abby marks an Agreement Closed Won, a QuickBooks invoice appears automatically — line items populated, customer matched, and the correct state-based ISBN resolved from the configurable lookup table. Crystal doesn't touch it."
+    },
+    {
+      "num": 2,
+      "name": "QuickBooks Invoice Status → Salesforce Agreement Sync",
+      "route": "QuickBooks Online → MuleSoft → Salesforce",
+      "value": "Invoice number, payment date, and open balance write back to the Salesforce Agreement automatically on a scheduled cadence. Crystal's manual update step stops on go-live day."
+    },
+    {
+      "num": 3,
+      "name": "Holly's Demand Worksheet → Salesforce Inventory__c",
+      "route": "Google Sheets / Excel → MuleSoft → Salesforce",
+      "value": "Holly's inventory quantities, committed stock, and projected shorts load into a new Salesforce Inventory__c object on a schedule. Anyone on the team can see current available stock for any title without calling Holly."
+    },
+    {
+      "num": 4,
+      "name": "QuickBooks Inventory Items → Salesforce Inventory__c (Cost Data)",
+      "route": "QuickBooks Online → MuleSoft → Salesforce",
+      "value": "Unit costs for every curriculum title pull from QuickBooks into the same Salesforce Inventory__c view. Maria can see on-hand quantities and unit costs for any title — and answer cost-per-program and 5-year spend questions from Salesforce without opening QuickBooks."
+    }
+  ],
+
+  "outcomes": [
+    {
+      "icon": "&#9203;",
+      "title": "Hours Recovered at Back-to-School",
+      "body": "Crystal's 15–30-minute manual invoicing loop stops on go-live day. At AgileMind's back-to-school volume — even 150 agreements in a 60-day window — that is measurable hours returned to finance every cycle, during AgileMind's most compressed billing period."
+    },
+    {
+      "icon": "&#128200;",
+      "title": "Inventory in One View",
+      "body": "Holly's demand worksheet and QuickBooks cost data both land in Salesforce Inventory__c automatically. Maria can see quantities, committed stock, unit costs, and projected shorts without toggling between three systems or calling Holly."
+    },
+    {
+      "icon": "&#129302;",
+      "title": "AgentForce — Built on Phase 1's Foundation",
+      "body": "Maria's question — 'What have we spent on Intensified Algebra Vol 1 over the last five years?' — becomes answerable in Phase 3 by an AgentForce agent reading the Inventory__c records and Invoice history Phase 1 builds. The Salesforce objects DataSkate creates on go-live day are what AgentForce reads in Year 2. That architecture is decided once."
+    }
+  ],
+
+  "included": [
+    {
+      "title": "4 Integration Flows — Built and Deployed",
+      "detail": "UC1 (Agreement → QB Invoice), UC2 (QB Payment Status → Salesforce Agreement), UC3 (Demand Worksheet → Salesforce Inventory__c), UC4 (QB Inventory Costs → Salesforce Inventory__c). All flows delivered on CloudHub 2.0."
+    },
+    {
+      "title": "MuleSoft Hosting on CloudHub 2.0",
+      "detail": "DataSkate manages the runtime environment, vCore allocation, and deployment pipeline. AgileMind does not manage MuleSoft infrastructure."
+    },
+    {
+      "title": "Field Mapping and DataWeave Transforms",
+      "detail": "All DataWeave mapping from source to target systems — including the state × product → ISBN lookup logic for UC1 — designed, built, and documented by DataSkate."
+    },
+    {
+      "title": "Error Handling and Dead Letter Queue",
+      "detail": "Failed events are routed to a dead letter queue with alerting. Crystal and Holly receive notifications on integration failures — no silent data loss."
+    },
+    {
+      "title": "UAT Support — 2 Weeks",
+      "detail": "DataSkate supports AgileMind's User Acceptance Testing phase — fixing issues, validating edge cases, and confirming all P0 prerequisites are resolved before go-live."
+    },
+    {
+      "title": "30-Day Hypercare Post Go-Live",
+      "detail": "Dedicated support in the first 30 days after go-live — critical for back-to-school period. QuickBooks OAuth token rotation (100-day expiry risk), edge case ISBN routing issues, and invoice sync timing are all covered."
+    }
+  ],
+
+  "oos": [
+    {
+      "title": "Salesforce Org Configuration and Object Provisioning",
+      "detail": "The Inventory__c object schema is designed by DataSkate, but creating it in AgileMind's Salesforce org is an IT / Salesforce admin task (Chloe). Salesforce org licensing, Einstein / AgentForce licensing for Phase 3, and Education Cloud upgrade decisions are outside this engagement."
+    },
+    {
+      "title": "QuickBooks Setup, Licensing, and Connected App Registration",
+      "detail": "QuickBooks licensing (including any Desktop → Online upgrade decision) and the Intuit Developer Console Connected App registration are client responsibilities. DataSkate configures the MuleSoft connector once OAuth credentials are provided."
+    },
+    {
+      "title": "Holly's Spreadsheet Migration to Cloud Storage",
+      "detail": "If Holly's demand worksheet is currently on a local machine, migrating it to Google Drive or SharePoint/OneDrive is the client's IT responsibility (Chloe). DataSkate builds the UC3 integration connector once the cloud storage location is confirmed and accessible."
+    },
+    {
+      "title": "Historical Data Migration",
+      "detail": "This engagement handles net-new data from go-live forward. Historical invoice records, payment history, and inventory quantities are not migrated from QuickBooks or Excel into Salesforce as part of this scope."
+    },
+    {
+      "title": "Product Catalog Master Data Sync (UC5-potential)",
+      "detail": "The product/book title sync between QuickBooks and Salesforce (UC5-potential) is not in scope for this engagement. Maria's confirmation of system of record (QuickBooks or Salesforce) for product catalog is a prerequisite — promote to a future sprint once confirmed."
+    }
+  ],
+
+  "assumptions": [
+    {
+      "assumption": "QuickBooks version confirmed: Online, Desktop Pro/Premier, or Enterprise. Connector selection and architecture path differ completely between Online and Desktop — this must be resolved before architecture sprint begins.",
+      "owner": "Client",
+      "when": "Before architecture sprint begins",
+      "p0": true
+    },
+    {
+      "assumption": "QuickBooks Connected App registered at developer.intuit.com; OAuth 2.0 Client ID and Secret provided to DataSkate; QuickBooks sandbox company provisioned for integration testing; fiscal year April 1 confirmed in QB company settings.",
+      "owner": "Client",
+      "when": "Before integration build sprint begins",
+      "p0": true
+    },
+    {
+      "assumption": "Holly's demand worksheet confirmed as stored in Google Drive, SharePoint, or OneDrive — local machine files cannot be accessed from CloudHub 2.0. If local, file must be migrated before UC3 build can begin.",
+      "owner": "Client",
+      "when": "Before integration build sprint begins",
+      "p0": true
+    },
+    {
+      "assumption": "Google Service Account (Google Sheets path) or Azure AD app registration and Graph API permissions (OneDrive/SharePoint path) provisioned by Chloe (IT). Holly's column headers documented and stable before DataWeave mapping is written.",
+      "owner": "Both",
+      "when": "Before UC3 DataWeave mapping is written",
+      "p0": false
+    },
+    {
+      "assumption": "Salesforce State/Country Picklist format confirmed (ISO codes e.g. US-CA vs free text e.g. California). A sample Agreement record showing the mailing state field value is required — determines the key format for the ISBN lookup table DataSkate configures.",
+      "owner": "Client",
+      "when": "Before UC1 DataWeave mapping is written",
+      "p0": false
+    }
+  ],
+
+  "timeline": [
+    {
+      "label": "Phase 1 — Discovery & Field Mapping",
+      "weeks": "Weeks 1–2",
+      "tasks": [
+        "QuickBooks version and QB sandbox confirmation (Crystal or Maria)",
+        "Holly's worksheet storage location confirmed and cloud-accessible (Chloe / IT)",
+        "Salesforce State/Country Picklist format confirmed (Abby / Salesforce admin)",
+        "ISBN lookup table data collected from Abby — current state × product → ISBN mapping",
+        "DataWeave field mapping spec drafted for UC1–UC4",
+        "MuleSoft CloudHub 2.0 environment provisioned by DataSkate"
+      ]
+    },
+    {
+      "label": "Phase 2 — Build & Unit Test",
+      "weeks": "Weeks 3–5",
+      "tasks": [
+        "UC1: Salesforce Agreement event → QuickBooks invoice creation with state-based ISBN lookup",
+        "UC2: QuickBooks invoice status → Salesforce Agreement scheduled sync (April 1 fiscal year offset)",
+        "UC3: Holly's demand worksheet → Salesforce Inventory__c scheduled load",
+        "UC4: QuickBooks inventory items → Salesforce Inventory__c cost data sync",
+        "Inventory__c custom object created in Salesforce with all required fields (DataSkate spec, Chloe provision)",
+        "Error handling, dead letter queue, and QuickBooks OAuth token rotation automation configured"
+      ]
+    },
+    {
+      "label": "Phase 3 — UAT & Integration Testing",
+      "weeks": "Weeks 6–7",
+      "tasks": [
+        "Crystal validates UC1 invoice creation against real Salesforce Agreements",
+        "Crystal validates UC2 payment sync back to Salesforce Agreement custom fields",
+        "Holly validates UC3 inventory quantities in Salesforce Inventory__c",
+        "Maria validates UC4 cost fields and Inventory__c dashboard view",
+        "All P0 blockers must be fully resolved before UAT can start"
+      ]
+    },
+    {
+      "label": "Phase 4 — Go Live & Handoff",
+      "weeks": "Week 8",
+      "tasks": [
+        "CloudHub 2.0 production deployment",
+        "30-day hypercare begins — DataSkate monitoring for OAuth token rotation, ISBN routing edge cases, and invoice sync timing",
+        "Year 2 automation roadmap review with Kailash — UC5, UC6, UC7 promotion criteria and AgentForce readiness checklist"
+      ]
+    }
+  ],
+
+  "pricing": true,
+
+  "fomo": [
+    {
+      "name": "Carnegie Learning",
+      "revenue": null,
+      "relevanceTier": "exact-match",
+      "savings": "92% research time reduction; 90% email time reduction per rep",
+      "whatTheyBuilt": "Deployed Salesforce Agentforce to automate sales rep account research — AI account summaries of deal amounts, key contacts, and similar closed-won opportunities generated automatically when a rep opens a Salesforce record",
+      "fomoAngle": "92% of the time Carnegie Learning's K-12 reps spent preparing for district calls — gone on go-live. Up to an hour of pre-call research per rep, per call, eliminated. They sell to the same school districts AgileMind sells to. The integration that freed their team runs on the same Salesforce platform AgileMind already pays for.",
+      "analogyNote": "Direct K-12 curriculum competitor — same Salesforce platform, same school district buyers",
+      "aiAgentDescription": "An AI agent monitors Salesforce Opportunity and Account data → generates a real-time account summary (deal amounts, key contacts, similar closed-won opportunities) when a rep opens a record or receives an inbound call — eliminating hold time and pre-call prep",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/carnegie-learning/",
+      "sourceLabel": "Salesforce Customer Story — Carnegie Learning"
+    },
+    {
+      "name": "A specialty services company (Salesforce + QuickBooks integration)",
+      "revenue": null,
+      "relevanceTier": "adjacent-industry",
+      "savings": "$25,000/year in manual data entry eliminated; 2,000+ invoices automated; 90% reduction in maintenance costs",
+      "whatTheyBuilt": "Automated bidirectional invoice creation, payment sync, and customer record transfers between Salesforce and QuickBooks — eliminating manual data entry for billing operations",
+      "fomoAngle": "$25,000 in annual billing labor eliminated by automating exactly the workflow Crystal runs today — invoice creation, payment sync, and customer record transfer between Salesforce and QuickBooks. 2,000+ invoices processed without a human hand. That specific task — Crystal toggling between two systems for every agreement — stops on go-live day.",
+      "analogyNote": "Same UC1 + UC2 pattern: Salesforce ↔ QuickBooks invoice and payment sync",
+      "aiAgentDescription": null,
+      "sourceUrl": null,
+      "sourceLabel": "Anonymized case study — Salesforce ↔ QuickBooks invoice sync, services industry"
+    },
+    {
+      "name": "Industry benchmark (CRM + accounting integration)",
+      "revenue": null,
+      "relevanceTier": "industry-stat",
+      "savings": "30% productivity increase; 25% admin cost reduction; 60% error reduction (Bizdata360/Salesforce benchmark research 2024–2025)",
+      "whatTheyBuilt": "Organizations that connect CRM to accounting/ERP systems across industries report consistent operational improvements in productivity, administrative cost, and data accuracy",
+      "fomoAngle": "30% finance team productivity recovered. 60% fewer data entry errors. Across industries that have connected CRM to accounting. Crystal's workflow is in that 30%. At AgileMind's billing volume — even at 150 agreements per back-to-school season — 15–30 minutes of manual entry per agreement represents hours of recoverable time before the busiest window of the year hits.",
+      "analogyNote": "Cross-industry benchmark for CRM + accounting integration (Bizdata360/Salesforce, 2024–2025)",
+      "aiAgentDescription": null,
+      "sourceUrl": "https://www.bizdata360.com/quickbooks-salesforce-integration/",
+      "sourceLabel": "Bizdata360 / Salesforce integration benchmark research"
+    },
+    {
+      "name": "Wiley",
+      "revenue": null,
+      "relevanceTier": "same-industry",
+      "savings": "213% ROI on Service Cloud investment; 40%+ efficiency gain in case resolution; 50% faster agent onboarding",
+      "whatTheyBuilt": "Deployed Salesforce Agentforce + Service Cloud to handle semester-start student service surges — autonomous case resolution for account access and password resets, escalating payment and registration edge cases with full context pre-loaded",
+      "fomoAngle": "40% faster case resolution, 50% faster onboarding for new agents — recovered by connecting Salesforce Service Cloud to their back-end systems. Wiley is a publisher running the same Salesforce core AgileMind has. Their team's manual service queue shrank when the right data was routed automatically. The same integration pattern, applied to billing and inventory, produces the same class of outcome.",
+      "analogyNote": "Educational publisher — same Salesforce platform with Phase 3 Agentforce outcomes already live",
+      "aiAgentDescription": "An AI agent monitors incoming student service requests → auto-resolves account access and password issues → escalates payment and registration edge cases to a human agent with full context pre-loaded",
+      "sourceUrl": "https://www.salesforce.com/customer-stories/wiley/",
+      "sourceLabel": "Salesforce Customer Story — Wiley"
+    }
+  ],
+
+  "buyerProfile": {
+    "primary": "operational-pragmatist",
+    "secondary": "roi-analytical",
+    "signals": [
+      "highly manual process in an Excel worksheet",
+      "Crystal Robinson manually transfers the account details and line items to the QuickBooks invoice",
+      "Crystal Robinson manually updates the invoice number, date, and other payment information back into the Salesforce agreement",
+      "if I say now I just need one person part-time versus full-time. That's a return right on my investment",
+      "Over the last 5 years, what have we spent on Intensified Algebra - Volume 1 SABs?"
+    ],
+    "contentModifiersApplied": [
+      "challenge.lead: skepticism-first structure applied — hawk.json HD-004. Acknowledges open questions (QB version, Holly's file location) BEFORE naming Crystal's pain, per Ivy skepticism signal detection. Secondary roi-analytical profile adds cost anchor: '15 to 30 minutes per agreement, across a back-to-school pipeline that compresses into 60 days.'",
+      "fomo[] ordering: sorted by time-saved (hours/people recovered, largest first) per hawk.json HD-001. Carnegie Learning (92% research time) leads; anonymized flooring ($25K/2,000 invoices) second; industry benchmark third; Wiley (213% ROI/40% efficiency) fourth.",
+      "fomoAngle: primary fomoAngleAdapted used verbatim from hawk.json per HD-002 and HD-003 — leads with task-elimination ('that specific task stops on go-live day') not AI capability framing.",
+      "closingLine: AgentForce-specific override applied per hawk.json HD-005. salesforceDetected=true in flo.json triggered override of both operational-pragmatist closingLineVariant and proposal-structure.md default.",
+      "journey.headline: aspirationQuote callback per hawk.json HD-006. Maria's exact question ('what have we spent on Intensified Algebra Vol 1 over the last five years?') used verbatim with Holly named explicitly — anchors the journey in the specific friction she described.",
+      "Stage 3 AgentForce adaptation: flo.json flags.salesforceDetected=true. Stage 3 headline is 'AgentForce — Activated'; every bullet names exact Salesforce objects (Inventory__c, Agreement, Opportunity) and the specific action an AgentForce agent takes."
+    ],
+    "closingLineVariant": "operational-pragmatist"
+  },
+
+  "fomoThoughtStarters": [
+    "Inventory Shortage Alert Agent — Once UC3 loads Holly's inventory into Salesforce, a Salesforce Flow can fire an alert to the sales rep and Holly whenever available stock for a title drops below the 3% buffer. No more checking red cells in Excel — the system calls it out automatically before a district order creates a short. (Phase 2 — Automated)",
+    "Pre-Season Demand Forecast Agent — With Opportunity stage probabilities and inventory quantities both in Salesforce (post-UC3/UC4), an Agentforce agent can run a demand forecast each week: multiply pipeline units at each probability tier × probability → compare to QuickBooks on-hand quantities → generate a draft purchase order recommendation for Holly's one-click approval. Replaces the manual red-cell Excel exercise. (Phase 3 — Agentic)",
+    "AR Follow-Up Agent for District Finance — Once UC2 syncs QuickBooks payment status to Salesforce Agreements, an Agentforce agent can monitor for open balances aging past 30 days and draft a personalized follow-up email to the district's finance contact — referencing the specific invoice number, amount due, and program — queued for Crystal's one-click send. Turns AR follow-up from a weekly manual task into an automated daily watch. (Phase 3 — Agentic)",
+    "ISBN Routing Intelligence — The configurable ISBN lookup table (state × school → correct ISBN) can be extended with an Agentforce agent: when no ISBN match is found, instead of just flagging for manual review, the agent queries the district's state and enrolled program, checks for the closest ISBN match, and drafts a resolution note for Abby — reducing the manual review queue to true edge cases only. (Phase 2 → Phase 3)"
+  ],
+
+  "nextSteps": [
+    {
+      "title": "Fill Out Intake Form",
+      "body": "Complete the AgileMind intake questionnaire — it covers the P0 items that must be resolved before build can start: QuickBooks version, Holly's file storage location, and Salesforce State/Country Picklist confirmation."
+    },
+    {
+      "title": "Schedule Technical Deep Dive",
+      "body": "Book a 60-minute call with Kailash Chanda (<a href=\"mailto:kailash@dataskate.ai\">kailash@dataskate.ai</a>) — DataSkate's MuleSoft architect — to walk through the UC1 ISBN routing logic and confirm the QuickBooks connector path before field mapping begins."
+    },
+    {
+      "title": "Review Integration Deck",
+      "body": "Share the integration deck with your team. It covers the full AgileMind integration architecture, architect talking points, and the peer landscape for internal conversations with Linda and the executive team."
+    },
+    {
+      "title": "Align on Scope and SOW",
+      "body": "Once P0 items are resolved, DataSkate issues the Statement of Work. The $2,500 kickoff retainer is credited at go-live — no implementation fee on the IaaS model."
+    }
+  ],
+
+  "about": null
+}

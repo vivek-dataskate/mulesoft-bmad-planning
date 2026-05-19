@@ -110,6 +110,29 @@ async function archiveScoping(slug) {
   if (!remaining.length) fs.rmdirSync(scopingDir);
 }
 
+// ── 1b. Sync client logo → firebase/public/logos/{slug}.{ext} ────────────────
+// Looks for logo-{slug}.{ext} or {slug}.{ext} in projects/{slug}/intake/
+// and copies to firebase/public/logos/{slug}.{ext} so fill-template.js can find it.
+function syncLogo(slug) {
+  const intakeDir  = path.join(ROOT, 'projects', slug, 'intake');
+  const logosDir   = path.join(PUBLIC, 'logos');
+  if (!fs.existsSync(intakeDir)) return;
+
+  for (const ext of ['.svg', '.png']) {
+    const candidates = [`logo-${slug}${ext}`, `${slug}${ext}`];
+    for (const candidate of candidates) {
+      const src = path.join(intakeDir, candidate);
+      if (fs.existsSync(src)) {
+        fs.mkdirSync(logosDir, { recursive: true });
+        const dest = path.join(logosDir, `${slug}${ext}`);
+        fs.copyFileSync(src, dest);
+        log(`[${slug}] logo synced → firebase/public/logos/${slug}${ext}`);
+        return;
+      }
+    }
+  }
+}
+
 // ── 2. Upload intake + proposal HTML → Firebase Storage (public) ─────────────
 // Files are kept locally in firebase/public/{type}/ for git tracking and also
 // uploaded to Storage for serving. Source files in projects/{slug}/intake/ are
@@ -118,18 +141,19 @@ async function uploadHtmlToStorage(slug) {
   const intakeDir = path.join(ROOT, 'projects', slug, 'intake');
   if (!fs.existsSync(intakeDir)) return;
 
-  // [localFilename, storageDest, projectJsonKey, firebase/public/ subdir]
+  // [localFilename, storageDest, projectJsonKey, firebase/public/ subdir, useHostingUrl]
+  // useHostingUrl=true → serve from Firebase Hosting (no Storage auth wall)
   const pairs = [
-    [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,  'intakeUrl',   'intake'],
-    [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`, 'proposalUrl', 'proposal'],
-    [`pitch-kit-${slug}.html`,            `internal/${slug}/pitch-kit.html`,   'pitchKitUrl', 'pitch-kit'],
+    [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,  'intakeUrl',   'intake',   false],
+    [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`, 'proposalUrl', 'proposal', false],
+    [`integration-deck-${slug}.html`,      `internal/${slug}/pitch-kit.html`,   'pitchKitUrl', 'internal', true],
   ];
 
   const projPath = path.join(ROOT, 'projects', slug, 'project.json');
   const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
   let changed = false;
 
-  for (const [src, dest, urlKey, pubSubdir] of pairs) {
+  for (const [src, dest, urlKey, pubSubdir, useHostingUrl] of pairs) {
     const srcPath = path.join(intakeDir, src);
     if (!fs.existsSync(srcPath)) continue;
 
@@ -144,9 +168,11 @@ async function uploadHtmlToStorage(slug) {
       destination: dest,
       metadata: { contentType: 'text/html; charset=utf-8', cacheControl: 'public, max-age=3600' },
     });
-    const encodedDest = dest.replace(/\//g, '%2F');
-    const url = `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedDest}?alt=media`;
     console.log('done');
+
+    const url = useHostingUrl
+      ? `${PORTAL}/${pubSubdir}/${slug}.html`
+      : `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${dest.replace(/\//g, '%2F')}?alt=media`;
 
     if (proj[urlKey] !== url) {
       proj[urlKey] = url;
@@ -160,6 +186,24 @@ async function uploadHtmlToStorage(slug) {
   }
 }
 
+
+// ── 3. Seed pitchKits/{slug} in Firestore (Admin SDK — rules say write:false) ──
+async function seedPitchKit(slug) {
+  const contentPath = path.join(ROOT, 'projects', slug, 'intake', `integration-deck-content.json`);
+  if (!fs.existsSync(contentPath)) {
+    log(`[${slug}] no integration-deck-content.json — pitchKits doc skipped`);
+    return;
+  }
+  const contentJson = fs.readFileSync(contentPath, 'utf8');
+  if (!admin.apps.length) getBucket(); // ensures admin is initialised
+  const db = admin.firestore();
+  await db.collection('pitchKits').doc(slug).set({
+    client:      slug,
+    contentJson,
+    updatedAt:   new Date().toISOString(),
+  }, { merge: true });
+  log(`[${slug}] pitchKits/${slug} seeded in Firestore`);
+}
 
 // ── Commit all generated HTML in firebase/public/ to git ─────────────────────
 function gitCommitHtml() {
@@ -277,7 +321,9 @@ async function main() {
     if (!fs.existsSync(projFile)) { log(`SKIP ${s} — no project.json`); continue; }
     log(`Processing: ${s}`);
     try { await archiveScoping(s); } catch (e) { log(`  scoping archive skipped: ${e.message}`); }
+    try { syncLogo(s); } catch (e) { log(`  logo sync skipped: ${e.message}`); }
     try { await uploadHtmlToStorage(s); } catch (e) { log(`  html upload skipped: ${e.message}`); }
+    try { await seedPitchKit(s); } catch (e) { log(`  pitchKit seed skipped: ${e.message}`); }
   }
 
   rebuildManifest();

@@ -8,17 +8,20 @@
  * Handles onboarding, state tracking, company_context.json assembly, and telemetry.
  *
  * Usage:
- *   node DSPipeline/scout/orchestrate.js                    # full run (onboarding + pipeline)
+ *   node DSPipeline/scout/orchestrate.js                    # new client — Gemini infers name from _inbox/
+ *   node DSPipeline/scout/orchestrate.js --pipeline         # fully headless — infers name, no prompts
  *   node DSPipeline/scout/orchestrate.js --client mrn       # resume specific client
  *   node DSPipeline/scout/orchestrate.js --client mrn --skip-onboarding
- *   node DSPipeline/scout/orchestrate.js --client mrn --pipeline  # auto-confirm all gates
+ *   node DSPipeline/scout/orchestrate.js --client mrn --pipeline  # resume headless
  *   node DSPipeline/scout/orchestrate.js --client mrn --mode delta --recording scoping/may-amendment.txt
  *   node DSPipeline/scout/orchestrate.js --client mrn --check-acceptance
  */
 
-const fs   = require('fs');
-const path = require('path');
-const readline = require('readline');
+const fs            = require('fs');
+const path          = require('path');
+const readline      = require('readline');
+const { spawnSync } = require('child_process');
+const { inferClientWithAI } = require('./infer-client');
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
 
@@ -83,18 +86,23 @@ function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-function inferClientFromInbox() {
-  if (!fs.existsSync(INBOX_DIR)) return null;
-  const files = fs.readdirSync(INBOX_DIR).filter(f => f !== '.gitkeep' && !f.startsWith('.'));
-  if (!files.length) return null;
-  // Take the first filename, strip extension, strip common suffixes
-  const base = path.basename(files[0], path.extname(files[0]));
-  const cleaned = base
-    .replace(/[-_]?(scoping|call|meeting|transcript|notes|proposal|intake|deck)[-_]?/gi, '')
-    .replace(/[-_]+/g, ' ')
-    .trim();
-  return cleaned || null;
+// Pre-extract binary files in a directory so text is available for name inference.
+// Runs synchronously and silently — failures are non-fatal.
+function preExtractInbox(dir) {
+  if (!fs.existsSync(dir)) return;
+  const hasBinary = fs.readdirSync(dir).some(f => {
+    const ext = path.extname(f).toLowerCase();
+    return ext === '.pdf' || ext === '.docx';
+  });
+  if (!hasBinary) return;
+  const result = spawnSync(
+    process.execPath,
+    [path.join(ROOT, 'scaffold/extract-text.js'), dir],
+    { cwd: ROOT, encoding: 'utf8' }
+  );
+  if (result.error) console.warn(dim(`  ⚠  Pre-extraction warning: ${result.error.message}`));
 }
+
 
 function today() {
   return new Date().toISOString().split('T')[0];
@@ -114,6 +122,7 @@ function red(s)    { return `\x1b[31m${s}\x1b[0m`; }
 // ─── Readline Gate ────────────────────────────────────────────────────────────
 
 async function prompt(question) {
+  if (pipelineMode) return '';
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   return new Promise(resolve => {
     rl.question(question, ans => { rl.close(); resolve(ans.trim()); });
@@ -130,8 +139,9 @@ async function confirm(message, defaultYes = true) {
 
 // ─── Onboarding ───────────────────────────────────────────────────────────────
 
-async function onboard() {
-  const inferred = inferClientFromInbox();
+async function onboard({ displayName: inferred, source: inferredSource } = {}) {
+  // Extract text from PDFs/DOCX before reading for name inference
+  preExtractInbox(INBOX_DIR);
   const inboxFiles = fs.existsSync(INBOX_DIR)
     ? fs.readdirSync(INBOX_DIR).filter(f => f !== '.gitkeep' && !f.startsWith('.'))
     : [];
@@ -151,7 +161,17 @@ async function onboard() {
   console.log('\n  Pre-filled defaults shown in bold. Press Enter to accept, or type a new value.\n');
 
   const defaultName = inferred || 'Unknown Client';
-  const rawName     = await prompt(`  1. Client name      [${bold(defaultName)}]: `);
+  const sourceNote  = inferredSource === 'ai-inference'
+    ? dim('  ← Gemini read your transcript')
+    : inferredSource === 'filename'
+    ? dim('  ← inferred from filename')
+    : '';
+  if (inferred) {
+    console.log(`  Suggested client name: ${bold(cyan(inferred))}${sourceNote}`);
+  }
+  const rawName     = await prompt(inferred
+    ? `  Accept or type a different name: `
+    : `  1. Client name: `);
   const displayName = rawName || defaultName;
 
   const defaultSlug = slugify(displayName);
@@ -561,6 +581,7 @@ function deployFirebase(slug) {
   // 11b — Seed Firestore
   const intakeUrl   = `https://dataskateclients.web.app/intake/${slug}.html`;
   const proposalUrl = `https://dataskateclients.web.app/proposal/${slug}.html`;
+  const pitchKitUrl = `https://dataskateclients.web.app/internal/${slug}.html`;
   console.log('  Seeding Firestore...');
   try {
     const seedScript = `
@@ -573,6 +594,7 @@ function deployFirebase(slug) {
         architectEmail: ${JSON.stringify(project.architectEmail || '')},
         intakeUrl: '${intakeUrl}',
         proposalUrl: '${proposalUrl}',
+        pitchKitUrl: '${pitchKitUrl}',
         updatedAt: admin.firestore.FieldValue.serverTimestamp()
       }, { merge: true }).then(() => { console.log('Seeded'); process.exit(0); });
     `;
@@ -582,8 +604,8 @@ function deployFirebase(slug) {
     console.log(`  ${yellow('⚠')}  Firestore seed failed — seed manually`);
   }
 
-  // Write intakeUrl + proposalUrl to project.json
-  mergeJson(path.join(projectDir, 'project.json'), { intakeUrl, proposalUrl });
+  // Write intakeUrl + proposalUrl + pitchKitUrl to project.json
+  mergeJson(path.join(projectDir, 'project.json'), { intakeUrl, proposalUrl, pitchKitUrl });
   console.log(`  ${green('✓')} project.json updated with intakeUrl and proposalUrl`);
 }
 
@@ -993,6 +1015,17 @@ async function main() {
 
   let slug = clientArg;
 
+  // Infer client name once — reused for resume check and onboarding
+  const aiInference = slug ? { displayName: null, source: null } : await inferClientWithAI(INBOX_DIR);
+  if (!slug && aiInference.geminiCost) {
+    appendTelemetry('_inference', 'infer-client', null, 'complete', {
+      model:  'gemini-2.5-flash',
+      input:  aiInference.geminiTokens?.in  || '',
+      output: aiInference.geminiTokens?.out || '',
+      cost:   aiInference.geminiCost,
+    });
+  }
+
   if (!slug) {
     // Check for existing projects to resume
     if (fs.existsSync(PROJECTS_DIR)) {
@@ -1007,24 +1040,21 @@ async function main() {
     }
   }
 
-  if (!slug) {
+  if (!slug && aiInference.displayName) {
     // Check if project.json already exists for the inferred client
-    const inferred = inferClientFromInbox();
-    if (inferred) {
-      const inferredSlug = slugify(inferred);
-      const projectJson  = path.join(PROJECTS_DIR, inferredSlug, 'project.json');
-      if (fs.existsSync(projectJson) && !skipOnboarding) {
-        const proj = readJson(projectJson);
-        console.log(`\n  Resuming ${bold(proj.displayName)} (projects/${inferredSlug}/) — architect: ${proj.architect}.`);
-        const resume = await confirm('  Proceed?');
-        slug = resume ? inferredSlug : null;
-      }
+    const inferredSlug = slugify(aiInference.displayName);
+    const projectJson  = path.join(PROJECTS_DIR, inferredSlug, 'project.json');
+    if (fs.existsSync(projectJson) && !skipOnboarding) {
+      const proj = readJson(projectJson);
+      console.log(`\n  Resuming ${bold(proj.displayName)} (projects/${inferredSlug}/) — architect: ${proj.architect}.`);
+      const resume = await confirm('  Proceed?');
+      slug = resume ? inferredSlug : null;
     }
   }
 
   if (!slug) {
-    // Full onboarding
-    slug = await onboard();
+    // Full onboarding — pass cached inference so Gemini is not called again
+    slug = await onboard(aiInference);
   }
 
   // Verify project exists
