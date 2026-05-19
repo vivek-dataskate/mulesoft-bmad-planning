@@ -312,7 +312,7 @@ section p:last-child{margin-bottom:0}
 
   window.signIn = () => auth.signInWithPopup(provider).catch(e => showError(e.message));
 
-  function show(id) { document.getElementById(id).style.display = id === 'deck-loading' ? 'flex' : ''; }
+  function show(id) { document.getElementById(id).style.display = id === 'deck-loading' ? 'flex' : id === 'deck-content' ? 'block' : ''; }
   function hide(id) { document.getElementById(id).style.display = 'none'; }
 
   function showError(msg) {
