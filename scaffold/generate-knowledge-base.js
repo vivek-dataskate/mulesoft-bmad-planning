@@ -207,37 +207,81 @@ function renderPipelineSection() {
 
 // Section: Scout Agents
 function renderScoutSection() {
-  const agentRows = pipeline.agents.map(a => {
-    const modeIcon = a.mode === 'gated'
-      ? '<span style="color:var(--amber);font-weight:700;">⊙ Gated</span>'
-      : '<span style="color:var(--mid);">◎ Conversational</span>';
-    return `
-<h3 id="sa-${a.slug}">${esc(a.position)}. ${esc(a.name)} — ${esc(a.role)}</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;">${modelBadge(a.model)} ${modeIcon}</p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>${esc(a.outputFile)}</code>${a.gatePrompt ? ` &nbsp;·&nbsp; Gate: <em>${esc(a.gatePrompt)}</em>` : ''}</p>`;
-  }).join('');
+  const MODEL_COLOR = { haiku: '#D69E2E', sonnet: '#3B82F6', opus: '#ed1c24' };
+  const MODEL_BG    = { haiku: '#FFFBEB', sonnet: '#F0F6FF', opus: '#FFF5F5' };
+  const MODEL_LABEL = { haiku: 'Haiku', sonnet: 'Sonnet', opus: 'Opus' };
 
-  // Visual flow strip
-  const agentFlow = pipeline.agents.map((a, i) => {
-    const modelColors = {
-      haiku:  '#D69E2E',
-      sonnet: '#3B82F6',
-      opus:   '#ed1c24',
-    };
-    const color = modelColors[a.model] || '#888';
-    const arrow = i < pipeline.agents.length - 1 ? '<span style="color:var(--border);font-size:16px;padding:0 3px;">›</span>' : '';
-    return `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid ${color}22;border-radius:5px;background:${color}08;">
-  <span style="font-size:10px;font-weight:800;color:${color};">${esc(a.name)}</span>
-  <span style="font-size:9px;color:var(--mid);">${esc(a.model)}</span>
-</span>${arrow}`;
-  }).join(' ');
+  function agentCard(a) {
+    const c   = MODEL_COLOR[a.model] || '#888';
+    const bg  = MODEL_BG[a.model]   || '#FAFAFA';
+    const isGated = a.mode === 'gated';
+    const modeHtml = isGated
+      ? `<span style="font-size:9px;font-weight:700;color:#92640A;background:var(--amber-bg);border:1px solid var(--amber);border-radius:3px;padding:1px 5px;">⊙ Gated</span>`
+      : `<span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>`;
+    return `<div style="flex:1;min-width:110px;max-width:148px;border:1px solid ${c}44;border-top:4px solid ${c};border-radius:6px;background:${bg};padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:0.8px;">Agent ${a.position}</span>
+    ${modeHtml}
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">${esc(a.name)}</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">${esc(a.role)}</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}55;border-radius:3px;padding:1px 5px;">${MODEL_LABEL[a.model] || a.model}</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(a.outputFile)}">${esc(a.outputFile.replace('run/', ''))}</span>
+  </div>
+  ${a.gatePrompt ? `<div style="font-size:9px;color:var(--mid);border-top:1px solid ${c}22;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">${esc(a.gatePrompt)}</div>` : ''}
+</div>`;
+  }
+
+  function arrow(vertical) {
+    if (vertical) return `<div style="display:flex;justify-content:flex-end;padding-right:10px;color:var(--border);font-size:18px;line-height:1;">↓</div>`;
+    return `<div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div>`;
+  }
+
+  const row1 = pipeline.agents.slice(0, 5);
+  const row2 = pipeline.agents.slice(5);
+
+  const row1Html = row1.map((a, i) => agentCard(a) + (i < row1.length - 1 ? arrow(false) : '')).join('');
+  const row2Html = row2.map((a, i) => agentCard(a) + (i < row2.length - 1 ? arrow(false) : '')).join('');
+
+  // Right-angle U-turn connector: ↓ on right, ← underneath
+  const uturn = `<div style="display:flex;justify-content:flex-end;align-items:center;height:20px;padding-right:14px;">
+  <span style="color:var(--border);font-size:16px;line-height:1;">↓</span>
+</div>`;
+
+  // Legend
+  const legend = Object.entries(MODEL_COLOR).map(([m, c]) =>
+    `<span style="color:${c};font-weight:700;font-size:11px;">${MODEL_LABEL[m]}</span>`
+  ).join(' · ');
+
+  // Reference table rows with h3 anchors (hidden visually, for right-nav)
+  const refRows = pipeline.agents.map(a => {
+    const c = MODEL_COLOR[a.model] || '#888';
+    return `<tr>
+  <td><h3 id="sa-${esc(a.slug)}" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">${esc(a.position)}. ${esc(a.name)}</h3></td>
+  <td style="font-size:11px;">${esc(a.role)}</td>
+  <td><span style="font-size:10px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}55;border-radius:3px;padding:1px 6px;">${MODEL_LABEL[a.model]}</span></td>
+  <td>${a.mode === 'gated' ? `<span style="font-size:10px;font-weight:700;color:#92640A;">⊙ Gated</span>` : `<span style="font-size:10px;color:var(--mid);">◎ Auto</span>`}</td>
+  <td><code style="font-size:10px;">${esc(a.outputFile)}</code></td>
+</tr>`;
+  }).join('');
 
   return `
 <h2 id="scout">Scout Agents</h2>
-<p>Scout is a 9-agent pre-sales pipeline that runs fully automatically. Each agent reads a designated input and writes its own output JSON — no agent touches pipeline state or coordination (that lives in <code>orchestrate.js</code>).</p>
-<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:12px;background:#FAFAFA;border:1px solid var(--border);border-radius:6px;margin:10px 0;">${agentFlow}</div>
-<p style="font-size:11px;color:var(--mid);margin-top:4px;">Color = AI model: <span style="color:#D69E2E;font-weight:700;">Haiku</span> · <span style="color:#3B82F6;font-weight:700;">Sonnet</span> · <span style="color:#ed1c24;font-weight:700;">Opus</span></p>
-${agentRows}`;
+<p>9-agent pre-sales pipeline — fully automated. Each agent reads its designated inputs and writes one output JSON. No agent touches pipeline state or coordination (that belongs in <code>orchestrate.js</code>).</p>
+
+<div style="border:1px solid var(--border);border-radius:8px;padding:16px;margin:12px 0;background:#fff;">
+  <div style="display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;">${row1Html}</div>
+  ${uturn}
+  <div style="display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;">${row2Html}</div>
+</div>
+<p style="font-size:11px;color:var(--mid);margin-bottom:14px;">Model: ${legend} &nbsp;·&nbsp; <span style="color:#92640A;font-weight:700;">⊙ Gated</span> = architect must approve before next agent runs &nbsp;·&nbsp; <span style="color:var(--mid);">◎ Auto</span> = runs immediately</p>
+
+<h3 id="sa-reference">Agent Reference</h3>
+<table class="md-table">
+  <thead><tr><th>Agent</th><th>Role</th><th>Model</th><th>Mode</th><th>Output</th></tr></thead>
+  <tbody>${refRows}</tbody>
+</table>`;
 }
 
 // Section: System Playbooks

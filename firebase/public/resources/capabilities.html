@@ -205,7 +205,7 @@ em { font-style: italic; }
     <div class="top-bar-eyebrow">DataSkate Internal</div>
     <div class="top-bar-title">Knowledge Base</div>
   </div>
-  <div class="top-bar-meta">Generated 2026-05-19 20:36 UTC · 23 systems · 26 FK entries</div>
+  <div class="top-bar-meta">Generated 2026-05-19 20:46 UTC · 23 systems · 26 FK entries</div>
 </div>
 
 <!-- 3-COLUMN SHELL -->
@@ -279,64 +279,184 @@ em { font-style: italic; }
 </ul>
     
 <h2 id="scout">Scout Agents</h2>
-<p>Scout is a 9-agent pre-sales pipeline that runs fully automatically. Each agent reads a designated input and writes its own output JSON — no agent touches pipeline state or coordination (that lives in <code>orchestrate.js</code>).</p>
-<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:12px;background:#FAFAFA;border:1px solid var(--border);border-radius:6px;margin:10px 0;"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #D69E2E22;border-radius:5px;background:#D69E2E08;">
-  <span style="font-size:10px;font-weight:800;color:#D69E2E;">Sage</span>
-  <span style="font-size:9px;color:var(--mid);">haiku</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
-  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Vera</span>
-  <span style="font-size:9px;color:var(--mid);">opus</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #3B82F622;border-radius:5px;background:#3B82F608;">
-  <span style="font-size:10px;font-weight:800;color:#3B82F6;">Rex</span>
-  <span style="font-size:9px;color:var(--mid);">sonnet</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #3B82F622;border-radius:5px;background:#3B82F608;">
-  <span style="font-size:10px;font-weight:800;color:#3B82F6;">Ivy</span>
-  <span style="font-size:9px;color:var(--mid);">sonnet</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
-  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Flo</span>
-  <span style="font-size:9px;color:var(--mid);">opus</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
-  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Hawk</span>
-  <span style="font-size:9px;color:var(--mid);">opus</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
-  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Petra</span>
-  <span style="font-size:9px;color:var(--mid);">opus</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #3B82F622;border-radius:5px;background:#3B82F608;">
-  <span style="font-size:10px;font-weight:800;color:#3B82F6;">Quinn</span>
-  <span style="font-size:9px;color:var(--mid);">sonnet</span>
-</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
-  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Mira</span>
-  <span style="font-size:9px;color:var(--mid);">opus</span>
-</span></div>
-<p style="font-size:11px;color:var(--mid);margin-top:4px;">Color = AI model: <span style="color:#D69E2E;font-weight:700;">Haiku</span> · <span style="color:#3B82F6;font-weight:700;">Sonnet</span> · <span style="color:#ed1c24;font-weight:700;">Opus</span></p>
+<p>9-agent pre-sales pipeline — fully automated. Each agent reads its designated inputs and writes one output JSON. No agent touches pipeline state or coordination (that belongs in <code>orchestrate.js</code>).</p>
 
-<h3 id="sa-sage">1. Sage — Document Analyst</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--amber-bg);color:#92640A;border:1px solid var(--amber);">haiku</span> <span style="color:var(--amber);font-weight:700;">⊙ Gated</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/sage.json</code> &nbsp;·&nbsp; Gate: <em>Sage extraction complete — correct anything before Vera starts vertical research?</em></p>
-<h3 id="sa-vera">2. Vera — Vertical Intelligence Analyst</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/vera.json</code> &nbsp;·&nbsp; Gate: <em>Vera research confirmed — proceed to Rex (systems analysis)?</em></p>
-<h3 id="sa-rex">3. Rex — Systems Analyst</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--blue-bg);color:#1D4ED8;border:1px solid var(--blue-br);">sonnet</span> <span style="color:var(--mid);">◎ Conversational</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/rex.json</code> &nbsp;·&nbsp; Gate: <em>Rex systems confirmed — proceed to Ivy (buyer psychology)?</em></p>
-<h3 id="sa-ivy">4. Ivy — Buyer Intelligence Analyst</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--blue-bg);color:#1D4ED8;border:1px solid var(--blue-br);">sonnet</span> <span style="color:var(--mid);">◎ Conversational</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/ivy.json</code> &nbsp;·&nbsp; Gate: <em>Ivy profile confirmed — proceed to Flo (flow count + pricing)?</em></p>
-<h3 id="sa-flo">5. Flo — Integration Flow Analyst + Pricing</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--amber);font-weight:700;">⊙ Gated</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/flo.json</code> &nbsp;·&nbsp; Gate: <em>Flo flow count and pricing confirmed — proceed to Hawk (deal framing)?</em></p>
-<h3 id="sa-hawk">6. Hawk — Deal Urgency Strategist</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/hawk.json</code> &nbsp;·&nbsp; Gate: <em>Hawk framing confirmed — proceed to Petra (proposal + integration deck)?</em></p>
-<h3 id="sa-petra">7. Petra — Proposal Writer</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/petra.json</code> &nbsp;·&nbsp; Gate: <em>Petra proposal and integration deck confirmed — proceed to Quinn (intake questionnaire)?</em></p>
-<h3 id="sa-quinn">8. Quinn — Intake Specialist</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--blue-bg);color:#1D4ED8;border:1px solid var(--blue-br);">sonnet</span> <span style="color:var(--mid);">◎ Conversational</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/quinn.json</code> &nbsp;·&nbsp; Gate: <em>Quinn intake questionnaire confirmed — proceed to Mira (final audit)?</em></p>
-<h3 id="sa-mira">9. Mira — Buyer Advocate</h3>
-<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
-<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/mira.json</code></p>
+<div style="border:1px solid var(--border);border-radius:8px;padding:16px;margin:12px 0;background:#fff;">
+  <div style="display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;"><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #D69E2E44;border-top:4px solid #D69E2E;border-radius:6px;background:#FFFBEB;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#D69E2E;text-transform:uppercase;letter-spacing:0.8px;">Agent 1</span>
+    <span style="font-size:9px;font-weight:700;color:#92640A;background:var(--amber-bg);border:1px solid var(--amber);border-radius:3px;padding:1px 5px;">⊙ Gated</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Sage</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Document Analyst</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#D69E2E;background:#D69E2E18;border:1px solid #D69E2E55;border-radius:3px;padding:1px 5px;">Haiku</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/sage.json">sage.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #D69E2E22;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Sage extraction complete — correct anything before Vera starts vertical research?</div>
+</div><div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #ed1c2444;border-top:4px solid #ed1c24;border-radius:6px;background:#FFF5F5;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;text-transform:uppercase;letter-spacing:0.8px;">Agent 2</span>
+    <span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Vera</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Vertical Intelligence Analyst</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 5px;">Opus</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/vera.json">vera.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #ed1c2422;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Vera research confirmed — proceed to Rex (systems analysis)?</div>
+</div><div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #3B82F644;border-top:4px solid #3B82F6;border-radius:6px;background:#F0F6FF;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#3B82F6;text-transform:uppercase;letter-spacing:0.8px;">Agent 3</span>
+    <span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Rex</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Systems Analyst</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#3B82F6;background:#3B82F618;border:1px solid #3B82F655;border-radius:3px;padding:1px 5px;">Sonnet</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/rex.json">rex.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #3B82F622;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Rex systems confirmed — proceed to Ivy (buyer psychology)?</div>
+</div><div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #3B82F644;border-top:4px solid #3B82F6;border-radius:6px;background:#F0F6FF;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#3B82F6;text-transform:uppercase;letter-spacing:0.8px;">Agent 4</span>
+    <span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Ivy</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Buyer Intelligence Analyst</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#3B82F6;background:#3B82F618;border:1px solid #3B82F655;border-radius:3px;padding:1px 5px;">Sonnet</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/ivy.json">ivy.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #3B82F622;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Ivy profile confirmed — proceed to Flo (flow count + pricing)?</div>
+</div><div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #ed1c2444;border-top:4px solid #ed1c24;border-radius:6px;background:#FFF5F5;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;text-transform:uppercase;letter-spacing:0.8px;">Agent 5</span>
+    <span style="font-size:9px;font-weight:700;color:#92640A;background:var(--amber-bg);border:1px solid var(--amber);border-radius:3px;padding:1px 5px;">⊙ Gated</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Flo</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Integration Flow Analyst + Pricing</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 5px;">Opus</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/flo.json">flo.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #ed1c2422;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Flo flow count and pricing confirmed — proceed to Hawk (deal framing)?</div>
+</div></div>
+  <div style="display:flex;justify-content:flex-end;align-items:center;height:20px;padding-right:14px;">
+  <span style="color:var(--border);font-size:16px;line-height:1;">↓</span>
+</div>
+  <div style="display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;"><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #ed1c2444;border-top:4px solid #ed1c24;border-radius:6px;background:#FFF5F5;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;text-transform:uppercase;letter-spacing:0.8px;">Agent 6</span>
+    <span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Hawk</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Deal Urgency Strategist</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 5px;">Opus</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/hawk.json">hawk.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #ed1c2422;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Hawk framing confirmed — proceed to Petra (proposal + integration deck)?</div>
+</div><div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #ed1c2444;border-top:4px solid #ed1c24;border-radius:6px;background:#FFF5F5;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;text-transform:uppercase;letter-spacing:0.8px;">Agent 7</span>
+    <span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Petra</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Proposal Writer</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 5px;">Opus</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/petra.json">petra.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #ed1c2422;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Petra proposal and integration deck confirmed — proceed to Quinn (intake questionnaire)?</div>
+</div><div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #3B82F644;border-top:4px solid #3B82F6;border-radius:6px;background:#F0F6FF;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#3B82F6;text-transform:uppercase;letter-spacing:0.8px;">Agent 8</span>
+    <span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Quinn</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Intake Specialist</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#3B82F6;background:#3B82F618;border:1px solid #3B82F655;border-radius:3px;padding:1px 5px;">Sonnet</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/quinn.json">quinn.json</span>
+  </div>
+  <div style="font-size:9px;color:var(--mid);border-top:1px solid #3B82F622;padding-top:4px;margin-top:2px;line-height:1.35;font-style:italic;">Quinn intake questionnaire confirmed — proceed to Mira (final audit)?</div>
+</div><div style="display:flex;align-items:center;color:var(--border);font-size:18px;flex-shrink:0;padding:0 3px;">›</div><div style="flex:1;min-width:110px;max-width:148px;border:1px solid #ed1c2444;border-top:4px solid #ed1c24;border-radius:6px;background:#FFF5F5;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;text-transform:uppercase;letter-spacing:0.8px;">Agent 9</span>
+    <span style="font-size:9px;color:var(--mid);background:#F0F0F2;border:1px solid var(--border);border-radius:3px;padding:1px 5px;">◎ Auto</span>
+  </div>
+  <div style="font-size:14px;font-weight:800;color:var(--dark);line-height:1.1;">Mira</div>
+  <div style="font-size:10px;color:var(--mid);line-height:1.35;min-height:28px;">Buyer Advocate</div>
+  <div style="margin-top:2px;display:flex;align-items:center;gap:5px;">
+    <span style="font-size:9px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 5px;">Opus</span>
+    <span style="font-size:9px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="run/mira.json">mira.json</span>
+  </div>
+  
+</div></div>
+</div>
+<p style="font-size:11px;color:var(--mid);margin-bottom:14px;">Model: <span style="color:#D69E2E;font-weight:700;font-size:11px;">Haiku</span> · <span style="color:#3B82F6;font-weight:700;font-size:11px;">Sonnet</span> · <span style="color:#ed1c24;font-weight:700;font-size:11px;">Opus</span> &nbsp;·&nbsp; <span style="color:#92640A;font-weight:700;">⊙ Gated</span> = architect must approve before next agent runs &nbsp;·&nbsp; <span style="color:var(--mid);">◎ Auto</span> = runs immediately</p>
+
+<h3 id="sa-reference">Agent Reference</h3>
+<table class="md-table">
+  <thead><tr><th>Agent</th><th>Role</th><th>Model</th><th>Mode</th><th>Output</th></tr></thead>
+  <tbody><tr>
+  <td><h3 id="sa-sage" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">1. Sage</h3></td>
+  <td style="font-size:11px;">Document Analyst</td>
+  <td><span style="font-size:10px;font-weight:700;color:#D69E2E;background:#D69E2E18;border:1px solid #D69E2E55;border-radius:3px;padding:1px 6px;">Haiku</span></td>
+  <td><span style="font-size:10px;font-weight:700;color:#92640A;">⊙ Gated</span></td>
+  <td><code style="font-size:10px;">run/sage.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-vera" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">2. Vera</h3></td>
+  <td style="font-size:11px;">Vertical Intelligence Analyst</td>
+  <td><span style="font-size:10px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 6px;">Opus</span></td>
+  <td><span style="font-size:10px;color:var(--mid);">◎ Auto</span></td>
+  <td><code style="font-size:10px;">run/vera.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-rex" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">3. Rex</h3></td>
+  <td style="font-size:11px;">Systems Analyst</td>
+  <td><span style="font-size:10px;font-weight:700;color:#3B82F6;background:#3B82F618;border:1px solid #3B82F655;border-radius:3px;padding:1px 6px;">Sonnet</span></td>
+  <td><span style="font-size:10px;color:var(--mid);">◎ Auto</span></td>
+  <td><code style="font-size:10px;">run/rex.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-ivy" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">4. Ivy</h3></td>
+  <td style="font-size:11px;">Buyer Intelligence Analyst</td>
+  <td><span style="font-size:10px;font-weight:700;color:#3B82F6;background:#3B82F618;border:1px solid #3B82F655;border-radius:3px;padding:1px 6px;">Sonnet</span></td>
+  <td><span style="font-size:10px;color:var(--mid);">◎ Auto</span></td>
+  <td><code style="font-size:10px;">run/ivy.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-flo" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">5. Flo</h3></td>
+  <td style="font-size:11px;">Integration Flow Analyst + Pricing</td>
+  <td><span style="font-size:10px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 6px;">Opus</span></td>
+  <td><span style="font-size:10px;font-weight:700;color:#92640A;">⊙ Gated</span></td>
+  <td><code style="font-size:10px;">run/flo.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-hawk" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">6. Hawk</h3></td>
+  <td style="font-size:11px;">Deal Urgency Strategist</td>
+  <td><span style="font-size:10px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 6px;">Opus</span></td>
+  <td><span style="font-size:10px;color:var(--mid);">◎ Auto</span></td>
+  <td><code style="font-size:10px;">run/hawk.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-petra" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">7. Petra</h3></td>
+  <td style="font-size:11px;">Proposal Writer</td>
+  <td><span style="font-size:10px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 6px;">Opus</span></td>
+  <td><span style="font-size:10px;color:var(--mid);">◎ Auto</span></td>
+  <td><code style="font-size:10px;">run/petra.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-quinn" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">8. Quinn</h3></td>
+  <td style="font-size:11px;">Intake Specialist</td>
+  <td><span style="font-size:10px;font-weight:700;color:#3B82F6;background:#3B82F618;border:1px solid #3B82F655;border-radius:3px;padding:1px 6px;">Sonnet</span></td>
+  <td><span style="font-size:10px;color:var(--mid);">◎ Auto</span></td>
+  <td><code style="font-size:10px;">run/quinn.json</code></td>
+</tr><tr>
+  <td><h3 id="sa-mira" style="font-size:12px;font-weight:800;color:var(--dark);margin:0;">9. Mira</h3></td>
+  <td style="font-size:11px;">Buyer Advocate</td>
+  <td><span style="font-size:10px;font-weight:700;color:#ed1c24;background:#ed1c2418;border:1px solid #ed1c2455;border-radius:3px;padding:1px 6px;">Opus</span></td>
+  <td><span style="font-size:10px;color:var(--mid);">◎ Auto</span></td>
+  <td><code style="font-size:10px;">run/mira.json</code></td>
+</tr></tbody>
+</table>
     
 <h2 id="playbooks">System Playbooks</h2>
 <p>One playbook JSON per system — authoritative source for quirks, P0 blockers, client usage, and DWL transform files. Rex agent loads all playbooks at startup; Scout queries them per detected system.</p>
@@ -892,7 +1012,7 @@ em { font-style: italic; }
 
 <footer class="doc-footer">
   <span>DataSkate Knowledge Base — auto-generated from live JSON/YAML/MD sources</span>
-  <span>Generated 2026-05-19 20:36 UTC</span>
+  <span>Generated 2026-05-19 20:46 UTC</span>
 </footer>
 
 <script>
