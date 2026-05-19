@@ -131,6 +131,73 @@ a { color: var(--brand); text-decoration: none; }
   font-size: 10px; color: var(--mid); line-height: 1.45;
 }
 
+/* ── SCOUT AGENT DETAIL ── */
+.scout-detail {
+  margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border);
+}
+.scout-detail-eyebrow {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--brand); margin-bottom: 4px;
+}
+.scout-detail-title {
+  font-size: 15px; font-weight: 800; color: var(--dark); margin-bottom: 6px;
+}
+.scout-detail-sub {
+  font-size: 11px; color: var(--mid); margin-bottom: 18px;
+}
+.agent-flow-wrap { display: flex; flex-direction: column; gap: 0; }
+.agent-row { display: flex; align-items: stretch; gap: 0; }
+.agent-row.row2 { margin-top: -1px; }
+.agent-card {
+  flex: 1; border: 1px solid var(--border); padding: 10px 11px;
+  position: relative; background: #fff;
+}
+.agent-card:first-child { border-radius: 7px 0 0 7px; }
+.agent-row.row1 .agent-card:last-child { border-radius: 0 7px 0 0; }
+.agent-row.row2 .agent-card:first-child { border-radius: 0 0 0 7px; }
+.agent-row.row2 .agent-card:last-child { border-radius: 0 7px 7px 0; }
+.agent-card + .agent-card { border-left: none; }
+.agent-card.model-haiku { border-top: 2px solid var(--amber); }
+.agent-card.model-sonnet { border-top: 2px solid var(--blue-br); }
+.agent-card.model-opus   { border-top: 2px solid var(--brand); }
+.agent-pos {
+  font-size: 8px; font-weight: 700; color: var(--mid);
+  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 2px;
+}
+.agent-name {
+  font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 1px;
+}
+.agent-role {
+  font-size: 9px; color: var(--mid); line-height: 1.35; margin-bottom: 6px;
+}
+.agent-model-badge {
+  display: inline-block; font-size: 8px; font-weight: 700;
+  padding: 1px 5px; border-radius: 3px;
+}
+.model-haiku .agent-model-badge { background: var(--amber-bg); color: #92400E; }
+.model-sonnet .agent-model-badge { background: var(--blue-bg); color: #1e40af; }
+.model-opus   .agent-model-badge { background: var(--light);   color: var(--brand-dk); }
+.agent-output {
+  font-size: 8px; color: var(--mid); margin-top: 3px; font-style: italic;
+}
+/* corner connector between rows */
+.agent-row-connector {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 4px 10px 4px 0;
+}
+.corner-arrow {
+  font-size: 14px; color: var(--mid); line-height: 1;
+}
+/* model legend */
+.agent-legend {
+  display: flex; gap: 14px; margin-top: 12px; align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--mid); }
+.legend-dot { width: 10px; height: 3px; border-radius: 2px; }
+.legend-dot.haiku  { background: var(--amber); }
+.legend-dot.sonnet { background: var(--blue-br); }
+.legend-dot.opus   { background: var(--brand); }
+
 /* ── API-LED LAYERS ── */
 .layers { display: flex; flex-direction: column; gap: 10px; }
 .layer {
