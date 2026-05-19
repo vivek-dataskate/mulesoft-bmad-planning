@@ -8,96 +8,22 @@
 <style>
 a { text-decoration: none; }
 
-/* ── Header ── */
-.header{background:#fff;border-bottom:3px solid var(--brand);padding:28px 56px 20px;max-width:900px;margin:0 auto}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+/* ── Layout ── */
+.header{background:#fff;border-bottom:3px solid var(--brand);padding:24px 56px 18px;max-width:960px;margin:0 auto}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);display:flex;align-items:center;gap:8px}
 .internal-badge{background:var(--brand);color:#fff;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
-.header-title-block{border-left:4px solid var(--brand);padding-left:20px;margin-bottom:14px}
-.header-title-block h1{font-size:26px;font-weight:800;line-height:1.2;color:var(--dark)}
-.subtitle{font-size:15px;color:var(--mid);margin-top:4px}
-.header-meta{display:flex;flex-wrap:wrap;gap:0;font-size:12px;color:var(--mid);border-top:1px solid var(--border);padding-top:10px}
-.header-meta span{padding-right:16px;margin-right:16px;border-right:1px solid var(--border)}
-.header-meta span:last-child{border-right:none}
-.header-meta strong{color:var(--dark);margin-right:4px}
-
-/* ── Page wrapper ── */
-.page{max-width:900px;margin:0 auto;padding:0 56px 80px}
-
-/* ── Section ── */
-section{border-bottom:1px solid var(--border);padding:36px 0}
+.header-title{font-size:24px;font-weight:800;color:var(--dark);margin-bottom:10px;border-left:4px solid var(--brand);padding-left:16px}
+.fact-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{font-size:12px;font-weight:600;color:var(--dark);background:var(--light);border:1px solid var(--border);padding:3px 10px;border-radius:3px;display:inline-flex;gap:5px}
+.chip span{color:var(--mid);font-weight:400}
+.stack-chips{display:flex;flex-wrap:wrap;gap:6px}
+.stack-pill{font-size:11px;font-weight:700;color:var(--brand);background:#fff;border:1px solid var(--brand);padding:2px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.04em}
+.page{max-width:960px;margin:0 auto;padding:0 56px 80px}
+section{border-bottom:1px solid var(--border);padding:32px 0}
 section:last-child{border-bottom:none}
-section h2{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--brand);margin-bottom:6px;display:flex;align-items:center;gap:10px}
-section h2::before{content:'';display:inline-block;width:18px;height:2px;background:var(--brand);flex-shrink:0;border-radius:2px}
-section h3{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:8px}
-section p{margin-bottom:12px;color:var(--dark)}
-section p:last-child{margin-bottom:0}
-
-/* ── Snapshot cards ── */
-.snapshot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px}
-.snapshot-card{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:14px 16px}
-.snapshot-card .sc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:4px}
-.snapshot-card .sc-value{font-size:14px;font-weight:600;color:var(--dark)}
-.pain-list{margin-top:14px;padding:0}
-.pain-list li{list-style:none;padding:8px 0 8px 20px;border-bottom:1px solid var(--border);font-size:14px;color:var(--dark);position:relative}
-.pain-list li::before{content:"→";position:absolute;left:0;color:var(--brand);font-weight:700}
-.pain-list li:last-child{border-bottom:none}
-
-/* ── Talking points ── */
-.tp-block{background:var(--blue-bg);border-left:4px solid var(--blue-br);border-radius:0 6px 6px 0;padding:16px 20px;margin-bottom:12px}
-.tp-trigger{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:6px}
-.tp-say{font-size:14px;font-style:italic;color:var(--dark);margin-bottom:6px;line-height:1.5}
-.tp-say::before{content:'\201C';color:var(--brand)}
-.tp-say::after{content:'\201D';color:var(--brand)}
-.tp-impact{font-size:13px;color:var(--mid)}
-.tp-impact strong{color:var(--green)}
-
-/* ── Nearby peers table ── */
-.peer-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
-.peer-table th{background:var(--dark);color:#fff;padding:10px 12px;text-align:left;font-size:12px;font-weight:600}
-.peer-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
-.peer-table tr:last-child td{border-bottom:none}
-.peer-table tr:nth-child(even) td{background:#fafafa}
-.peer-name{font-weight:700;color:var(--dark)}
-.peer-dist{display:inline-block;background:var(--light);color:var(--brand);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;margin-top:3px}
-.peer-source{font-size:11px;color:var(--mid);margin-top:4px;font-style:italic}
-
-/* ── Competitor FOMO cards ── */
-.fomo-card{border:1px solid var(--border);border-radius:6px;margin-top:14px;overflow:hidden}
-.fomo-card-head{background:var(--brand);color:#fff;padding:10px 16px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.fomo-co-name{font-size:14px;font-weight:700}
-.fomo-co-meta{font-size:11px;opacity:.85}
-.fomo-card-body{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fomo-cell{display:flex;flex-direction:column;gap:3px}
-.fomo-cell-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mid)}
-.fomo-cell-value{font-size:13px;color:var(--dark);line-height:1.45}
-.fomo-savings{font-size:15px;font-weight:800;color:var(--green)}
-.fomo-before-after{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--border);margin-top:2px}
-.fomo-before{background:#FFF5F5;padding:10px 14px;border-right:1px solid var(--border)}
-.fomo-after{background:#F0FFF4;padding:10px 14px}
-.fomo-ba-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-.fomo-before .fomo-ba-label{color:var(--brand)}
-.fomo-after .fomo-ba-label{color:var(--green)}
-.fomo-ba-text{font-size:12px;line-height:1.4;color:var(--dark)}
-.fomo-angle{background:var(--amber-bg);border-top:1px solid var(--border);padding:10px 16px;font-size:13px;font-style:italic;color:var(--dark);line-height:1.5}
-.fomo-angle::before{content:'Say this: \201C';font-style:normal;font-weight:700;font-size:11px;color:var(--amber);display:block;margin-bottom:3px}
-.fomo-status{display:inline-block;background:#F0FFF4;color:var(--green);border:1px solid #68D391;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px}
-.fomo-tier-badge{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:3px;margin-left:auto}
-.tier-exact{background:#fff;color:var(--brand);border:1px solid rgba(255,255,255,.5)}
-.tier-adjacent{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
-.tier-stat{background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.2)}
-.fomo-analogy{background:var(--blue-bg);border-left:3px solid var(--blue-br);padding:10px 14px;font-size:13px;color:var(--dark);line-height:1.5}
-.fomo-analogy::before{content:'Why this applies: ';font-weight:700;color:var(--blue-br)}
-
-/* ── Opening lines ── */
-.ol-block{border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin-bottom:10px}
-.ol-context{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:6px}
-.ol-line{font-size:14px;font-style:italic;color:var(--dark);line-height:1.5}
-.ol-line::before{content:'\201C';color:var(--brand);font-weight:700}
-.ol-line::after{content:'\201D';color:var(--brand);font-weight:700}
-
-/* ── AI journey narrative ── */
-.narrative-block{background:var(--light);border-left:4px solid var(--brand);padding:20px 24px;border-radius:0 6px 6px 0;font-size:15px;line-height:1.7;color:var(--dark)}
+section h2{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--brand);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+section h2::before{content:'';display:inline-block;width:18px;height:2px;background:var(--brand);flex-shrink:0}
 
 /* ── Client logo pairing ── */
 .logo-group{display:flex;align-items:center;gap:0}
@@ -105,9 +31,52 @@ section p:last-child{margin-bottom:0}
 .client-logo-sep{width:1px;height:28px;background:var(--border)}
 .client-logo-img{height:28px;width:auto;max-width:120px;object-fit:contain}
 
-/* ── Footer ── */
-.footer{border-top:1px solid var(--border);padding:20px 0;font-size:12px;color:var(--mid);display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.footer a{color:var(--mid);text-decoration:none}
+/* ── Priority badges ── */
+.p-badge{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:3px;white-space:nowrap;flex-shrink:0}
+.p1{background:var(--brand);color:#fff}
+.p2{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber)}
+.p3{background:var(--light);color:var(--mid);border:1px solid var(--border)}
+
+/* ── Call opener ── */
+.opener-block{border-left:4px solid var(--brand);padding:16px 20px;margin-bottom:10px;background:var(--light);border-radius:0 6px 6px 0}
+.opener-context{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mid);margin-bottom:8px}
+.opener-line{font-size:14px;font-style:italic;color:var(--dark);line-height:1.6}
+.opener-line::before{content:'\201C';color:var(--brand);font-style:normal;font-weight:700}
+.opener-line::after{content:'\201D';color:var(--brand);font-style:normal;font-weight:700}
+
+/* ── Objection cards ── */
+.obj-card{border:1px solid var(--border);border-radius:6px;margin-bottom:10px;overflow:hidden}
+.obj-head{padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:#fafafa}
+.obj-trigger{font-size:12px;font-weight:600;color:var(--dark);flex:1;line-height:1.35}
+.obj-body{padding:14px 16px}
+.obj-say{font-size:14px;font-style:italic;color:var(--dark);line-height:1.6;margin-bottom:8px}
+.obj-say::before{content:'\201C';color:var(--brand);font-style:normal}
+.obj-say::after{content:'\201D';color:var(--brand);font-style:normal}
+.obj-impact{font-size:12px;color:var(--mid);line-height:1.4;border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
+.obj-impact strong{color:var(--dark)}
+
+/* ── Compact proof table ── */
+.proof-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.proof-table th{background:var(--dark);color:#fff;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.proof-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.4}
+.proof-table tr:last-child td{border-bottom:none}
+.proof-stat{font-weight:700;color:var(--green);display:block;margin-bottom:2px}
+.proof-say{font-size:12px;font-style:italic;color:var(--mid);margin-top:6px;line-height:1.4;border-top:1px solid var(--border);padding-top:6px}
+.proof-say::before{content:'Say: \201C';font-style:normal;font-weight:700;font-size:10px;color:var(--brand);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:2px}
+.tier-exact-badge{font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--border);padding:1px 6px;border-radius:3px;white-space:nowrap}
+.tier-stat-badge{font-size:10px;font-weight:700;background:var(--light);color:var(--mid);border:1px solid var(--border);padding:1px 6px;border-radius:3px;white-space:nowrap}
+
+/* ── Stall close ── */
+.stall-block{background:var(--amber-bg);border-left:4px solid var(--amber);padding:18px 22px;border-radius:0 6px 6px 0}
+.stall-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--amber);margin-bottom:8px}
+
+/* ── AI section ── */
+.ai-line-block{border-left:4px solid var(--blue-br);padding:14px 18px;background:var(--blue-bg);border-radius:0 6px 6px 0;margin-bottom:12px}
+.ai-narrative{font-size:13px;line-height:1.7;color:var(--mid);margin-top:0}
+
+/* ── Pain points ── */
+.pain-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.pain-pill{font-size:12px;color:var(--dark);background:var(--light);border:1px solid var(--border);padding:4px 10px;border-radius:3px;line-height:1.35}
 
 /* ── Auth gate ── */
 #login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;background:#fff}
@@ -126,11 +95,14 @@ section p:last-child{margin-bottom:0}
 /* ── Deck shell ── */
 #deck-content{display:none}
 
+/* ── Footer ── */
+.footer{border-top:1px solid var(--border);padding:20px 0;font-size:12px;color:var(--mid);display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+
 /* ── Print ── */
 @media print{
   body{font-size:12px}
   .header,.page{padding-left:24px;padding-right:24px}
-  section{padding:20px 0;page-break-inside:avoid}
+  section{padding:18px 0;page-break-inside:avoid}
   .no-print{display:none!important}
 }
 </style>
@@ -190,53 +162,42 @@ section p:last-child{margin-bottom:0}
       <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
     </svg><!-- FILL:client-logo -->
     </div>
-    <span class="eyebrow">Architect Pitch Kit <span class="internal-badge">Internal Only</span></span>
+    <span class="eyebrow">Call Prep <span class="internal-badge">Internal Only</span></span>
   </div>
-  <div class="header-title-block">
-    <h1 id="dk-client-name"></h1>
-    <div class="subtitle" id="dk-subtitle"></div>
-  </div>
-  <div class="header-meta" id="dk-header-meta"></div>
+  <div class="header-title" id="dk-client-name"></div>
+  <div class="fact-chips" id="dk-fact-chips"></div>
+  <div class="stack-chips" id="dk-stack-chips"></div>
 </div>
 
 <div class="page">
 
 <section>
-  <h2>Client Snapshot</h2>
-  <p id="dk-snapshot-desc"></p>
-  <div class="snapshot-grid" id="dk-snapshot-cards"></div>
-  <h3 style="margin-top:20px">Known Pain Points</h3>
-  <ul class="pain-list" id="dk-pain-points"></ul>
+  <h2>Open With This</h2>
+  <div id="dk-opener"></div>
 </section>
 
 <section>
-  <h2>Personalized Talking Points</h2>
-  <div id="dk-talking-points"></div>
+  <h2>Objection Playbook</h2>
+  <div id="dk-objections"></div>
 </section>
 
 <section>
-  <h2>Similar Companies Nearby</h2>
-  <p style="color:var(--mid);font-size:13px;margin-bottom:0">Companies within <span id="dk-search-radius"></span> of <span id="dk-location"></span> that have made comparable integration investments. Use for social proof — not as named references without permission.</p>
-  <table class="peer-table">
-    <thead><tr><th>Company</th><th>What They Did</th><th>Outcome</th></tr></thead>
-    <tbody id="dk-peer-rows"></tbody>
+  <h2>Social Proof — Drop These Stats</h2>
+  <table class="proof-table">
+    <thead><tr><th>Company</th><th>What They Did + Result</th></tr></thead>
+    <tbody id="dk-proof-rows"></tbody>
   </table>
 </section>
 
 <section>
-  <h2>Competitor FOMO</h2>
-  <p style="color:var(--mid);font-size:13px;margin-bottom:4px">Companies in the <span id="dk-revenue-bracket"></span> revenue bracket doing the exact same integration + AI use case. Each entry includes the sharpest thing you can say on a call.</p>
-  <div id="dk-fomo-cards"></div>
+  <h2>If It Stalls — Close With This</h2>
+  <div id="dk-stall"></div>
 </section>
 
 <section>
-  <h2>Opening Lines</h2>
-  <div id="dk-opening-lines"></div>
-</section>
-
-<section>
-  <h2>Their AI Journey — Personalized Frame</h2>
-  <div class="narrative-block" id="dk-ai-narrative"></div>
+  <h2>If They Ask About AI</h2>
+  <div id="dk-ai-line"></div>
+  <div class="ai-narrative" id="dk-ai-narrative"></div>
 </section>
 
 </div><!-- /page -->
@@ -273,8 +234,8 @@ section p:last-child{margin-bottom:0}
         renderDeck(JSON.parse(doc.data().contentJson));
         hide('deck-loading');
         show('deck-content');
-      } catch (e) {
-        showError('Failed to load: ' + e.message);
+      } catch (err) {
+        showError('Failed to load: ' + err.message);
       }
     } else {
       if (user) { auth.signOut(); showError('Access restricted to @dataskate.ai accounts.'); }
@@ -284,7 +245,7 @@ section p:last-child{margin-bottom:0}
     }
   });
 
-  window.signIn = () => auth.signInWithPopup(provider).catch(e => showError(e.message));
+  window.signIn = () => auth.signInWithPopup(provider).catch(err => showError(err.message));
 
   function show(id) { document.getElementById(id).style.display = id === 'deck-loading' ? 'flex' : id === 'deck-content' ? 'block' : ''; }
   function hide(id) { document.getElementById(id).style.display = 'none'; }
@@ -298,106 +259,115 @@ section p:last-child{margin-bottom:0}
   function e(s) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+  function set(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+  function txt(id, val)  { const el = document.getElementById(id); if (el) el.textContent = val || ''; }
 
-  function set(id, html)  { const el = document.getElementById(id); if (el) el.innerHTML = html; }
-  function txt(id, val)   { const el = document.getElementById(id); if (el) el.textContent = val || ''; }
+  const PRIORITY = [
+    { cls: 'p1', label: 'P1 · Expect Every Call' },
+    { cls: 'p2', label: 'P2 · Likely' },
+    { cls: 'p2', label: 'P2 · Likely' },
+    { cls: 'p3', label: 'P3 · Situational' },
+    { cls: 'p3', label: 'P3 · Situational' },
+  ];
 
   function renderDeck(c) {
-    const m = c.meta || {};
+    const m  = c.meta    || {};
+    const sn = c.snapshot || {};
 
-    txt('dk-client-name',   (m.clientName || '') + ' — Call Prep');
-    txt('dk-subtitle',      m.subtitle || '');
+    // Header
+    txt('dk-client-name', (m.clientName || '') + ' — Call Prep');
     txt('dk-footer-architect', (m.architect || '') + ' · DataSkate Internal');
 
-    set('dk-header-meta', [
-      ['Client', m.clientName], ['Location', m.location], ['Industry', m.industry],
-      ['Revenue', m.revenue],   ['Architect', m.architect], ['Date', m.date],
-    ].map(([k, v]) => `<span><strong>${k}</strong>${e(v)}</span>`).join(''));
-
-    // Snapshot
-    txt('dk-snapshot-desc', (c.snapshot || {}).description || '');
-    set('dk-snapshot-cards', [
-      { label: 'Industry', value: m.industry },
-      { label: 'Revenue',  value: m.revenue },
-      { label: 'Location', value: m.location },
-      { label: 'Flows',    value: (m.flowCount || '—') + ' integration flows' },
-      ...((c.snapshot || {}).systems || []).map(s => ({ label: 'System', value: s })),
-    ].map(card =>
-      `<div class="snapshot-card"><div class="sc-label">${e(card.label)}</div><div class="sc-value">${e(card.value || '—')}</div></div>`
+    set('dk-fact-chips', [
+      ['Revenue',  m.revenue],
+      ['Industry', m.industry],
+      ['Location', m.location],
+      ['Flows',    m.flowCount ? m.flowCount + ' integration flows' : null],
+    ].filter(([,v]) => v).map(([k, v]) =>
+      `<div class="chip"><span>${e(k)}</span>${e(v)}</div>`
     ).join(''));
-    set('dk-pain-points', ((c.snapshot || {}).painPoints || []).map(p => `<li>${e(p)}</li>`).join(''));
 
-    // Talking points
-    set('dk-talking-points', (c.talkingPoints || []).map(tp =>
-      `<div class="tp-block">
-        <div class="tp-trigger">${e(tp.trigger)}</div>
-        <div class="tp-say">${e(tp.say)}</div>
-        ${tp.impact ? `<div class="tp-impact"><strong>Impact:</strong> ${e(tp.impact)}</div>` : ''}
+    set('dk-stack-chips', (sn.systems || []).map(s =>
+      `<span class="stack-pill">${e(s)}</span>`
+    ).join(''));
+
+    // Opening lines — split by role
+    const lines   = c.openingLines || [];
+    const isOpen  = ol => /opening|first/i.test(ol.context);
+    const isStall = ol => /stall|fomo close/i.test(ol.context);
+    const isAI    = ol => /\bai\b/i.test(ol.context);
+
+    const openerLines  = lines.filter(ol => !isStall(ol) && !isAI(ol));
+    const stallLine    = lines.find(isStall);
+    const aiLine       = lines.find(isAI);
+
+    set('dk-opener', openerLines.map(ol =>
+      `<div class="opener-block">
+        <div class="opener-context">${e(ol.context)}</div>
+        <div class="opener-line">${e(ol.line)}</div>
       </div>`
     ).join(''));
 
-    // Nearby peers
-    txt('dk-search-radius', m.searchRadius || '100 miles');
-    txt('dk-location', m.location || '');
-    const peers = c.nearbyPeers || [];
-    set('dk-peer-rows', peers.length > 0
-      ? peers.map(p =>
-          `<tr>
-            <td>
-              <div class="peer-name">${e(p.name)}</div>
-              <div><span class="peer-dist">${e(p.distance)}</span></div>
-              <div style="font-size:12px;color:var(--mid);margin-top:4px">${e(p.location || '')}${p.revenue ? ' · ' + e(p.revenue) : ''}</div>
-              ${p.source ? `<div class="peer-source">${e(p.source)}</div>` : ''}
-            </td>
-            <td>${e(p.what)}</td>
-            <td>${e(p.outcome)}</td>
-          </tr>`
-        ).join('')
-      : `<tr><td colspan="3" style="text-align:center;color:var(--mid);padding:20px">No peer companies found within search radius.</td></tr>`
-    );
+    // Objections
+    set('dk-objections', (c.talkingPoints || []).map((tp, i) => {
+      const p = PRIORITY[i] || { cls: 'p3', label: 'P3 · Situational' };
+      return `<div class="obj-card">
+        <div class="obj-head">
+          <span class="p-badge ${e(p.cls)}">${e(p.label)}</span>
+          <span class="obj-trigger">${e(tp.trigger)}</span>
+        </div>
+        <div class="obj-body">
+          <div class="obj-say">${e(tp.say)}</div>
+          ${tp.impact ? `<div class="obj-impact"><strong>Why it works:</strong> ${e(tp.impact)}</div>` : ''}
+        </div>
+      </div>`;
+    }).join(''));
 
-    // Competitor FOMO
-    txt('dk-revenue-bracket', m.revenueBracket || m.revenue || 'comparable');
-    const TIERS = {
-      'exact-match':       { label: 'Exact match',       cls: 'tier-exact' },
-      'same-industry':     { label: 'Same industry',     cls: 'tier-adjacent' },
-      'adjacent-industry': { label: 'Adjacent industry', cls: 'tier-adjacent' },
-      'industry-stat':     { label: 'Industry data',     cls: 'tier-stat' },
+    // Social proof — compact table
+    const TIER_BADGE = {
+      'exact-match':       'tier-exact-badge',
+      'same-industry':     'tier-exact-badge',
+      'adjacent-industry': 'tier-stat-badge',
+      'industry-stat':     'tier-stat-badge',
     };
-    const fomo = c.competitorFOMO || [];
-    set('dk-fomo-cards', fomo.length > 0
-      ? fomo.map(f => {
-          const systems = (f.systemsUsed || []).join(' → ');
-          const tier = TIERS[f.relevanceTier] || { label: '', cls: 'tier-stat' };
-          return `<div class="fomo-card">
-  <div class="fomo-card-head">
-    <span class="fomo-co-name">${e(f.name)}</span>
-    <span class="fomo-co-meta">${[f.location, f.revenue, systems].filter(Boolean).map(e).join(' · ')}</span>
-    ${tier.label ? `<span class="fomo-tier-badge ${e(tier.cls)}">${e(tier.label)}</span>` : ''}
-  </div>
-  ${f.analogyNote ? `<div class="fomo-analogy">${e(f.analogyNote)}</div>` : ''}
-  <div class="fomo-card-body">
-    <div class="fomo-cell"><span class="fomo-cell-label">What They Built</span><span class="fomo-cell-value">${e(f.whatTheyBuilt || f.what || '')}</span></div>
-    <div class="fomo-cell"><span class="fomo-cell-label">AI Use Case</span><span class="fomo-cell-value">${e(f.aiUseCase || '—')}</span></div>
-    <div class="fomo-cell"><span class="fomo-cell-label">Savings / ROI</span><span class="fomo-savings">${e(f.savings || '—')}</span></div>
-    <div class="fomo-cell"><span class="fomo-cell-label">Status</span><span class="fomo-cell-value"><span class="fomo-status">${e(f.status || '')}</span></span>${f.source ? `<span style="font-size:11px;color:var(--mid);margin-top:4px;font-style:italic">${e(f.source)}</span>` : ''}</div>
-  </div>
-  ${(f.before || f.after) ? `<div class="fomo-before-after"><div class="fomo-before"><div class="fomo-ba-label">Before</div><div class="fomo-ba-text">${e(f.before || '—')}</div></div><div class="fomo-after"><div class="fomo-ba-label">After</div><div class="fomo-ba-text">${e(f.after || '—')}</div></div></div>` : ''}
-  ${f.fomoAngle ? `<div class="fomo-angle">${e(f.fomoAngle)}</div>` : ''}
-</div>`;
-        }).join('\n')
-      : `<div style="text-align:center;color:var(--mid);padding:24px;border:1px dashed var(--border);border-radius:6px;margin-top:14px">No verified competitor data found for this revenue bracket and use case.</div>`
-    );
+    set('dk-proof-rows', (c.competitorFOMO || []).map(f => {
+      const tierCls  = TIER_BADGE[f.relevanceTier] || 'tier-stat-badge';
+      const tierLbl  = f.relevanceTier === 'exact-match' ? 'Exact match'
+                     : f.relevanceTier === 'same-industry' ? 'Same industry'
+                     : f.relevanceTier === 'adjacent-industry' ? 'Adjacent'
+                     : 'Industry data';
+      const systems  = (f.systemsUsed || []).join(' + ');
+      const what     = f.whatTheyBuilt || f.what || '';
+      return `<tr>
+        <td>
+          <strong>${e(f.displayName || f.name)}</strong><br>
+          <span style="font-size:12px;color:var(--mid)">${[f.location, f.revenue].filter(Boolean).map(e).join(' · ')}</span><br>
+          <span class="${tierCls}" style="margin-top:4px;display:inline-block">${tierLbl}</span>
+        </td>
+        <td>
+          ${what ? `<span style="font-size:13px;color:var(--dark)">${e(what)}</span><br>` : ''}
+          ${f.savings ? `<span class="proof-stat">${e(f.savings)}</span>` : ''}
+          ${systems ? `<span style="font-size:11px;color:var(--mid)">${e(systems)}</span>` : ''}
+          ${f.fomoAngle ? `<div class="proof-say">${e(f.fomoAngle)}</div>` : ''}
+        </td>
+      </tr>`;
+    }).join(''));
 
-    // Opening lines
-    set('dk-opening-lines', (c.openingLines || []).map(ol =>
-      `<div class="ol-block">
-        <div class="ol-context">${e(ol.context)}</div>
-        <div class="ol-line">${e(ol.line)}</div>
-      </div>`
-    ).join(''));
+    // Stall close
+    if (stallLine) {
+      set('dk-stall', `<div class="stall-block">
+        <div class="stall-label">Use when deal stalls</div>
+        <div class="opener-line" style="font-style:italic;font-size:14px;line-height:1.6;color:var(--dark)">${e(stallLine.line)}</div>
+      </div>`);
+    }
 
-    // AI journey narrative
+    // AI line + narrative
+    if (aiLine) {
+      set('dk-ai-line', `<div class="ai-line-block">
+        <div class="opener-context" style="color:var(--blue-br)">${e(aiLine.context)}</div>
+        <div class="opener-line">${e(aiLine.line)}</div>
+      </div>`);
+    }
     txt('dk-ai-narrative', c.aiJourneyNarrative || '');
   }
 })();
