@@ -1,0 +1,497 @@
+{
+  "status": "complete",
+  "client": "homage",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "agent": "Rex v1.0.0",
+
+  "systems": [
+    {
+      "name": "NetSuite",
+      "connectorKey": "netsuite",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "TBA",
+      "authDetail": "Token-Based Authentication (TBA) — 5 credentials: accountId, consumerKey, consumerSecret, tokenId, tokenSecret. Provisioned per integration role in NetSuite by admin (Sikich). NOT OAuth2 — do not confuse.",
+      "apiStyle": "SOAP (SuiteTalk) via MuleSoft NetSuite Connector v11.11",
+      "apiStyleNote": "Connector 11.0+ does NOT support REST. REST access requires separate HTTP connector + PS256 JWT via Nimbus JOSE Java helper. Celigo may have used REST — confirm with Sikich which API model Celigo uses today before assuming SOAP is sufficient.",
+      "sandboxAvailable": true,
+      "rateLimits": "SuiteQL: 1,000 records/page hard limit. Governance units: ~5 per SuiteQL call. Default 1,000 units/slot. Implement backoff on 429.",
+      "knownQuirks": [
+        "Invoice is read-only via API — NetSuite auto-generates invoices from Sales Orders via internal billing workflow. Cannot POST to create invoice directly. UC9 must be re-classified: MuleSoft triggers SO status update → NetSuite workflow generates invoice (not a direct MuleSoft invoice create).",
+        "Matrix items: parent item (MatrixItem/ItemGroup) + child items (each variant is a separate InvtPart or AssemblyItem record). SOAP API requires separate call per child. No bulk parent→children endpoint. UC5 requires an item iteration loop.",
+        "Item ID cross-reference: cannot look up NetSuite items by product code/name via API. Need a pre-built mapping table: Shopify variant ID ↔ NetSuite item internalId. Must be created/maintained per engagement (critical for UC4 inventory sync and UC5 product sync).",
+        "Custom fields: bodyfield = custbody_{name}, linefield = custcol_{name}. Client (via Sikich) must provide exact field names for all custom fields used in UC10.",
+        "Custom record types: UC10 writes to NetSuite custom records. Record type internal ID must be known before development — Sikich to provide.",
+        "SuiteQL OFFSET only reliable to 10,000 rows. For large queries: filter by date ranges rather than offset pagination.",
+        "Multi-subsidiary (OneWorld): single-subsidiary deployment assumed based on scoping doc. Verify — subsidiary.id is required on every write if OneWorld is active."
+      ],
+      "prerequisites": [
+        "TBA integration role created in NetSuite by Sikich — minimum required permissions: Transactions (Create/Edit), Inventory (View/Edit), Customers (Create/Edit), Products/Items (View), Custom Records (Create/Edit based on UC10)",
+        "Consumer key + consumer secret + token ID + token secret generated and provided to DataSkate",
+        "NetSuite Account ID confirmed",
+        "Sikich to provide: custom field names (custbody/custcol), custom record type IDs for UC10, item internalId export for cross-reference table",
+        "Subsidiary ID confirmed (or single-subsidiary confirmed)"
+      ],
+      "playbook": "standards/playbooks/netsuite/netsuite_playbook.json",
+      "confidence": "high"
+    },
+    {
+      "name": "Shopify Plus",
+      "connectorKey": "shopify",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "ApiKey",
+      "authDetail": "Access token from Custom App (Shopify Plus). Private Apps are deprecated — must use Custom App via Partner Dashboard. Access token is permanent (does not expire) but is store-specific.",
+      "apiStyle": "REST Admin API + GraphQL Admin API",
+      "apiStyleNote": "CRITICAL: Shopify REST Products/Variants API is DEPRECATED for custom apps as of April 2025. UC5 (product sync, matrix items, metafields) MUST use GraphQL Admin API. Orders, customers, inventory: REST is still available but Shopify recommends GraphQL. Verify MuleSoft Shopify connector v1.1 GraphQL coverage for bulk product mutation with variants + metafields.",
+      "sandboxAvailable": true,
+      "sandboxNote": "Shopify development stores available. Shopify Plus merchants can also use draft orders and test modes.",
+      "rateLimits": "REST: 40 req/s (leaky bucket, burst to 80). GraphQL: cost-based query points (1,000 points/s, queries cost 1-100 points). GraphQL Bulk Operations: async, no rate limit on the query itself.",
+      "knownQuirks": [
+        "REST Products API DEPRECATED (April 2025 for custom apps): UC5 must use GraphQL productCreate/productUpdate mutations. Metafield management requires GraphQL metafieldsSet mutation.",
+        "Shopify connector v1.1 covers orders, products, customers, inventory. Verify GraphQL bulk mutation support for matrix product variants before development begins.",
+        "Cursor-based pagination on REST (page_info cursor) and GraphQL (edges/endCursor). For large catalog syncs (UC4 inventory, UC5 products): implement cursor correctly or use GraphQL Bulk Operations API for full catalog refresh.",
+        "Variant limit: REST API max 100 variants per product (deprecated). GraphQL Admin API supports up to 2,048 variants per product. Confirm Homage matrix items don't exceed 100 variants if any REST fallback is used.",
+        "CSWOS (Continue Selling While Out of Stock): no native Shopify feature. Implemented via inventory_policy: 'continue' on individual variants. MuleSoft must track and apply CSWOS threshold logic per SKU in the UC4 flow — this is custom business logic, not a Shopify setting.",
+        "Webhook topics: orders/create, orders/paid, orders/updated, fulfillments/create, inventory_levels/update, products/update. Each topic requires a separate webhook subscription. MuleSoft HTTP Listener is the receiver.",
+        "Shopify variant ID ↔ NetSuite item ID cross-reference: UC4 requires this mapping table for inventory sync. Same mapping table as NetSuite system finding above.",
+        "Metafield namespaces: Homage must define namespace + key structure before product sync go-live. Recommend: namespace='netsuite', key='matrix_parent_id', 'price_tier', etc.",
+        "Shopify Plus webhook reliability: webhooks can be missed or duplicated. Implement idempotency key (shopify_order_id / shopify_product_id) on all NetSuite writes."
+      ],
+      "prerequisites": [
+        "Custom App created in Shopify Admin → Settings → Apps → Develop Apps. API scopes: read_orders, write_orders, read_inventory, write_inventory, read_products, write_products, read_customers, write_customers, read_fulfillments, write_fulfillments",
+        "Access token generated and provided to DataSkate",
+        "Webhook subscriptions registered per flow (orchestrated by MuleSoft deploy)",
+        "Metafield namespace + key definitions confirmed and created in Shopify before UC5 go-live",
+        "Shopify variant ID ↔ NetSuite item ID cross-reference table created (joint work with Sikich)"
+      ],
+      "playbook": "standards/playbooks/shopify/shopify_playbook.json (updated this session)",
+      "confidence": "high"
+    },
+    {
+      "name": "Orderful",
+      "connectorKey": null,
+      "connectorKeyNote": "No MuleSoft connector. Use HTTP connector. Orderful exposes a REST API — they translate X12 EDI to/from JSON REST calls. No raw X12 or AS2 required from MuleSoft side.",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "ApiKey",
+      "authDetail": "Orderful REST API uses API key authentication (Bearer token in Authorization header). Exact format: 'Authorization: Bearer {api_key}'. Keys managed in Orderful portal.",
+      "apiStyle": "REST (JSON)",
+      "apiStyleNote": "Orderful abstracts X12 EDI to a REST API. MuleSoft sends/receives JSON — Orderful handles X12 translation to Fanatics, DSG, Rallyhouse. This means NO MuleSoft B2B EDI connector is required. MuleSoft → HTTP Requester → Orderful REST API → Orderful → X12 to partners.",
+      "sandboxAvailable": null,
+      "sandboxNote": "Orderful likely offers test/staging environment — confirm with client. API-first cloud EDI providers typically have sandbox.",
+      "rateLimits": null,
+      "knownQuirks": [
+        "Orderful abstracts X12 to REST/JSON — MuleSoft does NOT need B2B EDI connector (X12 connector). This is a significant simplification vs traditional EDI integration.",
+        "Trading partner configurations (Fanatics, DSG, Rallyhouse) must already exist in Orderful portal before integration — Homage's Orderful admin handles this.",
+        "EDI transaction models: 810 = Invoice (inbound from partner), 856 = Advance Ship Notice (outbound to partner), 997 = Functional Acknowledgment (auto-handled by Orderful in most cases). Confirm ACK/NACK handling.",
+        "Orderful manages 997 ACK automatically in most configurations — verify whether manual NACK handling is needed for rejection scenarios.",
+        "Orderful scope is POTENTIAL — not confirmed in Celigo today. Scoping call needed to confirm if client wants iPaaS to handle Orderful → NetSuite or if it remains outside scope."
+      ],
+      "prerequisites": [
+        "Orderful API key provided to DataSkate",
+        "Confirm: is Orderful → NetSuite in scope for this iPaaS engagement?",
+        "If in scope: confirm transaction types per partner (810/856/997 for each of Fanatics, DSG, Rallyhouse)",
+        "Confirm 997 ACK handling: auto (Orderful) vs manual (MuleSoft triggered)"
+      ],
+      "playbook": "standards/playbooks/orderful/orderful_playbook.json (stub created this session)",
+      "confidence": "medium"
+    },
+    {
+      "name": "ShipStation",
+      "connectorKey": "shipstation",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "Basic",
+      "authDetail": "HTTP Basic auth. API Key + API Secret, Base64-encoded as 'apiKey:apiSecret'. Header: 'Authorization: Basic {base64}'.",
+      "apiStyle": "REST",
+      "sandboxAvailable": null,
+      "sandboxNote": "ShipStation does not offer a sandbox API environment. All testing against production. Use test orders marked 'test' or low-value dummy data for development.",
+      "rateLimits": "40 requests per minute. Rate limit header: X-Rate-Limit-Remaining. Implement polling back-off when limit is hit.",
+      "knownQuirks": [
+        "No dedicated MuleSoft connector — use HTTP connector with Basic auth.",
+        "No API sandbox — testing must be done against production account. Use 'test' tagged orders or dummy shipments that can be voided.",
+        "ShipStation is currently integrated via Turbine (custom middleware). Turbine's field mapping and business rules MUST be documented before MuleSoft replacement design begins.",
+        "ShipStation integration is POTENTIAL scope — currently outside Celigo. Confirm with client whether Turbine replacement is in scope for this engagement.",
+        "Rate limit: 40 req/min. For batch shipment creation (e.g., EOD batch from NetSuite), implement pacing logic in DataWeave or a scatter-gather with rate control."
+      ],
+      "prerequisites": [
+        "ShipStation API key + API secret provided to DataSkate",
+        "Turbine middleware logic documented (field mapping, business rules, carrier routing logic) before DataSkate designs the replacement flow",
+        "Confirm: is Turbine replacement (NetSuite ↔ ShipStation) in scope for this engagement?"
+      ],
+      "playbook": "standards/playbooks/shipstation/shipstation_playbook.json (stub created this session)",
+      "confidence": "high"
+    },
+    {
+      "name": "Laravel + Vapor (Custom API Gateway)",
+      "connectorKey": "http",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "unknown",
+      "authDetail": "Custom REST API on AWS. Auth method not stated in scoping doc — likely Bearer token or API key. Must be confirmed with Homage engineering team.",
+      "apiStyle": "REST",
+      "sandboxAvailable": null,
+      "knownQuirks": [
+        "This is Homage's internal API Gateway — not a third-party SaaS. Integration patterns depend on their internal API design.",
+        "Currently sits between NetSuite, Shopify, 3PLs, and the Homage Portal. MuleSoft may coexist with or partially replace this layer.",
+        "Scope question: does MuleSoft integrate WITH the API Gateway, or does MuleSoft REPLACE some of its routing functions? Clarify with client before architecture design."
+      ],
+      "prerequisites": [
+        "API documentation / Swagger / OpenAPI spec from Homage engineering",
+        "Auth method confirmed",
+        "Scope boundary defined: what does MuleSoft own vs what the API Gateway continues to own?"
+      ],
+      "playbook": "stub-not-created (custom internal system — no playbook applicable)",
+      "confidence": "low"
+    }
+  ],
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "name": "Order Intake",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Orders",
+      "trigger": "webhook",
+      "triggerDetail": "orders/create webhook from Shopify; orders/paid for payment-confirmed routing",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-order.yaml",
+      "confirmed": true,
+      "evidence": "Order intake: Shopify orders → NetSuite (as cash sales or sales orders, with routing logic).",
+      "architectNote": "Routing logic (cash sale vs. sales order) is business logic that must be encoded in DataWeave. Celigo's pre-map JS hook likely contains this rule — must be extracted before migration."
+    },
+    {
+      "id": "UC2",
+      "name": "Returns / Refunds Sync",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus ↔ NetSuite",
+      "entity": "Returns / Refunds",
+      "trigger": "event-driven",
+      "triggerDetail": "refunds/create webhook (Shopify → NetSuite); NetSuite return authorization may trigger Shopify refund",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-return.yaml (stub created this session)",
+      "confirmed": true,
+      "evidence": "Order lifecycle: refunds and returns synced across Shopify and NetSuite."
+    },
+    {
+      "id": "UC3",
+      "name": "Fulfillment Writeback",
+      "systems": ["NetSuite", "Shopify Plus"],
+      "direction": "NetSuite → Shopify Plus",
+      "entity": "Fulfillments",
+      "trigger": "event-driven",
+      "triggerDetail": "NetSuite fulfillment record created/updated → write fulfillment event to Shopify",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-fulfillment.yaml (stub created this session)",
+      "confirmed": true,
+      "evidence": "Fulfillment writeback: NetSuite fulfillments → Shopify fulfillment events."
+    },
+    {
+      "id": "UC4",
+      "name": "Inventory Sync (with CSWOS)",
+      "systems": ["NetSuite", "Shopify Plus"],
+      "direction": "NetSuite → Shopify Plus",
+      "entity": "Inventory",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled pull from NetSuite inventory levels per item; CSWOS tiered delivery logic applied per SKU",
+      "pattern": "scheduled-sync",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-inventory.yaml (stub created this session)",
+      "confirmed": true,
+      "evidence": "Inventory sync: NetSuite inventory levels → Shopify; cross-reference between Shopify variant IDs and NetSuite item IDs; CSWOS ('Continue Selling While Out of Stock') tiered delivery.",
+      "architectNote": "Requires Shopify variant ID ↔ NetSuite item internalId mapping table. CSWOS logic must be encoded in DataWeave (inventory_policy toggle per SKU threshold). This is the most complex batch flow in scope."
+    },
+    {
+      "id": "UC5",
+      "name": "Product Sync (Matrix Items + Metafields)",
+      "systems": ["NetSuite", "Shopify Plus"],
+      "direction": "NetSuite → Shopify Plus",
+      "entity": "Products (matrix items, variants, metafields, price, tax)",
+      "trigger": "scheduled",
+      "triggerDetail": "Scheduled — NetSuite matrix item changes → Shopify product/variant updates with metafield population",
+      "pattern": "scheduled-sync",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-product.yaml",
+      "confirmed": true,
+      "evidence": "Product sync: NetSuite matrix items → Shopify products with metafield management; matrix item price and tax sync.",
+      "architectNote": "MUST use GraphQL Admin API (Shopify REST Products deprecated April 2025). NetSuite matrix item structure (parent + child InvtPart records) maps to Shopify product (parent) + variants (children). Requires item iteration loop — one NS API call per child item. Metafield population via GraphQL metafieldsSet mutation."
+    },
+    {
+      "id": "UC6",
+      "name": "Product Image URL Writeback",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Product image URLs",
+      "trigger": "event-driven",
+      "triggerDetail": "products/update webhook (when image URL changes in Shopify)",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-product.yaml",
+      "confirmed": true,
+      "evidence": "Shopify product image URLs → NetSuite."
+    },
+    {
+      "id": "UC7",
+      "name": "Customer Sync (Bidirectional)",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus ↔ NetSuite",
+      "entity": "Customers",
+      "trigger": "event-driven",
+      "triggerDetail": "customers/create + customers/update webhook (Shopify → NetSuite); NetSuite customer update → Shopify customer update",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-customer.yaml",
+      "confirmed": true,
+      "evidence": "Customer sync: Shopify customers ↔ NetSuite customers.",
+      "architectNote": "Bidirectional — master system decision required. Who wins on conflict? Likely Shopify is master for DTC customers; NetSuite is master for B2B/EDI accounts. Confirm with client."
+    },
+    {
+      "id": "UC8",
+      "name": "Billing / Payment Transactions",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Payment transactions → Customer deposits",
+      "trigger": "event-driven",
+      "triggerDetail": "orders/paid or transactions/create webhook → NetSuite customer deposit record",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-invoice.yaml",
+      "confirmed": true,
+      "evidence": "Billing: Shopify payment transactions → NetSuite customer deposits."
+    },
+    {
+      "id": "UC9",
+      "name": "NetSuite Sales Order → Invoice (Internal Transformation)",
+      "systems": ["NetSuite", "NetSuite"],
+      "direction": "NetSuite → NetSuite",
+      "entity": "Sales orders / Invoices",
+      "trigger": "event-driven",
+      "triggerDetail": "NetSuite SO reaches billing-eligible status → invoice generated",
+      "pattern": "event-driven",
+      "canonicalModel": "standards/canonical-models/commerce/canonical-invoice.yaml",
+      "confirmed": true,
+      "evidence": "NetSuite sales order → NetSuite invoice transformations.",
+      "architectNote": "CRITICAL RECLASSIFICATION: NetSuite invoices are system-generated from Sales Orders — cannot POST to create directly via API. Celigo's 'NetSuite→NetSuite' flow is almost certainly a SuiteScript-triggered billing workflow, NOT a direct MuleSoft API call creating an invoice. MuleSoft's role may be limited to triggering SO status changes that kick off the billing workflow. Architect (Kailash) must confirm exact Celigo mechanism before designing this flow. May reduce to a status-update call or be reclassified as a NetSuite-internal process outside MuleSoft scope."
+    },
+    {
+      "id": "UC10",
+      "name": "Store Metadata / Custom Records",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Store metadata → NetSuite custom records",
+      "trigger": "event-driven",
+      "triggerDetail": "Shopify store-level event → NetSuite custom record upsert",
+      "pattern": "event-driven",
+      "canonicalModel": null,
+      "canonicalModelNote": "Custom record — no canonical model applicable. NetSuite custom record type and field schema must be provided by Sikich.",
+      "confirmed": true,
+      "evidence": "Store-level metadata: Shopify store changes → NetSuite custom records.",
+      "architectNote": "NetSuite custom record type internal ID and all field names (custrecord_{name}) must be documented by Sikich before this flow can be designed."
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC11-potential",
+      "name": "EDI Order/Fulfillment via Orderful",
+      "systems": ["Orderful", "NetSuite"],
+      "entity": "EDI Purchase Orders, Invoices, Ship Notices",
+      "priority": "high",
+      "rationale": "Orderful handles 810/856/997 with Fanatics, DSG, Rallyhouse. NetSuite is the ERP. This is a natural iPaaS consolidation — replacing any manual or custom Orderful→NetSuite handling with a MuleSoft flow. Orderful's REST API makes this simpler than traditional X12 EDI.",
+      "prerequisite": "Client confirms Orderful ↔ NetSuite is in scope"
+    },
+    {
+      "id": "UC12-potential",
+      "name": "ShipStation Integration (Turbine Replacement)",
+      "systems": ["NetSuite", "ShipStation"],
+      "entity": "Shipments / Shipping orders",
+      "priority": "high",
+      "rationale": "Turbine is custom-built middleware between NetSuite and ShipStation. Replacing it with a managed MuleSoft flow reduces maintenance burden. ShipStation's REST API is straightforward via HTTP connector.",
+      "prerequisite": "Turbine logic documented; client confirms Turbine replacement is in scope"
+    },
+    {
+      "id": "UC13-potential",
+      "name": "NetSuite → Toolio Forecast Data Feed",
+      "systems": ["NetSuite", "Toolio"],
+      "entity": "Inventory / Forecast data",
+      "priority": "low",
+      "rationale": "Toolio is in evaluation. Once live, a NetSuite → Toolio inventory + sales data feed is the natural first integration.",
+      "prerequisite": "Toolio selected and live; Toolio API credentials available"
+    }
+  ],
+
+  "p0Blockers": [
+    {
+      "title": "NetSuite TBA Credentials (via Sikich)",
+      "system": "NetSuite",
+      "clientAction": "Ask your Sikich account manager to create a dedicated MuleSoft integration role in NetSuite and generate Token-Based Auth (TBA) credentials: Consumer Key, Consumer Secret, Token ID, and Token Secret. Also ask Sikich to export the item master (product code → NetSuite internal ID mapping) and confirm all custom field names used in your Celigo flows.",
+      "body": "NetSuite Connector v11.11 requires TBA with 5 credentials. Integration role needs minimum permissions: Transactions (Create/Edit), Inventory (View/Edit), Customers (Create/Edit), Items (View), Custom Records (Create/Edit per UC10). Sikich currently manages Celigo — they have existing access and should be able to create the MuleSoft role in the same call. Also bundle: request item internalId export (CSV), custom field name list, and custom record type ID for UC10.",
+      "bundledWith": ["Shopify Custom App creation (same client-side setup session)"]
+    },
+    {
+      "title": "Shopify Custom App — API Credentials",
+      "system": "Shopify Plus",
+      "clientAction": "In your Shopify Admin, go to Settings → Apps and sales channels → Develop Apps. Create a new app named 'DataSkate MuleSoft Integration'. Enable the following API scopes: read/write orders, read/write inventory, read/write products, read/write customers, read/write fulfillments. Generate the access token and send it to DataSkate.",
+      "body": "Shopify Private Apps are fully deprecated. Only Custom Apps provide permanent access tokens for custom integrations. Shopify Plus allows unlimited Custom Apps. Required scopes must be explicitly enabled at app creation — missing scopes silently fail (403). Webhook subscriptions are registered programmatically by MuleSoft at deploy time, not manually. Additionally: define metafield namespace + key structure before UC5 development begins.",
+      "bundledWith": ["NetSuite TBA Credentials (same client-side setup session)"]
+    },
+    {
+      "title": "Celigo Flow Inventory Spreadsheet",
+      "system": "Celigo (source system)",
+      "clientAction": "Please send the flow inventory spreadsheet that was referenced as 'ATTACHMENT — TO BE PROVIDED' in your intake document. This spreadsheet contains the ~23 flow names, source/target systems, run frequency, volume, criticality, and owners. DataSkate cannot complete flow scoping or proposal pricing without it.",
+      "body": "Without the spreadsheet: (1) individual flow count within each of the 8 categories is unknown; (2) custom JS complexity per flow cannot be assessed; (3) flow owners who hold the business rule context cannot be identified; (4) criticality ratings needed for cutover sequencing are unknown. This is the single highest-priority missing artifact. Request it from Sikich — they manage Celigo day-to-day and likely maintain the inventory.",
+      "bundledWith": []
+    },
+    {
+      "title": "UC9 Architect Clarification — Invoice Generation Mechanism",
+      "system": "NetSuite",
+      "clientAction": null,
+      "body": "INTERNAL ARCHITECT FLAG (Kailash): NetSuite invoices are system-generated from Sales Orders — it is not possible to POST/create an invoice directly via SuiteTalk SOAP or REST API. The 'NetSuite SO → Invoice' flow in Celigo must be one of: (a) a NetSuite-internal SuiteScript workflow triggered by SO status change — MuleSoft's role is just the SO status update, not invoice creation; (b) a read-only export of invoice data from NetSuite for reporting; (c) something else entirely. Confirm with Sikich what Celigo's exact mechanism is. This affects UC9 scope, hour estimate, and whether it's truly a MuleSoft flow at all.",
+      "bundledWith": ["NetSuite TBA Credentials (resolve in same Sikich call)"]
+    }
+  ],
+
+  "systemFindings": [
+    {
+      "system": "NetSuite",
+      "connectorKey": "netsuite",
+      "finding": "NetSuite Connector v11.11 uses SuiteTalk SOAP, not REST. REST requires separate HTTP connector + PS256 JWT (Nimbus JOSE Java helper). TBA auth is correct approach for SOAP connector.",
+      "source": "standards/connector-registry.json (lastVerified 2026-05)",
+      "confidence": "high"
+    },
+    {
+      "system": "NetSuite",
+      "connectorKey": "netsuite",
+      "finding": "NetSuite invoices cannot be created directly via API — they are system-generated by NetSuite's billing engine from Sales Orders. Affects UC9 scope.",
+      "source": "standards/playbooks/netsuite/netsuite_playbook.json — 'Invoice is read-only' quirk",
+      "confidence": "high"
+    },
+    {
+      "system": "NetSuite",
+      "connectorKey": "netsuite",
+      "finding": "Matrix items in NetSuite: parent (MatrixItem) + children (individual InvtPart/AssemblyItem records). Each child is a separate SOAP call. UC5 requires an iteration loop over all children for a given parent.",
+      "source": "NetSuite documentation + playbook research",
+      "confidence": "high"
+    },
+    {
+      "system": "NetSuite",
+      "connectorKey": "netsuite",
+      "finding": "Item lookup by product code not possible via API — only by internalId or externalId. Cross-reference table (Shopify variant ID ↔ NetSuite item internalId) is a project deliverable required before UC4 and UC5 go-live.",
+      "source": "standards/playbooks/netsuite/netsuite_playbook.json",
+      "confidence": "high"
+    },
+    {
+      "system": "Shopify Plus",
+      "connectorKey": "shopify",
+      "finding": "REST Products/Variants API deprecated for custom apps April 2025. UC5 (product sync with metafields) must use GraphQL Admin API (productCreate/productUpdate mutations + metafieldsSet).",
+      "source": "Shopify developer changelog + Shopify 2025-01 release notes",
+      "confidence": "high"
+    },
+    {
+      "system": "Shopify Plus",
+      "connectorKey": "shopify",
+      "finding": "GraphQL Admin API supports up to 2,048 product variants (vs 100 via deprecated REST). Homage matrix items likely within limit but should be confirmed for highest-SKU-count products.",
+      "source": "Shopify developer documentation",
+      "confidence": "high"
+    },
+    {
+      "system": "Shopify Plus",
+      "connectorKey": "shopify",
+      "finding": "CSWOS is not a native Shopify feature — implemented via inventory_policy: 'continue' on each variant. Threshold logic (how many units below zero to allow) is custom business logic in the MuleSoft flow.",
+      "source": "Shopify Plus documentation + scoping doc analysis",
+      "confidence": "high"
+    },
+    {
+      "system": "Orderful",
+      "connectorKey": null,
+      "finding": "Orderful is a cloud EDI gateway that translates X12 to/from REST/JSON. MuleSoft connects via HTTP connector — no B2B EDI (X12) connector needed. MuleSoft sends JSON to Orderful; Orderful handles X12 translation to trading partners.",
+      "source": "orderful.com API documentation + web research",
+      "confidence": "medium"
+    },
+    {
+      "system": "ShipStation",
+      "connectorKey": "shipstation",
+      "finding": "No dedicated MuleSoft connector. HTTP connector with Basic auth (API Key:Secret Base64). Rate limit: 40 req/min. No API sandbox — all testing against production account.",
+      "source": "standards/connector-registry.json + ShipStation API docs",
+      "confidence": "high"
+    }
+  ],
+
+  "openQuestions": [
+    {
+      "question": "Is the Orderful ↔ NetSuite EDI integration in scope for this iPaaS engagement, or does it remain a separate/manual process?",
+      "system": "Orderful"
+    },
+    {
+      "question": "Is the ShipStation integration (replacing Turbine custom middleware) in scope? If yes, can Homage provide Turbine's field mapping and business rules documentation?",
+      "system": "ShipStation"
+    },
+    {
+      "question": "Does Homage's NetSuite deployment use OneWorld (multi-subsidiary) or single subsidiary? Subsidiary ID needed for all write operations.",
+      "system": "NetSuite"
+    },
+    {
+      "question": "What is Celigo's exact mechanism for the 'NetSuite SO → Invoice' transformation (UC9)? Is it a SuiteScript workflow triggered by SO status, or something else?",
+      "system": "NetSuite"
+    },
+    {
+      "question": "What auth method does Homage's Laravel + Vapor API Gateway use for inbound requests? Is MuleSoft expected to integrate with it or replace some of its routing logic?",
+      "system": "Laravel + Vapor API Gateway"
+    },
+    {
+      "question": "What is the master system for UC7 (customer sync)? When a customer record exists in both Shopify and NetSuite with different data, which wins?",
+      "system": "Shopify Plus / NetSuite"
+    }
+  ],
+
+  "stubsCreated": {
+    "playbooks": [
+      "standards/playbooks/orderful/orderful_playbook.json",
+      "standards/playbooks/shipstation/shipstation_playbook.json"
+    ],
+    "connectorRegistry": [
+      "orderful"
+    ],
+    "intakeChecklist": [
+      "shopify_graphql_migration",
+      "orderful_new",
+      "shipstation_new"
+    ],
+    "canonicalModels": [
+      "standards/canonical-models/commerce/canonical-inventory.yaml",
+      "standards/canonical-models/commerce/canonical-fulfillment.yaml",
+      "standards/canonical-models/commerce/canonical-return.yaml",
+      "standards/canonical-models/commerce/canonical-shipment.yaml"
+    ]
+  },
+
+  "internalFlags": [
+    {
+      "flag": "UC9 invoice mechanism unconfirmed — may not be a MuleSoft flow at all. Scope and hour estimate TBD until architect confirms with Sikich.",
+      "system": "NetSuite",
+      "severity": "high"
+    },
+    {
+      "flag": "Shopify connector v1.1 GraphQL coverage for matrix product mutations needs verification before UC5 development. If connector doesn't support bulk productCreate with variants via GraphQL, implement via HTTP connector + Shopify GraphQL endpoint directly.",
+      "system": "Shopify Plus",
+      "severity": "high"
+    },
+    {
+      "flag": "Shopify variant ID ↔ NetSuite item internalId cross-reference table is a prerequisite for UC4 and UC5 — not a MuleSoft deliverable but must exist before development. Coordinate with Sikich.",
+      "system": "NetSuite / Shopify Plus",
+      "severity": "medium"
+    },
+    {
+      "flag": "Celigo custom JS transforms (pre-map, post-response, post-submit) must be extracted and documented per flow before DataWeave porting can begin. This is the primary migration effort risk.",
+      "system": "Celigo (migration)",
+      "severity": "high"
+    },
+    {
+      "flag": "Laravel + Vapor API Gateway scope boundary unresolved. If MuleSoft is expected to integrate WITH the gateway, its API contract is needed. If MuleSoft REPLACES some gateway functions, significant re-scoping is required.",
+      "system": "Laravel + Vapor API Gateway",
+      "severity": "medium"
+    },
+    {
+      "flag": "Competitive evaluation — Homage is speaking with 3-4 vendors. Proposal timing is a factor. Flow inventory spreadsheet must be received before DataSkate can price accurately.",
+      "system": null,
+      "severity": "medium"
+    }
+  ]
+}

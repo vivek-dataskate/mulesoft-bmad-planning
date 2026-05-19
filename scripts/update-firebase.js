@@ -224,8 +224,10 @@ function deploy() {
   // Always use the service account key — never the expired FIREBASE_TOKEN
   if (fs.existsSync(SA_PATH)) env.GOOGLE_APPLICATION_CREDENTIALS = SA_PATH;
   delete env.FIREBASE_TOKEN;
+  // Use local node_modules/.bin/firebase (reliable) instead of npx firebase-tools (flaky with token env)
+  const firebaseBin = path.join(ROOT, 'node_modules', '.bin', 'firebase');
   execSync(
-    `npx firebase-tools deploy --only hosting,storage --project ${FB_PROJ} --force`,
+    `"${firebaseBin}" deploy --only hosting,storage --project ${FB_PROJ} --force`,
     { cwd: path.join(ROOT, 'firebase'), stdio: 'inherit', env }
   );
   log(`Live: ${PORTAL}`);

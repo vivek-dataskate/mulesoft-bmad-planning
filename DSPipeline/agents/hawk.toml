@@ -26,6 +26,8 @@ reads = [
   "projects/{client}/run/flo.json",
   "projects/{client}/run/sage.json",            # for primaryPainQuote + aspirationQuote
   "commons/sales/proposal-structure.md",        # for default closingLine and Stage 3 writing rules
+  "standards/reference-network.json",           # read when vera.json credentialingAnchors[] is non-empty — for howToReference wording
+  "commons/sales/psychology-profiles.json",     # read for secondary profile contentModifiers when ivy.json secondaryProfile is not null
 ]
 writes = [
   "projects/{client}/run/hawk.json",
@@ -56,6 +58,12 @@ principles = [
 
   # ── AE TALKING POINT PER PROFILE ─────────────────────────────────────
   "AE talking point — one sentence the AE says verbatim when presenting the integration deck:\n  'For a {primaryProfileLabel} buyer, lead with: {fomoFraming first sentence from contentModifiers}.'\n  Write hawk.json aeTalkingPoint.",
+
+  # ── MULTI-PROFILE FOMO (secondary profile) ───────────────────────────
+  "Multi-profile FOMO — when ivy.json psychologyProfile.secondaryProfile is not null AND vera.json fomoProfileHint has 2 entries:\n  For each fomoOrdered[] entry:\n    Generate fomoAngleAdapted using the PRIMARY profile contentModifiers (existing behavior).\n    Generate fomoAngleForSecondary using the SECONDARY profile contentModifiers:\n      Read commons/sales/psychology-profiles.json → find secondary profile → apply its fomoFraming as the rewrite lens.\n      If the secondary profile is 'systematic-evaluator': fomoAngleForSecondary must name a DataSkate reference client from vera.json credentialingAnchors[] whose systems overlap with this FOMO entry's systemsUsed[]. If no match: frame as 'here is the technical proof that makes this outcome achievable for your stack.'\n  Write hawk.json fomoOrdered[].fomoAngleForSecondary.\n  LOG to decisions.json: one entry per secondary profile adaptation, noting what changed from the primary-profile angle.\n  Petra uses fomoAngleAdapted for the champion-facing challenge section and fomoAngleForSecondary for the executive summary (or for the specific buyer audience where the secondary profile is the primary reader).",
+
+  # ── COMPETITIVE POSITIONING BLOCK ────────────────────────────────────
+  "Competitive positioning — when sage.json contains signal='competitive-evaluation' OR ivy.json detects 'systematic-evaluator' as primary or secondary profile:\n  1. Read vera.json credentialingAnchors[].\n  2. For each anchor: build a competitivePositioning.celigoMigrationClients[] (or equivalently namedReferenceClients[]) entry using reference-network.json howToReference wording.\n  3. Build competitivePositioning.proofPoints[] — each proof point should:\n     - State a specific, falsifiable claim DataSkate can make about this client's platform (e.g. '18 of 23 flows named pre-call')\n     - State the mechanism (why DataSkate can make this claim — pattern knowledge, active engagement, playbook)\n     - State howToUseInProposal (which section of the proposal this belongs in)\n  4. Build competitivePositioning.vendorEvalFilter — 3 questions the buyer can ask every vendor to score platform expertise. Each question must be answerable by DataSkate immediately and likely not answerable by generalist MuleSoft vendors.\n  5. Write hawk.json competitivePositioning block.\n  If no competitive-evaluation signal: omit the competitivePositioning block entirely.\n  LOG to decisions.json: one entry for competitivePositioning block creation, noting which signals triggered it.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
   "Log to run/hawk-decisions.json (agent-scoped; orchestrate.js aggregates into decisions.json): one content-adaptation entry per major framing decision (challengeLead, fomoAngle rewrites, closingLine variant choice, journeyHeadline). For each: what the default would have been, what changed, which profile modifier drove it. Prefix IDs as HD-NNN.",

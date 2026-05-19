@@ -26,7 +26,8 @@ const ROOT          = path.resolve(__dirname, '../..');
 const INBOX_DIR     = path.join(ROOT, '_inbox');
 const PROJECTS_DIR  = path.join(ROOT, 'projects');
 const PIPELINE_JSON = path.join(__dirname, 'pipeline.json');
-const TELEMETRY_CSV = path.join(ROOT, 'DSPipeline/telemetry/usage.csv');
+const TELEMETRY_CSV   = path.join(ROOT, 'DSPipeline/telemetry/usage.csv');
+const CLAUDE_SESSIONS = path.join(require('os').homedir(), '.claude/projects/-workspaces-mulesoft-bmad-planning');
 const ARCHITECTS    = {
   '1': { name: 'Kailash Chanda',    email: 'kailash@dataskate.ai' },
   '2': { name: 'Raghuram Potluri',  email: 'raghuram@dataskate.ai' },
@@ -314,6 +315,39 @@ function calcCost(model, inputTokens, outputTokens) {
   return ((inputTokens * p.input + outputTokens * p.output) / 1_000_000).toFixed(4);
 }
 
+// Read the most recently modified Claude session JSONL written after `sinceMs`
+// and sum all token usage across every assistant message turn.
+function readSessionTokens(sinceMs) {
+  try {
+    if (!fs.existsSync(CLAUDE_SESSIONS)) return null;
+    const files = fs.readdirSync(CLAUDE_SESSIONS)
+      .filter(f => f.endsWith('.jsonl'))
+      .map(f => ({ f, mtime: fs.statSync(path.join(CLAUDE_SESSIONS, f)).mtimeMs }))
+      .filter(({ mtime }) => mtime > sinceMs)
+      .sort((a, b) => b.mtime - a.mtime);
+    if (!files.length) return null;
+
+    const lines = fs.readFileSync(path.join(CLAUDE_SESSIONS, files[0].f), 'utf8')
+      .split('\n').filter(Boolean);
+
+    let inp = 0, cacheCreate = 0, cacheRead = 0, out = 0;
+    for (const line of lines) {
+      try {
+        const rec = JSON.parse(line);
+        const u = rec?.message?.usage;
+        if (!u) continue;
+        inp         += u.input_tokens                  || 0;
+        cacheCreate += u.cache_creation_input_tokens   || 0;
+        cacheRead   += u.cache_read_input_tokens       || 0;
+        out         += u.output_tokens                 || 0;
+      } catch { /* malformed line — skip */ }
+    }
+    return { inp, cacheCreate, cacheRead, out };
+  } catch {
+    return null;
+  }
+}
+
 function appendTelemetry(slug, agentSlug, durationMs, status, tokens = {}) {
   const row = [
     today(),
@@ -361,10 +395,23 @@ function assembleContext(slug, agentSlug) {
     }
 
     case 'vera': {
-      // Vera writes company_context.json directly — just ensure generatedAt is fresh
-      // and copy any fields it may have set to the in-memory ctx for the next agent
-      const veraCtx = readJson(ctxPath); // re-read after Vera's direct write
-      if (veraCtx) Object.assign(ctx, veraCtx);
+      // Project vera.json fields into company_context
+      if (data.company) {
+        const c = data.company;
+        if (c.snapshot)        ctx.snapshot        = c.snapshot;
+        if (c.industry)        ctx.industry        = c.industry;
+        if (c.verticalSlug)    ctx.verticalSlug    = c.verticalSlug;
+        if (c.hqLocation)      ctx.hqLocation      = c.hqLocation;
+        if (c.revenueEstimate) ctx.revenueEstimate = c.revenueEstimate;
+        if (c.revenueBracket)  ctx.revenueBracket  = c.revenueBracket;
+        if (Array.isArray(c.businessObjects) && c.businessObjects.length) ctx.businessObjects = c.businessObjects;
+        if (c.logoUrl !== undefined) ctx.logoUrl   = c.logoUrl;
+      }
+      if (data.aiJourney)                                         ctx.aiJourney           = data.aiJourney;
+      if (Array.isArray(data.systemPrerequisites))                ctx.systemPrerequisites = data.systemPrerequisites;
+      if (Array.isArray(data.nearbyPeers))                        ctx.nearbyPeers         = data.nearbyPeers;
+      if (Array.isArray(data.competitorFOMO))                     ctx.competitorFOMO      = data.competitorFOMO;
+      if (Array.isArray(data.aiThoughtStarters))                  ctx.aiThoughtStarters   = data.aiThoughtStarters;
       ctx.generatedAt = isoNow();
       break;
     }
@@ -642,21 +689,17 @@ async function runPipeline(slug) {
 
     const durationMs = Date.now() - startMs;
 
-    // Prompt for token usage (optional — skip with Enter)
+    // Auto-read token usage from the Claude session JSONL written during this agent run
     let tokens = { model: agent.model };
-    if (!pipelineMode) {
-      const tokStr = await prompt(`  Token usage [input output] or Enter to skip: `);
-      if (tokStr.trim()) {
-        const parts = tokStr.trim().split(/\s+/);
-        if (parts.length >= 2) {
-          const inp = parseInt(parts[0], 10);
-          const out = parseInt(parts[1], 10);
-          if (!isNaN(inp) && !isNaN(out)) {
-            tokens = { model: agent.model, input: inp, output: out, cost: calcCost(agent.model, inp, out) };
-            console.log(`  ${dim(`Cost: $${tokens.cost} (${agent.model} — ${inp.toLocaleString()} in / ${out.toLocaleString()} out)`)}`);
-          }
-        }
-      }
+    const usage = readSessionTokens(startMs);
+    if (usage && (usage.inp + usage.out) > 0) {
+      const { inp, cacheCreate, cacheRead, out } = usage;
+      const billableIn = inp + cacheCreate + Math.round(cacheRead * 0.1); // cache reads are ~10% cost
+      tokens = { model: agent.model, input: billableIn, output: out, cost: calcCost(agent.model, billableIn, out) };
+      const cacheNote = cacheRead > 0 ? ` | cache read: ${cacheRead.toLocaleString()}` : '';
+      console.log(`  ${dim(`Tokens: ${billableIn.toLocaleString()} in (${inp.toLocaleString()} fresh + ${cacheCreate.toLocaleString()} write${cacheNote}) / ${out.toLocaleString()} out — cost ≈ $${tokens.cost}`)}`);
+    } else {
+      console.log(`  ${dim('Token usage: not captured (agent may have run before this session started)')}`);
     }
 
     // Post-agent: assemble company_context.json + rebuild decisions.json

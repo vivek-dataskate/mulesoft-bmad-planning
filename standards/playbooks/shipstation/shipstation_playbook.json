@@ -1,0 +1,34 @@
+{
+  "system": "ShipStation",
+  "maturity": "stub",
+  "lastUpdated": "2026-05-19",
+  "clients": ["homage"],
+  "status": "Stub — enriched by Architect after design, completed by CO after delivery.",
+  "connectorKey": "shipstation",
+  "connectorNote": "No dedicated MuleSoft connector. Use HTTP connector with Basic auth.",
+  "authType": "Basic",
+  "authNote": "API Key + API Secret encoded as Base64 ('apiKey:apiSecret'). Header: Authorization: Basic {base64}. Credentials from ShipStation account settings.",
+  "apiStyle": "REST",
+  "knownQuirks": [
+    "No API sandbox — ShipStation does not offer a test environment. All development and testing against the production account. Use test/dummy orders that can be voided.",
+    "Rate limit: 40 requests per minute. Check X-Rate-Limit-Remaining header. Implement back-off polling when limit reached.",
+    "Currently integrated via Turbine (custom middleware between NetSuite and ShipStation). Turbine's field mapping and business rules MUST be documented before MuleSoft replacement design begins.",
+    "ShipStation integration is POTENTIAL scope in this engagement — confirm with client whether Turbine replacement is in scope.",
+    "Carrier routing: EasyPost and Amazon Shipping are used for specific carrier flows. Routing logic between ShipStation, EasyPost, and Amazon Shipping may be in Turbine — must be captured before replacement."
+  ],
+  "supportedObjects": [
+    "Orders",
+    "Shipments",
+    "Labels",
+    "Tracking updates",
+    "Stores"
+  ],
+  "maturityLog": [
+    {
+      "date": "2026-05-19",
+      "clientCount": 1,
+      "knowledgeAdded": "Initial stub from homage engagement. ShipStation identified as primary shipping platform, currently integrated via Turbine custom middleware. HTTP Basic auth, 40 req/min rate limit, no sandbox.",
+      "status": "stub"
+    }
+  ]
+}

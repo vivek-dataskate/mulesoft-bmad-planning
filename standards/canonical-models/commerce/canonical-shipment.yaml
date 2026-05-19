@@ -1,0 +1,101 @@
+title: Canonical Shipment
+version: "1.0.0-stub"
+standard: OAGIS 10.x
+standardBody: Open Applications Group (OAGi)
+standardRef: https://www.oagi.org/dnn5/Home/DownloadaStandard
+description: Canonical model for outbound shipment records — covers shipping order creation, carrier assignment, label generation, and tracking. Used between ERP and shipping platforms (ShipStation, EasyPost, etc.).
+deviations: []
+createdFrom: homage engagement (2026-05-19) — NetSuite ↔ ShipStation integration (UC12-potential — Turbine replacement)
+note: "Stub — created from homage engagement. Promoted to versioned schema when confirmed fields from 2+ clients."
+
+type: object
+required:
+  - shipmentId
+  - orderId
+  - status
+  - createdAt
+
+properties:
+  shipmentId:
+    type: string
+    description: Canonical shipment identifier
+  externalShipmentId:
+    type: string
+    description: Source-system shipment ID (e.g. ShipStation order ID or NetSuite fulfillment internalId)
+  orderId:
+    type: string
+    description: Canonical order identifier
+  externalOrderId:
+    type: string
+    description: Source-system order ID
+  status:
+    type: string
+    enum: [pending, awaiting_pickup, shipped, delivered, exception, cancelled]
+  shipTo:
+    type: object
+    properties:
+      name:
+        type: string
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      postalCode:
+        type: string
+      country:
+        type: string
+      phone:
+        type: string
+  lineItems:
+    type: array
+    items:
+      type: object
+      properties:
+        sku:
+          type: string
+        quantity:
+          type: integer
+        weight:
+          type: number
+        weightUnit:
+          type: string
+  weight:
+    type: number
+    description: Total shipment weight
+  weightUnit:
+    type: string
+    enum: [lb, kg, oz, g]
+  dimensions:
+    type: object
+    properties:
+      length:
+        type: number
+      width:
+        type: number
+      height:
+        type: number
+      unit:
+        type: string
+  carrier:
+    type: string
+    description: Carrier name (UPS, FedEx, USPS, EasyPost, Amazon Shipping)
+  serviceCode:
+    type: string
+    description: Carrier service code (e.g. ups_ground, fedex_priority_overnight)
+  trackingNumber:
+    type: string
+  labelUrl:
+    type: string
+    description: URL to printable shipping label PDF
+  shippingCost:
+    type: number
+  createdAt:
+    type: string
+    format: date-time
+  shippedAt:
+    type: string
+    format: date-time

@@ -193,6 +193,24 @@
       "trigger": "quickbooks",
       "severity": "high",
       "warning": "QuickBooks detected \u2014 CONFIRM version before any connector selection: QuickBooks Online (REST/OAuth) vs Desktop/Enterprise (no REST API, QBXML relay required). Two incompatible integration paths. See FK-020."
+    },
+    {
+      "id": "shopify_graphql_migration",
+      "trigger": "shopify",
+      "warning": "Shopify REST Products/Variants API deprecated (April 2025 for custom apps). UC5-type product/metafield syncs MUST use GraphQL Admin API via HTTP connector \u2014 not the pre-built Shopify connector REST operations.",
+      "severity": "high"
+    },
+    {
+      "id": "orderful_new",
+      "trigger": "orderful",
+      "warning": "New system \u2014 Orderful is a cloud EDI gateway (REST/JSON API). No dedicated MuleSoft connector \u2014 use HTTP connector. No B2B EDI (X12) connector required. Verify API key and trading partner config in Orderful portal.",
+      "severity": "medium"
+    },
+    {
+      "id": "shipstation_new",
+      "trigger": "shipstation",
+      "warning": "New system \u2014 ShipStation uses HTTP connector (Basic auth). No sandbox \u2014 all testing against production. Rate limit: 40 req/min. If replacing Turbine middleware, document Turbine field mappings before design begins.",
+      "severity": "medium"
     }
   ]
 }

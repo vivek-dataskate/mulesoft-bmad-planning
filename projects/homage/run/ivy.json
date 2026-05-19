@@ -1,0 +1,85 @@
+{
+  "status": "complete",
+  "client": "homage",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+
+  "callerRole": "economic-buyer",
+  "callerTitle": null,
+
+  "_sourceNote": "Input was NewClient.txt — a 611-word written company brief, not a call transcript. No individual caller was named. Quotes are from company-voice writing. Caller is assumed to be the economic buyer: only an EB (or someone very close) writes a structured brief with 4 defined discovery outcomes and lists 'directional pricing posture' as a gating criterion. Caller title unknown — likely CEO, COO, or VP Engineering at a ~$30-35M DTC brand. Confirm name/title before intake. PO signer is unconfirmed — see _subtleProbe.",
+
+  "_subtleProbe": "In the first live conversation, after agreeing on next steps, ask: 'Once you've finished your vendor conversations, how does the final decision typically work — is this yours to make, or does it need sign-off from a broader team?' — natural in a vendor eval context, surfaces the approval chain without telegraphing that you're mapping the buying committee.",
+
+  "psychologyProfile": {
+    "primaryProfile": "operational-pragmatist",
+    "primaryProfileLabel": "Operational Pragmatist",
+    "secondaryProfile": null,
+    "secondaryProfileLabel": null,
+    "signalCounts": {
+      "operational-pragmatist": 2,
+      "roi-analytical": 1,
+      "risk-averse-conservative": 0,
+      "visionary-strategic": 0,
+      "peer-pressure": 0
+    },
+    "matchedPhrases": {
+      "operational-pragmatist": [
+        "make the conversation efficient for both sides",
+        "A clear picture of platform fit for our stack"
+      ],
+      "roi-analytical": [
+        "directional pricing posture"
+      ],
+      "risk-averse-conservative": [],
+      "visionary-strategic": [],
+      "peer-pressure": []
+    },
+    "primaryPainQuote": "We are migrating off Celigo and evaluating replacement iPaaS platforms. We are speaking with three to four vendors before locking scope and selecting a partner.",
+    "aspirationQuote": "A clear picture of platform fit for our stack (NetSuite + Shopify + EDI).",
+    "skepticismSignals": [
+      "speaking with three to four vendors before locking scope",
+      "Day-to-day changes and monitoring on Celigo today are supported by Sikich"
+    ],
+    "excitementPhrases": [
+      "make the conversation efficient for both sides"
+    ],
+    "ebAttributedQuotes": [],
+    "blendNote": null,
+    "detectedAt": "2026-05-19",
+    "newProfileCreated": false,
+    "_profileNote": "Signals are weak (2 matches, from a written brief). Fallback logic applies — operational-pragmatist wins via count + tiebreakerPriority. The migration framing (replace Celigo with equivalent/better) is pragmatic but does not express the classic 'hours of manual pain' signal. Challenge framing should be adapted: the 'manual work that stops' is Sikich's Celigo maintenance burden, custom JS upkeep, and brittle webhook reliability — not end-user manual data entry. See _sourceNote."
+  },
+
+  "economicBuyer": {
+    "isSameAsCaller": true,
+    "inferredTitle": "unknown — likely CEO / COO / VP Engineering",
+    "inferredFrom": "Wrote a structured 4-outcome discovery brief with 'directional pricing posture' as an explicit gating criterion — behavior consistent with an EB running a formal vendor evaluation, not a champion seeking internal approval",
+    "profile": "operational-pragmatist",
+    "profileLabel": "Operational Pragmatist",
+    "profileConfidence": "medium",
+    "profileRationale": "isSameAsCaller = true, so EB profile mirrors champion. Medium confidence because title/name are unconfirmed — the structured brief and pricing-first framing suggest a pragmatic EB who wants platform fit and cost certainty, not transformation narrative. PO signer unconfirmed — see _subtleProbe."
+  },
+
+  "contentLayers": {
+    "downstreamRouting": {
+      "championLayer": "Flo reads this for proposal body — challenge description, Stage 1-2-3 bullets, team benefit language",
+      "economicBuyerLayer": "Rex reads this for executive summary, ROI section, FOMO entries, and closing"
+    },
+    "champion": {
+      "challengeFraming": "Name the exact manual process and the role of the person doing it. For Homage: adapt to migration context — the pain is not end-user data entry but operational brittleness: Sikich managing Celigo day-to-day, ~23 flows maintained via custom JS hooks that only Sikich understands, a Turbine middleware no one fully owns, and an EDI track running outside the integration platform entirely. Frame: 'Your current integration infrastructure is maintainable only through your NetSuite partner — that dependency ends on go-live day.'",
+      "fomoFraming": "Lead with hours saved and the specific manual task that disappears. Structure: '{X hours/week} recovered — {the exact task} is gone on go-live day.' For Homage: the 'task that disappears' is Sikich's Celigo maintenance overhead and ad-hoc custom JS fixes — each one a risk event that stops.",
+      "journeyFraming": "Stage 1 bullet items should read like a 'things that stop happening Monday morning' list. Use active verbs: 'stops,' 'disappears,' 'no longer.' Stage 2 gets two sentences. Stage 3 gets one — plant the seed without over-pitching to someone who wants immediate relief.",
+      "closingLineVariant": "Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.",
+      "fomoFirstField": "savings",
+      "socialProofAngle": "time-saved"
+    },
+    "economicBuyer": {
+      "executiveSummaryFraming": "Open with what stops on go-live day — name the specific operational dependencies that disappear (Sikich maintaining 23 Celigo flows, custom JS upkeep, Turbine middleware). This EB measures success by operational certainty, not abstract cost savings. Do not lead with the AI journey. Lead with: 'Your current integration infrastructure depends on a third party to stay running — that dependency ends at go-live.'",
+      "challengeFraming": "Name the exact manual process and the role of the person doing it. Use the specific words from their transcript. 'Your {job title} manually {exact process} every {frequency} — that stops on go-live day.' If they said it, use their exact phrasing.",
+      "fomoFraming": "Lead with hours saved and the specific manual task that disappears. Structure: '{X hours/week} recovered — {the exact task} is gone on go-live day.' No AI framing needed for the hook — Stage 1 outcomes carry the pitch.",
+      "closingLineVariant": "Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.",
+      "fomoFirstField": "savings",
+      "socialProofAngle": "time-saved"
+    }
+  }
+}

@@ -1,0 +1,68 @@
+# Homage — Canonical Field Extensions
+# Created: 2026-05-19 by Rex v1.0.0
+# Purpose: Per-client field deviations from commerce canonical models.
+# Status: Shell — Analyst (Mary) populates addedFields/renamedFields/omittedFields during PRD.
+# Standard: OAGIS 10.x (commerce vertical)
+
+Order:
+  canonicalRef: standards/canonical-models/commerce/canonical-order.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC1 routing logic (cash sale vs. sales order) is a NetSuite-specific transformation — will be captured here after Analyst confirms field mapping."
+
+Customer:
+  canonicalRef: standards/canonical-models/commerce/canonical-customer.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC7 bidirectional — master system decision (Shopify vs NetSuite for conflict resolution) must be captured here."
+
+Product:
+  canonicalRef: standards/canonical-models/commerce/canonical-product.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC5 involves NetSuite matrix items (parent + child InvtPart records) → Shopify product + variants. Metafield namespace/key structure to be added after client confirms naming."
+
+Inventory:
+  canonicalRef: standards/canonical-models/commerce/canonical-inventory.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC4 CSWOS threshold logic is Homage-specific. CSWOS threshold per SKU must be captured as an addedField once confirmed."
+
+Fulfillment:
+  canonicalRef: standards/canonical-models/commerce/canonical-fulfillment.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC3 — NetSuite fulfillment record → Shopify fulfillment event. Field mapping TBD."
+
+Return:
+  canonicalRef: standards/canonical-models/commerce/canonical-return.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC2 bidirectional. Loop Returns app may introduce additional return reason codes not in canonical model."
+
+Invoice:
+  canonicalRef: standards/canonical-models/commerce/canonical-invoice.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC8 (Shopify payment → NetSuite customer deposit) and UC9 (SO → Invoice). UC9 mechanism TBD — architect to confirm."
+
+Shipment:
+  canonicalRef: standards/canonical-models/commerce/canonical-shipment.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC12-potential (ShipStation / Turbine replacement). Populate only if UC12 confirmed in scope."
+
+CustomRecord_StoreMetadata:
+  canonicalRef: null
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC10 — Shopify store changes → NetSuite custom records. No canonical model applicable. Sikich to provide custom record type ID and field schema (custrecord_* names)."

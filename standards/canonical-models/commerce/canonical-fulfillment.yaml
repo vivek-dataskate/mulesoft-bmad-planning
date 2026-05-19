@@ -1,0 +1,64 @@
+title: Canonical Fulfillment
+version: "1.0.0-stub"
+standard: OAGIS 10.x
+standardBody: Open Applications Group (OAGi)
+standardRef: https://www.oagi.org/dnn5/Home/DownloadaStandard
+description: Canonical model for fulfillment records — shipped line items, tracking numbers, carrier info, and fulfillment status. Written from ERP to e-commerce after shipment.
+deviations: []
+createdFrom: homage engagement (2026-05-19) — NetSuite fulfillments → Shopify fulfillment events (UC3)
+note: "Stub — created from homage engagement. Promoted to versioned schema when confirmed fields from 2+ clients."
+
+type: object
+required:
+  - fulfillmentId
+  - orderId
+  - status
+  - fulfilledAt
+
+properties:
+  fulfillmentId:
+    type: string
+    description: Canonical fulfillment identifier
+  externalFulfillmentId:
+    type: string
+    description: Source-system fulfillment ID (e.g. NetSuite fulfillment record internalId)
+  orderId:
+    type: string
+    description: Canonical order identifier this fulfillment belongs to
+  externalOrderId:
+    type: string
+    description: Source-system order ID (e.g. NetSuite SO internalId or Shopify order ID)
+  status:
+    type: string
+    enum: [pending, in_transit, delivered, failed, cancelled]
+    description: Fulfillment status
+  lineItems:
+    type: array
+    items:
+      type: object
+      properties:
+        itemId:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+  trackingNumber:
+    type: string
+    description: Carrier tracking number
+  trackingUrl:
+    type: string
+    description: Carrier tracking URL
+  carrier:
+    type: string
+    description: Shipping carrier name (e.g. UPS, FedEx, USPS)
+  serviceLevel:
+    type: string
+    description: Shipping service level (e.g. Ground, Priority, Express)
+  shippedFrom:
+    type: string
+    description: Warehouse or location name shipped from
+  fulfilledAt:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when fulfillment was created/shipped

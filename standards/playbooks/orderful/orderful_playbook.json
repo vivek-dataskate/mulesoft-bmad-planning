@@ -1,0 +1,32 @@
+{
+  "system": "Orderful",
+  "maturity": "stub",
+  "lastUpdated": "2026-05-19",
+  "clients": ["homage"],
+  "status": "Stub — enriched by Architect after design, completed by CO after delivery.",
+  "connectorKey": null,
+  "connectorNote": "No dedicated MuleSoft connector. Use HTTP connector. Orderful exposes a REST API — translates X12 EDI to/from JSON. MuleSoft does NOT need B2B EDI (X12) connector.",
+  "authType": "ApiKey",
+  "authNote": "Bearer token in Authorization header. API key managed in Orderful portal.",
+  "apiStyle": "REST (JSON)",
+  "knownQuirks": [
+    "Orderful abstracts X12 EDI to REST/JSON — MuleSoft sends/receives JSON payloads; Orderful handles X12 translation to trading partners (Fanatics, DSG, Rallyhouse).",
+    "Trading partner configurations (810/856/997 per partner) must exist in Orderful portal before integration — client admin responsibility.",
+    "997 Functional Acknowledgment: Orderful typically handles ACK/NACK automatically. Confirm whether MuleSoft needs to process rejection (NACK) responses.",
+    "Sandbox availability: confirm with client — API-first cloud EDI providers typically offer test environments.",
+    "Scope of this engagement: Orderful ↔ NetSuite is POTENTIAL — confirm with client before designing."
+  ],
+  "supportedObjects": [
+    "810 — Invoice (inbound from partner)",
+    "856 — Advance Ship Notice (outbound to partner)",
+    "997 — Functional Acknowledgment"
+  ],
+  "maturityLog": [
+    {
+      "date": "2026-05-19",
+      "clientCount": 1,
+      "knowledgeAdded": "Initial stub from homage engagement. Orderful identified as EDI gateway for Fanatics, DSG, Rallyhouse. REST API model confirmed (not raw X12/AS2). No dedicated MuleSoft connector.",
+      "status": "stub"
+    }
+  ]
+}

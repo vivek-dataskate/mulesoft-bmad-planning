@@ -16,12 +16,13 @@ version = "1.0.0"
 
 reads = [
   "projects/{client}/run/sage.json",
-  "projects/{client}/company_context.json",    # may already exist from onboarding — merge, never overwrite
   "standards/canonical-models/registry.json",  # to determine standard/standardBody for business objects
   "standards/usecases/{vertical}.json",         # loaded after vertical is identified in Step 1
+  "standards/reference-network.json",           # read when competitive-evaluation signal detected — surfaces DataSkate named reference clients
+  "standards/client-registry.json",             # used to resolve reference client details for credentialingAnchors[]
+  "commons/sales/psychology-profiles.json",     # read when competitive-evaluation signal detected — profile signal phrases for basic profiling pass
 ]
 writes = [
-  "projects/{client}/company_context.json",    # hqLocation, revenueEstimate, snapshot, industry, businessObjects, aiJourney, nearbyPeers, competitorFOMO, aiThoughtStarters
   "projects/{client}/run/vera.json",            # all research output; libraryContributions[] promoted to standards/ by promote-library.js
 ]
 
@@ -58,6 +59,12 @@ principles = [
 
   # ── USE CASE LIBRARY WRITE-BACK ───────────────────────────────────────
   "After completing FOMO research — stage new entries in vera.json.libraryContributions[] only. Do NOT write directly to standards/usecases/{vertical}.json. Promotion is handled by promote-library.js.\n  For each competitorFOMO[] entry that came from web research (NOT already in the library):\n    Append to libraryContributions[]:\n      verticalSlug, pendingPromotion: true, source: 'web', sizeSegment, systems, useCase, whatWasBuilt, outcome, aiLayer\n      sourceCompany, sourceUrl (null if competitor domain), addedDate: today\n      isProspect: true if this company is a potential DataSkate client; false if reference/signal only\n      prospectNote: 1-2 sentences on why they are a prospect and what the DataSkate opportunity is\n  FIELD SEMANTICS (enforced by promote-library.js):\n    clients[] = who ACTUALLY HAS or BUILT this use case (always required):\n      source: 'DS' entries: clients[{displayName: DataSkate client name, projectContext}] — DataSkate built this for them\n      source: 'web' entries: clients[{displayName: sourceCompany}] — this is the source company's use case\n    relevantTo[] = which DataSkate engagement slugs surfaced this as research (web entries only):\n      Set to [currentClientSlug] when staging. promote-library.js appends if already in library.\n      NEVER put the current DataSkate client in clients[] on a web entry — they did not build it.\n  For each confirmed flow from sage.json confirmedFlows[]:\n    Check if a matching entry already exists in standards/usecases/{vertical}.json (same systems + useCase).\n    If yes: record in useCaseLibraryUpdates.alreadyInLibrary count — no write needed.\n    If no: append to libraryContributions[] with source: 'DS', all fields, clients: [{displayName, projectContext}], pendingPromotion: true.\n  Show: 'Library contributions staged — {N} entries queued. Run: node DSPipeline/promote-library.js --client {slug}'",
+
+  # ── CREDENTIALING ANCHORS (competitive-evaluation signal) ─────────────
+  "Credentialing anchors — when sage.json contains a signal with signal='competitive-evaluation':\n  1. Read standards/reference-network.json.\n  2. For each reference in references[]: check systems[] overlap with sage.json systems[]. An overlap exists when at least one system appears in both.\n  3. Include only references where referenceType != 'TBD' and authorizedUsage != 'TBD'.\n  4. Write matching references to vera.json credentialingAnchors[]:\n     { slug, displayName, industry, sizeSegment, systems (overlapping only), whatDataSkateBuilt, authorizedUsage, bestUsedFor }\n  5. If no references match: write credentialingAnchors: [] — do NOT invent references.\n  6. Vera does NOT modify referencedTo[] — that is updated by the pipeline operator after hawk.json confirms the reference is used.\n  Vera surfaces this data. Hawk decides which anchor to lead with based on ivy.json profile.",
+
+  # ── MULTI-PROFILE FOMO TAGGING ─────────────────────────────────────────
+  "Multi-profile FOMO tagging — Vera runs parallel to Ivy and does not have Ivy's output. However, when sage.json signals contain 'competitive-evaluation', Vera should do a lightweight profile pass:\n  1. Read commons/sales/psychology-profiles.json.\n  2. Score the sage.json transcript text against signalPhrases for the top 4 profiles: systematic-evaluator, operational-pragmatist, roi-analytical, competitive-leverager.\n  3. If 2+ profiles score 1+ matches: set vera.json fomoProfileHint to the top 2 profile IDs.\n     Example: fomoProfileHint: ['systematic-evaluator', 'operational-pragmatist']\n  4. For each competitorFOMO[] entry: add a fomoProfileFit field — which profile this entry serves best:\n     - Heavy quantified savings + named company → 'roi-analytical'\n     - Exact-match stack + specific manual task that stops → 'operational-pragmatist'\n     - Named current DataSkate reference client on same platform → 'systematic-evaluator'\n     - Peer company in same city/region → 'peer-pressure'\n  5. Hawk uses fomoProfileFit to generate fomoAngleAdapted (primary profile) AND fomoAngleForSecondary (secondary profile) per entry.\n  If only 1 profile scores: set fomoProfileHint to that profile only. Hawk uses single adaptation.",
 
   # ── NO FABRICATION ────────────────────────────────────────────────────
   "NEVER fabricate companies, outcomes, or numbers. Only include verified, sourced data. Fields not found: set to null. A verified Gartner stat with a sharp analogyNote beats an invented case study every time.",

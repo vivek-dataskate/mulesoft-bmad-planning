@@ -6,8 +6,20 @@
   "clients": [
     "mrn"
   ],
-  "knownQuirks": [],
-  "p0Conditions": [],
+  "knownQuirks": [
+    "REST Products/Variants API DEPRECATED for custom apps (April 2025). UC5-type product sync (matrix items + metafields) MUST use GraphQL Admin API (productCreate/productUpdate + metafieldsSet mutation). Source: Shopify 2024-04 changelog.",
+    "GraphQL Admin API supports up to 2,048 product variants per product (vs 100 via deprecated REST). Confirm max variant count for client's highest-SKU matrix items.",
+    "CSWOS (Continue Selling While Out of Stock): no native Shopify feature. Implemented via inventory_policy: 'continue' on individual variants. CSWOS threshold business logic must live in MuleSoft DataWeave \u2014 Shopify only toggles the policy flag.",
+    "Cursor-based pagination: REST uses page_info cursor; GraphQL uses edges/endCursor + hasNextPage. For large catalog syncs use GraphQL Bulk Operations API (async JSONL output) to avoid timeouts.",
+    "Metafield namespaces and keys must be defined in Shopify Admin before sync flows go live \u2014 missing definitions cause silent failures on metafieldsSet.",
+    "Webhook reliability: Shopify webhooks can be missed or duplicated. All NetSuite writes via Shopify webhooks must implement idempotency (shopify_order_id / shopify_product_id as idempotency key).",
+    "Custom App required (Private Apps deprecated). Shopify Plus allows unlimited Custom Apps. Missing API scopes return 403 silently \u2014 enumerate all required scopes at app creation."
+  ],
+  "p0Conditions": [
+    "Custom App not created \u2014 all flows blocked",
+    "Required API scopes missing \u2014 specific flows return 403",
+    "Metafield namespaces not defined before UC5 go-live \u2014 metafield sync fails silently"
+  ],
   "maturityLog": [
     {
       "date": "2026-05-11",
@@ -19,6 +31,12 @@
       "date": "2026-05-12",
       "client": "2",
       "finding": "Zyris engagement added \u2014 single Shopify store (no multi-tenant needed unlike MRN); Shopify\u2192FO order sync with address normalization required; FK-005 PATCH limitation confirmed for fulfillment_orders",
+      "status": "stub"
+    },
+    {
+      "date": "2026-05-19",
+      "client": "3",
+      "finding": "Homage engagement \u2014 REST Products API deprecation confirmed (April 2025); CSWOS pattern documented; GraphQL required for UC5 matrix item + metafield sync; cursor pagination and webhook idempotency patterns added.",
       "status": "stub"
     }
   ],

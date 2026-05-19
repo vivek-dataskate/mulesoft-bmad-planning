@@ -1,0 +1,560 @@
+{
+  "status": "complete",
+  "client": "homage",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "agent": "Sage v1.0.0",
+
+  "sourceFiles": [
+    {
+      "filename": "NewClient.txt",
+      "type": "doc",
+      "wordCount": 611
+    }
+  ],
+
+  "businessContext": {
+    "companyDescription": "Homage (homage.com) is an e-commerce brand operating on Shopify Plus with NetSuite as their ERP. They sell through their own storefront and via EDI to licensed-apparel retailers including Fanatics, Dick's Sporting Goods, and Rallyhouse. They run a meaningful in-house engineering stack on AWS. They are currently evaluating iPaaS vendors to replace Celigo.",
+    "industry": "E-commerce / retail (apparel and sports licensing)",
+    "engagementType": "migration",
+    "goLiveUrgency": "not mentioned",
+    "goLiveDate": null,
+    "budgetSignals": "Client listed 'directional pricing posture' as one of four priority discovery outcomes — budget is a gating criterion, not yet disclosed. Speaking with 3-4 vendors before locking scope.",
+    "competitiveContext": "Active vendor evaluation — 3 to 4 iPaaS vendors in consideration. DataSkate is not the only platform being assessed."
+  },
+
+  "systems": [
+    {
+      "name": "NetSuite",
+      "connectorKey": "netsuite",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "ERP and financials. Implementation and ongoing support by Sikich.",
+      "inScope": true
+    },
+    {
+      "name": "Shopify Plus",
+      "connectorKey": "shopify",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "Single storefront at homage.com.",
+      "inScope": true
+    },
+    {
+      "name": "Orderful",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved — Vera to research. Orderful is a cloud EDI gateway; no matching entry in connector-names.json. EDI transactions are X12 (810, 856, 997).",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "source",
+      "instanceNote": "EDI gateway handling 810, 856, 997 with Fanatics, DSG, and Rallyhouse. Not currently managed by Celigo.",
+      "inScope": "potential — see potentialFlows"
+    },
+    {
+      "name": "ShipStation",
+      "connectorKey": "shipstation",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Primary shipping platform. Currently integrated via custom Turbine middleware, not Celigo.",
+      "inScope": "potential — see potentialFlows"
+    },
+    {
+      "name": "EasyPost",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved — Vera to research",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Specific carrier flows. Not described as a direct integration target in scoping doc.",
+      "inScope": false
+    },
+    {
+      "name": "Amazon Shipping",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved — Vera to research",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Specific carrier flows. Not described as a direct integration target.",
+      "inScope": false
+    },
+    {
+      "name": "Loop Returns",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved — Vera to research",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "source",
+      "instanceNote": "Shopify returns app. Not listed as Celigo-managed; likely receives events via Shopify-native flow.",
+      "inScope": false
+    },
+    {
+      "name": "Toolio",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved — Vera to research",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Forecasting and planning tool, currently in evaluation. Not yet live.",
+      "inScope": "potential"
+    },
+    {
+      "name": "Klaviyo",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Email and SMS marketing. Explicitly OUT OF SCOPE — receives data via Shopify-native integrations, not Celigo.",
+      "inScope": false
+    },
+    {
+      "name": "Google Analytics 4",
+      "connectorKey": "google-analytics",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Marketing analytics. Not described as a direct MuleSoft integration target.",
+      "inScope": false
+    },
+    {
+      "name": "Google Tag Manager",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Marketing tech. Not an iPaaS integration target.",
+      "inScope": false
+    },
+    {
+      "name": "Meta (ad platforms)",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Advertising. Not described as direct iPaaS target.",
+      "inScope": false
+    },
+    {
+      "name": "Gorgias",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Customer support. Explicitly OUT OF SCOPE — receives data via Shopify-native integrations, not Celigo.",
+      "inScope": false
+    },
+    {
+      "name": "Google Workspace",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Identity and SSO. Not described as iPaaS integration target.",
+      "inScope": false
+    },
+    {
+      "name": "n8n",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved — n8n is itself a workflow tool, not typically a MuleSoft connector target",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "Used for workflow automation and some ETL. Coexists with Celigo; role may shift post-migration.",
+      "inScope": false
+    },
+    {
+      "name": "Fivetran",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "source",
+      "instanceNote": "Primary data ingestion into Redshift. Explicitly OUT OF SCOPE — not Celigo's domain.",
+      "inScope": false
+    },
+    {
+      "name": "Amazon Redshift",
+      "connectorKey": "amazon-redshift",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Data warehouse. Ingest handled by Fivetran + AWS. OUT OF SCOPE.",
+      "inScope": false
+    },
+    {
+      "name": "Metabase",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "BI and visualization. Not an iPaaS integration target.",
+      "inScope": false
+    },
+    {
+      "name": "Celigo",
+      "connectorKey": null,
+      "connectorKeyNote": "being replaced — not a target system",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "Current iPaaS. Manages Shopify ↔ NetSuite integrations. Being replaced in this engagement.",
+      "inScope": false
+    },
+    {
+      "name": "Laravel + Vapor (Custom API Gateway)",
+      "connectorKey": "http",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "Central integration surface on AWS between NetSuite, Shopify Plus, 3PLs, and internal Portal. REST API — MuleSoft would call via HTTP connector.",
+      "inScope": "potential — existing integration surface"
+    },
+    {
+      "name": "Turbine (Custom NetSuite↔ShipStation Middleware)",
+      "connectorKey": null,
+      "connectorKeyNote": "custom application — no connector; would be replaced by MuleSoft flow",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "Custom middleware between NetSuite and ShipStation. Migration candidate — replacing Turbine with a MuleSoft flow is a natural expansion.",
+      "inScope": "potential"
+    },
+    {
+      "name": "Homage Portal",
+      "connectorKey": null,
+      "connectorKeyNote": "unresolved — custom internal application",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Custom internal portal surfacing 3PL, EDI, and order operations. Listed as part of the API Gateway's integration surface.",
+      "inScope": false
+    },
+    {
+      "name": "Sikich",
+      "connectorKey": null,
+      "connectorKeyNote": "implementation partner, not a system",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "unknown",
+      "instanceNote": "NetSuite implementation and support partner. Also manages day-to-day Celigo changes and monitoring. Access chain consideration — Sikich may own admin credentials.",
+      "inScope": false
+    }
+  ],
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Orders",
+      "trigger": "webhook",
+      "triggerDetail": "real-time webhook-triggered",
+      "evidence": "Order intake: Shopify orders → NetSuite (as cash sales or sales orders, with routing logic).",
+      "complexity": "high — routing logic for cash sales vs. sales orders; requires classification rule"
+    },
+    {
+      "id": "UC2",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus ↔ NetSuite",
+      "entity": "Refunds / Returns",
+      "trigger": "event-driven",
+      "triggerDetail": null,
+      "evidence": "Order lifecycle: refunds and returns synced across Shopify and NetSuite.",
+      "complexity": "medium"
+    },
+    {
+      "id": "UC3",
+      "systems": ["NetSuite", "Shopify Plus"],
+      "direction": "NetSuite → Shopify Plus",
+      "entity": "Fulfillments",
+      "trigger": "event-driven",
+      "triggerDetail": null,
+      "evidence": "Fulfillment writeback: NetSuite fulfillments → Shopify fulfillment events.",
+      "complexity": "medium"
+    },
+    {
+      "id": "UC4",
+      "systems": ["NetSuite", "Shopify Plus"],
+      "direction": "NetSuite → Shopify Plus",
+      "entity": "Inventory",
+      "trigger": "scheduled",
+      "triggerDetail": "scheduled sync; also CSWOS tiered delivery logic",
+      "evidence": "Inventory sync: NetSuite inventory levels → Shopify; cross-reference between Shopify variant IDs and NetSuite item IDs; CSWOS ('Continue Selling While Out of Stock') tiered delivery.",
+      "complexity": "high — CSWOS tiered delivery is custom business logic; Shopify variant ↔ NetSuite item ID cross-reference required"
+    },
+    {
+      "id": "UC5",
+      "systems": ["NetSuite", "Shopify Plus"],
+      "direction": "NetSuite → Shopify Plus",
+      "entity": "Products (matrix items)",
+      "trigger": "scheduled",
+      "triggerDetail": "includes metafield management, price, and tax sync",
+      "evidence": "Product sync: NetSuite matrix items → Shopify products with metafield management; matrix item price and tax sync.",
+      "complexity": "high — NetSuite matrix items (parent/child variant structure) require mapping to Shopify's variant model; metafield management adds complexity"
+    },
+    {
+      "id": "UC6",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Product image URLs",
+      "trigger": "event-driven",
+      "triggerDetail": null,
+      "evidence": "Shopify product image URLs → NetSuite.",
+      "complexity": "low"
+    },
+    {
+      "id": "UC7",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus ↔ NetSuite",
+      "entity": "Customers",
+      "trigger": "event-driven",
+      "triggerDetail": "bidirectional",
+      "evidence": "Customer sync: Shopify customers ↔ NetSuite customers.",
+      "complexity": "medium — bidirectional sync requires conflict resolution / master system decision"
+    },
+    {
+      "id": "UC8",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Payment transactions",
+      "trigger": "event-driven",
+      "triggerDetail": "Shopify payment → NetSuite customer deposits",
+      "evidence": "Billing: Shopify payment transactions → NetSuite customer deposits.",
+      "complexity": "medium"
+    },
+    {
+      "id": "UC9",
+      "systems": ["NetSuite", "NetSuite"],
+      "direction": "NetSuite → NetSuite",
+      "entity": "Sales orders / Invoices",
+      "trigger": "event-driven",
+      "triggerDetail": "internal transformation: sales order → invoice",
+      "evidence": "NetSuite sales order → NetSuite invoice transformations.",
+      "complexity": "low — internal NetSuite-to-NetSuite transformation"
+    },
+    {
+      "id": "UC10",
+      "systems": ["Shopify Plus", "NetSuite"],
+      "direction": "Shopify Plus → NetSuite",
+      "entity": "Store metadata / Custom records",
+      "trigger": "event-driven",
+      "triggerDetail": "Shopify store changes → NetSuite custom records",
+      "evidence": "Store-level metadata: Shopify store changes → NetSuite custom records.",
+      "complexity": "medium — requires NetSuite custom record upsert logic"
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC11-potential",
+      "systems": ["Orderful", "NetSuite"],
+      "entity": "EDI Orders / Fulfillments / Invoices",
+      "rationale": "Orderful handles 810, 856, 997 EDI with major retailers. NetSuite is the ERP. An iPaaS layer between Orderful and NetSuite for EDI-to-ERP order processing is the natural integration. Currently not handled by Celigo but is a common expansion.",
+      "promotionEvidence": "Client confirms Orderful ↔ NetSuite integration is in scope or wants to consolidate EDI through the new iPaaS"
+    },
+    {
+      "id": "UC12-potential",
+      "systems": ["NetSuite", "ShipStation"],
+      "entity": "Shipments / Shipping orders",
+      "rationale": "Turbine is a custom middleware between NetSuite and ShipStation. Replacing custom middleware with a managed MuleSoft flow is a natural migration win — reduces custom code maintenance.",
+      "promotionEvidence": "Client confirms they want Turbine replaced or consolidated into the new iPaaS scope"
+    },
+    {
+      "id": "UC13-potential",
+      "systems": ["NetSuite", "Toolio"],
+      "entity": "Inventory / Forecast data",
+      "rationale": "Toolio is listed as 'in evaluation' for forecasting. NetSuite is the inventory source of truth. Once Toolio is live, an ERP → forecasting data feed is the standard first integration for this tool.",
+      "promotionEvidence": "Toolio goes live and client requests ERP data feed during or shortly after iPaaS implementation"
+    }
+  ],
+
+  "signals": [
+    {
+      "signal": "migration",
+      "triggerPhrase": "We are migrating off Celigo and evaluating replacement iPaaS platforms.",
+      "questionSet": "Migration-specific: flow inventory handoff, Celigo export, existing field mappings, custom JS transform complexity, parallel run vs. cutover strategy"
+    },
+    {
+      "signal": "real-time",
+      "triggerPhrase": "real-time webhook-triggered flows",
+      "questionSet": "Real-time: webhook reliability, retry/idempotency, ordering guarantees, volume at peak"
+    },
+    {
+      "signal": "batch",
+      "triggerPhrase": "scheduled",
+      "questionSet": "Batch: run frequency, record volumes, failure handling, partial success policy"
+    },
+    {
+      "signal": "EDI",
+      "triggerPhrase": "810, 856, 997 transactions with retailers including Fanatics, DSG, and Rallyhouse",
+      "questionSet": "EDI: trading partner count, ACK/NACK handling, retry on 997 rejection, AS2 vs. Orderful API, partner onboarding process"
+    },
+    {
+      "signal": "custom-code",
+      "triggerPhrase": "custom JavaScript transformations (pre-map, post-response, post-submit hooks)",
+      "questionSet": "Custom transform complexity: how many flows have custom JS, complexity level, availability of original developer to document logic before migration"
+    },
+    {
+      "signal": "competitive-evaluation",
+      "triggerPhrase": "We are speaking with three to four vendors before locking scope and selecting a partner.",
+      "questionSet": "Urgency, proof-of-concept request, reference customers, differentiator framing needed"
+    }
+  ],
+
+  "namedContacts": [],
+
+  "systemFindings": [
+    {
+      "system": "NetSuite",
+      "connectorKey": "netsuite",
+      "finding": "Implementation and ongoing support managed by Sikich. Day-to-day changes and monitoring on Celigo also supported by Sikich.",
+      "confidence": "high",
+      "sourceQuote": "ERP and financials: NetSuite (implementation and support by Sikich) — finance, orders, inventory, invoicing. Day-to-day changes and monitoring on Celigo today are supported by Sikich."
+    },
+    {
+      "system": "NetSuite",
+      "connectorKey": "netsuite",
+      "finding": "Uses NetSuite custom records — Shopify events trigger custom record updates.",
+      "confidence": "high",
+      "sourceQuote": "A small number of NetSuite custom record updates triggered by Shopify events."
+    },
+    {
+      "system": "NetSuite",
+      "connectorKey": "netsuite",
+      "finding": "Uses NetSuite matrix items for product management (parent/child variant structure).",
+      "confidence": "high",
+      "sourceQuote": "NetSuite matrix items → Shopify products with metafield management; Shopify product image URLs → NetSuite; matrix item price and tax sync."
+    },
+    {
+      "system": "Shopify Plus",
+      "connectorKey": "shopify",
+      "finding": "Single storefront at homage.com. Shopify Plus tier.",
+      "confidence": "high",
+      "sourceQuote": "E-commerce: Shopify Plus — single storefront at homage.com."
+    },
+    {
+      "system": "Shopify Plus",
+      "connectorKey": "shopify",
+      "finding": "Uses Shopify metafields — managed as part of NetSuite → Shopify product sync.",
+      "confidence": "high",
+      "sourceQuote": "NetSuite matrix items → Shopify products with metafield management."
+    },
+    {
+      "system": "Orderful",
+      "connectorKey": null,
+      "finding": "Cloud EDI gateway. Handles X12 810 (Invoice), 856 (Advance Ship Notice), 997 (Functional Acknowledgment) with Fanatics, DSG, and Rallyhouse.",
+      "confidence": "high",
+      "sourceQuote": "EDI: Orderful (810, 856, 997 transactions with retailers including Fanatics, DSG, and Rallyhouse)."
+    },
+    {
+      "system": "Celigo",
+      "connectorKey": null,
+      "finding": "One Standard Integration App + three custom integrations. ~23 active flows. Mix of scheduled and webhook-triggered. Uses custom JavaScript pre-map, post-response, and post-submit hooks. Supported by Sikich.",
+      "confidence": "high",
+      "sourceQuote": "~23 flows in scope for the new platform, across the four current Celigo integrations (one Standard Integration App + three custom). Active flows run a mix of out-of-the-box mappings and custom JavaScript transformations (pre-map, post-response, post-submit hooks)."
+    },
+    {
+      "system": "Celigo",
+      "connectorKey": null,
+      "finding": "Celigo scope is Shopify ↔ NetSuite only. Klaviyo, Gorgias, and Redshift are explicitly out of Celigo scope.",
+      "confidence": "high",
+      "sourceQuote": "Celigo handles our Shopify ↔ NetSuite transactional integration. Klaviyo and Gorgias — these receive their data through Shopify-native integrations, not Celigo. Redshift warehouse — data ingestion is handled by Fivetran and custom AWS-side processing, not Celigo."
+    },
+    {
+      "system": "ShipStation",
+      "connectorKey": "shipstation",
+      "finding": "Primary shipping platform. Currently integrated via custom Turbine middleware, not through Celigo or any iPaaS.",
+      "confidence": "high",
+      "sourceQuote": "Shipping: ShipStation (primary), with EasyPost and Amazon Shipping for specific carrier flows. Turbine: middleware between NetSuite and ShipStation."
+    },
+    {
+      "system": "Laravel + Vapor (Custom API Gateway)",
+      "connectorKey": "http",
+      "finding": "Central integration surface on AWS between NetSuite, Shopify Plus, 3PLs, and internal Portal. Acts as their API Gateway.",
+      "confidence": "high",
+      "sourceQuote": "API Gateway: Laravel + Vapor on AWS — central integration surface between NetSuite, Shopify Plus, 3PLs, and our Portal."
+    },
+    {
+      "system": "n8n",
+      "connectorKey": null,
+      "finding": "Used for both workflow automation and ETL alongside Fivetran. Coexists with Celigo — suggests they already operate multiple integration tools.",
+      "confidence": "high",
+      "sourceQuote": "Workflow automation: n8n. Other ETL: n8n and custom jobs."
+    }
+  ],
+
+  "quotes": {
+    "primaryPainQuote": "We are migrating off Celigo and evaluating replacement iPaaS platforms. We are speaking with three to four vendors before locking scope and selecting a partner.",
+    "aspirationQuote": "A clear picture of platform fit for our stack (NetSuite + Shopify + EDI).",
+    "skepticismSignals": [
+      "speaking with three to four vendors before locking scope",
+      "Day-to-day changes and monitoring on Celigo today are supported by Sikich"
+    ],
+    "excitementPhrases": [
+      "make the conversation efficient for both sides"
+    ]
+  },
+
+  "architectKnowledge": [],
+
+  "questionGaps": [],
+
+  "p0Flags": [
+    {
+      "system": "NetSuite",
+      "gotcha": "REST API requires PS256 JWT via Java helper library",
+      "severity": "P0",
+      "clientAction": "Confirm whether NetSuite REST API or RESTlet API is in use. If REST API: ensure the Java-based JWT signing helper is available and MuleSoft deployment can execute it (CloudHub 2.0 supports Java, but confirm).",
+      "architectNote": "NetSuite REST API requires JWT signed with PS256 algorithm, which requires a Java helper library — not natively supported by DataWeave alone. NetSuite RESTlet alternative uses NLAuth/OAuth 1.0a. Celigo likely used RESTlet or a pre-built adapter. Confirm which auth method Celigo uses today and whether client has admin access to NetSuite integration records."
+    },
+    {
+      "system": "Orderful / EDI",
+      "gotcha": "EDI transactions 810, 856, 997 require B2B EDI connector, ACK/NACK handling, and trading partner registry",
+      "severity": "flag",
+      "clientAction": "Confirm whether Orderful ↔ NetSuite EDI is in scope for the new iPaaS. If yes: MuleSoft B2B EDI connector (X12) is required — confirm license. Define ACK/NACK handling and partner registry setup for Fanatics, DSG, Rallyhouse.",
+      "architectNote": "Orderful is a cloud EDI gateway that typically exposes a REST API for receiving/sending EDI documents. MuleSoft can connect via HTTP to Orderful's API OR via direct AS2/X12 depending on setup. If direct X12 is needed: MuleSoft B2B X12 connector required. Orderful may abstract this to REST — Vera/Rex to confirm Orderful API model. Not currently a Celigo-managed flow."
+    },
+    {
+      "system": "Shopify Plus",
+      "gotcha": "SOQL OFFSET does not apply (Shopify, not Salesforce) — but Shopify pagination cursor pattern required for bulk fetches",
+      "severity": "flag",
+      "clientAction": "Confirm approach for bulk data fetches (full sync scenarios). Shopify REST API uses cursor-based pagination; Shopify GraphQL uses connection/edges pattern. The Shopify MuleSoft connector handles this but configuration varies.",
+      "architectNote": "Shopify Plus connector v1.x supports REST API; GraphQL Admin API is the modern approach for bulk operations. Matrix item product catalog size may require paginated bulk reads. Confirm with Kailash which connector version was used on prior Shopify engagements."
+    },
+    {
+      "system": "Celigo → MuleSoft migration",
+      "gotcha": "Custom JavaScript transformations (pre-map, post-response, post-submit hooks) must be ported to DataWeave",
+      "severity": "flag",
+      "clientAction": "Request access to all custom JS transformation code in Celigo before migration planning. Assess complexity per flow. Identify original developer — they hold context on business rules embedded in the transforms.",
+      "architectNote": "Celigo custom JS hooks map to: pre-map → input transformation (DataWeave before connector call), post-response → response transformation (DataWeave after connector call), post-submit → async callback handling. Complexity ranges from simple field mapping to conditional logic. Cannot be auto-converted — manual DataWeave port required per flow. This is the primary migration effort driver."
+    }
+  ],
+
+  "migrationContext": {
+    "currentPlatform": "Celigo",
+    "flowCount": "~23 flows in scope (4 integrations: 1 Standard Integration App + 3 custom)",
+    "disabledFlows": "Legacy Celigo footprint contains additional disabled/deprecated flows — explicitly out of scope",
+    "customCodePresence": true,
+    "customCodeNote": "Mix of out-of-the-box Celigo mappings and custom JavaScript transformations (pre-map, post-response, post-submit hooks)",
+    "currentSupport": "Sikich manages day-to-day Celigo changes and monitoring",
+    "flowInventoryStatus": "Detailed spreadsheet 'ATTACHMENT — TO BE PROVIDED' — not yet received",
+    "flowCategories": [
+      "Order intake (Shopify → NetSuite: cash sales or sales orders with routing logic)",
+      "Order lifecycle (refunds and returns: Shopify ↔ NetSuite)",
+      "Fulfillment writeback (NetSuite → Shopify fulfillment events)",
+      "Inventory sync (NetSuite → Shopify: levels, variant↔item cross-ref, CSWOS tiered delivery)",
+      "Product sync (NetSuite matrix items → Shopify: metafields, price, tax; Shopify image URLs → NetSuite)",
+      "Customer sync (Shopify ↔ NetSuite: bidirectional)",
+      "Billing (Shopify payments → NetSuite customer deposits; NetSuite SO → Invoice)",
+      "Store-level metadata (Shopify changes → NetSuite custom records)"
+    ]
+  }
+}
