@@ -235,6 +235,34 @@
       "content": null,
       "output": "firebase/public/resources/architect-guide.html",
       "cmd": "node commons/branding/fill-template.js --template architect-guide"
+    },
+    "knowledge-base": {
+      "shell": null,
+      "content": null,
+      "output": "firebase/public/resources/capabilities.html",
+      "cmd": "node scaffold/generate-knowledge-base.js",
+      "shellPattern": "3-column-docs-shell",
+      "note": "Generated from live JSON/YAML/MD sources at deploy time. Uses the 3-column-docs-shell pattern — the standard for all internal knowledge pages."
+    }
+  },
+  "shellPatterns": {
+    "3-column-docs-shell": {
+      "usage": "All internal knowledge/reference pages. Use this pattern — never invent a new layout for internal docs.",
+      "description": "Sticky top bar + 3-column grid: left nav (200px, sticky, section jumplinks), main content (flex: 1fr), right nav (180px, sticky, subsection links auto-built by JS scroll-spy).",
+      "canonicalExample": "firebase/public/resources/architect-guide.html",
+      "gridCss": ".docs-shell { display:grid; grid-template-columns:200px 1fr 180px; min-height:calc(100vh - 44px); max-width:1440px; margin:0 auto; }",
+      "topBarCss": ".top-bar { position:sticky; top:0; z-index:200; background:#fff; border-bottom:2px solid var(--brand); display:flex; align-items:center; gap:14px; padding:0 20px; height:44px; }",
+      "navLeftCss": ".nav-left { position:sticky; top:44px; height:calc(100vh - 44px); overflow-y:auto; border-right:1px solid var(--border); padding:14px 0 24px; }",
+      "navRightCss": ".nav-right { position:sticky; top:44px; height:calc(100vh - 44px); overflow-y:auto; border-left:1px solid var(--border); padding:14px 0 24px; }",
+      "headingAnchors": "h2 = left-nav sections (scroll-margin-top:52px), h3 = right-nav subsections (auto-built by JS)",
+      "scrollSpy": "JS reads all h2/h3 from #docContent, builds both navs, updates active states on scroll",
+      "rules": [
+        "Left nav links to h2 sections only — one per section",
+        "Right nav is built by JS scroll-spy from h3s within the active h2 section",
+        "Top bar is sticky at 44px height, white background, brand red bottom border",
+        "Body background is #fff — never gray or dark",
+        "Responsive: right nav hides at 1100px, left nav goes static at 720px"
+      ]
     }
   },
   "accessRules": {
