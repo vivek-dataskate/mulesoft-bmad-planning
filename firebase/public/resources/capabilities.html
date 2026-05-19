@@ -170,6 +170,49 @@ a { color: var(--brand); text-decoration: none; }
 }
 .stage-desc { font-size: 10px; color: var(--mid); line-height: 1.45; }
 
+/* ── KNOWLEDGE CAPTURE ── */
+.kc-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px;
+}
+.kc-card {
+  border: 1.5px solid var(--border); border-radius: 8px; padding: 16px 18px;
+  border-left: 4px solid var(--brand);
+}
+.kc-card.green  { border-left-color: var(--green); }
+.kc-card.amber  { border-left-color: var(--amber); }
+.kc-card.blue   { border-left-color: var(--blue-br); }
+.kc-title { font-size: 12px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+.kc-source { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--mid); margin-bottom: 8px; }
+.kc-items { list-style: none; }
+.kc-items li {
+  font-size: 11px; color: var(--mid); padding: 4px 0;
+  border-top: 1px solid var(--border); display: flex; gap: 7px; align-items: baseline;
+}
+.kc-items li:first-child { border-top: none; }
+.kc-items li::before { content: '›'; font-weight: 700; flex-shrink: 0; }
+.kc-card .kc-items li::before   { color: var(--brand); }
+.kc-card.green .kc-items li::before { color: var(--green); }
+.kc-card.amber .kc-items li::before { color: var(--amber); }
+.kc-card.blue  .kc-items li::before { color: var(--blue-br); }
+
+/* orchestrate flow diagram */
+.orch-flow {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  margin-bottom: 20px;
+}
+.orch-block {
+  flex: 1; padding: 14px 12px; border-right: 1px solid var(--border); text-align: center;
+}
+.orch-block:last-child { border-right: none; }
+.orch-block.center { background: var(--dark); }
+.orch-block-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--mid); margin-bottom: 4px; }
+.orch-block.center .orch-block-label { color: #888; }
+.orch-block-name { font-size: 12px; font-weight: 800; color: var(--dark); }
+.orch-block.center .orch-block-name { color: var(--brand); font-size: 13px; }
+.orch-block-desc { font-size: 10px; color: var(--mid); margin-top: 3px; line-height: 1.35; }
+.orch-block.center .orch-block-desc { color: #888; }
+
 /* ── FOOTER ── */
 .doc-footer {
   padding: 14px 48px; border-top: 1px solid var(--border);
