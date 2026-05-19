@@ -558,6 +558,92 @@ a { color: var(--brand); text-decoration: none; }
   </div>
 </div>
 
+<!-- ══ SECTION 5: ORCHESTRATOR + KNOWLEDGE CAPTURE ══ -->
+<div class="section">
+  <div class="eyebrow">How Scout Learns — Continuous Knowledge Capture</div>
+  <div class="section-title">Every Engagement Makes the Next One Smarter</div>
+  <div class="section-sub">orchestrate.js is the conductor — it sequences agents, manages gates, assembles context, and writes telemetry. But the more important function is what happens after each run: knowledge captured during pre-sales flows back into the standards library, making every future engagement start with more intelligence than the last.</div>
+
+  <!-- Orchestrator flow -->
+  <div class="orch-flow">
+    <div class="orch-block">
+      <div class="orch-block-label">Input</div>
+      <div class="orch-block-name">Call Recording</div>
+      <div class="orch-block-desc">MP4 / transcript + optional deck or notes dropped into inbox/</div>
+    </div>
+    <div class="orch-block center">
+      <div class="orch-block-label">Conductor</div>
+      <div class="orch-block-name">orchestrate.js</div>
+      <div class="orch-block-desc">Sequences 9 agents · assembles context · manages human gates · writes telemetry</div>
+    </div>
+    <div class="orch-block">
+      <div class="orch-block-label">Run Artifacts</div>
+      <div class="orch-block-name">projects/{client}/run/</div>
+      <div class="orch-block-desc">sage.json · vera.json · rex.json · ivy.json · flo.json · hawk.json · petra.json · quinn.json · mira.json</div>
+    </div>
+    <div class="orch-block">
+      <div class="orch-block-label">Client Deliverables</div>
+      <div class="orch-block-name">projects/{client}/</div>
+      <div class="orch-block-desc">proposal-content.json · integration-deck-content.json · intake-questionnaire-{client}.html</div>
+    </div>
+    <div class="orch-block">
+      <div class="orch-block-label">Knowledge Back-Flow</div>
+      <div class="orch-block-name">standards/</div>
+      <div class="orch-block-desc">Use case library · playbooks · FIELD_KNOWLEDGE.md · telemetry CSV</div>
+    </div>
+  </div>
+
+  <!-- 4 knowledge capture streams -->
+  <div class="kc-grid">
+
+    <div class="kc-card green">
+      <div class="kc-source">Vera → promote-library.js</div>
+      <div class="kc-title">Use Case Library — standards/usecases/{vertical}.json</div>
+      <ul class="kc-items">
+        <li>Vera stages every new FOMO finding in <code>vera.json libraryContributions[]</code> — never writes directly to the library</li>
+        <li>Each entry tagged: systems[], vertical, useCase, outcome, aiLayer, source (web or DS), isProspect</li>
+        <li>DS-built flows (source: "DS") also staged here — linked to the client slug</li>
+        <li>Human runs <code>node DSPipeline/promote-library.js</code> to review and merge staged entries into the vertical library</li>
+        <li>Next engagement on the same vertical starts with those peers already in Vera's research baseline</li>
+      </ul>
+    </div>
+
+    <div class="kc-card amber">
+      <div class="kc-source">Sage → FIELD_KNOWLEDGE.md → Scout toml</div>
+      <div class="kc-title">Field Knowledge — Architect Patterns Extracted from Calls</div>
+      <ul class="kc-items">
+        <li>Sage reads every transcript and extracts the questions DataSkate architects asked — priority order, framing style, gap type</li>
+        <li>Sage proposes FK-NNN entries for <code>docs/FIELD_KNOWLEDGE.md</code> — flagged "for human review only, never auto-edit"</li>
+        <li>Approved FK entries are promoted into the Scout agent toml — enriching what Sage looks for on the next call</li>
+        <li>Over time, Scout's extraction improves because it's trained on what experienced architects actually asked, not guessed patterns</li>
+      </ul>
+    </div>
+
+    <div class="kc-card blue">
+      <div class="kc-source">Rex → standards/playbooks/{system}/</div>
+      <div class="kc-title">System Playbooks — Auth, Quirks, DWL Mappings</div>
+      <ul class="kc-items">
+        <li>Rex reads the playbook for each detected system before analysing the client's requirements</li>
+        <li>New systems not yet in standards/playbooks/ trigger Rex to create a stub playbook entry</li>
+        <li>As engagements accumulate on a system (e.g. Shopify), the playbook grows: more quirks, more DWL transforms, more edge cases</li>
+        <li>When confirmed fields appear in 2+ clients, the Architect promotes the canonical model stub to a versioned schema</li>
+      </ul>
+    </div>
+
+    <div class="kc-card">
+      <div class="kc-source">orchestrate.js → DSPipeline/telemetry/usage.csv</div>
+      <div class="kc-title">Cost &amp; Performance Telemetry — Per Agent, Per Run</div>
+      <ul class="kc-items">
+        <li>Every agent run appends a row: date, client, agent, model, input tokens, output tokens, cost (USD), duration (ms), status</li>
+        <li>Rates read from <code>DSPipeline/telemetry/model-pricing.json</code> — never hardcoded, updated when Anthropic changes pricing</li>
+        <li>Aggregated across runs: cost per engagement, cost per stage, which agents are most expensive</li>
+        <li>Used to tune model selection — e.g. Sage runs on Haiku because extraction doesn't need Opus reasoning</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
 <!-- FOOTER -->
 <div class="doc-footer">
   <div><strong>DataSkate</strong> — 196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550</div>
