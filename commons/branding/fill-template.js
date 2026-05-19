@@ -44,7 +44,22 @@ if (!KNOWN_TEMPLATES.includes(templateType)) {
 }
 
 // Per-type configuration: content JSON path and output HTML path
-const root = path.resolve(__dirname, '../..');
+const root   = path.resolve(__dirname, '../..');
+const PORTAL = 'https://dataskateclients.web.app';
+
+function resolveClientLogoPath(slug) {
+  if (!slug) return null;
+  for (const ext of ['.svg', '.png']) {
+    if (fs.existsSync(path.join(root, 'firebase', 'public', 'logos', slug + ext)))
+      return `${PORTAL}/logos/${slug}${ext}`;
+  }
+  return null;
+}
+
+function clientLogoHtml(logoPath, clientName) {
+  if (!logoPath) return '';
+  return `<div class="client-logo-block"><div class="client-logo-sep"></div><img src="${esc(logoPath)}" alt="${esc(clientName)}" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>`;
+}
 
 const typeConfig = {
   proposal: {
@@ -137,6 +152,15 @@ function fill(key, value) {
 // Inject CSS
 fill('__css', css);
 
+// Psychology profile → recommended model mapping (must be declared before buildProposal dispatch)
+const PROFILE_RECOMMENDED_MODEL = {
+  'roi-analytical':     'iaas',
+  'risk-averse':        'iaas',
+  'relationship-builder': 'iaas',
+  'technical-champion': 'tm',
+  'budget-conscious':   'impl',
+};
+
 if (templateType === 'proposal') {
   buildProposal(content);
 } else if (templateType === 'intake') {
@@ -149,6 +173,7 @@ if (templateType === 'proposal') {
 } else if (templateType === 'integration-deck') {
   // Shell only — content lives in Firestore, fetched post-auth at runtime
   fill('client-slug', client);
+  fill('client-logo', clientLogoHtml(resolveClientLogoPath(client), client));
 } else if (templateType === 'architect-guide') {
   buildResource(content);
 }
@@ -182,6 +207,7 @@ function buildProposal(c) {
   fill('scope',             `${m.flowCount} integration flow${m.flowCount !== 1 ? 's' : ''}`);
   fill('client-slug',        m.clientSlug || client || '');
   fill('buyer-profile',      primaryProfile);
+  fill('client-logo', clientLogoHtml(resolveClientLogoPath(m.clientSlug || client), m.clientName));
 
   // Optional pull-quote at top of Journey section (from challenge.lead or challenge.pullquote)
   const pullquoteText = c.challenge && (c.challenge.pullquote || c.challenge.lead);
@@ -479,14 +505,7 @@ function parsePricingModelMd(mdText) {
   return { baseRate, p2rate, implPerFlow, retainer1, retainer2 };
 }
 
-// Psychology profile → recommended model mapping
-const PROFILE_RECOMMENDED_MODEL = {
-  'roi-analytical':     'iaas',   // predictable ROI, structured commitment
-  'risk-averse':        'iaas',   // DataSkate owns outcomes
-  'relationship-builder': 'iaas', // ongoing engagement, renewal
-  'technical-champion': 'tm',     // sees every hour, maximum control
-  'budget-conscious':   'impl',   // one-time fee, no recurring
-};
+// PROFILE_RECOMMENDED_MODEL declared above near top-level dispatch block
 
 function buildInvestmentSection(pm, flowCount, tm, primaryProfile) {
   const n        = flowCount;
@@ -1623,28 +1642,9 @@ function saveProposalContentToFirestore(contentObj, clientSlug) {
 }
 
 function savePitchKitToFirestore(contentObj, clientSlug) {
-  const https   = require('https');
-  const API_KEY = 'AIzaSyDCpzgZAMWWGwedG5At5Ml3gn_yA0dRVZk';
-  const body    = JSON.stringify({
-    fields: {
-      client:      { stringValue: clientSlug },
-      contentJson: { stringValue: JSON.stringify(contentObj) },
-      generatedAt: { stringValue: new Date().toISOString() }
-    }
-  });
-  const options = {
-    hostname: 'firestore.googleapis.com',
-    path:     `/v1/projects/dataskateclients/databases/(default)/documents/pitchKits/${clientSlug}?key=${API_KEY}`,
-    method:   'PATCH',
-    headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
-  };
-  const req = https.request(options, res => {
-    if (res.statusCode === 200) console.log(`✓ Pitch kit saved to Firestore: pitchKits/${clientSlug}`);
-    else console.warn(`⚠ Firestore save returned HTTP ${res.statusCode} for pitchKits/${clientSlug}`);
-  });
-  req.on('error', err => console.warn(`⚠ Firestore pitch kit save failed: ${err.message}`));
-  req.write(body);
-  req.end();
+  // pitchKits collection requires Admin SDK (allow write: if false in rules).
+  // Seeding is handled by update-firebase.js seedPitchKit() which runs as part of the deploy pipeline.
+  console.log(`  ℹ pitchKits/${clientSlug} will be seeded by update-firebase.js (Admin SDK required)`);
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
