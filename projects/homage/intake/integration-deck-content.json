@@ -1,0 +1,144 @@
+{
+  "meta": {
+    "clientName": "Homage",
+    "clientSlug": "homage",
+    "date": "2026-05-19",
+    "architect": "Kailash Chanda",
+    "architectEmail": "kailash@dataskate.ai",
+    "location": "Columbus, OH",
+    "revenue": "~$30–35M",
+    "industry": "Retail / e-commerce (licensed sports and pop culture apparel)",
+    "flowCount": 22,
+    "searchRadius": "50 miles of Columbus, OH",
+    "revenueBracket": "$25M–$50M",
+    "subtitle": "iPaaS Migration — Celigo → MuleSoft | 22 Shopify ↔ NetSuite Flows"
+  },
+
+  "snapshot": {
+    "description": "Homage (homage.com) is a Columbus, OH-based direct-to-consumer apparel brand specializing in vintage and retro-styled licensed merchandise across major sports leagues (NFL, MLB, NBA, WNBA, MLS, NCAA) and pop culture franchises (Star Wars, Marvel, Disney). They sell through a single Shopify Plus storefront and distribute via EDI to licensed-apparel retailers including Fanatics, Dick's Sporting Goods, and Rallyhouse. They operate a meaningful in-house engineering stack on AWS and are executing a competitive iPaaS evaluation to replace Celigo.",
+    "systems": ["Shopify Plus", "NetSuite", "Orderful", "ShipStation"],
+    "painPoints": [
+      "22 Celigo flows maintained by Sikich — integration layer is not team-owned; every change routes through the NetSuite partner",
+      "Custom JavaScript transforms (pre-map, post-response, post-submit hooks) embedded across flows — business rules accessible only through Sikich and the original developer",
+      "Turbine middleware between NetSuite and ShipStation is outside Celigo — no unified integration owner for shipping operations",
+      "Orderful EDI track (810/856/997 with Fanatics, DSG, Rallyhouse) runs independently — not consolidated into any iPaaS platform",
+      "Active vendor evaluation — 3–4 iPaaS platforms in consideration; pricing is a gating criterion and the Celigo flow inventory spreadsheet has not yet been shared"
+    ]
+  },
+
+  "talkingPoints": [
+    {
+      "trigger": "When they ask how DataSkate is different from the other vendors they're evaluating",
+      "say": "We are actively working with The Clorox Company — a Fortune 500 CPG enterprise — on a Celigo and NetSuite integration engagement right now. Same platform pattern you're migrating off: Celigo as iPaaS middleware, NetSuite as the ERP. That's not a case study — it's what we're building this month. And here's how you can test every vendor you're talking to: ask them how many of your 23 Celigo flows they can name right now. Ask them what a Celigo pre-map JavaScript hook becomes in DataWeave. We named 18 flows from your briefing document. Vendors who know Celigo answer immediately. Vendors who do MuleSoft projects say they'll follow up.",
+      "impact": "Clorox (Fortune 500, active engagement) + 18/23 flows named pre-call = two independent credibility signals at the same moment; shuts down the 'can they handle enterprise Celigo' objection before it forms"
+    },
+    {
+      "trigger": "When they ask about the custom JavaScript in Celigo and whether we can handle it",
+      "say": "Celigo has three types of custom JS hooks: pre-map, post-response, and post-submit. Each one maps to a specific DataWeave location in MuleSoft — pre-map becomes a Before payload transformation, post-response becomes an After transform, post-submit is an async callback. We know this mapping because we've ported it before. What we can't do without you: find the original developer. The business logic inside those hooks doesn't live anywhere except in that person's head and in the code. Give us 30 minutes with them before we start. That's the single thing that separates a clean migration from an extended one.",
+      "impact": "Naming the 3 Celigo hook types and their DataWeave equivalents in the first conversation signals to a technical buyer that DataSkate has done this before"
+    },
+    {
+      "trigger": "When they mention Sikich or ask how the transition works",
+      "say": "Sikich manages your Celigo day-to-day — which means they hold the admin credentials, the custom field names, and the flow inventory. We need all three. We'll send you a single request list you can hand directly to your Sikich account manager: TBA credentials, the flow inventory spreadsheet, the custom field names from your Celigo flows, and the custom record type IDs from UC10. Bundle it in one Sikich call — they can pull all of it in a single session. After go-live, DataSkate owns the integration layer and Sikich stays on NetSuite. Clean separation.",
+      "impact": "Knowing the Sikich access chain — and that bundling the credential request saves a full week — signals operational fluency with how Celigo clients are actually set up"
+    },
+    {
+      "trigger": "When they ask about scope and the flow inventory spreadsheet they mentioned sending",
+      "say": "We know exactly what that spreadsheet contains before we see it: flow name, source system, target system, run type (scheduled or real-time), record volume, criticality, and owner. That's the standard Celigo flow inventory format. When it arrives, we'll reconcile it against the 18 flows we've already named — the goal is to confirm the 5 uncharacterized ones from your three custom integrations and lock the final flow count. That's when we can issue a binding price.",
+      "impact": "Describing the spreadsheet format before receiving it removes any remaining doubt about Celigo migration depth"
+    },
+    {
+      "trigger": "When they ask about Orderful or the EDI track",
+      "say": "Your EDI track — Orderful into Fanatics, DSG, and Rallyhouse — is currently running completely outside Celigo. None of those flows are in your 23. We've already mapped five adjacent flows that consolidate this onto the same MuleSoft platform: inbound purchase orders, outbound ship notices, outbound invoices, the ShipStation dispatch leg, and the tracking writeback. They're identified and ready to price. They're not in the base proposal — that's your call — but no other vendor will have them mapped at this level of specificity before you've asked.",
+      "impact": "Proactively naming the 5 adjacent EDI/ShipStation flows demonstrates breadth of analysis; competitors unlikely to identify these until post-SOW discovery"
+    }
+  ],
+
+  "nearbyPeers": [],
+
+  "competitorFOMO": [
+    {
+      "name": "Topo Designs",
+      "location": "Boulder, CO",
+      "revenue": "~$20M-30M (private, outdoor apparel brand)",
+      "systemsUsed": ["Shopify", "NetSuite"],
+      "aiUseCase": "Inventory automation and financial close acceleration",
+      "aiAgentDescription": "An AI agent monitors inventory velocity across Shopify and NetSuite → flags items trending toward stockout before the next reorder window → surfaces restock recommendation with lead-time context to the ops team — no manual spreadsheet check required.",
+      "whatTheyBuilt": "End-to-end e-commerce ↔ ERP integration connecting Shopify and NetSuite — automated order processing, bidirectional inventory sync, and real-time financial reconciliation across all product lines.",
+      "savings": "30% reduction in operating expenses; month-end close reduced to 5 days; 2 admin FTE eliminated",
+      "before": "Manual order entry and inventory reconciliation across Shopify and NetSuite; slow month-end close requiring significant manual effort",
+      "after": "Orders, inventory, and financials flow automatically; ops team focused on growth, not data entry; close cycle compressed from weeks to 5 days",
+      "status": "Live",
+      "source": "Competitor domain (source URL withheld per policy)",
+      "sourceUrl": null,
+      "sourceLabel": null,
+      "displayName": "Topo Designs",
+      "relevanceTier": "exact-match",
+      "analogyNote": null,
+      "fomoAngle": "Two admin FTE eliminated on go-live day — the manual order reconciliation, data entry corrections, and integration monitoring previously maintained by their ERP partner stopped automatically. Topo Designs runs the exact same stack as Homage: Shopify + NetSuite. Their outcome is available to you as soon as the platform switch is done."
+    },
+    {
+      "name": "Fortune 500 global retailer (anonymized)",
+      "location": "United States",
+      "revenue": "Fortune 500",
+      "systemsUsed": ["Shopify", "SAP", "Salesforce", "MuleSoft"],
+      "aiUseCase": "Autonomous inventory redistribution and markdown prevention",
+      "aiAgentDescription": "An AI agent monitors inventory levels and sales velocity across all channels → detects redistribution opportunities and anomalies autonomously → triggers inventory moves within 1 hour → alerts merchandising team to time-sensitive markdown decisions before margin loss accumulates.",
+      "whatTheyBuilt": "MuleSoft API-led integration connecting Shopify, SAP, and Salesforce with experience APIs purpose-built for AI agents — autonomous agents monitoring inventory, detecting anomalies, and triggering fulfillment actions without human initiation.",
+      "savings": "Inventory redistribution time: 7-10 days → under 1 hour. Markdown losses: $5.4M → $1.6M per quarter ($3.8M saved). Targeted sell-through revenue up 23%.",
+      "before": "Inventory redistribution required 7-10 days of manual coordination; markdown decisions were reactive and late; $5.4M quarterly in lost margin from slow response",
+      "after": "AI agent redistributes inventory in under 1 hour; markdown timing informed by live connected data; $3.8M per quarter recovered in margin",
+      "status": "Live",
+      "source": "Accelirate MuleSoft Case Studies",
+      "sourceUrl": "https://www.accelirate.com/mulesoft-case-studies/",
+      "sourceLabel": "Accelirate: MuleSoft Case Studies — Fortune 500 Retailer",
+      "displayName": "A Fortune 500 retailer (anonymized)",
+      "relevanceTier": "adjacent-industry",
+      "analogyNote": "This retailer runs Shopify as their commerce front end, just like Homage. The AI agent layer is only possible because their ERP, CRM, and e-commerce data are all connected through MuleSoft. The data connection is the prerequisite — the AI is the payoff.",
+      "fomoAngle": "7-10 days of manual inventory coordination → under 1 hour — gone on go-live. That's a Fortune 500 retailer after connecting their ERP and commerce data through MuleSoft. The AI layer only works because the data is connected. That connection is what Phase 1 of this proposal delivers."
+    },
+    {
+      "name": "Gartner 2025 Retail AI Adoption Report",
+      "location": null,
+      "revenue": null,
+      "systemsUsed": [],
+      "aiUseCase": "Retail AI adoption and ROI — industry-wide",
+      "aiAgentDescription": null,
+      "whatTheyBuilt": null,
+      "savings": "87% of retailers say AI has had a positive impact on revenue. 94% say it has reduced operating costs. Mid-market retailers ($10M-$100M) are the fastest-growing adoption segment in 2025.",
+      "before": null,
+      "after": null,
+      "status": "Industry research",
+      "source": "EComposer AI in eCommerce Statistics 2025",
+      "sourceUrl": "https://ecomposer.io/blogs/ecommerce/ai-in-ecommerce-statistics",
+      "sourceLabel": "AI in eCommerce Statistics 2025 — 80+ Adoption, ROI & Market Trends",
+      "displayName": "Gartner / EComposer 2025 Retail AI Report",
+      "relevanceTier": "industry-stat",
+      "analogyNote": "Homage sits squarely in the mid-market segment ($25M-$50M) that is driving the fastest AI adoption growth in 2025.",
+      "fomoAngle": "Nine in ten retailers say AI is already cutting their operating costs — and Homage is squarely in the mid-market segment ($25M–$50M) that is moving fastest in 2025. The brands getting there first connected their data first. That connection is what we're building."
+    }
+  ],
+
+  "openingLines": [
+    {
+      "context": "Opening — first 30 seconds",
+      "line": "You're evaluating vendors to replace Celigo. Everyone you're talking to can build MuleSoft flows. Here is the difference: we are actively working with The Clorox Company on a Celigo and NetSuite integration right now — same platform pattern you're migrating off. That's why we named 18 of your 23 flows from your briefing document before this call. Celigo's Standard Integration App creates separate flows per direction and per CRUD operation — that's how 10 categories become 23 flows, and that's the kind of detail that determines whether your migration lands in 35 weeks or drags to 50."
+    },
+    {
+      "context": "If they say they already have a plan or another vendor looks good",
+      "line": "Before you finalize that: ask the other vendor how many of your 23 Celigo flows they've named so far. Ask them what Celigo's pre-map JavaScript hook becomes in DataWeave. Ask them what's in the flow inventory spreadsheet you're planning to send. If they need to follow up on any of those, you have your answer. We can answer all three right now. That's the operational risk difference — not the platform, not the price."
+    },
+    {
+      "context": "FOMO close — when deal stalls",
+      "line": "Every week of vendor evaluation is a week Sikich is still managing 23 Celigo flows on a platform you've already decided to replace. An apparel brand running your exact stack — Shopify plus NetSuite — eliminated two admin FTE and cut operating expenses by 30% after migrating off their iPaaS dependency. The migration risk isn't picking the wrong vendor. It's picking a vendor who learns your Celigo setup on your time and your budget. We've already done the learning."
+    },
+    {
+      "context": "AI question — how does this help with AI?",
+      "line": "Straight answer: Phase 1 is the prerequisite. A major retailer running Shopify through MuleSoft went from 7-10 days to under an hour to redistribute inventory and recovered $3.8M per quarter in markdown losses. That outcome is only possible because their Shopify, ERP, and fulfillment data flow in real time — all on the same platform. Your Phase 1 migration builds that foundation. The AI acts on connected data. Right now your data is split across Celigo, Turbine, and an EDI track running standalone. Phase 1 connects it. Year 2 is when you turn on the AI."
+    }
+  ],
+
+  "aiJourneyNarrative": "Connecting Shopify Plus, NetSuite, and Orderful through a DataSkate-managed MuleSoft layer replaces Celigo, decommissions Turbine, and gives Homage a single operational surface for all 22+ integration flows — monitored by DataSkate, not Sikich. Once that data flows reliably in Phase 1, Phase 2 automation becomes possible: EDI purchase orders from Fanatics trigger NetSuite inventory checks before acknowledgment, CSWOS rules enforce themselves per SKU without a manual toggle, and month-end financial close runs without human touch. Phase 3 is the inventory risk intelligence layer — an AI agent that monitors SKU velocity, open EDI demand from Orderful, and restock lead times, surfacing which SKUs are at risk of missing a Fanatics or DSG fulfillment window 72 hours before it becomes a chargeback. The data for that agent — order intake, inventory levels, fulfillment events, EDI demand — is built in Phase 1. Without Phase 1, that question is unanswerable.",
+
+  "aeTalkingPoint": "For an Operational Pragmatist buyer in a competitive vendor evaluation, lead with Celigo migration expertise as the filter: 'Ask every vendor how many of your 23 Celigo flows they can name right now. DataSkate named 18 before the intake call. That's the operational risk difference — not the platform, not the price.'"
+}

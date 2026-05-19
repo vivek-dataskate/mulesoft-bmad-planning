@@ -1,0 +1,56 @@
+{
+  "status": "complete",
+  "client": "homage",
+  "agent": "Quinn v1.0.0",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "deliverables": {
+    "questionnaireMd": "projects/homage/intake/intake-questionnaire-homage.md",
+    "intakeContentJson": "projects/homage/intake/intake-content.json",
+    "intakeHtml": "projects/homage/intake/intake-questionnaire-homage.html"
+  },
+  "questionnaireSummary": {
+    "totalSections": 10,
+    "totalFlowsCovered": 18,
+    "confirmedFlowsInScope": 22,
+    "potentialExpansionFlows": 5,
+    "criticalQuestionsCount": 16,
+    "prefillRate": "~75% of questions pre-filled at high/medium confidence",
+    "blankQuestionsCount": 8,
+    "blankQuestionTopics": [
+      "CSWOS exact threshold values",
+      "Shopify metafield namespace/key definitions",
+      "NetSuite custbody_* custom field names (Sikich to provide)",
+      "NetSuite custom record type ID for UC10 (Sikich to provide)",
+      "Failure notification Slack channel + technical contact email",
+      "Active SKU count",
+      "Celigo license renewal date",
+      "Automated testing capability at Homage"
+    ]
+  },
+  "p0BlockersForClient": [
+    "Celigo Flow Inventory Spreadsheet (request from Sikich — confirms 23rd flow + locks pricing)",
+    "NetSuite TBA Credentials via Sikich (5 credentials)",
+    "Shopify Custom App + Access Token (Homage must create)"
+  ],
+  "internalFlagsCount": 7,
+  "internalFlags": [
+    { "id": "FLAG-1", "severity": "HIGH", "topic": "NetSuite / UC9 — invoice creation mechanism unconfirmed — descope candidate" },
+    { "id": "FLAG-2", "severity": "HIGH", "topic": "Shopify connector v1.1 GraphQL coverage for productCreate + metafields" },
+    { "id": "FLAG-3", "severity": "MEDIUM", "topic": "Shopify variant ↔ NetSuite item cross-reference table not a MuleSoft deliverable" },
+    { "id": "FLAG-4", "severity": "HIGH", "topic": "Celigo custom JS transforms (pre-map hooks) — Sikich must extract and document" },
+    { "id": "FLAG-5", "severity": "MEDIUM", "topic": "Laravel/Vapor API Gateway scope boundary unresolved" },
+    { "id": "FLAG-6", "severity": "MEDIUM", "topic": "Competitive eval — Celigo spreadsheet is critical differentiator artifact" },
+    { "id": "FLAG-7", "severity": "MEDIUM", "topic": "Buyer profile: Operational Pragmatist — Ivy probe re approval chain" }
+  ],
+  "pricingSnapshot": {
+    "flowCount": 22,
+    "recommendedModel": "IaaS",
+    "kickoffRetainer": 7500,
+    "period1Payment6mo": 39600,
+    "twoYearTotal": 170681,
+    "implementationOnlyFee": 77000
+  },
+  "psychologyProfile": "operational-pragmatist",
+  "buyerFraming": "Lead with 'what stops on go-live day' — IaaS replaces Sikich/Celigo operational dependency as a single monthly cost line. Do not lead with 2-year totals; lead with the 6-month payment as comparable to current integration overhead.",
+  "nextStep": "Sol (Step 9) — Slack workspace setup + send intake to client"
+}

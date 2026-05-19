@@ -1,0 +1,66 @@
+{
+  "status": "complete",
+  "client": "homage",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "profileUsed": "Operational Pragmatist",
+  "filesAudited": [
+    "projects/homage/intake/proposal-content.json",
+    "projects/homage/intake/intake-content.json",
+    "projects/homage/intake/integration-deck-content.json",
+    "projects/homage/intake/proposal-homage.html",
+    "projects/homage/intake/intake-questionnaire-homage.html",
+    "firebase/public/internal/integration-deck-homage.html"
+  ],
+  "audits": [
+    {
+      "file": "proposal-content.json",
+      "checkType": "banned-phrase",
+      "rewrites": [],
+      "htmlRerendered": false,
+      "notes": "Zero banned phrases found. Celigo appears throughout as the migration target — not stripped (factual migration context). n8n appears in intake as client's own system — not stripped."
+    },
+    {
+      "file": "proposal-content.json",
+      "checkType": "authenticity",
+      "rewrites": [],
+      "htmlRerendered": false,
+      "notes": "All facts traceable to sage.json or vera.json. Topo Designs savings figures sourced from competitor domain — competitor-domain exception applied, name retained, URL withheld. No fabricated sentences found."
+    },
+    {
+      "file": "proposal-content.json",
+      "checkType": "psychology",
+      "rewrites": [
+        {
+          "field": "journey.stage2.items",
+          "original": "[4 bullets: CSWOS toggle, EDI inventory check, price propagation, month-end close]",
+          "rewritten": "[2 bullets: CSWOS toggle, month-end close]",
+          "reason": "ivy.json prescribes Stage 2 gets two sentences for Operational Pragmatist buyer. 4 bullets over-pitches the automation future to a buyer who wants the immediate Stage 1 operational win. Kept the two most operationally concrete items."
+        },
+        {
+          "field": "journey.stage3.items",
+          "original": "[3 bullets: SKU risk question, agent action list, no-spreadsheet framing]",
+          "rewritten": "[1 bullet: combined no-spreadsheet + 72hr fulfillment risk framing]",
+          "reason": "ivy.json prescribes Stage 3 gets one item — plant the seed without over-pitching. Merged all three into a single operationally-framed sentence that leads with 'No spreadsheet' (OP buyer hook) and closes with the Fanatics fulfillment window (concrete stakes)."
+        }
+      ],
+      "htmlRerendered": true
+    },
+    {
+      "file": "proposal-content.json",
+      "checkType": "naming",
+      "rewrites": [],
+      "htmlRerendered": false,
+      "notes": "Topo Designs: real name shown, sourceUrl null — competitor-domain exception applies (vera.json source field: 'Competitor domain, source URL withheld per policy'). Name retained. Fortune 500 retailer: anonymized but sourceUrl present (accelirate.com) — escalated below."
+    }
+  ],
+  "escalations": [
+    {
+      "issue": "First FOMO entry is anonymized — 'A Fortune 500 retailer (anonymized)' leads the FOMO section. Mira cannot promote this to a named entry: the source (Accelirate case study) does not name the retailer. The sourceUrl is present and verified. This is a data limitation, not a process failure.",
+      "file": "proposal-content.json",
+      "field": "fomo[0].name",
+      "resolution": "Human required — options: (1) leave as anonymized with sourceUrl (current state — weakest social proof lead), (2) swap order so Topo Designs leads (exact-match but no URL), (3) find a named Fortune 500 retailer MuleSoft case study with a public URL and replace. Recommended: swap order — Topo Designs as lead (exact-match Shopify+NetSuite apparel brand) lands harder for this specific buyer than an anonymized Fortune 500."
+    }
+  ],
+  "totalRewrites": 2,
+  "totalEscalations": 1
+}
