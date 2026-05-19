@@ -452,7 +452,7 @@ function renderProjects(projects, intakeMap) {
 
   if (!visible.length) {
     const label = document.querySelector(`.stat-card[data-filter="${_filter}"] .stat-label`);
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No engagements with status "${label ? label.textContent : _filter}".</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No engagements with status "${label ? label.textContent : _filter}".</td></tr>`;
     return;
   }
   tbody.innerHTML = visible.map(p => {
