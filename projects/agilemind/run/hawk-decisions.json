@@ -1,0 +1,71 @@
+{
+  "agent": "hawk",
+  "client": "agilemind",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "decisions": [
+    {
+      "id": "HD-001",
+      "type": "content-adaptation",
+      "subject": "FOMO ordering — socialProofAngle selection",
+      "default": "No ordering — competitorFOMO[] used in the sequence Vera wrote them",
+      "change": "Ordered by time-saved (hours/people recovered, largest first) per ivy.json psychologyProfile.socialProofAngle = 'time-saved' (primary profile: operational-pragmatist). Rank: Carnegie Learning (92% research time) → Anonymized flooring company ($25K/2,000+ invoices) → Industry benchmark (30% productivity/60% error) → Wiley (213% ROI/40% efficiency) → McGraw-Hill (evening entry eliminated) → HMH (50% digital) → Pearson (full Agentforce) → Savvas (GSV 150/parent signal)",
+      "driver": "ivy.json psychologyProfile.socialProofAngle = 'time-saved'"
+    },
+    {
+      "id": "HD-002",
+      "type": "content-adaptation",
+      "subject": "fomoAngle rewrite — Carnegie Learning",
+      "default": "Lead with Agentforce capability and company name: 'Carnegie Learning deployed Agentforce to automate account research — 92% reduction in research time.'",
+      "change": "Rewritten to lead with hours/task eliminated per operational-pragmatist fomoFraming. New lead: '92% of the time Carnegie Learning's K-12 reps spent preparing for district calls — gone on go-live.' Company name moved to sentence two. AI framing removed from the hook.",
+      "driver": "ivy.json contentLayers.champion.fomoFraming: 'Lead with hours saved and the specific manual task that disappears. No AI framing needed for the hook.'"
+    },
+    {
+      "id": "HD-003",
+      "type": "content-adaptation",
+      "subject": "fomoAngle rewrite — Anonymized flooring company",
+      "default": "Lead with dollar figure: '$25,000 saved on manual data entry annually by automating Salesforce ↔ QuickBooks sync.'",
+      "change": "Rewritten to name the specific task that stops on go-live day per operational-pragmatist lens. New lead: '$25,000 in annual billing labor eliminated by automating exactly the workflow Crystal runs today.' Added explicit go-live day framing: 'That specific task — Crystal toggling between two systems for every agreement — stops on go-live day.'",
+      "driver": "ivy.json contentLayers.champion.fomoFraming + challengeFraming: name the exact manual task and the person doing it"
+    },
+    {
+      "id": "HD-004",
+      "type": "content-adaptation",
+      "subject": "challengeLead — skepticism-first structure",
+      "default": "Lead with primaryPainQuote verbatim as the emotional anchor, then name the operational consequence.",
+      "change": "Skepticism signals detected in ivy.json (3 signals: 'don't want to get excited too early', 'I just need time to really think about it', 'potentially failure-prone layers'). Challenge lead acknowledges friction first ('there are real questions left to answer: QB Online or Desktop, where Holly's spreadsheets live...') before delivering the verbatim primaryPainQuote anchor. Secondary roi-analytical profile contribution applied: cost anchor added ('At 15 to 30 minutes per agreement, across a back-to-school pipeline that compresses into 60 days — that is the labor cost of the status quo, running every cycle').",
+      "driver": "hawk.toml principle: 'If skepticismSignals are present: acknowledge the friction FIRST — do not open with the solution.' + ivy.json blendNote: 'secondary profile contributes one element: challenge.lead includes a cost anchor'"
+    },
+    {
+      "id": "HD-005",
+      "type": "content-adaptation",
+      "subject": "closingLine — AgentForce override triggered",
+      "default": "operational-pragmatist closingLineVariant: 'Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.'",
+      "change": "AgentForce-specific closing line applied because flo.json flags.salesforceDetected = true. Override: 'The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once.' This overrides both the operational-pragmatist closingLineVariant and the default proposal-structure.md closing line.",
+      "driver": "hawk.toml principle: 'If Salesforce detected (flo.json flags.salesforceDetected = true): override both variants with an AgentForce-specific closing line'"
+    },
+    {
+      "id": "HD-006",
+      "type": "content-adaptation",
+      "subject": "journeyHeadline — aspirationQuote callback",
+      "default": "null (if no aspirationQuote)",
+      "change": "aspirationQuote is not null in sage.json: 'Over the last 5 years, what have we spent on Intensified Algebra - Volume 1 SABs? How many did we source each year? How many of them remain in inventory at any given time?' journeyHeadline written as: 'the path to answering \"what have we spent on Intensified Algebra Vol 1 over the last five years?\" in Salesforce, without calling Holly.' Holly named explicitly because the current state requires a phone call to Holly to answer this question — the headline anchors the journey in the specific friction Maria described.",
+      "driver": "hawk.toml principle: 'Write a journey.headline callback: the path to [their aspiration, in their words].' sage.json quotes.aspirationQuote"
+    },
+    {
+      "id": "HD-007",
+      "type": "content-adaptation",
+      "subject": "fomoAngleForSecondary — roi-analytical secondary profile applied across all 8 FOMO entries",
+      "default": "Single fomoAngleAdapted per entry (primary operational-pragmatist lens only)",
+      "change": "ivy.json secondaryProfile = 'roi-analytical' (not null). fomoAngleForSecondary generated for all 8 fomoOrdered[] entries using roi-analytical fomoFraming: 'Lead with the dollar amount or hours recovered. Name the number before naming the company.' Key rewrites: Carnegie Learning secondary leads with '92% reduction... at a minimum of 4+ reps doing district outreach, that is hours of daily productive selling time recovered'; Anonymized flooring secondary leads with '$25,000 saved annually. 2,000+ invoices automated'; Industry benchmark secondary converts Crystal's time to a dollar estimate ('50 hours of billing labor per year doing nothing but moving data that already exists in Salesforce'). Petra uses fomoAngleAdapted for champion-facing challenge section; fomoAngleForSecondary for executive summary where Linda (ROI-analytical economic buyer) is the primary reader.",
+      "driver": "hawk.toml principle: 'Multi-profile FOMO — when ivy.json psychologyProfile.secondaryProfile is not null.' ivy.json economicBuyer.profile = 'roi-analytical' (Linda) confirms fomoAngleForSecondary routes to executive summary."
+    },
+    {
+      "id": "HD-008",
+      "type": "content-adaptation",
+      "subject": "competitivePositioning — block omitted",
+      "default": "Generate competitivePositioning block when sage.json signal='competitive-evaluation' OR ivy.json detects 'systematic-evaluator' as primary or secondary profile",
+      "change": "Neither trigger present. sage.json signals: ['real-time', 'scheduled', 'file / Excel', 'batch'] — no 'competitive-evaluation'. ivy.json primaryProfile = 'operational-pragmatist', secondaryProfile = 'roi-analytical' — no 'systematic-evaluator'. competitivePositioning block omitted from hawk.json.",
+      "driver": "hawk.toml principle: 'If no competitive-evaluation signal: omit the competitivePositioning block entirely.'"
+    }
+  ]
+}

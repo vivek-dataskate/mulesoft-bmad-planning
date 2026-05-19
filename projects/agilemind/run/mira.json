@@ -1,0 +1,92 @@
+{
+  "status": "complete",
+  "client": "agilemind",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "profileUsed": "Operational Pragmatist",
+  "filesAudited": [
+    "projects/agilemind/intake/proposal-content.json",
+    "projects/agilemind/intake/integration-deck-content.json"
+  ],
+
+  "audits": [
+    {
+      "file": "integration-deck-content.json",
+      "checkType": "banned-phrase",
+      "rewrites": [
+        {
+          "field": "nearbyPeers[3].relevance",
+          "original": "Their digital transformation — content delivered via app, platform, iPad, and Android — represents the scaled version of the blended print+digital model AgileMind runs.",
+          "rewritten": "Their Salesforce-anchored move to digital content delivery — apps, platforms, iPad and Android — represents the scaled version of the blended print+digital model AgileMind runs.",
+          "reason": "Banned phrase: 'digital transformation'"
+        },
+        {
+          "field": "competitorFOMO[HMH].whatTheyDid",
+          "original": "drove digital revenue past 50% of total company revenue by 2015 — a complete publishing-to-digital transformation anchored on Salesforce. Used Wave Analytics dashboards to visualize pipeline data, uncover insights, and take immediate commercial action.",
+          "rewritten": "drove digital revenue past 50% of total company revenue by 2015 — their entire publishing and sales operation rebuilt on Salesforce as the operational core. Used Wave Analytics dashboards to visualize pipeline data, surface trends, and take immediate commercial action.",
+          "reason": "Banned phrase: 'digital transformation' (in 'publishing-to-digital transformation')"
+        },
+        {
+          "field": "competitorFOMO[HMH].relevanceToAgileMind",
+          "original": "HMH is the industry model for Salesforce-led digital transformation in K-12 publishing.",
+          "rewritten": "HMH is the industry model for Salesforce-anchored operational modernization in K-12 publishing.",
+          "reason": "Banned phrase: 'digital transformation'"
+        }
+      ],
+      "htmlRerendered": false
+    },
+    {
+      "file": "proposal-content.json",
+      "checkType": "authenticity",
+      "rewrites": [
+        {
+          "field": "outcomes[2].body",
+          "original": "Clean, connected, well-maintained data infrastructure is what AI agents need to operate. Every flow we build is a pipeline an AI agent will eventually use — built right from the start.",
+          "rewritten": "Maria's question — 'What have we spent on Intensified Algebra Vol 1 over the last five years?' — becomes answerable in Phase 3 by an AgentForce agent reading the Inventory__c records and Invoice history Phase 1 builds. The Salesforce objects DataSkate creates on go-live day are what AgentForce reads in Year 2. That architecture is decided once.",
+          "reason": "Generic sentence not traceable to any AgileMind-specific fact; could appear in any proposal unchanged. Rewritten to invoke Maria's aspirationQuote (ivy.json), specific Salesforce objects (Inventory__c, Invoice history), and Phase 1→Phase 3 architecture chain."
+        }
+      ],
+      "htmlRerendered": false
+    },
+    {
+      "file": "proposal-content.json",
+      "checkType": "psychology",
+      "rewrites": [
+        {
+          "field": "outcomes[2].title",
+          "original": "AI-Ready Foundation",
+          "rewritten": "AgentForce — Built on Phase 1's Foundation",
+          "reason": "Operational Pragmatist buyer does not stop at category labels ('AI-Ready Foundation'). Title rewritten to name AgentForce specifically and anchor it to Phase 1 work — matching ivy.json journeyFraming: 'Stage 3 gets one — plant the seed without over-pitching.'"
+        }
+      ],
+      "htmlRerendered": false
+    }
+  ],
+
+  "htmlRerenders": [
+    {
+      "file": "projects/agilemind/intake/proposal-agilemind.html",
+      "command": "node commons/branding/fill-template.js --template proposal --client agilemind",
+      "result": "success",
+      "lintResult": "pass"
+    }
+  ],
+
+  "escalations": [
+    {
+      "issue": "McGraw-Hill Education in integration-deck-content.json competitorFOMO has sourceUrl: null. The sourceNote documents a verified Computer Weekly article (computerweekly.com/news/2240209443) but the URL was intentionally omitted. Per naming rules, a real company name without a sourceUrl should be anonymized in client-facing copy. The integration deck is AE-internal, but the proposal nextSteps ask Maria to share the deck with her team — making it potentially client-visible. If the deck is shared externally, either (a) add the Computer Weekly URL as sourceUrl, or (b) anonymize to 'A higher-education publisher (verified case study)'.",
+      "file": "integration-deck-content.json",
+      "field": "competitorFOMO[McGraw-Hill Education].sourceUrl",
+      "resolution": "human required — confirm whether deck will be shared with AgileMind team; if yes, add sourceUrl or anonymize"
+    }
+  ],
+
+  "noChangesRequired": [
+    "proposal-content.json fomo[] — clean: Carnegie Learning leads at rank 1 with verified Salesforce sourceUrl; no competitor domains in any sourceUrl",
+    "proposal-content.json challenge.lead, journey.*, closingLine — all content traceable to transcript/sage.json; skepticism-first structure correct for Operational Pragmatist; secondary ROI-analytical blend applied exactly once (cost anchor in challenge.lead)",
+    "proposal-content.json journey.stage3 — AgentForce consistency PASS: headline names AgentForce, all three bullets name specific Salesforce objects (Agreement, Inventory__c, Opportunity), specific agent actions named throughout",
+    "integration-deck-content.json talkingPoints, openingLines, aiJourneyNarrative — no banned phrases; no competitor brand names; all content traceable to hawk.json sources"
+  ],
+
+  "totalRewrites": 4,
+  "totalEscalations": 1
+}
