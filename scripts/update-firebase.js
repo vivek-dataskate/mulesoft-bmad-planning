@@ -176,7 +176,14 @@ function gitCommitHtml() {
 
 // ── 4. Regenerate projects-manifest.json ─────────────────────────────────────
 function rebuildManifest() {
-  const projectsDir = path.join(ROOT, 'projects');
+  const projectsDir  = path.join(ROOT, 'projects');
+  const manifestFile = path.join(PUBLIC, 'projects-manifest.json');
+
+  // Load existing manifest so we can preserve fields not in project.json (e.g. status, sowSigned)
+  let existing = [];
+  try { existing = JSON.parse(fs.readFileSync(manifestFile, 'utf8')); } catch {}
+  const existingMap = Object.fromEntries(existing.map(e => [e.id, e]));
+
   const projects = [];
 
   if (fs.existsSync(projectsDir)) {
@@ -187,17 +194,26 @@ function rebuildManifest() {
       if (!fs.existsSync(projFile)) continue;
 
       const proj = JSON.parse(fs.readFileSync(projFile, 'utf8'));
+      const prev = existingMap[slug] || {};
+
+      // project.json is authoritative for these fields; fall back to existing manifest
+      const intakeUrl   = proj.intakeUrl   || prev.intakeUrl   || null;
+      const proposalUrl = proj.proposalUrl || prev.proposalUrl || null;
+      const pitchKitUrl = proj.pitchKitUrl || prev.pitchKitUrl || null;
 
       const entry = {
+        // Preserve any extra fields from existing manifest entry (status, sowSigned, etc.)
+        ...prev,
+        // Then overwrite with authoritative fields from project.json
         id:             slug,
         name:           proj.displayName    || slug,
         architect:      proj.architect      || null,
         architectEmail: proj.architectEmail || null,
         createdAt:      proj.createdAt      || null,
       };
-      if (proj.intakeUrl)    entry.intakeUrl    = proj.intakeUrl;
-      if (proj.proposalUrl)  entry.proposalUrl  = proj.proposalUrl;
-      if (proj.pitchKitUrl)  entry.pitchKitUrl  = proj.pitchKitUrl;
+      if (intakeUrl)   entry.intakeUrl   = intakeUrl;
+      if (proposalUrl) entry.proposalUrl = proposalUrl;
+      if (pitchKitUrl) entry.pitchKitUrl = pitchKitUrl;
       const intakeFile = path.join(PUBLIC, 'intake', `${slug}.html`);
       if (fs.existsSync(intakeFile)) entry.intakePublished = true;
       projects.push(entry);
@@ -205,7 +221,7 @@ function rebuildManifest() {
   }
 
   projects.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-  fs.writeFileSync(path.join(PUBLIC, 'projects-manifest.json'), JSON.stringify(projects, null, 2));
+  fs.writeFileSync(manifestFile, JSON.stringify(projects, null, 2));
   log(`Manifest: ${projects.length} project(s)`);
 }
 

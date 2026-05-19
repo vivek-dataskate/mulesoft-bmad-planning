@@ -315,8 +315,8 @@ async function buildPortalContent(slug) {
   }
   const entry      = manifest.find(m => m.id === slug) || {};
   const status     = entry.status      || 'intake_sent';
-  const intakeUrl   = entry.intakeUrl   || null;
-  const proposalUrl = entry.proposalUrl || null;
+  const intakeUrl   = entry.intakeUrl   || proj.intakeUrl   || null;
+  const proposalUrl = entry.proposalUrl || proj.proposalUrl || null;
   const pitchKitUrl = entry.pitchKitUrl || null;
   const sowSigned   = entry.sowSigned   || false;
 

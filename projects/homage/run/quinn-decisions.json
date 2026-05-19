@@ -1,0 +1,138 @@
+{
+  "client": "homage",
+  "agent": "Quinn v1.0.0",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "prefillDecisions": [
+    {
+      "id": "QD-001",
+      "question": "Q-UC1a-1 — Order routing logic (Cash Sale vs. Sales Order)",
+      "confidence": "high",
+      "source": "flo.json UC1a description + Celigo SIA domain knowledge",
+      "prefillValue": "payment_status = 'paid' AND customer is DTC → Cash Sale; wholesale / net-terms / B2B → Sales Order",
+      "criticalFlag": true,
+      "rationale": "This routing logic is the core discriminator for UC1a vs UC1b. Celigo SIA standard pattern; confirmed from flo.json flow descriptions."
+    },
+    {
+      "id": "QD-002",
+      "question": "Q-UC1a-3 — NetSuite single subsidiary vs. OneWorld",
+      "confidence": "medium",
+      "source": "vera.json company profile — single storefront, no multi-subsidiary indicators",
+      "prefillValue": "Single subsidiary assumed",
+      "criticalFlag": true,
+      "rationale": "No OneWorld indicators in briefing. If wrong, every NetSuite write fails. Critical to confirm."
+    },
+    {
+      "id": "QD-003",
+      "question": "Q-UC2a-1 — Refund routing: Credit Memo vs. Customer Refund",
+      "confidence": "high",
+      "source": "Celigo SIA standard pattern + NetSuite refund record types",
+      "prefillValue": "Partial refund → Credit Memo; Full refund → Customer Refund",
+      "criticalFlag": true,
+      "rationale": "Standard Celigo SIA refund routing. NetSuite requires different record types for partial vs. full refunds."
+    },
+    {
+      "id": "QD-004",
+      "question": "Q-UC4-1 — Inventory sync schedule",
+      "confidence": "high",
+      "source": "Industry standard for Shopify Plus DTC brands",
+      "prefillValue": "Every 15 minutes",
+      "criticalFlag": false,
+      "rationale": "15-minute intervals are standard for DTC brands with high order volume. Confirms with Celigo SIA defaults."
+    },
+    {
+      "id": "QD-005",
+      "question": "Q-UC4-2 — CSWOS threshold values",
+      "confidence": "none",
+      "source": "Left blank — business rule unique to Homage",
+      "prefillValue": null,
+      "criticalFlag": true,
+      "rationale": "CSWOS thresholds are client-specific business logic. Cannot infer from any available data. Must be provided by Homage."
+    },
+    {
+      "id": "QD-006",
+      "question": "Q-UC5a-2 — Shopify metafield namespace/key definitions",
+      "confidence": "none",
+      "source": "Left blank — Sikich/Celigo config required",
+      "prefillValue": null,
+      "criticalFlag": true,
+      "rationale": "Metafield definitions are Shopify-instance-specific. Celigo currently writes to these; Sikich or Homage admin can export from Shopify Admin → Settings → Custom data."
+    },
+    {
+      "id": "QD-007",
+      "question": "Q-UC6-1 — NetSuite custom field name for image URL",
+      "confidence": "low",
+      "source": "NetSuite custom field naming convention (custbody_ prefix)",
+      "prefillValue": "Estimated: custbody_shopify_image_url",
+      "criticalFlag": true,
+      "rationale": "Low confidence estimate based on common naming conventions. Sikich holds the actual field name."
+    },
+    {
+      "id": "QD-008",
+      "question": "Q-UC7a-1 — Customer deduplication strategy",
+      "confidence": "high",
+      "source": "Celigo SIA standard pattern for customer sync",
+      "prefillValue": "Lookup by email → update if found, create if not",
+      "criticalFlag": true,
+      "rationale": "Email deduplication is the Celigo SIA standard. Prevents duplicate customer records across Shopify/NetSuite."
+    },
+    {
+      "id": "QD-009",
+      "question": "Q-UC7c-1 — Customer master record system",
+      "confidence": "medium",
+      "source": "Business logic inference: DTC = Shopify master; B2B = NetSuite master",
+      "prefillValue": "Shopify = master for DTC; NetSuite = master for B2B/wholesale",
+      "criticalFlag": true,
+      "rationale": "Standard bidirectional sync pattern for hybrid DTC+B2B brands. Must confirm to prevent data overwrites."
+    },
+    {
+      "id": "QD-010",
+      "question": "Q-UC8-1 — Payment gateway → NetSuite account mapping",
+      "confidence": "none",
+      "source": "Gateway names identified from Shopify Plus typical setup; NS account IDs unknown",
+      "prefillValue": "Gateway names estimated (shopify_payments, afterpay, paypal, gift_card); NS account internalIds blank",
+      "criticalFlag": true,
+      "rationale": "NetSuite bank account internalIds are instance-specific. Cannot infer without NetSuite access. Client must provide."
+    },
+    {
+      "id": "QD-011",
+      "question": "Q-Section2 — Auth methods per system",
+      "confidence": "high",
+      "source": "rex.json system authentication analysis",
+      "prefillValue": "NetSuite: TBA; Shopify: Custom App token; ShipStation: Basic auth; Orderful: API key; Laravel: Unknown",
+      "criticalFlag": false,
+      "rationale": "Pre-filled from rex.json with high confidence for known systems. Laravel gateway auth remains unknown."
+    },
+    {
+      "id": "QD-012",
+      "question": "Q-Section7-4 — CI/CD tool preference",
+      "confidence": "high",
+      "source": "vera.json company profile — GitHub-based engineering on AWS/Vapor",
+      "prefillValue": "GitHub Actions",
+      "criticalFlag": false,
+      "rationale": "Homage already uses GitHub for engineering. GitHub Actions is the natural CI/CD choice."
+    },
+    {
+      "id": "QD-013",
+      "question": "Q-Section7-5 — Secrets management",
+      "confidence": "high",
+      "source": "vera.json company profile — AWS infrastructure",
+      "prefillValue": "AWS Secrets Manager",
+      "criticalFlag": false,
+      "rationale": "Homage runs on AWS/Vapor. AWS Secrets Manager is the natural fit and avoids introducing a new vendor."
+    },
+    {
+      "id": "QD-014",
+      "question": "Q-10-NS-1 — NetSuite OneWorld confirmation",
+      "confidence": "medium",
+      "source": "No multi-subsidiary indicators in briefing",
+      "prefillValue": "Single subsidiary assumed",
+      "criticalFlag": true,
+      "rationale": "Repeated from UC1a for emphasis — this is asked twice because the stakes are high."
+    }
+  ],
+  "criticalQuestionsTotal": 16,
+  "highConfidencePrefills": 8,
+  "mediumConfidencePrefills": 4,
+  "lowConfidencePrefills": 2,
+  "blankQuestions": 4
+}
