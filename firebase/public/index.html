@@ -493,6 +493,10 @@ function renderProjects(projects, intakeMap) {
         </div>`
       : `<span class="intake-badge ${badgeCls}">${badgeText}</span>`;
 
+    const pitchKitCell = p.integrationDeck
+      ? `<a href="${esc(p.integrationDeck)}" target="_blank" style="font-size:12px;font-weight:600;color:var(--brand);text-decoration:none;white-space:nowrap;">View Deck ↗</a>`
+      : `<span style="font-size:12px;color:var(--mid)">—</span>`;
+
     return `<tr>
       <td>
         <a class="client-name" href="/portal/${esc(p.id)}.html" target="_blank">${esc(p.name)}</a>
@@ -501,6 +505,7 @@ function renderProjects(projects, intakeMap) {
       <td style="font-size:13px;color:var(--mid)">${esc(p.architect || '—')}</td>
       <td>${statusCell}</td>
       <td style="font-size:12px;color:var(--mid)">${lastActivity}</td>
+      <td>${pitchKitCell}</td>
     </tr>`;
   }).join('');
 }
