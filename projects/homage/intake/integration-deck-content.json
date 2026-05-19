@@ -140,5 +140,16 @@
 
   "aiJourneyNarrative": "Connecting Shopify Plus, NetSuite, and Orderful through a DataSkate-managed MuleSoft layer replaces Celigo, decommissions Turbine, and gives Homage a single operational surface for all 22+ integration flows — monitored by DataSkate, not Sikich. Once that data flows reliably in Phase 1, Phase 2 automation becomes possible: EDI purchase orders from Fanatics trigger NetSuite inventory checks before acknowledgment, CSWOS rules enforce themselves per SKU without a manual toggle, and month-end financial close runs without human touch. Phase 3 is the inventory risk intelligence layer — an AI agent that monitors SKU velocity, open EDI demand from Orderful, and restock lead times, surfacing which SKUs are at risk of missing a Fanatics or DSG fulfillment window 72 hours before it becomes a chargeback. The data for that agent — order intake, inventory levels, fulfillment events, EDI demand — is built in Phase 1. Without Phase 1, that question is unanswerable.",
 
-  "aeTalkingPoint": "For an Operational Pragmatist buyer in a competitive vendor evaluation, lead with Celigo migration expertise as the filter: 'Ask every vendor how many of your 23 Celigo flows they can name right now. DataSkate named 18 before the intake call. That's the operational risk difference — not the platform, not the price.'"
+  "aeTalkingPoint": "For an Operational Pragmatist buyer in a competitive vendor evaluation, lead with Celigo migration expertise as the filter: 'Ask every vendor how many of your 23 Celigo flows they can name right now. DataSkate named 18 before the intake call. That's the operational risk difference — not the platform, not the price.'",
+
+  "systemDiagram": {
+    "current": {
+      "title": "Current State — Fragmented",
+      "mermaid": "graph LR\n  SH[\"Shopify Plus\"] -->|\"22 flows\"| CE[\"Celigo\\n(Sikich managed)\"]\n  SS[\"ShipStation\"] --> TU[\"Turbine\\n(standalone)\"]\n  OR[\"Orderful EDI\\n(standalone)\"] -->|\"810/856/997\"| RT[\"Fanatics · DSG · Rallyhouse\"]\n  CE --> NS[\"NetSuite\"]\n  TU --> NS\n  style CE fill:#FFF5F5,stroke:#ed1c24,color:#c0392b\n  style TU fill:#FFF5F5,stroke:#ed1c24,color:#c0392b\n  style OR fill:#FFF5F5,stroke:#ed1c24,color:#c0392b"
+    },
+    "future": {
+      "title": "Future State — Unified",
+      "mermaid": "graph LR\n  SH[\"Shopify Plus\"] --> MS[\"MuleSoft\\n(DataSkate managed)\"]\n  SS[\"ShipStation\"] --> MS\n  OR[\"Orderful\"] --> MS\n  MS -->|\"22+ flows\"| NS[\"NetSuite\"]\n  MS --> RT[\"Fanatics · DSG · Rallyhouse\"]\n  style MS fill:#F0FFF4,stroke:#38A169,color:#276749"
+    }
+  }
 }
