@@ -1,0 +1,329 @@
+{
+  "meta": {
+    "clientName": "Homage",
+    "clientSlug": "homage",
+    "title": "The Connected Homage: Your AI Integration Roadmap",
+    "subtitle": "From Celigo to a platform your team owns — and an inventory intelligence layer that watches for you",
+    "date": "2026-05-19",
+    "architect": "Kailash Chanda",
+    "architectEmail": "kailash@dataskate.ai",
+    "flowCount": 22
+  },
+
+  "challenge": {
+    "lead": "You're evaluating three or four vendors, and the right question is not 'who builds MuleSoft flows' — everyone does. The right question is: who already knows how Celigo is built on the inside, before you show them anything? Celigo's Standard Integration App doesn't create one flow per category — it creates separate flows per direction and per CRUD operation. That's why your 10 briefing categories are actually 23 flows. We named 18 of them from your document before this call. That's not preparation — that's the pattern knowledge that determines whether your migration lands in 35 weeks or drags to 50.",
+    "cards": [
+      {
+        "label": "Your Integration Layer Is Third-Party Owned",
+        "text": "Sikich manages your Celigo day-to-day — monitoring, changes, fixes. Every integration incident, every custom JavaScript update, every ad-hoc mapping correction runs through your NetSuite partner. That operational dependency ends on go-live day."
+      },
+      {
+        "label": "23 Flows, Custom JS, No Single Owner",
+        "text": "Your Celigo footprint runs one Standard Integration App plus three custom integrations — ~23 flows, many with pre-map, post-response, and post-submit JavaScript hooks that only Sikich fully understands. When that institutional knowledge is unavailable, the logic is at risk."
+      },
+      {
+        "label": "Two Integration Tracks Running Outside Celigo",
+        "text": "Your Orderful EDI track (810/856/997 with Fanatics, DSG, and Rallyhouse) and your ShipStation connection via Turbine both run outside Celigo today. Two critical operational tracks with no unified integration owner — and no single monitoring surface."
+      }
+    ]
+  },
+
+  "solution": {
+    "lead": "MuleSoft replaces the Celigo + Turbine + custom JavaScript layer with a single DataSkate-managed integration platform. Unlike native marketplace connectors, MuleSoft adds retry logic, dead letter queues, idempotency checks, and a live operations layer — so when Shopify fires a webhook at 2am on Cyber Monday, the order lands in NetSuite and someone is watching.",
+    "diagramNodes": {
+      "sources": ["Shopify Plus", "Orderful EDI"],
+      "targets": ["NetSuite", "ShipStation"]
+    },
+    "diagramCaption": "DataSkate-managed MuleSoft layer — no code changes required in Shopify Plus or NetSuite"
+  },
+
+  "roi": {
+    "headline": "The business case for moving now",
+    "body": "Homage's 22 confirmed Celigo flows represent the primary migration scope — 17 individually named, 5 awaiting the Celigo flow inventory spreadsheet. The custom JavaScript transforms embedded across those flows are the #1 source of migration cost overruns industry-wide: each one is a business rule that lives in Sikich's memory and in the code. Topo Designs — the same Shopify + NetSuite stack, mid-market apparel — eliminated two admin roles and compressed month-end close to 5 days after their migration. A Fortune 500 retailer using MuleSoft went from 7–10 days of manual inventory coordination to under 1 hour and recovered $3.8M per quarter in markdown losses.",
+    "stats": [
+      {
+        "value": "2 FTE",
+        "label": "eliminated at a comparable Shopify + NetSuite migration (Topo Designs)"
+      },
+      {
+        "value": "7 days → 1 hr",
+        "label": "inventory coordination time — Fortune 500 retailer post-MuleSoft integration"
+      },
+      {
+        "value": "87%",
+        "label": "of mid-market retailers say connected data reduced operating costs (EComposer 2025)"
+      }
+    ]
+  },
+
+  "journey": {
+    "headline": "the path to a clear picture of platform fit for your stack — NetSuite, Shopify, and EDI all connected, reliable, and owned by you",
+    "stage1": {
+      "label": "Connected",
+      "year": "Year 1 · This proposal",
+      "headline": "All 22 Celigo flows live on MuleSoft — DataSkate-owned, monitored, and under one operational surface",
+      "items": [
+        "Sikich's Celigo monitoring call stops on go-live day — DataSkate owns the integration layer",
+        "Every order placed on homage.com creates a cash sale or sales order in NetSuite immediately, routing logic applied automatically",
+        "Inventory levels — including CSWOS tiered thresholds — sync from NetSuite to Shopify in near-real-time, no manual toggle per SKU",
+        "Matrix item price and tax changes in NetSuite propagate to Shopify within minutes — no spreadsheet, no delay",
+        "Fulfillments write back automatically; returns from Shopify reconcile to NetSuite without a manual correction cycle",
+        "Custom JS hooks replaced by documented DataWeave transforms — the logic is ours to maintain, not Sikich's to patch"
+      ]
+    },
+    "stage2": {
+      "label": "Automated",
+      "year": "Year 1–2 · Built on Stage 1",
+      "headline": "NetSuite inventory and EDI demand signals drive Shopify merchandising automatically",
+      "items": [
+        "NetSuite inventory drops below a threshold → Shopify applies CSWOS rules for that SKU automatically — no human toggle",
+        "EDI purchase order from Fanatics or DSG arrives → NetSuite checks available inventory and flags fulfillment risk before the acknowledgment is sent",
+        "Matrix item price changes in NetSuite propagate to Shopify within minutes — no manual step between ERP and storefront",
+        "Month-end financial close shrinks: billing transactions, customer deposits, and invoice transformations run without human touch"
+      ]
+    },
+    "stage3": {
+      "label": "Agentic",
+      "year": "Year 2+",
+      "headline": "An AI agent monitors every SKU's velocity, EDI demand, and restock lead time — surfacing margin risk before the fulfillment window closes",
+      "items": [
+        "Which SKUs are at risk of missing a Fanatics or DSG fulfillment window in the next 72 hours — and what specifically should we do about it?",
+        "When sales velocity plus open EDI demand plus restock lead time signal a stockout risk, the agent surfaces the specific action: apply CSWOS, restrict EDI allocation, request emergency restock, or initiate a markdown",
+        "No spreadsheet. No Monday morning surprise. The data it reads — order intake, inventory levels, fulfillment events, EDI demand from Orderful — is built in Stage 1. Without Stage 1, this question is unanswerable."
+      ]
+    },
+    "closingLine": "Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day."
+  },
+
+  "flows": [
+    { "num": 1,  "name": "Shopify Order → NetSuite Cash Sale",                       "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "Every DTC order on homage.com creates a cash sale in NetSuite on payment — no manual entry, no lag between storefront and ERP." },
+    { "num": 2,  "name": "Shopify Order → NetSuite Sales Order",                     "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "B2B and net-terms orders route to NetSuite as sales orders, not cash sales — classification logic applied automatically, no manual routing decision." },
+    { "num": 3,  "name": "Shopify Refund → NetSuite Credit Memo / Customer Refund",  "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "Shopify refunds create the correct NetSuite record automatically — credit memo or customer refund — without a reconciliation queue or manual match." },
+    { "num": 4,  "name": "NetSuite Return Authorization → Shopify Refund",           "route": "NetSuite → MuleSoft → Shopify Plus",     "value": "Return authorizations created in NetSuite trigger the corresponding Shopify refund automatically — both systems stay in sync without manual matching." },
+    { "num": 5,  "name": "NetSuite Item Fulfillment → Shopify Fulfillment Update",   "route": "NetSuite → MuleSoft → Shopify Plus",     "value": "When a fulfillment ships in NetSuite, tracking numbers write back to Shopify instantly — customers receive accurate shipping status without a manual update." },
+    { "num": 6,  "name": "Shopify Fulfillment Event → NetSuite Order Status",        "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "Shopify fulfillment events update NetSuite sales order status automatically — ops knows what shipped without checking two systems." },
+    { "num": 7,  "name": "Inventory Sync (Scheduled + CSWOS Logic)",                 "route": "NetSuite → MuleSoft → Shopify Plus",     "value": "NetSuite inventory levels sync to Shopify on schedule, including CSWOS tiered thresholds per SKU — no manual toggle required when stock drops below a threshold." },
+    { "num": 8,  "name": "NetSuite Matrix Item → Shopify Product + Variants",        "route": "NetSuite → MuleSoft → Shopify Plus",     "value": "Matrix item updates in NetSuite propagate to Shopify products and variants automatically — the product catalog stays current without re-entry in Shopify." },
+    { "num": 9,  "name": "NetSuite Price → Shopify Product Price",                   "route": "NetSuite → MuleSoft → Shopify Plus",     "value": "Price changes in NetSuite push to Shopify variant pricing — no spreadsheet, no delay, no price discrepancy between ERP and storefront." },
+    { "num": 10, "name": "NetSuite Tax Code → Shopify Product Tax",                  "route": "NetSuite → MuleSoft → Shopify Plus",     "value": "Tax schedule changes in NetSuite update Shopify taxable settings automatically — compliance is handled without a manual configuration step." },
+    { "num": 11, "name": "Shopify Product Image URL → NetSuite Item",                "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "Product images updated in Shopify write back to NetSuite item records — catalog data stays synchronized across both platforms." },
+    { "num": 12, "name": "Shopify Customer Created → NetSuite Customer",             "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "New Shopify customers create NetSuite customer records with deduplication logic — no duplicate records, no manual lookup required." },
+    { "num": 13, "name": "Shopify Customer Updated → NetSuite Customer",             "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "Customer updates in Shopify propagate to NetSuite — contact and billing data stays current in the ERP without manual data entry." },
+    { "num": 14, "name": "NetSuite Customer → Shopify Customer",                     "route": "NetSuite → MuleSoft → Shopify Plus",     "value": "Customer updates in NetSuite write back to Shopify — with loop-prevention logic to avoid circular sync between the two systems." },
+    { "num": 15, "name": "Shopify Payment → NetSuite Customer Deposit",              "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "Shopify payment settlement creates NetSuite customer deposit records automatically — billing reconciliation runs itself without a manual step." },
+    { "num": 16, "name": "NetSuite Sales Order → Invoice Trigger",                   "route": "NetSuite → MuleSoft → NetSuite",         "value": "Sales orders reaching billing-eligible status trigger the NetSuite invoice workflow — internal automation with no external dependency." },
+    { "num": 17, "name": "Shopify Store Metadata → NetSuite Custom Records",         "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "Shopify store metadata changes update the corresponding NetSuite custom records automatically — operational data stays synchronized." },
+    { "num": 18, "name": "Custom Flow 18 (Celigo Custom Integration 1)",             "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "To be named and scoped when the Celigo flow inventory spreadsheet arrives — part of the three custom integrations beyond the Standard Integration App." },
+    { "num": 19, "name": "Custom Flow 19 (Celigo Custom Integration 1)",             "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "To be named and scoped when the Celigo flow inventory spreadsheet arrives." },
+    { "num": 20, "name": "Custom Flow 20 (Celigo Custom Integration 2)",             "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "To be named and scoped when the Celigo flow inventory spreadsheet arrives." },
+    { "num": 21, "name": "Custom Flow 21 (Celigo Custom Integration 2)",             "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "To be named and scoped when the Celigo flow inventory spreadsheet arrives." },
+    { "num": 22, "name": "Custom Flow 22 (Celigo Custom Integration 3)",             "route": "Shopify Plus → MuleSoft → NetSuite",     "value": "To be named and scoped when the Celigo flow inventory spreadsheet arrives." }
+  ],
+
+  "outcomes": [
+    {
+      "icon": "⚡",
+      "title": "Operational Independence",
+      "body": "Your integration layer moves from Sikich-managed to DataSkate-owned. Monitoring, incident response, and day-to-day changes no longer route through your NetSuite partner."
+    },
+    {
+      "icon": "📦",
+      "title": "Inventory on Autopilot",
+      "body": "NetSuite inventory levels, CSWOS thresholds, matrix item pricing, and EDI demand signals sync automatically — no manual SKU-level toggles, no spreadsheet-based inventory reviews."
+    },
+    {
+      "icon": "🤖",
+      "title": "AI-Ready Foundation",
+      "body": "Clean, connected, well-maintained data infrastructure is what AI agents need to operate. Every flow we build is a pipeline an AI agent will eventually use — built right from the start."
+    }
+  ],
+
+  "included": [
+    { "title": "22 integration flows", "detail": "All flows in this proposal — built, tested, and deployed on MuleSoft CloudHub 2.0" },
+    { "title": "MuleSoft hosting & infrastructure", "detail": "CloudHub 2.0 managed by DataSkate — no infrastructure management required from your team" },
+    { "title": "Field mapping & DataWeave transforms", "detail": "All Celigo custom JavaScript hooks ported to documented DataWeave transforms — business logic owned by DataSkate" },
+    { "title": "Error handling & retry logic", "detail": "Dead letter queues, retry frameworks, and error envelopes on every flow — no silent failures, no manual reprocessing queue" },
+    { "title": "UAT support", "detail": "DataSkate runs UAT alongside your team — test scenarios scoped and documented in the requirements phase" },
+    { "title": "30-day hypercare", "detail": "Post-go-live monitoring and rapid response — DataSkate on-call for the first 30 days after production deployment" }
+  ],
+
+  "oos": [
+    { "title": "NetSuite configuration & SuiteScript", "detail": "Custom record type creation, chart of accounts changes, SuiteScript development, and all Sikich-managed NetSuite administration are out of scope." },
+    { "title": "Shopify theme & storefront development", "detail": "Storefront customization, Shopify app development, Shopify Payments configuration, and theme changes are out of scope." },
+    { "title": "Historical data migration", "detail": "This engagement covers net-new data flowing from go-live forward. Historical Celigo flow records and legacy transactional data are not migrated." },
+    { "title": "Celigo decommission", "detail": "Celigo account termination, credential revocation, and Sikich handoff coordination are client responsibilities." },
+    { "title": "Orderful & ShipStation account setup", "detail": "Trading partner EDI mapping, Orderful portal configuration, carrier setup, and Turbine logic documentation are client and partner responsibilities before DataSkate build begins." },
+    { "title": "Adjacent expansion flows (UC14–UC18)", "detail": "ShipStation tracking writeback, Loop Returns reconciliation, and three Orderful EDI flows (inbound PO, outbound ASN, outbound Invoice) are identified but not priced in this proposal. Ready to scope on request." }
+  ],
+
+  "assumptions": [
+    {
+      "assumption": "P0 — Celigo flow inventory spreadsheet received before SOW is signed",
+      "owner": "Client",
+      "when": "Before SOW signing",
+      "p0": true
+    },
+    {
+      "assumption": "P0 — NetSuite TBA credentials provisioned by Sikich: Consumer Key, Consumer Secret, Token ID, Token Secret, Account ID",
+      "owner": "Client",
+      "when": "Before build phase begins",
+      "p0": true
+    },
+    {
+      "assumption": "P0 — Shopify Custom App created with required API scopes (orders, inventory, products, customers, fulfillments — read/write)",
+      "owner": "Client",
+      "when": "Before build phase begins",
+      "p0": true
+    },
+    {
+      "assumption": "Shopify metafield namespace and key structure defined before UC8 (product sync) development begins",
+      "owner": "Client",
+      "when": "Start of build phase",
+      "p0": false
+    },
+    {
+      "assumption": "Turbine field mapping and business rules documented by client before Turbine replacement begins (if ShipStation scope is confirmed)",
+      "owner": "Client",
+      "when": "Before ShipStation flow build",
+      "p0": false
+    },
+    {
+      "assumption": "UC9 (NetSuite SO → Invoice) mechanism confirmed with Sikich — may descope if it is a pure NetSuite SuiteScript workflow with no MuleSoft involvement",
+      "owner": "Both",
+      "when": "Requirements phase",
+      "p0": false
+    }
+  ],
+
+  "timeline": [
+    {
+      "label": "Discovery & Field Mapping",
+      "weeks": "Weeks 1–2",
+      "tasks": [
+        "Celigo flow inventory review with Sikich — confirm all 22+ flows",
+        "DataWeave mapping design for all confirmed flows",
+        "Custom JS hook analysis and DataWeave port plan (per-hook complexity estimate)",
+        "NetSuite TBA credentials validated; Shopify Custom App confirmed",
+        "Shopify variant ↔ NetSuite item ID cross-reference table established"
+      ]
+    },
+    {
+      "label": "Build & Unit Test",
+      "weeks": "Weeks 3–35",
+      "tasks": [
+        "Shopify ↔ NetSuite order flows — UC1a, UC1b (cash sale / sales order routing)",
+        "Inventory sync + CSWOS tiered delivery logic — UC4",
+        "Product + price + tax sync — UC5a, UC5b, UC5c (matrix items + metafields)",
+        "Customer bidirectional sync — UC7a, UC7b, UC7c (create, update, reverse)",
+        "Fulfillment writeback and status update — UC3a, UC3b",
+        "Returns, billing, metadata flows — UC2a, UC2b, UC6, UC8, UC9, UC10",
+        "5 custom flows from Celigo inventory spreadsheet — scoped in Week 1"
+      ]
+    },
+    {
+      "label": "UAT & Integration Testing",
+      "weeks": "Weeks 36–37",
+      "tasks": [
+        "End-to-end testing with Homage ops team across all 22 flows",
+        "Celigo parallel run (if required by client) — DataSkate coordinates",
+        "Sikich sign-off on NetSuite record accuracy for order and inventory flows"
+      ]
+    },
+    {
+      "label": "Go Live & Hypercare",
+      "weeks": "Week 38",
+      "tasks": [
+        "MuleSoft production deployment to CloudHub 2.0",
+        "Celigo decommission (client-managed with Sikich)",
+        "30-day hypercare window begins — DataSkate monitors and responds to all production issues"
+      ]
+    }
+  ],
+
+  "pricing": true,
+
+  "fomo": [
+    {
+      "name": "A Fortune 500 retailer (anonymized)",
+      "revenue": "Fortune 500",
+      "relevanceTier": "adjacent-industry",
+      "savings": "Inventory redistribution 7-10 days → under 1 hour. Markdown losses $5.4M → $1.6M per quarter ($3.8M saved). Sell-through revenue +23%.",
+      "whatTheyBuilt": "MuleSoft API-led integration connecting Shopify, SAP, and Salesforce with experience APIs purpose-built for AI agents — autonomous inventory monitoring, anomaly detection, and fulfillment triggering.",
+      "fomoAngle": "7-10 days of manual inventory coordination → under 1 hour — gone on go-live. That's a Fortune 500 retailer after connecting their ERP and commerce data through MuleSoft. The AI layer in their environment only works because the systems were connected first. That Phase 1 connection is exactly what the 22 flows in this proposal deliver for Homage.",
+      "aiAgentDescription": "An AI agent monitors inventory levels and sales velocity across all channels → detects redistribution opportunities and anomalies autonomously → triggers inventory moves within 1 hour → alerts merchandising team to time-sensitive markdown decisions before margin loss accumulates.",
+      "sourceUrl": "https://www.accelirate.com/mulesoft-case-studies/",
+      "sourceLabel": "Accelirate: MuleSoft Case Studies — Fortune 500 Retailer",
+      "analogyNote": "This retailer runs Shopify as their commerce front end, just like Homage. The AI agent layer is only possible because their ERP, CRM, and e-commerce data are all connected through MuleSoft. The data connection is the prerequisite — the AI is the payoff."
+    },
+    {
+      "name": "Topo Designs",
+      "revenue": "~$20M–30M (outdoor apparel)",
+      "relevanceTier": "exact-match",
+      "savings": "30% reduction in operating expenses; month-end close reduced to 5 days; 2 admin FTE eliminated.",
+      "whatTheyBuilt": "End-to-end Shopify ↔ NetSuite integration — automated order processing, bidirectional inventory sync, and real-time financial reconciliation across all product lines.",
+      "fomoAngle": "Two admin FTE eliminated on go-live day — the manual order reconciliation, data entry corrections, and integration monitoring previously maintained by their ERP partner stopped automatically. Topo Designs runs the exact same stack as Homage: Shopify + NetSuite. Their outcome is available to you as soon as the platform switch is done.",
+      "aiAgentDescription": "An AI agent monitors inventory velocity across Shopify and NetSuite → flags items trending toward stockout before the next reorder window → surfaces restock recommendation with lead-time context to the ops team — no manual spreadsheet check required.",
+      "sourceUrl": null,
+      "sourceLabel": null,
+      "analogyNote": null
+    },
+    {
+      "name": "Gartner / EComposer 2025 Retail AI Report",
+      "revenue": null,
+      "relevanceTier": "industry-stat",
+      "savings": "87% of retailers say AI has had a positive impact on revenue. 94% say it has reduced operating costs. Mid-market retailers ($10M–$100M) are the fastest-growing AI adoption segment in 2025.",
+      "whatTheyBuilt": null,
+      "fomoAngle": "Nine in ten retailers say AI is already cutting their operating costs — and Homage is squarely in the mid-market segment ($25M–$50M) that is moving fastest in 2025. The brands recovering costs ahead of you are not doing it by adopting AI last. They connected their data first. That connection is what we're building.",
+      "aiAgentDescription": null,
+      "sourceUrl": "https://ecomposer.io/blogs/ecommerce/ai-in-ecommerce-statistics",
+      "sourceLabel": "AI in eCommerce Statistics 2025 — 80+ Adoption, ROI & Market Trends",
+      "analogyNote": "Homage sits squarely in the mid-market segment ($25M–$50M) that is driving the fastest AI adoption growth in 2025."
+    }
+  ],
+
+  "buyerProfile": {
+    "primary": "operational-pragmatist",
+    "secondary": null,
+    "signals": [
+      "make the conversation efficient for both sides",
+      "A clear picture of platform fit for our stack",
+      "directional pricing posture"
+    ],
+    "contentModifiersApplied": [
+      "fomoOrdering: sorted by time-saved (hours/FTE recovered) — Fortune 500 (7-10 days → 1hr) leads over Topo Designs (2 FTE) because it has the largest quantified time recovery",
+      "fomoAngleAdapted: each entry rewritten to open with 'specific task that stops on go-live day' — not AI framing or percentage savings",
+      "challengeLead: acknowledged competitive evaluation friction (skepticismSignals) before naming Sikich dependency — operational-pragmatist buys logic, not pressure",
+      "closingLine: used ivy.json contentModifiers.closingLineVariant ('immediate win is on go-live day') instead of proposal-structure.md default",
+      "journeyHeadline: callback to aspirationQuote ('platform fit for our stack') + added 'owned by you' to anchor the Sikich dependency-removal framing"
+    ],
+    "closingLineVariant": "operational-pragmatist"
+  },
+
+  "fomoThoughtStarters": [
+    "Retailers with NetSuite + Shopify data connected are using AI to optimize markdown timing — identifying which licensed SKUs to discount before they hit dead stock, protecting margin automatically before a Fanatics or DSG reorder window closes.",
+    "Other apparel brands are using connected EDI + ERP data to build an AI agent that monitors partner fulfillment risk — flagging when a Fanatics PO can't be filled 48 hours in advance, so the team can reallocate or negotiate rather than take a chargeback.",
+    "A mid-market ecommerce brand with the same Shopify + NetSuite + ShipStation stack used integrated order data to build an AI agent that selects carrier in real time based on margin, speed, and inventory location — reducing cost per shipped order by 18%.",
+    "Ecommerce brands running Shopify + NetSuite are using AI to predict which new licensed products (new franchise launches, NCAA seasons) will spike demand — automatically staging inventory reorders before sell-out events occur."
+  ],
+
+  "nextSteps": [
+    {
+      "title": "Fill Out Intake Form",
+      "body": "Complete the intake questionnaire we send after this call — it captures system-specific details and confirms field mapping priorities before we finalize scope."
+    },
+    {
+      "title": "Schedule Technical Deep Dive",
+      "body": "We'll set up a 90-minute session with Kailash Chanda, your architect, to review the Celigo flow inventory spreadsheet and confirm field mapping priorities for the 22 flows."
+    },
+    {
+      "title": "Review Integration Deck",
+      "body": "Kailash walks you through the integration architecture, answers technical questions on the flows, and addresses any Celigo → MuleSoft migration concerns from your engineering team."
+    },
+    {
+      "title": "Align on Scope and SOW",
+      "body": "Once we've received the Celigo flow inventory spreadsheet and confirmed field mapping, we issue the final SOW with locked scope and pricing before any build begins."
+    }
+  ],
+
+  "about": null
+}

@@ -1,0 +1,136 @@
+{
+  "_vertical": "commerce",
+  "_note": "Use case library for retail / e-commerce engagements. Canonical standard: OAGIS 10.x. Created 2026-05-19 during Homage engagement (Vera step 4).",
+  "usecases": [
+    {
+      "source": "web",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "Shopify",
+        "NetSuite"
+      ],
+      "useCase": "E-commerce ↔ ERP full integration: orders, inventory, fulfillments, products, customers, returns, billing",
+      "whatWasBuilt": "End-to-end Shopify ↔ NetSuite integration covering order intake, inventory sync, fulfillment writeback, product catalog management (including metafields), customer sync, and billing reconciliation.",
+      "outcome": "30% reduction in operating expenses; month-end close to 5 days; 2 admin FTE eliminated",
+      "aiLayer": "AI agent monitors inventory velocity → flags stockout risk → surfaces reorder recommendation with lead-time context",
+      "sourceCompany": "Topo Designs",
+      "sourceUrl": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Topo Designs"
+        }
+      ],
+      "relevantTo": [
+        "homage"
+      ],
+      "discoveredDate": "2026-05-19"
+    },
+    {
+      "source": "web",
+      "sizeSegment": "enterprise",
+      "systems": [
+        "Shopify",
+        "SAP",
+        "Salesforce",
+        "MuleSoft"
+      ],
+      "useCase": "AI-driven inventory redistribution and markdown prevention across retail channels",
+      "whatWasBuilt": "MuleSoft API-led integration connecting commerce, ERP, and CRM with experience APIs for AI agents — autonomous inventory monitoring, anomaly detection, and fulfillment triggering.",
+      "outcome": "Inventory redistribution 7-10 days → under 1 hour; markdown losses $5.4M → $1.6M/quarter; sell-through revenue +23%",
+      "aiLayer": "Autonomous AI agents monitor inventory levels → detect redistribution opportunities → trigger moves and alert merchandising team within 1 hour of signal detection",
+      "sourceCompany": "Fortune 500 retailer (anonymized)",
+      "sourceUrl": "https://www.accelirate.com/mulesoft-case-studies/",
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Fortune 500 retailer (anonymized)"
+        }
+      ],
+      "relevantTo": [
+        "homage"
+      ],
+      "discoveredDate": "2026-05-19"
+    },
+    {
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "Shopify Plus",
+        "NetSuite"
+      ],
+      "useCase": "Order intake: Shopify orders → NetSuite (cash sales or sales orders with routing logic)",
+      "whatWasBuilt": "Webhook-triggered MuleSoft flow ingesting Shopify orders and routing to NetSuite as cash sale or sales order based on classification logic. Handles real-time event and retry/idempotency.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration from Celigo — 23 Shopify ↔ NetSuite flows"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "NetSuite",
+        "Shopify Plus"
+      ],
+      "useCase": "Inventory sync with CSWOS (Continue Selling While Out of Stock) tiered delivery logic",
+      "whatWasBuilt": "Scheduled MuleSoft flow syncing NetSuite inventory levels to Shopify, including cross-reference between Shopify variant IDs and NetSuite item IDs, and enforcing CSWOS tiered thresholds per SKU.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration from Celigo — complex CSWOS business logic"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "NetSuite",
+        "Shopify Plus"
+      ],
+      "useCase": "Product sync: NetSuite matrix items → Shopify products with metafield management, price, and tax sync",
+      "whatWasBuilt": "Scheduled MuleSoft flow mapping NetSuite matrix item (parent/child variant) structure to Shopify product/variant model, including metafield population and price/tax sync.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration — complex NetSuite matrix item → Shopify variant mapping with metafields"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "NetSuite",
+        "NetSuite"
+      ],
+      "useCase": "Internal NetSuite transformation: sales order → invoice",
+      "whatWasBuilt": "Event-triggered MuleSoft flow executing an internal NetSuite-to-NetSuite transformation, converting sales orders to invoices without leaving the ERP.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration — internal NetSuite workflow automation"
+        }
+      ],
+      "relevantTo": []
+    }
+  ]
+}

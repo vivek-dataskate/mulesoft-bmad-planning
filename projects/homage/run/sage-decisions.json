@@ -1,0 +1,111 @@
+{
+  "client": "homage",
+  "agent": "Sage v1.0.0",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "decisions": [
+    {
+      "id": "SD-001",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC1–UC10 classified as confirmed flows (Shopify ↔ NetSuite scope)",
+      "rationale": "Document explicitly lists 8 high-level flow categories under 'High-level flow categories in scope' — all are Celigo-managed Shopify ↔ NetSuite flows. Directions and triggers stated explicitly.",
+      "evidence": "High-level flow categories in scope: Order intake, Order lifecycle, Fulfillment writeback, Inventory sync, Product sync, Customer sync, Billing, Store-level metadata."
+    },
+    {
+      "id": "SD-002",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC11 (Orderful ↔ NetSuite EDI) classified as potential — not a confirmed Celigo-managed flow",
+      "rationale": "Orderful is listed as a core system and EDI transactions are explicit, but the document states 'Celigo handles our Shopify ↔ NetSuite transactional integration' — Orderful is not in that scope. However, it's a natural iPaaS expansion candidate.",
+      "evidence": "Celigo handles our Shopify ↔ NetSuite transactional integration. [Orderful listed separately as a core system.]"
+    },
+    {
+      "id": "SD-003",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC12 (NetSuite ↔ ShipStation) classified as potential — currently Turbine, not Celigo",
+      "rationale": "Turbine is explicitly described as custom middleware between NetSuite and ShipStation. It is not part of the Celigo scope. However, replacing Turbine with a MuleSoft flow is a common migration expansion and a logical recommendation.",
+      "evidence": "Turbine: middleware between NetSuite and ShipStation. [Celigo scope is explicitly Shopify ↔ NetSuite only.]"
+    },
+    {
+      "id": "SD-004",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC13 (NetSuite → Toolio) classified as potential — Toolio in evaluation, not yet live",
+      "rationale": "Toolio is explicitly 'in evaluation' — not a current integration. Capped potential flows at 3 per Sage rules; this is the third and least certain but logically implied once Toolio is live.",
+      "evidence": "Forecasting and planning: Toolio (in evaluation)."
+    },
+    {
+      "id": "SD-005",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "Klaviyo and Gorgias marked inScope=false and out of scope",
+      "rationale": "Document explicitly excludes both from Celigo/iPaaS scope — they receive data via Shopify-native integrations.",
+      "evidence": "Klaviyo and Gorgias — these receive their data through Shopify-native integrations, not Celigo."
+    },
+    {
+      "id": "SD-006",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "Sikich recorded as named entity (implementation partner), not as a system",
+      "rationale": "Sikich is NetSuite's implementation and support partner and also manages Celigo. They are a stakeholder / access chain actor, not a connected system. Noted in namedContacts as an implicit reference even though no individual Sikich contact is named.",
+      "evidence": "NetSuite (implementation and support by Sikich). Day-to-day changes and monitoring on Celigo today are supported by Sikich."
+    },
+    {
+      "id": "SD-007",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "NetSuite connectorKey resolved to 'netsuite' (primary); netsuite-restlet noted as alternative",
+      "rationale": "connector-names.json has both 'netsuite' (Oracle NetSuite) and 'netsuite-restlet'. Primary key set to 'netsuite' — Rex to confirm whether REST API or RESTlet is in use based on Celigo's current configuration.",
+      "evidence": "connector-names.json match: key=netsuite, display=Oracle NetSuite."
+    },
+    {
+      "id": "SD-008",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "Orderful connectorKey set to null — unresolved",
+      "rationale": "No 'Orderful' entry in connector-names.json. Orderful is a cloud EDI gateway; MuleSoft may connect via Orderful's REST API (HTTP connector) or via X12 EDI connector depending on their integration model. Vera to research.",
+      "evidence": "connector-names.json search for 'orderful': NO MATCH."
+    },
+    {
+      "id": "SD-009",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "P0 flag triggered: NetSuite REST API JWT requirement",
+      "rationale": "NetSuite is an explicit system in scope. Sage P0 rules: 'NetSuite → REST API requires PS256 JWT via Java helper library — P0 if REST needed.' REST API is likely given modern Celigo flows; cannot confirm without flow inventory spreadsheet.",
+      "evidence": "ERP and financials: NetSuite."
+    },
+    {
+      "id": "SD-010",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "Flag triggered: EDI/X12 — B2B EDI connector and ACK/NACK required",
+      "rationale": "EDI with 810, 856, 997 transactions is explicitly confirmed. Sage rules: 'EDI/AS2/X12 → Requires B2B EDI connector, ACK/NACK, partner registry.' Classified as 'flag' not 'P0' because Orderful may abstract EDI to REST API — Flo to confirm severity.",
+      "evidence": "Orderful (810, 856, 997 transactions with retailers including Fanatics, DSG, and Rallyhouse)."
+    },
+    {
+      "id": "SD-011",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "Flag triggered: Celigo custom JS transforms must be ported to DataWeave — migration complexity driver",
+      "rationale": "Custom JS transforms are confirmed present across multiple flows. This is not in the standard P0 rule set but is a migration-specific risk that directly affects scope and timeline. Classified as 'flag' for Flo to confirm severity and scope into hours.",
+      "evidence": "Active flows run a mix of out-of-the-box mappings and custom JavaScript transformations (pre-map, post-response, post-submit hooks)."
+    },
+    {
+      "id": "SD-012",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "Flag triggered: Shopify cursor-based pagination for bulk sync scenarios",
+      "rationale": "UC4 (inventory) and UC5 (products/matrix items) involve large catalog/inventory syncs. Shopify's pagination model requires correct cursor handling. Not a blocker but a technical requirement to confirm in architecture.",
+      "evidence": "NetSuite inventory levels → Shopify; NetSuite matrix items → Shopify products with metafield management."
+    },
+    {
+      "id": "SD-013",
+      "step": "6e",
+      "type": "flow-classification",
+      "decision": "Flow inventory spreadsheet NOT yet received — classification based on high-level categories only",
+      "rationale": "Document references 'ATTACHMENT — TO BE PROVIDED' for the detailed flow inventory. Sage has extracted all explicitly stated flow categories but cannot enumerate individual flows within each category until the spreadsheet is provided.",
+      "evidence": "A detailed flow-level inventory is provided as an accompanying spreadsheet: [ATTACHMENT — TO BE PROVIDED]."
+    }
+  ]
+}

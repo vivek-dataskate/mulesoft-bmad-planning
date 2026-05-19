@@ -1,0 +1,79 @@
+{
+  "agent": "Hawk",
+  "client": "homage",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "decisions": [
+    {
+      "id": "HD-001",
+      "type": "content-adaptation",
+      "field": "fomoOrdered — sort order",
+      "profileModifier": "socialProofAngle = time-saved",
+      "default": "vera.json order: Topo Designs (exact-match) → Fortune 500 (adjacent-industry) → Gartner (industry-stat)",
+      "changed": "Sorted by hours/people recovered (largest first): Fortune 500 (7-10 days → <1hr redistribution) leads, Topo Designs (2 FTE eliminated) second, Gartner (no hours quantification) third",
+      "rationale": "time-saved socialProofAngle sorts by hours/people recovered, largest first. Fortune 500's 7-10 day → <1hr reduction is the largest quantified time recovery in the set, even though Topo is a closer stack match. Operational-pragmatist buyers respond to the largest concrete time anchor."
+    },
+    {
+      "id": "HD-002",
+      "type": "content-adaptation",
+      "field": "fomoAngleAdapted — Fortune 500 retailer",
+      "profileModifier": "fomoFraming = lead with hours saved and specific manual task that disappears",
+      "default": "fomoAngleOriginal led with AI agent framing: 'A major retailer using MuleSoft + AI agents went from 7-10 days...'",
+      "changed": "Rewritten to open with time savings anchor: '7-10 days of manual inventory coordination → under 1 hour — gone on go-live.' AI framing moved to closing sentence, not the hook.",
+      "rationale": "Operational-pragmatist profile does not respond to AI framing as the opening hook. The hours-recovered anchor (7-10 days vs <1hr) is the most concrete time-saved figure in the FOMO set — opening with it maximizes impact for this buyer profile."
+    },
+    {
+      "id": "HD-003",
+      "type": "content-adaptation",
+      "field": "fomoAngleAdapted — Topo Designs",
+      "profileModifier": "fomoFraming = lead with hours saved and specific manual task that disappears",
+      "default": "fomoAngleOriginal opened with opex % and peer-comparison framing: 'An outdoor apparel brand running Shopify + NetSuite — exactly your stack — cut operating expenses by 30%...'",
+      "changed": "Rewritten to open with '2 admin FTE eliminated — gone on go-live day.' Opex % and peer stack match moved to second sentence. Added specificity: 'manual order reconciliation, data entry corrections, and integration monitoring that was previously maintained by their ERP partner' — mirrors Homage's Sikich dependency exactly.",
+      "rationale": "For operational-pragmatist, the FTE anchor (people whose work stops) is a more concrete time-saved signal than an opex percentage. Added specificity to mirror Homage's exact pain point — Sikich managing the integration layer — to make the analogy land harder."
+    },
+    {
+      "id": "HD-004",
+      "type": "content-adaptation",
+      "field": "challengeLead",
+      "profileModifier": "skepticismSignals present → acknowledge friction first; operatial-pragmatist challengeFraming",
+      "default": "Standard challengeLead would open with the pain statement (Sikich dependency) immediately.",
+      "changed": "Opened by acknowledging skepticismSignals first — 'You're right to evaluate carefully — you're migrating off Celigo, you're speaking with three or four vendors' — before pivoting to the dependency frame. Verbatim primaryPainQuote embedded as the anchor context.",
+      "rationale": "ivy.json flags two skepticismSignals: competitive vendor evaluation and Sikich as day-to-day Celigo owner. Operational-pragmatist buyers in a formal vendor eval resist any framing that feels like pressure before their concerns are acknowledged. Acknowledging the evaluation first earns the right to name the constraint."
+    },
+    {
+      "id": "HD-005",
+      "type": "content-adaptation",
+      "field": "closingLine",
+      "profileModifier": "contentModifiers.closingLineVariant (not null)",
+      "default": "proposal-structure.md default: 'The 1-year managed service is how [Client] gets from Stage 1 to Stage 2 without rebuilding anything. The architecture we lay down in week one determines what is possible at renewal. No other integration partner structures an engagement with this arc in mind.'",
+      "changed": "Used ivy.json contentModifiers.closingLineVariant verbatim: 'Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.'",
+      "rationale": "closingLineVariant is not null → use variant per principle. No Salesforce detected (flo.json flags.salesforceDetected = false) → no AgentForce override. The variant is better suited for operational-pragmatist: immediate win framing, not architecture/renewal framing."
+    },
+    {
+      "id": "HD-007",
+      "type": "content-adaptation",
+      "field": "challengeLead + talkingPoints + openingLines + aeTalkingPoint + competitivePositioning (full reframe)",
+      "profileModifier": "competitive-vendor-evaluation context — buyer stated 3-4 vendors in evaluation; Celigo migration expertise is the differentiation filter",
+      "default": "Original framing led with Sikich dependency removal as the pain anchor and time-saved FOMO as the urgency mechanism.",
+      "changed": "Reframed primary differentiation around Celigo migration pattern knowledge rather than general MuleSoft capability. Added competitivePositioning block with 4 named proof points, 3-question vendor eval filter, and per-proof-point proposal placement guidance. All 4 openingLines rewritten to position Celigo knowledge as the test a buyer should apply to every vendor. talkingPoints rewritten: 5 points now map to competitive differentiation moments rather than pain-articulation moments.",
+      "rationale": "Buyer explicitly stated 3-4 vendor evaluation with 'platform fit' as a gating criterion. For an Operational Pragmatist in a competitive eval, the urgency mechanism is not just 'what you lose by waiting' — it is 'what you risk by picking the wrong vendor.' DataSkate's Celigo SIA decomposition knowledge (18/23 flows named pre-call, hook type mapping, Sikich request bundling) is a concrete, falsifiable proof point that operationalizes the differentiation claim. Framing it as a three-question test the buyer can apply to every vendor converts a sales claim into a due-diligence tool."
+    },
+    {
+      "id": "HD-008",
+      "type": "content-adaptation",
+      "field": "talkingPoints[0] + openingLines[0] + competitivePositioning.celigoMigrationClients (Clorox named reference added)",
+      "profileModifier": "named enterprise Celigo client reference — The Clorox Company (Fortune 500, active engagement)",
+      "default": "Competitive differentiation relied solely on DataSkate's structural Celigo knowledge (SIA decomposition, hook types, flow naming). No named client reference.",
+      "changed": "Added The Clorox Company as named active social proof. Opening line and lead talking point now open with 'We are actively working with The Clorox Company on a Celigo and NetSuite integration right now.' celigoMigrationClients[] array added to competitivePositioning with full reference guidance. Registered in standards/client-registry.json (slug: clorox).",
+      "rationale": "Structural knowledge claims ('we know Celigo') are necessary but not sufficient in a vendor bake-off — a sophisticated buyer will ask for proof. A named Fortune 500 active engagement on the exact same platform pattern (Celigo + NetSuite) converts the claim into evidence. Clorox's enterprise scale also signals that DataSkate's Celigo expertise is not mid-market only — it validates the capability at a level that makes Homage's mid-market migration look well within range."
+    },
+    {
+      "id": "HD-006",
+      "type": "content-adaptation",
+      "field": "journeyHeadline",
+      "profileModifier": "aspirationQuote not null",
+      "default": "Generic journey headline if no aspirationQuote.",
+      "changed": "Built callback from sage.json quotes.aspirationQuote: 'A clear picture of platform fit for our stack (NetSuite + Shopify + EDI).' → journeyHeadline: 'the path to a clear picture of platform fit for your stack — NetSuite, Shopify, and EDI all connected, reliable, and owned by you'",
+      "rationale": "Added 'owned by you' as a callback to the core dependency-removal framing — the aspiration is not just platform clarity but platform ownership, which resonates with an operational-pragmatist who currently can't touch their own integration layer without Sikich."
+    }
+  ]
+}

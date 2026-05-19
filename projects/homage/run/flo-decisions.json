@@ -1,0 +1,142 @@
+{
+  "client": "homage",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "agent": "Flo v1.0.0",
+  "entries": [
+    {
+      "id": "FD-001",
+      "type": "flow-classification",
+      "flowId": "UC1",
+      "decision": "Confirmed HIGH complexity",
+      "rationale": "Routing logic (cash sale vs. sales order) is custom business logic — must be DataWeave-ported from Celigo pre-map JS hook. Real-time webhook. Meets high threshold: custom transformations.",
+      "source": "rex.json + sage.json confirmedFlows UC1"
+    },
+    {
+      "id": "FD-002",
+      "type": "flow-classification",
+      "flowId": "UC2",
+      "decision": "Confirmed HIGH complexity (upgraded from sage.json 'medium')",
+      "rationale": "Bidirectional sync — principle assigns high to any bidirectional flow. Sage scored medium but did not apply NO-COMBINE/complexity rule consistently. Flo overrides to high.",
+      "source": "rex.json + sage.json; complexity rule: high → bidirectional"
+    },
+    {
+      "id": "FD-003",
+      "type": "flow-classification",
+      "flowId": "UC3",
+      "decision": "Confirmed MEDIUM complexity",
+      "rationale": "Unidirectional, 2 systems, standard entity (fulfillments). No custom logic.",
+      "source": "rex.json + sage.json"
+    },
+    {
+      "id": "FD-004",
+      "type": "flow-classification",
+      "flowId": "UC4",
+      "decision": "Confirmed HIGH complexity",
+      "rationale": "CSWOS tiered logic is custom business logic (inventory_policy toggle per SKU). Cross-reference table prerequisite. Both sage and rex score high.",
+      "source": "rex.json + sage.json"
+    },
+    {
+      "id": "FD-005",
+      "type": "flow-classification",
+      "flowId": "UC5",
+      "decision": "Confirmed HIGH complexity",
+      "rationale": "NetSuite matrix item iteration (one SOAP call per child variant), Shopify GraphQL-only (REST deprecated), metafield management. Both sage and rex score high.",
+      "source": "rex.json + sage.json"
+    },
+    {
+      "id": "FD-006",
+      "type": "flow-classification",
+      "flowId": "UC6",
+      "decision": "Confirmed LOW complexity",
+      "rationale": "Simple unidirectional webhook → field mapping only. No transformation logic.",
+      "source": "rex.json + sage.json"
+    },
+    {
+      "id": "FD-007",
+      "type": "flow-classification",
+      "flowId": "UC7",
+      "decision": "Confirmed HIGH complexity (upgraded from sage.json 'medium')",
+      "rationale": "Bidirectional — same upgrade logic as UC2. Adds conflict resolution requirement (master system decision). Sage noted conflict resolution but still scored medium; Flo applies the bidirectional=high rule.",
+      "source": "rex.json + sage.json; complexity rule: high → bidirectional"
+    },
+    {
+      "id": "FD-008",
+      "type": "flow-classification",
+      "flowId": "UC8",
+      "decision": "Confirmed MEDIUM complexity",
+      "rationale": "Unidirectional, standard entity (payment → customer deposit). No custom logic.",
+      "source": "rex.json + sage.json"
+    },
+    {
+      "id": "FD-009",
+      "type": "flow-classification",
+      "flowId": "UC9",
+      "decision": "Confirmed LOW complexity — ARCHITECT CLARIFICATION REQUIRED",
+      "rationale": "NetSuite internal transformation. Low complexity IF MuleSoft role is a SO status-update trigger only (NetSuite billing engine generates invoice autonomously). If Celigo mechanism is different, scope may change. Kept confirmed at low pending architect confirmation with Sikich. May descope entirely if this is a pure SuiteScript internal flow.",
+      "source": "rex.json + sage.json + netsuite_playbook.json quirk: invoice is read-only"
+    },
+    {
+      "id": "FD-010",
+      "type": "flow-classification",
+      "flowId": "UC10",
+      "decision": "Confirmed MEDIUM complexity",
+      "rationale": "Custom record upsert — not complex in itself, but requires Sikich to provide custom record type ID and field names before design. Blocked on client credential delivery.",
+      "source": "rex.json + sage.json"
+    },
+    {
+      "id": "FD-011",
+      "type": "potential-flow",
+      "flowId": "UC11-potential",
+      "decision": "Potential — NOT confirmed",
+      "rationale": "Orderful is currently outside Celigo scope. Client has not confirmed whether they want iPaaS to handle Orderful ↔ NetSuite. High priority if confirmed — Orderful's REST API simplifies this significantly (no X12 connector needed). Promotion gate: explicit client confirmation.",
+      "source": "sage.json potentialFlows + rex.json potentialFlows"
+    },
+    {
+      "id": "FD-012",
+      "type": "potential-flow",
+      "flowId": "UC12-potential",
+      "decision": "Potential — NOT confirmed",
+      "rationale": "ShipStation/Turbine is currently outside Celigo scope. Migration win if confirmed, but Turbine's business logic must be documented first. High priority — reducing custom middleware is a clear engagement expansion. Promotion gate: Turbine documentation + client sign-off.",
+      "source": "sage.json potentialFlows + rex.json potentialFlows"
+    },
+    {
+      "id": "FD-013",
+      "type": "potential-flow",
+      "flowId": "UC13-potential",
+      "decision": "Potential — NOT confirmed",
+      "rationale": "Toolio is in evaluation and not yet live. Low priority for Phase 1 proposal — include as Phase 2 expansion only.",
+      "source": "sage.json potentialFlows + rex.json potentialFlows"
+    },
+    {
+      "id": "FD-014",
+      "type": "pricing",
+      "decision": "IaaS recommended at N=23 flows — client's stated scope",
+      "computation": {
+        "N": 23,
+        "model": "IaaS",
+        "kickoffRetainer": 7500,
+        "implementationFee": 0,
+        "timelineWeeks": 36,
+        "period1Rate": 300,
+        "period2Rate": 315,
+        "period3Rate": 330.75,
+        "period4Rate": 347.29,
+        "period1Payment": 41400,
+        "period2Payment": 43470,
+        "period3Payment": 45644,
+        "period4Payment": 47926,
+        "twoYearTotal": 178440,
+        "implOnlyFee": 80500
+      },
+      "rationale": "N=23 is the client's stated scope from the briefing. Flo can enumerate 10 structural flow categories from briefing text — the 23 individual flows are in the missing Celigo spreadsheet. Pricing at 10 when the client said 23 would misrepresent scope. IaaS recommended: Homage is not self-maintaining (Sikich manages Celigo). Kickoff retainer = $7,500 (11+ flows tier), credited at go-live.",
+      "edgeCases": "Post-spreadsheet, 23 Celigo flows may consolidate into fewer MuleSoft flows if multiple Celigo flows share a single trigger with branching logic. Scope locks at requirements sign-off — 23 is the proposal number, final is the contractual number."
+    },
+    {
+      "id": "FD-015",
+      "type": "flag",
+      "decision": "10 structural categories confirmed; 23 individual flows not yet enumerated",
+      "rationale": "UC1-UC10 are the logical MuleSoft flow groupings Flo can confirm from briefing text — NOT the 23 Celigo flows. The Celigo spreadsheet will itemize all 23 and allow Flo to map each to a UC, split categories where needed, or confirm consolidation.",
+      "action": "On receipt of the Celigo spreadsheet: re-run Flo to itemize all 23 flows, update UC list, re-confirm complexity scores, and lock the final count for SOW."
+    }
+  ]
+}

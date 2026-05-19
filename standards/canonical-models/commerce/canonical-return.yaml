@@ -1,0 +1,69 @@
+title: Canonical Return
+version: "1.0.0-stub"
+standard: OAGIS 10.x
+standardBody: Open Applications Group (OAGi)
+standardRef: https://www.oagi.org/dnn5/Home/DownloadaStandard
+description: Canonical model for return and refund records — covers RMA, return authorization, refund amount, restocking status. Synced bidirectionally between e-commerce and ERP.
+deviations: []
+createdFrom: homage engagement (2026-05-19) — Shopify ↔ NetSuite returns/refunds sync (UC2)
+note: "Stub — created from homage engagement. Promoted to versioned schema when confirmed fields from 2+ clients."
+
+type: object
+required:
+  - returnId
+  - orderId
+  - status
+  - createdAt
+
+properties:
+  returnId:
+    type: string
+    description: Canonical return/RMA identifier
+  externalReturnId:
+    type: string
+    description: Source-system return ID
+  orderId:
+    type: string
+    description: Canonical order identifier the return is against
+  externalOrderId:
+    type: string
+    description: Source-system order ID
+  customerId:
+    type: string
+    description: Canonical customer identifier
+  status:
+    type: string
+    enum: [pending, approved, received, refunded, rejected, cancelled]
+    description: Return status
+  returnReason:
+    type: string
+    description: Reason for return (e.g. defective, wrong_item, changed_mind)
+  lineItems:
+    type: array
+    items:
+      type: object
+      properties:
+        itemId:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        refundAmount:
+          type: number
+  refundAmount:
+    type: number
+    description: Total refund amount in settlement currency
+  refundCurrency:
+    type: string
+    description: ISO 4217 currency code
+  restockItems:
+    type: boolean
+    description: Whether returned items are added back to inventory
+  createdAt:
+    type: string
+    format: date-time
+  resolvedAt:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when refund was issued

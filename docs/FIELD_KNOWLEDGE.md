@@ -1190,3 +1190,41 @@ Rule:
 Promotes to: CLAUDE.md (No hardcoding of time-varying config — added 2026-05-15)
 
 *Added: 2026-05-15 — Source: DSPipeline telemetry implementation review*
+
+---
+
+## FK-027 — Shopify GraphQL via HTTP Connector (REST Products API deprecated)
+Date: 2026-05-19
+Project: Homage (iPaaS migration from Celigo)
+Trigger: Shopify REST Products/Variants API deprecated for custom apps (April 2025). Pre-built Shopify connector v1.1 does not support all GraphQL product mutations needed for matrix items + metafields.
+
+Scenario:
+  Homage UC5 requires syncing NetSuite matrix items to Shopify products with metafield management.
+  The Shopify MuleSoft connector v1.1 REST Products endpoint is deprecated.
+  The pre-built connector's GraphQL coverage for bulk product mutations (variants + metafields) is unverified.
+  MuleSoft documentation and Shopify explicitly recommend using the HTTP Request Connector
+  to call the GraphQL Admin API directly for product operations.
+
+What failed:
+  Assuming the pre-built Shopify connector covers all operations — REST Products deprecated April 2025.
+  Any flow using /products or /variants REST endpoints will break on future API version enforcement.
+
+What worked:
+  Use HTTP Request Connector to call GraphQL Admin API directly:
+    Host: {store}.myshopify.com
+    Base Path: /admin/api/2026-01 (pin to a stable API version)
+    Method: POST
+    Headers:
+      X-Shopify-Access-Token: {access_token}
+      Content-Type: application/json
+    Body: { "query": "mutation productCreate(...) { ... }" }
+  This pattern works for: productCreate, productUpdate, metafieldsSet, bulk operations.
+  For orders, customers, inventory: Shopify connector REST still works (not deprecated yet).
+  For metafield variant-level operations: GraphQL metafieldsSet mutation is the only supported path.
+
+Client question used:
+  N/A — discovered during Rex systems research (Homage engagement).
+
+Promotes to: standards/playbooks/shopify/shopify_playbook.json (knownQuirks — added 2026-05-19)
+
+*Added: 2026-05-19 — Source: Homage engagement, Rex systems research + Shopify developer changelog 2024-04*

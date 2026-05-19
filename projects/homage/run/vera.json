@@ -1,0 +1,332 @@
+{
+  "status": "complete",
+  "client": "homage",
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "agent": "Vera v1.0.0",
+  "company": {
+    "snapshot": "Homage (homage.com) is a Columbus, OH-based direct-to-consumer apparel brand specializing in vintage and retro-styled licensed merchandise across major sports leagues (NFL, MLB, NBA, WNBA, MLS, NCAA) and pop culture franchises (Star Wars, Marvel, Disney). They sell through a single Shopify Plus storefront and distribute via EDI to licensed-apparel retailers including Fanatics, Dick's Sporting Goods, and Rallyhouse. They operate a meaningful in-house engineering stack on AWS and are executing a competitive iPaaS evaluation to replace Celigo.",
+    "industry": "Retail / e-commerce (licensed sports and pop culture apparel)",
+    "verticalSlug": "commerce",
+    "hqLocation": "Columbus, OH 43219",
+    "revenueEstimate": "~$30-35M",
+    "revenueBracket": "$25M-$50M",
+    "employeeCount": "~123-161",
+    "businessObjects": [
+      "Orders",
+      "Customers",
+      "Products (matrix items — licensed SKUs)",
+      "Inventory",
+      "Returns",
+      "Fulfillments",
+      "Billing Transactions",
+      "EDI Transactions (810 Invoice, 856 ASN, 997 FA)",
+      "Shipments",
+      "Custom Records (NetSuite)"
+    ],
+    "logoUrl": "https://www.homage.com/cdn/shop/files/HOMAGE-BLOCK_EST.svg"
+  },
+  "aiJourney": {
+    "phase1": {
+      "label": "Connected",
+      "headline": "All 23 Shopify ↔ NetSuite flows live on MuleSoft — orders, inventory, products, customers, fulfillments, returns, and billing flowing in real time",
+      "body": "Every order placed on homage.com flows into NetSuite immediately as a cash sale or sales order, with routing logic applied. Inventory levels — including CSWOS tiered thresholds — sync from NetSuite to Shopify in near-real-time. Fulfillments write back automatically. Returns from Loop reconcile to NetSuite without manual intervention. Matrix item updates and Shopify metafields stay in sync. Customer deposit records create themselves when Shopify payments settle. The manual correction cycles that Sikich currently handles disappear. Celigo is fully decommissioned."
+    },
+    "phase2": {
+      "label": "Automated",
+      "headline": "NetSuite inventory and EDI demand signals drive Shopify merchandising automatically — no manual CSWOS updates, no stockout surprises",
+      "body": "With Phase 1 data flowing reliably, business rules enforce themselves. NetSuite inventory drops below a threshold → Shopify automatically applies CSWOS rules for that SKU — no manual toggle. An EDI purchase order arrives from Fanatics or DSG → NetSuite checks available inventory and flags any potential fulfillment risk before the acknowledgment is sent. Matrix item price changes in NetSuite propagate to Shopify within minutes. Month-end financial close shrinks from days to hours as billing transactions, customer deposits, and invoice transformations all run without human touch."
+    },
+    "phase3": {
+      "label": "Agentic",
+      "headline": "An AI agent monitors every SKU's velocity, EDI demand, and restock lead time — surfacing margin risk 72 hours before a stockout",
+      "body": "Your Phase 1 data — order intake, inventory levels, fulfillment events, EDI demand from Fanatics/DSG/Rallyhouse — becomes the input layer for an AI agent that watches each SKU continuously. When sales velocity plus open EDI demand plus restock lead time signal a stockout risk, the agent surfaces it 72 hours in advance and recommends a specific action: apply CSWOS, restrict EDI allocation, request emergency restock, or initiate a markdown. No spreadsheet. No Monday morning surprise. The operational question it answers: 'Which SKUs are at risk of missing a Fanatics or DSG fulfillment window in the next three days, and what exactly should we do about it?'"
+    }
+  },
+  "systemPrerequisites": [
+    {
+      "system": "NetSuite",
+      "prerequisites": [
+        "Token-Based Authentication (TBA) integration role provisioned in NetSuite — Sikich to create",
+        "Consumer key + consumer secret + token ID + token secret generated and stored securely",
+        "NetSuite Subsidiary confirmed and mapped (required for all record creation)",
+        "Custom record types used in UC10 (store-level metadata) already exist in NetSuite",
+        "NetSuite integration account (not a named-user account) set up with least-privilege access to Transactions, Inventory, Customers, Products, and Custom Records",
+        "If REST API: PS256 JWT Java helper library confirmed available in deployment environment"
+      ],
+      "scopeBoundary": {
+        "inScope": "MuleSoft ↔ NetSuite API connectivity; CRUD on Transactions, Inventory, Customers, Products, Custom Records",
+        "assumedPreExists": "NetSuite instance live and configured; subsidiaries, chart of accounts, tax codes established; custom record types created by Sikich",
+        "outOfScope": "NetSuite SuiteScript development; new custom record type creation; Chart of Accounts changes; Sikich-managed configuration"
+      }
+    },
+    {
+      "system": "Shopify Plus",
+      "prerequisites": [
+        "Custom App created in Shopify Partner Dashboard with required API scopes: read_orders, write_orders, read_inventory, write_inventory, read_products, write_products, read_customers, write_customers, read_fulfillments, write_fulfillments",
+        "Webhook subscriptions registered per flow (orders/create, orders/updated, fulfillments/create, products/update) — MuleSoft will manage webhook receipt",
+        "Metafield namespaces and keys defined in Shopify Admin before product sync goes live (UC5 depends on this)",
+        "Shopify variant ID ↔ NetSuite item ID cross-reference table established (required for UC4 inventory sync)"
+      ],
+      "scopeBoundary": {
+        "inScope": "MuleSoft ↔ Shopify API (REST and/or GraphQL Admin API); webhook ingestion; metafield management per UC5",
+        "assumedPreExists": "Shopify Plus storefront live; product catalog, collections, and metafield definitions set up; Custom App credentialed",
+        "outOfScope": "Shopify theme development; Shopify app development; storefront customization; Shopify Payments configuration"
+      }
+    },
+    {
+      "system": "Orderful",
+      "prerequisites": [
+        "Orderful account active with API credentials (API key) provisioned",
+        "Trading partner configurations for Fanatics, DSG, and Rallyhouse already established in the Orderful portal",
+        "X12 transaction sets (810, 856, 997) confirmed and mapped per partner in Orderful",
+        "Confirm whether MuleSoft connects to Orderful via REST API or direct X12/AS2 — determines connector choice"
+      ],
+      "scopeBoundary": {
+        "inScope": "MuleSoft → Orderful API calls to send/receive EDI documents (if in scope)",
+        "assumedPreExists": "Orderful account live; partner trading relationships established; EDI maps configured in Orderful",
+        "outOfScope": "Orderful account setup; partner EDI mapping; trading partner onboarding"
+      }
+    },
+    {
+      "system": "ShipStation",
+      "prerequisites": [
+        "ShipStation API key provisioned",
+        "Carrier integrations (EasyPost, Amazon Shipping) already configured in ShipStation",
+        "Turbine middleware logic documented before decommission — DataSkate needs the field mapping and business rules before replacing Turbine with a MuleSoft flow"
+      ],
+      "scopeBoundary": {
+        "inScope": "NetSuite → MuleSoft → ShipStation flow (if Turbine replacement is in scope)",
+        "assumedPreExists": "ShipStation account live; carriers configured; existing Turbine logic documented",
+        "outOfScope": "ShipStation account setup; carrier rate negotiation; EasyPost/Amazon Shipping configuration"
+      }
+    }
+  ],
+  "nearbyPeers": [],
+  "competitorFOMO": [
+    {
+      "name": "Topo Designs",
+      "location": "Boulder, CO",
+      "revenue": "~$20M-30M (private, outdoor apparel brand)",
+      "systemsUsed": [
+        "Shopify",
+        "NetSuite"
+      ],
+      "aiUseCase": "Inventory automation and financial close acceleration",
+      "aiAgentDescription": "An AI agent monitors inventory velocity across Shopify and NetSuite → flags items trending toward stockout before the next reorder window → surfaces restock recommendation with lead-time context to the ops team — no manual spreadsheet check required.",
+      "whatTheyBuilt": "End-to-end e-commerce ↔ ERP integration connecting Shopify and NetSuite — automated order processing, bidirectional inventory sync, and real-time financial reconciliation across all product lines.",
+      "savings": "30% reduction in operating expenses; month-end close reduced to 5 days; 2 admin FTE eliminated",
+      "before": "Manual order entry and inventory reconciliation across Shopify and NetSuite; slow month-end close requiring significant manual effort",
+      "after": "Orders, inventory, and financials flow automatically; ops team focused on growth, not data entry; close cycle compressed from weeks to 5 days",
+      "status": "Live",
+      "source": "Competitor domain (source URL withheld per policy)",
+      "sourceUrl": null,
+      "sourceLabel": null,
+      "displayName": "Topo Designs",
+      "relevanceTier": "exact-match",
+      "analogyNote": null,
+      "fomoAngle": "An outdoor apparel brand running Shopify + NetSuite — exactly your stack — cut operating expenses by 30% and eliminated two admin roles after connecting their systems end-to-end. You're one platform switch from that same outcome."
+    },
+    {
+      "name": "Fortune 500 global retailer (anonymized)",
+      "location": "United States",
+      "revenue": "Fortune 500",
+      "systemsUsed": [
+        "Shopify",
+        "SAP",
+        "Salesforce",
+        "MuleSoft"
+      ],
+      "aiUseCase": "Autonomous inventory redistribution and markdown prevention",
+      "aiAgentDescription": "An AI agent monitors inventory levels and sales velocity across all channels → detects redistribution opportunities and anomalies autonomously → triggers inventory moves within 1 hour → alerts merchandising team to time-sensitive markdown decisions before margin loss accumulates.",
+      "whatTheyBuilt": "MuleSoft API-led integration connecting Shopify, SAP, and Salesforce with experience APIs purpose-built for AI agents — autonomous agents monitoring inventory, detecting anomalies, and triggering fulfillment actions without human initiation.",
+      "savings": "Inventory redistribution time: 7-10 days → under 1 hour. Markdown losses: $5.4M → $1.6M per quarter ($3.8M saved). Targeted sell-through revenue up 23%.",
+      "before": "Inventory redistribution required 7-10 days of manual coordination; markdown decisions were reactive and late; $5.4M quarterly in lost margin from slow response",
+      "after": "AI agent redistributes inventory in under 1 hour; markdown timing informed by live connected data; $3.8M per quarter recovered in margin",
+      "status": "Live",
+      "source": "Accelirate MuleSoft Case Studies",
+      "sourceUrl": "https://www.accelirate.com/mulesoft-case-studies/",
+      "sourceLabel": "Accelirate: MuleSoft Case Studies — Fortune 500 Retailer",
+      "displayName": "A Fortune 500 retailer (anonymized)",
+      "relevanceTier": "adjacent-industry",
+      "analogyNote": "This retailer runs Shopify as their commerce front end, just like Homage. The AI agent layer is only possible because their ERP, CRM, and e-commerce data are all connected through MuleSoft. The data connection is the prerequisite — the AI is the payoff.",
+      "fomoAngle": "A major retailer using MuleSoft + AI agents went from 7-10 days to under 1 hour to redistribute inventory, and cut quarterly markdown losses by $3.8M. The AI agent only works because the data is connected. That connection is what Phase 1 of your MuleSoft build delivers."
+    },
+    {
+      "name": "Gartner 2025 Retail AI Adoption Report",
+      "location": null,
+      "revenue": null,
+      "systemsUsed": [],
+      "aiUseCase": "Retail AI adoption and ROI — industry-wide",
+      "aiAgentDescription": null,
+      "whatTheyBuilt": null,
+      "savings": "87% of retailers say AI has had a positive impact on revenue. 94% say it has reduced operating costs. Mid-market retailers ($10M-$100M) are the fastest-growing adoption segment in 2025.",
+      "before": null,
+      "after": null,
+      "status": "Industry research",
+      "source": "EComposer AI in eCommerce Statistics 2025",
+      "sourceUrl": "https://ecomposer.io/blogs/ecommerce/ai-in-ecommerce-statistics",
+      "sourceLabel": "AI in eCommerce Statistics 2025 — 80+ Adoption, ROI & Market Trends",
+      "displayName": "Gartner / EComposer 2025 Retail AI Report",
+      "relevanceTier": "industry-stat",
+      "analogyNote": "Homage sits squarely in the mid-market segment ($25M-$50M) that is driving the fastest AI adoption growth in 2025. The window to get ahead of competitors is now — not after they've already connected their stacks.",
+      "fomoAngle": "Nine in ten retailers say AI is reducing their operating costs. Homage is in the fastest-growing adoption segment. The brands that will lead aren't the ones who adopt AI last — they're the ones who connected their data first."
+    }
+  ],
+  "aiThoughtStarters": [
+    "Retailers with NetSuite + Shopify data connected are using AI to optimize markdown timing — identifying which licensed SKUs to discount before they hit dead stock, protecting margin automatically before a Fanatics or DSG reorder window closes.",
+    "Other apparel brands are using connected EDI + ERP data to build an AI agent that monitors partner fulfillment risk — flagging when a Fanatics PO can't be filled 48 hours in advance, so the team can reallocate or negotiate rather than take a chargeback.",
+    "A mid-market ecommerce brand with the same Shopify + NetSuite + ShipStation stack used integrated order data to build an AI agent that selects carrier in real time based on margin, speed, and inventory location — reducing cost per shipped order by 18%.",
+    "Ecommerce brands running Shopify + NetSuite are using AI to predict which new licensed products (new franchise launches, NCAA seasons) will spike demand — automatically staging inventory reorders before sell-out events occur."
+  ],
+  "libraryContributions": [
+    {
+      "verticalSlug": "commerce",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "Shopify",
+        "NetSuite"
+      ],
+      "useCase": "E-commerce ↔ ERP full integration: orders, inventory, fulfillments, products, customers, returns, billing",
+      "whatWasBuilt": "End-to-end Shopify ↔ NetSuite integration covering order intake, inventory sync, fulfillment writeback, product catalog management (including metafields), customer sync, and billing reconciliation.",
+      "outcome": "30% reduction in operating expenses; month-end close to 5 days; 2 admin FTE eliminated",
+      "aiLayer": "AI agent monitors inventory velocity → flags stockout risk → surfaces reorder recommendation with lead-time context",
+      "sourceCompany": "Topo Designs",
+      "sourceUrl": null,
+      "addedDate": "2026-05-19",
+      "isProspect": false,
+      "prospectNote": null,
+      "clients": [
+        {
+          "displayName": "Topo Designs"
+        }
+      ],
+      "relevantTo": [
+        "homage"
+      ]
+    },
+    {
+      "verticalSlug": "commerce",
+      "pendingPromotion": false,
+      "source": "web",
+      "sizeSegment": "enterprise",
+      "systems": [
+        "Shopify",
+        "SAP",
+        "Salesforce",
+        "MuleSoft"
+      ],
+      "useCase": "AI-driven inventory redistribution and markdown prevention across retail channels",
+      "whatWasBuilt": "MuleSoft API-led integration connecting commerce, ERP, and CRM with experience APIs for AI agents — autonomous inventory monitoring, anomaly detection, and fulfillment triggering.",
+      "outcome": "Inventory redistribution 7-10 days → under 1 hour; markdown losses $5.4M → $1.6M/quarter; sell-through revenue +23%",
+      "aiLayer": "Autonomous AI agents monitor inventory levels → detect redistribution opportunities → trigger moves and alert merchandising team within 1 hour of signal detection",
+      "sourceCompany": "Fortune 500 retailer (anonymized)",
+      "sourceUrl": "https://www.accelirate.com/mulesoft-case-studies/",
+      "addedDate": "2026-05-19",
+      "isProspect": false,
+      "prospectNote": null,
+      "clients": [
+        {
+          "displayName": "Fortune 500 retailer (anonymized)"
+        }
+      ],
+      "relevantTo": [
+        "homage"
+      ]
+    },
+    {
+      "verticalSlug": "commerce",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "Shopify Plus",
+        "NetSuite"
+      ],
+      "useCase": "Order intake: Shopify orders → NetSuite (cash sales or sales orders with routing logic)",
+      "whatWasBuilt": "Webhook-triggered MuleSoft flow ingesting Shopify orders and routing to NetSuite as cash sale or sales order based on classification logic. Handles real-time event and retry/idempotency.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration from Celigo — 23 Shopify ↔ NetSuite flows"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "verticalSlug": "commerce",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "NetSuite",
+        "Shopify Plus"
+      ],
+      "useCase": "Inventory sync with CSWOS (Continue Selling While Out of Stock) tiered delivery logic",
+      "whatWasBuilt": "Scheduled MuleSoft flow syncing NetSuite inventory levels to Shopify, including cross-reference between Shopify variant IDs and NetSuite item IDs, and enforcing CSWOS tiered thresholds per SKU.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration from Celigo — complex CSWOS business logic"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "verticalSlug": "commerce",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "NetSuite",
+        "Shopify Plus"
+      ],
+      "useCase": "Product sync: NetSuite matrix items → Shopify products with metafield management, price, and tax sync",
+      "whatWasBuilt": "Scheduled MuleSoft flow mapping NetSuite matrix item (parent/child variant) structure to Shopify product/variant model, including metafield population and price/tax sync.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration — complex NetSuite matrix item → Shopify variant mapping with metafields"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "verticalSlug": "commerce",
+      "pendingPromotion": false,
+      "source": "DS",
+      "sizeSegment": "mid-market",
+      "systems": [
+        "NetSuite",
+        "NetSuite"
+      ],
+      "useCase": "Internal NetSuite transformation: sales order → invoice",
+      "whatWasBuilt": "Event-triggered MuleSoft flow executing an internal NetSuite-to-NetSuite transformation, converting sales orders to invoices without leaving the ERP.",
+      "outcome": "Pending (Homage implementation in progress)",
+      "aiLayer": null,
+      "addedDate": "2026-05-19",
+      "clients": [
+        {
+          "displayName": "Homage",
+          "projectContext": "iPaaS migration — internal NetSuite workflow automation"
+        }
+      ],
+      "relevantTo": []
+    }
+  ],
+  "useCaseLibraryUpdates": {
+    "stagedForPromotion": 6,
+    "alreadyInLibrary": 0,
+    "note": "commerce.json stub created (was missing). Run: node DSPipeline/promote-library.js --client homage to promote all 6 entries."
+  }
+}
