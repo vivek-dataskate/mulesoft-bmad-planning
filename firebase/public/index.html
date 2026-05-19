@@ -377,7 +377,7 @@ async function loadProjects() {
     projects = await r.json();
   } catch {
     document.getElementById('project-tbody').innerHTML =
-      '<tr class="empty-row"><td colspan="4">Could not load projects manifest. <a href="#" onclick="loadProjects();return false;" style="color:var(--brand);font-weight:700;">Retry</a></td></tr>';
+      '<tr class="empty-row"><td colspan="5">Could not load projects manifest. <a href="#" onclick="loadProjects();return false;" style="color:var(--brand);font-weight:700;">Retry</a></td></tr>';
     return;
   }
 
