@@ -105,6 +105,16 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 .pain-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .pain-pill{font-size:12px;color:var(--dark);background:var(--light);border:1px solid var(--border);padding:4px 10px;border-radius:3px;line-height:1.35}
 
+/* ── Architecture diagrams ── */
+.diagram-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+.diagram-panel{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.diagram-panel-head{padding:8px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.diagram-current .diagram-panel-head{background:#FFF5F5;color:var(--brand)}
+.diagram-future .diagram-panel-head{background:#F0FFF4;color:#276749}
+.diagram-body{padding:12px;display:flex;justify-content:center;overflow-x:auto}
+.diagram-body svg{max-width:100%;height:auto}
+@media(max-width:600px){.diagram-row{grid-template-columns:1fr}}
+
 /* ── Auth gate ── */
 #login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;background:#fff}
 #login-screen p{font-size:14px;color:var(--mid);text-align:center;max-width:320px;margin:0}
@@ -203,6 +213,20 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
   <div id="dk-opener"></div>
 </section>
 
+<section id="s-architecture" style="display:none">
+  <h2>System Architecture</h2>
+  <div class="diagram-row">
+    <div class="diagram-panel diagram-current">
+      <div class="diagram-panel-head" id="dk-diag-current-title">Current State</div>
+      <div class="diagram-body" id="dk-diag-current"></div>
+    </div>
+    <div class="diagram-panel diagram-future">
+      <div class="diagram-panel-head" id="dk-diag-future-title">Future State</div>
+      <div class="diagram-body" id="dk-diag-future"></div>
+    </div>
+  </div>
+</section>
+
 <section>
   <h2>Objection Playbook</h2>
   <div id="dk-objections"></div>
@@ -238,6 +262,7 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 
 </div><!-- /deck-content -->
 
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -396,6 +421,32 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
       </div>`);
     }
     txt('dk-ai-narrative', c.aiJourneyNarrative || '');
+
+    // Architecture diagrams
+    if (c.systemDiagram) {
+      document.getElementById('s-architecture').style.display = '';
+      mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: {
+        primaryColor: '#fff', primaryBorderColor: '#e2e8f0',
+        lineColor: '#718096', fontSize: '13px'
+      }});
+      const renderDiagram = async (def, titleId, bodyId, titleText) => {
+        if (!def) return;
+        txt(titleId, titleText);
+        const id = 'mmd-' + bodyId;
+        const { svg } = await mermaid.render(id, def);
+        document.getElementById(bodyId).innerHTML = svg;
+      };
+      renderDiagram(
+        c.systemDiagram.current && c.systemDiagram.current.mermaid,
+        'dk-diag-current-title', 'dk-diag-current',
+        (c.systemDiagram.current && c.systemDiagram.current.title) || 'Current State'
+      );
+      renderDiagram(
+        c.systemDiagram.future && c.systemDiagram.future.mermaid,
+        'dk-diag-future-title', 'dk-diag-future',
+        (c.systemDiagram.future && c.systemDiagram.future.title) || 'Future State'
+      );
+    }
   }
 })();
 </script>
