@@ -205,7 +205,7 @@ em { font-style: italic; }
     <div class="top-bar-eyebrow">DataSkate Internal</div>
     <div class="top-bar-title">Knowledge Base</div>
   </div>
-  <div class="top-bar-meta">Generated 2026-05-19 19:03 UTC · 23 systems · 26 FK entries</div>
+  <div class="top-bar-meta">Generated 2026-05-19 20:36 UTC · 23 systems · 26 FK entries</div>
 </div>
 
 <!-- 3-COLUMN SHELL -->
@@ -565,71 +565,49 @@ em { font-style: italic; }
   <td><strong>Canonical Customer</strong></td>
   <td><code style="font-size:11px;">1.0.0</code></td>
   <td style="font-size:11px;">OAGIS 10.x — SyncCustomerParty BOD</td>
-  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical customer/account entity schema across all client integrations.
-Maps from: Salesforce Account, NetSuite Customer, Dynamics 365 Account, HubSpot Company.
-Maps to: any target CRM, ERP, or service system.
-OAGIS alignment: CustomerPartyType — key fields customerId→CustomerID, name→OrganizationName,
-contacts→Contact[], addresses→Address[].
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">|</td>
 </tr><tr>
   <td><strong>Canonical Fulfillment</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub</code></td>
   <td style="font-size:11px;">OAGIS 10.x</td>
-  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
   <td style="font-size:11px;max-width:280px;">Canonical model for fulfillment records — shipped line items, tracking numbers, carrier info, and fulfillment status. Written from ERP to e-commerce after shipment.</td>
 </tr><tr>
   <td><strong>Canonical Inventory</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub</code></td>
   <td style="font-size:11px;">OAGIS 10.x</td>
-  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
   <td style="font-size:11px;max-width:280px;">Canonical model for inventory level records across ERP and e-commerce systems. Covers on-hand quantity, reserved quantity, available quantity, and location-level inventory.</td>
 </tr><tr>
   <td><strong>Canonical Invoice</strong></td>
   <td><code style="font-size:11px;">1.0.0</code></td>
   <td style="font-size:11px;">OAGIS 10.x — ProcessInvoice BOD</td>
-  <td style="text-align:center;"><span style="font-weight:700;">10 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical invoice entity schema across all client integrations.
-Maps from: NetSuite Invoice, QuickBooks Invoice, SAP Billing Document, Salesforce Invoice.
-Primary flow: source ERP → canonical → target CRM (status sync) or AP system (payment).
-OAGIS alignment: InvoiceType — key fields invoiceId→DocumentID/ID,
-customerId→BillToParty/PartyIDs/ID, totals→TotalAmount/TaxAmount/NetAmount.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">|</td>
 </tr><tr>
   <td><strong>Canonical Order</strong></td>
   <td><code style="font-size:11px;">1.0.0</code></td>
   <td style="font-size:11px;">OAGIS 10.x — ProcessPurchaseOrder BOD</td>
-  <td style="text-align:center;"><span style="font-weight:700;">11 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical order entity schema used across all client integrations.
-Source systems (Salesforce, NetSuite, Dynamics 365) map INTO this schema.
-Target systems map OUT OF this schema.
-DWL transforms handle the source→canonical and canonical→target conversions.
-OAGIS alignment: PurchaseOrderType — key fields orderId→DocumentID/ID,
-customerId→BuyerParty/PartyIDs/ID, lines→Line[], totals→TotalAmount/Tax/ShippingAmount.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">|</td>
 </tr><tr>
   <td><strong>Canonical Product / Item</strong></td>
   <td><code style="font-size:11px;">1.0.0</code></td>
   <td style="font-size:11px;">OAGIS 10.x — SyncItem BOD</td>
-  <td style="text-align:center;"><span style="font-weight:700;">11 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical product/item entity schema across all client integrations.
-Maps from: QuickBooks Item, Salesforce Product2, NetSuite Item, ERP SKU catalogs.
-Maps to: any target inventory, CRM, or commerce system.
-OAGIS alignment: ItemType — key fields productId→ItemID/ID,
-name→Description/ShortDescription, classification→Classification/Codes,
-inventory.quantityOnHand→Quantity/QuantityTypeCode=OnHand.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">|</td>
 </tr><tr>
   <td><strong>Canonical Return</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub</code></td>
   <td style="font-size:11px;">OAGIS 10.x</td>
-  <td style="text-align:center;"><span style="font-weight:700;">13 fields</span></td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
   <td style="font-size:11px;max-width:280px;">Canonical model for return and refund records — covers RMA, return authorization, refund amount, restocking status. Synced bidirectionally between e-commerce and ERP.</td>
 </tr><tr>
   <td><strong>Canonical Shipment</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub</code></td>
   <td style="font-size:11px;">OAGIS 10.x</td>
-  <td style="text-align:center;"><span style="font-weight:700;">17 fields</span></td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
   <td style="font-size:11px;max-width:280px;">Canonical model for outbound shipment records — covers shipping order creation, carrier assignment, label generation, and tracking. Used between ERP and shipping platforms (ShipStation, EasyPost, etc.).</td>
 </tr></tbody>
 </table>
@@ -641,43 +619,20 @@ inventory.quantityOnHand→Quantity/QuantityTypeCode=OnHand.
   <td><strong>Canonical Change Order</strong></td>
   <td><code style="font-size:11px;">1.0.0</code></td>
   <td style="font-size:11px;">—</td>
-  <td style="text-align:center;"><span style="font-weight:700;">13 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical change order entity for construction/contracting integrations.
-Represents a modification to a signed contract or in-progress job.
-Maps from: construction ERP (ComputerEase, Procore), contractor portals, CRM.
-Maps to: billing systems, ERP job cost updates, customer notification systems.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">|</td>
 </tr><tr>
   <td><strong>Canonical Contract</strong></td>
   <td><code style="font-size:11px;">1.0.0</code></td>
   <td style="font-size:11px;">—</td>
-  <td style="text-align:center;"><span style="font-weight:700;">15 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical installation contract entity for construction/contracting integrations.
-Maps from: contractor portals (HD Portal — types 299A, 299B, 118),
-           CRM (Salesforce), document management systems, construction ERP.
-Maps to: compliance systems, ERP job creation, customer records.
-Common synonyms: Contract (standard), Agreement (generic), Signed Doc (informal).
-
-HD Portal-specific contract types:
-  299A — Standard residential installation contract
-  299B — Alternate/addendum contract
-  118  — Special program or materials contract
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">|</td>
 </tr><tr>
   <td><strong>Canonical Job</strong></td>
   <td><code style="font-size:11px;">1.0.0</code></td>
   <td style="font-size:11px;">—</td>
-  <td style="text-align:center;"><span style="font-weight:700;">14 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical installation job / work order entity for construction/contracting integrations.
-Maps from: construction ERP (ComputerEase, Procore, Sage 300 CRE, Viewpoint),
-           CRM (Salesforce Opportunity), contractor portals (HD Portal, ServiceTitan).
-Maps to: any system in the job lifecycle (scheduling, billing, reporting, customer portal).
-Common synonyms by system: Job (ComputerEase), Project (generic ERP), Opportunity/Order (Salesforce),
-                            Order (HD Portal), Work Order (field service systems).
-
-Known Peerless-specific format: jobNumber = &quot;{YY} HD {sequential-counter} {sales-rep-initials}&quot;
-e.g. &quot;26 HD 565 AS&quot; — counter managed in Object Store by MuleSoft.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">|</td>
 </tr></tbody>
 </table>
 <h3 id="cm-education">Education</h3>
@@ -688,23 +643,20 @@ e.g. &quot;26 HD 565 AS&quot; — counter managed in Object Store by MuleSoft.
   <td><strong>Canonical Inventory Record — Education Vertical</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub — created from AgileMind engagement 2026-05-14</code></td>
   <td style="font-size:11px;">derived (no formal K-12 inventory standard; modeled from OAGIS ItemMaster + publisher conventions)</td>
-  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical inventory record for K-12 educational publishers tracking print student activity book (SAB) inventory. Designed for dual-source sync: UC3 reads demand/quantity data from Holly's spreadsheet, UC4 reads cost/value data from QuickBooks inventory items. Both write to Salesforce Inventory__c. Field ownership is split to avoid overwrite conflicts.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">&gt;</td>
 </tr><tr>
   <td><strong>Canonical Invoice — Education Vertical</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub — created from AgileMind engagement 2026-05-14</code></td>
   <td style="font-size:11px;">derived (OAGIS 10.x Invoice with education-specific extensions)</td>
-  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical invoice model for K-12 educational publishers integrating billing between Salesforce (Agreement object) and QuickBooks (Invoice). Designed for the agreement-to-invoice flow where a Salesforce Agreement Closed Won event triggers QuickBooks invoice creation.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">&gt;</td>
 </tr><tr>
   <td><strong>Canonical Product Title — Education Vertical</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub — created from AgileMind engagement 2026-05-14</code></td>
   <td style="font-size:11px;">derived (OAGIS 10.x Item + education ISBN conventions)</td>
-  <td style="text-align:center;"><span style="font-weight:700;">9 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical product/title model for K-12 educational publishers. Represents a curriculum book series (Student Activity Book) that carries state-specific ISBNs. Used for product catalog sync (UC5-potential) between Salesforce and QuickBooks. Stub — promoted to full schema when UC5 is confirmed in scope.
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">&gt;</td>
 </tr></tbody>
 </table>
 <h3 id="cm-healthcare">Healthcare</h3>
@@ -715,16 +667,14 @@ e.g. &quot;26 HD 565 AS&quot; — counter managed in Object Store by MuleSoft.
   <td><strong>Canonical HCBS Service Authorization</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub — created from cherish-care engagement (2026-05-12)</code></td>
   <td style="font-size:11px;">derived</td>
-  <td style="text-align:center;"><span style="font-weight:700;">15 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical record for a Home and Community-Based Services (HCBS) service authorization issued by a regional center to a consumer. Represents the monthly approved service hours a consumer is entitled to receive for a specific service code under their regional center contract. Used by Cherish Care (California DDS respite services — IRC, SGP, ELR).
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">&gt;</td>
 </tr><tr>
   <td><strong>Canonical EVV Visit</strong></td>
   <td><code style="font-size:11px;">1.0.0-stub — created from cherish-care engagement (2026-05-12)</code></td>
   <td style="font-size:11px;">derived</td>
-  <td style="text-align:center;"><span style="font-weight:700;">25 fields</span></td>
-  <td style="font-size:11px;max-width:280px;">Canonical record for Electronic Visit Verification (EVV) visits in Home and Community-Based Services (HCBS). Represents a single caregiver service visit: clock-in, clock-out, GPS verification, service code, and submission status to the state EVV aggregator. Used by Cherish Care (California DDS respite services).
-</td>
+  <td style="text-align:center;"><span style="color:var(--mid);">stub</span></td>
+  <td style="font-size:11px;max-width:280px;">&gt;</td>
 </tr></tbody>
 </table>
     
@@ -942,7 +892,7 @@ e.g. &quot;26 HD 565 AS&quot; — counter managed in Object Store by MuleSoft.
 
 <footer class="doc-footer">
   <span>DataSkate Knowledge Base — auto-generated from live JSON/YAML/MD sources</span>
-  <span>Generated 2026-05-19 19:03 UTC</span>
+  <span>Generated 2026-05-19 20:36 UTC</span>
 </footer>
 
 <script>

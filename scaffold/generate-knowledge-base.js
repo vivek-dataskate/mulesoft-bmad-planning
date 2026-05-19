@@ -3,7 +3,30 @@
 
 const fs   = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
+
+// Minimal YAML parser for simple flat canonical model files (no js-yaml needed)
+function parseSimpleYaml(raw) {
+  const result = {};
+  const lines  = raw.split('\n');
+  let inProps  = false;
+  let propCount = 0;
+  for (const line of lines) {
+    // Detect entry into properties block
+    if (/^properties\s*:/.test(line)) { inProps = true; continue; }
+    // Count direct child keys of properties (2-space indent, key: anything)
+    if (inProps) {
+      if (/^  [a-zA-Z_]/.test(line) && /:\s/.test(line)) { propCount++; continue; }
+      if (/^[a-zA-Z]/.test(line)) inProps = false; // left properties block
+    }
+    // Top-level key: value
+    const m = line.match(/^([a-zA-Z][a-zA-Z0-9_-]*)\s*:\s*(.*)/);
+    if (!m) continue;
+    const [, key, val] = m;
+    result[key] = val.replace(/^["']|["']$/g, '').trim();
+  }
+  if (propCount) result._propertyCount = propCount;
+  return result;
+}
 
 const ROOT = path.join(__dirname, '..');
 const OUT  = path.join(ROOT, 'firebase/public/resources/capabilities.html');
@@ -58,14 +81,14 @@ for (const vertical of fs.readdirSync(canonicalDir).sort()) {
     if (!/\.ya?ml$/.test(f)) continue;
     try {
       const raw  = fs.readFileSync(path.join(vDir, f), 'utf8');
-      const data = yaml.load(raw);
+      const data = parseSimpleYaml(raw);
       models.push({
         file:       f,
         title:      data.title || f.replace(/\.ya?ml$/, ''),
         version:    data.version || '?',
         standard:   data.standard || '—',
         description:data.description || '',
-        fieldCount: data.properties ? Object.keys(data.properties).length : 0,
+        fieldCount: data._propertyCount || 0,
         createdFrom:data.createdFrom || '',
         note:       data.note || '',
       });
