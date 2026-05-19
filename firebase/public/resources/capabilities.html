@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataSkate — How We Deliver</title>
+<title>DataSkate Knowledge Base — Internal</title>
 <style>
 :root {
   --brand:    #ed1c24;
@@ -21,209 +21,163 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 14px; line-height: 1.6; color: var(--dark); background: #fff;
+  font-size: 15px; line-height: 1.6; color: var(--dark); background: #fff;
 }
-a { color: var(--brand); text-decoration: none; }
+a { color: var(--brand); }
 
 /* ── TOP BAR ── */
 .top-bar {
   position: sticky; top: 0; z-index: 200;
-  background: #fff; border-bottom: 3px solid var(--brand);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 40px; height: 48px;
+  background: #fff; border-bottom: 2px solid var(--brand);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 20px; height: 44px;
 }
-.top-bar-left { display: flex; align-items: center; gap: 14px; }
-.top-bar-divider { width: 1px; height: 26px; background: var(--border); }
-.top-bar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mid); }
-.top-bar-title { font-size: 13px; font-weight: 700; color: var(--dark); }
-.top-bar-right { font-size: 10px; color: var(--mid); }
+.top-bar-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.top-bar-divider { width: 1px; height: 24px; background: var(--border); }
+.top-bar-title { font-size: 12px; font-weight: 700; color: var(--dark); }
+.top-bar-eyebrow { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mid); }
+.top-bar-meta { margin-left: auto; font-size: 10px; color: var(--mid); flex-shrink: 0; }
 
-/* ── SECTIONS ── */
-.section {
-  padding: 40px 48px; border-bottom: 1px solid var(--border);
-  max-width: 1100px; margin: 0 auto;
-}
-.eyebrow {
-  font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.8px; color: var(--brand); margin-bottom: 4px;
-}
-.section-title { font-size: 20px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
-.section-sub   { font-size: 12px; color: var(--mid); margin-bottom: 28px; line-height: 1.6; }
-
-/* ── BMAD PIPELINE SVG WRAPPER ── */
-.bmad-wrap { overflow-x: auto; }
-
-/* ── SCOUT AGENT GRID ── */
-.agent-grid {
+/* ── 3-COLUMN LAYOUT ── */
+.docs-shell {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
+  grid-template-columns: 200px 1fr 180px;
+  min-height: calc(100vh - 44px);
+  max-width: 1440px;
+  margin: 0 auto;
 }
-.agent-grid-row2 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  overflow: hidden;
-}
-.agent-card {
-  padding: 14px 14px 12px;
+
+/* ── LEFT NAV ── */
+.nav-left {
+  position: sticky; top: 44px;
+  height: calc(100vh - 44px); overflow-y: auto;
   border-right: 1px solid var(--border);
-  background: #fff;
-  position: relative;
+  padding: 14px 0 24px;
 }
-.agent-card:last-child { border-right: none; }
-.agent-grid .agent-card { border-top: 3px solid var(--border); }
-.agent-card.model-haiku  { border-top-color: var(--amber); }
-.agent-card.model-sonnet { border-top-color: var(--blue-br); }
-.agent-card.model-opus   { border-top-color: var(--brand); }
-.agent-num  { font-size: 8px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
-.agent-name { font-size: 15px; font-weight: 800; color: var(--dark); margin-bottom: 2px; }
-.agent-role { font-size: 10px; color: var(--mid); line-height: 1.35; margin-bottom: 8px; }
-.agent-badge {
-  display: inline-block; font-size: 8px; font-weight: 700;
-  padding: 2px 6px; border-radius: 3px; margin-bottom: 6px;
+.nav-left::-webkit-scrollbar { width: 3px; }
+.nav-left::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.nav-section { margin-bottom: 1px; }
+.nav-section-link {
+  display: block; padding: 5px 14px;
+  font-size: 12px; font-weight: 600; color: var(--mid);
+  text-decoration: none; border-left: 3px solid transparent;
+  transition: color .1s, border-color .1s, background .1s;
+  line-height: 1.35;
 }
-.model-haiku  .agent-badge { background: var(--amber-bg); color: #92400E; }
-.model-sonnet .agent-badge { background: var(--blue-bg);  color: #1e40af; }
-.model-opus   .agent-badge { background: var(--light);    color: var(--brand-dk); }
-.agent-out { font-size: 9px; color: var(--mid); font-style: italic; border-top: 1px solid var(--border); padding-top: 6px; margin-top: 2px; line-height: 1.4; }
+.nav-section-link:hover { color: var(--dark); background: #FAFAFA; }
+.nav-section-link.active { color: var(--brand); border-left-color: var(--brand); background: var(--light); font-weight: 700; }
 
-/* connector between rows */
-.row-connector {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 0; max-width: 1100px; margin: 0 auto;
+/* ── CONTENT ── */
+.doc-content {
+  padding: 20px 32px 48px;
+  min-width: 0; font-size: 13px;
 }
-.row-connector-line {
-  flex: 1; height: 1px; background: var(--border);
+.doc-content h2 {
+  font-size: 16px; font-weight: 800; color: var(--dark);
+  margin: 36px 0 6px;
+  border-bottom: 2px solid var(--border); padding-bottom: 6px;
+  scroll-margin-top: 52px;
 }
-.row-connector-label {
-  font-size: 10px; font-weight: 700; color: var(--mid);
-  white-space: nowrap;
+.doc-content h2:first-child { margin-top: 0; }
+.doc-content h3 {
+  font-size: 13px; font-weight: 700; color: var(--brand-dk);
+  margin: 20px 0 5px; scroll-margin-top: 52px;
 }
+.doc-content h4 {
+  font-size: 11px; font-weight: 700; color: var(--mid);
+  text-transform: uppercase; letter-spacing: 0.7px;
+  margin: 14px 0 4px;
+}
+.doc-content p { margin: 5px 0; line-height: 1.6; color: var(--dark); }
+.doc-content > *:first-child { margin-top: 0; }
+.doc-content ul, .doc-content ol { margin: 5px 0 5px 18px; }
+.doc-content ul li { list-style: disc; margin: 2px 0; line-height: 1.55; }
+.doc-content ol li { list-style: decimal; margin: 2px 0; line-height: 1.55; }
+.doc-content blockquote {
+  margin: 10px 0; padding: 8px 14px;
+  border-left: 3px solid var(--brand); background: var(--light);
+  border-radius: 0 4px 4px 0;
+}
+.doc-content blockquote p { margin: 0; font-style: italic; color: var(--dark); font-size: 12px; }
+code {
+  background: #F2F2F4; padding: 1px 5px; border-radius: 3px;
+  font-size: 12px; font-family: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  color: var(--brand-dk);
+}
+strong { font-weight: 700; }
+em { font-style: italic; }
 
-/* ── OUTPUT DELIVERABLES ── */
-.deliverables {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+/* Tables */
+.md-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+.md-table th {
+  background: var(--dark); color: #fff;
+  padding: 6px 10px; text-align: left; font-weight: 600; font-size: 11px;
 }
-.deliv-card {
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 18px 20px; position: relative;
+.md-table th:first-child { border-radius: 4px 0 0 0; }
+.md-table th:last-child  { border-radius: 0 4px 0 0; }
+.md-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.md-table tr:nth-child(even) td { background: #FAFAFA; }
+.md-table tr:last-child td { border-bottom: 2px solid var(--border); }
+
+/* Pipeline flow */
+.dg-flow {
+  display: flex; align-items: stretch; gap: 0;
+  margin: 12px 0; overflow-x: auto;
 }
-.deliv-card.primary { border-color: var(--brand); }
-.deliv-tag {
+.dg-step {
+  flex: 1; min-width: 110px;
+  border: 1px solid var(--border); border-radius: 7px;
+  padding: 8px 10px; background: #fff;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.dg-step.highlight { border-color: var(--brand); background: var(--light); }
+.dg-step-num { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); }
+.dg-step-name { font-size: 12px; font-weight: 800; color: var(--dark); }
+.dg-step.highlight .dg-step-name { color: var(--brand); }
+.dg-step-tag { font-size: 10px; font-weight: 600; color: var(--mid); background: #F0F0F2; border-radius: 20px; padding: 1px 7px; align-self: flex-start; }
+.dg-step.highlight .dg-step-tag { background: #FDDEDE; color: var(--brand); }
+.dg-step-desc { font-size: 10px; color: var(--mid); line-height: 1.4; margin-top: 2px; }
+.dg-arrow { display: flex; align-items: center; padding: 0 4px; color: var(--border); font-size: 16px; flex-shrink: 0; }
+
+/* ── RIGHT NAV ── */
+.nav-right {
+  position: sticky; top: 44px;
+  height: calc(100vh - 44px); overflow-y: auto;
+  border-left: 1px solid var(--border);
+  padding: 14px 0 24px;
+}
+.nav-right::-webkit-scrollbar { width: 3px; }
+.nav-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.nav-right-label {
   font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--mid); margin-bottom: 4px;
+  letter-spacing: 1.2px; color: var(--mid); padding: 0 14px; margin-bottom: 6px;
 }
-.deliv-card.primary .deliv-tag { color: var(--brand); }
-.deliv-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
-.deliv-items { list-style: none; }
-.deliv-items li {
-  font-size: 11px; color: var(--mid); padding: 4px 0;
-  border-top: 1px solid var(--border); display: flex; align-items: baseline; gap: 6px;
+.nav-sub-link {
+  display: block; padding: 3px 14px;
+  font-size: 11px; color: var(--mid); text-decoration: none;
+  border-left: 2px solid transparent; transition: color .1s, border-color .1s;
+  line-height: 1.35;
 }
-.deliv-items li:first-child { border-top: none; }
-.deliv-items li::before { content: '›'; color: var(--brand); font-weight: 700; flex-shrink: 0; }
-
-/* ── MODEL LEGEND ── */
-.legend {
-  display: flex; gap: 18px; align-items: center;
-  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
-}
-.legend-label { font-size: 10px; font-weight: 700; color: var(--mid); }
-.legend-item  { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--mid); }
-.legend-pip   { width: 12px; height: 3px; border-radius: 2px; }
-.legend-pip.haiku  { background: var(--amber); }
-.legend-pip.sonnet { background: var(--blue-br); }
-.legend-pip.opus   { background: var(--brand); }
-
-/* ── NEXT STAGES STRIP ── */
-.next-stages {
-  display: flex; gap: 0;
-  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
-}
-.stage {
-  flex: 1; padding: 16px 14px;
-  border-right: 1px solid var(--border);
-}
-.stage:last-child { border-right: none; }
-.stage.coming-soon { opacity: 0.55; }
-.stage-tag {
-  font-size: 8px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.8px; color: var(--mid); margin-bottom: 3px;
-}
-.stage-name { font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 3px; }
-.stage-agents {
-  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;
-}
-.stage-agent-chip {
-  font-size: 9px; font-weight: 600; padding: 1px 6px;
-  border-radius: 3px; background: var(--light); color: var(--brand-dk);
-}
-.stage-agent-chip.planned {
-  background: #F2F4F8; color: var(--mid);
-}
-.stage-desc { font-size: 10px; color: var(--mid); line-height: 1.45; }
-
-/* ── KNOWLEDGE CAPTURE ── */
-.kc-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px;
-}
-.kc-card {
-  border: 1.5px solid var(--border); border-radius: 8px; padding: 16px 18px;
-  border-left: 4px solid var(--brand);
-}
-.kc-card.green  { border-left-color: var(--green); }
-.kc-card.amber  { border-left-color: var(--amber); }
-.kc-card.blue   { border-left-color: var(--blue-br); }
-.kc-title { font-size: 12px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
-.kc-source { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--mid); margin-bottom: 8px; }
-.kc-items { list-style: none; }
-.kc-items li {
-  font-size: 11px; color: var(--mid); padding: 4px 0;
-  border-top: 1px solid var(--border); display: flex; gap: 7px; align-items: baseline;
-}
-.kc-items li:first-child { border-top: none; }
-.kc-items li::before { content: '›'; font-weight: 700; flex-shrink: 0; }
-.kc-card .kc-items li::before   { color: var(--brand); }
-.kc-card.green .kc-items li::before { color: var(--green); }
-.kc-card.amber .kc-items li::before { color: var(--amber); }
-.kc-card.blue  .kc-items li::before { color: var(--blue-br); }
-
-/* orchestrate flow diagram */
-.orch-flow {
-  display: flex; align-items: center; gap: 0;
-  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
-  margin-bottom: 20px;
-}
-.orch-block {
-  flex: 1; padding: 14px 12px; border-right: 1px solid var(--border); text-align: center;
-}
-.orch-block:last-child { border-right: none; }
-.orch-block.center { background: var(--dark); }
-.orch-block-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--mid); margin-bottom: 4px; }
-.orch-block.center .orch-block-label { color: #888; }
-.orch-block-name { font-size: 12px; font-weight: 800; color: var(--dark); }
-.orch-block.center .orch-block-name { color: var(--brand); font-size: 13px; }
-.orch-block-desc { font-size: 10px; color: var(--mid); margin-top: 3px; line-height: 1.35; }
-.orch-block.center .orch-block-desc { color: #888; }
+.nav-sub-link:hover { color: var(--dark); }
+.nav-sub-link.active { color: var(--brand-dk); border-left-color: var(--brand); font-weight: 600; }
 
 /* ── FOOTER ── */
 .doc-footer {
-  padding: 14px 48px; border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border); padding: 10px 32px;
+  font-size: 11px; color: var(--mid);
   display: flex; justify-content: space-between; align-items: center;
-  font-size: 10px; color: var(--mid); max-width: 1100px; margin: 0 auto;
+  grid-column: 2;
 }
-.doc-footer strong { color: var(--dark); }
 
-@media print {
-  .top-bar { position: static; }
-  body { -webkit-print-color-adjust: exact; }
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .docs-shell { grid-template-columns: 180px 1fr; }
+  .nav-right { display: none; }
+}
+@media (max-width: 720px) {
+  .docs-shell { grid-template-columns: 1fr; }
+  .nav-left { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .doc-content { padding: 16px 16px 40px; }
 }
 </style>
 </head>
@@ -231,8 +185,8 @@ a { color: var(--brand); text-decoration: none; }
 
 <!-- TOP BAR -->
 <div class="top-bar">
-  <div class="top-bar-left">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:22px;width:auto;display:block;flex-shrink:0;" aria-label="DataSkate">
+  <div class="top-bar-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:18px;width:auto;display:block;" aria-label="DataSkate">
       <path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/>
       <path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/>
       <path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
@@ -245,410 +199,853 @@ a { color: var(--brand); text-decoration: none; }
       <path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
       <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
     </svg>
-    <div class="top-bar-divider"></div>
-    <div>
-      <div class="top-bar-label">DataSkate Delivery Intelligence</div>
-      <div class="top-bar-title">How We Deliver — BMAD Pipeline</div>
-    </div>
   </div>
-  <div class="top-bar-right">Internal Reference</div>
+  <div class="top-bar-divider"></div>
+  <div>
+    <div class="top-bar-eyebrow">DataSkate Internal</div>
+    <div class="top-bar-title">Knowledge Base</div>
+  </div>
+  <div class="top-bar-meta">Generated 2026-05-19 19:03 UTC · 23 systems · 26 FK entries</div>
 </div>
 
-<!-- ══ SECTION 1: BMAD HIGH-LEVEL ══ -->
-<div class="section">
-  <div class="eyebrow">The BMAD Pipeline — High Level</div>
-  <div class="section-title">From Call Recording to Live Integration</div>
-  <div class="section-sub">Seven stages. Scout (Stage 1) is fully automated by 9 AI agents. Stages 2–5 are DataSkate-owned. Developer implements in Stage 6, DataSkate verifies in Stage 7.</div>
+<!-- 3-COLUMN SHELL -->
+<div class="docs-shell">
+  <nav class="nav-left" id="navLeft"></nav>
 
-  <div class="bmad-wrap">
-    <svg viewBox="0 0 1020 160" width="100%" xmlns="http://www.w3.org/2000/svg" style="min-width:700px;">
-      <defs>
-        <marker id="bmarr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="#555F6E"/>
-        </marker>
-        <marker id="bmarr-brand" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="#ed1c24"/>
-        </marker>
-      </defs>
+  <main class="doc-content" id="docContent">
+    
+<h2 id="pipeline">BMAD Pipeline</h2>
+<p>DataSkate's end-to-end delivery pipeline — from first sales contact to verified implementation. Scout (Stage 1) is fully automated with 9 specialist AI agents.</p>
+<div class="dg-flow" style="flex-wrap:wrap;gap:8px;">
+    <div class="dg-step highlight">
+      <div class="dg-step-num">Stage 1</div>
+      <div class="dg-step-name">Scout</div>
+      <div class="dg-step-tag">9 AI Agents</div>
+      <div class="dg-step-desc">Pre-sales pipeline — research, proposal, intake</div>
+    </div><div class="dg-arrow">›</div>
+    <div class="dg-step">
+      <div class="dg-step-num">Stage 2</div>
+      <div class="dg-step-name">Analyst</div>
+      <div class="dg-step-tag">PRD</div>
+      <div class="dg-step-desc">Requirements + flow mapping</div>
+    </div><div class="dg-arrow">›</div>
+    <div class="dg-step">
+      <div class="dg-step-num">Stage 3</div>
+      <div class="dg-step-name">VP</div>
+      <div class="dg-step-tag">Validate</div>
+      <div class="dg-step-desc">PRD gate review</div>
+    </div><div class="dg-arrow">›</div>
+    <div class="dg-step">
+      <div class="dg-step-num">Stage 4</div>
+      <div class="dg-step-name">Architect</div>
+      <div class="dg-step-tag">MD</div>
+      <div class="dg-step-desc">Technical architecture design</div>
+    </div><div class="dg-arrow">›</div>
+    <div class="dg-step">
+      <div class="dg-step-num">Stage 5</div>
+      <div class="dg-step-name">PM</div>
+      <div class="dg-step-tag">Stories</div>
+      <div class="dg-step-desc">Sprint stories + acceptance criteria</div>
+    </div><div class="dg-arrow">›</div>
+    <div class="dg-step">
+      <div class="dg-step-num">Stage 6</div>
+      <div class="dg-step-name">Scaffold</div>
+      <div class="dg-step-tag">Repo</div>
+      <div class="dg-step-desc">Client repo + Mule XML stubs</div>
+    </div><div class="dg-arrow">›</div>
+    <div class="dg-step">
+      <div class="dg-step-num">Stage 7</div>
+      <div class="dg-step-name">Developer</div>
+      <div class="dg-step-tag">Anypoint</div>
+      <div class="dg-step-desc">Implementation in Anypoint Studio</div>
+    </div></div>
+<h3 id="pipeline-repos">Two-Repo Model</h3>
+<p>The pipeline spans two Git repositories:</p>
+<table class="md-table">
+  <thead><tr><th>Repo</th><th>Who uses it</th><th>What runs here</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Planning repo</strong> (this repo)</td><td>Tech lead / architect</td><td>Scout through Scaffold — all pre-dev stages. Stores decisions.json, PRD, stories, and generated client portal HTML.</td></tr>
+    <tr><td><strong>Client dev repo</strong></td><td>Developers</td><td>Anypoint Studio implementation. Developer fills in TODO stubs. Dev agent (VR) runs MUnit verification. Never contains planning artifacts.</td></tr>
+  </tbody>
+</table>
+<h3 id="pipeline-knowledge">Knowledge Capture Loop</h3>
+<p>Every engagement feeds back into the knowledge base:</p>
+<ul>
+  <li><strong>Vera</strong> stages use-case findings → <code>run/vera.json → libraryContributions[]</code></li>
+  <li><strong>Sol</strong> promotes to <code>standards/usecases/{vertical}.json</code> (FOMO library)</li>
+  <li>Field incidents → <strong>FK entries</strong> (this page, Field Knowledge section)</li>
+  <li>System quirks → <strong>Playbook JSONs</strong> (this page, System Playbooks section)</li>
+  <li>Canonical record types → <strong>YAML stubs</strong> (this page, Canonical Models section)</li>
+</ul>
+    
+<h2 id="scout">Scout Agents</h2>
+<p>Scout is a 9-agent pre-sales pipeline that runs fully automatically. Each agent reads a designated input and writes its own output JSON — no agent touches pipeline state or coordination (that lives in <code>orchestrate.js</code>).</p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:12px;background:#FAFAFA;border:1px solid var(--border);border-radius:6px;margin:10px 0;"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #D69E2E22;border-radius:5px;background:#D69E2E08;">
+  <span style="font-size:10px;font-weight:800;color:#D69E2E;">Sage</span>
+  <span style="font-size:9px;color:var(--mid);">haiku</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
+  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Vera</span>
+  <span style="font-size:9px;color:var(--mid);">opus</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #3B82F622;border-radius:5px;background:#3B82F608;">
+  <span style="font-size:10px;font-weight:800;color:#3B82F6;">Rex</span>
+  <span style="font-size:9px;color:var(--mid);">sonnet</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #3B82F622;border-radius:5px;background:#3B82F608;">
+  <span style="font-size:10px;font-weight:800;color:#3B82F6;">Ivy</span>
+  <span style="font-size:9px;color:var(--mid);">sonnet</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
+  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Flo</span>
+  <span style="font-size:9px;color:var(--mid);">opus</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
+  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Hawk</span>
+  <span style="font-size:9px;color:var(--mid);">opus</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
+  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Petra</span>
+  <span style="font-size:9px;color:var(--mid);">opus</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #3B82F622;border-radius:5px;background:#3B82F608;">
+  <span style="font-size:10px;font-weight:800;color:#3B82F6;">Quinn</span>
+  <span style="font-size:9px;color:var(--mid);">sonnet</span>
+</span><span style="color:var(--border);font-size:16px;padding:0 3px;">›</span> <span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:1px solid #ed1c2422;border-radius:5px;background:#ed1c2408;">
+  <span style="font-size:10px;font-weight:800;color:#ed1c24;">Mira</span>
+  <span style="font-size:9px;color:var(--mid);">opus</span>
+</span></div>
+<p style="font-size:11px;color:var(--mid);margin-top:4px;">Color = AI model: <span style="color:#D69E2E;font-weight:700;">Haiku</span> · <span style="color:#3B82F6;font-weight:700;">Sonnet</span> · <span style="color:#ed1c24;font-weight:700;">Opus</span></p>
 
-      <!-- Input: Call Recording -->
-      <rect x="2" y="50" width="96" height="60" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5" stroke-dasharray="5,3"/>
-      <text x="50" y="76" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="600">&#x1F3A4; Call</text>
-      <text x="50" y="89" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="600">Recording</text>
-      <text x="50" y="103" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E">+ Deck / Notes</text>
+<h3 id="sa-sage">1. Sage — Document Analyst</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--amber-bg);color:#92640A;border:1px solid var(--amber);">haiku</span> <span style="color:var(--amber);font-weight:700;">⊙ Gated</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/sage.json</code> &nbsp;·&nbsp; Gate: <em>Sage extraction complete — correct anything before Vera starts vertical research?</em></p>
+<h3 id="sa-vera">2. Vera — Vertical Intelligence Analyst</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/vera.json</code> &nbsp;·&nbsp; Gate: <em>Vera research confirmed — proceed to Rex (systems analysis)?</em></p>
+<h3 id="sa-rex">3. Rex — Systems Analyst</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--blue-bg);color:#1D4ED8;border:1px solid var(--blue-br);">sonnet</span> <span style="color:var(--mid);">◎ Conversational</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/rex.json</code> &nbsp;·&nbsp; Gate: <em>Rex systems confirmed — proceed to Ivy (buyer psychology)?</em></p>
+<h3 id="sa-ivy">4. Ivy — Buyer Intelligence Analyst</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--blue-bg);color:#1D4ED8;border:1px solid var(--blue-br);">sonnet</span> <span style="color:var(--mid);">◎ Conversational</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/ivy.json</code> &nbsp;·&nbsp; Gate: <em>Ivy profile confirmed — proceed to Flo (flow count + pricing)?</em></p>
+<h3 id="sa-flo">5. Flo — Integration Flow Analyst + Pricing</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--amber);font-weight:700;">⊙ Gated</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/flo.json</code> &nbsp;·&nbsp; Gate: <em>Flo flow count and pricing confirmed — proceed to Hawk (deal framing)?</em></p>
+<h3 id="sa-hawk">6. Hawk — Deal Urgency Strategist</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/hawk.json</code> &nbsp;·&nbsp; Gate: <em>Hawk framing confirmed — proceed to Petra (proposal + integration deck)?</em></p>
+<h3 id="sa-petra">7. Petra — Proposal Writer</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/petra.json</code> &nbsp;·&nbsp; Gate: <em>Petra proposal and integration deck confirmed — proceed to Quinn (intake questionnaire)?</em></p>
+<h3 id="sa-quinn">8. Quinn — Intake Specialist</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--blue-bg);color:#1D4ED8;border:1px solid var(--blue-br);">sonnet</span> <span style="color:var(--mid);">◎ Conversational</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/quinn.json</code> &nbsp;·&nbsp; Gate: <em>Quinn intake questionnaire confirmed — proceed to Mira (final audit)?</em></p>
+<h3 id="sa-mira">9. Mira — Buyer Advocate</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 6px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--brand);">opus</span> <span style="color:var(--mid);">◎ Conversational</span></p>
+<p style="margin:0;color:var(--mid);font-size:12px;">Output: <code>run/mira.json</code></p>
+    
+<h2 id="playbooks">System Playbooks</h2>
+<p>One playbook JSON per system — authoritative source for quirks, P0 blockers, client usage, and DWL transform files. Rex agent loads all playbooks at startup; Scout queries them per detected system.</p>
+<table class="md-table" style="margin-bottom:20px;">
+  <thead><tr><th>System</th><th>Maturity</th><th style="text-align:center;">Clients</th><th style="text-align:center;">Quirks</th><th style="text-align:center;">P0s</th></tr></thead>
+  <tbody><tr>
+  <td><a href="#pb-netsuite" style="font-weight:600;color:var(--dark);text-decoration:none;">NetSuite ERP (REST API + SuiteQL)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">Verified</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">10</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-salesforce" style="font-weight:600;color:var(--dark);text-decoration:none;">Salesforce CRM / Platform</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">Verified</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">3</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">12</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-computerease" style="font-weight:600;color:var(--dark);text-decoration:none;">ComputerEase by Deltek — job costing and accounting system for specialty/residential contractors</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-dci" style="font-weight:600;color:var(--dark);text-decoration:none;">dci</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">0</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-docuware" style="font-weight:600;color:var(--dark);text-decoration:none;">DocuWare (document management)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">0</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-google-sheets" style="font-weight:600;color:var(--dark);text-decoration:none;">google-sheets</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">7</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-gravity-forms" style="font-weight:600;color:var(--dark);text-decoration:none;">Gravity Forms (WordPress form plugin) — inbound webhook source</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-hd-portal" style="font-weight:600;color:var(--dark);text-decoration:none;">Home Depot Service Center (HD Portal) — Home Depot's proprietary lead management and contract system for Pro contractor partners</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-hubspot" style="font-weight:600;color:var(--dark);text-decoration:none;">HubSpot CRM</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-quickbooks-enterprise" style="font-weight:600;color:var(--dark);text-decoration:none;">Intuit QuickBooks Enterprise / Desktop</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">0</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-quickbooks-online" style="font-weight:600;color:var(--dark);text-decoration:none;">Intuit QuickBooks Online (QBO)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">7</span></td>
+  <td style="text-align:center;"><span style="color:var(--brand);font-weight:700;">2 P0</span></td>
+</tr><tr>
+  <td><a href="#pb-mailchimp" style="font-weight:600;color:var(--dark);text-decoration:none;">Mailchimp (email marketing platform)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-dynamics365-fo" style="font-weight:600;color:var(--dark);text-decoration:none;">Microsoft Dynamics 365 Finance &amp; Operations (D365 FO / D365FO)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-orderful" style="font-weight:600;color:var(--dark);text-decoration:none;">Orderful</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">5</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-paylocity" style="font-weight:600;color:var(--dark);text-decoration:none;">Paylocity (HR / Payroll / Time &amp; Labor)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">0</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-pharmacyhub" style="font-weight:600;color:var(--dark);text-decoration:none;">PharmacyHub (pharmaceutical utilization reporting vendor)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-pipeline-medical" style="font-weight:600;color:var(--dark);text-decoration:none;">Pipeline Medical (medical/pharmaceutical utilization reporting vendor)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-spiff" style="font-weight:600;color:var(--dark);text-decoration:none;">Salesforce Spiff (Sales Performance Management / Commission Platform)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-sandata" style="font-weight:600;color:var(--dark);text-decoration:none;">sandata</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">0</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-shipstation" style="font-weight:600;color:var(--dark);text-decoration:none;">ShipStation</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">5</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-shopify" style="font-weight:600;color:var(--dark);text-decoration:none;">Shopify (eCommerce / order management)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">1</span></td>
+  <td style="text-align:center;"><span style="font-weight:700;color:var(--dark);">7</span></td>
+  <td style="text-align:center;"><span style="color:var(--brand);font-weight:700;">3 P0</span></td>
+</tr><tr>
+  <td><a href="#pb-trello" style="font-weight:600;color:var(--dark);text-decoration:none;">Trello (project management boards)</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">0</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr><tr>
+  <td><a href="#pb-windopath" style="font-weight:600;color:var(--dark);text-decoration:none;">windopath</a></td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">0</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+  <td style="text-align:center;"><span style="color:var(--border);">—</span></td>
+</tr></tbody>
+</table>
 
-      <!-- Arrow to Scout -->
-      <line x1="98" y1="80" x2="116" y2="80" stroke="#ed1c24" stroke-width="2" marker-end="url(#bmarr-brand)"/>
+<h3 id="pb-netsuite">NetSuite ERP (REST API + SuiteQL)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">Verified</span><span style="font-size:11px;color:var(--mid);">1 client · 10 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><ul style="margin:8px 0 0 16px;"><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>PS256 JWT:</strong> NetSuite requires PS256 (not RS256). See <code>system/ns-auth.xml</code>.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Internal IDs vs External IDs:</strong> Use <code>externalId</code> for idempotent upserts. Set <code>externalId</code> to source system record ID (e.g. Salesforce Opportunity ID) on create. Subsequent updates can find the record by <code>externalId</code>.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>SuiteQL limit:</strong> Max 1,000 records per page (hard limit). Use offset pagination.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Governance units:</strong> ~5 units per SuiteQL. Default 1,000/slot. Implement backoff when 429 received.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Custom fields:</strong> Body fields: <code>custbody_fieldname</code>. Line fields: <code>custcol_fieldname</code>. Client must provide their exact field names.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Multi-subsidiary (OneWorld):</strong> <code>subsidiary.id</code> is required on every write. Not present on single-subsidiary accounts. Check at project start.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Item matching:</strong> Cannot look up items by product code/name via REST. Need internal ID or externalId. Build item mapping table per client (product code → NS item internalId).</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Invoice is read-only:</strong> NetSuite invoices are system-generated from Sales Orders. You cannot POST to create an invoice directly. Only update status-related fields on existing invoices.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Tax codes:</strong> NetSuite requires internal ID of the tax code record, not the tax code name. Client must provide their tax code internal IDs.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Currency:</strong> Must match subsidiary default currency unless multi-currency is enabled.</li></ul>
+<h3 id="pb-salesforce">Salesforce CRM / Platform</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">Verified</span><span style="font-size:11px;color:var(--mid);">3 clients · 12 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><ul style="margin:8px 0 0 16px;"><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>API version pinning:</strong> Always pin (<code>/services/data/v59.0/</code>). Never use <code>/latest/</code>.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>SOQL cursor pagination:</strong> Use <code>nextRecordsUrl</code>. NEVER use OFFSET — fails silently on &gt; 2,000 records.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Bulk API 2.0:</strong> Required for bulk loads. Different endpoint, different async pattern from REST.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>JWT auth:</strong> Private key in Secrets Manager. Client ID safe in properties. Never swap.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>External IDs:</strong> Mark <code>SF_{TargetSystem}_ID__c</code> as External ID on each synced object. Enables idempotent upsert via externalId endpoint.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Rate limiting:</strong> 15,000 API calls/day on Enterprise. Monitor <code>Sforce-Limit-Info</code> header. Alert at 12,000 (property: <code>salesforce.api.limit.warn.threshold</code>).</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>PATCH semantics:</strong> Only send fields being changed. Sending null erases the field — omit to leave unchanged.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>CDC vs polling:</strong> CDC (Change Data Capture) preferred over SOQL polling for near-real-time. Subscribe to <code>ChangeEventHeader</code> channel.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Compound fields:</strong> Address is a compound field in Salesforce — query sub-fields explicitly (<code>BillingStreet</code>, <code>BillingCity</code>, etc.).</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>BillingCountryCode / ShippingCountryCode:</strong> Only exist when &quot;State and Country Picklists&quot; is enabled in Setup. On orgs without it, these fields throw <code>FIELD_INTEGRITY_EXCEPTION</code>. Check at project start. The <code>canonical-to-sf-account.dwl</code> function accepts a <code>useCountryCode</code> flag — default is <code>false</code> (safe free-text <code>BillingCountry</code>).</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>CurrencyIsoCode on Account:</strong> Only writable/readable on multi-currency orgs. Single-currency orgs do not expose this field on Account at all. Check at project start. The <code>canonical-to-sf-account.dwl</code> function accepts an <code>isMultiCurrency</code> flag.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;"><strong>Connected App scopes:</strong> Needs <code>api</code>, <code>refresh_token</code>. For CDC: also <code>cdp_ingest_api</code>.</li></ul>
+<h3 id="pb-computerease">ComputerEase by Deltek — job costing and accounting system for specialty/residential contractors</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-dci">dci</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">0 clients · 0 known quirks · last updated 2026-05-14</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-docuware">DocuWare (document management)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">0 clients · 0 known quirks · last updated 2026-05-12 | **Clients:** cas-industries-customer (1)</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-google-sheets">google-sheets</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 7 known quirks · last updated 2026-05-14</span></p>
+<h4>Known Quirks</h4><ul style="margin:8px 0 0 16px;"><li style="margin:4px 0;font-size:12px;line-height:1.6;">Service Account approach preferred over user OAuth for MuleSoft server-to-server — eliminates user token rotation issues</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Spreadsheet ID (from the URL between /d/ and /edit) and Sheet tab name must be stable in connector config — any rename breaks the integration</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Column headers must be a single flat row — merged cells or multi-row headers must be normalized before DataWeave mapping</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Connector returns rows as arrays indexed by position — DataWeave must map positional columns to named fields using header row as key</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Rate limits: 300 reads/min and 60 writes/min per Google Cloud project — not a concern at typical polling frequencies</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Sheet must be shared with the Service Account email (Editor access minimum) before the connector can read it</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">If spreadsheet is in a Shared Drive (Team Drive), Service Account needs domain-wide delegation or Drive API access enabled</li></ul>
+<h3 id="pb-gravity-forms">Gravity Forms (WordPress form plugin) — inbound webhook source</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-hd-portal">Home Depot Service Center (HD Portal) — Home Depot's proprietary lead management and contract system for Pro contractor partners</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-hubspot">HubSpot CRM</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-12</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-quickbooks-enterprise">Intuit QuickBooks Enterprise / Desktop</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">0 clients · 0 known quirks · last updated 2026-05-12 | **Clients:** cas-industries-customer (1)</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-quickbooks-online">Intuit QuickBooks Online (QBO)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 7 known quirks · last updated 2026-05-14</span></p>
+<h4>Known Quirks</h4><ul style="margin:8px 0 0 16px;"><li style="margin:4px 0;font-size:12px;line-height:1.6;">OAuth 2.0 refresh token expires after 100 days of non-use — automated token refresh or Secrets Manager rotation required in production; silent expiry will break all sync flows</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">QB customer record must pre-exist before invoice creation — Mule UC1 must look up QB Customer by name or by a QB_CustomerId stored on the Salesforce Account; name mismatches (e.g. 'Austin ISD' vs 'Austin Independent School District') cause invoice creation failures</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Company ID (realmId) is required on every API call — must be stored in environment properties, never hardcoded</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Batch API limited to 30 operations per call — bulk invoice or item operations must be chunked</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Webhook events use Intuit verification header (intuit-signature) — HMAC-SHA256 signature must be verified before processing in UC1 webhook path</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Fiscal year start is configurable in QB company settings — date-range filters for invoice and inventory queries must align to the configured FY start (AgileMind: April 1)</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">QB Item names and Salesforce Product names must align for UC4 cost lookup — divergence creates unmapped cost records; confirm naming convention with client before mapping</li></ul><div style="margin-top:10px;"><h4>P0 Blockers</h4><ul style="margin:4px 0 0 16px;"><li style="font-size:12px;color:var(--brand);margin:3px 0;">Version not confirmed as Online vs Desktop/Enterprise — confirm before any connector selection (FK-020)</li><li style="font-size:12px;color:var(--brand);margin:3px 0;">Connected App at developer.intuit.com must be registered before OAuth flow can be configured</li></ul></div>
+<h3 id="pb-mailchimp">Mailchimp (email marketing platform)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-dynamics365-fo">Microsoft Dynamics 365 Finance &amp; Operations (D365 FO / D365FO)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-12</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-orderful">Orderful</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 5 known quirks · last updated 2026-05-19</span></p>
+<h4>Known Quirks</h4><ul style="margin:8px 0 0 16px;"><li style="margin:4px 0;font-size:12px;line-height:1.6;">Orderful abstracts X12 EDI to REST/JSON — MuleSoft sends/receives JSON payloads; Orderful handles X12 translation to trading partners (Fanatics, DSG, Rallyhouse).</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Trading partner configurations (810/856/997 per partner) must exist in Orderful portal before integration — client admin responsibility.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">997 Functional Acknowledgment: Orderful typically handles ACK/NACK automatically. Confirm whether MuleSoft needs to process rejection (NACK) responses.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Sandbox availability: confirm with client — API-first cloud EDI providers typically offer test environments.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Scope of this engagement: Orderful ↔ NetSuite is POTENTIAL — confirm with client before designing.</li></ul>
+<h3 id="pb-paylocity">Paylocity (HR / Payroll / Time &amp; Labor)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">0 clients · 0 known quirks · last updated 2026-05-12 | **Clients:** cas-industries-customer (1)</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-pharmacyhub">PharmacyHub (pharmaceutical utilization reporting vendor)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-pipeline-medical">Pipeline Medical (medical/pharmaceutical utilization reporting vendor)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-spiff">Salesforce Spiff (Sales Performance Management / Commission Platform)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 0 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-sandata">sandata</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">0 clients · 0 known quirks · last updated 2026-05-14</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-shipstation">ShipStation</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 5 known quirks · last updated 2026-05-19</span></p>
+<h4>Known Quirks</h4><ul style="margin:8px 0 0 16px;"><li style="margin:4px 0;font-size:12px;line-height:1.6;">No API sandbox — ShipStation does not offer a test environment. All development and testing against the production account. Use test/dummy orders that can be voided.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Rate limit: 40 requests per minute. Check X-Rate-Limit-Remaining header. Implement back-off polling when limit reached.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Currently integrated via Turbine (custom middleware between NetSuite and ShipStation). Turbine's field mapping and business rules MUST be documented before MuleSoft replacement design begins.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">ShipStation integration is POTENTIAL scope in this engagement — confirm with client whether Turbine replacement is in scope.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Carrier routing: EasyPost and Amazon Shipping are used for specific carrier flows. Routing logic between ShipStation, EasyPost, and Amazon Shipping may be in Turbine — must be captured before replacement.</li></ul>
+<h3 id="pb-shopify">Shopify (eCommerce / order management)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">1 client · 7 known quirks · last updated 2026-05-11</span></p>
+<h4>Known Quirks</h4><ul style="margin:8px 0 0 16px;"><li style="margin:4px 0;font-size:12px;line-height:1.6;">REST Products/Variants API DEPRECATED for custom apps (April 2025). UC5-type product sync (matrix items + metafields) MUST use GraphQL Admin API (productCreate/productUpdate + metafieldsSet mutation). Source: Shopify 2024-04 changelog.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">GraphQL Admin API supports up to 2,048 product variants per product (vs 100 via deprecated REST). Confirm max variant count for client's highest-SKU matrix items.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">CSWOS (Continue Selling While Out of Stock): no native Shopify feature. Implemented via inventory_policy: 'continue' on individual variants. CSWOS threshold business logic must live in MuleSoft DataWeave — Shopify only toggles the policy flag.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Cursor-based pagination: REST uses page_info cursor; GraphQL uses edges/endCursor + hasNextPage. For large catalog syncs use GraphQL Bulk Operations API (async JSONL output) to avoid timeouts.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Metafield namespaces and keys must be defined in Shopify Admin before sync flows go live — missing definitions cause silent failures on metafieldsSet.</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Webhook reliability: Shopify webhooks can be missed or duplicated. All NetSuite writes via Shopify webhooks must implement idempotency (shopify_order_id / shopify_product_id as idempotency key).</li><li style="margin:4px 0;font-size:12px;line-height:1.6;">Custom App required (Private Apps deprecated). Shopify Plus allows unlimited Custom Apps. Missing API scopes return 403 silently — enumerate all required scopes at app creation.</li></ul><div style="margin-top:10px;"><h4>P0 Blockers</h4><ul style="margin:4px 0 0 16px;"><li style="font-size:12px;color:var(--brand);margin:3px 0;">Custom App not created — all flows blocked</li><li style="font-size:12px;color:var(--brand);margin:3px 0;">Required API scopes missing — specific flows return 403</li><li style="font-size:12px;color:var(--brand);margin:3px 0;">Metafield namespaces not defined before UC5 go-live — metafield sync fails silently</li></ul></div>
+<h3 id="pb-trello">Trello (project management boards)</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">0 clients · 0 known quirks · last updated 2026-05-12 | **Clients:** cas-industries-customer (1)</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+<h3 id="pb-windopath">windopath</h3>
+<p style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;"><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">Stub</span><span style="font-size:11px;color:var(--mid);">0 clients · 0 known quirks · last updated 2026-05-14</span></p>
+<h4>Known Quirks</h4><p style="color:var(--mid);font-size:12px;">No known quirks documented yet.</p>
+    
+<h2 id="canonical">Canonical Models</h2>
+<p>Hub schemas organized by industry vertical — planning-time reference schemas. Agents read them during field mapping; the DWL transforms in <code>standards/playbooks/</code> implement them. Stubs are promoted to versioned schemas when confirmed fields from 2+ clients are accumulated.</p>
+<blockquote><p><strong>Registry:</strong> <code>standards/canonical-models/registry.json</code> maps vertical → industry standard → record → key field alignments. All agents must consult it before creating canonical stubs or validating field mappings.</p></blockquote>
 
-      <!-- Stage 1: Scout (HIGHLIGHTED) -->
-      <rect x="116" y="4" width="152" height="152" rx="8" fill="#FFF5F5" stroke="#ed1c24" stroke-width="2.5"/>
-      <text x="192" y="28" font-size="9" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="700" letter-spacing="0.8">STAGE 1</text>
-      <text x="192" y="48" font-size="19" font-family="system-ui" text-anchor="middle" fill="#ed1c24" font-weight="800">Scout</text>
-      <rect x="134" y="56" width="116" height="20" rx="4" fill="#ed1c24"/>
-      <text x="192" y="70" font-size="9" font-family="system-ui" text-anchor="middle" fill="#fff" font-weight="700">9 AI Agents · Fully Auto</text>
-      <text x="192" y="94" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Proposal · Intake Form</text>
-      <text x="192" y="108" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Integration Deck · Pricing</text>
-      <text x="192" y="130" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="600">Sage→Vera→Rex→Ivy→Flo</text>
-      <text x="192" y="143" font-size="8" font-family="system-ui" text-anchor="middle" fill="#a01019" font-weight="600">→Hawk→Petra→Quinn→Mira</text>
+<h3 id="cm-commerce">Commerce</h3>
+<p style="font-size:12px;color:var(--mid);margin-bottom:8px;">8 record types · path: <code>standards/canonical-models/commerce/</code></p>
+<table class="md-table">
+  <thead><tr><th>Record</th><th>Version</th><th>Standard</th><th style="text-align:center;">Fields</th><th>Description</th></tr></thead>
+  <tbody><tr>
+  <td><strong>Canonical Customer</strong></td>
+  <td><code style="font-size:11px;">1.0.0</code></td>
+  <td style="font-size:11px;">OAGIS 10.x — SyncCustomerParty BOD</td>
+  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical customer/account entity schema across all client integrations.
+Maps from: Salesforce Account, NetSuite Customer, Dynamics 365 Account, HubSpot Company.
+Maps to: any target CRM, ERP, or service system.
+OAGIS alignment: CustomerPartyType — key fields customerId→CustomerID, name→OrganizationName,
+contacts→Contact[], addresses→Address[].
+</td>
+</tr><tr>
+  <td><strong>Canonical Fulfillment</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub</code></td>
+  <td style="font-size:11px;">OAGIS 10.x</td>
+  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical model for fulfillment records — shipped line items, tracking numbers, carrier info, and fulfillment status. Written from ERP to e-commerce after shipment.</td>
+</tr><tr>
+  <td><strong>Canonical Inventory</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub</code></td>
+  <td style="font-size:11px;">OAGIS 10.x</td>
+  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical model for inventory level records across ERP and e-commerce systems. Covers on-hand quantity, reserved quantity, available quantity, and location-level inventory.</td>
+</tr><tr>
+  <td><strong>Canonical Invoice</strong></td>
+  <td><code style="font-size:11px;">1.0.0</code></td>
+  <td style="font-size:11px;">OAGIS 10.x — ProcessInvoice BOD</td>
+  <td style="text-align:center;"><span style="font-weight:700;">10 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical invoice entity schema across all client integrations.
+Maps from: NetSuite Invoice, QuickBooks Invoice, SAP Billing Document, Salesforce Invoice.
+Primary flow: source ERP → canonical → target CRM (status sync) or AP system (payment).
+OAGIS alignment: InvoiceType — key fields invoiceId→DocumentID/ID,
+customerId→BillToParty/PartyIDs/ID, totals→TotalAmount/TaxAmount/NetAmount.
+</td>
+</tr><tr>
+  <td><strong>Canonical Order</strong></td>
+  <td><code style="font-size:11px;">1.0.0</code></td>
+  <td style="font-size:11px;">OAGIS 10.x — ProcessPurchaseOrder BOD</td>
+  <td style="text-align:center;"><span style="font-weight:700;">11 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical order entity schema used across all client integrations.
+Source systems (Salesforce, NetSuite, Dynamics 365) map INTO this schema.
+Target systems map OUT OF this schema.
+DWL transforms handle the source→canonical and canonical→target conversions.
+OAGIS alignment: PurchaseOrderType — key fields orderId→DocumentID/ID,
+customerId→BuyerParty/PartyIDs/ID, lines→Line[], totals→TotalAmount/Tax/ShippingAmount.
+</td>
+</tr><tr>
+  <td><strong>Canonical Product / Item</strong></td>
+  <td><code style="font-size:11px;">1.0.0</code></td>
+  <td style="font-size:11px;">OAGIS 10.x — SyncItem BOD</td>
+  <td style="text-align:center;"><span style="font-weight:700;">11 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical product/item entity schema across all client integrations.
+Maps from: QuickBooks Item, Salesforce Product2, NetSuite Item, ERP SKU catalogs.
+Maps to: any target inventory, CRM, or commerce system.
+OAGIS alignment: ItemType — key fields productId→ItemID/ID,
+name→Description/ShortDescription, classification→Classification/Codes,
+inventory.quantityOnHand→Quantity/QuantityTypeCode=OnHand.
+</td>
+</tr><tr>
+  <td><strong>Canonical Return</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub</code></td>
+  <td style="font-size:11px;">OAGIS 10.x</td>
+  <td style="text-align:center;"><span style="font-weight:700;">13 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical model for return and refund records — covers RMA, return authorization, refund amount, restocking status. Synced bidirectionally between e-commerce and ERP.</td>
+</tr><tr>
+  <td><strong>Canonical Shipment</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub</code></td>
+  <td style="font-size:11px;">OAGIS 10.x</td>
+  <td style="text-align:center;"><span style="font-weight:700;">17 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical model for outbound shipment records — covers shipping order creation, carrier assignment, label generation, and tracking. Used between ERP and shipping platforms (ShipStation, EasyPost, etc.).</td>
+</tr></tbody>
+</table>
+<h3 id="cm-construction">Construction</h3>
+<p style="font-size:12px;color:var(--mid);margin-bottom:8px;">3 record types · path: <code>standards/canonical-models/construction/</code></p>
+<table class="md-table">
+  <thead><tr><th>Record</th><th>Version</th><th>Standard</th><th style="text-align:center;">Fields</th><th>Description</th></tr></thead>
+  <tbody><tr>
+  <td><strong>Canonical Change Order</strong></td>
+  <td><code style="font-size:11px;">1.0.0</code></td>
+  <td style="font-size:11px;">—</td>
+  <td style="text-align:center;"><span style="font-weight:700;">13 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical change order entity for construction/contracting integrations.
+Represents a modification to a signed contract or in-progress job.
+Maps from: construction ERP (ComputerEase, Procore), contractor portals, CRM.
+Maps to: billing systems, ERP job cost updates, customer notification systems.
+</td>
+</tr><tr>
+  <td><strong>Canonical Contract</strong></td>
+  <td><code style="font-size:11px;">1.0.0</code></td>
+  <td style="font-size:11px;">—</td>
+  <td style="text-align:center;"><span style="font-weight:700;">15 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical installation contract entity for construction/contracting integrations.
+Maps from: contractor portals (HD Portal — types 299A, 299B, 118),
+           CRM (Salesforce), document management systems, construction ERP.
+Maps to: compliance systems, ERP job creation, customer records.
+Common synonyms: Contract (standard), Agreement (generic), Signed Doc (informal).
 
-      <!-- Arrow -->
-      <line x1="268" y1="80" x2="284" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
+HD Portal-specific contract types:
+  299A — Standard residential installation contract
+  299B — Alternate/addendum contract
+  118  — Special program or materials contract
+</td>
+</tr><tr>
+  <td><strong>Canonical Job</strong></td>
+  <td><code style="font-size:11px;">1.0.0</code></td>
+  <td style="font-size:11px;">—</td>
+  <td style="text-align:center;"><span style="font-weight:700;">14 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical installation job / work order entity for construction/contracting integrations.
+Maps from: construction ERP (ComputerEase, Procore, Sage 300 CRE, Viewpoint),
+           CRM (Salesforce Opportunity), contractor portals (HD Portal, ServiceTitan).
+Maps to: any system in the job lifecycle (scheduling, billing, reporting, customer portal).
+Common synonyms by system: Job (ComputerEase), Project (generic ERP), Opportunity/Order (Salesforce),
+                            Order (HD Portal), Work Order (field service systems).
 
-      <!-- Stage 2: Analyst -->
-      <rect x="284" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-      <text x="337" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 2</text>
-      <text x="337" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Analyst</text>
-      <text x="337" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">PRD · Flows</text>
-      <text x="337" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Canonical fields</text>
-      <text x="337" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Mary (AI)</text>
-
-      <!-- Arrow -->
-      <line x1="390" y1="80" x2="406" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
-
-      <!-- Stage 3: Architect -->
-      <rect x="406" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-      <text x="459" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 3</text>
-      <text x="459" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Architect</text>
-      <text x="459" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Tech design</text>
-      <text x="459" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">decisions.json</text>
-      <text x="459" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Winston (AI)</text>
-
-      <!-- Arrow -->
-      <line x1="512" y1="80" x2="528" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
-
-      <!-- Stage 4: PM -->
-      <rect x="528" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-      <text x="581" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 4</text>
-      <text x="581" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">PM</text>
-      <text x="581" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">User stories</text>
-      <text x="581" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Jira · GitHub</text>
-      <text x="581" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">John (AI)</text>
-
-      <!-- Arrow -->
-      <line x1="634" y1="80" x2="650" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
-
-      <!-- Stage 5: Scaffold -->
-      <rect x="650" y="30" width="106" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-      <text x="703" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 5</text>
-      <text x="703" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Scaffold</text>
-      <text x="703" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Mule project</text>
-      <text x="703" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">DWL · MUnit shells</text>
-      <text x="703" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Auto-generated</text>
-
-      <!-- Arrow -->
-      <line x1="756" y1="80" x2="772" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
-
-      <!-- Stage 6: Developer -->
-      <rect x="772" y="30" width="106" height="100" rx="7" fill="#F0FFF4" stroke="#68D391" stroke-width="1.5"/>
-      <text x="825" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#276749" font-weight="700" letter-spacing="0.8">STAGE 6</text>
-      <text x="825" y="70" font-size="14" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Developer</text>
-      <text x="825" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Implements flows</text>
-      <text x="825" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">Anypoint Studio</text>
-      <text x="825" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#276749" font-weight="600">Engineer</text>
-
-      <!-- Arrow -->
-      <line x1="878" y1="80" x2="894" y2="80" stroke="#555F6E" stroke-width="1.5" marker-end="url(#bmarr)"/>
-
-      <!-- Stage 7: Verify -->
-      <rect x="894" y="30" width="120" height="100" rx="7" fill="#fff" stroke="#E8E0E0" stroke-width="1.5"/>
-      <text x="954" y="52" font-size="8" font-family="system-ui" text-anchor="middle" fill="#555F6E" font-weight="700" letter-spacing="0.8">STAGE 7</text>
-      <text x="954" y="70" font-size="15" font-family="system-ui" text-anchor="middle" fill="#1A1A1A" font-weight="800">Verify</text>
-      <text x="954" y="90" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">MUnit · FR/NFR</text>
-      <text x="954" y="103" font-size="9" font-family="system-ui" text-anchor="middle" fill="#555F6E">PASS / gap report</text>
-      <text x="954" y="116" font-size="8" font-family="system-ui" text-anchor="middle" fill="#2E9E6B" font-weight="600">Dev agent (VR)</text>
-    </svg>
+Known Peerless-specific format: jobNumber = &quot;{YY} HD {sequential-counter} {sales-rep-initials}&quot;
+e.g. &quot;26 HD 565 AS&quot; — counter managed in Object Store by MuleSoft.
+</td>
+</tr></tbody>
+</table>
+<h3 id="cm-education">Education</h3>
+<p style="font-size:12px;color:var(--mid);margin-bottom:8px;">3 record types · path: <code>standards/canonical-models/education/</code></p>
+<table class="md-table">
+  <thead><tr><th>Record</th><th>Version</th><th>Standard</th><th style="text-align:center;">Fields</th><th>Description</th></tr></thead>
+  <tbody><tr>
+  <td><strong>Canonical Inventory Record — Education Vertical</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub — created from AgileMind engagement 2026-05-14</code></td>
+  <td style="font-size:11px;">derived (no formal K-12 inventory standard; modeled from OAGIS ItemMaster + publisher conventions)</td>
+  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical inventory record for K-12 educational publishers tracking print student activity book (SAB) inventory. Designed for dual-source sync: UC3 reads demand/quantity data from Holly's spreadsheet, UC4 reads cost/value data from QuickBooks inventory items. Both write to Salesforce Inventory__c. Field ownership is split to avoid overwrite conflicts.
+</td>
+</tr><tr>
+  <td><strong>Canonical Invoice — Education Vertical</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub — created from AgileMind engagement 2026-05-14</code></td>
+  <td style="font-size:11px;">derived (OAGIS 10.x Invoice with education-specific extensions)</td>
+  <td style="text-align:center;"><span style="font-weight:700;">12 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical invoice model for K-12 educational publishers integrating billing between Salesforce (Agreement object) and QuickBooks (Invoice). Designed for the agreement-to-invoice flow where a Salesforce Agreement Closed Won event triggers QuickBooks invoice creation.
+</td>
+</tr><tr>
+  <td><strong>Canonical Product Title — Education Vertical</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub — created from AgileMind engagement 2026-05-14</code></td>
+  <td style="font-size:11px;">derived (OAGIS 10.x Item + education ISBN conventions)</td>
+  <td style="text-align:center;"><span style="font-weight:700;">9 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical product/title model for K-12 educational publishers. Represents a curriculum book series (Student Activity Book) that carries state-specific ISBNs. Used for product catalog sync (UC5-potential) between Salesforce and QuickBooks. Stub — promoted to full schema when UC5 is confirmed in scope.
+</td>
+</tr></tbody>
+</table>
+<h3 id="cm-healthcare">Healthcare</h3>
+<p style="font-size:12px;color:var(--mid);margin-bottom:8px;">2 record types · path: <code>standards/canonical-models/healthcare/</code></p>
+<table class="md-table">
+  <thead><tr><th>Record</th><th>Version</th><th>Standard</th><th style="text-align:center;">Fields</th><th>Description</th></tr></thead>
+  <tbody><tr>
+  <td><strong>Canonical HCBS Service Authorization</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub — created from cherish-care engagement (2026-05-12)</code></td>
+  <td style="font-size:11px;">derived</td>
+  <td style="text-align:center;"><span style="font-weight:700;">15 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical record for a Home and Community-Based Services (HCBS) service authorization issued by a regional center to a consumer. Represents the monthly approved service hours a consumer is entitled to receive for a specific service code under their regional center contract. Used by Cherish Care (California DDS respite services — IRC, SGP, ELR).
+</td>
+</tr><tr>
+  <td><strong>Canonical EVV Visit</strong></td>
+  <td><code style="font-size:11px;">1.0.0-stub — created from cherish-care engagement (2026-05-12)</code></td>
+  <td style="font-size:11px;">derived</td>
+  <td style="text-align:center;"><span style="font-weight:700;">25 fields</span></td>
+  <td style="font-size:11px;max-width:280px;">Canonical record for Electronic Visit Verification (EVV) visits in Home and Community-Based Services (HCBS). Represents a single caregiver service visit: clock-in, clock-out, GPS verification, service code, and submission status to the state EVV aggregator. Used by Cherish Care (California DDS respite services).
+</td>
+</tr></tbody>
+</table>
+    
+<h2 id="fk">Field Knowledge</h2>
+<p>Real-project lessons captured from every engagement. Agents apply <em>verified</em> entries as active guidance and flag <em>observations</em> for architect review. Entries promoted to standard remain here for traceability.</p>
+<div style="display:flex;gap:16px;margin:10px 0 14px;flex-wrap:wrap;">
+  <div style="padding:8px 14px;border:1px solid var(--border);border-radius:5px;">
+    <div style="font-size:22px;font-weight:800;color:var(--dark);">26</div>
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mid);">Total Entries</div>
   </div>
+  <div style="padding:8px 14px;border:1px solid var(--green);border-radius:5px;background:#F0FFF4;">
+    <div style="font-size:22px;font-weight:800;color:var(--green);">10</div>
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mid);">Verified</div>
+  </div>
+  <div style="padding:8px 14px;border:1px solid var(--border);border-radius:5px;">
+    <div style="font-size:22px;font-weight:800;color:var(--mid);">16</div>
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mid);">Observations</div>
+  </div>
+  
+</div>
+<h3 id="fk-index">All Entries</h3>
+<table class="md-table">
+  <thead><tr><th>ID</th><th>Title</th><th>Pattern / System</th><th>Status</th><th>Added</th><th style="text-align:center;">Times</th></tr></thead>
+  <tbody><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-001" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-001</a></td>
+  <td style="font-size:12px;">POST body reverse-engineering from GET response</td>
+  <td style="font-size:11px;color:var(--mid);">Any REST API without write spec</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;font-weight:800;color:var(--brand);">3+</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-002" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-002</a></td>
+  <td style="font-size:12px;">SYSPRO ERP: no dedicated connector, HTTP with basic auth</td>
+  <td style="font-size:11px;color:var(--mid);">SYSPRO</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-003" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-003</a></td>
+  <td style="font-size:12px;">Scaffold profile mismatch: observability not in intake docs</td>
+  <td style="font-size:11px;color:var(--mid);">scaffold profile selection</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-004" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-004</a></td>
+  <td style="font-size:12px;">MUnit coverage floor vs. coverage theater</td>
+  <td style="font-size:11px;color:var(--mid);">MUnit / testing</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;font-weight:700;color:var(--dark);">2+</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-005" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-005</a></td>
+  <td style="font-size:12px;">Connector missing HTTP method coverage → raw HTTP + manual token</td>
+  <td style="font-size:11px;color:var(--mid);">Any connector with partial operation coverage</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;font-weight:800;color:var(--brand);">4</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-006" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-006</a></td>
+  <td style="font-size:12px;">Any paginated REST API requires a while-loop workaround in Mule 4</td>
+  <td style="font-size:11px;color:var(--mid);">Any paginated REST API</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;font-weight:800;color:var(--brand);">3+</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-007" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-007</a></td>
+  <td style="font-size:12px;">Watermark must advance AFTER processing confirms success, not before</td>
+  <td style="font-size:11px;color:var(--mid);">pattern D / C / K / CDC</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;font-weight:700;color:var(--dark);">2</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-008" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-008</a></td>
+  <td style="font-size:12px;">Webhook idempotency: return 200 always, store event ID after success, DLQ for failures</td>
+  <td style="font-size:11px;color:var(--mid);">pattern J / any webhook</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-009" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-009</a></td>
+  <td style="font-size:12px;">`on-error-continue` as direct child of `async` is invalid Mule 4 XML — wrap in `try` + `error-handler`</td>
+  <td style="font-size:11px;color:var(--mid);">wire-tap / any async error isolation</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-010" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-010</a></td>
+  <td style="font-size:12px;">`set-variable` does not update the Mule event's `correlationId` — use `set-correlation-id` (Mule 4.6+)</td>
+  <td style="font-size:11px;color:var(--mid);">HTTP listener / correlation ID propagation</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-011" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-011</a></td>
+  <td style="font-size:12px;">MUnit `expectedErrorType` must not be set when Global_Error_Handler uses `on-error-continue`</td>
+  <td style="font-size:11px;color:var(--mid);">MUnit / error handler testing</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-012" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-012</a></td>
+  <td style="font-size:12px;">Claim-check S3 getObject returns InputStream — `output application/java` produces byte array, not JSON</td>
+  <td style="font-size:11px;color:var(--mid);">claim-check pattern / S3 / Azure Blob</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--green);color:#fff;">verified</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-10</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-013" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-013</a></td>
+  <td style="font-size:12px;">HubSpot connector registry vs. sales call divergence — verify Exchange before committing</td>
+  <td style="font-size:11px;color:var(--mid);">HubSpot / connector selection</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-11</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-014" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-014</a></td>
+  <td style="font-size:12px;">Multi-instance SaaS: two Shopify stores require separate connector configs in global-config.xml</td>
+  <td style="font-size:11px;color:var(--mid);">Shopify / multi-tenant connector design</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-11</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-015" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-015</a></td>
+  <td style="font-size:12px;">ComputerEase (Deltek) API requires CE Live Service relay — not directly internet-accessible</td>
+  <td style="font-size:11px;color:var(--mid);">ComputerEase / legacy on-prem ERP connectivity</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-11</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-016" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-016</a></td>
+  <td style="font-size:12px;">HD Portal (Home Depot) is a proprietary contractor-partner API — write endpoints must be explicitly confirmed before scoping write flows</td>
+  <td style="font-size:11px;color:var(--mid);">HD Portal / custom API discovery</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-11</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-017" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-017</a></td>
+  <td style="font-size:12px;">QuickBooks Online OAuth access tokens expire after 60 min — Mule flows must detect 401 mid-batch and proactively refresh</td>
+  <td style="font-size:11px;color:var(--mid);">QuickBooks Online / OAuth token management</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-12</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-018" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-018</a></td>
+  <td style="font-size:12px;">Trimble Vista ERP does have a REST API via AppXchange — client claim of &quot;no open API&quot; was wrong; API requires AppXchange license purchase and applies only to cloud-hosted Vista</td>
+  <td style="font-size:11px;color:var(--mid);">Trimble Vista ERP / API access</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-12</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-019" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-019</a></td>
+  <td style="font-size:12px;">MuleSoft IDP hard limit: 50 pages / 10MB per document submission — spec books or documents over 50 pages must be split before IDP submission</td>
+  <td style="font-size:11px;color:var(--mid);">MuleSoft IDP / large document processing</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-12</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-020" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-020</a></td>
+  <td style="font-size:12px;">QuickBooks Enterprise (Desktop) is NOT QuickBooks Online — no REST API, incompatible with QBO connector, requires QBXML Web Connector or third-party bridge</td>
+  <td style="font-size:11px;color:var(--mid);">QuickBooks Enterprise / Desktop / API access</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-12</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-021" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-021</a></td>
+  <td style="font-size:12px;">Paylocity API access requires formal signed Web Services Access Request Form — approval is multi-week; must submit before project kickoff</td>
+  <td style="font-size:11px;color:var(--mid);">Paylocity / API access</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-12</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-022" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-022</a></td>
+  <td style="font-size:12px;">Sandata CalEVV aggregator: REST API, Basic Auth + EntityGuid header, JSON/XML; alternate EVV vendor registration required before integration can be tested</td>
+  <td style="font-size:11px;color:var(--mid);">Sandata / California EVV aggregator</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-12</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-023" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-023</a></td>
+  <td style="font-size:12px;">Legacy EVV platforms (DCI et al.) have no public API — data migration requires file-based bulk export before account termination; schedule export request immediately at scoping</td>
+  <td style="font-size:11px;color:var(--mid);">DCI / legacy EVV / data migration</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-12</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-024" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-024</a></td>
+  <td style="font-size:12px;">Always confirm QuickBooks product type at scoping — Online vs Desktop/Enterprise are incompatible integration paths; never proceed to architecture without version confirmation</td>
+  <td style="font-size:11px;color:var(--mid);">QuickBooks / scoping question gap</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-14</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-025" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-025</a></td>
+  <td style="font-size:12px;">When Excel or Google Sheets is detected as a data source, confirm file storage location before designing the flow — local files are inaccessible from CloudHub 2.0; must be on SharePoint, OneDrive, or Google Drive</td>
+  <td style="font-size:11px;color:var(--mid);">Excel / Google Sheets / CloudHub 2.0 file access</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-14</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr><tr>
+  <td><a href="https://github.com/dataskateclients/planning/blob/main/docs/FIELD_KNOWLEDGE.md#fk-026" target="_blank" style="font-weight:700;color:var(--dark);text-decoration:none;">FK-026</a></td>
+  <td style="font-size:12px;">Time-varying config (API pricing, rate limits, external identifiers) must never be hardcoded in source files — always externalize to a config file in the relevant folder</td>
+  <td style="font-size:11px;color:var(--mid);">DSPipeline / tooling conventions</td>
+  <td><span style="display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;background:var(--border);color:var(--mid);">observation</span></td>
+  <td style="font-size:11px;color:var(--mid);">2026-05-15</td>
+  <td style="text-align:center;font-size:12px;color:var(--mid);">1</td>
+</tr></tbody>
+</table>
+<p style="font-size:11px;color:var(--mid);margin-top:8px;">To add an entry: run the Architect Debrief agent (<code>_bmad/custom/bmad-agent-architect-debrief.toml</code>) and select DK. The agent asks 6 questions and writes the index row + full detail block.</p>
+  </main>
+
+  <nav class="nav-right" id="navRight">
+    <div class="nav-right-label">On this page</div>
+  </nav>
 </div>
 
-<!-- ══ SECTION 2: SCOUT AGENT PIPELINE ══ -->
-<div class="section">
-  <div class="eyebrow">Stage 1 — Scout · Fully Automated</div>
-  <div class="section-title">9 AI Agents. One Pre-Sales Run.</div>
-  <div class="section-sub">Drop in a call recording (and optionally a deck or notes). Orchestrate.js runs each agent in sequence — each reads the prior agent's output and writes its own. Total wall-clock time: ~15–25 minutes. Output: a complete proposal, intake questionnaire, integration deck, and psychology-adapted talking points. No manual work.</div>
+<footer class="doc-footer">
+  <span>DataSkate Knowledge Base — auto-generated from live JSON/YAML/MD sources</span>
+  <span>Generated 2026-05-19 19:03 UTC</span>
+</footer>
 
-  <!-- Row 1: Agents 1–5 -->
-  <div class="agent-grid">
-    <div class="agent-card model-haiku">
-      <div class="agent-num">Agent 1</div>
-      <div class="agent-name">Sage</div>
-      <div class="agent-role">Document Analyst</div>
-      <span class="agent-badge">Haiku · Fast</span>
-      <div class="agent-out">Reads transcripts + decks. Extracts pain points, flow signals, quotes, and key questions asked by DataSkate architects.</div>
-    </div>
-    <div class="agent-card model-opus">
-      <div class="agent-num">Agent 2</div>
-      <div class="agent-name">Vera</div>
-      <div class="agent-role">Vertical Intelligence</div>
-      <span class="agent-badge">Opus · Deep Research</span>
-      <div class="agent-out">Web research: FOMO peers, industry benchmarks, competitor case studies, canonical model stubs. Stages library contributions.</div>
-    </div>
-    <div class="agent-card model-sonnet">
-      <div class="agent-num">Agent 3</div>
-      <div class="agent-name">Rex</div>
-      <div class="agent-role">Systems Analyst</div>
-      <span class="agent-badge">Sonnet</span>
-      <div class="agent-out">Reads playbooks for detected systems. Maps auth patterns, known quirks, prerequisites, and canonical field extensions.</div>
-    </div>
-    <div class="agent-card model-sonnet">
-      <div class="agent-num">Agent 4</div>
-      <div class="agent-name">Ivy</div>
-      <div class="agent-role">Buyer Intelligence</div>
-      <span class="agent-badge">Sonnet</span>
-      <div class="agent-out">Scores transcript against 5 buyer psychology profiles. Outputs primary profile, content modifiers, and FOMO angle strategy.</div>
-    </div>
-    <div class="agent-card model-opus">
-      <div class="agent-num">Agent 5</div>
-      <div class="agent-name">Flo</div>
-      <div class="agent-role">Flow Analyst + Pricing</div>
-      <span class="agent-badge">Opus · Gated</span>
-      <div class="agent-out">Confirms integration flows, flags P0 blockers, computes SOW pricing per flow across all 3 engagement models.</div>
-    </div>
-  </div>
+<script>
+(function () {
+  const navLeft  = document.getElementById('navLeft');
+  const navRight = document.getElementById('navRight');
+  const content  = document.getElementById('docContent');
 
-  <!-- Row connector -->
-  <div class="row-connector">
-    <div class="row-connector-line"></div>
-    <div class="row-connector-label">&#x2193; continues</div>
-    <div class="row-connector-line"></div>
-  </div>
+  const h2s = Array.from(content.querySelectorAll('h2'));
+  const h3s = Array.from(content.querySelectorAll('h3'));
 
-  <!-- Row 2: Agents 6–9 -->
-  <div class="agent-grid-row2">
-    <div class="agent-card model-opus">
-      <div class="agent-num">Agent 6</div>
-      <div class="agent-name">Hawk</div>
-      <div class="agent-role">Deal Urgency Strategist</div>
-      <span class="agent-badge">Opus</span>
-      <div class="agent-out">Orders FOMO entries by buyer psychology angle. Generates talking points, opening lines, objection responses, and journey framing.</div>
-    </div>
-    <div class="agent-card model-opus">
-      <div class="agent-num">Agent 7</div>
-      <div class="agent-name">Petra</div>
-      <div class="agent-role">Proposal Writer</div>
-      <span class="agent-badge">Opus</span>
-      <div class="agent-out">Writes proposal-content.json and integration-deck-content.json. Applies psychology framing from Hawk verbatim throughout.</div>
-    </div>
-    <div class="agent-card model-sonnet">
-      <div class="agent-num">Agent 8</div>
-      <div class="agent-name">Quinn</div>
-      <div class="agent-role">Intake Specialist</div>
-      <span class="agent-badge">Sonnet</span>
-      <div class="agent-out">Generates the client intake questionnaire HTML. Pre-fills known answers from Sage. Flags unanswered gaps for the client.</div>
-    </div>
-    <div class="agent-card model-opus">
-      <div class="agent-num">Agent 9</div>
-      <div class="agent-name">Mira</div>
-      <div class="agent-role">Buyer Advocate · QA</div>
-      <span class="agent-badge">Opus · Final Gate</span>
-      <div class="agent-out">Psychology consistency audit. Verifies every proposal section passes the "would this buyer nod?" test. Flags misalignments for human review.</div>
-    </div>
-  </div>
+  // Build left nav
+  h2s.forEach(h2 => {
+    const a = document.createElement('a');
+    a.href = '#' + h2.id;
+    a.className = 'nav-section-link';
+    a.textContent = h2.textContent;
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      h2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    const div = document.createElement('div');
+    div.className = 'nav-section';
+    div.appendChild(a);
+    navLeft.appendChild(div);
+  });
 
-  <!-- Legend -->
-  <div class="legend">
-    <span class="legend-label">Claude model used:</span>
-    <div class="legend-item"><div class="legend-pip haiku"></div>Haiku — fast extraction</div>
-    <div class="legend-item"><div class="legend-pip sonnet"></div>Sonnet — structured analysis</div>
-    <div class="legend-item"><div class="legend-pip opus"></div>Opus — deep research &amp; writing</div>
-  </div>
-</div>
+  // Build right nav for a given H2 section
+  function buildRightNav(activeH2) {
+    navRight.innerHTML = '<div class="nav-right-label">On this page</div>';
+    if (!activeH2) return;
+    const idx  = h2s.indexOf(activeH2);
+    const next = h2s[idx + 1];
+    const sectionH3s = h3s.filter(h3 => {
+      const afterH2    = h3.offsetTop >= activeH2.offsetTop;
+      const beforeNext = !next || h3.offsetTop < next.offsetTop;
+      return afterH2 && beforeNext;
+    });
+    sectionH3s.forEach(h3 => {
+      const a = document.createElement('a');
+      a.href = '#' + h3.id;
+      a.className = 'nav-sub-link';
+      a.textContent = h3.textContent;
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        h3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      navRight.appendChild(a);
+    });
+  }
 
-<!-- ══ SECTION 3: SCOUT OUTPUTS ══ -->
-<div class="section">
-  <div class="eyebrow">What Scout Produces</div>
-  <div class="section-title">Three Client-Ready Deliverables</div>
-  <div class="section-sub">Every Scout run produces these three artifacts — generated, formatted, and deployed automatically.</div>
+  let activeH2 = h2s[0] || null;
+  let activeH3 = null;
 
-  <div class="deliverables">
-    <div class="deliv-card primary">
-      <div class="deliv-tag">Primary Deliverable</div>
-      <div class="deliv-title">Client Proposal</div>
-      <ul class="deliv-items">
-        <li>Challenge framing adapted to buyer psychology profile</li>
-        <li>Solution diagram — systems connected via MuleSoft</li>
-        <li>Flow-by-flow breakdown with business outcome per flow</li>
-        <li>ROI section with verified benchmarks from Vera research</li>
-        <li>3-stage AI journey (Connected → Automated → Agentic)</li>
-        <li>FOMO section ordered by buyer's social-proof angle</li>
-        <li>Pricing computed live from tm-rates.json + flow count</li>
-        <li>Timeline and next steps with architect name</li>
-      </ul>
-    </div>
-    <div class="deliv-card">
-      <div class="deliv-tag">Discovery Deliverable</div>
-      <div class="deliv-title">Client Intake Questionnaire</div>
-      <ul class="deliv-items">
-        <li>Pre-filled answers from what Sage extracted in the transcript</li>
-        <li>Unanswered gaps clearly flagged for the client to complete</li>
-        <li>Use cases collapsed by default — client expands to answer</li>
-        <li>Submits directly to Firestore on "Submit to DataSkate"</li>
-        <li>Deployed to firebase/public/intake/{client}.html</li>
-      </ul>
-    </div>
-    <div class="deliv-card">
-      <div class="deliv-tag">AE Pitch Kit</div>
-      <div class="deliv-title">Integration Deck</div>
-      <ul class="deliv-items">
-        <li>Geo-first FOMO: named companies within ~100 miles</li>
-        <li>Nearby peers with verified public case studies</li>
-        <li>4 opening lines for the architect — scripted by Hawk</li>
-        <li>AI journey narrative specific to their systems + industry</li>
-        <li>Talking points adapted to buyer psychology profile</li>
-        <li>Competitor FOMO ordered by social-proof angle</li>
-      </ul>
-    </div>
-  </div>
-</div>
+  function setActiveH2(el) {
+    if (el === activeH2) return;
+    activeH2 = el;
+    navLeft.querySelectorAll('.nav-section-link').forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + el.id);
+    });
+    buildRightNav(el);
+  }
 
-<!-- ══ SECTION 4: NEXT STAGES ══ -->
-<div class="section">
-  <div class="eyebrow">Stages 2–7 — What Follows Scout</div>
-  <div class="section-title">The Rest of the Pipeline</div>
-  <div class="section-sub">Each stage has its own AI agent (or is auto-generated). Sub-agent pipelines like Scout's are planned for later stages as volume grows.</div>
+  function setActiveH3(el) {
+    if (el === activeH3) return;
+    activeH3 = el;
+    navRight.querySelectorAll('.nav-sub-link').forEach(a => {
+      a.classList.toggle('active', el && a.getAttribute('href') === '#' + el.id);
+    });
+  }
 
-  <div class="next-stages">
-    <div class="stage">
-      <div class="stage-tag">Stage 2</div>
-      <div class="stage-name">Analyst</div>
-      <div class="stage-agents">
-        <span class="stage-agent-chip">Mary (AI)</span>
-      </div>
-      <div class="stage-desc">Reads intake responses. Produces PRD — flows, acceptance criteria, canonical field mapping, edge cases. Validates against canonical-models registry.</div>
-    </div>
-    <div class="stage">
-      <div class="stage-tag">Stage 3</div>
-      <div class="stage-name">Architect</div>
-      <div class="stage-agents">
-        <span class="stage-agent-chip">Winston (AI)</span>
-      </div>
-      <div class="stage-desc">Technical design from PRD. Selects connectors, defines API-led layers, sets security level, writes architecture.md and decisions.json.</div>
-    </div>
-    <div class="stage">
-      <div class="stage-tag">Stage 4</div>
-      <div class="stage-name">PM</div>
-      <div class="stage-agents">
-        <span class="stage-agent-chip">John (AI)</span>
-      </div>
-      <div class="stage-desc">Converts architecture + PRD into user stories (stories.md). Creates Jira tickets and GitHub issues in the client dev repo. Sets sprint milestones.</div>
-    </div>
-    <div class="stage">
-      <div class="stage-tag">Stage 5</div>
-      <div class="stage-name">Scaffold</div>
-      <div class="stage-agents">
-        <span class="stage-agent-chip">Auto-generated</span>
-      </div>
-      <div class="stage-desc">generate.js reads decisions.json and produces a complete Mule 4 project — connector stubs, DWL transforms, MUnit test shells, pom.xml, property files.</div>
-    </div>
-    <div class="stage">
-      <div class="stage-tag">Stage 6</div>
-      <div class="stage-name">Developer</div>
-      <div class="stage-agents">
-        <span class="stage-agent-chip" style="background:#D1FAE5;color:#065F46;">Engineer</span>
-      </div>
-      <div class="stage-desc">Opens scaffold in Anypoint Studio / Code Builder. Fills in TODO flow logic. Runs MUnit. Commits to client GitHub repo. No boilerplate — scaffold handles it.</div>
-    </div>
-    <div class="stage">
-      <div class="stage-tag">Stage 7</div>
-      <div class="stage-name">Verify</div>
-      <div class="stage-agents">
-        <span class="stage-agent-chip">Dev agent (VR)</span>
-      </div>
-      <div class="stage-desc">Runs MUnit suite. Checks coverage floors from decisions.json. Verifies every FR and NFR from stories.md is addressed. Produces PASS or gap report.</div>
-    </div>
-  </div>
-</div>
+  function onScroll() {
+    const scrollY = window.scrollY + 52;
+    let currentH2 = h2s[0];
+    for (const h2 of h2s) {
+      if (h2.offsetTop <= scrollY) currentH2 = h2;
+      else break;
+    }
+    if (currentH2) setActiveH2(currentH2);
 
-<!-- ══ SECTION 5: ORCHESTRATOR + KNOWLEDGE CAPTURE ══ -->
-<div class="section">
-  <div class="eyebrow">How Scout Learns — Continuous Knowledge Capture</div>
-  <div class="section-title">Every Engagement Makes the Next One Smarter</div>
-  <div class="section-sub">orchestrate.js is the conductor — it sequences agents, manages gates, assembles context, and writes telemetry. But the more important function is what happens after each run: knowledge captured during pre-sales flows back into the standards library, making every future engagement start with more intelligence than the last.</div>
+    const idx  = h2s.indexOf(currentH2);
+    const next = h2s[idx + 1];
+    const sectionH3s = h3s.filter(h3 => {
+      const afterH2    = h3.offsetTop >= (currentH2 ? currentH2.offsetTop : 0);
+      const beforeNext = !next || h3.offsetTop < next.offsetTop;
+      return afterH2 && beforeNext;
+    });
+    let currentH3 = null;
+    for (const h3 of sectionH3s) {
+      if (h3.offsetTop <= scrollY) currentH3 = h3;
+      else break;
+    }
+    setActiveH3(currentH3);
+  }
 
-  <!-- Orchestrator flow -->
-  <div class="orch-flow">
-    <div class="orch-block">
-      <div class="orch-block-label">Input</div>
-      <div class="orch-block-name">Call Recording</div>
-      <div class="orch-block-desc">MP4 / transcript + optional deck or notes dropped into inbox/</div>
-    </div>
-    <div class="orch-block center">
-      <div class="orch-block-label">Conductor</div>
-      <div class="orch-block-name">orchestrate.js</div>
-      <div class="orch-block-desc">Sequences 9 agents · assembles context · manages human gates · writes telemetry</div>
-    </div>
-    <div class="orch-block">
-      <div class="orch-block-label">Run Artifacts</div>
-      <div class="orch-block-name">projects/{client}/run/</div>
-      <div class="orch-block-desc">sage.json · vera.json · rex.json · ivy.json · flo.json · hawk.json · petra.json · quinn.json · mira.json</div>
-    </div>
-    <div class="orch-block">
-      <div class="orch-block-label">Client Deliverables</div>
-      <div class="orch-block-name">projects/{client}/</div>
-      <div class="orch-block-desc">proposal-content.json · integration-deck-content.json · intake-questionnaire-{client}.html</div>
-    </div>
-    <div class="orch-block">
-      <div class="orch-block-label">Knowledge Back-Flow</div>
-      <div class="orch-block-name">standards/</div>
-      <div class="orch-block-desc">Use case library · playbooks · FIELD_KNOWLEDGE.md · telemetry CSV</div>
-    </div>
-  </div>
-
-  <!-- 4 knowledge capture streams -->
-  <div class="kc-grid">
-
-    <div class="kc-card green">
-      <div class="kc-source">Vera → promote-library.js</div>
-      <div class="kc-title">Use Case Library — standards/usecases/{vertical}.json</div>
-      <ul class="kc-items">
-        <li>Vera stages every new FOMO finding in <code>vera.json libraryContributions[]</code> — never writes directly to the library</li>
-        <li>Each entry tagged: systems[], vertical, useCase, outcome, aiLayer, source (web or DS), isProspect</li>
-        <li>DS-built flows (source: "DS") also staged here — linked to the client slug</li>
-        <li>Human runs <code>node DSPipeline/promote-library.js</code> to review and merge staged entries into the vertical library</li>
-        <li>Next engagement on the same vertical starts with those peers already in Vera's research baseline</li>
-      </ul>
-    </div>
-
-    <div class="kc-card amber">
-      <div class="kc-source">Sage → FIELD_KNOWLEDGE.md → Scout toml</div>
-      <div class="kc-title">Field Knowledge — Architect Patterns Extracted from Calls</div>
-      <ul class="kc-items">
-        <li>Sage reads every transcript and extracts the questions DataSkate architects asked — priority order, framing style, gap type</li>
-        <li>Sage proposes FK-NNN entries for <code>docs/FIELD_KNOWLEDGE.md</code> — flagged "for human review only, never auto-edit"</li>
-        <li>Approved FK entries are promoted into the Scout agent toml — enriching what Sage looks for on the next call</li>
-        <li>Over time, Scout's extraction improves because it's trained on what experienced architects actually asked, not guessed patterns</li>
-      </ul>
-    </div>
-
-    <div class="kc-card blue">
-      <div class="kc-source">Rex → standards/playbooks/{system}/</div>
-      <div class="kc-title">System Playbooks — Auth, Quirks, DWL Mappings</div>
-      <ul class="kc-items">
-        <li>Rex reads the playbook for each detected system before analysing the client's requirements</li>
-        <li>New systems not yet in standards/playbooks/ trigger Rex to create a stub playbook entry</li>
-        <li>As engagements accumulate on a system (e.g. Shopify), the playbook grows: more quirks, more DWL transforms, more edge cases</li>
-        <li>When confirmed fields appear in 2+ clients, the Architect promotes the canonical model stub to a versioned schema</li>
-      </ul>
-    </div>
-
-    <div class="kc-card">
-      <div class="kc-source">orchestrate.js → DSPipeline/telemetry/usage.csv</div>
-      <div class="kc-title">Cost &amp; Performance Telemetry — Per Agent, Per Run</div>
-      <ul class="kc-items">
-        <li>Every agent run appends a row: date, client, agent, model, input tokens, output tokens, cost (USD), duration (ms), status</li>
-        <li>Rates read from <code>DSPipeline/telemetry/model-pricing.json</code> — never hardcoded, updated when Anthropic changes pricing</li>
-        <li>Aggregated across runs: cost per engagement, cost per stage, which agents are most expensive</li>
-        <li>Used to tune model selection — e.g. Sage runs on Haiku because extraction doesn't need Opus reasoning</li>
-      </ul>
-    </div>
-
-  </div>
-</div>
-
-<!-- FOOTER -->
-<div class="doc-footer">
-  <div><strong>DataSkate</strong> — 196 Princeton Hightstown Road, Building 2A Suite 11, West Windsor NJ 08550</div>
-  <div>dataskate.ai &nbsp;|&nbsp; kailash@dataskate.ai</div>
-</div>
+  if (h2s.length) {
+    setActiveH2(h2s[0]);
+    buildRightNav(h2s[0]);
+    navLeft.querySelector('.nav-section-link').classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
 
 </body>
 </html>
