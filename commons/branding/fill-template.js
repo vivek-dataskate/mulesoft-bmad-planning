@@ -90,7 +90,7 @@ const typeConfig = {
   'integration-deck': {
     requiresClient: true,
     contentFile: (c) => path.join(root, 'projects', c, 'intake', 'integration-deck-content.json'),
-    outFile:     (c) => path.join(root, 'firebase', 'public', 'internal', `integration-deck-${c}.html`),
+    outFile:     (c) => path.join(root, 'projects', c, 'intake', `integration-deck-${c}.html`),
   },
 };
 
