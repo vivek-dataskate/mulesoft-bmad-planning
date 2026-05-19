@@ -187,6 +187,24 @@ async function uploadHtmlToStorage(slug) {
 }
 
 
+// ── 3. Seed pitchKits/{slug} in Firestore (Admin SDK — rules say write:false) ──
+async function seedPitchKit(slug) {
+  const contentPath = path.join(ROOT, 'projects', slug, 'intake', `integration-deck-content.json`);
+  if (!fs.existsSync(contentPath)) {
+    log(`[${slug}] no integration-deck-content.json — pitchKits doc skipped`);
+    return;
+  }
+  const contentJson = fs.readFileSync(contentPath, 'utf8');
+  if (!admin.apps.length) getBucket(); // ensures admin is initialised
+  const db = admin.firestore();
+  await db.collection('pitchKits').doc(slug).set({
+    client:      slug,
+    contentJson,
+    updatedAt:   new Date().toISOString(),
+  }, { merge: true });
+  log(`[${slug}] pitchKits/${slug} seeded in Firestore`);
+}
+
 // ── Commit all generated HTML in firebase/public/ to git ─────────────────────
 function gitCommitHtml() {
   try {
@@ -305,6 +323,7 @@ async function main() {
     try { await archiveScoping(s); } catch (e) { log(`  scoping archive skipped: ${e.message}`); }
     try { syncLogo(s); } catch (e) { log(`  logo sync skipped: ${e.message}`); }
     try { await uploadHtmlToStorage(s); } catch (e) { log(`  html upload skipped: ${e.message}`); }
+    try { await seedPitchKit(s); } catch (e) { log(`  pitchKit seed skipped: ${e.message}`); }
   }
 
   rebuildManifest();
