@@ -45,6 +45,10 @@ h4 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 4px; 
 /* ── HEADER ── */
 .header { background: #fff; border-bottom: 3px solid var(--brand); padding: 24px 40px 20px; }
 .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.logo-group { display: flex; align-items: center; gap: 0; }
+.client-logo-block { display: flex; align-items: center; gap: 8px; margin-left: 6px; }
+.client-logo-sep { width: 1px; height: 32px; background: var(--border); }
+.client-logo-img { height: 32px; width: auto; max-width: 140px; object-fit: contain; }
 .header .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); }
 .header-title-block { border-left: 4px solid var(--brand); padding-left: 16px; margin-bottom: 16px; }
 .header h1 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; color: var(--dark); }
@@ -305,6 +309,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 <!-- HEADER -->
 <div class="header">
   <div class="header-top">
+    <div class="logo-group">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:32px;width:auto;display:block;" aria-label="DataSkate">
       <path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/>
       <path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/>
@@ -317,7 +322,8 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/>
       <path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
       <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
-    </svg>
+    </svg><div class="client-logo-block"><div class="client-logo-sep"></div><img src="/logos/homage.svg" alt="Homage" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
+    </div>
     <span class="eyebrow">Integration Roadmap — Confidential</span>
   </div>
   <div class="header-title-block">
@@ -1021,13 +1027,13 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="stage-label">Automated</div>
       <div class="stage-year">Year 1–2 · Built on Stage 1</div>
       <h4>NetSuite inventory and EDI demand signals drive Shopify merchandising automatically</h4>
-      <ul><li>NetSuite inventory drops below a threshold → Shopify applies CSWOS rules for that SKU automatically — no human toggle</li><li>EDI purchase order from Fanatics or DSG arrives → NetSuite checks available inventory and flags fulfillment risk before the acknowledgment is sent</li><li>Matrix item price changes in NetSuite propagate to Shopify within minutes — no manual step between ERP and storefront</li><li>Month-end financial close shrinks: billing transactions, customer deposits, and invoice transformations run without human touch</li></ul>
+      <ul><li>NetSuite inventory drops below a threshold → Shopify applies CSWOS rules for that SKU automatically — no human toggle</li><li>Month-end financial close shrinks — billing transactions, deposits, and invoice transformations run without human touch</li></ul>
     </div>
 <div class="stage-card stage3">
       <div class="stage-label">Agentic</div>
       <div class="stage-year">Year 2+</div>
       <h4>An AI agent monitors every SKU's velocity, EDI demand, and restock lead time — surfacing margin risk before the fulfillment window closes</h4>
-      <ul><li>Which SKUs are at risk of missing a Fanatics or DSG fulfillment window in the next 72 hours — and what specifically should we do about it?</li><li>When sales velocity plus open EDI demand plus restock lead time signal a stockout risk, the agent surfaces the specific action: apply CSWOS, restrict EDI allocation, request emergency restock, or initiate a markdown</li><li>No spreadsheet. No Monday morning surprise. The data it reads — order intake, inventory levels, fulfillment events, EDI demand from Orderful — is built in Stage 1. Without Stage 1, this question is unanswerable.</li></ul>
+      <ul><li>No spreadsheet. No Monday morning inventory surprise. The agent reads what Stage 1 built — live order intake, inventory levels, fulfillment events, EDI demand from Orderful — and tells you which SKUs are at risk of missing a Fanatics or DSG fulfillment window before it becomes a chargeback.</li></ul>
     </div>
     </div>
     <p class="pull-quote">Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.</p>
