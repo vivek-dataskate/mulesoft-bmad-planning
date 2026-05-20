@@ -1,0 +1,13 @@
+{# pricing-model-card-tm.njk — T&M column. Resource rows loop over pricing.tm.resources #}
+<div class="model-card tm">
+  <div class="model-title">T&amp;M — Time &amp; Materials</div>
+  <div class="model-sub">Pay for actual hours; scope can flex mid-project</div>
+  {% if pricing.tm %}
+    {% for r in pricing.tm.resources %}
+  <div class="model-row"><span class="lbl">{{ r.role | esc }}</span><span class="val big">${{ r.ratePerHour }}<span style="font-size:9px;font-weight:400;color:var(--mid);">/hr · ~{{ r.typicalHoursPerFlow }}h/flow</span></span></div>
+    {% endfor %}
+  {% endif %}
+  <div class="model-row"><span class="lbl">Invoicing</span><span class="val">{{ pricing.tm.invoiceCycle if pricing.tm else 'bi-weekly' }}, actual hrs</span></div>
+  <div class="model-row"><span class="lbl">Minimum</span><span class="val">{{ pricing.tm.minimumHours if pricing.tm else 80 }} hrs</span></div>
+  <span class="badge blue">Use when scope is flexible</span>
+</div>

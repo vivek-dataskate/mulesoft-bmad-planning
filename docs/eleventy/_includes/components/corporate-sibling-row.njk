@@ -1,0 +1,43 @@
+{#
+  components/corporate-sibling-row.njk
+  ────────────────────────────────────
+  One row in the Sibling Brands list. Mirrors the inline sibling-row builder
+  inside buildCorporateBrief().
+
+  Inputs (current loop item is exposed as `sibling`):
+    sibling = { name, website?, integrationSignal?, sourceUrl? }
+                — or a bare string (legacy shape)
+
+  A bare string has no `.name`, so `sibling.name is defined` cleanly
+  distinguishes the two shapes (don't use `== sibling` — JS `==` coerces an
+  object to "[object Object]" and mis-classifies it as a string).
+#}
+{%- if sibling.name is defined -%}
+  {%- set _name   = sibling.name -%}
+  {%- set _website = sibling.website or '' -%}
+  {%- set _signal = sibling.integrationSignal or 'unknown — no public integration footprint found' -%}
+  {%- set _src    = sibling.sourceUrl or '' -%}
+{%- else -%}
+  {%- set _name   = sibling -%}
+  {%- set _website = '' -%}
+  {%- set _signal = 'unknown — no public integration footprint found' -%}
+  {%- set _src    = '' -%}
+{%- endif -%}
+{%- if _name -%}
+{%- set _sigClass = 'sibling-signal unknown' if (_signal | iStartsWith('unknown')) else 'sibling-signal' -%}
+<div class="sibling-row">
+  <div>
+    <div class="sibling-name">
+      {%- if _website -%}
+      <a href="{{ _website | esc }}" target="_blank" rel="noopener">{{ _name | esc }}</a>
+      {%- else -%}
+      {{ _name | esc }}
+      {%- endif -%}
+    </div>
+    {%- if _website -%}
+    <div class="sibling-meta">{{ _website | domainOnly | esc }}</div>
+    {%- endif -%}
+  </div>
+  <div class="{{ _sigClass }}">{{ _signal | esc }}{% if _src %} <a href="{{ _src | esc }}" target="_blank" rel="noopener" style="font-size:11px;color:var(--mid)">[source]</a>{% endif %}</div>
+</div>
+{%- endif -%}

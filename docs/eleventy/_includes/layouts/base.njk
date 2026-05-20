@@ -1,0 +1,27 @@
+{#
+  layouts/base.njk
+  ────────────────
+  Outer HTML shell shared by every DataSkate document. Pulls in:
+    1. DTCG tokens (generated CSS variables)
+    2. shared-base.css.html (typography reset + base styles)
+    3. {% block head %}      — template-specific <style> + <link>
+    4. {% block body %}      — actual page markup
+    5. {% block scripts %}   — template-specific inline JS
+
+  Each template extends this with {% extends "layouts/base.njk" %}.
+#}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ docTitle or title or "DataSkate" }}</title>
+<link rel="stylesheet" href="/tokens.css">
+{{ "commons/templates/shared-base.css.html" | inline | safe }}
+{% block head %}{% endblock %}
+</head>
+<body>
+{% block body %}{% endblock %}
+{% block scripts %}{% endblock %}
+</body>
+</html>

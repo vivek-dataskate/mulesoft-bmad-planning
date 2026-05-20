@@ -1,0 +1,326 @@
+{#
+  layouts/architect-guide.njk
+  ────────────────────────────
+  3-column docs shell (left nav of H2s, content, right nav of H3s).
+  Static internal page — Firebase auth gated to @dataskate.ai.
+  Content is mdToHtml(<markdown source>) — same converter the legacy
+  fill-template.js used, factored out to commons/branding/md-to-html.js.
+
+  Page data:
+    docTitle, eyebrow, contentMd (raw markdown), title (from H1)
+#}
+{% extends "layouts/base.njk" %}
+
+{% block head %}
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+.top-bar {
+  position: sticky; top: 0; z-index: 200;
+  background: #fff; border-bottom: 2px solid var(--brand);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 20px; height: 44px;
+}
+.top-bar-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.top-bar-divider { width: 1px; height: 24px; background: var(--border); }
+.top-bar-title { font-size: 12px; font-weight: 700; color: var(--dark); }
+.top-bar-eyebrow { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mid); }
+
+.docs-shell {
+  display: grid;
+  grid-template-columns: 200px 1fr 180px;
+  min-height: calc(100vh - 44px);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.nav-left {
+  position: sticky; top: 44px;
+  height: calc(100vh - 44px); overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 14px 0 24px;
+}
+.nav-left::-webkit-scrollbar { width: 3px; }
+.nav-left::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.nav-section { margin-bottom: 1px; }
+.nav-section-link {
+  display: block; padding: 5px 14px;
+  font-size: 12px; font-weight: 600; color: var(--mid);
+  text-decoration: none; border-left: 3px solid transparent;
+  transition: color .1s, border-color .1s, background .1s;
+  line-height: 1.35;
+}
+.nav-section-link:hover { color: var(--dark); background: #FAFAFA; }
+.nav-section-link.active { color: var(--brand); border-left-color: var(--brand); background: var(--light); font-weight: 700; }
+
+.doc-content {
+  padding: 20px 32px 48px;
+  min-width: 0; font-size: 13px;
+}
+.doc-content h2 {
+  font-size: 16px; font-weight: 800; color: var(--dark);
+  margin: 36px 0 6px;
+  border-bottom: 2px solid var(--border); padding-bottom: 6px;
+  scroll-margin-top: 52px;
+}
+.doc-content h2:first-child { margin-top: 0; }
+.doc-content h3 {
+  font-size: 13px; font-weight: 700; color: var(--brand-dk);
+  margin: 20px 0 5px; scroll-margin-top: 52px;
+}
+.doc-content h4 {
+  font-size: 11px; font-weight: 700; color: var(--mid);
+  text-transform: uppercase; letter-spacing: 0.7px;
+  margin: 14px 0 4px;
+}
+.doc-content p { margin: 5px 0; line-height: 1.6; color: var(--dark); }
+.doc-content > *:first-child { margin-top: 0; }
+.doc-content ul, .doc-content ol { margin: 5px 0 5px 18px; }
+.doc-content ul li { list-style: disc; margin: 2px 0; line-height: 1.55; }
+.doc-content ol li { list-style: decimal; margin: 2px 0; line-height: 1.55; }
+.doc-content blockquote {
+  margin: 10px 0; padding: 8px 14px;
+  border-left: 3px solid var(--brand); background: var(--light);
+  border-radius: 0 4px 4px 0;
+}
+.doc-content blockquote p { margin: 0; font-style: italic; color: var(--dark-dk, #111); font-size: 12px; }
+.doc-content pre.code-block {
+  background: #1C1C1E; color: #E5E5EA;
+  padding: 12px 16px; border-radius: 6px;
+  font-size: 12px; font-family: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  line-height: 1.5; margin: 10px 0; overflow-x: auto; white-space: pre-wrap;
+}
+.doc-content code {
+  background: #F2F2F4; padding: 1px 5px; border-radius: 3px;
+  font-size: 12px; font-family: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  color: var(--brand-dk);
+}
+.doc-content pre.code-block code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.doc-content hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+.md-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+.md-table th {
+  background: var(--dark); color: #fff;
+  padding: 6px 10px; text-align: left; font-weight: 600; font-size: 11px;
+}
+.md-table th:first-child { border-radius: 4px 0 0 0; }
+.md-table th:last-child  { border-radius: 0 4px 0 0; }
+.md-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.md-table tr:nth-child(even) td { background: #FAFAFA; }
+.md-table tr:last-child td { border-bottom: 2px solid var(--border); }
+
+.doc-content img {
+  max-width: 100%; height: auto; border-radius: 6px;
+  border: 1px solid var(--border); margin: 12px 0; display: block;
+}
+.doc-content figure { margin: 14px 0; }
+.doc-content figcaption { font-size: 11px; color: var(--mid); margin-top: 4px; text-align: center; }
+
+strong { font-weight: 700; }
+em { font-style: italic; }
+
+.nav-right {
+  position: sticky; top: 44px;
+  height: calc(100vh - 44px); overflow-y: auto;
+  border-left: 1px solid var(--border);
+  padding: 14px 0 24px;
+}
+.nav-right::-webkit-scrollbar { width: 3px; }
+.nav-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.nav-right-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--mid); padding: 0 14px; margin-bottom: 6px;
+}
+.nav-sub-link {
+  display: block; padding: 3px 14px;
+  font-size: 11px; color: var(--mid); text-decoration: none;
+  border-left: 2px solid transparent; transition: color .1s, border-color .1s;
+  line-height: 1.35;
+}
+.nav-sub-link:hover { color: var(--dark); }
+.nav-sub-link.active { color: var(--brand-dk); border-left-color: var(--brand); font-weight: 600; }
+
+.doc-footer {
+  border-top: 1px solid var(--border); padding: 10px 32px;
+  font-size: 11px; color: var(--mid);
+  display: flex; justify-content: space-between; align-items: center;
+  grid-column: 2;
+}
+.doc-footer a { color: var(--mid); text-decoration: none; }
+
+/* Diagrams (used in the embedded HTML within architect-guide.md) */
+.dg-flow { display: flex; align-items: stretch; gap: 0; margin: 12px 0; overflow-x: auto; }
+.dg-step { flex: 1; min-width: 130px; border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; background: #fff; display: flex; flex-direction: column; gap: 3px; }
+.dg-step.highlight { border-color: var(--brand); background: var(--light); }
+.dg-step-num { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); }
+.dg-step-name { font-size: 13px; font-weight: 800; color: var(--dark); }
+.dg-step.highlight .dg-step-name { color: var(--brand); }
+.dg-step-tag { font-size: 10px; font-weight: 600; color: var(--mid); background: #F0F0F2; border-radius: 20px; padding: 1px 8px; align-self: flex-start; }
+.dg-step.highlight .dg-step-tag { background: #FDDEDE; color: var(--brand); }
+.dg-step-desc { font-size: 11px; color: var(--mid); line-height: 1.45; margin-top: 2px; }
+.dg-arrow { display: flex; align-items: center; padding: 0 5px; color: var(--border); font-size: 18px; flex-shrink: 0; }
+.dg-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.dg-card { border: 1px solid var(--border); border-radius: 7px; padding: 12px 14px 10px; }
+.dg-card.primary { border-color: var(--brand); }
+.dg-card-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); margin-bottom: 3px; }
+.dg-card.primary .dg-card-label { color: var(--brand); }
+.dg-card-title { font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 6px; }
+.dg-card-row { display: flex; gap: 8px; align-items: baseline; font-size: 12px; color: var(--dark); padding: 3px 0; border-top: 1px solid var(--border); }
+.dg-card-row-label { color: var(--mid); flex-shrink: 0; min-width: 100px; font-size: 11px; }
+.dg-timeline { margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
+.dg-tl-row { display: flex; align-items: center; gap: 10px; }
+.dg-tl-label { font-size: 11px; color: var(--mid); min-width: 70px; text-align: right; }
+.dg-tl-bar-wrap { flex: 1; height: 22px; }
+.dg-tl-bar { height: 22px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; }
+.dg-tl-bar.req  { background: #888; }
+.dg-tl-bar.dev  { background: var(--brand); }
+.dg-tl-weeks { font-size: 11px; color: var(--mid); min-width: 54px; }
+
+@media (max-width: 1100px) {
+  .docs-shell { grid-template-columns: 180px 1fr; }
+  .nav-right { display: none; }
+}
+@media (max-width: 720px) {
+  .docs-shell { grid-template-columns: 1fr; }
+  .nav-left { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .doc-content { padding: 16px 16px 40px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="/firebase-config.js"></script>
+{% raw %}
+<script>
+firebase.initializeApp(FIREBASE_CONFIG);
+firebase.auth().onAuthStateChanged(function(user) {
+  if (!user || !user.email.endsWith('@dataskate.ai')) {
+    window.location.href = '/?redirect=' + encodeURIComponent(window.location.pathname);
+  }
+});
+</script>
+{% endraw %}
+
+<div class="top-bar">
+  <div class="top-bar-logo">
+    <span style="--logo-h: 18px;">{{ branding.logo | safe }}</span>
+  </div>
+  <div class="top-bar-divider"></div>
+  <div>
+    <div class="top-bar-eyebrow">{{ eyebrow or 'DataSkate Internal' }}</div>
+    <div class="top-bar-title">{{ title }}</div>
+  </div>
+</div>
+
+<div class="docs-shell">
+  <nav class="nav-left" id="nav-left" aria-label="Sections"></nav>
+  <main class="doc-content" id="doc-content">{{ contentMd | mdToHtml | safe }}</main>
+  <nav class="nav-right" id="nav-right" aria-label="On this page">
+    <div class="nav-right-label">On this page</div>
+    <div id="nav-right-links"></div>
+  </nav>
+</div>
+
+<footer style="border-top:1px solid var(--border);padding:18px 56px;font-size:12px;color:var(--mid);display:flex;justify-content:space-between;">
+  <span>DataSkate · <a href="https://dataskate.ai" style="color:var(--mid);">dataskate.ai</a></span>
+  <span>Internal Use Only</span>
+</footer>
+
+{% raw %}
+<script>
+(function () {
+  function slug(text) {
+    return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+  }
+
+  const content  = document.getElementById('doc-content');
+  const navLeft  = document.getElementById('nav-left');
+  const navRight = document.getElementById('nav-right-links');
+
+  const h2s = Array.from(content.querySelectorAll('h2'));
+  const h3s = Array.from(content.querySelectorAll('h3'));
+  h2s.forEach(el => { if (!el.id) el.id = slug(el.textContent); });
+  h3s.forEach(el => { if (!el.id) el.id = slug(el.textContent); });
+
+  h2s.forEach(h2 => {
+    const a = document.createElement('a');
+    a.href = '#' + h2.id;
+    a.className = 'nav-section-link';
+    a.textContent = h2.textContent;
+    a.addEventListener('click', e => { e.preventDefault(); h2.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    const div = document.createElement('div'); div.className = 'nav-section'; div.appendChild(a);
+    navLeft.appendChild(div);
+  });
+
+  function buildRightNav(activeH2) {
+    navRight.innerHTML = '';
+    if (!activeH2) return;
+    const idx  = h2s.indexOf(activeH2);
+    const next = h2s[idx + 1];
+    const sectionH3s = h3s.filter(h3 => {
+      const pos = h3.compareDocumentPosition(activeH2);
+      const posNext = next ? h3.compareDocumentPosition(next) : null;
+      return (pos & Node.DOCUMENT_POSITION_PRECEDING) &&
+             (!next || (posNext & Node.DOCUMENT_POSITION_FOLLOWING));
+    });
+    sectionH3s.forEach(h3 => {
+      const a = document.createElement('a');
+      a.href = '#' + h3.id;
+      a.className = 'nav-sub-link';
+      a.textContent = h3.textContent;
+      a.addEventListener('click', e => { e.preventDefault(); h3.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      navRight.appendChild(a);
+    });
+  }
+
+  let activeH2 = h2s[0] || null;
+  let activeH3 = null;
+
+  function setActiveH2(el) {
+    if (el === activeH2) return;
+    activeH2 = el;
+    navLeft.querySelectorAll('.nav-section-link').forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + el.id);
+    });
+    buildRightNav(el);
+  }
+
+  function setActiveH3(el) {
+    if (el === activeH3) return;
+    activeH3 = el;
+    navRight.querySelectorAll('.nav-sub-link').forEach(a => {
+      a.classList.toggle('active', el && a.getAttribute('href') === '#' + el.id);
+    });
+  }
+
+  function onScroll() {
+    const scrollY = window.scrollY + 52;
+    let currentH2 = h2s[0];
+    for (const h2 of h2s) { if (h2.offsetTop <= scrollY) currentH2 = h2; else break; }
+    if (currentH2) setActiveH2(currentH2);
+    const idx  = h2s.indexOf(currentH2);
+    const next = h2s[idx + 1];
+    const sectionH3s = h3s.filter(h3 => {
+      const afterH2   = h3.offsetTop >= (currentH2 ? currentH2.offsetTop : 0);
+      const beforeNext = !next || h3.offsetTop < next.offsetTop;
+      return afterH2 && beforeNext;
+    });
+    let currentH3 = null;
+    for (const h3 of sectionH3s) { if (h3.offsetTop <= scrollY) currentH3 = h3; else break; }
+    setActiveH3(currentH3);
+  }
+
+  if (h2s.length) {
+    setActiveH2(h2s[0]);
+    buildRightNav(h2s[0]);
+    navLeft.querySelector('.nav-section-link').classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+{% endraw %}
+{% endblock %}

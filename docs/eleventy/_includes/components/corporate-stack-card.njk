@@ -1,0 +1,48 @@
+{#
+  components/corporate-stack-card.njk
+  ───────────────────────────────────
+  One slot in the Corporate Stack 3-card grid (operating brand / operating
+  platform / financial sponsor). Mirrors cardOrEmpty() in fill-template.js.
+
+  Inputs (passed by the layout via {% set role = ... %} / {% set modifier = ... %} /
+  {% set entity = ... %} immediately before {% include %}):
+    role          — visible role label, e.g. "Operating brand"
+    modifier      — CSS hook: "brand-card" | "platform-card" | "sponsor-card"
+    entity        — { name, industry, hqLocation, founded, scale, website,
+                      linkedIn, evidence } | null
+#}
+{%- if entity and entity.name -%}
+<div class="stack-card {{ modifier }}">
+  <div class="stack-role">{{ role | esc }}</div>
+  <div class="stack-name">{{ entity.name | esc }}</div>
+  {#- Meta line 1: industry · hq · founded · scale (whichever are present) -#}
+  {%- set _meta = [] -%}
+  {%- if entity.industry   %}{% set _meta = _meta.concat([entity.industry])             %}{% endif -%}
+  {%- if entity.hqLocation %}{% set _meta = _meta.concat([entity.hqLocation])           %}{% endif -%}
+  {%- if entity.founded    %}{% set _meta = _meta.concat(['Founded ' + entity.founded]) %}{% endif -%}
+  {%- if entity.scale      %}{% set _meta = _meta.concat([entity.scale])                %}{% endif -%}
+  {%- if _meta | length > 0 -%}
+  <div class="stack-meta">{% for part in _meta %}{% if not loop.first %} · {% endif %}{{ part | esc }}{% endfor %}</div>
+  {%- endif -%}
+  {#- Meta line 2: website · LinkedIn links -#}
+  {%- if entity.website or entity.linkedIn -%}
+  <div class="stack-meta">
+    {%- if entity.website -%}
+    <a href="{{ entity.website | esc }}" target="_blank" rel="noopener">{{ entity.website | domainOnly | esc }}</a>
+    {%- endif -%}
+    {%- if entity.website and entity.linkedIn %} &middot; {% endif -%}
+    {%- if entity.linkedIn -%}
+    <a href="{{ entity.linkedIn | esc }}" target="_blank" rel="noopener">LinkedIn</a>
+    {%- endif -%}
+  </div>
+  {%- endif -%}
+  {%- if entity.evidence -%}
+  <div class="stack-evidence">{{ entity.evidence | esc }}</div>
+  {%- endif -%}
+</div>
+{%- else -%}
+<div class="stack-card empty-card">
+  <div class="stack-role">{{ role | esc }}</div>
+  <div class="stack-name">Not applicable — independent / family-owned</div>
+</div>
+{%- endif -%}

@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Architect Pitch Kit — DataSkate</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architect Pitch Kit — AgileMind</title>
+<link rel="stylesheet" href="/tokens.css">
 <style>
 /* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
 :root {
@@ -31,6 +33,7 @@ body {
 }
 a { color: var(--brand); }
 </style>
+
 
 <style>
 a { text-decoration: none; }
@@ -115,6 +118,28 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 .diagram-body svg{max-width:100%;height:auto}
 @media(max-width:600px){.diagram-row{grid-template-columns:1fr}}
 
+/* ── Portfolio context ── */
+.portfolio-frame{border-left:4px solid var(--brand);background:var(--light);padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:14px}
+.portfolio-frame .pf-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mid);margin-bottom:6px}
+.portfolio-frame .pf-platform{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:8px}
+.portfolio-frame .pf-platform span{color:var(--mid);font-weight:400}
+.portfolio-frame .pf-angle{font-size:14px;line-height:1.6;color:var(--dark);font-style:italic;margin-bottom:8px}
+.portfolio-frame .pf-angle::before{content:'\201C';color:var(--brand);font-style:normal;font-weight:700}
+.portfolio-frame .pf-angle::after{content:'\201D';color:var(--brand);font-style:normal;font-weight:700}
+.portfolio-frame .pf-exec{font-size:12px;color:var(--mid);line-height:1.5;border-top:1px solid var(--border);padding-top:8px;margin-top:8px}
+.portfolio-frame .pf-exec strong{color:var(--dark)}
+.portfolio-greenfield{background:var(--amber-bg);border-left-color:var(--amber);color:var(--dark)}
+.portfolio-greenfield .pf-eyebrow{color:var(--amber)}
+.sib-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.sib-row{border:1px solid var(--border);border-radius:5px;padding:10px 12px;background:#fff}
+.sib-row .sib-name{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.sib-row .sib-name a{color:var(--dark)}
+.sib-row .sib-meta{font-size:11px;color:var(--mid);margin-bottom:6px}
+.sib-row .sib-signal{font-size:12px;line-height:1.45;color:var(--dark)}
+.sib-row .sib-signal.unknown{color:var(--mid);font-style:italic}
+.sib-row .sib-source{font-size:11px;margin-top:5px}
+.sib-row .sib-source a{color:var(--brand)}
+
 /* ── Auth gate ── */
 #login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;background:#fff}
 #login-screen p{font-size:14px;color:var(--mid);text-align:center;max-width:320px;margin:0}
@@ -143,8 +168,11 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
   .no-print{display:none!important}
 }
 </style>
+
 </head>
 <body>
+
+
 
 <!-- AUTH GATE -->
 <div id="login-screen">
@@ -197,7 +225,7 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
       <path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/>
       <path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
       <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
-    </svg><div class="client-logo-block"><div class="client-logo-sep"></div><img src="https://dataskateclients.web.app/logos/agilemind.png" alt="agilemind" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
+    </svg><div class="client-logo-block"><div class="client-logo-sep"></div><img src="https://dataskateclients.web.app/logos/agilemind.png" alt="AgileMind" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
     </div>
     <span class="eyebrow">Call Prep <span class="internal-badge">Internal Only</span></span>
   </div>
@@ -211,6 +239,12 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 <section>
   <h2>Open With This</h2>
   <div id="dk-opener"></div>
+</section>
+
+<section id="s-portfolio" style="display:none">
+  <h2>Portfolio Frame — Why This Deal Is Bigger Than One Brand</h2>
+  <div id="dk-portfolio"></div>
+  <div id="dk-portfolio-siblings"></div>
 </section>
 
 <section id="s-architecture" style="display:none">
@@ -267,9 +301,10 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="/firebase-config.js"></script>
+<script>window.__CLIENT_SLUG = "agilemind";</script>
 <script>
 (function () {
-  const CLIENT_SLUG = 'agilemind';
+  const CLIENT_SLUG = window.__CLIENT_SLUG;
 
   firebase.initializeApp(FIREBASE_CONFIG);
   const auth     = firebase.auth();
@@ -422,6 +457,55 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
     }
     txt('dk-ai-narrative', c.aiJourneyNarrative || '');
 
+    // Portfolio context — only rendered when Petra passes a non-null block
+    // (i.e. the buyer sits inside an operating platform / PE portfolio).
+    // Independent / family-owned clients leave portfolioContext = null and
+    // the section stays hidden so the deck doesn't dangle a generic header.
+    const pc = c.portfolioContext;
+    if (pc && pc.platformName) {
+      document.getElementById('s-portfolio').style.display = '';
+      const isGreenfield = pc.greenfieldFlag === true;
+      const platformLine = `<div class="pf-platform">${e(pc.platformName)}${pc.siblingCount ? ` <span>· ${e(pc.siblingCount)} sibling brand${pc.siblingCount === 1 ? '' : 's'}</span>` : ''}${pc.sponsorName ? ` <span>· sponsored by ${e(pc.sponsorName)}</span>` : ''}</div>`;
+      const angleLine = pc.templateAngle ? `<div class="pf-angle">${e(pc.templateAngle)}</div>` : '';
+      const execLine  = pc.executiveAngle ? `<div class="pf-exec"><strong>For the sponsor:</strong> ${e(pc.executiveAngle)}</div>` : '';
+      const greenfield = isGreenfield && pc.siblingCount
+        ? `<div class="pf-exec" style="margin-top:6px"><strong>Greenfield:</strong> none of the ${e(pc.siblingCount)} sibling brand${pc.siblingCount === 1 ? '' : 's'} shows a public integration footprint yet — first-mover advantage inside the portfolio.</div>`
+        : '';
+      set('dk-portfolio', `<div class="portfolio-frame${isGreenfield ? ' portfolio-greenfield' : ''}">
+        <div class="pf-eyebrow">${isGreenfield ? 'Portfolio greenfield' : 'Portfolio template'}</div>
+        ${platformLine}
+        ${angleLine}
+        ${execLine}
+        ${greenfield}
+      </div>`);
+
+      const siblings = Array.isArray(pc.siblings) ? pc.siblings : [];
+      if (siblings.length) {
+        set('dk-portfolio-siblings', `<div class="sib-grid">${
+          siblings.map(s => {
+            const signal     = s.integrationSignal || 'unknown — no public integration footprint found';
+            const isUnknown  = /^unknown/i.test(signal);
+            const nameHtml   = s.website
+              ? `<a href="${e(s.website)}" target="_blank" rel="noopener">${e(s.name)}</a>`
+              : e(s.name);
+            const metaParts  = [];
+            if (s.website) metaParts.push(e(String(s.website).replace(/^https?:\/\//, '').replace(/\/$/, '')));
+            const sourceHtml = s.sourceUrl
+              ? `<div class="sib-source"><a href="${e(s.sourceUrl)}" target="_blank" rel="noopener">source</a></div>`
+              : '';
+            return `<div class="sib-row">
+              <div class="sib-name">${nameHtml}</div>
+              ${metaParts.length ? `<div class="sib-meta">${metaParts.join(' · ')}</div>` : ''}
+              <div class="sib-signal${isUnknown ? ' unknown' : ''}">${e(signal)}</div>
+              ${sourceHtml}
+            </div>`;
+          }).join('')
+        }</div>`);
+      } else {
+        set('dk-portfolio-siblings', '');
+      }
+    }
+
     // Architecture diagrams
     if (c.systemDiagram) {
       document.getElementById('s-architecture').style.display = '';
@@ -450,6 +534,9 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
   }
 })();
 </script>
+
+
+
 
 </body>
 </html>

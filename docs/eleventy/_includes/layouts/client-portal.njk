@@ -1,0 +1,272 @@
+{#
+  layouts/client-portal.njk
+  ──────────────────────────
+  Per-client engagement portal. Inputs (via page data):
+    portal = {
+      meta: { clientName, clientSlug, architect, architectEmail, clientLogoPath?, projectStarted?, targetGoLive?, updated? },
+      sowSigned: boolean,
+      phases: [{ label, status }],
+      docCards: [{ id?, icon?, title, sub?, status, href? }],
+      internalDocs?: [{ icon?, title, href }],
+      sprints?: [{ id, title, pct?, stories: [...] }],
+      sprintStats?: { total, done, active, review, planned }
+    }
+#}
+{% extends "layouts/base.njk" %}
+
+{% block head %}
+<style>
+a { text-decoration: none; }
+.header { background: #fff; padding: 24px 40px 0; border-bottom: 3px solid var(--brand); }
+.header-top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; }
+.header-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.client-logo-block { display: flex; align-items: center; gap: 8px; margin-left: 4px; }
+.client-logo-sep { width: 1px; height: 56px; background: var(--border); margin-right: 4px; }
+.client-logo-img { height: 56px; width: auto; max-width: 200px; object-fit: contain; }
+.header-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand-dk); }
+.header-phase-col { display: flex; align-items: center; padding: 8px 16px 14px; }
+.header-phase-col .phase-bar { width: 100%; padding: 0; }
+.arch-badge { background: var(--light); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; min-width: 180px; }
+.arch-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); margin-bottom: 4px; }
+.arch-name { font-size: 14px; font-weight: 700; color: var(--dark); }
+.arch-email { font-size: 12px; color: var(--mid); margin-top: 2px; }
+.arch-email a { color: var(--brand); }
+.header-meta { display: flex; gap: 0; border-top: 1px solid var(--border); font-size: 12px; color: var(--mid); flex-wrap: wrap; margin: 16px -40px 0; padding: 0 40px; }
+.header-meta span { padding: 8px 24px 8px 0; margin-right: 24px; }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 0 40px 48px; }
+.section { padding: 24px 0; }
+.section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; padding-bottom: 10px; }
+.section-num { font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.5px; }
+.section-title { font-size: 20px; font-weight: 700; color: var(--dark); }
+
+.phase-bar { display: flex; align-items: center; padding: 20px 0; }
+.phase-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.phase-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); }
+.phase-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--mid); white-space: nowrap; }
+.phase-line { flex: 1; min-width: 20px; height: 2px; background: var(--border); }
+.phase-done .phase-dot { background: var(--green); border-color: var(--green); }
+.phase-done .phase-label { color: var(--green); }
+.phase-active .phase-dot { background: var(--brand); border-color: var(--brand); box-shadow: 0 0 0 4px rgba(237,28,36,.15); }
+.phase-active .phase-label { color: var(--brand); font-weight: 800; }
+.phase-future .phase-dot { background: #F3F4F6; border-color: #D1D5DB; }
+
+.doc-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 10px; }
+.doc-grid > *:nth-child(-n+4) { grid-column: span 5; }
+.doc-grid > *:nth-child(n+5)  { grid-column: span 4; }
+.doc-card { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 7px; transition: border-color .15s, box-shadow .15s; cursor: default; }
+a.doc-card { cursor: pointer; }
+a.doc-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,.1); }
+.doc-available { border-color: #A7F3D0; }
+.doc-pending { border-color: #FDE68A; background: var(--amber-bg); }
+.doc-na { border-color: var(--border); background: #FAFAFA; }
+.doc-icon { font-size: 22px; flex-shrink: 0; }
+.doc-info { flex: 1; min-width: 0; }
+.doc-title { font-size: 14px; font-weight: 700; color: var(--dark); }
+.doc-sub { font-size: 12px; color: var(--mid); margin-top: 2px; }
+.doc-arrow { font-size: 14px; color: var(--brand); flex-shrink: 0; }
+.doc-na .doc-title { color: var(--mid); }
+
+.sprint-stats { display: flex; gap: 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.sprint-stat { flex: 1; min-width: 80px; text-align: center; padding: 16px 8px; border-right: 1px solid var(--border); }
+.sprint-stat:last-child { border-right: none; }
+.sn { display: block; font-size: 28px; font-weight: 900; line-height: 1; }
+.sl { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--mid); margin-top: 4px; }
+.sn-total { color: var(--dark); } .sn-done { color: var(--green); }
+.sn-active { color: var(--amber); } .sn-review { color: var(--blue-br); } .sn-planned { color: var(--mid); }
+
+.epic-block { border-bottom: 1px solid var(--border); }
+.epic-block:last-child { border-bottom: none; }
+.epic-header { display: flex; align-items: center; gap: 12px; padding: 14px 24px; cursor: pointer; user-select: none; list-style: none; }
+.epic-header::-webkit-details-marker { display: none; }
+.epic-block[open] .epic-header { background: var(--light); }
+.epic-num { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--brand); flex-shrink: 0; }
+.epic-title { font-size: 14px; font-weight: 700; flex: 1; }
+.epic-progress { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.epic-bar { width: 80px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; }
+.epic-bar-fill { height: 100%; background: var(--green); border-radius: 3px; }
+.epic-pct { font-size: 11px; font-weight: 700; color: var(--mid); width: 28px; text-align: right; }
+.epic-count { font-size: 11px; color: var(--mid); flex-shrink: 0; }
+
+.epic-stories { padding: 0 24px 16px; }
+.story-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #F3F4F6; flex-wrap: wrap; }
+.story-row:last-child { border-bottom: none; }
+.story-id { font-size: 11px; font-weight: 800; color: var(--brand); background: var(--light); padding: 2px 6px; border-radius: 4px; flex-shrink: 0; font-family: monospace; }
+.story-title { font-size: 13px; font-weight: 600; flex: 1; min-width: 160px; }
+.story-desc { font-size: 12px; color: var(--mid); width: 100%; padding-left: 2px; }
+
+.chip { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.chip-done   { background: #D1FAE5; color: #065F46; }
+.chip-active { background: #FEF3C7; color: #92400E; }
+.chip-review { background: var(--blue-bg); color: var(--blue-br); }
+.chip-planned { background: #F3F4F6; color: var(--mid); }
+
+.sprint-empty { padding: 48px 0; text-align: center; }
+.sprint-empty-icon { font-size: 36px; margin-bottom: 12px; }
+.sprint-empty-title { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+.sprint-empty-body { font-size: 13px; color: var(--mid); max-width: 380px; margin: 0 auto; }
+
+.internal-docs { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.internal-docs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); }
+.internal-doc-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--mid); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; transition: border-color .15s, color .15s; }
+.internal-doc-link:hover { border-color: var(--brand); color: var(--brand); }
+
+.footer { text-align: center; padding: 32px; font-size: 12px; color: var(--mid); }
+.footer a { color: var(--brand); }
+
+@media (max-width: 900px) {
+  .header-top { grid-template-columns: auto auto; }
+  .header-phase-col { grid-column: 1 / -1; padding: 8px 0 14px; }
+}
+@media (max-width: 640px) {
+  .header { padding: 20px 24px 0; }
+  .container { padding: 0 16px 60px; }
+  .header-meta { padding: 0 24px; margin: 16px -24px 0; }
+  .header-top { grid-template-columns: 1fr; }
+  .arch-badge { justify-self: start; }
+  .phase-bar { overflow-x: auto; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+{% set meta = portal.meta %}
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-brand">
+        <span style="--logo-h: 28px;">{{ branding.logo | safe }}</span>
+        {% if meta.clientLogoPath %}
+          <div class="client-logo-block"><div class="client-logo-sep"></div><img src="{{ meta.clientLogoPath | esc }}" alt="{{ meta.clientName | esc }}" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
+        {% endif %}
+      </div>
+      <div class="header-eyebrow">Engagement Portal</div>
+    </div>
+    <div class="header-phase-col">
+      <div class="phase-bar">{% include "components/portal-phase-bar.njk" %}</div>
+    </div>
+    <div class="arch-badge">
+      <div class="arch-label">Your Architect</div>
+      <div class="arch-name">{{ meta.architect | esc }}</div>
+      <div class="arch-email"><a href="mailto:{{ meta.architectEmail | esc }}">{{ meta.architectEmail | esc }}</a></div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span>Project started: {{ meta.projectStarted | esc }}</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">1</div>
+      <div class="section-title">Documents &amp; Resources</div>
+    </div>
+    <div class="section-body">
+      <div class="doc-grid">
+        {% for d in (portal.docCards or []) %}{% include "components/portal-doc-card.njk" %}{% endfor %}
+      </div>
+      {% if portal.internalDocs and portal.internalDocs | length > 0 %}
+        <div class="internal-docs">
+          <span class="internal-docs-label">Internal</span>
+          {% for d in portal.internalDocs %}<a class="internal-doc-link" href="{{ d.href | esc }}" target="_blank">{{ d.icon or '📄' }} {{ d.title | esc }} ›</a>{% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">2</div>
+      <div class="section-title">Sprint Status</div>
+    </div>
+    {% if portal.sprints and portal.sprints | length > 0 %}
+      {% if portal.sprintStats %}
+        {% set st = portal.sprintStats %}
+        <div class="sprint-stats">
+          <div class="sprint-stat"><span class="sn sn-total">{{ st.total }}</span><span class="sl">Total Stories</span></div>
+          <div class="sprint-stat"><span class="sn sn-done">{{ st.done }}</span><span class="sl">Done</span></div>
+          <div class="sprint-stat"><span class="sn sn-active">{{ st.active }}</span><span class="sl">In Progress</span></div>
+          <div class="sprint-stat"><span class="sn sn-review">{{ st.review }}</span><span class="sl">Review</span></div>
+          <div class="sprint-stat"><span class="sn sn-planned">{{ st.planned }}</span><span class="sl">Planned</span></div>
+        </div>
+      {% endif %}
+      {% for epic in portal.sprints %}{% include "components/portal-epic-block.njk" %}{% endfor %}
+    {% else %}
+      <div class="sprint-empty">
+        <div class="sprint-empty-icon">📋</div>
+        <div class="sprint-empty-title">Sprint planning not yet started</div>
+        <div class="sprint-empty-body">Stories and epics will appear here once your project moves into the Build phase.</div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="footer">
+  Powered by <a href="https://dataskate.ai" target="_blank">DataSkate</a> · This page updates automatically as your project progresses.
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="/firebase-config.js"></script>
+<script>
+(function () {
+  const CLIENT_SLUG = '{{ meta.clientSlug | esc }}';
+  const SOW_SIGNED  = {{ 'true' if portal.sowSigned else 'false' }};
+{% raw %}
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const db = firebase.firestore();
+
+  Promise.all([
+    db.collection('intake_responses').doc(CLIENT_SLUG).get().catch(() => null),
+    fetch('/projects-manifest.json').then(r => r.json()).catch(() => [])
+  ]).then(([intakeDoc, manifest]) => {
+    const card = document.getElementById('card-intake-questionnaire');
+    if (!card) return;
+
+    const proj = (manifest || []).find(p => p.id === CLIENT_SLUG) || {};
+    const intakePublished = !!proj.intakePublished;
+    const submittedAt = intakeDoc && intakeDoc.exists
+      ? (intakeDoc.data().submittedAt || intakeDoc.data().completedAt || null)
+      : null;
+
+    const state = submittedAt ? 'submitted' : (intakePublished ? 'sent' : 'none');
+
+    if (state === 'submitted') {
+      const date = new Date(submittedAt.seconds * 1000)
+        .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      card.outerHTML = `<div class="doc-card doc-available">
+        <div class="doc-icon">✅</div>
+        <div class="doc-info">
+          <div class="doc-title">Intake Questionnaire</div>
+          <div class="doc-sub">Submitted ${date}</div>
+        </div>
+      </div>`;
+    } else if (state === 'sent') {
+      const href = proj.intakeUrl ? ` href="${proj.intakeUrl}" target="_blank"` : '';
+      card.outerHTML = `<a class="doc-card doc-pending"${href}>
+        <div class="doc-icon">📋</div>
+        <div class="doc-info">
+          <div class="doc-title">Intake Questionnaire</div>
+          <div class="doc-sub">Please complete →</div>
+        </div>
+        ${href ? '<div class="doc-arrow">→</div>' : ''}
+      </a>`;
+    }
+
+    if (SOW_SIGNED) {
+      document.querySelectorAll('a.doc-card').forEach(a => {
+        const div = document.createElement('div');
+        div.className = a.className;
+        div.innerHTML = a.innerHTML;
+        a.replaceWith(div);
+      });
+    }
+  });
+{% endraw %}
+})();
+</script>
+{% endblock %}

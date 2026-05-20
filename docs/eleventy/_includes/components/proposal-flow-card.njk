@@ -1,0 +1,11 @@
+{#
+  components/proposal-flow-card.njk
+  Variables set by parent loop: flow
+#}
+<div class="flow-card">
+  <div class="flow-num">Flow {{ flow.num | esc }}</div>
+  {% if flow.complexity %}<span class="complexity-badge {{ flow.complexity | esc }}">{{ flow.complexity | esc }}</span>{% endif %}
+  <div class="flow-name">{{ flow.name | esc }}</div>
+  <div class="flow-route">{{ flow.route | esc }}</div>
+  <div class="flow-value">{{ flow.value | safe }}</div>
+</div>

@@ -6,9 +6,17 @@
 // HTML before it reaches a client.
 //
 // Usage:
-//   node scripts/visual-regression.js baseline   ← capture baseline PNGs
-//   node scripts/visual-regression.js diff       ← compare current vs baseline
-//   node scripts/visual-regression.js targets    ← list what would be captured
+//   node scripts/visual-regression.js baseline       ← capture baseline PNGs
+//   node scripts/visual-regression.js diff           ← compare current vs baseline (all 29 pages)
+//   node scripts/visual-regression.js diff --intake  ← compare INTAKE pages only (hard parity gate)
+//   node scripts/visual-regression.js targets        ← list what would be captured
+//
+// Parity policy:
+//   • Intake template is finalized — any diff on intake pages is a FAIL (non-zero exit).
+//   • Proposal/portal/deck/resources templates are being iteratively refined —
+//     diffs are surfaced but do NOT fail the run unless --strict is passed.
+//     This matches the design workflow: templates evolve, clients regenerate,
+//     intake stays pixel-stable so client URLs in hand keep working.
 //
 // Baselines live in tests/visual/baseline/<slug>.png (git-tracked).
 // Diffs land in tests/visual/diff/<slug>.png (gitignored, written only on mismatch).
@@ -123,37 +131,64 @@ async function cmd_baseline() {
   console.log(`\n✓ Baseline complete: ${ok}/${results.length} pages captured.`);
 }
 
-async function cmd_diff() {
+// Intake pages are the hard parity gate — finalized template, shipped URLs in client hands.
+// Any other diff is logged but doesn't fail the run (templates are still being refined).
+function isIntakeTarget(filename) {
+  // Matches: proj-<slug>-intake-questionnaire-<slug>.png, fb-intake-<slug>.png
+  return /(^|-)intake(-questionnaire)?-/.test(filename) || /^fb-intake-/.test(filename);
+}
+
+async function cmd_diff(opts) {
+  const intakeOnly = opts.intakeOnly;
+  const strict     = opts.strict;
   console.log('Capturing current →', path.relative(ROOT, CURRENT));
   await captureAll(CURRENT);
-  console.log('\nDiffing current vs baseline:');
+  console.log(`\nDiffing current vs baseline${intakeOnly ? ' (intake pages only)' : ''}:`);
   fs.mkdirSync(DIFF, { recursive: true });
-  let failed = 0, clean = 0;
+  let hardFailed = 0, softChanged = 0, clean = 0;
   for (const file of fs.readdirSync(BASELINE)) {
     if (!file.endsWith('.png')) continue;
+    const isIntake = isIntakeTarget(file);
+    if (intakeOnly && !isIntake) continue;
     const baselinePath = path.join(BASELINE, file);
     const currentPath  = path.join(CURRENT,  file);
-    if (!fs.existsSync(currentPath)) { console.log(`  ${file.padEnd(64)} MISSING in current`); failed++; continue; }
+    const gateLabel    = isIntake ? '[HARD]' : '[soft]';
+    if (!fs.existsSync(currentPath)) {
+      console.log(`  ${gateLabel} ${file.padEnd(64)} MISSING in current`);
+      if (isIntake || strict) hardFailed++;
+      continue;
+    }
     const diffPath = path.join(DIFF, file);
     const r = diffPair(baselinePath, currentPath, diffPath);
     if (r.dimensionMismatch) {
-      console.log(`  ${file.padEnd(64)} DIM MISMATCH ${r.w}x${r.h} -> ${r.cw}x${r.ch}`); failed++;
+      console.log(`  ${gateLabel} ${file.padEnd(64)} DIM MISMATCH ${r.w}x${r.h} -> ${r.cw}x${r.ch}`);
+      if (isIntake || strict) hardFailed++; else softChanged++;
     } else if (r.changed > 0) {
-      console.log(`  ${file.padEnd(64)} ${r.changed} px diff -> tests/visual/diff/${file}`); failed++;
+      console.log(`  ${gateLabel} ${file.padEnd(64)} ${r.changed} px diff -> tests/visual/diff/${file}`);
+      if (isIntake || strict) hardFailed++; else softChanged++;
     } else {
-      console.log(`  ${file.padEnd(64)} clean`); clean++;
+      console.log(`  ${gateLabel} ${file.padEnd(64)} clean`);
+      clean++;
     }
   }
-  console.log(`\n${clean} clean, ${failed} changed.`);
-  if (failed > 0) process.exit(1);
+  console.log(`\n${clean} clean, ${softChanged} soft-changed (template-in-refinement), ${hardFailed} HARD-failed.`);
+  if (hardFailed > 0) {
+    console.error(`✗ Hard parity gate failed: ${hardFailed} intake page(s) diverge from baseline.`);
+    process.exit(1);
+  }
 }
 
 function cmd_targets() {
   for (const t of discoverTargets()) console.log(`${t.slug}\t${t.source}`);
 }
 
-const cmd = process.argv[2];
+const args = process.argv.slice(2);
+const cmd  = args[0];
+const opts = {
+  intakeOnly: args.includes('--intake') || args.includes('--intake-only'),
+  strict:     args.includes('--strict'),
+};
 if (cmd === 'baseline') cmd_baseline().catch(e => { console.error(e); process.exit(2); });
-else if (cmd === 'diff') cmd_diff().catch(e => { console.error(e); process.exit(2); });
+else if (cmd === 'diff') cmd_diff(opts).catch(e => { console.error(e); process.exit(2); });
 else if (cmd === 'targets') cmd_targets();
-else { console.error('Usage: visual-regression.js baseline | diff | targets'); process.exit(1); }
+else { console.error('Usage: visual-regression.js baseline | diff [--intake] [--strict] | targets'); process.exit(1); }

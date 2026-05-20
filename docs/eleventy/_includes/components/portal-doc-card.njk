@@ -1,0 +1,9 @@
+{# portal-doc-card.njk — one document tile in client portal.
+   Input: d = { id?, icon?, title, sub?, status: 'available'|'pending'|'na', href? } #}
+{% set cls = "doc-card doc-" + (d.status or "na") %}
+{% set idAttr = ' id="card-' + (d.id | esc) + '"' if d.id else '' %}
+{% set inner %}<div class="doc-icon">{{ d.icon or '📄' }}</div>
+      <div class="doc-info"><div class="doc-title">{{ d.title | esc }}</div><div class="doc-sub">{{ d.sub | esc }}</div></div>
+      {% if d.status == 'available' %}<div class="doc-arrow">→</div>{% endif %}{% endset %}
+{% if d.href %}<a{{ idAttr | safe }} class="{{ cls }}" href="{{ d.href | esc }}" target="_blank">{{ inner | safe }}</a>
+{% else %}<div{{ idAttr | safe }} class="{{ cls }}">{{ inner | safe }}</div>{% endif %}

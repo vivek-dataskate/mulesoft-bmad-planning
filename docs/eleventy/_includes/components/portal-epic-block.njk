@@ -1,0 +1,23 @@
+{# portal-epic-block.njk — one collapsible epic on the sprint section.
+   Input: epic = { id, title, pct?, stories: [{ id, title, status, statusLabel?, desc? }] } #}
+<details class="epic-block" open>
+  <summary class="epic-header">
+    <span class="epic-num">{{ epic.id | esc }}</span>
+    <span class="epic-title">{{ epic.title | esc }}</span>
+    <span class="epic-progress">
+      <span class="epic-bar"><span class="epic-bar-fill" style="width:{{ epic.pct or 0 }}%"></span></span>
+      <span class="epic-pct">{{ epic.pct or 0 }}%</span>
+    </span>
+    <span class="epic-count">{{ (epic.stories or []) | length }} stories</span>
+  </summary>
+  <div class="epic-stories">
+    {% for s in (epic.stories or []) %}
+    <div class="story-row">
+      <span class="story-id">{{ s.id | esc }}</span>
+      <span class="story-title">{{ s.title | esc }}</span>
+      <span class="chip chip-{{ s.status or 'planned' | esc }}">{{ s.statusLabel or s.status or 'Planned' | esc }}</span>
+      {% if s.desc %}<span class="story-desc">{{ s.desc | esc }}</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</details>
