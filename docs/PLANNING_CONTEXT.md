@@ -890,6 +890,8 @@ finalising the decision. Update `lastVerified` after the check.
 - `protocols_core` — HTTP, SOAP/WSC, WebSocket, gRPC, LDAP, Object Store, CloudHub Connector, Aggregators, Cryptography, Compression, Java Module, JSON Module, Kerberos, OAuth Module
 
 ### Critical Notes (always apply)
+- **Pinder Plotkin is a non-MuleSoft engagement (Power Platform / Azure):** All connector-names.json lookups will return null. No MuleSoft playbooks apply. Rex must research Power Automate HTTP connector patterns, Azure SDK, and Clio REST API v4 directly. The DSPipeline was designed for MuleSoft — Vera/Rex/Flo must adapt their research and pricing to Microsoft Azure / Power Platform pricing models for this client. (Source: Pinder Plotkin — Sage 2026-05-20)
+- **Pinder Plotkin design-first rule — smallest Microsoft service:** DataSkate architecture principle for this engagement: "Use the smallest Microsoft service that does the job. Word Online before AI Builder. AI Builder before Azure OpenAI. Azure Functions only where Python is genuinely needed." Apply this when scoping flows or estimating cost for PPLT. (Source: Pinder Plotkin Solutions Design v2 — Kailash Chanda)
 - **NetSuite REST:** Connector 11.0+ does NOT support REST. For REST use HTTP connector + PS256 JWT via Nimbus JOSE helper JAR (MuleSoft JWT Module does not support PS256).
 - **SAP JCo:** REQUIRES SEPARATE MULESOFT LICENSE. Also requires SAP JCo native JARs — cannot go in pom.xml.
 - **ServiceNow:** Metadata does NOT work with OAuth 2.0 Authorization Code. Use basic auth for metadata resolution in Studio.

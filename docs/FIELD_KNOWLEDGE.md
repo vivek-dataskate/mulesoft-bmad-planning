@@ -1228,3 +1228,30 @@ Client question used:
 Promotes to: standards/playbooks/shopify/shopify_playbook.json (knownQuirks — added 2026-05-19)
 
 *Added: 2026-05-19 — Source: Homage engagement, Rex systems research + Shopify developer changelog 2024-04*
+
+---
+
+## FK-028 — Clio (legal practice management) OAuth 2.0 cache error blocks all API access
+Date: 2026-05-20
+Project: Pinder Plotkin (legal AI workflows)
+Trigger: Clio OAuth 2.0 integration encountered a cache error on the final authentication step during DataSkate implementation. This blocked all API access.
+
+Scenario:
+  Pinder Plotkin uses Clio as their case management system. All 6 planned AI workflows depend on
+  Clio API access (read matter fields, notes, documents, tasks; write uploaded documents, Clio tasks).
+  During Phase 1 setup, the OAuth 2.0 final step failed with a cache error — exact error details TBD.
+  The issue is DataSkate-owned and blocks the entire Phase 1 build.
+
+What failed:
+  OAuth 2.0 final step (likely token exchange or session caching) returned a cache error.
+  Root cause not yet diagnosed — this is an observation entry pending resolution.
+
+What worked:
+  Resolution pending. Document it here once resolved so future Clio engagements have the fix.
+
+Client question used:
+  "Is Clio OAuth 2.0 configured — do you have an API application registered in Clio Manage?"
+
+Promotes to: standards/playbooks/clio/clio_playbook.json (once playbook exists and fix is confirmed)
+
+*Added: 2026-05-20 — Source: Pinder Plotkin engagement, Sage document extraction — status: observation*
