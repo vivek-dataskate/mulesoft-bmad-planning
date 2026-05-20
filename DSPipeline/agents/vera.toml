@@ -36,6 +36,9 @@ principles = [
   # ── HQ + REVENUE ──────────────────────────────────────────────────────
   "Step 2 — HQ location + revenue research:\n  Search: '{ClientName} headquarters' AND '{ClientName} annual revenue OR estimated revenue'\n  Extract: city and state, revenue estimate (public or analyst estimate).\n  If not found: set hqLocation and revenueEstimate to null — do NOT invent values.",
 
+  # ── CORPORATE STACK ENRICHMENT ─────────────────────────────────────────
+  "Step 2b — Corporate stack enrichment + sibling integration research:\n  Scout's grounded inference seeds projects/{client}/company_context.json with corporateStack = { operatingBrand, operatingPlatform, financialSponsor, engagementEntity }. READ company_context.json as input. If corporateStack is null or all three layers are null, skip this step (the client is independent / family-owned).\n\n  BOUNDARY RULE: Vera writes EVERYTHING to vera.json — never to company_context.json. All enrichments below land in vera.json.corporateStackEnrichment. The orchestrator (orchestrate.js post-Vera hook) is the only thing allowed to merge enrichments back into company_context.json.corporateStack.\n\n  If operatingPlatform.name is set:\n    1. Fetch the operatingPlatform.website 'Our Brands' / 'Portfolio' / 'Companies' / 'Family of Brands' page. Extract the FULL sibling list (Scout may have captured an abbreviated set).\n    2. For each sibling that is NOT the current operating brand, run a quick research pass:\n       - Web search '{sibling} website' → capture website URL\n       - Web search '{sibling} integration OR automation OR ERP OR Salesforce case study'\n       - Web search '{sibling} {industry} {primary system from sage.json}'\n       Goal: find ONE concrete integration / automation signal for the sibling.\n    3. Stage each sibling as an object in vera.json.corporateStackEnrichment.operatingPlatform.siblingBrands[]:\n       { name, website, linkedIn (if found), integrationSignal, sourceUrl, slug (slugified) }\n       - integrationSignal: 1 short sentence describing what they've built or use, OR the literal string 'unknown — no public integration footprint found'.\n       - NEVER fabricate an integration signal. If no source exists, write 'unknown'.\n\n  If financialSponsor.name is set:\n    4. Fetch the financialSponsor portfolio page. Capture sister portfolio companies in adjacent industries — these are weaker leads than siblings under the same operating platform, but still worth surfacing for cross-PE relationship plays.\n    5. Stage in vera.json.corporateStackEnrichment.financialSponsor.portfolioCompanies[] with the same shape as siblings.\n\n  WHY THIS MATTERS: a successful integration with the current operating brand becomes a templated playbook for every sibling. Hawk uses this as a deal-urgency multiplier. Mira renders it in the proposal. Flo writes the cross-client links into client-registry.json. Petra surfaces it as an optional portfolio-pricing tier.\n\n  COST GUARDRAIL: cap sibling research at 1 web search per sibling (max 8 siblings). If sibling list exceeds 8: surface the first 8 by alphabetical order, set vera.json.corporateStackEnrichment.operatingPlatform.siblingsTruncated = true.",
+
   # ── AI JOURNEY PHASES ─────────────────────────────────────────────────
   "AI journey phases must be client-specific — never generic. Three phases:\n  Phase 1 (Connected): the flows being built now. What specific data starts flowing between which systems.\n  Phase 2 (Automated): what automation becomes possible once data is connected. Name specific triggers and actions.\n  Phase 3 (Agentic): the AI agent use case that requires Phase 1 data as its prerequisite. Name the exact operational question AI answers — never a category like 'churn prediction'.\n  If Salesforce is detected in sage.json systems[]: Phase 3 headline MUST reference AgentForce. Name the specific Salesforce objects Phase 1 creates and what AgentForce does with them.",
 
@@ -153,6 +156,21 @@ Write projects/{client}/run/vera.json:
   "systemPrerequisites": [
     { "system": "{name}", "prerequisites": ["{prerequisite1}"], "scopeBoundary": { "inScope": "...", "assumedPreExists": "...", "outOfScope": "..." } }
   ],
+
+  "corporateStackEnrichment": {
+    "_note": "Staged here; merged into company_context.json.corporateStack by orchestrate.js post-Vera. Omit entirely (or set to null) if the client is independent / family-owned and Step 2b was skipped.",
+    "operatingPlatform": {
+      "siblingBrands": [
+        { "name": "...", "website": "https://...", "linkedIn": "https://... or null", "integrationSignal": "1 sentence OR 'unknown — no public integration footprint found'", "sourceUrl": "https://... or null", "slug": "kebab-slug" }
+      ],
+      "siblingsTruncated": false
+    },
+    "financialSponsor": {
+      "portfolioCompanies": [
+        { "name": "...", "website": "https://...", "integrationSignal": "...", "sourceUrl": "https://... or null", "slug": "kebab-slug" }
+      ]
+    }
+  },
 
   "nearbyPeers": [
     { "name": "...", "distance": "~N mi", "location": "city, state", "revenue": "...", "similarity": "...", "what": "...", "outcome": "...", "source": "URL or publication" }

@@ -88,6 +88,28 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 .diagram-body svg{max-width:100%;height:auto}
 @media(max-width:600px){.diagram-row{grid-template-columns:1fr}}
 
+/* ── Portfolio context ── */
+.portfolio-frame{border-left:4px solid var(--brand);background:var(--light);padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:14px}
+.portfolio-frame .pf-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mid);margin-bottom:6px}
+.portfolio-frame .pf-platform{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:8px}
+.portfolio-frame .pf-platform span{color:var(--mid);font-weight:400}
+.portfolio-frame .pf-angle{font-size:14px;line-height:1.6;color:var(--dark);font-style:italic;margin-bottom:8px}
+.portfolio-frame .pf-angle::before{content:'\201C';color:var(--brand);font-style:normal;font-weight:700}
+.portfolio-frame .pf-angle::after{content:'\201D';color:var(--brand);font-style:normal;font-weight:700}
+.portfolio-frame .pf-exec{font-size:12px;color:var(--mid);line-height:1.5;border-top:1px solid var(--border);padding-top:8px;margin-top:8px}
+.portfolio-frame .pf-exec strong{color:var(--dark)}
+.portfolio-greenfield{background:var(--amber-bg);border-left-color:var(--amber);color:var(--dark)}
+.portfolio-greenfield .pf-eyebrow{color:var(--amber)}
+.sib-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.sib-row{border:1px solid var(--border);border-radius:5px;padding:10px 12px;background:#fff}
+.sib-row .sib-name{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.sib-row .sib-name a{color:var(--dark)}
+.sib-row .sib-meta{font-size:11px;color:var(--mid);margin-bottom:6px}
+.sib-row .sib-signal{font-size:12px;line-height:1.45;color:var(--dark)}
+.sib-row .sib-signal.unknown{color:var(--mid);font-style:italic}
+.sib-row .sib-source{font-size:11px;margin-top:5px}
+.sib-row .sib-source a{color:var(--brand)}
+
 /* ── Auth gate ── */
 #login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;background:#fff}
 #login-screen p{font-size:14px;color:var(--mid);text-align:center;max-width:320px;margin:0}
@@ -184,6 +206,12 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 <section>
   <h2>Open With This</h2>
   <div id="dk-opener"></div>
+</section>
+
+<section id="s-portfolio" style="display:none">
+  <h2>Portfolio Frame — Why This Deal Is Bigger Than One Brand</h2>
+  <div id="dk-portfolio"></div>
+  <div id="dk-portfolio-siblings"></div>
 </section>
 
 <section id="s-architecture" style="display:none">
@@ -394,6 +422,55 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
       </div>`);
     }
     txt('dk-ai-narrative', c.aiJourneyNarrative || '');
+
+    // Portfolio context — only rendered when Petra passes a non-null block
+    // (i.e. the buyer sits inside an operating platform / PE portfolio).
+    // Independent / family-owned clients leave portfolioContext = null and
+    // the section stays hidden so the deck doesn't dangle a generic header.
+    const pc = c.portfolioContext;
+    if (pc && pc.platformName) {
+      document.getElementById('s-portfolio').style.display = '';
+      const isGreenfield = pc.greenfieldFlag === true;
+      const platformLine = `<div class="pf-platform">${e(pc.platformName)}${pc.siblingCount ? ` <span>· ${e(pc.siblingCount)} sibling brand${pc.siblingCount === 1 ? '' : 's'}</span>` : ''}${pc.sponsorName ? ` <span>· sponsored by ${e(pc.sponsorName)}</span>` : ''}</div>`;
+      const angleLine = pc.templateAngle ? `<div class="pf-angle">${e(pc.templateAngle)}</div>` : '';
+      const execLine  = pc.executiveAngle ? `<div class="pf-exec"><strong>For the sponsor:</strong> ${e(pc.executiveAngle)}</div>` : '';
+      const greenfield = isGreenfield && pc.siblingCount
+        ? `<div class="pf-exec" style="margin-top:6px"><strong>Greenfield:</strong> none of the ${e(pc.siblingCount)} sibling brand${pc.siblingCount === 1 ? '' : 's'} shows a public integration footprint yet — first-mover advantage inside the portfolio.</div>`
+        : '';
+      set('dk-portfolio', `<div class="portfolio-frame${isGreenfield ? ' portfolio-greenfield' : ''}">
+        <div class="pf-eyebrow">${isGreenfield ? 'Portfolio greenfield' : 'Portfolio template'}</div>
+        ${platformLine}
+        ${angleLine}
+        ${execLine}
+        ${greenfield}
+      </div>`);
+
+      const siblings = Array.isArray(pc.siblings) ? pc.siblings : [];
+      if (siblings.length) {
+        set('dk-portfolio-siblings', `<div class="sib-grid">${
+          siblings.map(s => {
+            const signal     = s.integrationSignal || 'unknown — no public integration footprint found';
+            const isUnknown  = /^unknown/i.test(signal);
+            const nameHtml   = s.website
+              ? `<a href="${e(s.website)}" target="_blank" rel="noopener">${e(s.name)}</a>`
+              : e(s.name);
+            const metaParts  = [];
+            if (s.website) metaParts.push(e(String(s.website).replace(/^https?:\/\//, '').replace(/\/$/, '')));
+            const sourceHtml = s.sourceUrl
+              ? `<div class="sib-source"><a href="${e(s.sourceUrl)}" target="_blank" rel="noopener">source</a></div>`
+              : '';
+            return `<div class="sib-row">
+              <div class="sib-name">${nameHtml}</div>
+              ${metaParts.length ? `<div class="sib-meta">${metaParts.join(' · ')}</div>` : ''}
+              <div class="sib-signal${isUnknown ? ' unknown' : ''}">${e(signal)}</div>
+              ${sourceHtml}
+            </div>`;
+          }).join('')
+        }</div>`);
+      } else {
+        set('dk-portfolio-siblings', '');
+      }
+    }
 
     // Architecture diagrams
     if (c.systemDiagram) {
