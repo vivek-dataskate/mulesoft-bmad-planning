@@ -140,8 +140,6 @@ async function confirm(message, defaultYes = true) {
 // ─── Onboarding ───────────────────────────────────────────────────────────────
 
 async function onboard({ displayName: inferred, source: inferredSource } = {}) {
-  // Extract text from PDFs/DOCX before reading for name inference
-  preExtractInbox(INBOX_DIR);
   const inboxFiles = fs.existsSync(INBOX_DIR)
     ? fs.readdirSync(INBOX_DIR).filter(f => f !== '.gitkeep' && !f.startsWith('.'))
     : [];
@@ -556,57 +554,29 @@ function writeClientRegistry(slug) {
 }
 
 // ─── Firebase Deploy (post-Mira) ─────────────────────────────────────────────
-// Runs 11a-11c after Mira has audited all client-facing documents.
+// Runs after Mira has audited all client-facing documents.
+// Delegates entirely to update-firebase.js — the single canonical sync script —
+// which handles: HTML upload, pitchKits Firestore seeding, manifest rebuild,
+// portal rebuild, git commit, and hosting deploy.
 
 function deployFirebase(slug) {
   const { execSync } = require('child_process');
-  const projectDir   = path.join(PROJECTS_DIR, slug);
-  const project      = readJson(path.join(projectDir, 'project.json')) || {};
 
-  if (!process.env.FIREBASE_SA_KEY && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    console.log(`  ${yellow('⚠')}  FIREBASE_SA_KEY not set — skipping Firebase deploy.`);
+  const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+    path.join(ROOT, 'dataskateclients-firebase-adminsdk-fbsvc-6d3f67e197.json');
+
+  if (!fs.existsSync(saPath) && !process.env.FIREBASE_SA_KEY) {
+    console.log(`  ${yellow('⚠')}  No Firebase credentials found — skipping deploy.`);
+    console.log(`  ${dim('Run manually: node scripts/update-firebase.js ' + slug)}`);
     return;
   }
 
-  // 11a — Deploy hosting
-  console.log('  Deploying to Firebase Hosting...');
   try {
-    execSync('bash firebase/deploy.sh', { cwd: ROOT, stdio: 'inherit' });
-    console.log(`  ${green('✓')} Hosting deployed`);
+    execSync(`node scripts/update-firebase.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+    console.log(`  ${green('✓')} Firebase sync complete (HTML uploaded, Firestore seeded, manifest rebuilt, deployed)`);
   } catch (e) {
-    console.log(`  ${yellow('⚠')}  firebase/deploy.sh failed — check output above`);
-    return;
+    console.log(`  ${yellow('⚠')}  update-firebase.js failed — run manually: node scripts/update-firebase.js ${slug}`);
   }
-
-  // 11b — Seed Firestore
-  const intakeUrl   = `https://dataskateclients.web.app/intake/${slug}.html`;
-  const proposalUrl = `https://dataskateclients.web.app/proposal/${slug}.html`;
-  const pitchKitUrl = `https://dataskateclients.web.app/internal/${slug}.html`;
-  console.log('  Seeding Firestore...');
-  try {
-    const seedScript = `
-      const admin = require('./firebase/functions/node_modules/firebase-admin');
-      admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId: 'dataskateclients' });
-      admin.firestore().collection('projects').doc('${slug}').set({
-        name: ${JSON.stringify(project.displayName || slug)},
-        status: 'intake_sent',
-        architect: ${JSON.stringify(project.architect || '')},
-        architectEmail: ${JSON.stringify(project.architectEmail || '')},
-        intakeUrl: '${intakeUrl}',
-        proposalUrl: '${proposalUrl}',
-        pitchKitUrl: '${pitchKitUrl}',
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }).then(() => { console.log('Seeded'); process.exit(0); });
-    `;
-    execSync(`node -e "${seedScript.replace(/\n/g, ' ')}"`, { cwd: ROOT, stdio: 'inherit' });
-    console.log(`  ${green('✓')} Firestore seeded`);
-  } catch (e) {
-    console.log(`  ${yellow('⚠')}  Firestore seed failed — seed manually`);
-  }
-
-  // Write intakeUrl + proposalUrl + pitchKitUrl to project.json
-  mergeJson(path.join(projectDir, 'project.json'), { intakeUrl, proposalUrl, pitchKitUrl });
-  console.log(`  ${green('✓')} project.json updated with intakeUrl and proposalUrl`);
 }
 
 // ─── Source File Archival ─────────────────────────────────────────────────────
@@ -794,13 +764,14 @@ async function runPipeline(slug) {
   const project = readJson(path.join(projectDir, 'project.json'));
   console.log(`
   ${bold('Client deliverables:')}
-    Proposal:      projects/${slug}/intake/proposal-${slug}.html
-    Intake form:   projects/${slug}/intake/intake-questionnaire-${slug}.html
+    Proposal:         projects/${slug}/intake/proposal-${slug}.html
+    Intake form:      projects/${slug}/intake/intake-questionnaire-${slug}.html
     Integration deck: projects/${slug}/intake/integration-deck-${slug}.html
 
   ${bold('Live URLs:')}
-    Intake:    ${project.intakeUrl  || dim('(set after Quinn runs)')}
-    Proposal:  ${project.proposalUrl || dim('(set after Quinn runs)')}
+    Intake:    ${project.intakeUrl   || dim('(not deployed yet)')}
+    Proposal:  ${project.proposalUrl || dim('(not deployed yet)')}
+    Pitch kit: ${project.pitchKitUrl || dim('(not deployed yet)')}
 
   ${bold('Internal:')}
     Run files: projects/${slug}/run/
@@ -1014,6 +985,9 @@ async function main() {
   }
 
   let slug = clientArg;
+
+  // Extract PDFs/DOCX first so .txt files are available for Gemini inference
+  preExtractInbox(INBOX_DIR);
 
   // Infer client name once — reused for resume check and onboarding
   const aiInference = slug ? { displayName: null, source: null } : await inferClientWithAI(INBOX_DIR);
