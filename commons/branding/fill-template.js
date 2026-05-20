@@ -199,6 +199,20 @@ const PROFILE_RECOMMENDED_MODEL = {
   'budget-conscious':   'impl',
 };
 
+// Intake section → category mapping (must be declared before buildIntake dispatch).
+// Bucket assignment is by section number; helpers in buildIntake* reference this.
+const INTAKE_CATEGORIES = [
+  { key: 'business',   num: '01', label: 'Business',
+    blurb: "What we're building and where data flows",
+    sections: ['1', '2', '3', '10'] },
+  { key: 'technical',  num: '02', label: 'Technical',
+    blurb: 'How well it must work',
+    sections: ['4', '5', '6'] },
+  { key: 'production', num: '03', label: 'Production',
+    blurb: 'How we ship and run it',
+    sections: ['7', '8', '9'] },
+];
+
 if (templateType === 'proposal') {
   buildProposal(content);
 } else if (templateType === 'intake') {
@@ -225,6 +239,20 @@ html = embedFingerprint(html, templateType);
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, html, 'utf8');
 console.log(`✓ Written: ${outFile}`);
+
+// Inline HTML lint — run the design-standards validator on the file we just wrote.
+// Replaces the previous PostToolUse Claude hook; runs in-process so any caller of
+// fill-template.js gets the same validation regardless of how it was invoked.
+try {
+  const { spawnSync } = require('child_process');
+  const lintPath = path.join(root, 'commons', 'branding', 'lint-html.js');
+  const r = spawnSync('node', [lintPath, outFile], { stdio: 'inherit' });
+  if (r.status !== 0) {
+    console.error(`⚠ lint-html.js reported violations for ${outFile} — fix before committing.`);
+  }
+} catch (e) {
+  console.error(`⚠ Could not run lint-html.js: ${e.message}`);
+}
 
 if (templateType === 'proposal' && client) {
   saveProposalContentToFirestore(content, client);
@@ -804,6 +832,125 @@ function buildDiagramSvg(nodes) {
 }
 
 // ─── INTAKE ──────────────────────────────────────────────────────────────────
+// INTAKE_CATEGORIES is declared and exported near the top of this file
+// (before the dispatch block) so buildIntake/buildIntakeFromMd helpers
+// can reference it without TDZ errors.
+
+// Map any incoming section id (raw "1", "S01", " 10 ") to its bucket key.
+function intakeCatFor(rawId) {
+  const n = String(rawId || '').replace(/[^0-9]/g, '').replace(/^0+/, '') || '0';
+  for (const cat of INTAKE_CATEGORIES) {
+    if (cat.sections.includes(n)) return cat.key;
+  }
+  return null;
+}
+
+// Build right-rail nav HTML grouped by category, given an ordered list of
+// { id, displayId, title, anchorId } seen in this intake.
+function buildIntakeRailNav(secMeta) {
+  const byCat = new Map(INTAKE_CATEGORIES.map(c => [c.key, []]));
+  const orphans = [];
+  for (const s of secMeta) {
+    const cat = intakeCatFor(s.id);
+    if (cat && byCat.has(cat)) byCat.get(cat).push(s);
+    else orphans.push(s);
+  }
+  const parts = [];
+  for (const cat of INTAKE_CATEGORIES) {
+    const items = byCat.get(cat.key);
+    if (!items || items.length === 0) continue;
+    parts.push(`<div class="nav-cat">${esc(cat.label)}</div>`);
+    for (const s of items) {
+      parts.push(
+        `<a href="#${esc(s.anchorId)}" data-section="${esc(s.anchorId)}">` +
+        `<span>§${esc(s.displayId)} ${esc(s.title)}</span>` +
+        `<span class="nav-count"></span></a>`
+      );
+    }
+  }
+  if (orphans.length) {
+    parts.push(`<div class="nav-cat">Other</div>`);
+    for (const s of orphans) {
+      parts.push(
+        `<a href="#${esc(s.anchorId)}" data-section="${esc(s.anchorId)}">` +
+        `<span>§${esc(s.displayId)} ${esc(s.title)}</span>` +
+        `<span class="nav-count"></span></a>`
+      );
+    }
+  }
+  return parts.join('\n');
+}
+
+// Wrap an ordered list of section HTML blocks with category headers between
+// buckets, in the order Business → Technical → Production.
+function groupIntakeSectionsByCategory(secEntries) {
+  // secEntries: [{ id, html }]
+  const byCat = new Map(INTAKE_CATEGORIES.map(c => [c.key, []]));
+  const orphans = [];
+  for (const e of secEntries) {
+    const cat = intakeCatFor(e.id);
+    if (cat && byCat.has(cat)) byCat.get(cat).push(e.html);
+    else orphans.push(e.html);
+  }
+  const out = [];
+  for (const cat of INTAKE_CATEGORIES) {
+    const items = byCat.get(cat.key);
+    if (!items || items.length === 0) continue;
+    out.push(
+      `<div class="cat-header" data-cat="${cat.key}">` +
+        `<span class="cat-num">${esc(cat.num)}</span>` +
+        `<span class="cat-title">${esc(cat.label)}</span>` +
+        `<span class="cat-blurb">${esc(cat.blurb)}</span>` +
+      `</div>`
+    );
+    out.push(items.join('\n\n'));
+  }
+  if (orphans.length) {
+    out.push(`<div class="cat-header" data-cat="other"><span class="cat-num">04</span><span class="cat-title">Other</span></div>`);
+    out.push(orphans.join('\n\n'));
+  }
+  return out.join('\n\n');
+}
+
+// Default rail-links for every intake. Caller may extend via meta.links[].
+function buildIntakeRailLinks(meta) {
+  const client = meta.clientSlug || '';
+  const links = [
+    { label: 'Architect Guide', url: 'https://dataskateclients.web.app/resources/architect-guide.html' },
+    { label: 'DS Pricing Model', url: 'https://dataskateclients.web.app/resources/ds-pricing-model.html' },
+  ];
+  if (client) {
+    links.unshift(
+      { label: 'Client Portal', url: `https://dataskateclients.web.app/portal/${client}.html` }
+    );
+  }
+  for (const l of (meta.links || [])) {
+    if (l && l.label && l.url) links.push({ label: l.label, url: l.url });
+  }
+  return links
+    .map(l => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a></li>`)
+    .join('\n');
+}
+
+// Right-rail Needs-Attention seeded from p0Blockers. Dynamic
+// required-unanswered items are appended client-side by rebuildAttention().
+function buildIntakeRailAttention(p0Blockers) {
+  if (!p0Blockers || !p0Blockers.length) return '';
+  return p0Blockers.map(b =>
+    `<li><strong>${esc(b.title || b.system || 'P0 Blocker')}</strong>${esc(b.clientAction || b.body || b.blocker || '')}</li>`
+  ).join('\n');
+}
+
+// Phase chip shown next to the biz-context teaser when collapsed.
+// Uses the first journey card's label ("Connected" / "Automated" / "Agentic")
+// and tolerates labels that already include the "Phase N —" prefix.
+function buildIntakePhaseChip(journeyCards) {
+  if (!journeyCards || !journeyCards.length) return '';
+  const raw = (journeyCards[0].label || 'Connected').trim();
+  // Strip a leading "Phase N —" / "Phase N -" / "Phase N:" so we render uniformly.
+  const stripped = raw.replace(/^phase\s*\d+\s*[—\-:·]\s*/i, '');
+  return `<span class="bc-phase-chip">Phase 1 · ${esc(stripped)}</span>`;
+}
 
 function buildIntake(c) {
   const m = c.meta;
@@ -818,8 +965,9 @@ function buildIntake(c) {
   fill('architect-email', m.architectEmail);
   fill('source',          m.source || '');
 
-  const bc = c.bizContext;
-  fill('bc-snapshot', bc.snapshot);
+  const bc = c.bizContext || {};
+  fill('bc-snapshot',    bc.snapshot || '');
+  fill('bc-phase-chip',  buildIntakePhaseChip(bc.journeyCards));
   fill('journey-cards', (bc.journeyCards || []).map((jc, i) =>
     `<div class="journey-card ${jc.phase || `phase-${i + 1}`}">
       <div class="jc-phase">Phase ${i + 1}</div>
@@ -838,18 +986,32 @@ function buildIntake(c) {
       </div>`
     : '');
 
-  fill('form-sections', (c.sections || []).map(sec =>
-    `<details class="section-block">
-  <summary class="section-head">
-    <div class="section-num">${esc(sec.id || '')}</div>
-    <div class="section-title">${esc(sec.title)}</div>
-    <span class="section-chevron">▼</span>
-  </summary>
-  <div class="section-body">
-    ${sec.bodyHtml || ''}
-  </div>
-</details>`
-  ).join('\n\n'));
+  // Build per-section HTML blocks + rail-nav metadata in one pass so anchor ids stay in sync.
+  const secMeta = [];
+  const secEntries = (c.sections || []).map(sec => {
+    const rawId     = String(sec.id || '');
+    const displayId = rawId.replace(/^S?0*/i, '') || rawId;   // "S01" / "01" → "1"
+    const anchorId  = `sec-${displayId || rawId}`;
+    secMeta.push({ id: rawId, displayId, title: sec.title || '', anchorId });
+    return {
+      id: rawId,
+      html:
+        `<details class="section-block" id="${esc(anchorId)}" data-section-id="${esc(displayId)}">\n` +
+        `  <summary class="section-head">\n` +
+        `    <div class="section-num">${esc(displayId)}</div>\n` +
+        `    <div class="section-title">${esc(sec.title)}</div>\n` +
+        `    <span class="section-count"></span>\n` +
+        `    <span class="section-chevron">▼</span>\n` +
+        `  </summary>\n` +
+        `  <div class="section-body">\n    ${sec.bodyHtml || ''}\n  </div>\n` +
+        `</details>`,
+    };
+  });
+
+  fill('form-sections',   groupIntakeSectionsByCategory(secEntries));
+  fill('rail-nav',        buildIntakeRailNav(secMeta));
+  fill('rail-attention',  buildIntakeRailAttention(bc.p0Blockers));
+  fill('rail-links',      buildIntakeRailLinks(m));
 
   fill('internal-flags', (c.internalFlags && c.internalFlags.bodyHtml)
     ? `<div class="internal-block no-print">
@@ -892,9 +1054,13 @@ function buildIntakeFromMd(md, clientSlug) {
   fill('source',          meta.source);
 
   // Biz context — populate from company_context.json if available
+  const journeyArr = ctx.aiJourney
+    ? Object.entries(ctx.aiJourney).map(([, s]) => s)
+    : [];
   fill('bc-snapshot', ctx.snapshot ? esc(ctx.snapshot) : '');
-  fill('journey-cards', ctx.aiJourney
-    ? Object.entries(ctx.aiJourney).map(([, s], i) =>
+  fill('bc-phase-chip', buildIntakePhaseChip(journeyArr));
+  fill('journey-cards', journeyArr.length
+    ? journeyArr.map((s, i) =>
         `<div class="journey-card phase-${i + 1}">
           <div class="jc-phase">Phase ${i + 1}</div>
           <div class="jc-label">${esc(s.label)}</div>
@@ -914,16 +1080,35 @@ function buildIntakeFromMd(md, clientSlug) {
   const clientSecs  = sections.filter(s => !s.isInternal);
   const internalSec = sections.find(s => s.isInternal);
 
-  fill('form-sections', clientSecs.map(sec =>
-    `<details class="section-block">
-  <summary class="section-head">
-    <div class="section-num">${esc(sec.id)}</div>
-    <div class="section-title">${esc(sec.title)}</div>
-    <span class="section-chevron">▼</span>
-  </summary>
-  <div class="section-body">${renderMdIntakeSection(sec.body, prefillCtx)}</div>
-</details>`
-  ).join('\n\n'));
+  const secMetaMd = [];
+  const secEntriesMd = clientSecs.map(sec => {
+    const rawId     = sec.id || '';
+    const displayId = rawId.replace(/^S?0*/i, '') || rawId;
+    const anchorId  = `sec-${displayId || rawId}`;
+    secMetaMd.push({ id: rawId, displayId, title: sec.title || '', anchorId });
+    return {
+      id: rawId,
+      html:
+        `<details class="section-block" id="${esc(anchorId)}" data-section-id="${esc(displayId)}">\n` +
+        `  <summary class="section-head">\n` +
+        `    <div class="section-num">${esc(displayId)}</div>\n` +
+        `    <div class="section-title">${esc(sec.title)}</div>\n` +
+        `    <span class="section-count"></span>\n` +
+        `    <span class="section-chevron">▼</span>\n` +
+        `  </summary>\n` +
+        `  <div class="section-body">${renderMdIntakeSection(sec.body, prefillCtx)}</div>\n` +
+        `</details>`,
+    };
+  });
+
+  fill('form-sections', groupIntakeSectionsByCategory(secEntriesMd));
+  fill('rail-nav',       buildIntakeRailNav(secMetaMd));
+  // ctx.p0Blockers in company_context.json uses {system, blocker} — adapt for attention list
+  const railP0 = (ctx.p0Blockers || []).map(b => ({
+    title: b.system, clientAction: b.blocker, body: b.blocker,
+  }));
+  fill('rail-attention', buildIntakeRailAttention(railP0));
+  fill('rail-links',     buildIntakeRailLinks({ clientSlug: slug }));
 
   fill('internal-flags', internalSec
     ? `<div class="internal-block no-print">
