@@ -6,10 +6,32 @@
 <title>DataSkate × <!-- FILL:client-name --> — Intake Questionnaire</title>
 <!-- FILL:__css -->
 <style>
-/* ── LAYOUT ── */
-.wrap { max-width: 960px; margin: 0 auto; padding: 0 32px 60px; }
+/* ── LAYOUT ─────────────────────────────────────────────────────────────────
+   Main + right rail. Rail collapses below content on narrow viewports. */
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px 60px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 36px;
+  align-items: start;
+}
+.main-col { min-width: 0; }
+.rail-col {
+  position: sticky;
+  top: 56px;
+  align-self: start;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  padding-bottom: 24px;
+}
+@media (max-width: 1100px) {
+  .wrap { grid-template-columns: 1fr; gap: 16px; }
+  .rail-col { position: static; max-height: none; order: 2; }
+}
 
-/* ── STICKY ACTION BAR (HTML_DESIGN_STANDARDS.md §Sticky Action Bar) ── */
+/* ── STICKY ACTION BAR ── */
 .sticky-bar {
   position: sticky; top: 0; z-index: 200;
   background: rgba(255,255,255,0.97);
@@ -23,18 +45,18 @@
 .progress-pill span { color: var(--brand); font-weight: 800; }
 .bar-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-/* ── BUTTONS (HTML_DESIGN_STANDARDS.md §Buttons) ── */
+/* ── BUTTONS ── */
 .btn {
   padding: 7px 16px; border-radius: 6px;
   font-size: 13px; font-weight: 700;
   cursor: pointer; border: none;
 }
 .btn-primary { background: var(--brand); color: #fff; }
-.btn-outline  { background: #fff; color: var(--dark); border: 2px solid var(--border); }
+.btn-outline { background: #fff; color: var(--dark); border: 2px solid var(--border); }
 
 /* ── BOTTOM SUBMIT BLOCK ── */
 .submit-block { text-align: center; padding: 40px 0 20px; }
-.btn-submit   { font-size: 15px; padding: 12px 36px; }
+.btn-submit { font-size: 15px; padding: 12px 36px; }
 .submit-success {
   display: none;
   background: #F0FFF4;
@@ -45,7 +67,7 @@
   font-size: 14px; font-weight: 600; color: #276749;
 }
 
-/* ── HEADER (HTML_DESIGN_STANDARDS.md §Header Component — intake variant) ── */
+/* ── HEADER ── */
 .doc-header {
   padding: 20px 0 24px;
   border-bottom: 3px solid var(--brand);
@@ -72,34 +94,54 @@
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-/* ── BUSINESS CONTEXT PANEL (HTML_DESIGN_STANDARDS.md §Business Context Panel) ── */
+/* ── BUSINESS CONTEXT — TEASER BY DEFAULT ──────────────────────────────────
+   Collapsed shows: title + phase chip + 1-line snapshot. Click expands. */
 .biz-context {
-  background: var(--light);
   border: 1px solid var(--border);
   border-left: 4px solid var(--brand);
   border-radius: 8px;
   margin: 16px 0 0;
+  background: var(--light);
   overflow: hidden;
 }
 .bc-header {
-  background: var(--light);
-  padding: 12px 20px;
+  padding: 10px 16px;
   cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
   user-select: none;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: center;
 }
+.bc-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .bc-title {
-  font-size: 13px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.5px;
   color: var(--brand-dk);
 }
-.bc-chevron { font-size: 14px; color: var(--brand-dk); transition: transform 0.2s; }
-.bc-body    { padding: 24px 28px; }
-.bc-snapshot { font-size: 14px; color: var(--dark); margin-bottom: 16px; line-height: 1.7; }
+.bc-phase-chip {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  background: #fff; color: var(--brand-dk);
+  border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 10px;
+  text-transform: uppercase;
+}
+.bc-chevron { font-size: 12px; color: var(--brand-dk); transition: transform 0.2s; grid-row: 1 / span 2; }
+.biz-context.is-open .bc-chevron { transform: rotate(180deg); }
+.bc-snapshot-teaser {
+  grid-column: 1;
+  font-size: 13px; color: var(--dark); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.biz-context.is-open .bc-snapshot-teaser { display: none; }
+.bc-body { display: none; padding: 0 16px 16px; }
+.biz-context.is-open .bc-body { display: block; }
+.bc-snapshot { font-size: 14px; color: var(--dark); margin-bottom: 14px; line-height: 1.6; }
 
-/* AI Journey cards — white bg, border-top accent only */
-.journey-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.journey-card { border-radius: 0 0 6px 6px; padding: 16px 18px; background: #fff; border: 1px solid var(--border); }
+/* AI Journey cards */
+.journey-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.journey-card { border-radius: 0 0 6px 6px; padding: 14px 16px; background: #fff; border: 1px solid var(--border); }
 .journey-card.phase-1 { border-top: 3px solid var(--green); }
 .journey-card.phase-2 { border-top: 3px solid var(--amber); }
 .journey-card.phase-3 { border-top: 3px solid #C084FC; }
@@ -108,17 +150,38 @@
 .jc-headline { font-size: 12px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
 .jc-body     { font-size: 12px; color: var(--mid); line-height: 1.5; }
 
-/* ── ACTION REQUIRED (client-visible P0 blockers) ── */
-.action-required { background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid var(--brand); border-radius: 0 8px 8px 0; padding: 16px 20px; margin-top: 16px; }
-.action-required h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #991B1B; margin-bottom: 10px; }
+/* ── ACTION REQUIRED (in biz-context expanded body) ── */
+.action-required { background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid var(--brand); border-radius: 0 8px 8px 0; padding: 14px 18px; }
+.action-required h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #991B1B; margin-bottom: 8px; }
 .action-required ul { list-style: none; padding: 0; margin: 0; }
-.action-required li { font-size: 13px; color: #7F1D1D; padding: 8px 0 8px 22px; position: relative; border-bottom: 1px solid #FECACA; line-height: 1.5; }
+.action-required li { font-size: 13px; color: #7F1D1D; padding: 7px 0 7px 22px; position: relative; border-bottom: 1px solid #FECACA; line-height: 1.5; }
 .action-required li:last-child { border-bottom: none; padding-bottom: 0; }
 .action-required li::before { content: '→'; position: absolute; left: 0; color: var(--brand); font-weight: 700; }
 .action-required li strong { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #991B1B; margin-bottom: 2px; }
 
+/* ── CATEGORY HEADERS (between section groups) ───────────────────────────── */
+.cat-header {
+  display: flex; align-items: baseline; gap: 12px;
+  margin: 28px 0 10px;
+  padding: 0 0 6px;
+  border-bottom: 2px solid var(--brand);
+}
+.cat-header:first-of-type { margin-top: 24px; }
+.cat-num {
+  font-size: 11px; font-weight: 800; color: var(--brand);
+  letter-spacing: 1.5px;
+}
+.cat-title {
+  font-size: 18px; font-weight: 800; color: var(--dark);
+  letter-spacing: -0.2px;
+}
+.cat-blurb {
+  font-size: 12px; color: var(--mid); margin-left: auto;
+  font-style: italic;
+}
+
 /* ── SECTION BLOCKS — collapsible tiles ── */
-details.section-block { border: 1px solid var(--border); margin-bottom: 6px; }
+details.section-block { border: 1px solid var(--border); margin-bottom: 6px; scroll-margin-top: 64px; }
 details.section-block:last-of-type { margin-bottom: 0; }
 details.section-block[open] { border-left: 3px solid var(--brand); }
 summary.section-head { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; padding: 12px 16px; user-select: none; background: #FAFAFA; }
@@ -126,6 +189,8 @@ summary.section-head::-webkit-details-marker { display: none; }
 details.section-block[open] summary.section-head { background: #fff; border-bottom: 1px solid var(--border); }
 .section-num   { font-size: 10px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; }
 .section-title { font-size: 14px; font-weight: 700; color: var(--dark); }
+.section-count { font-size: 10px; font-weight: 700; color: var(--mid); margin-left: 6px; }
+.section-count.has-required { color: var(--brand); }
 .section-chevron { font-size: 11px; color: var(--mid); margin-left: auto; transition: transform 0.2s; }
 details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .section-body { padding: 16px 16px 20px; }
@@ -152,7 +217,7 @@ details.uc[open] .uc-chevron { transform: rotate(180deg); }
 .p0-block p strong { color: #991B1B; }
 .p0-block code { background: #FEE2E2; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 12px; }
 
-/* ── SCOPE BOUNDARY — neutral bg, label color as differentiator ── */
+/* ── SCOPE BOUNDARY ── */
 .scope-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
 .scope-item { padding: 10px 14px; border-radius: 6px; font-size: 12px; line-height: 1.5; background: #FAFAFA; border: 1px solid var(--border); color: var(--dark); }
 .scope-item .scope-label { font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
@@ -160,7 +225,7 @@ details.uc[open] .uc-chevron { transform: rotate(180deg); }
 .scope-assumed .scope-label { color: #7C5E10; }
 .scope-out .scope-label     { color: #9B2335; }
 
-/* ── QUESTION BLOCKS — inline grid layout ── */
+/* ── QUESTION BLOCKS ── */
 .q { display: grid; grid-template-columns: 28px 1fr; gap: 0 8px; margin-bottom: 10px; align-items: start; }
 .q:last-child { margin-bottom: 0; }
 .q-num { font-size: 10px; font-weight: 700; color: var(--mid); padding-top: 4px; text-align: right; }
@@ -178,7 +243,7 @@ textarea.answer.is-prefilled { border-left: 3px solid var(--amber); background: 
 textarea.answer.is-answered  { border-left: 3px solid var(--green); background: #fff; }
 textarea.answer.mandatory-empty { background: #FFF5F5; border-color: #F87171; }
 
-/* ── TABLES (HTML_DESIGN_STANDARDS.md §Table Component) ── */
+/* ── TABLES ── */
 table.dtbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
 table.dtbl th { background: var(--dark); color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; }
 table.dtbl td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
@@ -188,7 +253,7 @@ table.dtbl input.tbl-ans { width: 100%; border: 1px solid var(--border); border-
 table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-color: #FDE68A; }
 .tbl-hint { font-size: 12px; color: var(--mid); font-style: italic; margin-bottom: 8px; padding: 8px 14px; background: #FAFAFA; border-left: 3px solid var(--border); border-radius: 0 4px 4px 0; }
 
-/* ── INTERNAL FLAGS — hidden from clients; shown only via ?internal=1 ── */
+/* ── INTERNAL FLAGS ── */
 .internal-block { display: none; border-top: 2px solid #FDE68A; padding: 32px 0; }
 .internal-block h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #92400E; margin-bottom: 20px; }
 .flag-item { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #FDE68A; }
@@ -208,27 +273,125 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 .status-pending { background: #FEF3C7; color: #92400E; }
 .status-blocked { background: #FEE2E2; color: #991B1B; }
 
+/* ── RIGHT RAIL ─────────────────────────────────────────────────────────── */
+.rail-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+.rail-card:last-child { margin-bottom: 0; }
+.rail-label {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--mid);
+  margin-bottom: 8px;
+}
+
+/* Progress card */
+.rail-progress {
+  border-left: 3px solid var(--brand);
+}
+.progress-num {
+  font-size: 22px; font-weight: 800; color: var(--dark);
+  line-height: 1.1;
+}
+.progress-num .num-total { color: var(--mid); font-weight: 600; }
+.progress-meta { font-size: 11px; color: var(--mid); margin-top: 2px; }
+.progress-bar {
+  height: 6px; background: #F1EEEE; border-radius: 3px;
+  margin: 10px 0 4px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--brand);
+  width: 0%; transition: width 0.25s ease;
+}
+
+/* Subsection jump-nav */
+.rail-nav { font-size: 12px; }
+.rail-nav .nav-cat {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--brand);
+  margin: 10px 0 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.rail-nav .nav-cat:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.rail-nav a {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0;
+  color: var(--dark); text-decoration: none;
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+  margin-left: -8px;
+  border-radius: 0;
+  transition: background 0.1s, border-color 0.1s;
+}
+.rail-nav a:hover { background: var(--light); }
+.rail-nav a.is-active { border-left-color: var(--brand); background: var(--light); color: var(--brand-dk); font-weight: 700; }
+.rail-nav .nav-count {
+  font-size: 10px; color: var(--mid); font-weight: 600;
+  margin-left: 6px;
+}
+.rail-nav a.is-complete .nav-count { color: var(--green); }
+.rail-nav a.has-required .nav-count { color: var(--brand); font-weight: 800; }
+
+/* Needs Attention card */
+.rail-attention {
+  border-left: 3px solid var(--brand);
+  background: #FFFAFA;
+}
+.rail-attention .rail-label { color: #991B1B; }
+.attention-list { list-style: none; padding: 0; margin: 0; }
+.attention-list li {
+  font-size: 12px;
+  padding: 6px 0 6px 18px;
+  border-bottom: 1px solid #FECACA;
+  position: relative;
+  color: #7F1D1D;
+  line-height: 1.4;
+}
+.attention-list li:last-child { border-bottom: none; padding-bottom: 0; }
+.attention-list li::before { content: '!'; position: absolute; left: 0; top: 6px; font-weight: 800; color: var(--brand); font-size: 11px; width: 12px; height: 12px; line-height: 12px; text-align: center; }
+.attention-list li strong { font-weight: 700; color: #991B1B; display: block; font-size: 11px; }
+.attention-empty {
+  font-size: 12px; color: var(--mid); font-style: italic;
+  padding: 4px 0;
+}
+
+/* Rail links */
+.rail-links { list-style: none; padding: 0; margin: 0; }
+.rail-links li { padding: 4px 0; font-size: 12px; }
+.rail-links a { color: var(--brand-dk); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.rail-links a:hover { text-decoration: underline; }
+.rail-links a::after { content: '↗'; font-size: 10px; opacity: 0.6; }
+
 /* ── FOOTER ── */
 .footer { border-top: 1px solid var(--border); padding: 16px 32px; font-size: 12px; color: var(--mid); display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
 .footer strong { color: var(--dark); }
 .footer a { color: var(--mid); text-decoration: none; }
 
-/* ── PRINT (HTML_DESIGN_STANDARDS.md §Print / PDF Stylesheet) ── */
+/* ── PRINT — collapse rail, expand everything ── */
 @media print {
-  .sticky-bar, .no-print { display: none !important; }
+  .sticky-bar, .no-print, .rail-col { display: none !important; }
+  .wrap { display: block; padding: 0 32px; }
   body { background: #fff; font-size: 11px; }
-  .wrap { padding: 0 32px; }
   textarea.answer, .tbl-ans { background: #fff !important; border: 1px solid #ccc !important; }
   .bc-blockers { display: none !important; }
+  .biz-context .bc-body { display: block !important; }
+  .biz-context .bc-snapshot-teaser { display: none !important; }
   .p0-block { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   details.section-block, details.section-block[open] { display: block; border: none; border-bottom: 1px solid var(--border); margin-bottom: 0; }
   summary.section-head { background: none; border-bottom: 2px solid var(--border); margin-bottom: 12px; padding: 8px 0; }
-  .section-chevron { display: none; }
+  .section-chevron, .section-count { display: none; }
   details.uc { border: none; }
   details.uc[open], details.uc:not([open]) { display: block; }
   summary.uc-hd { background: none; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .uc-chevron { display: none; }
-  details.section-block { page-break-inside: avoid; }
+  details.section-block, .cat-header { page-break-inside: avoid; }
+  .cat-header { margin-top: 18px; }
   .pill { display: none; }
   .pill.selected::before { content: '✓ '; }
   .pill.selected { display: inline; background: none; color: var(--dark); border: none; font-weight: 600; }
@@ -263,6 +426,9 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 
 <div class="wrap">
 
+<!-- ──────────────────────── MAIN COLUMN ──────────────────────── -->
+<div class="main-col">
+
 <!-- DOCUMENT HEADER -->
 <div class="doc-header">
   <div class="eyebrow"><!-- FILL:eyebrow --></div>
@@ -275,11 +441,15 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </div>
 
-<!-- BUSINESS CONTEXT PANEL -->
-<div class="biz-context">
+<!-- BUSINESS CONTEXT — collapsed teaser by default -->
+<div class="biz-context" id="biz-context">
   <div class="bc-header" onclick="toggleBC()">
-    <span class="bc-title">How We See Your Business</span>
-    <span class="bc-chevron" id="bc-chevron">▲</span>
+    <div class="bc-title-row">
+      <span class="bc-title">How We See Your Business</span>
+      <!-- FILL:bc-phase-chip -->
+    </div>
+    <span class="bc-chevron" id="bc-chevron">▼</span>
+    <span class="bc-snapshot-teaser"><!-- FILL:bc-snapshot --></span>
   </div>
   <div class="bc-body" id="bc-body">
     <p class="bc-snapshot"><!-- FILL:bc-snapshot --></p>
@@ -290,7 +460,7 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </div>
 
-<!-- FORM SECTIONS — generated by fill-template.js from sections[] in content JSON -->
+<!-- FORM SECTIONS — grouped by category (Business / Technical / Production) -->
 <!-- FILL:form-sections -->
 
 <!-- INTERNAL FLAGS — no-print -->
@@ -306,6 +476,48 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     ✓ Your responses have been submitted to DataSkate. We'll be in touch shortly.
   </div>
 </div>
+
+</div><!-- /.main-col -->
+
+<!-- ──────────────────────── RIGHT RAIL ──────────────────────── -->
+<aside class="rail-col no-print" aria-label="Form status and navigation">
+
+  <!-- Progress -->
+  <div class="rail-card rail-progress">
+    <div class="rail-label">Progress</div>
+    <div class="progress-num">
+      <span id="rail-answered">0</span><span class="num-total"> / <span id="rail-total">0</span></span>
+    </div>
+    <div class="progress-meta">questions answered · <span id="rail-pct">0</span>%</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- Subsections jump-nav -->
+  <div class="rail-card">
+    <div class="rail-label">Subsections</div>
+    <nav class="rail-nav" id="rail-nav">
+      <!-- FILL:rail-nav -->
+    </nav>
+  </div>
+
+  <!-- Needs Attention -->
+  <div class="rail-card rail-attention">
+    <div class="rail-label">Needs Attention</div>
+    <ul class="attention-list" id="attention-list">
+      <!-- FILL:rail-attention -->
+    </ul>
+    <div class="attention-empty" id="attention-empty" style="display:none">Nothing flagged. Good to go.</div>
+  </div>
+
+  <!-- Links -->
+  <div class="rail-card">
+    <div class="rail-label">Links</div>
+    <ul class="rail-links">
+      <!-- FILL:rail-links -->
+    </ul>
+  </div>
+
+</aside>
 
 </div><!-- /.wrap -->
 
@@ -326,7 +538,7 @@ const FIREBASE_CONFIG = {
 };
 const CLIENT_SLUG = "<!-- FILL:client-slug -->";
 
-// ── FIREBASE INIT (CDN loaded inline to keep file self-contained) ─────────────
+// ── FIREBASE INIT ────────────────────────────────────────────────────────────
 (function() {
   const scripts = [
     "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
@@ -341,11 +553,7 @@ const CLIENT_SLUG = "<!-- FILL:client-slug -->";
 
 // ── FORM LOGIC ───────────────────────────────────────────────────────────────
 function toggleBC() {
-  const body = document.getElementById('bc-body');
-  const chev = document.getElementById('bc-chevron');
-  const hidden = body.style.display === 'none';
-  body.style.display = hidden ? '' : 'none';
-  chev.textContent = hidden ? '▲' : '▼';
+  document.getElementById('biz-context').classList.toggle('is-open');
 }
 
 function pickPill(el, fieldId) {
@@ -362,10 +570,74 @@ function pickPill(el, fieldId) {
 }
 
 function updateProgress() {
-  const all = document.querySelectorAll('textarea.answer');
-  const answered = Array.from(all).filter(t => t.value.trim().length > 0);
-  document.getElementById('answered-count').textContent = answered.length;
-  document.getElementById('total-count').textContent = all.length;
+  const all      = document.querySelectorAll('textarea.answer, input.tbl-ans');
+  const answered = Array.from(all).filter(t => (t.value || '').trim().length > 0);
+  const total    = all.length;
+  const ans      = answered.length;
+  const pct      = total > 0 ? Math.round((ans / total) * 100) : 0;
+
+  // Top sticky bar
+  const sb1 = document.getElementById('answered-count'); if (sb1) sb1.textContent = ans;
+  const sb2 = document.getElementById('total-count');    if (sb2) sb2.textContent = total;
+
+  // Right rail progress card
+  const ra = document.getElementById('rail-answered'); if (ra) ra.textContent = ans;
+  const rt = document.getElementById('rail-total');    if (rt) rt.textContent = total;
+  const rp = document.getElementById('rail-pct');      if (rp) rp.textContent = pct;
+  const pf = document.getElementById('progress-fill'); if (pf) pf.style.width = pct + '%';
+
+  // Per-section counts (and per-rail-nav-link counts)
+  document.querySelectorAll('details.section-block').forEach(sec => {
+    const inputs   = sec.querySelectorAll('textarea.answer, input.tbl-ans');
+    const filled   = Array.from(inputs).filter(t => (t.value || '').trim().length > 0).length;
+    const required = sec.querySelectorAll('textarea.answer[data-required="true"], input.tbl-ans[data-required="true"]');
+    const reqEmpty = Array.from(required).filter(t => (t.value || '').trim().length === 0).length;
+
+    // Update section-head badge
+    const badge = sec.querySelector('.section-count');
+    if (inputs.length > 0) {
+      if (badge) {
+        badge.textContent = `${filled}/${inputs.length}`;
+        badge.classList.toggle('has-required', reqEmpty > 0);
+      }
+    } else if (badge) {
+      badge.textContent = '';
+    }
+
+    // Update matching rail-nav link
+    const navLink = document.querySelector(`.rail-nav a[data-section="${sec.id}"]`);
+    if (navLink) {
+      const cnt = navLink.querySelector('.nav-count');
+      if (inputs.length > 0 && cnt) cnt.textContent = `${filled}/${inputs.length}`;
+      navLink.classList.toggle('is-complete', inputs.length > 0 && filled === inputs.length);
+      navLink.classList.toggle('has-required', reqEmpty > 0);
+    }
+  });
+
+  rebuildAttention();
+}
+
+function rebuildAttention() {
+  // Combine static P0 blockers (rendered at fill time) with dynamic required-unanswered
+  const list = document.getElementById('attention-list');
+  if (!list) return;
+  // Remove dynamic items only (data-source="dynamic")
+  list.querySelectorAll('li[data-source="dynamic"]').forEach(li => li.remove());
+
+  // Required unanswered count
+  const reqEmpty = Array.from(
+    document.querySelectorAll('textarea.answer[data-required="true"], input.tbl-ans[data-required="true"]')
+  ).filter(t => (t.value || '').trim().length === 0);
+  if (reqEmpty.length > 0) {
+    const li = document.createElement('li');
+    li.setAttribute('data-source', 'dynamic');
+    li.innerHTML = `<strong>${reqEmpty.length} required ${reqEmpty.length === 1 ? 'question' : 'questions'} unanswered</strong>Click any section badge to jump in.`;
+    list.appendChild(li);
+  }
+
+  // Empty-state toggle
+  const empty = document.getElementById('attention-empty');
+  if (empty) empty.style.display = list.children.length === 0 ? 'block' : 'none';
 }
 
 function collectAnswers() {
@@ -417,7 +689,7 @@ function submitForm() {
   });
 }
 
-// ── SEQUENTIAL Q-NUMBERING ───────────────────────────────────────────────────
+// ── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Force-collapse all collapsible blocks
   document.querySelectorAll('details.uc, details.section-block').forEach(d => d.removeAttribute('open'));
@@ -427,17 +699,45 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.internal-block, .bc-blockers').forEach(el => el.style.display = 'block');
   }
 
+  // Sequential Q numbering
   let qNum = 1;
-  document.querySelectorAll('.q-num').forEach(el => {
-    el.textContent = `Q${qNum++}`;
-  });
+  document.querySelectorAll('.q-num').forEach(el => { el.textContent = `Q${qNum++}`; });
 
+  // Wire textarea inputs to progress
   document.querySelectorAll('textarea.answer').forEach(ta => {
     ta.addEventListener('input', () => {
       ta.classList.toggle('is-answered', ta.value.trim().length > 0);
       updateProgress();
     });
   });
+  document.querySelectorAll('input.tbl-ans').forEach(inp => {
+    inp.addEventListener('input', updateProgress);
+  });
+
+  // Open the section + UC when a rail-nav link is clicked, so the user lands inside
+  document.querySelectorAll('.rail-nav a[data-section]').forEach(a => {
+    a.addEventListener('click', () => {
+      const sec = document.getElementById(a.dataset.section);
+      if (sec) sec.setAttribute('open', '');
+    });
+  });
+
+  // Active-section highlighting via IntersectionObserver
+  const navLinks = new Map();
+  document.querySelectorAll('.rail-nav a[data-section]').forEach(a => navLinks.set(a.dataset.section, a));
+  if ('IntersectionObserver' in window && navLinks.size > 0) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const link = navLinks.get(e.target.id);
+        if (!link) return;
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('is-active'));
+          link.classList.add('is-active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+    document.querySelectorAll('details.section-block[id]').forEach(s => io.observe(s));
+  }
 
   updateProgress();
 });

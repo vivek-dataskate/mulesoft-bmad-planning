@@ -33,10 +33,32 @@ a { color: var(--brand); }
 </style>
 
 <style>
-/* ── LAYOUT ── */
-.wrap { max-width: 960px; margin: 0 auto; padding: 0 32px 60px; }
+/* ── LAYOUT ─────────────────────────────────────────────────────────────────
+   Main + right rail. Rail collapses below content on narrow viewports. */
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px 60px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 36px;
+  align-items: start;
+}
+.main-col { min-width: 0; }
+.rail-col {
+  position: sticky;
+  top: 56px;
+  align-self: start;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  padding-bottom: 24px;
+}
+@media (max-width: 1100px) {
+  .wrap { grid-template-columns: 1fr; gap: 16px; }
+  .rail-col { position: static; max-height: none; order: 2; }
+}
 
-/* ── STICKY ACTION BAR (HTML_DESIGN_STANDARDS.md §Sticky Action Bar) ── */
+/* ── STICKY ACTION BAR ── */
 .sticky-bar {
   position: sticky; top: 0; z-index: 200;
   background: rgba(255,255,255,0.97);
@@ -50,18 +72,18 @@ a { color: var(--brand); }
 .progress-pill span { color: var(--brand); font-weight: 800; }
 .bar-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-/* ── BUTTONS (HTML_DESIGN_STANDARDS.md §Buttons) ── */
+/* ── BUTTONS ── */
 .btn {
   padding: 7px 16px; border-radius: 6px;
   font-size: 13px; font-weight: 700;
   cursor: pointer; border: none;
 }
 .btn-primary { background: var(--brand); color: #fff; }
-.btn-outline  { background: #fff; color: var(--dark); border: 2px solid var(--border); }
+.btn-outline { background: #fff; color: var(--dark); border: 2px solid var(--border); }
 
 /* ── BOTTOM SUBMIT BLOCK ── */
 .submit-block { text-align: center; padding: 40px 0 20px; }
-.btn-submit   { font-size: 15px; padding: 12px 36px; }
+.btn-submit { font-size: 15px; padding: 12px 36px; }
 .submit-success {
   display: none;
   background: #F0FFF4;
@@ -72,7 +94,7 @@ a { color: var(--brand); }
   font-size: 14px; font-weight: 600; color: #276749;
 }
 
-/* ── HEADER (HTML_DESIGN_STANDARDS.md §Header Component — intake variant) ── */
+/* ── HEADER ── */
 .doc-header {
   padding: 20px 0 24px;
   border-bottom: 3px solid var(--brand);
@@ -99,34 +121,54 @@ a { color: var(--brand); }
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-/* ── BUSINESS CONTEXT PANEL (HTML_DESIGN_STANDARDS.md §Business Context Panel) ── */
+/* ── BUSINESS CONTEXT — TEASER BY DEFAULT ──────────────────────────────────
+   Collapsed shows: title + phase chip + 1-line snapshot. Click expands. */
 .biz-context {
-  background: var(--light);
   border: 1px solid var(--border);
   border-left: 4px solid var(--brand);
   border-radius: 8px;
   margin: 16px 0 0;
+  background: var(--light);
   overflow: hidden;
 }
 .bc-header {
-  background: var(--light);
-  padding: 12px 20px;
+  padding: 10px 16px;
   cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
   user-select: none;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: center;
 }
+.bc-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .bc-title {
-  font-size: 13px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.5px;
   color: var(--brand-dk);
 }
-.bc-chevron { font-size: 14px; color: var(--brand-dk); transition: transform 0.2s; }
-.bc-body    { padding: 24px 28px; }
-.bc-snapshot { font-size: 14px; color: var(--dark); margin-bottom: 16px; line-height: 1.7; }
+.bc-phase-chip {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  background: #fff; color: var(--brand-dk);
+  border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 10px;
+  text-transform: uppercase;
+}
+.bc-chevron { font-size: 12px; color: var(--brand-dk); transition: transform 0.2s; grid-row: 1 / span 2; }
+.biz-context.is-open .bc-chevron { transform: rotate(180deg); }
+.bc-snapshot-teaser {
+  grid-column: 1;
+  font-size: 13px; color: var(--dark); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.biz-context.is-open .bc-snapshot-teaser { display: none; }
+.bc-body { display: none; padding: 0 16px 16px; }
+.biz-context.is-open .bc-body { display: block; }
+.bc-snapshot { font-size: 14px; color: var(--dark); margin-bottom: 14px; line-height: 1.6; }
 
-/* AI Journey cards — white bg, border-top accent only */
-.journey-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.journey-card { border-radius: 0 0 6px 6px; padding: 16px 18px; background: #fff; border: 1px solid var(--border); }
+/* AI Journey cards */
+.journey-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.journey-card { border-radius: 0 0 6px 6px; padding: 14px 16px; background: #fff; border: 1px solid var(--border); }
 .journey-card.phase-1 { border-top: 3px solid var(--green); }
 .journey-card.phase-2 { border-top: 3px solid var(--amber); }
 .journey-card.phase-3 { border-top: 3px solid #C084FC; }
@@ -135,17 +177,38 @@ a { color: var(--brand); }
 .jc-headline { font-size: 12px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
 .jc-body     { font-size: 12px; color: var(--mid); line-height: 1.5; }
 
-/* ── ACTION REQUIRED (client-visible P0 blockers) ── */
-.action-required { background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid var(--brand); border-radius: 0 8px 8px 0; padding: 16px 20px; margin-top: 16px; }
-.action-required h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #991B1B; margin-bottom: 10px; }
+/* ── ACTION REQUIRED (in biz-context expanded body) ── */
+.action-required { background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid var(--brand); border-radius: 0 8px 8px 0; padding: 14px 18px; }
+.action-required h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #991B1B; margin-bottom: 8px; }
 .action-required ul { list-style: none; padding: 0; margin: 0; }
-.action-required li { font-size: 13px; color: #7F1D1D; padding: 8px 0 8px 22px; position: relative; border-bottom: 1px solid #FECACA; line-height: 1.5; }
+.action-required li { font-size: 13px; color: #7F1D1D; padding: 7px 0 7px 22px; position: relative; border-bottom: 1px solid #FECACA; line-height: 1.5; }
 .action-required li:last-child { border-bottom: none; padding-bottom: 0; }
 .action-required li::before { content: '→'; position: absolute; left: 0; color: var(--brand); font-weight: 700; }
 .action-required li strong { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #991B1B; margin-bottom: 2px; }
 
+/* ── CATEGORY HEADERS (between section groups) ───────────────────────────── */
+.cat-header {
+  display: flex; align-items: baseline; gap: 12px;
+  margin: 28px 0 10px;
+  padding: 0 0 6px;
+  border-bottom: 2px solid var(--brand);
+}
+.cat-header:first-of-type { margin-top: 24px; }
+.cat-num {
+  font-size: 11px; font-weight: 800; color: var(--brand);
+  letter-spacing: 1.5px;
+}
+.cat-title {
+  font-size: 18px; font-weight: 800; color: var(--dark);
+  letter-spacing: -0.2px;
+}
+.cat-blurb {
+  font-size: 12px; color: var(--mid); margin-left: auto;
+  font-style: italic;
+}
+
 /* ── SECTION BLOCKS — collapsible tiles ── */
-details.section-block { border: 1px solid var(--border); margin-bottom: 6px; }
+details.section-block { border: 1px solid var(--border); margin-bottom: 6px; scroll-margin-top: 64px; }
 details.section-block:last-of-type { margin-bottom: 0; }
 details.section-block[open] { border-left: 3px solid var(--brand); }
 summary.section-head { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; padding: 12px 16px; user-select: none; background: #FAFAFA; }
@@ -153,6 +216,8 @@ summary.section-head::-webkit-details-marker { display: none; }
 details.section-block[open] summary.section-head { background: #fff; border-bottom: 1px solid var(--border); }
 .section-num   { font-size: 10px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; }
 .section-title { font-size: 14px; font-weight: 700; color: var(--dark); }
+.section-count { font-size: 10px; font-weight: 700; color: var(--mid); margin-left: 6px; }
+.section-count.has-required { color: var(--brand); }
 .section-chevron { font-size: 11px; color: var(--mid); margin-left: auto; transition: transform 0.2s; }
 details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .section-body { padding: 16px 16px 20px; }
@@ -179,7 +244,7 @@ details.uc[open] .uc-chevron { transform: rotate(180deg); }
 .p0-block p strong { color: #991B1B; }
 .p0-block code { background: #FEE2E2; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 12px; }
 
-/* ── SCOPE BOUNDARY — neutral bg, label color as differentiator ── */
+/* ── SCOPE BOUNDARY ── */
 .scope-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
 .scope-item { padding: 10px 14px; border-radius: 6px; font-size: 12px; line-height: 1.5; background: #FAFAFA; border: 1px solid var(--border); color: var(--dark); }
 .scope-item .scope-label { font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
@@ -187,7 +252,7 @@ details.uc[open] .uc-chevron { transform: rotate(180deg); }
 .scope-assumed .scope-label { color: #7C5E10; }
 .scope-out .scope-label     { color: #9B2335; }
 
-/* ── QUESTION BLOCKS — inline grid layout ── */
+/* ── QUESTION BLOCKS ── */
 .q { display: grid; grid-template-columns: 28px 1fr; gap: 0 8px; margin-bottom: 10px; align-items: start; }
 .q:last-child { margin-bottom: 0; }
 .q-num { font-size: 10px; font-weight: 700; color: var(--mid); padding-top: 4px; text-align: right; }
@@ -205,7 +270,7 @@ textarea.answer.is-prefilled { border-left: 3px solid var(--amber); background: 
 textarea.answer.is-answered  { border-left: 3px solid var(--green); background: #fff; }
 textarea.answer.mandatory-empty { background: #FFF5F5; border-color: #F87171; }
 
-/* ── TABLES (HTML_DESIGN_STANDARDS.md §Table Component) ── */
+/* ── TABLES ── */
 table.dtbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
 table.dtbl th { background: var(--dark); color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; }
 table.dtbl td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
@@ -215,7 +280,7 @@ table.dtbl input.tbl-ans { width: 100%; border: 1px solid var(--border); border-
 table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-color: #FDE68A; }
 .tbl-hint { font-size: 12px; color: var(--mid); font-style: italic; margin-bottom: 8px; padding: 8px 14px; background: #FAFAFA; border-left: 3px solid var(--border); border-radius: 0 4px 4px 0; }
 
-/* ── INTERNAL FLAGS — hidden from clients; shown only via ?internal=1 ── */
+/* ── INTERNAL FLAGS ── */
 .internal-block { display: none; border-top: 2px solid #FDE68A; padding: 32px 0; }
 .internal-block h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #92400E; margin-bottom: 20px; }
 .flag-item { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #FDE68A; }
@@ -235,27 +300,125 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 .status-pending { background: #FEF3C7; color: #92400E; }
 .status-blocked { background: #FEE2E2; color: #991B1B; }
 
+/* ── RIGHT RAIL ─────────────────────────────────────────────────────────── */
+.rail-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+.rail-card:last-child { margin-bottom: 0; }
+.rail-label {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--mid);
+  margin-bottom: 8px;
+}
+
+/* Progress card */
+.rail-progress {
+  border-left: 3px solid var(--brand);
+}
+.progress-num {
+  font-size: 22px; font-weight: 800; color: var(--dark);
+  line-height: 1.1;
+}
+.progress-num .num-total { color: var(--mid); font-weight: 600; }
+.progress-meta { font-size: 11px; color: var(--mid); margin-top: 2px; }
+.progress-bar {
+  height: 6px; background: #F1EEEE; border-radius: 3px;
+  margin: 10px 0 4px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--brand);
+  width: 0%; transition: width 0.25s ease;
+}
+
+/* Subsection jump-nav */
+.rail-nav { font-size: 12px; }
+.rail-nav .nav-cat {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--brand);
+  margin: 10px 0 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.rail-nav .nav-cat:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.rail-nav a {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0;
+  color: var(--dark); text-decoration: none;
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+  margin-left: -8px;
+  border-radius: 0;
+  transition: background 0.1s, border-color 0.1s;
+}
+.rail-nav a:hover { background: var(--light); }
+.rail-nav a.is-active { border-left-color: var(--brand); background: var(--light); color: var(--brand-dk); font-weight: 700; }
+.rail-nav .nav-count {
+  font-size: 10px; color: var(--mid); font-weight: 600;
+  margin-left: 6px;
+}
+.rail-nav a.is-complete .nav-count { color: var(--green); }
+.rail-nav a.has-required .nav-count { color: var(--brand); font-weight: 800; }
+
+/* Needs Attention card */
+.rail-attention {
+  border-left: 3px solid var(--brand);
+  background: #FFFAFA;
+}
+.rail-attention .rail-label { color: #991B1B; }
+.attention-list { list-style: none; padding: 0; margin: 0; }
+.attention-list li {
+  font-size: 12px;
+  padding: 6px 0 6px 18px;
+  border-bottom: 1px solid #FECACA;
+  position: relative;
+  color: #7F1D1D;
+  line-height: 1.4;
+}
+.attention-list li:last-child { border-bottom: none; padding-bottom: 0; }
+.attention-list li::before { content: '!'; position: absolute; left: 0; top: 6px; font-weight: 800; color: var(--brand); font-size: 11px; width: 12px; height: 12px; line-height: 12px; text-align: center; }
+.attention-list li strong { font-weight: 700; color: #991B1B; display: block; font-size: 11px; }
+.attention-empty {
+  font-size: 12px; color: var(--mid); font-style: italic;
+  padding: 4px 0;
+}
+
+/* Rail links */
+.rail-links { list-style: none; padding: 0; margin: 0; }
+.rail-links li { padding: 4px 0; font-size: 12px; }
+.rail-links a { color: var(--brand-dk); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.rail-links a:hover { text-decoration: underline; }
+.rail-links a::after { content: '↗'; font-size: 10px; opacity: 0.6; }
+
 /* ── FOOTER ── */
 .footer { border-top: 1px solid var(--border); padding: 16px 32px; font-size: 12px; color: var(--mid); display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
 .footer strong { color: var(--dark); }
 .footer a { color: var(--mid); text-decoration: none; }
 
-/* ── PRINT (HTML_DESIGN_STANDARDS.md §Print / PDF Stylesheet) ── */
+/* ── PRINT — collapse rail, expand everything ── */
 @media print {
-  .sticky-bar, .no-print { display: none !important; }
+  .sticky-bar, .no-print, .rail-col { display: none !important; }
+  .wrap { display: block; padding: 0 32px; }
   body { background: #fff; font-size: 11px; }
-  .wrap { padding: 0 32px; }
   textarea.answer, .tbl-ans { background: #fff !important; border: 1px solid #ccc !important; }
   .bc-blockers { display: none !important; }
+  .biz-context .bc-body { display: block !important; }
+  .biz-context .bc-snapshot-teaser { display: none !important; }
   .p0-block { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   details.section-block, details.section-block[open] { display: block; border: none; border-bottom: 1px solid var(--border); margin-bottom: 0; }
   summary.section-head { background: none; border-bottom: 2px solid var(--border); margin-bottom: 12px; padding: 8px 0; }
-  .section-chevron { display: none; }
+  .section-chevron, .section-count { display: none; }
   details.uc { border: none; }
   details.uc[open], details.uc:not([open]) { display: block; }
   summary.uc-hd { background: none; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .uc-chevron { display: none; }
-  details.section-block { page-break-inside: avoid; }
+  details.section-block, .cat-header { page-break-inside: avoid; }
+  .cat-header { margin-top: 18px; }
   .pill { display: none; }
   .pill.selected::before { content: '✓ '; }
   .pill.selected { display: inline; background: none; color: var(--dark); border: none; font-weight: 600; }
@@ -290,6 +453,9 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 
 <div class="wrap">
 
+<!-- ──────────────────────── MAIN COLUMN ──────────────────────── -->
+<div class="main-col">
+
 <!-- DOCUMENT HEADER -->
 <div class="doc-header">
   <div class="eyebrow">DataSkate × Peerless Fence Group</div>
@@ -302,11 +468,15 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </div>
 
-<!-- BUSINESS CONTEXT PANEL -->
-<div class="biz-context">
+<!-- BUSINESS CONTEXT — collapsed teaser by default -->
+<div class="biz-context" id="biz-context">
   <div class="bc-header" onclick="toggleBC()">
-    <span class="bc-title">How We See Your Business</span>
-    <span class="bc-chevron" id="bc-chevron">▲</span>
+    <div class="bc-title-row">
+      <span class="bc-title">How We See Your Business</span>
+      <span class="bc-phase-chip">Phase 1 · Connected</span>
+    </div>
+    <span class="bc-chevron" id="bc-chevron">▼</span>
+    <span class="bc-snapshot-teaser"><strong>Ashley described it directly on the Apr 17 call</strong> — <em>"So we have no data points or information of what they've done with this customer, if anything, other than that they created a quote but not that they've given the customer a quote."</em> That gap is the engagement. Today HD Portal leads have to be retyped into Salesforce by hand, ComputerEase customer and job entry happens manually one record at a time, signed 299A and 299B contracts are downloaded and re-attached one PDF at a time, and Ashley reconciles by hand across four systems. <strong>On go-live day, every one of those steps stops.</strong> The path through the legacy ComputerEase environment is cautious — the API runs only against production, the relay is on a Windows VM, and Jean Jacobs is the single super admin — so the integration is built with GET-only safety, idempotency keys on every write, dry-run gates, and a backup admin designation. <em>Most answers in this form are already filled in from your three scoping calls with Raghuram, Marius, and Venkat. Your job is to confirm what we heard correctly and fill in the blanks we genuinely couldn't know.</em></span>
   </div>
   <div class="bc-body" id="bc-body">
     <p class="bc-snapshot"><strong>Ashley described it directly on the Apr 17 call</strong> — <em>"So we have no data points or information of what they've done with this customer, if anything, other than that they created a quote but not that they've given the customer a quote."</em> That gap is the engagement. Today HD Portal leads have to be retyped into Salesforce by hand, ComputerEase customer and job entry happens manually one record at a time, signed 299A and 299B contracts are downloaded and re-attached one PDF at a time, and Ashley reconciles by hand across four systems. <strong>On go-live day, every one of those steps stops.</strong> The path through the legacy ComputerEase environment is cautious — the API runs only against production, the relay is on a Windows VM, and Jean Jacobs is the single super admin — so the integration is built with GET-only safety, idempotency keys on every write, dry-run gates, and a backup admin designation. <em>Most answers in this form are already filled in from your three scoping calls with Raghuram, Marius, and Venkat. Your job is to confirm what we heard correctly and fill in the blanks we genuinely couldn't know.</em></p>
@@ -337,11 +507,14 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </div>
 
-<!-- FORM SECTIONS — generated by fill-template.js from sections[] in content JSON -->
-<details class="section-block">
+<!-- FORM SECTIONS — grouped by category (Business / Technical / Production) -->
+<div class="cat-header" data-cat="business"><span class="cat-num">01</span><span class="cat-title">Business</span><span class="cat-blurb">What we're building and where data flows</span></div>
+
+<details class="section-block" id="sec-1" data-section-id="1">
   <summary class="section-head">
     <div class="section-num">1</div>
     <div class="section-title">USE CASES</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -434,10 +607,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<details class="section-block" id="sec-2" data-section-id="2">
   <summary class="section-head">
     <div class="section-num">2</div>
     <div class="section-title">SYSTEMS AND ACCESS</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -477,10 +651,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<details class="section-block" id="sec-3" data-section-id="3">
   <summary class="section-head">
     <div class="section-num">3</div>
     <div class="section-title">DATA AND FIELD MAPPING</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -590,10 +765,44 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<details class="section-block" id="sec-10" data-section-id="10">
+  <summary class="section-head">
+    <div class="section-num">10</div>
+    <div class="section-title">SYSTEM-SPECIFIC DETAILS</div>
+    <span class="section-count"></span>
+    <span class="section-chevron">▼</span>
+  </summary>
+  <div class="section-body">
+    <p><em>Max 3 questions per system — hard-blocker priority.</em></p>
+<h3>10.1 Salesforce</h3>
+<p><strong>Q10.1 [SYSTEM: Salesforce]</strong> <code>Trigger.IgnoreNotifications__c</code> (or fenced-owner routing) pattern to suppress permitting-department notifications during non-prod runs?<br><strong>Answer:</strong> Inferred from rex.json — confirm with Cora Barahi.</p>
+<p><strong>Q10.2 [SYSTEM: Salesforce]</strong> SOQL OFFSET fails silently &gt; 2,000 records — UC5 + UC4 must use nextRecordsUrl cursor pagination. Confirm integration user has API-only profile (no UI access).<br><strong>Answer:</strong> Inferred from rex.json + playbook — confirm.</p>
+<p><strong>Q10.3 [SYSTEM: Salesforce]</strong> Daily API budget — 15K calls/day Enterprise. Projected ~1,600 calls/day = 11% utilization. Comfortable headroom. Monitor <code>Sforce-Limit-Info</code> header, alert at 12K.<br><strong>Answer:</strong> Inferred — confirm Enterprise edition.</p>
+<h3>10.2 HD Portal</h3>
+<p><strong>Q10.4 [P0] [SYSTEM: HD Portal]</strong> See Q1.4 + Q1.7 + Q2.4 (endpoint coverage).</p>
+<p><strong>Q10.5 [SYSTEM: HD Portal]</strong> Sales-rep profile licensing numbers cascade onto every 299A/299B at print time — MUST be populated in HD Portal before go-live. Confirm Ashley has captured each sales rep's state license number.<br><strong>Answer:</strong> Inferred from rex.json — confirm. Default: Ashley delivers full sales-rep license number list (IL/IN/OH/WI) before M2 (UAT).</p>
+<p><strong>Q10.6 [SYSTEM: HD Portal]</strong> Install start/finish dates must be Friday (4-6 weeks out from contract Final). UC4 default: first Friday at Final + 28d.<br><strong>Answer:</strong> Inferred from rex.json — confirm.</p>
+<h3>10.3 ComputerEase</h3>
+<p><strong>Q10.7 [P0] [SYSTEM: ComputerEase]</strong> See Q1.10 + Q1.11 + Q1.12 + Q2.6.</p>
+<p><strong>Q10.8 [SYSTEM: ComputerEase]</strong> CE API access groups — confirm the four required groups (<code>jobs</code>, <code>subcontracts</code>, <code>cost types</code>, <code>job totals</code>) pre-created by Jean Jacobs. Payroll EXCLUDED.<br><strong>Answer:</strong> Pending Jean Jacobs.</p>
+<p><strong>Q10.9 [SYSTEM: ComputerEase]</strong> Production-only API risk acknowledged — confirm Peerless leadership has accepted GET-only + idempotency + dry-run gates + no undo button.<br><strong>Answer:</strong> Inferred — confirm with Jeff Kelly / Kirk.</p>
+<h3>10.4 Anypoint IDP</h3>
+<p><strong>Q10.10 [P0] [SYSTEM: Anypoint IDP]</strong> See Q1.26 + Q1.27.</p>
+<p><strong>Q10.11 [SYSTEM: Anypoint IDP]</strong> IDP Workshop scheduling — target Week 1 with Raghuram + Ashley + TBD owner. Doc classes: 299A, 299B, 118, ChangeOrder.<br><strong>Answer:</strong> Inferred — confirm.</p>
+<p><strong>Q10.12 [SYSTEM: Anypoint IDP]</strong> Architect preference: rule-based extraction over LLM for legal/compliance fields (FK-040). Confirm acceptance.<br><strong>Answer:</strong> Inferred — confirm. Default: rule-based on UC7 fields; LLM acceptable on UC8 free-form Change Order description only.</p>
+<h3>10.5 Email + Google Drive</h3>
+<p><strong>Q10.13 [P0] [SYSTEM: Email + Drive]</strong> Bundled with Q1.24 + Q1.25 (source binding + tenant).</p>
+<p><strong>Q10.14 [SYSTEM: Google Drive]</strong> Shared Drive — service account EXPLICITLY added as member (not just folder-shared)?<br><strong>Answer:</strong> Inferred from rex.json — confirm with Brian Cook. Default: Shared Drive member with Viewer (or Editor if moving processed files).</p>
+  </div>
+</details>
+
+<div class="cat-header" data-cat="technical"><span class="cat-num">02</span><span class="cat-title">Technical</span><span class="cat-blurb">How well it must work</span></div>
+
+<details class="section-block" id="sec-4" data-section-id="4">
   <summary class="section-head">
     <div class="section-num">4</div>
     <div class="section-title">VOLUME AND PERFORMANCE</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -609,10 +818,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<details class="section-block" id="sec-5" data-section-id="5">
   <summary class="section-head">
     <div class="section-num">5</div>
     <div class="section-title">SECURITY AND COMPLIANCE</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -628,10 +838,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<details class="section-block" id="sec-6" data-section-id="6">
   <summary class="section-head">
     <div class="section-num">6</div>
     <div class="section-title">ERROR HANDLING</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -647,10 +858,13 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<div class="cat-header" data-cat="production"><span class="cat-num">03</span><span class="cat-title">Production</span><span class="cat-blurb">How we ship and run it</span></div>
+
+<details class="section-block" id="sec-7" data-section-id="7">
   <summary class="section-head">
     <div class="section-num">7</div>
     <div class="section-title">DEPLOYMENT AND DEVOPS</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -677,10 +891,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<details class="section-block" id="sec-8" data-section-id="8">
   <summary class="section-head">
     <div class="section-num">8</div>
     <div class="section-title">OPERATIONS AND SUPPORT</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -690,10 +905,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </details>
 
-<details class="section-block">
+<details class="section-block" id="sec-9" data-section-id="9">
   <summary class="section-head">
     <div class="section-num">9</div>
     <div class="section-title">TESTING AND GO-LIVE</div>
+    <span class="section-count"></span>
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
@@ -704,36 +920,6 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 <ul><li><strong>UC1:</strong> 5 test HD leads → 5 Salesforce Leads within 15 min, all External IDs correct, 0 duplicates on rerun.</li><li><strong>UC2 (pending Q1.4):</strong> 5 SF Account/Quote edits → 5 HD Portal write-backs within 10 min.</li><li><strong>UC3 (pending Q1.7):</strong> 5 contracts Final → 299A + 299B + 118 PDFs attach within 15 min.</li><li><strong>UC4:</strong> 5 HD orders → 5 CE Customer + Job records, idempotency keys present, dry-run validated, no duplicates, job numbers atomic.</li><li><strong>UC5:</strong> 5 test orders with planted mismatches (1 name diff, 1 material diff, 1 pricing diff &gt; 2%, 2 matching) → 3 flags + 2 matches.</li><li><strong>UC6:</strong> 5 test contracts with planted SKU/discount mismatches (3 mismatches, 2 matches) → Chatter alerts.</li><li><strong>UC7:</strong> 5 contracts (3 IL/IN/OH @ 100% deposit + 2 WI @ 99%, 1 illegible signature, 1 "declined" signer-role) → rescission dates correct, 2 flagged.</li><li><strong>UC8:</strong> 10 PDFs to Email + 10 to Drive → IDP within 2 min; 16/20 high-confidence to SF update, 4/20 to review queue.</li><li>Zero duplicates across any flow during 24-hour parallel-run.</li><li>DLQ shows zero unintended messages after 24 hours of test traffic.</li><li>MUnit ≥ 80% coverage on Process API + System APIs + IDP submit/poll subflow.</li></ul>
 <p><strong>Q9.4</strong> Blackout periods?<br><strong>Answer:</strong> Inferred — confirm. Default: avoid Friday (HD install-date crunch); avoid end-of-month accounting close (Jean unavailable); avoid Apr–Sep peak for structural changes (additive deploys OK).</p>
 <p><strong>Q9.5</strong> Target go-live date?<br><strong>Answer:</strong> Pending — project.json <code>targetGoLive</code> = TBD. Jeff Kelly said <em>"I would like to start Peerless next week"</em> — kickoff ~end of May 2026. Catalog formula = 14 weeks for 8 flows. Earliest plausible go-live: <strong>early Sept 2026</strong> if kickoff end May. Confirm target or set explicit constraint.</p>
-  </div>
-</details>
-
-<details class="section-block">
-  <summary class="section-head">
-    <div class="section-num">10</div>
-    <div class="section-title">SYSTEM-SPECIFIC DETAILS</div>
-    <span class="section-chevron">▼</span>
-  </summary>
-  <div class="section-body">
-    <p><em>Max 3 questions per system — hard-blocker priority.</em></p>
-<h3>10.1 Salesforce</h3>
-<p><strong>Q10.1 [SYSTEM: Salesforce]</strong> <code>Trigger.IgnoreNotifications__c</code> (or fenced-owner routing) pattern to suppress permitting-department notifications during non-prod runs?<br><strong>Answer:</strong> Inferred from rex.json — confirm with Cora Barahi.</p>
-<p><strong>Q10.2 [SYSTEM: Salesforce]</strong> SOQL OFFSET fails silently &gt; 2,000 records — UC5 + UC4 must use nextRecordsUrl cursor pagination. Confirm integration user has API-only profile (no UI access).<br><strong>Answer:</strong> Inferred from rex.json + playbook — confirm.</p>
-<p><strong>Q10.3 [SYSTEM: Salesforce]</strong> Daily API budget — 15K calls/day Enterprise. Projected ~1,600 calls/day = 11% utilization. Comfortable headroom. Monitor <code>Sforce-Limit-Info</code> header, alert at 12K.<br><strong>Answer:</strong> Inferred — confirm Enterprise edition.</p>
-<h3>10.2 HD Portal</h3>
-<p><strong>Q10.4 [P0] [SYSTEM: HD Portal]</strong> See Q1.4 + Q1.7 + Q2.4 (endpoint coverage).</p>
-<p><strong>Q10.5 [SYSTEM: HD Portal]</strong> Sales-rep profile licensing numbers cascade onto every 299A/299B at print time — MUST be populated in HD Portal before go-live. Confirm Ashley has captured each sales rep's state license number.<br><strong>Answer:</strong> Inferred from rex.json — confirm. Default: Ashley delivers full sales-rep license number list (IL/IN/OH/WI) before M2 (UAT).</p>
-<p><strong>Q10.6 [SYSTEM: HD Portal]</strong> Install start/finish dates must be Friday (4-6 weeks out from contract Final). UC4 default: first Friday at Final + 28d.<br><strong>Answer:</strong> Inferred from rex.json — confirm.</p>
-<h3>10.3 ComputerEase</h3>
-<p><strong>Q10.7 [P0] [SYSTEM: ComputerEase]</strong> See Q1.10 + Q1.11 + Q1.12 + Q2.6.</p>
-<p><strong>Q10.8 [SYSTEM: ComputerEase]</strong> CE API access groups — confirm the four required groups (<code>jobs</code>, <code>subcontracts</code>, <code>cost types</code>, <code>job totals</code>) pre-created by Jean Jacobs. Payroll EXCLUDED.<br><strong>Answer:</strong> Pending Jean Jacobs.</p>
-<p><strong>Q10.9 [SYSTEM: ComputerEase]</strong> Production-only API risk acknowledged — confirm Peerless leadership has accepted GET-only + idempotency + dry-run gates + no undo button.<br><strong>Answer:</strong> Inferred — confirm with Jeff Kelly / Kirk.</p>
-<h3>10.4 Anypoint IDP</h3>
-<p><strong>Q10.10 [P0] [SYSTEM: Anypoint IDP]</strong> See Q1.26 + Q1.27.</p>
-<p><strong>Q10.11 [SYSTEM: Anypoint IDP]</strong> IDP Workshop scheduling — target Week 1 with Raghuram + Ashley + TBD owner. Doc classes: 299A, 299B, 118, ChangeOrder.<br><strong>Answer:</strong> Inferred — confirm.</p>
-<p><strong>Q10.12 [SYSTEM: Anypoint IDP]</strong> Architect preference: rule-based extraction over LLM for legal/compliance fields (FK-040). Confirm acceptance.<br><strong>Answer:</strong> Inferred — confirm. Default: rule-based on UC7 fields; LLM acceptable on UC8 free-form Change Order description only.</p>
-<h3>10.5 Email + Google Drive</h3>
-<p><strong>Q10.13 [P0] [SYSTEM: Email + Drive]</strong> Bundled with Q1.24 + Q1.25 (source binding + tenant).</p>
-<p><strong>Q10.14 [SYSTEM: Google Drive]</strong> Shared Drive — service account EXPLICITLY added as member (not just folder-shared)?<br><strong>Answer:</strong> Inferred from rex.json — confirm with Brian Cook. Default: Shared Drive member with Viewer (or Editor if moving processed files).</p>
   </div>
 </details>
 
@@ -784,6 +970,66 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </div>
 
+</div><!-- /.main-col -->
+
+<!-- ──────────────────────── RIGHT RAIL ──────────────────────── -->
+<aside class="rail-col no-print" aria-label="Form status and navigation">
+
+  <!-- Progress -->
+  <div class="rail-card rail-progress">
+    <div class="rail-label">Progress</div>
+    <div class="progress-num">
+      <span id="rail-answered">0</span><span class="num-total"> / <span id="rail-total">0</span></span>
+    </div>
+    <div class="progress-meta">questions answered · <span id="rail-pct">0</span>%</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- Subsections jump-nav -->
+  <div class="rail-card">
+    <div class="rail-label">Subsections</div>
+    <nav class="rail-nav" id="rail-nav">
+      <div class="nav-cat">Business</div>
+<a href="#sec-1" data-section="sec-1"><span>§1 USE CASES</span><span class="nav-count"></span></a>
+<a href="#sec-2" data-section="sec-2"><span>§2 SYSTEMS AND ACCESS</span><span class="nav-count"></span></a>
+<a href="#sec-3" data-section="sec-3"><span>§3 DATA AND FIELD MAPPING</span><span class="nav-count"></span></a>
+<a href="#sec-10" data-section="sec-10"><span>§10 SYSTEM-SPECIFIC DETAILS</span><span class="nav-count"></span></a>
+<div class="nav-cat">Technical</div>
+<a href="#sec-4" data-section="sec-4"><span>§4 VOLUME AND PERFORMANCE</span><span class="nav-count"></span></a>
+<a href="#sec-5" data-section="sec-5"><span>§5 SECURITY AND COMPLIANCE</span><span class="nav-count"></span></a>
+<a href="#sec-6" data-section="sec-6"><span>§6 ERROR HANDLING</span><span class="nav-count"></span></a>
+<div class="nav-cat">Production</div>
+<a href="#sec-7" data-section="sec-7"><span>§7 DEPLOYMENT AND DEVOPS</span><span class="nav-count"></span></a>
+<a href="#sec-8" data-section="sec-8"><span>§8 OPERATIONS AND SUPPORT</span><span class="nav-count"></span></a>
+<a href="#sec-9" data-section="sec-9"><span>§9 TESTING AND GO-LIVE</span><span class="nav-count"></span></a>
+    </nav>
+  </div>
+
+  <!-- Needs Attention -->
+  <div class="rail-card rail-attention">
+    <div class="rail-label">Needs Attention</div>
+    <ul class="attention-list" id="attention-list">
+      <li><strong>HD Portal write + document download endpoints (UC2 + UC3) — </strong>Ashley to escalate to Greg (HD API team) and bundle into a single HD support ticket: (a) confirm POST/PATCH write endpoints exist for customer + quote correction (UC2), and (b) confirm 299A/299B/118 PDFs can be downloaded via API (UC3). Both must be confirmed before UC2 + UC3 architecture is finalized.</li>
+<li><strong>ComputerEase CE Live Service + backup admin + firewall — </strong>Confirm with Deltek support (ticket filed Apr 17 by Jean Jacobs, 4-hour legacy-tier SLA) that CE Live Service is installed and the relay URL has been received. Designate the backup CE admin (Brian recommends Laura — needs Kirk approval). Brian Cook to confirm post-install GCP firewall port (likely 443) and lock SSH/RDP down to office + DataSkate engineer IPs.</li>
+<li><strong>Deltek separate-product scope clarification — </strong>Confirm with Peerless leadership: is 'Deltek' in the SOW Source Systems list a separate Deltek product (e.g. Costpoint, Vantagepoint), or vendor-name shorthand for ComputerEase (which is itself a Deltek product)? UC5 sizing and pricing depend on this — if Deltek is distinct, a scope-change conversation is required before SOW signing.</li>
+<li><strong>UC8 Change Order source binding (Email / Drive / both) — </strong>Confirm whether Change Order PDFs arrive via Email inbox, Google Drive folder, or BOTH. Identify the specific mailbox/folder. If BOTH sources are confirmed, NO-COMBINE splits UC8 into two flows and the count moves from 8 to 9 — a revised proposal with locked pricing is issued before SOW signing.</li>
+<li><strong>Anypoint IDP entitlement + sample documents — </strong>Confirm Anypoint IDP entitlement on Peerless's MuleSoft subscription. Provide 30+ sample 299A, 299B, 118 contract PDFs and 30+ sample Change Order PDFs (redacted of PII if needed) for IDP model training during the IDP Workshop. Target delivery: 2 weeks before M1 sprint start.</li>
+    </ul>
+    <div class="attention-empty" id="attention-empty" style="display:none">Nothing flagged. Good to go.</div>
+  </div>
+
+  <!-- Links -->
+  <div class="rail-card">
+    <div class="rail-label">Links</div>
+    <ul class="rail-links">
+      <li><a href="https://dataskateclients.web.app/portal/peerless-dailysync.html" target="_blank" rel="noopener">Client Portal</a></li>
+<li><a href="https://dataskateclients.web.app/resources/architect-guide.html" target="_blank" rel="noopener">Architect Guide</a></li>
+<li><a href="https://dataskateclients.web.app/resources/ds-pricing-model.html" target="_blank" rel="noopener">DS Pricing Model</a></li>
+    </ul>
+  </div>
+
+</aside>
+
 </div><!-- /.wrap -->
 
 <div class="footer no-print">
@@ -803,7 +1049,7 @@ const FIREBASE_CONFIG = {
 };
 const CLIENT_SLUG = "peerless-dailysync";
 
-// ── FIREBASE INIT (CDN loaded inline to keep file self-contained) ─────────────
+// ── FIREBASE INIT ────────────────────────────────────────────────────────────
 (function() {
   const scripts = [
     "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
@@ -818,11 +1064,7 @@ const CLIENT_SLUG = "peerless-dailysync";
 
 // ── FORM LOGIC ───────────────────────────────────────────────────────────────
 function toggleBC() {
-  const body = document.getElementById('bc-body');
-  const chev = document.getElementById('bc-chevron');
-  const hidden = body.style.display === 'none';
-  body.style.display = hidden ? '' : 'none';
-  chev.textContent = hidden ? '▲' : '▼';
+  document.getElementById('biz-context').classList.toggle('is-open');
 }
 
 function pickPill(el, fieldId) {
@@ -839,10 +1081,74 @@ function pickPill(el, fieldId) {
 }
 
 function updateProgress() {
-  const all = document.querySelectorAll('textarea.answer');
-  const answered = Array.from(all).filter(t => t.value.trim().length > 0);
-  document.getElementById('answered-count').textContent = answered.length;
-  document.getElementById('total-count').textContent = all.length;
+  const all      = document.querySelectorAll('textarea.answer, input.tbl-ans');
+  const answered = Array.from(all).filter(t => (t.value || '').trim().length > 0);
+  const total    = all.length;
+  const ans      = answered.length;
+  const pct      = total > 0 ? Math.round((ans / total) * 100) : 0;
+
+  // Top sticky bar
+  const sb1 = document.getElementById('answered-count'); if (sb1) sb1.textContent = ans;
+  const sb2 = document.getElementById('total-count');    if (sb2) sb2.textContent = total;
+
+  // Right rail progress card
+  const ra = document.getElementById('rail-answered'); if (ra) ra.textContent = ans;
+  const rt = document.getElementById('rail-total');    if (rt) rt.textContent = total;
+  const rp = document.getElementById('rail-pct');      if (rp) rp.textContent = pct;
+  const pf = document.getElementById('progress-fill'); if (pf) pf.style.width = pct + '%';
+
+  // Per-section counts (and per-rail-nav-link counts)
+  document.querySelectorAll('details.section-block').forEach(sec => {
+    const inputs   = sec.querySelectorAll('textarea.answer, input.tbl-ans');
+    const filled   = Array.from(inputs).filter(t => (t.value || '').trim().length > 0).length;
+    const required = sec.querySelectorAll('textarea.answer[data-required="true"], input.tbl-ans[data-required="true"]');
+    const reqEmpty = Array.from(required).filter(t => (t.value || '').trim().length === 0).length;
+
+    // Update section-head badge
+    const badge = sec.querySelector('.section-count');
+    if (inputs.length > 0) {
+      if (badge) {
+        badge.textContent = `${filled}/${inputs.length}`;
+        badge.classList.toggle('has-required', reqEmpty > 0);
+      }
+    } else if (badge) {
+      badge.textContent = '';
+    }
+
+    // Update matching rail-nav link
+    const navLink = document.querySelector(`.rail-nav a[data-section="${sec.id}"]`);
+    if (navLink) {
+      const cnt = navLink.querySelector('.nav-count');
+      if (inputs.length > 0 && cnt) cnt.textContent = `${filled}/${inputs.length}`;
+      navLink.classList.toggle('is-complete', inputs.length > 0 && filled === inputs.length);
+      navLink.classList.toggle('has-required', reqEmpty > 0);
+    }
+  });
+
+  rebuildAttention();
+}
+
+function rebuildAttention() {
+  // Combine static P0 blockers (rendered at fill time) with dynamic required-unanswered
+  const list = document.getElementById('attention-list');
+  if (!list) return;
+  // Remove dynamic items only (data-source="dynamic")
+  list.querySelectorAll('li[data-source="dynamic"]').forEach(li => li.remove());
+
+  // Required unanswered count
+  const reqEmpty = Array.from(
+    document.querySelectorAll('textarea.answer[data-required="true"], input.tbl-ans[data-required="true"]')
+  ).filter(t => (t.value || '').trim().length === 0);
+  if (reqEmpty.length > 0) {
+    const li = document.createElement('li');
+    li.setAttribute('data-source', 'dynamic');
+    li.innerHTML = `<strong>${reqEmpty.length} required ${reqEmpty.length === 1 ? 'question' : 'questions'} unanswered</strong>Click any section badge to jump in.`;
+    list.appendChild(li);
+  }
+
+  // Empty-state toggle
+  const empty = document.getElementById('attention-empty');
+  if (empty) empty.style.display = list.children.length === 0 ? 'block' : 'none';
 }
 
 function collectAnswers() {
@@ -894,7 +1200,7 @@ function submitForm() {
   });
 }
 
-// ── SEQUENTIAL Q-NUMBERING ───────────────────────────────────────────────────
+// ── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Force-collapse all collapsible blocks
   document.querySelectorAll('details.uc, details.section-block').forEach(d => d.removeAttribute('open'));
@@ -904,20 +1210,49 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.internal-block, .bc-blockers').forEach(el => el.style.display = 'block');
   }
 
+  // Sequential Q numbering
   let qNum = 1;
-  document.querySelectorAll('.q-num').forEach(el => {
-    el.textContent = `Q${qNum++}`;
-  });
+  document.querySelectorAll('.q-num').forEach(el => { el.textContent = `Q${qNum++}`; });
 
+  // Wire textarea inputs to progress
   document.querySelectorAll('textarea.answer').forEach(ta => {
     ta.addEventListener('input', () => {
       ta.classList.toggle('is-answered', ta.value.trim().length > 0);
       updateProgress();
     });
   });
+  document.querySelectorAll('input.tbl-ans').forEach(inp => {
+    inp.addEventListener('input', updateProgress);
+  });
+
+  // Open the section + UC when a rail-nav link is clicked, so the user lands inside
+  document.querySelectorAll('.rail-nav a[data-section]').forEach(a => {
+    a.addEventListener('click', () => {
+      const sec = document.getElementById(a.dataset.section);
+      if (sec) sec.setAttribute('open', '');
+    });
+  });
+
+  // Active-section highlighting via IntersectionObserver
+  const navLinks = new Map();
+  document.querySelectorAll('.rail-nav a[data-section]').forEach(a => navLinks.set(a.dataset.section, a));
+  if ('IntersectionObserver' in window && navLinks.size > 0) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const link = navLinks.get(e.target.id);
+        if (!link) return;
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('is-active'));
+          link.classList.add('is-active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+    document.querySelectorAll('details.section-block[id]').forEach(s => io.observe(s));
+  }
 
   updateProgress();
 });
 </script>
 </body>
 </html>
+<!-- DS-GENERATED: template=intake body-hash=ce0987142cd9c703 inputs-hash=615d204f6a65b7c3 -->
