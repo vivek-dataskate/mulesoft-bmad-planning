@@ -38,7 +38,7 @@ Do not wait to be asked. The goal is that no UI mistake is ever repeated across 
 | Name | Email | Notes |
 |---|---|---|
 | Kailash Chanda | kailash@dataskate.ai | Default for new engagements |
-| Raghuram Potluri | raghuram@dataskate.ai | Assigned to Peerless and CE/legacy-ERP engagements |
+| Raghuram Potluri | raghuram@dataskate.ai | Assigned to CE/legacy-ERP engagements |
 
 - **Business lead / account:** Vivek Yadlapalli — vivek@dataskate.ai
 - **Slack default invite email for new project channels:** vivek@dataskate.ai (hardcoded as `SLACK_DEFAULT_ARCHITECT_EMAIL` in slack-agent.js)

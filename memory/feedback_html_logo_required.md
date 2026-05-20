@@ -9,7 +9,7 @@ metadata:
 
 Every HTML document (intake questionnaire and proposal) must include the DataSkate wordmark as an inline SVG in the header. This was flagged as a standard violation when the Zyris intake HTML was generated without a logo.
 
-**Why:** The logo is part of the DataSkate brand identity for all client-facing documents. The MRN proposal has it; the Peerless intake reference was missing it (and has since been fixed).
+**Why:** The logo is part of the DataSkate brand identity for all client-facing documents. The MRN proposal has it; early intake forms generated without it were flagged as a standard violation.
 
 **How to apply:**
 - Copy the SVG verbatim from `projects/mrn-healthcare/intake/proposal-mrn-healthcare.html` (the `<svg viewBox="140 258 590 96"...>` block)
