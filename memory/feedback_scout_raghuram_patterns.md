@@ -1,13 +1,13 @@
 ---
 name: feedback-scout-raghuram-patterns
-description: "Raghuram Potluri's architect methodology extracted from 4 Peerless scoping transcripts (Apr 14–17 2026) — codified into Scout"
+description: "Raghuram Potluri's architect methodology extracted from 4 construction/CE-vertical scoping transcripts (Apr 14–17 2026) — codified into Scout"
 metadata: 
   node_type: memory
   type: feedback
   originSessionId: 1fc27932-20a1-4b56-8922-bc344fae81cb
 ---
 
-Deep analysis of Raghuram Potluri's discovery methodology across 4 Peerless scoping calls. All patterns codified into `_bmad/custom/bmad-agent-scout.toml` as principles and workflow steps.
+Deep analysis of Raghuram Potluri's discovery methodology across 4 construction/CE-vertical scoping calls. All patterns codified into `_bmad/custom/bmad-agent-scout.toml` as principles and workflow steps.
 
 **Key patterns extracted:**
 

@@ -1749,7 +1749,7 @@ The `keyFieldAlignments` entries define the canonical field names — deviations
 
 ```yaml
 vertical: construction
-client: peerless
+client: {client-slug}
 generatedBy: scout
 extensions:
   - baseModel: standards/canonical-models/construction/canonical-job.yaml
@@ -1757,7 +1757,7 @@ extensions:
     addedFields:
       - name: companyCode
         type: string
-        description: ComputerEase company code (Peerless — 00 for IL/WI)
+        description: ComputerEase company code (e.g. 00 for IL/WI tenant)
         sourceSystem: ComputerEase
         requiredForClient: true
     renamedFields:
