@@ -320,9 +320,27 @@ function buildProposal(c) {
 
   // Solution section
   const sol = c.solution || {};
-  fill('solution-lead',    sol.lead          ? `<p class="lead">${esc(sol.lead)}</p>`                      : '');
-  fill('solution-diagram', sol.diagramNodes  ? buildDiagramSvg(sol.diagramNodes)                           : '');
-  fill('diagram-caption',  sol.diagramCaption? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
+  fill('solution-lead', sol.lead ? `<p class="lead">${esc(sol.lead)}</p>` : '');
+
+  // Mermaid diagram: use sol.mermaid if present, auto-convert diagramNodes as fallback
+  const diagramMermaid = sol.mermaid || (sol.diagramNodes ? diagramNodesToMermaid(sol.diagramNodes) : null);
+  fill('solution-diagram', diagramMermaid
+    ? `<div class="mermaid-wrap"><pre class="mermaid">${diagramMermaid}</pre></div>`
+    : '');
+  fill('diagram-caption', sol.diagramCaption ? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
+
+  // Persist systemDiagram.future to project.json for downstream tools
+  if (diagramMermaid && client) {
+    const projPath = path.join(root, 'projects', client, 'project.json');
+    if (fs.existsSync(projPath)) {
+      try {
+        const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
+        if (!proj.systemDiagram) proj.systemDiagram = {};
+        proj.systemDiagram.future = { title: 'Future State — Unified', mermaid: diagramMermaid };
+        fs.writeFileSync(projPath, JSON.stringify(proj, null, 2) + '\n');
+      } catch (e) { /* non-fatal */ }
+    }
+  }
 
   // ROI / Business Case — conditional full <details> block
   // roi-analytical profile: opens by default so numbers are immediately visible
@@ -658,6 +676,17 @@ ${tmSectionHtml}
 </div>`;
 }
 
+function diagramNodesToMermaid(nodes) {
+  const sources = (nodes.sources || []);
+  const targets = (nodes.targets || []);
+  const lines = ['graph LR'];
+  sources.forEach((s, i) => lines.push(`  S${i}["${s}"] --> MS`));
+  lines.push('  MS["MuleSoft\\n(DataSkate managed)"]');
+  targets.forEach((t, i) => lines.push(`  MS --> T${i}["${t}"]`));
+  lines.push('  style MS fill:#F0FFF4,stroke:#38A169,color:#276749');
+  return lines.join('\n');
+}
+
 function buildDiagramSvg(nodes) {
   const sources = nodes.sources || [];
   const targets = nodes.targets || [];
@@ -882,8 +911,11 @@ function buildPrefillContext(proj, ctx) {
 function parseMdIntakeMeta(md, proj) {
   proj = proj || {};
   const lines = md.split('\n');
-  const h1 = lines.find(l => l.startsWith('# ')) || '';
-  const clientName = h1.replace(/^# Intake Questionnaire[^—–-]*[—–-]\s*/, '').trim() || proj.displayName || 'Client';
+  const h1 = (lines.find(l => l.startsWith('# ')) || '').replace(/^# /, '');
+  // Prefer project.json displayName; fall back to stripping generic words from the heading
+  const clientName = proj.displayName
+    || h1.replace(/\b(Integration|Intake|Questionnaire|Discovery)\b/gi, '').replace(/\s+/g, ' ').trim()
+    || 'Client';
   const prepLine = lines.find(l => l.startsWith('**Prepared by:**')) || '';
   let architect = proj.architect || 'Kailash Chanda';
   let architectEmail = proj.architectEmail || 'kailash@dataskate.ai';
@@ -904,7 +936,7 @@ function splitMdIntakeSections(md) {
     const isInternal = /\[INTERNAL\]/i.test(header);
     const numMatch = header.match(/Section\s+(\d+)/i);
     const id    = numMatch ? `S${numMatch[1].padStart(2, '0')}` : '';
-    const title = header.replace(/^## /, '').replace(/\[INTERNAL\]\s*/i, '').replace(/Section\s+\d+:\s*/i, '').trim();
+    const title = header.replace(/^## /, '').replace(/\[INTERNAL\]\s*/i, '').replace(/Section\s+\d+[:\s—–-]+/i, '').trim();
     return { id, title, isInternal, body };
   });
 }
