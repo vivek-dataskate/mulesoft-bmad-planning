@@ -337,10 +337,15 @@ function buildProposal(c) {
 
   // Static SVG diagram — no CDN, no tab-timing issues
   const diagramNodes = sol.diagramNodes || null;
-  fill('solution-diagram', diagramNodes
-    ? `<div class="diagram-wrap">${buildDiagramSvg(diagramNodes)}</div>`
-    : '');
+  const diagramSvg = diagramNodes ? buildDiagramSvg(diagramNodes) : null;
+  fill('solution-diagram', diagramSvg ? `<div class="diagram-wrap">${diagramSvg}</div>` : '');
   fill('diagram-caption', sol.diagramCaption ? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
+
+  // Save SVG to intake folder so it's available as a standalone asset
+  if (diagramSvg && client) {
+    const svgPath = path.join(root, 'projects', client, 'intake', 'system-diagram.svg');
+    try { fs.writeFileSync(svgPath, diagramSvg); } catch (e) { /* non-fatal */ }
+  }
 
   // Persist systemDiagram.future nodes to project.json for downstream tools
   if (diagramNodes && client) {

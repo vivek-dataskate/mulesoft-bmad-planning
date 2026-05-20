@@ -85,8 +85,7 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .challenge-card p { font-size: 12px; color: #44546A; margin: 0; line-height: 1.5; }
 
 /* ── SOLUTION DIAGRAM ── */
-.mermaid-wrap { margin: 16px 0 4px; display: flex; justify-content: center; overflow-x: auto; }
-.mermaid-wrap svg { max-width: 100%; height: auto; }
+.diagram-wrap { margin: 16px 0 4px; display: flex; justify-content: center; overflow-x: auto; }
 .diagram-caption { font-size: 11px; color: var(--mid); text-align: center; margin-top: 8px; font-style: italic; line-height: 1.5; }
 
 /* ── FLOW CARDS ── */
@@ -702,13 +701,34 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <p class="lead">MuleSoft replaces the Celigo + Turbine + custom JavaScript layer with a single DataSkate-managed integration platform. Unlike native marketplace connectors, MuleSoft adds retry logic, dead letter queues, idempotency checks, and a live operations layer — so when Shopify fires a webhook at 2am on Cyber Monday, the order lands in NetSuite and someone is watching.</p>
-    <div class="mermaid-wrap"><pre class="mermaid">graph LR
-  SH["Shopify Plus"] --> MS["MuleSoft\n(DataSkate managed)"]
-  SS["ShipStation"] --> MS
-  OR["Orderful"] --> MS
-  MS -->|"22+ flows"| NS["NetSuite"]
-  MS --> RT["Fanatics · DSG · Rallyhouse"]
-  style MS fill:#F0FFF4,stroke:#38A169,color:#276749</pre></div>
+    <div class="diagram-wrap"><svg viewBox="0 0 500 120" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
+    <style>
+      .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}
+      .sv-hub{fill:#E8F5EE;stroke:var(--green);stroke-width:2}
+      .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}
+      .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
+      .sv-lhub{font:700 12px system-ui,sans-serif;fill:var(--green)}
+      .sv-lsub{font:400 9px system-ui,sans-serif;fill:var(--green)}
+    </style>
+  </defs>
+  <rect class="sv-src" x="5" y="24" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="45" text-anchor="middle">Shopify Plus</text>
+    <line class="sv-line" x1="145" y1="40" x2="190" y2="60" marker-end="url(#arr)"/>
+  <rect class="sv-src" x="5" y="64" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="85" text-anchor="middle">Orderful EDI</text>
+    <line class="sv-line" x1="145" y1="80" x2="190" y2="60" marker-end="url(#arr)"/>
+  <rect class="sv-hub" x="190" y="34" width="120" height="52" rx="8"/>
+  <text class="sv-lhub" x="250" y="56" text-anchor="middle">MuleSoft</text>
+  <text class="sv-lsub" x="250" y="72" text-anchor="middle">DataSkate Managed</text>
+  <rect class="sv-tgt" x="355" y="24" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="45" text-anchor="middle">NetSuite</text>
+    <line class="sv-line" x1="310" y1="60" x2="355" y2="40" marker-end="url(#arr)"/>
+  <rect class="sv-tgt" x="355" y="64" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="85" text-anchor="middle">ShipStation</text>
+    <line class="sv-line" x1="310" y1="60" x2="355" y2="80" marker-end="url(#arr)"/>
+</svg></div>
     <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Shopify Plus or NetSuite</p>
   </div>
 </details>
@@ -1174,12 +1194,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <strong>Confidential</strong>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>
-mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: {
-  primaryColor: '#fff', primaryBorderColor: '#e2e8f0', lineColor: '#718096', fontSize: '13px'
-}});
-</script>
 <script>
 // ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
 const FIREBASE_CONFIG = {
