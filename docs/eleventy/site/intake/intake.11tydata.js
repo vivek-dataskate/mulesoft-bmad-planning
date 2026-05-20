@@ -506,7 +506,7 @@ function buildMdQuestion(qRef, qTextRaw, restLines, prefillCtx) {
     ? `<div class="q-hint">${hints.map(h => esc(h)).join('<br>')}</div>` : '';
   const pillHtml = pills.length
     ? `<div class="q-options">${pills.map(p =>
-        `<span class="pill" onclick="pickPill(this,'${safeId}')">${esc(p)}</span>`
+        `<span class="pill" role="button" tabindex="0" onclick="pickPill(this,'${safeId}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pickPill(this,'${safeId}')}">${esc(p)}</span>`
       ).join('')}</div>` : '';
 
   const isPrefilled = !!answerValue;
