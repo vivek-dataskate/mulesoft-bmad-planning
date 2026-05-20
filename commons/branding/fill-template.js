@@ -335,10 +335,10 @@ function buildProposal(c) {
   const sol = c.solution || {};
   fill('solution-lead', sol.lead ? `<p class="lead">${esc(sol.lead)}</p>` : '');
 
-  // Mermaid diagram: use sol.mermaid if present, auto-convert diagramNodes as fallback
-  const diagramMermaid = sol.mermaid || (sol.diagramNodes ? diagramNodesToMermaid(sol.diagramNodes) : null);
-  fill('solution-diagram', diagramMermaid
-    ? `<div class="mermaid-wrap"><pre class="mermaid">${diagramMermaid}</pre></div>`
+  // Static SVG diagram — no CDN, no tab-timing issues
+  const diagramNodes = sol.diagramNodes || null;
+  fill('solution-diagram', diagramNodes
+    ? `<div class="diagram-wrap">${buildDiagramSvg(diagramNodes)}</div>`
     : '');
   fill('diagram-caption', sol.diagramCaption ? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
 
@@ -704,40 +704,43 @@ function buildDiagramSvg(nodes) {
   const sources = nodes.sources || [];
   const targets = nodes.targets || [];
   const rows    = Math.max(sources.length, targets.length, 1);
-  const h       = Math.max(130, rows * 50 + 40);
+  const BOX_H   = 32, GAP = 12;
+  const h       = Math.max(120, rows * (BOX_H + GAP) + GAP * 2);
   const srcStep = h / (sources.length + 1);
   const tgtStep = h / (targets.length + 1);
   const hubY    = h / 2;
+  const hubX    = 190, hubW = 120, hubH = 52;
 
   const srcRects = sources.map((name, i) => {
     const cy = Math.round(srcStep * (i + 1));
-    return `<rect class="sv-src" x="5" y="${cy - 15}" width="140" height="30" rx="6"/>
+    return `<rect class="sv-src" x="5" y="${cy - BOX_H/2}" width="140" height="${BOX_H}" rx="6"/>
     <text class="sv-lsrc" x="75" y="${cy + 5}" text-anchor="middle">${esc(name)}</text>
-    <line class="sv-line" x1="145" y1="${cy}" x2="190" y2="${hubY}"/>`;
+    <line class="sv-line" x1="145" y1="${cy}" x2="${hubX}" y2="${hubY}" marker-end="url(#arr)"/>`;
   });
 
   const tgtRects = targets.map((name, i) => {
     const cy = Math.round(tgtStep * (i + 1));
-    return `<rect class="sv-tgt" x="355" y="${cy - 15}" width="138" height="30" rx="6"/>
-    <text class="sv-ltgt" x="424" y="${cy + 5}" text-anchor="middle">${esc(name)}</text>
-    <line class="sv-line" x1="310" y1="${hubY}" x2="355" y2="${cy}"/>`;
+    return `<rect class="sv-tgt" x="355" y="${cy - BOX_H/2}" width="140" height="${BOX_H}" rx="6"/>
+    <text class="sv-ltgt" x="425" y="${cy + 5}" text-anchor="middle">${esc(name)}</text>
+    <line class="sv-line" x1="${hubX + hubW}" y1="${hubY}" x2="355" y2="${cy}" marker-end="url(#arr)"/>`;
   });
 
-  return `<svg viewBox="0 0 500 ${h}" style="width:100%;max-width:500px;height:auto;display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg">
-  <defs><style>
-    .sv-src{fill:#fff;stroke:#C9302C;stroke-width:1.5}
-    .sv-hub{fill:#E31F26;stroke:#8B1515;stroke-width:1.5}
-    .sv-tgt{fill:#fff;stroke:#2E9E6B;stroke-width:1.5}
-    .sv-line{stroke:#C8CACC;stroke-width:1.5;fill:none}
-    .sv-lsrc{font:600 11px system-ui,sans-serif;fill:#C9302C}
-    .sv-lhub{font:700 13px system-ui,sans-serif;fill:#fff}
-    .sv-lsub{font:400 9px system-ui,sans-serif;fill:rgba(255,255,255,.85)}
-    .sv-ltgt{font:600 11px system-ui,sans-serif;fill:#2E9E6B}
-  </style></defs>
+  return `<svg viewBox="0 0 500 ${h}" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
+    <style>
+      .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}
+      .sv-hub{fill:#E8F5EE;stroke:var(--green);stroke-width:2}
+      .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}
+      .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
+      .sv-lhub{font:700 12px system-ui,sans-serif;fill:var(--green)}
+      .sv-lsub{font:400 9px system-ui,sans-serif;fill:var(--green)}
+    </style>
+  </defs>
   ${srcRects.join('\n  ')}
-  <rect class="sv-hub" x="190" y="${hubY - 25}" width="120" height="50" rx="8"/>
-  <text class="sv-lhub" x="250" y="${hubY - 5}" text-anchor="middle">MuleSoft</text>
-  <text class="sv-lsub" x="250" y="${hubY + 11}" text-anchor="middle">DataSkate Managed</text>
+  <rect class="sv-hub" x="${hubX}" y="${hubY - hubH/2}" width="${hubW}" height="${hubH}" rx="8"/>
+  <text class="sv-lhub" x="${hubX + hubW/2}" y="${hubY - 4}" text-anchor="middle">MuleSoft</text>
+  <text class="sv-lsub" x="${hubX + hubW/2}" y="${hubY + 12}" text-anchor="middle">DataSkate Managed</text>
   ${tgtRects.join('\n  ')}
 </svg>`;
 }

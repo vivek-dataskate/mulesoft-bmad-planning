@@ -86,18 +86,13 @@ function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-// Pre-extract binary files in a directory so text is available for name inference.
-// Runs synchronously and silently — failures are non-fatal.
+// Convert all files in dir to .txt companions before text processing.
+// Runs synchronously and non-interactively. Failures are non-fatal.
 function preExtractInbox(dir) {
   if (!fs.existsSync(dir)) return;
-  const hasBinary = fs.readdirSync(dir).some(f => {
-    const ext = path.extname(f).toLowerCase();
-    return ext === '.pdf' || ext === '.docx';
-  });
-  if (!hasBinary) return;
   const result = spawnSync(
     process.execPath,
-    [path.join(ROOT, 'scaffold/extract-text.js'), dir],
+    [path.join(ROOT, 'scaffold/extract-text.js'), dir, '--auto-skip'],
     { cwd: ROOT, encoding: 'utf8' }
   );
   if (result.error) console.warn(dim(`  ⚠  Pre-extraction warning: ${result.error.message}`));
@@ -676,6 +671,26 @@ async function runPipeline(slug) {
       const output = readJson(outputPath);
       if (output && output.status !== 'complete') {
         console.log(`  ${yellow('⚠')}  ${agent.outputFile} has status="${output.status}" — check agent output.`);
+      }
+    }
+
+    // Verify additional required deliverables (e.g. intake-content.json for Quinn)
+    if (Array.isArray(agent.additionalOutputs)) {
+      const missing = agent.additionalOutputs
+        .map(p => p.replace('{slug}', slug))
+        .filter(p => !fs.existsSync(path.join(projectDir, p)));
+      if (missing.length > 0) {
+        console.log(`\n  ${yellow('⚠')}  ${agent.name} is missing required deliverables:`);
+        missing.forEach(p => console.log(`       ${yellow('✗')}  ${p}`));
+        const force = await confirm(
+          `  These files were not created. ${agent.name} is incomplete — mark done anyway?`,
+          false
+        );
+        if (!force) {
+          console.log(`  ${yellow('Retrying...')} Complete all deliverables and press Enter again.`);
+          agents.splice(agents.indexOf(agent), 0, agent);
+          continue;
+        }
       }
     }
 
