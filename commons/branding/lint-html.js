@@ -5,8 +5,9 @@
 //   node commons/branding/lint-html.js               ← lint all known HTML files
 //   node commons/branding/lint-html.js path/to/file  ← lint one file
 
-const fs   = require('fs');
-const path = require('path');
+const fs     = require('fs');
+const path   = require('path');
+const crypto = require('crypto');
 const { execSync } = require('child_process');
 
 const COMPETITORS = JSON.parse(
@@ -142,6 +143,104 @@ const CHECKS = [
   },
 ];
 
+// ─── DS-GENERATED fingerprint detection ──────────────────────────────────────
+// Every HTML file emitted by commons/branding/fill-template.js carries a
+// fingerprint comment as its last line:
+//
+//   <!-- DS-GENERATED: template={id} body-hash={16hex} inputs-hash={16hex} -->
+//
+// • body-hash   = sha256("template={id}|" + bodyWithoutFingerprint).slice(0,16)
+//                 → detects direct edits to a generated file (FORBIDDEN).
+// • inputs-hash = sha256(templateFile + shared-base.css.html).slice(0,16)
+//                 → detects template / shared-CSS drift since file was emitted.
+//
+// THESE HELPERS MUST COMPUTE IDENTICALLY TO fill-template.js. If you change
+// one, change the other in the same commit.
+const FINGERPRINT_RE = /[\r\n]*<!-- DS-GENERATED:[^\n]*-->\s*$/m;
+const FINGERPRINT_KV = /<!-- DS-GENERATED: template=(\S+) body-hash=(\S+) inputs-hash=(\S+) -->/;
+
+function stripFingerprint(html) {
+  return html.replace(FINGERPRINT_RE, '').replace(/\s*$/, '\n');
+}
+
+function hash16(...buffers) {
+  const h = crypto.createHash('sha256');
+  for (const b of buffers) h.update(b);
+  return h.digest('hex').slice(0, 16);
+}
+
+function inputsHashOf(templateId) {
+  const tplPath = path.join(ROOT, 'commons', 'templates', `${templateId}-template.html`);
+  const cssPath = path.join(ROOT, 'commons', 'templates', 'shared-base.css.html');
+  if (!fs.existsSync(tplPath) || !fs.existsSync(cssPath)) return null;
+  return hash16(fs.readFileSync(tplPath), fs.readFileSync(cssPath));
+}
+
+// Map a file path back to its client slug, if any. Used to skip the inputs-hash
+// check on frozen clients (intentional staleness).
+function findClientSlug(rel) {
+  let m;
+  if ((m = rel.match(/^projects\/([^/]+)\//)))                                              return m[1];
+  if ((m = rel.match(/^firebase\/public\/(?:intake|proposal|internal|portal)\/([^/]+)\.html$/))) return m[1];
+  return null;
+}
+
+function isFrozenClient(slug) {
+  if (!slug) return false;
+  const pj = path.join(ROOT, 'projects', slug, 'project.json');
+  if (!fs.existsSync(pj)) return false;
+  try {
+    return JSON.parse(fs.readFileSync(pj, 'utf8')).frozen === true;
+  } catch {
+    return false;
+  }
+}
+
+// Returns array of violations: [{name, message}, …]. Empty if file is not a
+// generated artifact (no fingerprint) or if both hashes match.
+function validateFingerprint(content, rel) {
+  const m = content.match(FINGERPRINT_KV);
+  if (!m) return []; // not generated; nothing to validate
+  const [, templateId, claimedBody, claimedInputs] = m;
+  const violations = [];
+
+  // 1) body-hash — any drift here means the generated file was edited directly.
+  //                That is forbidden on every generated artifact, frozen or not.
+  const body         = stripFingerprint(content);
+  const actualBody   = hash16(`template=${templateId}|`, body);
+  if (actualBody !== claimedBody) {
+    violations.push({
+      name: 'DS-GENERATED body-hash drift',
+      message:
+        `Generated file appears to have been edited directly ` +
+        `(body-hash ${claimedBody} → ${actualBody}). ` +
+        `Edit the source — commons/templates/${templateId}-template.html or ` +
+        `the corresponding content JSON — then re-run fill-template.js. ` +
+        `Never hand-edit a DS-GENERATED file.`,
+    });
+  }
+
+  // 2) inputs-hash — drift here means the template / shared CSS changed since
+  //                  this file was emitted. SKIPPED for frozen clients: their
+  //                  output is intentionally pinned to the template version
+  //                  that was live when they were shipped.
+  const slug = findClientSlug(rel);
+  if (!isFrozenClient(slug)) {
+    const actualInputs = inputsHashOf(templateId);
+    if (actualInputs && actualInputs !== claimedInputs) {
+      violations.push({
+        name: 'DS-GENERATED inputs-hash drift',
+        message:
+          `Template or shared-base.css.html has changed since this file was ` +
+          `generated (inputs-hash ${claimedInputs} → ${actualInputs}). ` +
+          `Re-run fill-template.js to refresh.`,
+      });
+    }
+  }
+
+  return violations;
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 const args   = process.argv.slice(2);
 const single = args[0] ? path.resolve(process.cwd(), args[0]) : null;
@@ -182,10 +281,15 @@ for (const rel of targets) {
     return !c.test(content);
   });
 
-  if (failures.length) {
+  // Fingerprint check is separate from CHECKS because it needs the file path
+  // (to discover templateId from the embedded comment + frozen-client lookup).
+  const fpFailures = validateFingerprint(content, rel);
+  const allFailures = [...failures, ...fpFailures];
+
+  if (allFailures.length) {
     anyFail = true;
     console.error(`\n✗  ${rel}`);
-    failures.forEach(f => console.error(`   • [${f.name}] ${typeof f.message === 'function' ? f.message() : f.message}`));
+    allFailures.forEach(f => console.error(`   • [${f.name}] ${typeof f.message === 'function' ? f.message() : f.message}`));
   } else {
     console.log(`✓  ${rel}`);
   }
