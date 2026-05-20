@@ -85,6 +85,8 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .challenge-card p { font-size: 12px; color: #44546A; margin: 0; line-height: 1.5; }
 
 /* ── SOLUTION DIAGRAM ── */
+.mermaid-wrap { margin: 16px 0 4px; display: flex; justify-content: center; overflow-x: auto; }
+.mermaid-wrap svg { max-width: 100%; height: auto; }
 .diagram-caption { font-size: 11px; color: var(--mid); text-align: center; margin-top: 8px; font-style: italic; line-height: 1.5; }
 
 /* ── FLOW CARDS ── */
@@ -494,7 +496,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="model-impl-label">1-year total · two 6-month payments · billing starts at go-live</div>
     <div class="model-service">$300.00/flow/month</div>
     <div class="model-service-label">Period 1 rate · 22 flows · DataSkate owns support all year</div>
-    <div class="model-retainer">$7,500 kickoff retainer — credited at go-live</div>
+    <div class="model-retainer">$5,000 kickoff retainer — credited at go-live</div>
     <hr class="model-divider">
     <div class="best-for">What's covered</div>
     <div class="model-vp">Design, build, deployment, monitoring, and all support for 12 months. At month 12: renew at the same rate, or take full code ownership — your choice.</div>
@@ -549,7 +551,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>$81,180</strong></td></tr>
     </tbody>
   </table>
-  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ($7,500) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ($5,000) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
 </div>
 
 <div id="impl-persuasion" style="display:none">
@@ -700,33 +702,13 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <p class="lead">MuleSoft replaces the Celigo + Turbine + custom JavaScript layer with a single DataSkate-managed integration platform. Unlike native marketplace connectors, MuleSoft adds retry logic, dead letter queues, idempotency checks, and a live operations layer — so when Shopify fires a webhook at 2am on Cyber Monday, the order lands in NetSuite and someone is watching.</p>
-    <svg viewBox="0 0 500 140" style="width:100%;max-width:500px;height:auto;display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg">
-  <defs><style>
-    .sv-src{fill:#fff;stroke:#C9302C;stroke-width:1.5}
-    .sv-hub{fill:#E31F26;stroke:#8B1515;stroke-width:1.5}
-    .sv-tgt{fill:#fff;stroke:#2E9E6B;stroke-width:1.5}
-    .sv-line{stroke:#C8CACC;stroke-width:1.5;fill:none}
-    .sv-lsrc{font:600 11px system-ui,sans-serif;fill:#C9302C}
-    .sv-lhub{font:700 13px system-ui,sans-serif;fill:#fff}
-    .sv-lsub{font:400 9px system-ui,sans-serif;fill:rgba(255,255,255,.85)}
-    .sv-ltgt{font:600 11px system-ui,sans-serif;fill:#2E9E6B}
-  </style></defs>
-  <rect class="sv-src" x="5" y="32" width="140" height="30" rx="6"/>
-    <text class="sv-lsrc" x="75" y="52" text-anchor="middle">Shopify Plus</text>
-    <line class="sv-line" x1="145" y1="47" x2="190" y2="70"/>
-  <rect class="sv-src" x="5" y="78" width="140" height="30" rx="6"/>
-    <text class="sv-lsrc" x="75" y="98" text-anchor="middle">Orderful EDI</text>
-    <line class="sv-line" x1="145" y1="93" x2="190" y2="70"/>
-  <rect class="sv-hub" x="190" y="45" width="120" height="50" rx="8"/>
-  <text class="sv-lhub" x="250" y="65" text-anchor="middle">MuleSoft</text>
-  <text class="sv-lsub" x="250" y="81" text-anchor="middle">DataSkate Managed</text>
-  <rect class="sv-tgt" x="355" y="32" width="138" height="30" rx="6"/>
-    <text class="sv-ltgt" x="424" y="52" text-anchor="middle">NetSuite</text>
-    <line class="sv-line" x1="310" y1="70" x2="355" y2="47"/>
-  <rect class="sv-tgt" x="355" y="78" width="138" height="30" rx="6"/>
-    <text class="sv-ltgt" x="424" y="98" text-anchor="middle">ShipStation</text>
-    <line class="sv-line" x1="310" y1="70" x2="355" y2="93"/>
-</svg>
+    <div class="mermaid-wrap"><pre class="mermaid">graph LR
+  SH["Shopify Plus"] --> MS["MuleSoft\n(DataSkate managed)"]
+  SS["ShipStation"] --> MS
+  OR["Orderful"] --> MS
+  MS -->|"22+ flows"| NS["NetSuite"]
+  MS --> RT["Fanatics · DSG · Rallyhouse"]
+  style MS fill:#F0FFF4,stroke:#38A169,color:#276749</pre></div>
     <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Shopify Plus or NetSuite</p>
   </div>
 </details>
@@ -1027,13 +1009,13 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="stage-label">Automated</div>
       <div class="stage-year">Year 1–2 · Built on Stage 1</div>
       <h4>NetSuite inventory and EDI demand signals drive Shopify merchandising automatically</h4>
-      <ul><li>NetSuite inventory drops below a threshold → Shopify applies CSWOS rules for that SKU automatically — no human toggle</li><li>Month-end financial close shrinks — billing transactions, deposits, and invoice transformations run without human touch</li></ul>
+      <ul><li>NetSuite inventory drops below a threshold → Shopify applies CSWOS rules for that SKU automatically — no human toggle</li><li>EDI purchase order from Fanatics or DSG arrives → NetSuite checks available inventory and flags fulfillment risk before the acknowledgment is sent</li><li>Matrix item price changes in NetSuite propagate to Shopify within minutes — no manual step between ERP and storefront</li><li>Month-end financial close shrinks: billing transactions, customer deposits, and invoice transformations run without human touch</li></ul>
     </div>
 <div class="stage-card stage3">
       <div class="stage-label">Agentic</div>
       <div class="stage-year">Year 2+</div>
       <h4>An AI agent monitors every SKU's velocity, EDI demand, and restock lead time — surfacing margin risk before the fulfillment window closes</h4>
-      <ul><li>No spreadsheet. No Monday morning inventory surprise. The agent reads what Stage 1 built — live order intake, inventory levels, fulfillment events, EDI demand from Orderful — and tells you which SKUs are at risk of missing a Fanatics or DSG fulfillment window before it becomes a chargeback.</li></ul>
+      <ul><li>Which SKUs are at risk of missing a Fanatics or DSG fulfillment window in the next 72 hours — and what specifically should we do about it?</li><li>When sales velocity plus open EDI demand plus restock lead time signal a stockout risk, the agent surfaces the specific action: apply CSWOS, restrict EDI allocation, request emergency restock, or initiate a markdown</li><li>No spreadsheet. No Monday morning surprise. The data it reads — order intake, inventory levels, fulfillment events, EDI demand from Orderful — is built in Stage 1. Without Stage 1, this question is unanswerable.</li></ul>
     </div>
     </div>
     <p class="pull-quote">Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.</p>
@@ -1192,6 +1174,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <strong>Confidential</strong>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: {
+  primaryColor: '#fff', primaryBorderColor: '#e2e8f0', lineColor: '#718096', fontSize: '13px'
+}});
+</script>
 <script>
 // ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
 const FIREBASE_CONFIG = {
