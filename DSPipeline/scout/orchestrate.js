@@ -736,6 +736,83 @@ function writeClientRegistry(slug) {
   logFileInfo(registryPath, 'client-registry.json (after write)');
 }
 
+// ─── Vera Corporate-Stack Enrichment Merge (post-Vera, pre-brief) ───────────
+// Per the agent-boundary rule, Vera writes her sibling + sponsor-portfolio
+// research into vera.json.corporateStackEnrichment instead of writing back
+// into company_context.json directly. The orchestrator is the only writer
+// allowed to mutate company_context.json, so the merge happens here.
+//
+// Runs immediately after Vera and BEFORE renderCorporateBrief() / Petra /
+// Mira read the stack — so by the time any downstream consumer touches
+// company_context.json.corporateStack, the enriched data is already there.
+//
+// Merge rules (per-list keyed by case-insensitive name):
+//   - siblingBrands[]:           Vera's entries WIN over Scout's seeded ones.
+//                                Scout-only siblings are preserved.
+//   - portfolioCompanies[]:      Vera-only (Scout's seed doesn't populate this).
+//   - siblingsTruncated:         Carried through verbatim.
+function mergeVeraCorporateStackEnrichment(slug) {
+  const projectDir = path.join(PROJECTS_DIR, slug);
+  const veraPath   = path.join(projectDir, 'run', 'vera.json');
+  const ctxPath    = path.join(projectDir, 'company_context.json');
+
+  const vera = readJson(veraPath);
+  const ctx  = readJson(ctxPath);
+
+  if (!vera || !vera.corporateStackEnrichment) {
+    stepLog('mergeVeraCorporateStackEnrichment: vera.json has no corporateStackEnrichment — skipping', 'DATA');
+    return;
+  }
+  if (!ctx) {
+    stepLog('mergeVeraCorporateStackEnrichment: company_context.json missing — skipping', 'WARN');
+    return;
+  }
+
+  ctx.corporateStack = ctx.corporateStack || {};
+  const enrich = vera.corporateStackEnrichment;
+
+  // Operating platform siblings — merge by name (Vera's research overrides Scout's seed)
+  if (enrich.operatingPlatform && Array.isArray(enrich.operatingPlatform.siblingBrands)) {
+    ctx.corporateStack.operatingPlatform = ctx.corporateStack.operatingPlatform || {};
+    const seedSiblings   = Array.isArray(ctx.corporateStack.operatingPlatform.siblingBrands)
+      ? ctx.corporateStack.operatingPlatform.siblingBrands : [];
+    const veraSiblings   = enrich.operatingPlatform.siblingBrands;
+    const nameKey = (s) => String(s && s.name || '').trim().toLowerCase();
+    const byName  = new Map();
+    for (const s of seedSiblings) if (nameKey(s)) byName.set(nameKey(s), s);
+    for (const s of veraSiblings) if (nameKey(s)) byName.set(nameKey(s), { ...byName.get(nameKey(s)), ...s });
+    ctx.corporateStack.operatingPlatform.siblingBrands = Array.from(byName.values());
+    if (typeof enrich.operatingPlatform.siblingsTruncated === 'boolean') {
+      ctx.corporateStack.operatingPlatform.siblingsTruncated = enrich.operatingPlatform.siblingsTruncated;
+    }
+    stepLog(`mergeVeraCorporateStackEnrichment: merged ${veraSiblings.length} sibling enrichment(s) into ${byName.size} total`, 'DATA');
+  }
+
+  // Financial sponsor portfolio companies — Vera-only field
+  if (enrich.financialSponsor && Array.isArray(enrich.financialSponsor.portfolioCompanies)) {
+    ctx.corporateStack.financialSponsor = ctx.corporateStack.financialSponsor || {};
+    ctx.corporateStack.financialSponsor.portfolioCompanies = enrich.financialSponsor.portfolioCompanies;
+    stepLog(`mergeVeraCorporateStackEnrichment: wrote ${enrich.financialSponsor.portfolioCompanies.length} sponsor portfolio company(ies)`, 'DATA');
+  }
+
+  // Forward-looking talking points + intel-they-lack arrays (vera.toml Step 2c/2d)
+  // The brief reads these from company_context.json — copy them across so the
+  // post-Vera renderCorporateBrief() call picks them up without a separate read
+  // of vera.json. Replace, don't merge: Vera owns these arrays end-to-end.
+  if (Array.isArray(vera.forwardLookingTalkingPoints)) {
+    ctx.forwardLookingTalkingPoints = vera.forwardLookingTalkingPoints;
+    stepLog(`mergeVeraCorporateStackEnrichment: carried ${vera.forwardLookingTalkingPoints.length} forwardLookingTalkingPoint(s) to company_context`, 'DATA');
+  }
+  if (Array.isArray(vera.intelTheBuyerLacks)) {
+    ctx.intelTheBuyerLacks = vera.intelTheBuyerLacks;
+    stepLog(`mergeVeraCorporateStackEnrichment: carried ${vera.intelTheBuyerLacks.length} intelTheBuyerLacks entry(ies) to company_context`, 'DATA');
+  }
+
+  writeJson(ctxPath, ctx);
+  logFileInfo(ctxPath, 'company_context.json (after Vera enrichment merge)');
+  console.log(`  ${green('✓')} company_context.json — corporateStack enriched from vera.json`);
+}
+
 // ─── Corporate Brief (post-Vera) ─────────────────────────────────────────────
 // Composes projects/{slug}/intake/corporate-brief-content.json from the data
 // Scout's grounded inference already wrote into company_context.json, then
@@ -1214,6 +1291,21 @@ async function runPipeline(slug) {
 
     // Post-Vera: write initial client-registry entry + promote library contributions
     if (agent.slug === 'vera') {
+      // Per the agent-boundary rule, Vera writes her sibling/portfolio research
+      // into vera.json.corporateStackEnrichment — NOT directly into
+      // company_context.json. The orchestrator owns that merge, so the file
+      // remains the single source of truth before any downstream agent reads
+      // it (Hawk, Petra, Mira) or any derivative renders (corporate brief,
+      // proposal portfolioContext, integration-deck portfolio block).
+      stepLog('POST-VERA: merging corporateStackEnrichment into company_context.json', 'START');
+      try {
+        mergeVeraCorporateStackEnrichment(slug);
+        stepLog('POST-VERA: corporate stack merge done', 'END');
+      } catch (e) {
+        stepLog(`POST-VERA: corporate stack merge FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  Corporate stack merge failed — siblings/sponsor portfolio may be stale in company_context.json`);
+      }
+
       stepLog('POST-VERA: writing client-registry entry', 'START');
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} standards/client-registry.json — initial entry written (status: scoping)`);
