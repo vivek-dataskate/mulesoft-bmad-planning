@@ -69,27 +69,23 @@ All 7 templates are ported and committed. The next body of work is 13 UX/visual 
 
 ### Improvement checklist
 
-| # | Description | Status | Where in intake.njk |
+| # | Description | Status | Commit |
 |---|---|---|---|
-| 1 | Progress bar + rail card + progress number turn green at 100% | **done, uncommitted** | CSS after `.progress-fill` + `updateProgress()` |
-| 2 | Section-head green checkmark when 100% complete | todo | `.section-head` CSS + `updateProgress()` loop |
-| 3 | Auto-resize textareas (expand as user types) | todo | DOMContentLoaded init block |
-| 4 | Keyboard accessibility for pills (`role="button"`, `tabindex="0"`, `onkeydown`) | todo | HTML pill template in `intake.11tydata.js` |
-| 5 | Auto-save draft to localStorage (restore on load, "Draft restored" banner) | todo | new `autosaveDraft()` + `restoreDraft()` functions |
-| 6 | "Next unanswered →" button in sticky bar | todo | `.bar-tools` HTML + `jumpToFirstUnanswered()` call |
-| 7 | Biz-context auto-opens on first visit (localStorage `bc_seen_{slug}` flag) | todo | `toggleBC()` + DOMContentLoaded |
-| 8 | Percentage in sticky bar progress pill | todo | `updateProgress()` — one line |
-| 9 | Minimum-answer length hint on open-ended questions (via `data-minhint` attr) | todo | `intake.11tydata.js` question render + hint CSS |
-| 10 | "Next: [Section Name] →" CTA at bottom of each section body | todo | `intake.11tydata.js` section render |
-| 11 | Completion celebration at 100% (submit button pulses green, "Complete ✓" banner) | todo | CSS + `updateProgress()` |
-| 12 | `?q=Q15` deep-link support (copy-link per question + on-load scroll/focus) | todo | DOMContentLoaded + per-Q copy button |
-| 13 | Word count hint on textareas with `data-minwords` attribute | todo | `intake.11tydata.js` + input handler |
+| 1 | Progress bar + rail card + progress number turn green at 100% | **done** | `02c226c` |
+| 2 | Section-head green checkmark when 100% complete | **done** | `229e0ca` |
+| 3 | Auto-resize textareas (expand as user types) | **done** | `229e0ca` |
+| 4 | Keyboard accessibility for pills (`role="button"`, `tabindex="0"`, `onkeydown`) | **done** | `229e0ca` |
+| 5 | Auto-save draft to localStorage (restore on load, "Draft restored" banner) | **done** | `229e0ca` |
+| 6 | "Next unanswered →" button in sticky bar | **done** | `229e0ca` |
+| 7 | Biz-context auto-opens on first visit (localStorage `bc_seen_{slug}` flag) | **done** | `229e0ca` |
+| 8 | Percentage in sticky bar progress pill | **done** | `229e0ca` |
+| 9 | Minimum-answer length hint on required open-ended questions (< 8 words) | **done** | `229e0ca` |
+| 10 | "Next: [Section Name] →" CTA at bottom of each section body | **done** | `229e0ca` |
+| 11 | Completion celebration at 100% (submit button pulses green, "Complete ✓" banner) | **done** | `229e0ca` |
+| 12 | `?q=Q15` deep-link support (copy-link per question + on-load scroll/focus) | **done** | `229e0ca` |
+| 13 | Live word count on all non-pill textareas | **done** | `229e0ca` |
 
-### Pattern for each improvement
-1. Edit `docs/eleventy/_includes/layouts/intake.njk` only
-2. Run `npm run build:html` and verify the change appears in `docs/eleventy/_build/intake/intake-questionnaire-homage.html`
-3. Pause for user review
-4. Commit after user says "next"
+**All 13 UX improvements complete. No remaining intake work.**
 
 ---
 
