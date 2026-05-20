@@ -377,6 +377,33 @@
         "Color signal must be brand red \u2014 no other accent."
       ]
     },
+    "rowStatusDot": {
+      "usage": "Auto-computed traffic-light dot for any table row whose cells contain fillable inputs (e.g. the Access Chain table in the intake §2 Systems and Access section). Replaces the static `Pending` / `OK` / `Blocked` text badge with a colored circle that updates live as the user types. Injected by injectRowStatusDots() on init; refreshed by refreshRowStatusDots() on every input event.",
+      "html": "<td><span class=\"row-status-dot\" title=\"0 of 3 filled\"></span><span class=\"status-badge status-pending\">Pending</span></td>",
+      "css": ".row-status-dot { width:14px; height:14px; border-radius:50%; background:var(--brand) } .row-status-dot.is-partial { background:var(--amber) } .row-status-dot.is-complete { background:var(--green) } td:has(.row-status-dot) .status-badge { display:none }",
+      "rules": [
+        "Red (default) = 0 fields filled in the row.",
+        "Amber (.is-partial) = some but not all filled.",
+        "Green (.is-complete) = all inputs in the row have non-empty values.",
+        "Tooltip reads 'N of M filled' — accessibility hint for sighted users.",
+        "Hides the static `.status-badge` text in the same cell — the dot is the visual source of truth.",
+        "In print, degrades to a text label ('not started' / 'in progress' / 'complete') colored by state.",
+        "Apply to any table row that has both a `.status-badge` cell AND at least one `input.tbl-ans` or `textarea.answer` elsewhere in the row."
+      ]
+    },
+    "unansweredFilter": {
+      "usage": "Sticky-bar filter chip that toggles 'show all' ↔ 'show unanswered only'. Self-hides when there are zero unanswered. Sits next to the Expand-all / Collapse-all bar-tools. Drives off `body.filter-unanswered` class + CSS :has() selectors — no DOM mutation.",
+      "html": "<a href=\"#\" class=\"bar-filter is-hidden\" id=\"filter-link\" role=\"button\" onclick=\"toggleUnansweredFilter(event)\"><span class=\"bf-count\">0</span><span class=\"bf-label\"> unanswered</span><span class=\"bf-arrow\"> ›</span></a>",
+      "css": "body.filter-unanswered .q:not(.is-unanswered) { display:none } body.filter-unanswered details.uc:not(:has(.is-unanswered)) { display:none } body.filter-unanswered details.section-block:not(:has(.is-unanswered)) { display:none }",
+      "rules": [
+        "Chip self-hides via .is-hidden when refreshFilterChip() sees zero unanswered.",
+        "Turning the filter on auto-opens every section + UC that contains an unanswered Q, then jumps to first unanswered.",
+        "Cat-tab subtitles swap to 'N unanswered' / 'all answered ✓' (via refreshCatTabLabels()) and restore on toggle-off.",
+        "Expand-all in filter mode only opens UCs/sections that have unanswered Qs — expanding the rest would surface blocks the filter then hides.",
+        "Rail-nav click on a fully-answered section auto-clears the filter so the user can still navigate there.",
+        "Filter is a visual layer only — no DOM mutation. CSS :has() does the hiding."
+      ]
+    },
     "jumpToFirstUnanswered": {
       "usage": "Helper that walks required-but-empty fields in a given scope and scroll-focuses the first one. Wired into Expand-all, every rail-nav link click, every category-tab click, and the dynamic 'N required unanswered' attention item.",
       "rule": "When a user expands or navigates anywhere on the form, the form must land on the next outstanding action rather than the top of a huge expanded block. If nothing is outstanding in the scope, fall back to the section/category header.",
