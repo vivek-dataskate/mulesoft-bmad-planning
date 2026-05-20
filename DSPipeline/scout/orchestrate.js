@@ -19,9 +19,39 @@
 
 const fs            = require('fs');
 const path          = require('path');
+const os            = require('os');
 const readline      = require('readline');
 const { spawnSync } = require('child_process');
 const { inferClientWithAI } = require('./infer-client');
+
+// ─── Claude Binary Resolution ────────────────────────────────────────────────
+// CLAUDE_CODE_EXECPATH is set inside the agent sandbox but not in user terminals.
+// Try multiple locations in order so pipeline mode works in both contexts.
+
+function resolveClaudeBin() {
+  // 1. Env var — set by Claude Code when running inside the VSCode extension agent
+  if (process.env.CLAUDE_CODE_EXECPATH && fs.existsSync(process.env.CLAUDE_CODE_EXECPATH)) {
+    return process.env.CLAUDE_CODE_EXECPATH;
+  }
+  // 2. System PATH (global npm install, CI, etc.)
+  try {
+    const r = spawnSync('which', ['claude'], { encoding: 'utf8' });
+    if (r.status === 0 && r.stdout.trim()) return r.stdout.trim();
+  } catch { /* not on PATH */ }
+  // 3. VSCode extension directory — pick the highest-version build present
+  const extDir = path.join(os.homedir(), '.vscode-remote', 'extensions');
+  if (fs.existsSync(extDir)) {
+    const match = fs.readdirSync(extDir)
+      .filter(d => d.startsWith('anthropic.claude-code-'))
+      .sort().reverse()
+      .map(d => path.join(extDir, d, 'resources', 'native-binary', 'claude'))
+      .find(p => fs.existsSync(p));
+    if (match) return match;
+  }
+  return 'claude'; // last resort — will fail at spawn with a clear ENOENT
+}
+
+const CLAUDE_BIN = resolveClaudeBin();
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
 
@@ -114,6 +144,81 @@ function yellow(s) { return `\x1b[33m${s}\x1b[0m`; }
 function cyan(s)   { return `\x1b[36m${s}\x1b[0m`; }
 function red(s)    { return `\x1b[31m${s}\x1b[0m`; }
 
+// ─── Step Logger ──────────────────────────────────────────────────────────────
+
+let _logFile  = null;
+let _logJsonl = null;
+let _logSlug  = null;
+
+function setLogFile(slug) {
+  _logSlug = slug;
+  const logDir = path.join(ROOT, 'logs', 'scout-pipeline');
+  fs.mkdirSync(logDir, { recursive: true });
+  _logFile  = path.join(logDir, `${slug}.log`);
+  _logJsonl = path.join(logDir, `${slug}.jsonl`);
+  // Session-start separator — makes multiple runs in the same file visually distinct
+  const sep = `\n${'='.repeat(80)}\n  SESSION START  ${new Date().toISOString()}  client=${slug}\n${'='.repeat(80)}\n`;
+  try { fs.appendFileSync(_logFile,  sep); } catch { /* non-fatal */ }
+  try { fs.appendFileSync(_logJsonl, JSON.stringify({ _sessionStart: true, ts: new Date().toISOString(), client: slug }) + '\n'); } catch { /* non-fatal */ }
+}
+
+function _writeLog(lineText, rec) {
+  if (_logFile)  { try { fs.appendFileSync(_logFile,  lineText + '\n'); } catch { /* non-fatal */ } }
+  if (_logJsonl) { try { fs.appendFileSync(_logJsonl, JSON.stringify(rec) + '\n'); } catch { /* non-fatal */ } }
+}
+
+function stepLog(msg, level = 'INFO', data = null) {
+  const now    = new Date();
+  const ts     = now.toISOString();
+  const tsFmt  = ts.replace('T', ' ').slice(0, 23); // 2024-01-15 10:30:15.123
+  const lvl    = level.padEnd(5);
+  const suffix = data ? '  ' + JSON.stringify(data) : '';
+  const line   = `[${tsFmt}] [${lvl}] ${msg}${suffix}`;
+
+  if      (level === 'START') console.log(`  ${cyan('▶')} ${dim(tsFmt)} ${bold(msg)}`);
+  else if (level === 'END')   console.log(`  ${green('■')} ${dim(tsFmt)} ${msg}`);
+  else if (level === 'WARN')  console.log(`  ${yellow('!')} ${dim(tsFmt)} ${msg}`);
+  else if (level === 'ERROR') console.log(`  ${red('✗')} ${dim(tsFmt)} ${msg}`);
+  else if (level === 'DATA')  console.log(`  ${dim('[DATA] ' + msg)}`);
+  else                         console.log(`  ${dim(tsFmt + ' ' + msg)}`);
+
+  _writeLog(line, { ts, level, msg, ...(data || {}) });
+}
+
+// Log a structured data object — multiline pretty-print in .log, single JSON line in .jsonl
+function logObj(label, obj) {
+  const ts  = new Date().toISOString();
+  const txt = JSON.stringify(obj, null, 2).split('\n').map(l => '    ' + l).join('\n');
+  if (_logFile)  { try { fs.appendFileSync(_logFile,  `  [DATA] ${label}:\n${txt}\n`); } catch { /* non-fatal */ } }
+  if (_logJsonl) { try { fs.appendFileSync(_logJsonl, JSON.stringify({ ts, level: 'DATA', label, data: obj }) + '\n'); } catch { /* non-fatal */ } }
+}
+
+// Log file existence + size; for JSON files also logs top-level keys
+function logFileInfo(filePath, label) {
+  const tag = label || path.relative(ROOT, filePath);
+  try {
+    if (!fs.existsSync(filePath)) { stepLog(`FILE NOT FOUND: ${tag}`, 'WARN'); return; }
+    const stat = fs.statSync(filePath);
+    const kb   = (stat.size / 1024).toFixed(1);
+    if (path.extname(filePath).toLowerCase() === '.json' && stat.size < 512 * 1024) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        const keys   = Array.isArray(parsed) ? `[array len=${parsed.length}]` : Object.keys(parsed).join(', ');
+        stepLog(`FILE ${tag}: ${kb} KB — keys: ${keys}`, 'DATA');
+        return;
+      } catch { /* fall through */ }
+    }
+    stepLog(`FILE ${tag}: ${kb} KB`, 'DATA');
+  } catch { /* non-fatal */ }
+}
+
+// Horizontal section divider — makes long log files easier to scan
+function logSection(title) {
+  const line = `\n${'─'.repeat(70)}\n  ${title}\n${'─'.repeat(70)}`;
+  if (_logFile)  { try { fs.appendFileSync(_logFile,  line + '\n'); } catch { /* non-fatal */ } }
+  if (_logJsonl) { try { fs.appendFileSync(_logJsonl, JSON.stringify({ ts: new Date().toISOString(), level: 'SECTION', title }) + '\n'); } catch { /* non-fatal */ } }
+}
+
 // ─── Readline Gate ────────────────────────────────────────────────────────────
 
 async function prompt(question) {
@@ -125,7 +230,17 @@ async function prompt(question) {
 }
 
 async function confirm(message, defaultYes = true) {
-  if (pipelineMode) { console.log(`  ${dim('(pipeline mode — auto-confirm)')}`); return true; }
+  if (pipelineMode) {
+    if (!defaultYes) {
+      // defaultYes=false means this is a destructive/warning confirmation — never auto-approve in pipeline mode
+      stepLog(`Pipeline mode: refusing auto-confirm for warning prompt: ${message}`, 'ERROR');
+      console.error(`  ${red('✗')} Pipeline mode cannot auto-confirm: ${message}`);
+      console.error(`  ${red('✗')} Run agents manually first, then re-run --pipeline.`);
+      process.exit(1);
+    }
+    console.log(`  ${dim('(pipeline mode — auto-confirm)')}`);
+    return true;
+  }
   const hint = defaultYes ? '[Y/n]' : '[y/N]';
   const ans  = await prompt(`${message} ${hint}: `);
   if (!ans) return defaultYes;
@@ -207,24 +322,58 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
   const ok = await confirm('\n  Confirm and create project?');
   if (!ok) { console.log('  Aborted.'); process.exit(0); }
 
-  // Create project structure
+  // Open the per-client log now that we have a slug
+  setLogFile(slug);
+
+  logSection('ONBOARDING');
+  stepLog(`ONBOARD START — ${displayName} (${slug})`, 'START');
+  logObj('onboard.inputs', {
+    displayName, slug,
+    inferredSource: inferredSource || 'manual',
+    architect:      `${architect.name} <${architect.email}>`,
+    engagementType: engType,
+    targetGoLive:   goLive,
+    contact,
+    ae,
+    inboxFiles,
+  });
+
   const projectDir = path.join(PROJECTS_DIR, slug);
+  stepLog('Creating project directory structure: intake/, scoping/, run/');
   fs.mkdirSync(path.join(projectDir, 'intake'), { recursive: true });
   fs.mkdirSync(path.join(projectDir, 'scoping'), { recursive: true });
   fs.mkdirSync(path.join(projectDir, 'run'),     { recursive: true });
+  stepLog('Project directories created', 'END');
 
-  // Move _inbox/ files to scoping/
+  // Move only text files to scoping/ — binary originals stay in _inbox/ until after Sage
+  // (keeps Sage's context clean: no duplicate binary+txt representations)
+  logSection('INBOX → SCOPING');
+  stepLog('Moving inbox text files → scoping/', 'START');
+  const TEXT_EXTS = new Set(['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.rst']);
   const scopingDir = path.join(projectDir, 'scoping');
   let moved = 0;
+  let binaryCount = 0;
+  const movedFiles = [], heldFiles = [];
   for (const file of inboxFiles) {
-    const src  = path.join(INBOX_DIR, file);
-    const dest = path.join(scopingDir, file);
-    fs.renameSync(src, dest);
+    const ext = path.extname(file).toLowerCase();
+    if (!TEXT_EXTS.has(ext)) { binaryCount++; heldFiles.push(file); continue; }
+    fs.renameSync(path.join(INBOX_DIR, file), path.join(scopingDir, file));
+    stepLog(`  MOVE  _inbox/${file} → scoping/${file}`, 'DATA');
+    movedFiles.push(file);
     moved++;
   }
-  console.log(`\n  ${green('✓')} Moved ${moved} file(s) to projects/${slug}/scoping/`);
+  if (heldFiles.length > 0) {
+    stepLog(`  HELD in _inbox/ (binaries, move after Sage): ${heldFiles.join(', ')}`, 'DATA');
+  }
+  console.log(`\n  ${green('✓')} Moved ${moved} text file(s) to projects/${slug}/scoping/`);
+  if (binaryCount > 0) {
+    console.log(`  ${dim(`  ${binaryCount} source binary file(s) remain in _inbox/ — will move to scoping/ after Sage completes`)}`);
+  }
+  stepLog(`Moved ${moved} text file(s) to scoping/ (${binaryCount} binaries held back)`, 'END', { moved: movedFiles, held: heldFiles });
 
   // Write project.json
+  logSection('INITIALIZING PROJECT FILES');
+  stepLog('Initializing project JSON files', 'START');
   const projectJson = {
     client:        slug,
     displayName:   displayName,
@@ -239,12 +388,14 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
     sessionStatus: {},
   };
   writeJson(path.join(projectDir, 'project.json'), projectJson);
+  logFileInfo(path.join(projectDir, 'project.json'), `projects/${slug}/project.json`);
   console.log(`  ${green('✓')} Created projects/${slug}/project.json`);
 
   // Initialize decisions.json
   const decisionsPath = path.join(projectDir, 'decisions.json');
   if (!fs.existsSync(decisionsPath)) {
     writeJson(decisionsPath, { client: slug, createdAt: isoNow(), decisions: [] });
+    stepLog(`INIT decisions.json (empty)`, 'DATA');
     console.log(`  ${green('✓')} Initialized projects/${slug}/decisions.json`);
   }
 
@@ -271,6 +422,7 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
       aiThoughtStarters: [],
       psychologyProfile: null,
     });
+    stepLog(`INIT company_context.json (shell — all fields null/empty)`, 'DATA');
     console.log(`  ${green('✓')} Initialized projects/${slug}/company_context.json`);
   }
 
@@ -282,15 +434,18 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
     currentStep: 1,
     completed:   [],
   });
+  stepLog(`INIT pipeline-state.json (step=1, completed=[])`, 'DATA');
   console.log(`  ${green('✓')} Initialized projects/${slug}/run/pipeline-state.json`);
 
   // Ensure telemetry directory exists
   fs.mkdirSync(path.dirname(TELEMETRY_CSV), { recursive: true });
   if (!fs.existsSync(TELEMETRY_CSV)) {
     fs.writeFileSync(TELEMETRY_CSV, 'date,client,pipeline,agent,model,input_tokens,output_tokens,cost_usd,duration_ms,status\n');
+    stepLog(`INIT telemetry/usage.csv (new file with header)`, 'DATA');
     console.log(`  ${green('✓')} Initialized DSPipeline/telemetry/usage.csv`);
   }
 
+  stepLog(`ONBOARD END — project files initialized`, 'END');
   console.log(`\n  ${green('✓')} Project ${bold(displayName)} ready.`);
   return slug;
 }
@@ -388,7 +543,16 @@ function assembleContext(slug, agentSlug) {
 
   const runFile = path.join(projectDir, 'run', `${agentSlug}.json`);
   const data    = readJson(runFile);
-  if (!data) return;
+  if (!data) {
+    stepLog(`assembleContext(${agentSlug}): run/${agentSlug}.json not found — skipping merge`, 'WARN');
+    return;
+  }
+
+  stepLog(`assembleContext(${agentSlug}): merging run/${agentSlug}.json → company_context.json`, 'START');
+  logFileInfo(runFile, `run/${agentSlug}.json`);
+
+  // Track which fields we update for the log
+  const updated = [];
 
   switch (agentSlug) {
 
@@ -396,13 +560,13 @@ function assembleContext(slug, agentSlug) {
       // Sage: extract document facts into company_context
       const updates = { generatedAt: isoNow() };
       if (data.businessContext) {
-        if (data.businessContext.industry)      updates.industry    = data.businessContext.industry;
-        if (data.businessContext.companyDescription) updates.snapshot = data.businessContext.companyDescription;
+        if (data.businessContext.industry)           { updates.industry  = data.businessContext.industry;               updated.push('industry'); }
+        if (data.businessContext.companyDescription) { updates.snapshot  = data.businessContext.companyDescription;     updated.push('snapshot'); }
       }
-      if (Array.isArray(data.confirmedFlows))  updates.confirmedFlows = data.confirmedFlows;
-      if (Array.isArray(data.potentialFlows))  updates.potentialFlows = data.potentialFlows;
-      if (Array.isArray(data.signals))         updates.signals = data.signals.map(s => s.signal || s);
-      if (Array.isArray(data.namedContacts))   updates.namedContacts  = data.namedContacts;
+      if (Array.isArray(data.confirmedFlows))  { updates.confirmedFlows = data.confirmedFlows; updated.push(`confirmedFlows[${data.confirmedFlows.length}]`); }
+      if (Array.isArray(data.potentialFlows))  { updates.potentialFlows = data.potentialFlows; updated.push(`potentialFlows[${data.potentialFlows.length}]`); }
+      if (Array.isArray(data.signals))         { updates.signals = data.signals.map(s => s.signal || s); updated.push(`signals[${data.signals.length}]`); }
+      if (Array.isArray(data.namedContacts))   { updates.namedContacts  = data.namedContacts;  updated.push(`namedContacts[${data.namedContacts.length}]`); }
       Object.assign(ctx, updates);
       break;
     }
@@ -411,20 +575,20 @@ function assembleContext(slug, agentSlug) {
       // Project vera.json fields into company_context
       if (data.company) {
         const c = data.company;
-        if (c.snapshot)        ctx.snapshot        = c.snapshot;
-        if (c.industry)        ctx.industry        = c.industry;
-        if (c.verticalSlug)    ctx.verticalSlug    = c.verticalSlug;
-        if (c.hqLocation)      ctx.hqLocation      = c.hqLocation;
-        if (c.revenueEstimate) ctx.revenueEstimate = c.revenueEstimate;
-        if (c.revenueBracket)  ctx.revenueBracket  = c.revenueBracket;
-        if (Array.isArray(c.businessObjects) && c.businessObjects.length) ctx.businessObjects = c.businessObjects;
-        if (c.logoUrl !== undefined) ctx.logoUrl   = c.logoUrl;
+        if (c.snapshot)        { ctx.snapshot        = c.snapshot;        updated.push('snapshot'); }
+        if (c.industry)        { ctx.industry        = c.industry;        updated.push(`industry=${c.industry}`); }
+        if (c.verticalSlug)    { ctx.verticalSlug    = c.verticalSlug;    updated.push(`vertical=${c.verticalSlug}`); }
+        if (c.hqLocation)      { ctx.hqLocation      = c.hqLocation;      updated.push(`hq=${c.hqLocation}`); }
+        if (c.revenueEstimate) { ctx.revenueEstimate = c.revenueEstimate; updated.push(`revenue=${c.revenueEstimate}`); }
+        if (c.revenueBracket)  { ctx.revenueBracket  = c.revenueBracket;  updated.push(`revenueBracket=${c.revenueBracket}`); }
+        if (Array.isArray(c.businessObjects) && c.businessObjects.length) { ctx.businessObjects = c.businessObjects; updated.push(`businessObjects[${c.businessObjects.length}]`); }
+        if (c.logoUrl !== undefined) { ctx.logoUrl   = c.logoUrl;         updated.push('logoUrl'); }
       }
-      if (data.aiJourney)                                         ctx.aiJourney           = data.aiJourney;
-      if (Array.isArray(data.systemPrerequisites))                ctx.systemPrerequisites = data.systemPrerequisites;
-      if (Array.isArray(data.nearbyPeers))                        ctx.nearbyPeers         = data.nearbyPeers;
-      if (Array.isArray(data.competitorFOMO))                     ctx.competitorFOMO      = data.competitorFOMO;
-      if (Array.isArray(data.aiThoughtStarters))                  ctx.aiThoughtStarters   = data.aiThoughtStarters;
+      if (data.aiJourney)                    { ctx.aiJourney           = data.aiJourney;           updated.push('aiJourney'); }
+      if (Array.isArray(data.systemPrerequisites)) { ctx.systemPrerequisites = data.systemPrerequisites; updated.push(`systemPrereqs[${data.systemPrerequisites.length}]`); }
+      if (Array.isArray(data.nearbyPeers))   { ctx.nearbyPeers         = data.nearbyPeers;         updated.push(`nearbyPeers[${data.nearbyPeers.length}]`); }
+      if (Array.isArray(data.competitorFOMO)){ ctx.competitorFOMO      = data.competitorFOMO;      updated.push(`competitorFOMO[${data.competitorFOMO.length}]`); }
+      if (Array.isArray(data.aiThoughtStarters)){ ctx.aiThoughtStarters= data.aiThoughtStarters;  updated.push(`aiThoughtStarters[${data.aiThoughtStarters.length}]`); }
       ctx.generatedAt = isoNow();
       break;
     }
@@ -432,25 +596,28 @@ function assembleContext(slug, agentSlug) {
     case 'rex': {
       // Rex: system findings + initial p0Blockers
       if (Array.isArray(data.systemFindings)) {
+        const before = (ctx.systemFindings || []).length;
         ctx.systemFindings = [...(ctx.systemFindings || []), ...data.systemFindings];
+        updated.push(`systemFindings: ${before} → ${ctx.systemFindings.length}`);
       }
       if (Array.isArray(data.p0Blockers) && data.p0Blockers.length > 0) {
-        ctx.p0Blockers = data.p0Blockers; // will be overwritten by Flo's consolidated version
+        ctx.p0Blockers = data.p0Blockers;
+        updated.push(`p0Blockers[${data.p0Blockers.length}] (will be overwritten by Flo)`);
       }
       break;
     }
 
     case 'ivy': {
       // Ivy: psychology profile
-      if (data.psychologyProfile) ctx.psychologyProfile = data.psychologyProfile;
+      if (data.psychologyProfile) { ctx.psychologyProfile = data.psychologyProfile; updated.push('psychologyProfile'); }
       break;
     }
 
     case 'flo': {
       // Flo: consolidated p0Blockers + flow updates
-      if (Array.isArray(data.p0Blockers))    ctx.p0Blockers    = data.p0Blockers;
-      if (Array.isArray(data.confirmedFlows)) ctx.confirmedFlows = data.confirmedFlows;
-      if (Array.isArray(data.potentialFlows)) ctx.potentialFlows = data.potentialFlows;
+      if (Array.isArray(data.p0Blockers))     { ctx.p0Blockers    = data.p0Blockers;    updated.push(`p0Blockers[${data.p0Blockers.length}]`); }
+      if (Array.isArray(data.confirmedFlows)) { ctx.confirmedFlows = data.confirmedFlows; updated.push(`confirmedFlows[${data.confirmedFlows.length}]`); }
+      if (Array.isArray(data.potentialFlows)) { ctx.potentialFlows = data.potentialFlows; updated.push(`potentialFlows[${data.potentialFlows.length}]`); }
       break;
     }
 
@@ -458,6 +625,7 @@ function assembleContext(slug, agentSlug) {
     case 'petra':
     case 'mira': {
       ctx.generatedAt = isoNow();
+      updated.push('generatedAt (touch only)');
       break;
     }
 
@@ -466,8 +634,9 @@ function assembleContext(slug, agentSlug) {
       // during questionnaire assembly — merge them into company_context here.
       if (Array.isArray(data.p0Blockers) && data.p0Blockers.length > 0) {
         ctx.p0Blockers = data.p0Blockers;
+        updated.push(`p0Blockers[${data.p0Blockers.length}]`);
       }
-      if (data.aiJourney) ctx.aiJourney = data.aiJourney;
+      if (data.aiJourney) { ctx.aiJourney = data.aiJourney; updated.push('aiJourney'); }
       if (Array.isArray(data.systemFindings) && data.systemFindings.length > 0) {
         const existing = ctx.systemFindings || [];
         const merged   = [...existing];
@@ -476,6 +645,7 @@ function assembleContext(slug, agentSlug) {
             merged.push(f);
           }
         }
+        updated.push(`systemFindings: ${existing.length} → ${merged.length}`);
         ctx.systemFindings = merged;
       }
       ctx.generatedAt = isoNow();
@@ -483,7 +653,10 @@ function assembleContext(slug, agentSlug) {
     }
   }
 
+  stepLog(`assembleContext(${agentSlug}): updated fields — ${updated.join(' | ') || 'none'}`, 'DATA', { agent: agentSlug, updatedFields: updated });
   writeJson(ctxPath, ctx);
+  logFileInfo(ctxPath, 'company_context.json (after merge)');
+  stepLog(`assembleContext(${agentSlug}): done`, 'END');
 }
 
 // ─── Decisions Aggregation ────────────────────────────────────────────────────
@@ -496,13 +669,24 @@ function aggregateDecisions(slug) {
   const decisionFiles = fs.existsSync(runDir)
     ? fs.readdirSync(runDir).filter(f => f.endsWith('-decisions.json')).sort()
     : [];
-  if (!decisionFiles.length) return;
+  if (!decisionFiles.length) {
+    stepLog('aggregateDecisions: no *-decisions.json files found — skipping', 'DATA');
+    return;
+  }
+  stepLog(`aggregateDecisions: reading ${decisionFiles.length} decision file(s): ${decisionFiles.join(', ')}`, 'DATA');
   const allDecisions = [];
   for (const file of decisionFiles) {
     const d = readJson(path.join(runDir, file));
-    if (d && Array.isArray(d.decisions)) allDecisions.push(...d.decisions);
+    if (d && Array.isArray(d.decisions)) {
+      stepLog(`  ${file}: ${d.decisions.length} decision(s)`, 'DATA');
+      allDecisions.push(...d.decisions);
+    } else {
+      stepLog(`  ${file}: no decisions array — skipped`, 'WARN');
+    }
   }
   writeJson(decisionsPath, { client: slug, updatedAt: isoNow(), decisions: allDecisions });
+  stepLog(`aggregateDecisions: wrote ${allDecisions.length} total decision(s) to decisions.json`, 'DATA');
+  logFileInfo(decisionsPath, 'decisions.json (after aggregate)');
 }
 
 // ─── Client Registry Write (post-Flo) ────────────────────────────────────────
@@ -541,11 +725,15 @@ function writeClientRegistry(slug) {
   const existingIdx = registry.clients.findIndex(c => c.slug === slug);
   if (existingIdx >= 0) {
     registry.clients[existingIdx] = { ...registry.clients[existingIdx], ...entry };
+    stepLog(`writeClientRegistry: updated existing entry for ${slug} (index ${existingIdx})`, 'DATA');
   } else {
     registry.clients.push(entry);
+    stepLog(`writeClientRegistry: new entry added for ${slug} (now ${registry.clients.length} clients in registry)`, 'DATA');
   }
+  logObj('clientRegistry.entry', entry);
 
   writeJson(registryPath, registry);
+  logFileInfo(registryPath, 'client-registry.json (after write)');
 }
 
 // ─── Firebase Deploy (post-Mira) ─────────────────────────────────────────────
@@ -557,20 +745,77 @@ function writeClientRegistry(slug) {
 function deployFirebase(slug) {
   const { execSync } = require('child_process');
 
+  logSection('FIREBASE DEPLOY');
+  stepLog('deployFirebase: checking credentials', 'START');
+
   const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS ||
     path.join(ROOT, 'dataskateclients-firebase-adminsdk-fbsvc-6d3f67e197.json');
 
-  if (!fs.existsSync(saPath) && !process.env.FIREBASE_SA_KEY) {
+  const hasEnvKey  = !!process.env.FIREBASE_SA_KEY;
+  const hasFileKey = fs.existsSync(saPath);
+  stepLog(`deployFirebase: GOOGLE_APPLICATION_CREDENTIALS=${saPath}  fileExists=${hasFileKey}  FIREBASE_SA_KEY env=${hasEnvKey}`, 'DATA');
+
+  if (!hasFileKey && !hasEnvKey) {
+    stepLog('deployFirebase: no credentials — deploy skipped', 'WARN');
     console.log(`  ${yellow('⚠')}  No Firebase credentials found — skipping deploy.`);
     console.log(`  ${dim('Run manually: node scripts/update-firebase.js ' + slug)}`);
-    return;
+    return { ok: false, reason: 'no-credentials' };
   }
 
+  const cmd = `node scripts/update-firebase.js ${slug}`;
+  stepLog(`deployFirebase: running: ${cmd}`, 'DATA');
+
+  // stdio: pipe stdout+stderr so we capture the actual failure reason into the
+  // per-client log instead of losing it to the terminal (as happened before, when
+  // stdio:'inherit' meant we only saw Node's generic "Command failed: ..." in catch).
+  // After completion, the full captured output is appended to the log file; on failure,
+  // the tail is also surfaced to the user's terminal so the root cause is visible.
   try {
-    execSync(`node scripts/update-firebase.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+    const stdout = execSync(cmd, {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['inherit', 'pipe', 'pipe'],
+      maxBuffer: 32 * 1024 * 1024,  // 32 MB — firebase deploy can be noisy
+    });
+    if (_logFile && stdout) {
+      try { fs.appendFileSync(_logFile, `\n[update-firebase.js stdout]\n${stdout}\n`); } catch { /* non-fatal */ }
+    }
+    // Mirror the tail to the terminal so the user gets some feedback without seeing every line
+    const tail = stdout.trim().split('\n').slice(-8).filter(Boolean);
+    if (tail.length) tail.forEach(l => console.log(dim('  | ' + l)));
+    stepLog('deployFirebase: success — HTML uploaded, Firestore seeded, manifest rebuilt, deployed', 'END');
     console.log(`  ${green('✓')} Firebase sync complete (HTML uploaded, Firestore seeded, manifest rebuilt, deployed)`);
+    return { ok: true, stdout };
   } catch (e) {
-    console.log(`  ${yellow('⚠')}  update-firebase.js failed — run manually: node scripts/update-firebase.js ${slug}`);
+    const stdout   = (e.stdout && e.stdout.toString()) || '';
+    const stderr   = (e.stderr && e.stderr.toString()) || '';
+    const exitCode = e.status != null ? e.status : -1;
+
+    if (_logFile) {
+      try {
+        fs.appendFileSync(_logFile,
+          `\n[update-firebase.js exit=${exitCode}]\n` +
+          `--- stdout ---\n${stdout}\n` +
+          `--- stderr ---\n${stderr}\n`);
+      } catch { /* non-fatal */ }
+    }
+    stepLog(`deployFirebase: FAILED — exit ${exitCode}`, 'ERROR', { exitCode });
+    if (stderr.trim()) {
+      stepLog(`update-firebase.js stderr (tail): ${stderr.trim().slice(-1000)}`, 'ERROR');
+    }
+
+    // Surface the actual error to the terminal so the user sees the root cause immediately.
+    console.log('');
+    console.log(`  ${red('✗')}  update-firebase.js failed (exit ${exitCode})`);
+    const combined = (stdout + '\n' + stderr).split('\n').filter(Boolean);
+    const tail     = combined.slice(-15);
+    if (tail.length) {
+      console.log(red('  ── update-firebase.js output (last 15 lines) ──'));
+      tail.forEach(line => console.log(red('  | ') + line));
+    }
+    console.log(`  ${dim('Full output saved to: ' + (_logFile || 'logs/scout-pipeline/' + slug + '.log'))}`);
+    console.log(`  ${dim('Retry with: node scripts/update-firebase.js ' + slug)}`);
+    return { ok: false, exitCode, stdout, stderr, reason: 'exit-nonzero' };
   }
 }
 
@@ -580,48 +825,82 @@ function deployFirebase(slug) {
 
 function archiveScopingFiles(slug) {
   const { execSync } = require('child_process');
+  logSection('SOURCE FILE ARCHIVAL');
+  stepLog('archiveScopingFiles: checking scoping/ directory', 'START');
   const scopingDir = path.join(PROJECTS_DIR, slug, 'scoping');
-  if (!fs.existsSync(scopingDir) || fs.readdirSync(scopingDir).filter(f => f !== '.gitkeep').length === 0) {
+  const scopingFiles = fs.existsSync(scopingDir)
+    ? fs.readdirSync(scopingDir).filter(f => f !== '.gitkeep')
+    : [];
+  if (scopingFiles.length === 0) {
+    stepLog('archiveScopingFiles: scoping/ is empty — nothing to archive', 'DATA');
     console.log(`  ${dim('scoping/ already empty — nothing to archive')}`);
     return;
   }
+  stepLog(`archiveScopingFiles: ${scopingFiles.length} file(s) to archive: ${scopingFiles.join(', ')}`, 'DATA');
   console.log('  Archiving scoping source files to Firebase Storage...');
   try {
     execSync(`node scripts/move-sources.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+    stepLog('archiveScopingFiles: archive complete', 'END');
     console.log(`  ${green('✓')} Source files archived`);
   } catch (e) {
+    stepLog(`archiveScopingFiles: FAILED — ${e.message}`, 'ERROR');
     console.log(`  ${yellow('⚠')}  move-sources.js failed — run manually: node scripts/move-sources.js ${slug}`);
   }
 }
 
 // ─── Agent Gate Display ───────────────────────────────────────────────────────
 
-function printAgentBanner(agent, slug) {
+function resolvedAgentToml(agent, slug) {
+  const src    = path.join(ROOT, agent.toml);
+  const outDir = path.join(PROJECTS_DIR, slug, 'run');
+  const outPath = path.join(outDir, `${agent.slug}.toml`);
+  fs.mkdirSync(outDir, { recursive: true });
+  const raw = fs.readFileSync(src, 'utf8');
+  const resolved = raw.replace(/\{client\}/g, slug);
+  fs.writeFileSync(outPath, resolved);
+  return path.relative(ROOT, outPath);  // e.g. projects/pacific-title-company/run/vera.toml
+}
+
+function printAgentBanner(agent, slug, resolvedToml) {
   const totalAgents = 9;
-  const cmd = `claude --agent-file ${agent.toml}`;
   console.log('\n' + bold('━'.repeat(60)));
   console.log(bold(`  NEXT: ${agent.name} — ${agent.role}  [${agent.position}/${totalAgents}]`));
   console.log(bold('━'.repeat(60)));
   console.log(`  Mode:    ${agent.mode === 'gated' ? yellow('GATED (confirm numbers)') : cyan('CONVERSATIONAL (Q&A loop)')}`);
   console.log(`  Model:   ${agent.model}`);
   console.log(`  Client:  ${slug}`);
+  if (!pipelineMode) {
+    console.log(`  ${dim('Claude launching below — type /exit when done')}`);
+  }
   console.log();
-  console.log(`  ${bold('Run in a new terminal:')}`);
-  console.log(`  ┌${'─'.repeat(56)}┐`);
-  console.log(`  │  ${green(cmd)}${' '.repeat(Math.max(0, 54 - cmd.length))}│`);
-  console.log(`  └${'─'.repeat(56)}┘`);
-  console.log();
-  console.log(`  When ${agent.name} is complete and you have confirmed the output:`);
 }
 
 // ─── Main Pipeline Loop ───────────────────────────────────────────────────────
 
 async function runPipeline(slug) {
+  // onboard() already called setLogFile if it ran; call again for resume paths (no-op if already set)
+  if (!_logFile) setLogFile(slug);
   const pipeline    = readJson(PIPELINE_JSON);
   const agents      = pipeline.agents;
   const state       = readState(slug);
   const projectDir  = path.join(PROJECTS_DIR, slug);
   const projectJson = readJson(path.join(projectDir, 'project.json'));
+
+  const totalAgents = agents.length;
+  logSection('PIPELINE START');
+  stepLog(`PIPELINE START — ${projectJson.displayName} (${slug}) — ${totalAgents} agents`, 'START');
+  logObj('pipeline.project', {
+    displayName:    projectJson.displayName,
+    slug,
+    architect:      projectJson.architect,
+    architectEmail: projectJson.architectEmail,
+    engagementType: projectJson.engagementType,
+    targetGoLive:   projectJson.targetGoLive,
+    createdAt:      projectJson.createdAt,
+    completedSoFar: state.completed,
+    pipelineMode,
+    deltaMode,
+  });
 
   console.log('\n' + bold('━'.repeat(60)));
   console.log(bold(`  DSPipeline — ${projectJson.displayName}`));
@@ -632,54 +911,151 @@ async function runPipeline(slug) {
   }
   console.log(bold('━'.repeat(60)));
 
+  // Retry deploy if Mira already completed but a prior deploy failed (or was never tracked).
+  // Avoids re-running Mira ($28+ in tokens) when the only thing that needs to happen is
+  // re-invoking update-firebase.js. Triggers for legacy projects whose pipeline ran before
+  // deployStatus tracking existed — first retry is harmless (idempotent) and sets the flag.
+  if (state.completed.includes('mira') && state.deployStatus !== 'success') {
+    logSection('RETRY FIREBASE DEPLOY');
+    const reason = state.deployStatus === 'failed'
+      ? `prior deploy failed: ${state.deployError || '(no details)'}`
+      : `deployStatus not tracked (legacy run)`;
+    stepLog(`Mira already complete — retrying deploy without re-running agent (${reason})`, 'START');
+    console.log('\n' + bold('━'.repeat(60)));
+    console.log(bold(`  Retrying Firebase deploy for ${projectJson.displayName}`));
+    console.log(`  ${dim(reason)}`);
+    console.log(bold('━'.repeat(60)));
+
+    const retryResult = deployFirebase(slug);
+    const updated    = readState(slug);
+    updated.deployStatus      = retryResult.ok ? 'success' : 'failed';
+    updated.deployAttemptedAt = isoNow();
+    if (retryResult.ok) {
+      delete updated.deployError;
+    } else {
+      const errTail = ((retryResult.stderr || retryResult.stdout || '').trim().split('\n').slice(-5).join('\n'));
+      updated.deployError = errTail || retryResult.reason || 'unknown';
+    }
+    writeState(slug, updated);
+
+    if (!retryResult.ok) {
+      console.log('\n' + bold(red('═'.repeat(60))));
+      console.log(bold(red('  DEPLOY STILL FAILING — see log for details')));
+      console.log(bold(red('═'.repeat(60))));
+      console.log(`  ${dim('Log: ' + (_logFile || 'logs/scout-pipeline/' + slug + '.log'))}`);
+      process.exit(1);
+    }
+    console.log(`\n  ${green('✓')} Deploy retry succeeded — pipeline now fully published.\n`);
+    return;
+  }
+
   for (const agent of agents) {
     if (state.completed.includes(agent.slug)) {
       console.log(`  ${green('✓')} ${agent.name} — ${dim('already complete')}`);
+      stepLog(`STEP ${agent.position}/${totalAgents}: ${agent.name} (${agent.slug}) — skipped (already complete)`);
       continue;
     }
 
-    printAgentBanner(agent, slug);
+    // Skip parked agents
+    if (agent.status === 'parked') {
+      stepLog(`STEP ${agent.position}/${totalAgents}: ${agent.name} (${agent.slug}) — skipped (parked)`, 'DATA');
+      continue;
+    }
+
+    logSection(`AGENT ${agent.position}/${totalAgents}: ${agent.name.toUpperCase()} (${agent.slug})`);
+    stepLog(`STEP ${agent.position}/${totalAgents}: ${agent.name} (${agent.slug}) — STARTED`, 'START', {
+      role:       agent.role,
+      model:      agent.model,
+      mode:       agent.mode,
+      toml:       agent.toml,
+      outputFile: agent.outputFile,
+    });
+
+    const resolvedToml = resolvedAgentToml(agent, slug);
+    printAgentBanner(agent, slug, resolvedToml);
 
     const startMs = Date.now();
 
+    const outputPath = path.join(projectDir, agent.outputFile);
+
     if (pipelineMode) {
-      console.log(`  ${dim('(pipeline mode — press Enter to mark complete and continue)')}`);
-    }
+      // Run the agent interactively so output streams live to the terminal.
+      // --dangerously-skip-permissions auto-approves all tool calls (file I/O, web search)
+      // so the agent runs without stopping for approval. spawnSync blocks until the user
+      // types /exit, then the orchestrator checks for the output file and continues.
+      const tomlContent = fs.readFileSync(path.join(ROOT, resolvedToml), 'utf8');
+      console.log(`\n  ${cyan('▶')} Running ${bold(agent.name)} — type ${bold('/exit')} when done\n`);
+      stepLog(`Running ${agent.name} interactively`, 'START');
 
-    // Wait for user to confirm agent completion
-    const ans = await prompt('  Press Enter when complete (or type "skip" to mark done, "quit" to stop): ');
+      const result = spawnSync(
+        CLAUDE_BIN,
+        ['--dangerously-skip-permissions', '--system-prompt', tomlContent,
+         'Execute your complete workflow now. Follow every step in the workflow section, then type /exit when finished.'],
+        { stdio: 'inherit', cwd: ROOT }
+      );
 
-    if (ans.toLowerCase() === 'quit') {
-      console.log(`\n  ${yellow('Paused.')} Run again with --client ${slug} to resume.`);
-      process.exit(0);
+      if (result.error) {
+        stepLog(`${agent.name} error: ${result.error.message}`, 'ERROR');
+        console.log(`\n  ${red('✗')}  ${agent.name} failed: ${result.error.message}`);
+        process.exit(1);
+      }
+      stepLog(`${agent.name} exited (status ${result.status})`, 'DATA');
+    } else {
+      // Interactive mode: user runs the agent manually and presses Enter when done
+      const ans = await prompt('  Press Enter when complete (or type "skip" to mark done, "quit" to stop): ');
+      stepLog(`User response after ${agent.name}: "${ans || '<Enter>'}"`, 'DATA');
+      if (ans.toLowerCase() === 'quit') {
+        stepLog(`PIPELINE PAUSED by user after ${agent.name} (${agent.slug})`, 'WARN');
+        console.log(`\n  ${yellow('Paused.')} Run again with --client ${slug} to resume.`);
+        process.exit(0);
+      }
     }
 
     // Verify output file exists
-    const outputPath = path.join(projectDir, agent.outputFile);
+    logSection(`OUTPUT VALIDATION — ${agent.name}`);
     if (!fs.existsSync(outputPath)) {
-      const force = await confirm(
-        `  ${yellow('⚠')}  Output file not found: ${agent.outputFile}. Mark as complete anyway?`,
-        false
-      );
-      if (!force) {
-        console.log(`  ${yellow('Retrying...')} Complete ${agent.name} and press Enter again.`);
-        // re-run this agent
-        agents.splice(agents.indexOf(agent), 0, agent);
-        continue;
+      stepLog(`OUTPUT MISSING: ${agent.outputFile} not found after ${agent.name} completed`, 'WARN');
+      if (!pipelineMode) {
+        // Interactive mode: ask user whether to retry or force-complete
+        const force = await confirm(
+          `  ${yellow('⚠')}  Output file not found: ${agent.outputFile}. Mark as complete anyway?`,
+          false
+        );
+        if (!force) {
+          stepLog(`Retrying ${agent.name} — user declined to force-complete`, 'WARN');
+          console.log(`  ${yellow('Retrying...')} Complete ${agent.name} and press Enter again.`);
+          agents.splice(agents.indexOf(agent), 0, agent);
+          continue;
+        }
       }
+      stepLog(`Force-completing ${agent.name} without output file`, 'WARN');
     } else {
+      logFileInfo(outputPath, agent.outputFile);
       const output = readJson(outputPath);
-      if (output && output.status !== 'complete') {
-        console.log(`  ${yellow('⚠')}  ${agent.outputFile} has status="${output.status}" — check agent output.`);
+      if (output) {
+        const statusField = output.status || '(no status field)';
+        stepLog(`${agent.outputFile}: status="${statusField}"`, 'DATA');
+        if (output.status !== 'complete') {
+          stepLog(`${agent.outputFile}: status is not "complete" — review agent output`, 'WARN');
+          console.log(`  ${yellow('⚠')}  ${agent.outputFile} has status="${output.status}" — check agent output.`);
+        }
+        // Log top-level keys and array lengths for easy scanning
+        const summary = Object.fromEntries(
+          Object.entries(output).map(([k, v]) =>
+            [k, Array.isArray(v) ? `[array len=${v.length}]` : typeof v === 'object' && v ? '{object}' : v]
+          )
+        );
+        logObj(`${agent.slug}.json summary`, summary);
       }
     }
 
     // Verify additional required deliverables (e.g. intake-content.json for Quinn)
     if (Array.isArray(agent.additionalOutputs)) {
-      const missing = agent.additionalOutputs
-        .map(p => p.replace('{slug}', slug))
-        .filter(p => !fs.existsSync(path.join(projectDir, p)));
+      const resolved = agent.additionalOutputs.map(p => p.replace('{slug}', slug));
+      stepLog(`Checking ${resolved.length} additional output(s): ${resolved.join(', ')}`, 'DATA');
+      const missing = resolved.filter(p => !fs.existsSync(path.join(projectDir, p)));
       if (missing.length > 0) {
+        stepLog(`ADDITIONAL OUTPUTS MISSING: ${missing.join(', ')}`, 'WARN');
         console.log(`\n  ${yellow('⚠')}  ${agent.name} is missing required deliverables:`);
         missing.forEach(p => console.log(`       ${yellow('✗')}  ${p}`));
         const force = await confirm(
@@ -687,16 +1063,21 @@ async function runPipeline(slug) {
           false
         );
         if (!force) {
+          stepLog(`Retrying ${agent.name} — missing additional outputs, user declined force`, 'WARN');
           console.log(`  ${yellow('Retrying...')} Complete all deliverables and press Enter again.`);
           agents.splice(agents.indexOf(agent), 0, agent);
           continue;
         }
+        stepLog(`Force-completing ${agent.name} despite missing additional outputs (user confirmed)`, 'WARN');
+      } else {
+        resolved.forEach(p => logFileInfo(path.join(projectDir, p), p));
       }
     }
 
     const durationMs = Date.now() - startMs;
 
     // Auto-read token usage from the Claude session JSONL written during this agent run
+    logSection(`TOKEN USAGE — ${agent.name}`);
     let tokens = { model: agent.model };
     const usage = readSessionTokens(startMs);
     if (usage && (usage.inp + usage.out) > 0) {
@@ -704,77 +1085,169 @@ async function runPipeline(slug) {
       const billableIn = inp + cacheCreate + Math.round(cacheRead * 0.1); // cache reads are ~10% cost
       tokens = { model: agent.model, input: billableIn, output: out, cost: calcCost(agent.model, billableIn, out) };
       const cacheNote = cacheRead > 0 ? ` | cache read: ${cacheRead.toLocaleString()}` : '';
+      stepLog(`Tokens: ${billableIn.toLocaleString()} in (${inp.toLocaleString()} fresh + ${cacheCreate.toLocaleString()} write${cacheNote}) / ${out.toLocaleString()} out — cost ≈ $${tokens.cost}`, 'DATA', {
+        model: agent.model, inputFresh: inp, cacheCreate, cacheRead, billableIn, output: out, cost: tokens.cost,
+      });
       console.log(`  ${dim(`Tokens: ${billableIn.toLocaleString()} in (${inp.toLocaleString()} fresh + ${cacheCreate.toLocaleString()} write${cacheNote}) / ${out.toLocaleString()} out — cost ≈ $${tokens.cost}`)}`);
     } else {
+      stepLog('Token usage: not captured (agent ran before this session started — check JSONL files)', 'WARN');
       console.log(`  ${dim('Token usage: not captured (agent may have run before this session started)')}`);
     }
 
     // Post-agent: assemble company_context.json + rebuild decisions.json
+    logSection(`POST-STEP — ${agent.name}`);
+    stepLog(`POST-STEP: assembleContext for ${agent.slug}`, 'START');
     assembleContext(slug, agent.slug);
+    stepLog('assembleContext done', 'END');
     console.log(`  ${green('✓')} company_context.json updated`);
+    stepLog('POST-STEP: aggregateDecisions', 'START');
     aggregateDecisions(slug);
+    stepLog('aggregateDecisions done', 'END');
+
+    // Post-Sage: move binary source files from _inbox/ to scoping/ for archival
+    // (Sage is done reading — safe to land originals alongside the .txt companions)
+    if (agent.slug === 'sage') {
+      const remaining = fs.existsSync(INBOX_DIR)
+        ? fs.readdirSync(INBOX_DIR).filter(f => f !== '.gitkeep' && !f.startsWith('.'))
+        : [];
+      if (remaining.length > 0) {
+        stepLog(`POST-SAGE: moving ${remaining.length} binary file(s) from _inbox/ to scoping/: ${remaining.join(', ')}`, 'START');
+        const scopingDir = path.join(projectDir, 'scoping');
+        for (const file of remaining) {
+          fs.renameSync(path.join(INBOX_DIR, file), path.join(scopingDir, file));
+          stepLog(`  MOVE _inbox/${file} → scoping/${file}`, 'DATA');
+        }
+        console.log(`  ${green('✓')} Moved ${remaining.length} source binary file(s) from _inbox/ to scoping/ (archival)`);
+        stepLog(`POST-SAGE: all ${remaining.length} binary file(s) moved`, 'END');
+      } else {
+        stepLog('POST-SAGE: no binary files in _inbox/ to move', 'DATA');
+      }
+    }
 
     // Post-Vera: write initial client-registry entry + promote library contributions
     if (agent.slug === 'vera') {
+      stepLog('POST-VERA: writing client-registry entry', 'START');
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} standards/client-registry.json — initial entry written (status: scoping)`);
+      stepLog('POST-VERA: client-registry written', 'END');
+      stepLog('POST-VERA: running promote-library.js', 'START');
       try {
         require('child_process').execSync(`node DSPipeline/promote-library.js --client ${slug}`, { cwd: ROOT, stdio: 'inherit' });
         console.log(`  ${green('✓')} Library contributions promoted to standards/usecases/`);
+        stepLog('POST-VERA: promote-library done', 'END');
       } catch (e) {
+        stepLog(`POST-VERA: promote-library FAILED — ${e.message}`, 'WARN');
         console.log(`  ${yellow('⚠')}  promote-library.js failed — run manually: node DSPipeline/promote-library.js --client ${slug}`);
       }
     }
 
     // Post-Rex: rebuild connector index (Rex may have added/updated registry stubs)
     if (agent.slug === 'rex') {
+      stepLog('POST-REX: rebuilding connector index (build-connector-index.js)', 'START');
       try {
         require('child_process').execSync('node standards/build-connector-index.js', { cwd: ROOT, stdio: 'inherit' });
         console.log(`  ${green('✓')} connector-names.json + connector-index.json rebuilt`);
+        stepLog('POST-REX: connector index rebuilt', 'END');
       } catch (e) {
+        stepLog(`POST-REX: build-connector-index FAILED — ${e.message}`, 'WARN');
         console.log(`  ${yellow('⚠')}  build-connector-index.js failed — run manually`);
       }
     }
 
     // Post-Flo: write flowCount + pricingComputed to project.json, aggregate decisions, write registry
     if (agent.slug === 'flo') {
+      stepLog('POST-FLO: updating project.json with pricing', 'START');
       const floData = readJson(path.join(projectDir, 'run', 'flo.json')) || {};
       if (floData.pricing) {
+        stepLog(`POST-FLO: pricing — flowCount=${floData.pricing.flowCount}, period1Rate=${floData.pricing.period1RatePerFlow}`, 'DATA');
+        logObj('flo.pricing', floData.pricing);
         mergeJson(path.join(projectDir, 'project.json'), {
           flowCount:       floData.pricing.flowCount,
           pricingComputed: floData.pricing,
         });
         console.log(`  ${green('✓')} project.json updated (flowCount, pricingComputed)`);
+        stepLog('POST-FLO: project.json pricing updated', 'END');
+      } else {
+        stepLog('POST-FLO: flo.json has no pricing block — skipping project.json update', 'WARN');
       }
 
+      stepLog('POST-FLO: aggregating decisions', 'START');
       aggregateDecisions(slug);
       console.log(`  ${green('✓')} decisions.json aggregated`);
+      stepLog('POST-FLO: decisions aggregated', 'END');
 
+      stepLog('POST-FLO: updating client-registry', 'START');
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} standards/client-registry.json updated`);
+      stepLog('POST-FLO: client-registry updated', 'END');
     }
 
     // Post-Mira: deploy to Firebase (all docs audited — safe to publish)
     if (agent.slug === 'mira') {
-      deployFirebase(slug);
+      stepLog('POST-MIRA: deploying to Firebase', 'START');
+      const deployResult = deployFirebase(slug);
+      stepLog('POST-MIRA: Firebase deploy step done', 'END');
+
+      // Persist deploy outcome in pipeline-state.json. Mira is still marked complete
+      // (her audit work is done — don't waste $28 in tokens re-running her), but if
+      // deploy failed we record it so a subsequent orchestrate run retries only the
+      // deploy step. See the retry block at the top of runPipeline().
+      const postMiraState = readState(slug);
+      postMiraState.deployStatus      = deployResult.ok ? 'success' : 'failed';
+      postMiraState.deployAttemptedAt = isoNow();
+      if (deployResult.ok) {
+        delete postMiraState.deployError;
+      } else {
+        const errTail = ((deployResult.stderr || deployResult.stdout || '').trim().split('\n').slice(-5).join('\n'));
+        postMiraState.deployError = errTail || deployResult.reason || 'unknown';
+      }
+      writeState(slug, postMiraState);
     }
 
     // Mark complete in state
     markComplete(slug, agent.slug, durationMs, tokens);
-    console.log(`  ${green('✓')} ${agent.name} marked complete (${(durationMs / 1000).toFixed(0)}s)`);
+    const durationSec = (durationMs / 1000).toFixed(0);
+    stepLog(`STEP ${agent.position}/${totalAgents}: ${agent.name} (${agent.slug}) — COMPLETE`, 'END', {
+      durationSec: Number(durationSec),
+      durationMs,
+      model:  tokens.model,
+      cost:   tokens.cost || null,
+      input:  tokens.input || null,
+      output: tokens.output || null,
+    });
+    console.log(`  ${green('✓')} ${agent.name} marked complete (${durationSec}s)`);
 
-    // Gate prompt for next agent (unless this is the last)
-    if (agent.gatePrompt && agents.indexOf(agent) < agents.length - 1) {
-      console.log();
+    // Gate: show checkpoint message and confirm before launching the next agent
+    if (!pipelineMode) {
+      const nextActive = agents.slice(agents.indexOf(agent) + 1).find(a => a.status !== 'parked');
+      if (nextActive) {
+        const gateMsg = agent.gatePrompt || `Proceed to ${nextActive.name}?`;
+        const proceed = await confirm(`\n  ${bold(gateMsg)}`);
+        if (!proceed) {
+          stepLog(`PIPELINE PAUSED by user after ${agent.name} gate`, 'WARN');
+          console.log(`\n  ${yellow('Paused.')} Run again with --client ${slug} to resume.`);
+          process.exit(0);
+        }
+      }
     }
   }
 
   // Pipeline complete — archive scoping files now that all agents are done
+  logSection('PIPELINE COMPLETE — POST-PROCESSING');
+  stepLog('POST-PIPELINE: archiving scoping files', 'START');
   archiveScopingFiles(slug);
+  stepLog('POST-PIPELINE: scoping files archived', 'END');
 
-  console.log('\n' + bold('═'.repeat(60)));
-  console.log(bold('  PIPELINE COMPLETE'));
-  console.log(bold('═'.repeat(60)));
+  // Check deploy status for the final banner — Mira can complete successfully but
+  // a transient deploy failure should be loudly visible at the end (and exit non-zero
+  // so any caller / CI wrapper sees the failure).
+  const finalState   = readState(slug);
+  const deployFailed = finalState.completed.includes('mira') && finalState.deployStatus && finalState.deployStatus !== 'success';
+
+  stepLog(`PIPELINE END — ${projectJson.displayName} (${slug}) — deployStatus=${finalState.deployStatus || 'n/a'}`, deployFailed ? 'WARN' : 'END');
+  console.log('\n' + (deployFailed ? bold(red('═'.repeat(60))) : bold('═'.repeat(60))));
+  console.log(deployFailed ? bold(red('  PIPELINE COMPLETE — DEPLOY FAILED')) : bold('  PIPELINE COMPLETE'));
+  console.log(deployFailed ? bold(red('═'.repeat(60))) : bold('═'.repeat(60)));
 
   const project = readJson(path.join(projectDir, 'project.json'));
   console.log(`
@@ -793,6 +1266,16 @@ async function runPipeline(slug) {
     Context:   projects/${slug}/company_context.json
     Decisions: projects/${slug}/decisions.json
   `);
+
+  if (deployFailed) {
+    console.log(red(`  ⚠  Mira ran successfully, but Firebase deploy FAILED — client docs are NOT published.`));
+    console.log(red(`     deployError: ${finalState.deployError || '(no captured stderr — see log)'}`));
+    console.log(`  ${bold('Fix and retry:')}`);
+    console.log(`    ${green('node scripts/update-firebase.js ' + slug)}`);
+    console.log(`  ${dim('  …or re-run orchestrate.js --client ' + slug + ' to auto-retry deploy.')}`);
+    console.log(`  ${dim('Log: ' + (_logFile || 'logs/scout-pipeline/' + slug + '.log'))}\n`);
+    process.exit(1);
+  }
 }
 
 // ─── Delta Pipeline (scope amendment) ────────────────────────────────────────
@@ -800,12 +1283,14 @@ async function runPipeline(slug) {
 // Preserves lockedPricing, answered intake questions, and existing proposal flows.
 
 async function runDeltaPipeline(slug, recordingFile) {
+  setLogFile(slug);
   const projectDir = path.join(PROJECTS_DIR, slug);
   const project    = readJson(path.join(projectDir, 'project.json')) || {};
   const amendments = project.amendments || [];
   const amdNum     = String(amendments.length + 1).padStart(3, '0');
   const amdId      = `AMD-${amdNum}`;
 
+  stepLog(`DELTA PIPELINE START — ${project.displayName || slug} — ${amdId}`, 'START');
   console.log('\n' + bold('━'.repeat(60)));
   console.log(bold(`  DSPipeline DELTA — ${project.displayName || slug} — ${amdId}`));
   if (project.lockedPricing) {
@@ -838,7 +1323,9 @@ async function runDeltaPipeline(slug, recordingFile) {
     { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       outputFile: 'run/mira.json',  note: 'Final audit before re-deploy' },
   ];
 
-  for (const agent of deltaAgents) {
+  for (const [di, agent] of deltaAgents.entries()) {
+    const stepLabel = `DELTA STEP ${di + 1}/${deltaAgents.length}: ${agent.name}`;
+    stepLog(`${stepLabel} (${agent.slug}) — STARTED`, 'START');
     const cmd = `claude --agent-file DSPipeline/agents/${agent.slug}.toml`;
     console.log('\n' + bold('─'.repeat(60)));
     console.log(bold(`  DELTA: ${agent.name} — ${agent.role}`));
@@ -852,6 +1339,7 @@ async function runDeltaPipeline(slug, recordingFile) {
     const startMs = Date.now();
     const ans = await prompt('\n  Press Enter when complete (or "quit" to stop): ');
     if (ans.toLowerCase() === 'quit') {
+      stepLog(`${stepLabel} — INTERRUPTED by user`, 'WARN');
       console.log(`\n  ${yellow('Paused.')} Re-run with --client ${slug} --mode delta --recording ${recordingFile}`);
       process.exit(0);
     }
@@ -889,8 +1377,12 @@ async function runDeltaPipeline(slug, recordingFile) {
       }
     }
 
+    stepLog(`DELTA POST-STEP: assembleContext for ${agent.slug}`, 'START');
     assembleContext(slug, agent.slug);
-    markComplete(slug, agent.slug, Date.now() - startMs);
+    stepLog(`DELTA POST-STEP: assembleContext done`, 'END');
+    const deltaDurationMs = Date.now() - startMs;
+    markComplete(slug, agent.slug, deltaDurationMs);
+    stepLog(`DELTA STEP ${di + 1}/${deltaAgents.length}: ${agent.name} (${agent.slug}) — ENDED (${(deltaDurationMs / 1000).toFixed(0)}s)`, 'END');
     console.log(`  ${green('✓')} ${agent.name} delta complete`);
   }
 
@@ -904,6 +1396,7 @@ async function runDeltaPipeline(slug, recordingFile) {
   };
   mergeJson(path.join(projectDir, 'project.json'), { amendments: [...amendments, newAmendment] });
 
+  stepLog(`DELTA PIPELINE END — ${amdId} complete`, 'END');
   console.log('\n' + bold('═'.repeat(60)));
   console.log(bold(`  DELTA COMPLETE — ${amdId}`));
   console.log(bold('═'.repeat(60)));
@@ -993,10 +1486,30 @@ async function checkAcceptance(slug) {
 // ─── Entry Point ─────────────────────────────────────────────────────────────
 
 async function main() {
+  const mode = deltaMode ? 'delta' : checkAcceptanceMode ? 'check-acceptance' : pipelineMode ? 'pipeline' : 'interactive';
+  console.log(dim(`  [orchestrate.js] starting — mode: ${mode}`));
+
   // Delta and acceptance modes require an explicit --client slug
   if ((deltaMode || checkAcceptanceMode) && !clientArg) {
     console.error(red('\n  Error: --mode delta and --check-acceptance require --client <slug>'));
     process.exit(1);
+  }
+
+  // ── Auto-tmux bootstrap ──────────────────────────────────────────────────────
+  // When running --pipeline outside of tmux, re-launch inside a named tmux session
+  // so agents can be spawned in split panes automatically. The user runs one command
+  // and tmux opens with the orchestrator on the left and each agent on the right.
+  if (pipelineMode && clientArg && !process.env.TMUX) {
+    const tmuxSession = `ds-${clientArg}`;
+    const args = process.argv.slice(2).join(' ');
+    const relaunchCmd = `cd '${ROOT}' && node '${__filename}' ${args}`;
+    // Kill any stale session with the same name, then create fresh
+    spawnSync('tmux', ['kill-session', '-t', tmuxSession], { stdio: 'pipe' });
+    spawnSync('tmux', ['new-session', '-d', '-s', tmuxSession, '-x', '220', '-y', '50'], { stdio: 'pipe' });
+    spawnSync('tmux', ['send-keys', '-t', tmuxSession, relaunchCmd, 'Enter'], { stdio: 'pipe' });
+    // Attach — this blocks until the tmux session exits
+    spawnSync('tmux', ['attach-session', '-t', tmuxSession], { stdio: 'inherit' });
+    process.exit(0);
   }
 
   let slug = clientArg;
@@ -1054,7 +1567,10 @@ async function main() {
   }
 
   if (checkAcceptanceMode) {
+    setLogFile(slug);
+    stepLog('CHECK-ACCEPTANCE START', 'START');
     await checkAcceptance(slug);
+    stepLog('CHECK-ACCEPTANCE END', 'END');
     return;
   }
 
