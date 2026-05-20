@@ -2,6 +2,8 @@
 
 Read `docs/PLANNING_CONTEXT.md` at the start of every session before doing anything else.
 
+**HTML pipeline migration in progress (started 2026-05-20):** the HTML generation system is mid-transition from `commons/branding/fill-template.js` (legacy) to Eleventy + DTCG tokens + Nunjucks components (new). **If you are doing any work on HTML templates, design tokens, or the visual regression suite, read `docs/HTML_PIPELINE_MIGRATION.md` first** — it has the canonical status, file map, migration pattern, parity policy, and risk surface. Both pipelines coexist until the CLI shim lands; do not delete legacy files mid-migration.
+
 **DSPipeline agent boundary rule:** Each agent does exactly one thing — reads its designated inputs and writes to its own output file (`{agent}.json`). No agent touches file lifecycle (move, archive, upload, delete), pipeline state, or any other between-agent coordination. All such housekeeping belongs in `DSPipeline/scout/orchestrate.js`. When reviewing or designing an agent, flag any step that is not "read → transform → write own output" as a boundary violation.
 
 **No hardcoding of time-varying config in source files:** Any value that can change independently of code — API pricing, rate limits, model IDs, external identifiers, environment URLs — must live in a config file in the relevant folder (e.g. `DSPipeline/telemetry/model-pricing.json`), not inside a `.js`/`.ts` file. Source code reads the config at runtime. Fallback defaults in code are acceptable as a guard against missing files only.

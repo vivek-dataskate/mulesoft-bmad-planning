@@ -78,6 +78,54 @@ a { color: var(--brand); }
 }
 .bar-tool:hover { color: var(--brand); border-color: var(--brand); background: var(--light); }
 .bar-tool .bt-icon { font-size: 10px; }
+
+/* ── FILTER LINK ── Count-as-link in the sticky bar that toggles
+   "show all" ↔ "show unanswered only". Self-hides when nothing unanswered. */
+.bar-filter {
+  display: inline-block;             /* inline-flex collapses whitespace between children */
+  vertical-align: middle;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-dk);
+  text-decoration: none;
+  background: var(--light);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-left: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.bar-filter:hover { background: #FFE4E4; border-color: var(--brand); color: var(--brand); }
+.bar-filter .bf-count { font-weight: 800; }
+.bar-filter .bf-arrow { margin-left: 4px; opacity: 0.7; }
+.bar-filter.is-hidden { display: none; }
+/* Active state: filter is on. Switch to filled red treatment. The chip's
+   text content is rewritten by refreshFilterChip() — no ::before/::after
+   trickery needed; CSS just handles colors. */
+body.filter-unanswered .bar-filter {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+body.filter-unanswered .bar-filter:hover { background: var(--brand-dk); border-color: var(--brand-dk); }
+
+/* ── FILTER FILTER MODE ── hide answered Qs + empty UCs + empty sections */
+body.filter-unanswered .q:not(.is-unanswered)                          { display: none; }
+body.filter-unanswered details.uc:not(:has(.is-unanswered))            { display: none; }
+body.filter-unanswered details.section-block:not(:has(.is-unanswered)) { display: none; }
+/* Empty cat-anchor blocks following a hidden section get hidden too via
+   their lack of following visible siblings — no rule needed, they're just
+   invisible 0-height anchors. */
+/* Hide tables/grids inside section bodies — they don't carry .is-unanswered
+   so the filter would leave them visibly orphaned when their parent UC has
+   one or more unanswered Q blocks. We still WANT them visible in that case
+   so the user has full context for filling in the blank. */
+body.filter-unanswered details.uc.has-unanswered .scope-grid,
+body.filter-unanswered details.uc.has-unanswered .uc-note,
+body.filter-unanswered details.uc.has-unanswered .p0-block { display: block; }
 .progress-pill { font-size: 12px; font-weight: 600; color: var(--mid); }
 .progress-pill span { color: var(--brand); font-weight: 800; }
 .bar-actions { display: flex; gap: 8px; flex-shrink: 0; }
@@ -457,6 +505,42 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 .status-pending { background: #FEF3C7; color: #92400E; }
 .status-blocked { background: #FEE2E2; color: #991B1B; }
 
+/* ── ROW-STATUS DOT ── Auto-computed traffic-light marker for any table row
+   whose cells contain fillable inputs. Replaces the static "Pending" badge
+   with a colored circle that updates live as the user types:
+     red    (default)     → 0 fields filled
+     amber  (.is-partial) → some fields filled
+     green  (.is-complete)→ all fields filled
+   Injected by injectRowStatusDots() on init; refreshed by refreshRowStatusDots()
+   on every input event. Hides the static .status-badge text in the same cell. */
+.row-status-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand);                         /* red = nothing filled yet */
+  vertical-align: middle;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.7), 0 1px 2px rgba(0,0,0,0.15);
+  cursor: help;
+  transition: background 0.2s;
+}
+.row-status-dot.is-partial  { background: var(--amber); }
+.row-status-dot.is-complete { background: var(--green); }
+/* When a dot exists in the same cell as a static status-badge, hide the badge —
+   the dot is the source of truth visually. */
+td:has(.row-status-dot) .status-badge { display: none; }
+/* Print — degrade to neutral text labels so the PDF still communicates state */
+@media print {
+  .row-status-dot { box-shadow: none; }
+  .row-status-dot::after {
+    content: 'not started';
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    color: var(--brand); margin-left: 16px;
+  }
+  .row-status-dot.is-partial::after  { content: 'in progress'; color: #92400E; }
+  .row-status-dot.is-complete::after { content: 'complete';    color: #065F46; }
+}
+
 /* ── RIGHT RAIL ─────────────────────────────────────────────────────────── */
 .rail-card {
   border: 1px solid var(--border);
@@ -575,14 +659,37 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 .rail-links a::after { content: '↗'; font-size: 10px; opacity: 0.6; }
 
 /* ── FOOTER ── */
-.footer { border-top: 1px solid var(--border); padding: 16px 32px; font-size: 12px; color: var(--mid); display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+/* Footer spans the full wrap width via grid-column: 1/-1 so the right rail
+   doesn't leave a tall white gap beside it on long pages. */
+.footer { grid-column: 1 / -1; border-top: 1px solid var(--border); padding: 16px 32px; font-size: 12px; color: var(--mid); display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
 .footer strong { color: var(--dark); }
 .footer a { color: var(--mid); text-decoration: none; }
 
-/* ── PRINT — collapse rail, expand everything ── */
+/* ── PRINT — collapse rail, expand everything, paginate cleanly ── */
+/* @page margins control the gap between page edge and content. 13mm ≈ 3 lines
+   at print font-size, applied symmetrically top + bottom so every page has the
+   same breathing room (header gap = footer gap). 16mm sides keep the printer's
+   built-in URL/page-number chrome from crowding the form text. */
+@page {
+  margin: 13mm 16mm;
+}
 @media print {
   .sticky-bar, .no-print, .rail-col, .cat-tabs { display: none !important; }
-  .wrap { display: block; padding: 0 32px; }
+  /* Belt + suspenders: if JS didn't clear the unanswered-filter, the printed
+     PDF must STILL contain the whole form. Forcibly show what filter hid. */
+  body.filter-unanswered .q,
+  body.filter-unanswered details.uc,
+  body.filter-unanswered details.section-block { display: block !important; }
+  .wrap { display: block; padding: 0; }
+  /* Question blocks should never split across a page boundary mid-answer */
+  .q { break-inside: avoid; page-break-inside: avoid; }
+  details.uc { break-inside: auto; page-break-inside: auto; }
+  /* Encourage each top-level section to start cleanly. Browsers will still
+     pack tightly when content fits; this only kicks in at natural breaks. */
+  details.section-block { break-before: auto; }
+  details.section-block > summary.section-head { break-after: avoid; }
+  /* Give sections + UCs a touch of top spacing on print for visual rhythm */
+  details.section-block + details.section-block { margin-top: 12px; }
   body { background: #fff; font-size: 11px; }
   textarea.answer, .tbl-ans { background: #fff !important; border: 1px solid #ccc !important; }
   .bc-blockers { display: none !important; }
@@ -629,6 +736,11 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
     <button type="button" class="bar-tool" onclick="toggleAllSections(false)" title="Collapse every section + use case">
       <span class="bt-icon">▲</span> Collapse all
     </button>
+    <a href="#" class="bar-filter is-hidden" id="filter-link" role="button"
+       onclick="toggleUnansweredFilter(event)"
+       title="Hide answered questions so only the blanks remain">
+      <span class="bf-count">0</span><span class="bf-label"> unanswered</span><span class="bf-arrow"> ›</span>
+    </a>
   </div>
   <div class="progress-pill">Questions answered: <span id="answered-count">0</span> / <span id="total-count">0</span></div>
   <div class="bar-actions">
@@ -951,12 +1063,14 @@ Add or remove criteria:</textarea></div></div><div class='q'><div class='q-num'>
 
 </aside>
 
-</div><!-- /.wrap -->
-
+<!-- Footer lives INSIDE .wrap and spans both columns (grid-column: 1/-1)
+     so the right rail doesn't leave a tall empty band beside it. -->
 <div class="footer no-print">
   <span>Kailash Chanda · kailash@dataskate.ai · DataSkate</span>
   <strong>Confidential</strong>
 </div>
+
+</div><!-- /.wrap -->
 
 <script>
 // ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
@@ -994,11 +1108,123 @@ function toggleBC() {
 // directly on what still needs their input — otherwise they're stuck staring
 // at the top of an enormous expanded form.
 function toggleAllSections(open) {
+  if (open && document.body.classList.contains('filter-unanswered')) {
+    // Filter is on — only expand UCs/sections that have an unanswered Q;
+    // expanding the hidden (fully-answered) ones would un-collapse blocks
+    // the filter then hides, which feels wrong.
+    document.querySelectorAll(
+      'details.section-block:has(.is-unanswered), details.uc:has(.is-unanswered)'
+    ).forEach(d => d.setAttribute('open', ''));
+    jumpToFirstUnanswered();
+    return;
+  }
   document.querySelectorAll('details.section-block, details.uc').forEach(d => {
     if (open) d.setAttribute('open', '');
     else      d.removeAttribute('open');
   });
   if (open) jumpToFirstUnanswered();
+}
+
+// ── UNANSWERED-ONLY FILTER ──────────────────────────────────────────────
+// Two states on body: default (show all) ↔ `.filter-unanswered` (hide answered
+// Qs + empty UCs + empty sections via :has() CSS). The chip in the sticky bar
+// is both the count display and the toggle affordance.
+function toggleUnansweredFilter(e) {
+  if (e) e.preventDefault();
+  const body = document.body;
+  const turningOn = !body.classList.contains('filter-unanswered');
+  body.classList.toggle('filter-unanswered', turningOn);
+
+  if (turningOn) {
+    // Auto-open the UCs and sections that have unanswered Qs so the user
+    // sees the actual blanks right away (not collapsed headers).
+    document.querySelectorAll('details.section-block:has(.is-unanswered)').forEach(s => s.setAttribute('open', ''));
+    document.querySelectorAll('details.uc:has(.is-unanswered)').forEach(u => u.setAttribute('open', ''));
+    requestAnimationFrame(() => jumpToFirstUnanswered());
+  }
+  refreshFilterChip();
+  refreshCatTabLabels();
+}
+
+// Update the chip's count, label, and visibility (self-hide when 0 unanswered).
+// Default state: "26 unanswered ›". Active state: "Showing 26 · clear ✕".
+// Counts EVERY empty answer field (textareas + table inputs), so the number
+// matches `total - answered` from the progress pill. Earlier this only counted
+// .q.is-unanswered blocks and missed empty inputs inside tables (~16 in homage).
+function refreshFilterChip() {
+  const link = document.getElementById('filter-link');
+  if (!link) return;
+  const all   = document.querySelectorAll('textarea.answer, input.tbl-ans');
+  const count = Array.from(all).filter(t => (t.value || '').trim().length === 0).length;
+  link.classList.toggle('is-hidden', count === 0);
+  const filterOn = document.body.classList.contains('filter-unanswered');
+  link.innerHTML = filterOn
+    ? `Showing <span class="bf-count">${count}</span> · clear ✕`
+    : `<span class="bf-count">${count}</span> unanswered ›`;
+}
+
+// Inject a .row-status-dot into every table row that has both a status-badge
+// AND at least one fillable input. Runs once on init; refreshRowStatusDots()
+// updates the color on every input event.
+function injectRowStatusDots() {
+  document.querySelectorAll('table tr').forEach(tr => {
+    const badge = tr.querySelector('.status-badge');
+    if (!badge) return;
+    const inputs = tr.querySelectorAll('input.tbl-ans, textarea.answer');
+    if (inputs.length === 0) return;
+    const cell = badge.closest('td');
+    if (!cell || cell.querySelector('.row-status-dot')) return;
+    const dot = document.createElement('span');
+    dot.className = 'row-status-dot';
+    dot.setAttribute('aria-label', 'row completion status');
+    dot.title = '0 of ' + inputs.length + ' filled';
+    cell.insertBefore(dot, badge);
+  });
+}
+
+// Refresh the color + tooltip of every injected dot based on the current
+// fill state of its row's inputs. Called from updateProgress() so it stays
+// live as the user types.
+function refreshRowStatusDots() {
+  document.querySelectorAll('.row-status-dot').forEach(dot => {
+    const tr = dot.closest('tr');
+    if (!tr) return;
+    const inputs = tr.querySelectorAll('input.tbl-ans, textarea.answer');
+    const filled = Array.from(inputs).filter(t => (t.value || '').trim().length > 0).length;
+    const total  = inputs.length;
+    dot.classList.toggle('is-complete', total > 0 && filled === total);
+    dot.classList.toggle('is-partial',  filled > 0 && filled < total);
+    dot.title = filled + ' of ' + total + ' filled';
+  });
+}
+
+// When filter is on, replace each cat-tab's metadata line with an unanswered
+// count for that bucket. When filter is off, restore the original "N sections
+// · {blurb}" text (cached on the element the first time we read it).
+function refreshCatTabLabels() {
+  const filterOn = document.body.classList.contains('filter-unanswered');
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    const meta = tab.querySelector('.ct-meta');
+    if (!meta) return;
+    if (!meta.dataset.original) meta.dataset.original = meta.textContent;
+    if (filterOn) {
+      const cat = tab.dataset.cat;
+      // Count every empty answer field in this bucket (including table cells),
+      // not just .q.is-unanswered — matches the global chip/progress arithmetic.
+      const fields = document.querySelectorAll(
+        `details.section-block[data-cat="${cat}"] textarea.answer, ` +
+        `details.section-block[data-cat="${cat}"] input.tbl-ans`
+      );
+      const n = Array.from(fields).filter(t => (t.value || '').trim().length === 0).length;
+      meta.textContent = n === 0
+        ? 'all answered ✓'
+        : `${n} unanswered`;
+      tab.classList.toggle('is-empty-in-filter', n === 0);
+    } else {
+      meta.textContent = meta.dataset.original;
+      tab.classList.remove('is-empty-in-filter');
+    }
+  });
 }
 
 // Find + scroll to the first empty answer field. Pass a scope element to
@@ -1023,34 +1249,50 @@ function jumpToFirstUnanswered(scope) {
   return false;
 }
 
-// Print/Save-PDF — force-open every <details> + the biz-context panel so the
-// PDF contains the full questionnaire regardless of the current screen state,
-// then restore the user's prior open/closed state once the print dialog closes.
-// `display:block` in @media print can't override the UA <details> hiding —
-// the `open` attribute has to be present for the body to render.
+// Print/Save-PDF — force-open every <details>, expand the biz-context, and
+// clear the unanswered-only filter so the PDF contains the FULL questionnaire
+// regardless of the current screen state. Then restore the user's prior state
+// once the print dialog closes.
+//
+// Two subtleties:
+//   1. `display:block` in @media print can't override the UA <details>
+//      hiding — the `[open]` attribute has to be present for the body to
+//      render.
+//   2. window.print() runs synchronously and captures the layout AT THAT
+//      MOMENT. If we set [open] then immediately call print, Chrome captures
+//      the still-collapsed state. We defer the print call until after a
+//      double-rAF so the layout has time to repaint.
 function printAllExpanded() {
-  const details = Array.from(document.querySelectorAll('details.section-block, details.uc'));
-  const wasOpen = new Set();
+  // 1. Snapshot current state
+  const details      = Array.from(document.querySelectorAll('details.section-block, details.uc'));
+  const wasOpen      = new Set();
+  const bc           = document.getElementById('biz-context');
+  const bcWasOpen    = bc ? bc.classList.contains('is-open') : false;
+  const filterWasOn  = document.body.classList.contains('filter-unanswered');
+
+  // 2. Force every collapsible into its expanded state
   details.forEach(d => {
     if (d.hasAttribute('open')) wasOpen.add(d);
     else d.setAttribute('open', '');
   });
-  const bc        = document.getElementById('biz-context');
-  const bcWasOpen = bc ? bc.classList.contains('is-open') : false;
   if (bc) bc.classList.add('is-open');
+  if (filterWasOn) document.body.classList.remove('filter-unanswered');
 
+  // 3. Restore once the print dialog closes
   function restore() {
     details.forEach(d => { if (!wasOpen.has(d)) d.removeAttribute('open'); });
     if (bc && !bcWasOpen) bc.classList.remove('is-open');
+    if (filterWasOn)      document.body.classList.add('filter-unanswered');
     window.removeEventListener('afterprint', restore);
   }
   window.addEventListener('afterprint', restore);
-  // Safari fires afterprint inconsistently; double-rAF restore as a fallback.
+
+  // 4. Defer window.print() until the layout has actually repainted with the
+  //    new [open] attributes — Chrome's print preview snapshots the layout
+  //    at the time of the call, not after pending paints.
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    // No-op here; afterprint is the primary signal. This rAF only ensures
-    // the layout settles before the print dialog opens.
+    window.print();
   }));
-  window.print();
 }
 
 // Needs-Attention click → jump to the relevant place.
@@ -1172,6 +1414,11 @@ function updateProgress() {
     const isEmpty = field && (field.value || '').trim().length === 0;
     q.classList.toggle('is-unanswered', !!isEmpty);
   });
+
+  // Keep the sticky-bar filter chip count + cat-tab subtitles + row-status dots in sync.
+  refreshFilterChip();
+  refreshRowStatusDots();
+  if (document.body.classList.contains('filter-unanswered')) refreshCatTabLabels();
 
   rebuildAttention();
 }
@@ -1365,22 +1612,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Rail-nav link click — open the section AND land on the first unanswered
-  // required question inside it. If everything's answered, scrolls to the
-  // section header instead. Default anchor behavior is preserved so the URL
-  // still updates and the page can be linked to a section.
+  // question inside it. If the section is fully answered AND the unanswered-only
+  // filter is on, the section would otherwise be hidden — auto-clear the filter
+  // so the user can still navigate to it.
   document.querySelectorAll('.rail-nav a[data-section]').forEach(a => {
     a.addEventListener('click', e => {
       const sec = document.getElementById(a.dataset.section);
       if (!sec) return;
+      const hasUnanswered = !!sec.querySelector('.q.is-unanswered');
+      if (!hasUnanswered && document.body.classList.contains('filter-unanswered')) {
+        // Auto-clear the filter so the fully-answered section becomes visible
+        toggleUnansweredFilter();
+      }
       sec.setAttribute('open', '');
-      // Defer one frame so the section has expanded before we measure scroll
       requestAnimationFrame(() => {
         if (!jumpToFirstUnanswered(sec)) {
-          // Already complete — keep the default anchor scroll, just ensure it lands cleanly
           sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
-      // Override the default anchor jump to avoid double-scroll
       e.preventDefault();
     });
   });
@@ -1456,7 +1705,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   wireAttentionClicks();
-  updateProgress();
+  injectRowStatusDots();  // adds the dot element to every fillable table row
+  updateProgress();       // first paint of progress, dot colors, filter chip, etc.
+  refreshFilterChip();    // ensure the sticky-bar count chip is correct on first paint
 
   // Soft-lock banner — if this browser has submitted before, surface the
   // version + "edits create v(N+1)" note so the user knows what's saved.
@@ -1468,4 +1719,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-<!-- DS-GENERATED: template=intake body-hash=be7a6c95adbccd03 inputs-hash=9dfdf319355af5cf -->
+<!-- DS-GENERATED: template=intake body-hash=ded3a31b471e95c4 inputs-hash=36fbaf27243ee00f -->
