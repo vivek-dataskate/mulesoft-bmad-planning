@@ -53,5 +53,11 @@ firebase/.firebase/
 _bulkinbox/
 _inbox/
 
+# Per-project ingestion source materials — raw transcripts, PDFs, recordings.
+# Confidential client content + often very large (recordings can exceed GitHub's
+# 100MB blob limit). Stays on disk for Sage to process; never source-controlled.
+projects/*/scoping/
+projects/*/_inbox/
+
 # Claude Code memory backup — runtime artifact, not source-controlled
 .claude-memory-backup/

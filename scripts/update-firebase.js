@@ -151,6 +151,7 @@ async function uploadHtmlToStorage(slug) {
   // [localFilename, storageDest, projectJsonKey, firebase/public/ subdir, useHostingUrl]
   // useHostingUrl=true → serve from Firebase Hosting (no Storage auth wall)
   const pairs = [
+    [`corporate-brief-${slug}.html`,      `client-docs/${slug}/corporate-brief.html`, 'briefUrl',    'brief',    true],
     [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,  'intakeUrl',   'intake',   true],
     [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`, 'proposalUrl', 'proposal', true],
     [`integration-deck-${slug}.html`,      `internal/${slug}/pitch-kit.html`,   'pitchKitUrl', 'internal', true],
@@ -281,6 +282,7 @@ function rebuildManifest() {
       const prev = existingMap[slug] || {};
 
       // project.json is authoritative for these fields; fall back to existing manifest
+      const briefUrl    = proj.briefUrl    || prev.briefUrl    || null;
       const intakeUrl   = proj.intakeUrl   || prev.intakeUrl   || null;
       const proposalUrl = proj.proposalUrl || prev.proposalUrl || null;
       const pitchKitUrl = proj.pitchKitUrl || prev.pitchKitUrl || null;
@@ -295,6 +297,7 @@ function rebuildManifest() {
         architectEmail: proj.architectEmail || null,
         createdAt:      proj.createdAt      || null,
       };
+      if (briefUrl)    entry.briefUrl    = briefUrl;
       if (intakeUrl)   entry.intakeUrl   = intakeUrl;
       if (proposalUrl) entry.proposalUrl = proposalUrl;
       if (pitchKitUrl) entry.pitchKitUrl = pitchKitUrl;
