@@ -28,9 +28,16 @@ const BUCKET   = 'dataskateclients.firebasestorage.app';
 const PORTAL   = 'https://dataskateclients.web.app';
 const FB_PROJ  = 'dataskateclients';
 
-// Service account: file in repo root (restored by devcontainer) or env var path
-const SA_PATH  = process.env.GOOGLE_APPLICATION_CREDENTIALS ||
-  path.join(ROOT, 'dataskateclients-firebase-adminsdk-fbsvc-6d3f67e197.json');
+// Service account: prefer the repo's Firebase Admin SDK key (canonical deploy SA,
+// restored by .devcontainer/setup.sh from FIREBASE_SA_KEY) over GOOGLE_APPLICATION_CREDENTIALS.
+// Reason: external tooling sometimes sets GOOGLE_APPLICATION_CREDENTIALS to /tmp/sa-key.json
+// (the default Compute SA), which lacks Firebase permissions and fails the deploy with 403s
+// on firebasestorage.defaultBucket.get etc. The repo SA is the one provisioned for this
+// project and has the right roles. Fall back to env only if the repo file is missing.
+const REPO_SA_PATH = path.join(ROOT, 'dataskateclients-firebase-adminsdk-fbsvc-6d3f67e197.json');
+const SA_PATH      = fs.existsSync(REPO_SA_PATH)
+  ? REPO_SA_PATH
+  : process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
 function log(msg) {
   const ts = new Date().toISOString().substring(11, 19);
@@ -187,6 +194,29 @@ async function uploadHtmlToStorage(slug) {
 }
 
 
+// ── 1c. Generate + sync system diagram SVG → firebase/public/diagrams/ ─────────
+function syncDiagram(slug) {
+  const projPath = path.join(ROOT, 'projects', slug, 'project.json');
+  if (!fs.existsSync(projPath)) return;
+  const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
+  if (!proj.systemDiagram || !proj.systemDiagram.current) return;
+
+  try {
+    execSync(`node ${path.join(ROOT, 'scripts', 'generate-diagrams.js')} ${slug}`, { cwd: ROOT, stdio: 'pipe' });
+  } catch (e) {
+    log(`[${slug}] diagram generation failed: ${e.message}`);
+    return;
+  }
+
+  const svgSrc = path.join(ROOT, 'projects', slug, 'intake', 'system-diagram.svg');
+  if (!fs.existsSync(svgSrc)) return;
+
+  const diagramsDir = path.join(PUBLIC, 'diagrams');
+  fs.mkdirSync(diagramsDir, { recursive: true });
+  fs.copyFileSync(svgSrc, path.join(diagramsDir, `${slug}.svg`));
+  log(`[${slug}] diagram synced → firebase/public/diagrams/${slug}.svg`);
+}
+
 // ── 3. Seed pitchKits/{slug} in Firestore (Admin SDK — rules say write:false) ──
 async function seedPitchKit(slug) {
   const contentPath = path.join(ROOT, 'projects', slug, 'intake', `integration-deck-content.json`);
@@ -197,21 +227,31 @@ async function seedPitchKit(slug) {
   const contentJson = fs.readFileSync(contentPath, 'utf8');
   if (!admin.apps.length) getBucket(); // ensures admin is initialised
   const db = admin.firestore();
+
+  const svgPublic = path.join(PUBLIC, 'diagrams', `${slug}.svg`);
+  const systemDiagramUrl = fs.existsSync(svgPublic) ? `${PORTAL}/diagrams/${slug}.svg` : null;
+
   await db.collection('pitchKits').doc(slug).set({
     client:      slug,
     contentJson,
+    ...(systemDiagramUrl ? { systemDiagramUrl } : {}),
     updatedAt:   new Date().toISOString(),
   }, { merge: true });
-  log(`[${slug}] pitchKits/${slug} seeded in Firestore`);
+  log(`[${slug}] pitchKits/${slug} seeded in Firestore${systemDiagramUrl ? ' (with diagram URL)' : ''}`);
 }
 
 // ── Commit all generated HTML in firebase/public/ to git ─────────────────────
+// Uses -c commit.gpgsign=false so this automated chore commit never depends on the
+// user's GPG/SSH signing agent being authenticated. Without this, a stale signing
+// agent (404 from the signing service) made the commit fail silently here while the
+// pipeline still moved on, leaving generated HTML staged but never committed and never
+// deployed. The chore commit doesn't need to be signed; signing belongs on human commits.
 function gitCommitHtml() {
   try {
     execSync('git add firebase/public/', { cwd: ROOT, stdio: 'pipe' });
     const status = execSync('git status --porcelain firebase/public/', { cwd: ROOT }).toString().trim();
     if (!status) { log('git: no HTML changes to commit'); return; }
-    execSync('git commit -m "chore: sync generated HTML to firebase/public"', { cwd: ROOT, stdio: 'inherit' });
+    execSync('git -c commit.gpgsign=false commit -m "chore: sync generated HTML to firebase/public"', { cwd: ROOT, stdio: 'inherit' });
     log('HTML files committed to git');
   } catch (e) {
     log(`git commit skipped: ${e.message}`);
@@ -270,10 +310,12 @@ function rebuildManifest() {
 }
 
 // ── 4. Regenerate client portal pages ────────────────────────────────────────
-function rebuildPortals() {
-  const result = spawnSync('node', [path.join(ROOT, 'scaffold', 'generate-client-portal.js')], {
-    cwd: ROOT, stdio: 'inherit',
-  });
+// slugs: empty array → regenerate every project (used by --all);
+//        non-empty   → regenerate only those clients (so a single-client sync
+//        doesn't rewrite portals for every project that has a project.json).
+function rebuildPortals(slugs) {
+  const args = [path.join(ROOT, 'scaffold', 'generate-client-portal.js'), ...(slugs || [])];
+  const result = spawnSync('node', args, { cwd: ROOT, stdio: 'inherit' });
   if (result.status !== 0) log('WARNING: portal generation exited with errors');
 }
 
@@ -284,10 +326,11 @@ function deploy() {
   // Always use the service account key — never the expired FIREBASE_TOKEN
   if (fs.existsSync(SA_PATH)) env.GOOGLE_APPLICATION_CREDENTIALS = SA_PATH;
   delete env.FIREBASE_TOKEN;
-  // Use local node_modules/.bin/firebase (reliable) instead of npx firebase-tools (flaky with token env)
-  const firebaseBin = path.join(ROOT, 'node_modules', '.bin', 'firebase');
+  // Prefer local node_modules/.bin/firebase; fall back to npx
+  const localBin = path.join(ROOT, 'node_modules', '.bin', 'firebase');
+  const firebaseBin = fs.existsSync(localBin) ? `"${localBin}"` : 'npx firebase';
   execSync(
-    `"${firebaseBin}" deploy --only hosting,storage --project ${FB_PROJ} --force`,
+    `${firebaseBin} deploy --only hosting,storage --project ${FB_PROJ} --force`,
     { cwd: path.join(ROOT, 'firebase'), stdio: 'inherit', env }
   );
   log(`Live: ${PORTAL}`);
@@ -322,12 +365,14 @@ async function main() {
     log(`Processing: ${s}`);
     try { await archiveScoping(s); } catch (e) { log(`  scoping archive skipped: ${e.message}`); }
     try { syncLogo(s); } catch (e) { log(`  logo sync skipped: ${e.message}`); }
+    try { syncDiagram(s); } catch (e) { log(`  diagram sync skipped: ${e.message}`); }
     try { await uploadHtmlToStorage(s); } catch (e) { log(`  html upload skipped: ${e.message}`); }
     try { await seedPitchKit(s); } catch (e) { log(`  pitchKit seed skipped: ${e.message}`); }
   }
 
   rebuildManifest();
-  rebuildPortals();
+  // --all → empty list (regenerate all portals); single client → just that slug.
+  rebuildPortals(runAll ? [] : [slug]);
   gitCommitHtml();
 
   if (!noDeploy) {
