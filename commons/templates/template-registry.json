@@ -40,6 +40,23 @@
       "notes": "Pricing computed from commons/sales/pricing-model.md. Never hardcode rates."
     },
     {
+      "id": "corporate-brief",
+      "name": "Corporate Brief",
+      "audience": "external",
+      "loginRequired": false,
+      "category": "discovery",
+      "purpose": "1-page pre-call research summary sent to the buyer 48h before the deep-dive call. Renders the corporate stack (operating brand + operating platform + financial sponsor), sibling brands with integration signals, forward-looking talking points, and intel the buyer may not have. Establishes the 'we did our homework' credibility frame everything downstream rides on.",
+      "templateFile": "commons/templates/corporate-brief-template.html",
+      "cssFile": "commons/templates/shared-base.css.html",
+      "contentFile": "projects/{client}/intake/corporate-brief-content.json",
+      "outputPath": "projects/{client}/intake/corporate-brief-{client}.html",
+      "firebasePath": "client-docs/{client}/corporate-brief.html",
+      "generatedBy": "scout",
+      "fillCommand": "node commons/branding/fill-template.js --template corporate-brief --client {client}",
+      "perClient": true,
+      "notes": "Sourced from company_context.json.corporateStack (Scout grounded inference + Vera Step 2b–2d enrichment). Tile lives in top row of the client portal; appears before Scoping/Intake/Proposal so the buyer's first impression is research depth, not a form."
+    },
+    {
       "id": "integration-deck",
       "name": "Integration Deck",
       "audience": "external",

@@ -736,6 +736,94 @@ function writeClientRegistry(slug) {
   logFileInfo(registryPath, 'client-registry.json (after write)');
 }
 
+// ─── Corporate Brief (post-Vera) ─────────────────────────────────────────────
+// Composes projects/{slug}/intake/corporate-brief-content.json from the data
+// Scout's grounded inference already wrote into company_context.json, then
+// renders the HTML via fill-template.js. Runs alongside writeClientRegistry()
+// in the post-Vera hook so the brief is ready as soon as research completes —
+// long before Petra/Quinn finish their work, which means the architect can
+// email the brief 48h pre-call without waiting on the full deliverable set.
+//
+// Source-of-truth chain (so the brief never drifts):
+//   company_context.json.corporateStack  → operating / platform / sponsor
+//   company_context.json.forwardLookingTalkingPoints[]  (Vera 2c)
+//   company_context.json.intelTheBuyerLacks[]           (Vera 2d)
+//   project.json                         → architect, displayName, date
+function renderCorporateBrief(slug) {
+  const projectDir   = path.join(PROJECTS_DIR, slug);
+  const project      = readJson(path.join(projectDir, 'project.json')) || {};
+  const ctx          = readJson(path.join(projectDir, 'company_context.json')) || {};
+  const stack        = ctx.corporateStack || {};
+
+  // Bail if Scout's inference produced nothing — no point rendering an empty brief.
+  if (!stack.operatingBrand || !stack.operatingBrand.name) {
+    stepLog('renderCorporateBrief: no corporateStack.operatingBrand — skipping brief', 'WARN');
+    return null;
+  }
+
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  // Auto-build citation chips from the entities we cite — these are the URLs
+  // the architect wants surfaced as "sources" in the brief footer.
+  const citations = [];
+  const addCite = (label, url) => { if (url && !citations.find(c => c.url === url)) citations.push({ label, url }); };
+  addCite(`${stack.operatingBrand.name} website`,    stack.operatingBrand.website);
+  addCite(`${stack.operatingBrand.name} LinkedIn`,   stack.operatingBrand.linkedIn);
+  if (stack.operatingPlatform) {
+    addCite(`${stack.operatingPlatform.name} website`,  stack.operatingPlatform.website);
+    addCite(`${stack.operatingPlatform.name} LinkedIn`, stack.operatingPlatform.linkedIn);
+  }
+  if (stack.financialSponsor) {
+    addCite(`${stack.financialSponsor.name} website`,  stack.financialSponsor.website);
+    addCite(`${stack.financialSponsor.name} LinkedIn`, stack.financialSponsor.linkedIn);
+  }
+  // Promote any per-sibling sourceUrl into the citation list too.
+  (stack.operatingPlatform?.siblingBrands || []).forEach(s => {
+    if (typeof s === 'object' && s.sourceUrl) addCite(`${s.name} — source`, s.sourceUrl);
+  });
+
+  // Inherit fields Vera enriches if present; otherwise leave the brief lean and
+  // let the template render a "no signals yet" placeholder.
+  const content = {
+    meta: {
+      clientName:     project.displayName || stack.operatingBrand.name,
+      clientSlug:     slug,
+      date:           today,
+      architect:      project.architect      || 'DataSkate Team',
+      architectEmail: project.architectEmail || 'kailash@dataskate.ai',
+      subtitle:       'What we noticed before the deep-dive call',
+    },
+    intro: null, // template substitutes default copy when null
+    operatingBrand:    stack.operatingBrand    || null,
+    operatingPlatform: stack.operatingPlatform || null,
+    financialSponsor:  stack.financialSponsor  || null,
+    forwardLookingTalkingPoints: ctx.forwardLookingTalkingPoints || [],
+    intelTheBuyerLacks:          ctx.intelTheBuyerLacks          || [],
+    citations,
+    closing: null, // template substitutes default sign-off when null
+  };
+
+  const contentPath = path.join(projectDir, 'intake', 'corporate-brief-content.json');
+  fs.mkdirSync(path.dirname(contentPath), { recursive: true });
+  writeJson(contentPath, content);
+  logFileInfo(contentPath, 'corporate-brief-content.json');
+
+  // Render HTML via the same fill-template pipeline used for proposal/intake/deck.
+  const result = spawnSync(
+    process.execPath,
+    [path.join(ROOT, 'commons', 'branding', 'fill-template.js'), '--template', 'corporate-brief', '--client', slug],
+    { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' }
+  );
+  if (result.status !== 0) {
+    stepLog(`renderCorporateBrief: fill-template.js exited ${result.status} — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
+    return null;
+  }
+
+  const outPath = path.join(projectDir, 'intake', `corporate-brief-${slug}.html`);
+  logFileInfo(outPath, `corporate-brief-${slug}.html`);
+  return outPath;
+}
+
 // ─── Firebase Deploy (post-Mira) ─────────────────────────────────────────────
 // Runs after Mira has audited all client-facing documents.
 // Delegates entirely to update-firebase.js — the single canonical sync script —
@@ -1130,6 +1218,25 @@ async function runPipeline(slug) {
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} standards/client-registry.json — initial entry written (status: scoping)`);
       stepLog('POST-VERA: client-registry written', 'END');
+
+      // Generate the pre-call corporate brief immediately so the architect can
+      // email it 48h before the deep-dive without waiting on the full Petra /
+      // Quinn deliverable set. Skips silently if Vera couldn't surface a
+      // corporate stack (independent / family-owned clients).
+      stepLog('POST-VERA: rendering corporate-brief', 'START');
+      try {
+        const briefHtml = renderCorporateBrief(slug);
+        if (briefHtml) {
+          console.log(`  ${green('✓')} projects/${slug}/intake/corporate-brief-${slug}.html — generated`);
+        } else {
+          console.log(`  ${dim('↳ corporate brief skipped — no corporate stack in company_context.json')}`);
+        }
+        stepLog('POST-VERA: corporate-brief done', 'END');
+      } catch (e) {
+        stepLog(`POST-VERA: corporate-brief FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  Corporate brief render failed — re-run manually: node commons/branding/fill-template.js --template corporate-brief --client ${slug}`);
+      }
+
       stepLog('POST-VERA: running promote-library.js', 'START');
       try {
         require('child_process').execSync(`node DSPipeline/promote-library.js --client ${slug}`, { cwd: ROOT, stdio: 'inherit' });
