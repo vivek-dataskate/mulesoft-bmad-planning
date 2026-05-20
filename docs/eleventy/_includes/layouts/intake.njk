@@ -565,8 +565,11 @@ td:has(.row-status-dot) .status-badge { display: none; }
 }
 .progress-fill {
   height: 100%; background: var(--brand);
-  width: 0%; transition: width 0.25s ease;
+  width: 0%; transition: width 0.25s ease, background 0.4s ease;
 }
+.progress-fill.is-complete { background: var(--green); }
+.rail-progress.is-complete { border-left-color: var(--green); }
+.rail-progress.is-complete .progress-num { color: var(--green); }
 
 /* Subsection jump-nav */
 .rail-nav { font-size: 12px; }
@@ -1141,7 +1144,8 @@ function updateProgress() {
   const ra = document.getElementById('rail-answered'); if (ra) ra.textContent = ans;
   const rt = document.getElementById('rail-total');    if (rt) rt.textContent = total;
   const rp = document.getElementById('rail-pct');      if (rp) rp.textContent = pct;
-  const pf = document.getElementById('progress-fill'); if (pf) pf.style.width = pct + '%';
+  const pf = document.getElementById('progress-fill'); if (pf) { pf.style.width = pct + '%'; pf.classList.toggle('is-complete', pct === 100); }
+  const rpc = document.querySelector('.rail-progress'); if (rpc) rpc.classList.toggle('is-complete', pct === 100);
 
   // Per-section counts (and per-rail-nav-link counts)
   document.querySelectorAll('details.section-block').forEach(sec => {

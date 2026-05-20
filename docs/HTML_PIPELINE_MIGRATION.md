@@ -61,6 +61,38 @@ new pipeline makes drift structurally impossible:
 
 ---
 
+## Intake UX improvements — in progress (session 4 handoff, 2026-05-20)
+
+All 7 templates are ported and committed. The next body of work is 13 UX/visual improvements to the intake questionnaire. These go **only into `docs/eleventy/_includes/layouts/intake.njk`** — the frozen `commons/templates/intake-template.html` is never touched.
+
+**Uncommitted right now:** `intake.njk` has improvement #1 applied but not yet committed. `commons/branding/generated/tokens.js` has a minor regen change.
+
+### Improvement checklist
+
+| # | Description | Status | Where in intake.njk |
+|---|---|---|---|
+| 1 | Progress bar + rail card + progress number turn green at 100% | **done, uncommitted** | CSS after `.progress-fill` + `updateProgress()` |
+| 2 | Section-head green checkmark when 100% complete | todo | `.section-head` CSS + `updateProgress()` loop |
+| 3 | Auto-resize textareas (expand as user types) | todo | DOMContentLoaded init block |
+| 4 | Keyboard accessibility for pills (`role="button"`, `tabindex="0"`, `onkeydown`) | todo | HTML pill template in `intake.11tydata.js` |
+| 5 | Auto-save draft to localStorage (restore on load, "Draft restored" banner) | todo | new `autosaveDraft()` + `restoreDraft()` functions |
+| 6 | "Next unanswered →" button in sticky bar | todo | `.bar-tools` HTML + `jumpToFirstUnanswered()` call |
+| 7 | Biz-context auto-opens on first visit (localStorage `bc_seen_{slug}` flag) | todo | `toggleBC()` + DOMContentLoaded |
+| 8 | Percentage in sticky bar progress pill | todo | `updateProgress()` — one line |
+| 9 | Minimum-answer length hint on open-ended questions (via `data-minhint` attr) | todo | `intake.11tydata.js` question render + hint CSS |
+| 10 | "Next: [Section Name] →" CTA at bottom of each section body | todo | `intake.11tydata.js` section render |
+| 11 | Completion celebration at 100% (submit button pulses green, "Complete ✓" banner) | todo | CSS + `updateProgress()` |
+| 12 | `?q=Q15` deep-link support (copy-link per question + on-load scroll/focus) | todo | DOMContentLoaded + per-Q copy button |
+| 13 | Word count hint on textareas with `data-minwords` attribute | todo | `intake.11tydata.js` + input handler |
+
+### Pattern for each improvement
+1. Edit `docs/eleventy/_includes/layouts/intake.njk` only
+2. Run `npm run build:html` and verify the change appears in `docs/eleventy/_build/intake/intake-questionnaire-homage.html`
+3. Pause for user review
+4. Commit after user says "next"
+
+---
+
 ## How to resume in a new session
 
 ### Sanity-check (≈ 2 min)
