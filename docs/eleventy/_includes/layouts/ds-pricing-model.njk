@@ -1,0 +1,152 @@
+{#
+  layouts/ds-pricing-model.njk
+  ─────────────────────────────
+  Print-ready A4 one-pager covering the three engagement models. Static —
+  no per-client data. Source of truth for pricing is _data/pricing.js
+  (which parses commons/sales/pricing-model.md).
+#}
+{% extends "layouts/base.njk" %}
+
+{% block head %}
+<style>
+body { width: 210mm; min-height: 297mm; }
+.page { padding: 14mm 14mm 10mm; display: flex; flex-direction: column; gap: 10px; }
+
+.header { background: #fff; display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 3px solid var(--brand); gap: 12px; }
+.header-tagline { font-size: 13px; color: var(--mid); font-weight: 500; text-align: right; }
+
+.section-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--brand); margin-bottom: 5px; }
+
+.models { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.model-card { border-radius: 8px; padding: 12px 14px; }
+.model-card.iaas { background: var(--light); border: 1.5px solid var(--brand); }
+.model-card.impl { background: #F0FFF4; border: 1.5px solid #68D391; }
+.model-card.tm   { background: var(--blue-bg); border: 1.5px solid var(--blue-br); }
+.model-title { font-size: 13px; font-weight: 800; margin-bottom: 2px; }
+.model-card.iaas .model-title { color: var(--brand-dk); }
+.model-card.impl .model-title { color: var(--green); }
+.model-card.tm   .model-title { color: #1e40af; }
+.model-sub { font-size: 10px; color: var(--mid); margin-bottom: 8px; }
+.model-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.model-row:last-of-type { border-bottom: none; }
+.model-row .lbl { color: var(--mid); }
+.model-row .val { font-weight: 700; color: var(--dark); }
+.model-row .val.big { font-size: 14px; color: var(--brand); }
+.model-card.tm .model-row .val.big { color: #1e40af; }
+.badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-top: 6px; }
+.badge.recommended { background: var(--light); color: var(--brand-dk); }
+.badge.green { background: #D1FAE5; color: #065F46; }
+.badge.blue  { background: #DBEAFE; color: #1e40af; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.box { background: #FAFAFA; border-radius: 8px; padding: 10px 12px; border: 1px solid var(--border); }
+.box-title { font-size: 10px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+
+.mini-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.mini-table th { background: var(--dark); color: #fff; padding: 4px 8px; text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; }
+.mini-table td { padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table td strong { color: var(--brand); }
+.mini-table tr:nth-child(even) td { background: #FAFAFA; }
+
+.timeline { display: flex; align-items: center; gap: 0; font-size: 9px; margin-top: 4px; }
+.tl-step { flex: 1; text-align: center; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); margin: 0 auto 3px; }
+.tl-dot.empty { background: var(--border); }
+.tl-line { flex: 0 0 20px; height: 2px; background: var(--border); }
+.tl-line.filled { background: var(--brand); }
+.tl-label { color: var(--dark); font-weight: 600; line-height: 1.3; }
+.tl-sub { color: var(--mid); line-height: 1.3; }
+
+.phase2 { background: var(--dark); border-radius: 8px; padding: 10px 14px; color: #fff; display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--brand); }
+.phase2-icon { font-size: 22px; flex-shrink: 0; }
+.phase2-title { font-size: 11px; font-weight: 800; margin-bottom: 2px; }
+.phase2-body { font-size: 10px; opacity: 0.85; line-height: 1.5; }
+
+.footer { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid var(--border); font-size: 9px; color: var(--mid); }
+.footer strong { color: var(--dark); }
+
+@media print { body { -webkit-print-color-adjust: exact; } }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+
+  <div class="header">
+    <span style="--logo-h: var(--logo-height-guide);">{{ branding.logo | safe }}</span>
+    <div class="header-tagline">MuleSoft Integration Services — Pricing Overview<br><span style="font-size:10px;">Confidential — For AE &amp; Client Discussion</span></div>
+  </div>
+
+  <div class="section-label">Three Models. Pick One.</div>
+  <div class="models">
+
+    {% include "components/pricing-model-card-iaas.njk" %}
+    {% include "components/pricing-model-card-impl.njk" %}
+    {% include "components/pricing-model-card-tm.njk" %}
+
+  </div>
+
+  <div class="box">
+    <div class="box-title">Engagement Flow — IaaS</div>
+    <div class="timeline">
+      <div class="tl-step"><div class="tl-dot"></div><div class="tl-label">SOW signed</div><div class="tl-sub">Retainer paid</div></div>
+      <div class="tl-line filled"></div>
+      <div class="tl-step"><div class="tl-dot"></div><div class="tl-label">Scope locked</div><div class="tl-sub">Client signs doc</div></div>
+      <div class="tl-line filled"></div>
+      <div class="tl-step"><div class="tl-dot"></div><div class="tl-label">Build</div><div class="tl-sub">~1.5 wks/flow</div></div>
+      <div class="tl-line filled"></div>
+      <div class="tl-step"><div class="tl-dot"></div><div class="tl-label">Go-live</div><div class="tl-sub">Billing starts<br>Retainer credited</div></div>
+      <div class="tl-line filled"></div>
+      <div class="tl-step"><div class="tl-dot"></div><div class="tl-label">Month 6</div><div class="tl-sub">Payment 2<br>(Period 2 rate)</div></div>
+      <div class="tl-line filled"></div>
+      <div class="tl-step"><div class="tl-dot"></div><div class="tl-label">Month 12</div><div class="tl-sub">Renewal or<br>hand-off</div></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    <div class="box">
+      <div class="box-title">Change Orders — Mid-Contract</div>
+      <table class="mini-table">
+        <thead><tr><th>Tier</th><th>What Changed</th><th>Fee</th></tr></thead>
+        <tbody>
+          <tr><td>Config</td><td>Field mapping, credentials, tuning</td><td><strong>Free</strong></td></tr>
+          <tr><td>Modification</td><td>New logic, branch, transform</td><td><strong>{{ pricing.formatted.coMod }}</strong></td></tr>
+          <tr><td>Extension</td><td>New object type, new secondary system</td><td><strong>{{ pricing.formatted.coExt }}</strong></td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:var(--mid);margin-top:5px;">All change orders scoped and approved in writing before work begins.</div>
+    </div>
+
+    <div class="box">
+      <div class="box-title">Flow Replacement &amp; Decommission</div>
+      <table class="mini-table">
+        <thead><tr><th>Scenario</th><th>Outcome</th></tr></thead>
+        <tbody>
+          <tr><td>Flow replaced by new flow</td><td><strong>{{ pricing.formatted.replacement }} fee</strong> + fresh 12-mo contract</td></tr>
+          <tr><td>Decommission, no replacement</td><td>Remaining balance <strong>accelerates</strong> — payable immediately</td></tr>
+          <tr><td>Scope change within same flow</td><td>Change order applies (see left)</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:var(--mid);margin-top:5px;">Decommissioning a flow does not cancel its payment obligation.</div>
+    </div>
+
+  </div>
+
+  <div class="phase2">
+    <div class="phase2-icon">🤖</div>
+    <div>
+      <div class="phase2-title">Phase 2 — Agent Development &amp; AI Automation</div>
+      <div class="phase2-body">Once systems are connected, DataSkate returns for a Phase 2 SOW: AI agents that use those integrations to automate workflows, surface decisions, and reduce manual operations. Available under all three models.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div><strong>{{ branding.companyName }}</strong> — {{ branding.footer.address }}</div>
+    <div>{{ branding.footer.contact }}</div>
+  </div>
+
+</div>
+{% endblock %}

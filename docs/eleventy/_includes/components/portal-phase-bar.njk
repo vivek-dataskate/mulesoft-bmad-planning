@@ -1,0 +1,6 @@
+{# portal-phase-bar.njk — dotted phase progress in client portal header.
+   Input: phases = [{ label, status: 'done'|'active'|'future' }] #}
+{%- for p in phases -%}
+<div class="phase-step phase-{{ p.status | esc }}"><div class="phase-dot"></div><div class="phase-label">{{ p.label | esc }}</div></div>
+{%- if not loop.last -%}<div class="phase-line{% if p.status == 'done' %} done{% endif %}"></div>{%- endif -%}
+{%- endfor -%}
