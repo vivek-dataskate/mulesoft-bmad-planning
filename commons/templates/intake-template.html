@@ -9,12 +9,12 @@
 /* ── LAYOUT ─────────────────────────────────────────────────────────────────
    Main + right rail. Rail collapses below content on narrow viewports. */
 .wrap {
-  max-width: 1280px;
+  max-width: 1480px;
   margin: 0 auto;
-  padding: 0 32px 60px;
+  padding: 0 24px 60px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 36px;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 32px;
   align-items: start;
 }
 .main-col { min-width: 0; }
@@ -41,6 +41,16 @@
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
 .bar-logo { display: flex; align-items: center; flex-shrink: 0; }
+.bar-tools { display: flex; gap: 4px; flex-shrink: 0; margin-left: 14px; padding-left: 14px; border-left: 1px solid var(--border); }
+.bar-tool {
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  padding: 4px 9px; font-size: 11px; font-weight: 700; color: var(--mid);
+  cursor: pointer; font-family: inherit; line-height: 1.3;
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.bar-tool:hover { color: var(--brand); border-color: var(--brand); background: var(--light); }
+.bar-tool .bt-icon { font-size: 10px; }
 .progress-pill { font-size: 12px; font-weight: 600; color: var(--mid); }
 .progress-pill span { color: var(--brand); font-weight: 800; }
 .bar-actions { display: flex; gap: 8px; flex-shrink: 0; }
@@ -67,31 +77,53 @@
   font-size: 14px; font-weight: 600; color: #276749;
 }
 
-/* ── HEADER ── */
+/* ── HEADER ── 2-column: title on left, meta on right. Meta aligns to the
+   baseline of the H1 so the eye reads the title first, then the provenance. */
 .doc-header {
-  padding: 20px 0 24px;
+  padding: 18px 0 14px;
   border-bottom: 3px solid var(--brand);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 28px;
+  align-items: end;
 }
+.doc-header-main { min-width: 0; }
 .doc-header .eyebrow {
   font-size: 11px; font-weight: 700; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--mid); margin-bottom: 10px;
+  text-transform: uppercase; color: var(--mid); margin-bottom: 8px;
 }
 .doc-header h1 {
   font-size: 24px; font-weight: 800; color: var(--dark);
   margin-bottom: 4px; line-height: 1.25;
 }
 .doc-header .subtitle {
-  font-size: 13px; color: var(--mid); margin-bottom: 14px;
+  font-size: 13px; color: var(--mid); margin: 0;
 }
-.doc-header .meta-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px;
-  font-size: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+.doc-header-meta {
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.55;
+  text-align: right;
+  align-self: end;
+  white-space: nowrap;
 }
-.doc-header .meta-row span { color: var(--mid); line-height: 1.5; }
-.doc-header .meta-row span.meta-wide { grid-column: 1 / -1; }
-.doc-header .meta-row span strong {
-  color: var(--dark); font-weight: 600; display: inline;
+.doc-header-meta div { padding: 1px 0; }
+.doc-header-meta strong {
+  color: var(--dark); font-weight: 600;
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  margin-right: 4px;
+}
+.doc-header-meta .source-link {
+  color: var(--brand-dk);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--brand-dk);
+}
+.doc-header-meta .source-link:hover { color: var(--brand); border-bottom-color: var(--brand); }
+.doc-header-meta .src-icon { font-size: 10px; opacity: 0.7; }
+/* On narrow viewports, meta drops below the title so it doesn't crash */
+@media (max-width: 900px) {
+  .doc-header { grid-template-columns: 1fr; }
+  .doc-header-meta { text-align: left; white-space: normal; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 8px; }
 }
 
 /* ── BUSINESS CONTEXT — TEASER BY DEFAULT ──────────────────────────────────
@@ -159,26 +191,54 @@
 .action-required li::before { content: '→'; position: absolute; left: 0; color: var(--brand); font-weight: 700; }
 .action-required li strong { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #991B1B; margin-bottom: 2px; }
 
-/* ── CATEGORY HEADERS (between section groups) ───────────────────────────── */
-.cat-header {
-  display: flex; align-items: baseline; gap: 12px;
-  margin: 28px 0 10px;
-  padding: 0 0 6px;
+/* ── CATEGORY TABS — sticky pinned navigation at top of main column ── */
+.cat-tabs {
+  position: sticky;
+  top: 44px;             /* directly below .sticky-bar */
+  z-index: 150;
+  background: #fff;
   border-bottom: 2px solid var(--brand);
+  display: flex;
+  margin: 20px -24px 0;  /* full-bleed against .wrap padding */
+  padding: 0 24px;
 }
-.cat-header:first-of-type { margin-top: 24px; }
-.cat-num {
-  font-size: 11px; font-weight: 800; color: var(--brand);
-  letter-spacing: 1.5px;
+.cat-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 18px 9px;
+  text-align: left;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
 }
-.cat-title {
-  font-size: 18px; font-weight: 800; color: var(--dark);
-  letter-spacing: -0.2px;
-}
-.cat-blurb {
-  font-size: 12px; color: var(--mid); margin-left: auto;
-  font-style: italic;
-}
+.cat-tab:hover { background: var(--light); }
+.cat-tab.is-active { border-bottom-color: var(--brand); background: var(--light); }
+.cat-tab .ct-num   { font-size: 10px; font-weight: 800; color: var(--brand); letter-spacing: 1.2px; display: block; }
+.cat-tab .ct-title { font-size: 15px; font-weight: 800; color: var(--dark); display: block; margin-top: 2px; }
+.cat-tab .ct-meta  { font-size: 11px; color: var(--mid); margin-top: 1px; display: block; }
+.cat-tab.is-active .ct-title { color: var(--brand-dk); }
+
+/* Hidden anchors that the tabs scroll to */
+.cat-anchor { display: block; height: 0; scroll-margin-top: 112px; }
+
+/* Future bucket — amber-tinted to signal "not in current scope" */
+.cat-tab[data-cat="future"] .ct-num { color: #92400E; }
+.cat-tab[data-cat="future"].is-active { border-bottom-color: var(--amber); background: var(--amber-bg); }
+.cat-tab[data-cat="future"].is-active .ct-title { color: #92400E; }
+details.section-block[data-cat="future"] { border-left: 3px solid var(--amber); }
+details.section-block[data-cat="future"] summary.section-head { background: var(--amber-bg); }
+
+/* Right-rail Future card — same amber accent */
+.rail-future { border-left: 3px solid var(--amber); background: var(--amber-bg); }
+.rail-future .rail-label { color: #92400E; }
+.rail-future .rail-future-count { font-size: 22px; font-weight: 800; color: #92400E; line-height: 1.1; }
+.rail-future .rail-future-meta  { font-size: 11px; color: #92400E; margin-top: 2px; }
+.rail-future a { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 12px; font-weight: 700; color: #92400E; text-decoration: none; }
+.rail-future a:hover { text-decoration: underline; }
+.rail-future a::after { content: '→'; }
 
 /* ── SECTION BLOCKS — collapsible tiles ── */
 details.section-block { border: 1px solid var(--border); margin-bottom: 6px; scroll-margin-top: 64px; }
@@ -356,6 +416,10 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 .attention-list li:last-child { border-bottom: none; padding-bottom: 0; }
 .attention-list li::before { content: '!'; position: absolute; left: 0; top: 6px; font-weight: 800; color: var(--brand); font-size: 11px; width: 12px; height: 12px; line-height: 12px; text-align: center; }
 .attention-list li strong { font-weight: 700; color: #991B1B; display: block; font-size: 11px; }
+.attention-list li[data-target] { cursor: pointer; padding-right: 18px; border-radius: 3px; transition: background 0.1s; }
+.attention-list li[data-target]:hover { background: #FFE4E4; }
+.attention-list li[data-target]:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+.attention-list li[data-target]::after { content: '→'; position: absolute; right: 4px; top: 6px; color: var(--brand); font-weight: 800; }
 .attention-empty {
   font-size: 12px; color: var(--mid); font-style: italic;
   padding: 4px 0;
@@ -375,7 +439,7 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 
 /* ── PRINT — collapse rail, expand everything ── */
 @media print {
-  .sticky-bar, .no-print, .rail-col { display: none !important; }
+  .sticky-bar, .no-print, .rail-col, .cat-tabs { display: none !important; }
   .wrap { display: block; padding: 0 32px; }
   body { background: #fff; font-size: 11px; }
   textarea.answer, .tbl-ans { background: #fff !important; border: 1px solid #ccc !important; }
@@ -390,8 +454,7 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   details.uc[open], details.uc:not([open]) { display: block; }
   summary.uc-hd { background: none; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .uc-chevron { display: none; }
-  details.section-block, .cat-header { page-break-inside: avoid; }
-  .cat-header { margin-top: 18px; }
+  details.section-block { page-break-inside: avoid; }
   .pill { display: none; }
   .pill.selected::before { content: '✓ '; }
   .pill.selected { display: inline; background: none; color: var(--dark); border: none; font-weight: 600; }
@@ -417,9 +480,17 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
       <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
     </svg>
   </div>
+  <div class="bar-tools">
+    <button type="button" class="bar-tool" onclick="toggleAllSections(true)" title="Open every section + use case">
+      <span class="bt-icon">▼</span> Expand all
+    </button>
+    <button type="button" class="bar-tool" onclick="toggleAllSections(false)" title="Collapse every section + use case">
+      <span class="bt-icon">▲</span> Collapse all
+    </button>
+  </div>
   <div class="progress-pill">Questions answered: <span id="answered-count">0</span> / <span id="total-count">0</span></div>
   <div class="bar-actions">
-    <button class="btn btn-outline" onclick="window.print()">Print / Save PDF</button>
+    <button class="btn btn-outline" onclick="printAllExpanded()">Print / Save PDF</button>
     <button class="btn btn-primary" onclick="submitForm()">Submit to DataSkate</button>
   </div>
 </div>
@@ -429,15 +500,17 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
 <!-- ──────────────────────── MAIN COLUMN ──────────────────────── -->
 <div class="main-col">
 
-<!-- DOCUMENT HEADER -->
+<!-- DOCUMENT HEADER — title left, meta right -->
 <div class="doc-header">
-  <div class="eyebrow"><!-- FILL:eyebrow --></div>
-  <h1><!-- FILL:doc-title --></h1>
-  <div class="subtitle"><!-- FILL:doc-subtitle --></div>
-  <div class="meta-row">
-    <span><strong>Prepared by</strong> · <!-- FILL:architect --> · DataSkate</span>
-    <span><strong>Date</strong> · <!-- FILL:date --></span>
-    <span class="meta-wide"><strong>Source</strong> · <!-- FILL:source --></span>
+  <div class="doc-header-main">
+    <div class="eyebrow"><!-- FILL:eyebrow --></div>
+    <h1><!-- FILL:doc-title --></h1>
+    <div class="subtitle"><!-- FILL:doc-subtitle --></div>
+  </div>
+  <div class="doc-header-meta">
+    <div><strong>Prepared by</strong><!-- FILL:architect --> · DataSkate</div>
+    <div><strong>Date</strong><!-- FILL:date --></div>
+    <div><strong>Source</strong><!-- FILL:source --></div>
   </div>
 </div>
 
@@ -460,7 +533,12 @@ table.dtbl input.tbl-ans.is-prefilled { background: var(--amber-bg); border-colo
   </div>
 </div>
 
-<!-- FORM SECTIONS — grouped by category (Business / Technical / Production) -->
+<!-- CATEGORY TABS — sticky, clickable; jumps to bucket anchor -->
+<div class="cat-tabs no-print" id="cat-tabs">
+  <!-- FILL:cat-tabs -->
+</div>
+
+<!-- FORM SECTIONS — DOM ordered Business → Technical → Production -->
 <!-- FILL:form-sections -->
 
 <!-- INTERNAL FLAGS — no-print -->
@@ -556,6 +634,68 @@ function toggleBC() {
   document.getElementById('biz-context').classList.toggle('is-open');
 }
 
+// Open or close every section + UC at once. Used by the "Expand all" /
+// "Collapse all" tools on the left of the sticky bar.
+function toggleAllSections(open) {
+  document.querySelectorAll('details.section-block, details.uc').forEach(d => {
+    if (open) d.setAttribute('open', '');
+    else      d.removeAttribute('open');
+  });
+}
+
+// Print/Save-PDF — force-open every <details> + the biz-context panel so the
+// PDF contains the full questionnaire regardless of the current screen state,
+// then restore the user's prior open/closed state once the print dialog closes.
+// `display:block` in @media print can't override the UA <details> hiding —
+// the `open` attribute has to be present for the body to render.
+function printAllExpanded() {
+  const details = Array.from(document.querySelectorAll('details.section-block, details.uc'));
+  const wasOpen = new Set();
+  details.forEach(d => {
+    if (d.hasAttribute('open')) wasOpen.add(d);
+    else d.setAttribute('open', '');
+  });
+  const bc        = document.getElementById('biz-context');
+  const bcWasOpen = bc ? bc.classList.contains('is-open') : false;
+  if (bc) bc.classList.add('is-open');
+
+  function restore() {
+    details.forEach(d => { if (!wasOpen.has(d)) d.removeAttribute('open'); });
+    if (bc && !bcWasOpen) bc.classList.remove('is-open');
+    window.removeEventListener('afterprint', restore);
+  }
+  window.addEventListener('afterprint', restore);
+  // Safari fires afterprint inconsistently; double-rAF restore as a fallback.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    // No-op here; afterprint is the primary signal. This rAF only ensures
+    // the layout settles before the print dialog opens.
+  }));
+  window.print();
+}
+
+// Needs-Attention click → jump to the relevant place.
+//   data-target="biz"      → expand biz-context (full P0 detail)
+//   data-target="sec:<id>" → open that section block + scroll to it
+function focusAttentionTarget(target) {
+  if (!target) return;
+  if (target === 'biz') {
+    const bc = document.getElementById('biz-context');
+    if (bc) {
+      bc.classList.add('is-open');
+      bc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    return;
+  }
+  if (target.startsWith('sec:')) {
+    const id  = target.slice(4);
+    const sec = document.getElementById(id) || document.getElementById('sec-' + id);
+    if (sec) {
+      sec.setAttribute('open', '');
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+}
+
 function pickPill(el, fieldId) {
   const group = el.closest('.q-options');
   group.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
@@ -621,23 +761,40 @@ function rebuildAttention() {
   // Combine static P0 blockers (rendered at fill time) with dynamic required-unanswered
   const list = document.getElementById('attention-list');
   if (!list) return;
-  // Remove dynamic items only (data-source="dynamic")
   list.querySelectorAll('li[data-source="dynamic"]').forEach(li => li.remove());
 
-  // Required unanswered count
+  // Required-unanswered summary — clickable, jumps to the first offending section
   const reqEmpty = Array.from(
     document.querySelectorAll('textarea.answer[data-required="true"], input.tbl-ans[data-required="true"]')
   ).filter(t => (t.value || '').trim().length === 0);
   if (reqEmpty.length > 0) {
+    const firstSec = reqEmpty[0].closest('details.section-block');
+    const target   = firstSec && firstSec.id ? `sec:${firstSec.id}` : '';
     const li = document.createElement('li');
     li.setAttribute('data-source', 'dynamic');
-    li.innerHTML = `<strong>${reqEmpty.length} required ${reqEmpty.length === 1 ? 'question' : 'questions'} unanswered</strong>Click any section badge to jump in.`;
+    if (target) { li.setAttribute('data-target', target); li.setAttribute('tabindex', '0'); li.setAttribute('role', 'link'); }
+    li.innerHTML = `<strong>${reqEmpty.length} required ${reqEmpty.length === 1 ? 'question' : 'questions'} unanswered</strong>Click to jump to the first one.`;
     list.appendChild(li);
   }
 
-  // Empty-state toggle
   const empty = document.getElementById('attention-empty');
   if (empty) empty.style.display = list.children.length === 0 ? 'block' : 'none';
+}
+
+// One-time delegated handler for attention-list. Wired in DOMContentLoaded.
+function wireAttentionClicks() {
+  const list = document.getElementById('attention-list');
+  if (!list || list.dataset.wired === '1') return;
+  list.dataset.wired = '1';
+  list.addEventListener('click', e => {
+    const li = e.target.closest('li[data-target]');
+    if (li) focusAttentionTarget(li.dataset.target);
+  });
+  list.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const li = e.target.closest('li[data-target]');
+    if (li) { e.preventDefault(); focusAttentionTarget(li.dataset.target); }
+  });
 }
 
 function collectAnswers() {
@@ -658,7 +815,9 @@ function saveToFirestore(answers, pct) {
   }
   firebase.initializeApp(FIREBASE_CONFIG);
   const db = firebase.firestore();
-  return db.collection('intakeResponses').doc(CLIENT_SLUG).set({
+  // Collection name must match firebase/firestore.rules + portal reads —
+  // snake_case `intake_responses`. Mismatch causes silent permission-denied.
+  return db.collection('intake_responses').doc(CLIENT_SLUG).set({
     client: CLIENT_SLUG,
     answers,
     completionPct: pct,
@@ -722,23 +881,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Active-section highlighting via IntersectionObserver
-  const navLinks = new Map();
-  document.querySelectorAll('.rail-nav a[data-section]').forEach(a => navLinks.set(a.dataset.section, a));
-  if ('IntersectionObserver' in window && navLinks.size > 0) {
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        const link = navLinks.get(e.target.id);
-        if (!link) return;
-        if (e.isIntersecting) {
-          navLinks.forEach(l => l.classList.remove('is-active'));
-          link.classList.add('is-active');
-        }
-      });
-    }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
-    document.querySelectorAll('details.section-block[id]').forEach(s => io.observe(s));
+  // Category tab click → smooth-scroll to anchor + open the first section in bucket
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = document.getElementById('cat-' + tab.dataset.cat);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const firstSec = document.querySelector(`details.section-block[data-cat="${tab.dataset.cat}"]`);
+      if (firstSec) firstSec.setAttribute('open', '');
+    });
+  });
+
+  if ('IntersectionObserver' in window) {
+    // Section-level active highlight on right rail
+    const navLinks = new Map();
+    document.querySelectorAll('.rail-nav a[data-section]').forEach(a => navLinks.set(a.dataset.section, a));
+    if (navLinks.size > 0) {
+      const ioSec = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          const link = navLinks.get(e.target.id);
+          if (!link) return;
+          if (e.isIntersecting) {
+            navLinks.forEach(l => l.classList.remove('is-active'));
+            link.classList.add('is-active');
+          }
+        });
+      }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+      document.querySelectorAll('details.section-block[id]').forEach(s => ioSec.observe(s));
+    }
+
+    // Category-level active highlight on the sticky top tabs
+    const catTabs = new Map();
+    document.querySelectorAll('.cat-tab[data-cat]').forEach(t => catTabs.set(t.dataset.cat, t));
+    if (catTabs.size > 0) {
+      const ioCat = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          const cat = e.target.dataset.cat;
+          if (!cat) return;
+          catTabs.forEach(t => t.classList.remove('is-active'));
+          const active = catTabs.get(cat);
+          if (active) active.classList.add('is-active');
+        });
+      }, { rootMargin: '-25% 0px -65% 0px', threshold: 0 });
+      document.querySelectorAll('details.section-block[data-cat]').forEach(s => ioCat.observe(s));
+    }
   }
 
+  wireAttentionClicks();
   updateProgress();
 });
 </script>

@@ -144,9 +144,27 @@ function syncLogo(slug) {
 // Files are kept locally in firebase/public/{type}/ for git tracking and also
 // uploaded to Storage for serving. Source files in projects/{slug}/intake/ are
 // not deleted.
+//
+// Frozen-client guard: clients with project.json.frozen=true have their shipped
+// HTML in client hands at a known URL. This function would otherwise (a) copy
+// local files over the shipped bytes at firebase/public/{type}/{slug}.html, and
+// (b) reset project.json.{type}Url back to the legacy unversioned URL — undoing
+// any republish that scripts/republish.js did. Skip the whole upload step for
+// frozen clients; republish.js owns their files and URL fields.
 async function uploadHtmlToStorage(slug) {
   const intakeDir = path.join(ROOT, 'projects', slug, 'intake');
   if (!fs.existsSync(intakeDir)) return;
+
+  const projPathPre = path.join(ROOT, 'projects', slug, 'project.json');
+  if (fs.existsSync(projPathPre)) {
+    try {
+      const projPre = JSON.parse(fs.readFileSync(projPathPre, 'utf8'));
+      if (projPre.frozen === true) {
+        log(`[${slug}] frozen — skipping HTML upload (republish.js owns versioned files + URLs)`);
+        return;
+      }
+    } catch { /* malformed JSON; proceed cautiously */ }
+  }
 
   // [localFilename, storageDest, projectJsonKey, firebase/public/ subdir, useHostingUrl]
   // useHostingUrl=true → serve from Firebase Hosting (no Storage auth wall)

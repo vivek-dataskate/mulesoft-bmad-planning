@@ -15,16 +15,41 @@ const fs     = require('fs');
 const path   = require('path');
 const crypto = require('crypto');
 
-const args         = process.argv.slice(2);
-const templateType = args[args.indexOf('--template') + 1];
-const clientIdx    = args.indexOf('--client');
-const client       = clientIdx !== -1 ? args[clientIdx + 1] : null;
-const nameIdx      = args.indexOf('--name');
-const resourceName = nameIdx !== -1 ? args[nameIdx + 1] : null;
-const srcIdx       = args.indexOf('--src');
-const resourceSrc  = srcIdx !== -1 ? args[srcIdx + 1] : null;
+const args           = process.argv.slice(2);
+const templateType   = args[args.indexOf('--template') + 1];
+const clientIdx      = args.indexOf('--client');
+const client         = clientIdx !== -1 ? args[clientIdx + 1] : null;
+const nameIdx        = args.indexOf('--name');
+const resourceName   = nameIdx !== -1 ? args[nameIdx + 1] : null;
+const srcIdx         = args.indexOf('--src');
+const resourceSrc    = srcIdx !== -1 ? args[srcIdx + 1] : null;
+const forceRepublish = args.includes('--force-republish');
 
 const KNOWN_TEMPLATES = ['proposal', 'intake', 'integration-deck', 'client-portal', 'corporate-brief', 'ds-pricing-model', 'architect-guide'];
+const PER_CLIENT_TEMPLATES = new Set(['proposal', 'intake', 'integration-deck', 'client-portal', 'corporate-brief']);
+
+// Frozen-client guard. Shipped clients (those with their intake/proposal URL
+// already in client hands) must not be overwritten by template regeneration.
+// Trigger condition: projects/{slug}/project.json has "frozen": true.
+// Override: pass --force-republish on the command line.
+if (PER_CLIENT_TEMPLATES.has(templateType) && client && !forceRepublish) {
+  const _root     = path.resolve(__dirname, '../..');
+  const _projPath = path.join(_root, 'projects', client, 'project.json');
+  if (fs.existsSync(_projPath)) {
+    try {
+      const _proj = JSON.parse(fs.readFileSync(_projPath, 'utf8'));
+      if (_proj.frozen === true) {
+        console.error(`✗ Refusing to regenerate ${templateType} for "${client}": client is frozen (shipped).`);
+        console.error(`  This client's HTML has been deployed to Firebase and the URL is in client hands.`);
+        console.error(`  Regenerating would change what the client sees.`);
+        console.error(`  To override (e.g. you genuinely need to republish), re-run with --force-republish.`);
+        process.exit(2);
+      }
+    } catch (_e) {
+      // Malformed project.json — proceed; caller will hit a clearer error later.
+    }
+  }
+}
 
 // ─── DS-GENERATED fingerprint helpers ────────────────────────────────────────
 // Embedded as the last line of every generated file so lint-html.js can detect:
@@ -139,7 +164,14 @@ if (cfg.requiresClient && !client) {
 }
 const templateFile = path.join(root, 'commons', 'templates', `${templateType}-template.html`);
 const cssFile      = path.join(root, 'commons', 'templates', 'shared-base.css.html');
-const outFile      = cfg.outFile(client);
+
+// --out-override lets a caller (e.g. scripts/republish.js) redirect output to
+// a dated-versioned path. When unset, the default per-type outFile applies.
+const outIdx       = args.indexOf('--out-override');
+const outOverride  = outIdx !== -1 ? args[outIdx + 1] : null;
+const outFile      = outOverride
+  ? path.resolve(root, outOverride)
+  : cfg.outFile(client);
 
 let html      = fs.readFileSync(templateFile, 'utf8');
 const css     = fs.readFileSync(cssFile, 'utf8');
@@ -200,7 +232,9 @@ const PROFILE_RECOMMENDED_MODEL = {
 };
 
 // Intake section → category mapping (must be declared before buildIntake dispatch).
-// Bucket assignment is by section number; helpers in buildIntake* reference this.
+// Sticky cat-tabs at top of intake render in this order. The synthetic
+// "future" bucket holds Scout-inferred flows not priced in the current
+// proposal — extracted at render time and shown as its own tab + rail card.
 const INTAKE_CATEGORIES = [
   { key: 'business',   num: '01', label: 'Business',
     blurb: "What we're building and where data flows",
@@ -211,6 +245,9 @@ const INTAKE_CATEGORIES = [
   { key: 'production', num: '03', label: 'Production',
     blurb: 'How we ship and run it',
     sections: ['7', '8', '9'] },
+  { key: 'future',     num: '04', label: 'Future Flows',
+    blurb: 'Potential flows — not priced in this proposal',
+    sections: ['PF'] },
 ];
 
 if (templateType === 'proposal') {
@@ -240,18 +277,24 @@ fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, html, 'utf8');
 console.log(`✓ Written: ${outFile}`);
 
-// Inline HTML lint — run the design-standards validator on the file we just wrote.
-// Replaces the previous PostToolUse Claude hook; runs in-process so any caller of
-// fill-template.js gets the same validation regardless of how it was invoked.
+// Inline HTML lint — STRICT. Bad output is removed and the process fails.
+// fill-template.js is the primary gate; the pre-commit hook is a secondary net.
+// A non-zero exit here halts whoever called us (regen-all-clients.js, scripts,
+// CI). Violation details have already been printed to stderr by lint-html.js.
 try {
   const { spawnSync } = require('child_process');
   const lintPath = path.join(root, 'commons', 'branding', 'lint-html.js');
   const r = spawnSync('node', [lintPath, outFile], { stdio: 'inherit' });
   if (r.status !== 0) {
-    console.error(`⚠ lint-html.js reported violations for ${outFile} — fix before committing.`);
+    console.error(`✗ lint-html.js rejected ${outFile}`);
+    console.error(`  Deleting bad output to keep the working tree clean.`);
+    console.error(`  Fix the template or content JSON, then re-run fill-template.js.`);
+    try { fs.unlinkSync(outFile); } catch (_) { /* best-effort */ }
+    process.exit(3);
   }
 } catch (e) {
-  console.error(`⚠ Could not run lint-html.js: ${e.message}`);
+  console.error(`✗ Could not run lint-html.js: ${e.message}`);
+  process.exit(3);
 }
 
 if (templateType === 'proposal' && client) {
@@ -836,9 +879,17 @@ function buildDiagramSvg(nodes) {
 // (before the dispatch block) so buildIntake/buildIntakeFromMd helpers
 // can reference it without TDZ errors.
 
-// Map any incoming section id (raw "1", "S01", " 10 ") to its bucket key.
+// Map any incoming section id to its bucket key.
+//   "1" / "S01" / " 10 " → numeric bucket (1-10)
+//   "PF" / "FUTURE"      → synthetic Future-Flows bucket
 function intakeCatFor(rawId) {
-  const n = String(rawId || '').replace(/[^0-9]/g, '').replace(/^0+/, '') || '0';
+  const raw = String(rawId || '').trim().toUpperCase();
+  // Match literal alpha IDs first (e.g. "PF") — preserves exact mapping
+  for (const cat of INTAKE_CATEGORIES) {
+    if (cat.sections.includes(raw)) return cat.key;
+  }
+  // Fall back to numeric matching
+  const n = raw.replace(/[^0-9]/g, '').replace(/^0+/, '') || '0';
   for (const cat of INTAKE_CATEGORIES) {
     if (cat.sections.includes(n)) return cat.key;
   }
@@ -881,8 +932,9 @@ function buildIntakeRailNav(secMeta) {
   return parts.join('\n');
 }
 
-// Wrap an ordered list of section HTML blocks with category headers between
-// buckets, in the order Business → Technical → Production.
+// Wrap an ordered list of section HTML blocks with hidden category anchors.
+// The sticky cat-tabs are the visual category UI; the anchors are scroll
+// targets so a tab click can jump to the start of each bucket.
 function groupIntakeSectionsByCategory(secEntries) {
   // secEntries: [{ id, html }]
   const byCat = new Map(INTAKE_CATEGORIES.map(c => [c.key, []]));
@@ -896,32 +948,50 @@ function groupIntakeSectionsByCategory(secEntries) {
   for (const cat of INTAKE_CATEGORIES) {
     const items = byCat.get(cat.key);
     if (!items || items.length === 0) continue;
-    out.push(
-      `<div class="cat-header" data-cat="${cat.key}">` +
-        `<span class="cat-num">${esc(cat.num)}</span>` +
-        `<span class="cat-title">${esc(cat.label)}</span>` +
-        `<span class="cat-blurb">${esc(cat.blurb)}</span>` +
-      `</div>`
-    );
+    out.push(`<a class="cat-anchor" id="cat-${cat.key}" data-cat="${cat.key}" aria-hidden="true"></a>`);
     out.push(items.join('\n\n'));
   }
   if (orphans.length) {
-    out.push(`<div class="cat-header" data-cat="other"><span class="cat-num">04</span><span class="cat-title">Other</span></div>`);
+    out.push(`<a class="cat-anchor" id="cat-other" data-cat="other" aria-hidden="true"></a>`);
     out.push(orphans.join('\n\n'));
   }
   return out.join('\n\n');
 }
 
-// Default rail-links for every intake. Caller may extend via meta.links[].
+// Sticky top tab bar — one tab per non-empty category.
+function buildIntakeCatTabs(secEntries) {
+  const counts = new Map(INTAKE_CATEGORIES.map(c => [c.key, 0]));
+  for (const e of secEntries) {
+    const cat = intakeCatFor(e.id);
+    if (cat && counts.has(cat)) counts.set(cat, counts.get(cat) + 1);
+  }
+  return INTAKE_CATEGORIES
+    .filter(c => counts.get(c.key) > 0)
+    .map((c, i) => {
+      const n = counts.get(c.key);
+      const cls = i === 0 ? 'cat-tab is-active' : 'cat-tab';
+      return (
+        `<button type="button" class="${cls}" data-cat="${c.key}">` +
+          `<span class="ct-num">${esc(c.num)} · ${esc(c.label.toUpperCase())}</span>` +
+          `<span class="ct-title">${esc(c.label)}</span>` +
+          `<span class="ct-meta">${n} ${n === 1 ? 'section' : 'sections'} · ${esc(c.blurb)}</span>` +
+        `</button>`
+      );
+    })
+    .join('\n');
+}
+
+// Default rail-links for every intake. Intake is client-facing — only external
+// docs the client may legitimately need belong here. Architect Guide is internal
+// (loginRequired, @dataskate.ai-gated) and must NEVER be linked from intake.
 function buildIntakeRailLinks(meta) {
   const client = meta.clientSlug || '';
   const links = [
-    { label: 'Architect Guide', url: 'https://dataskateclients.web.app/resources/architect-guide.html' },
     { label: 'DS Pricing Model', url: 'https://dataskateclients.web.app/resources/ds-pricing-model.html' },
   ];
   if (client) {
     links.unshift(
-      { label: 'Client Portal', url: `https://dataskateclients.web.app/portal/${client}.html` }
+      { label: 'Your Client Portal', url: `https://dataskateclients.web.app/portal/${client}.html` }
     );
   }
   for (const l of (meta.links || [])) {
@@ -934,11 +1004,20 @@ function buildIntakeRailLinks(meta) {
 
 // Right-rail Needs-Attention seeded from p0Blockers. Dynamic
 // required-unanswered items are appended client-side by rebuildAttention().
+// Each li is clickable — data-target tells the rail JS where to jump:
+//   "biz"        → expand biz-context (where the full P0 detail lives)
+//   "sec:<id>"   → open that section block and scroll to it
 function buildIntakeRailAttention(p0Blockers) {
   if (!p0Blockers || !p0Blockers.length) return '';
-  return p0Blockers.map(b =>
-    `<li><strong>${esc(b.title || b.system || 'P0 Blocker')}</strong>${esc(b.clientAction || b.body || b.blocker || '')}</li>`
-  ).join('\n');
+  return p0Blockers.map(b => {
+    const target = b.sectionRef ? `sec:${b.sectionRef}` : 'biz';
+    return (
+      `<li data-target="${esc(target)}" tabindex="0" role="link">` +
+        `<strong>${esc(b.title || b.system || 'P0 Blocker')}</strong>` +
+        `${esc(b.clientAction || b.body || b.blocker || '')}` +
+      `</li>`
+    );
+  }).join('\n');
 }
 
 // Phase chip shown next to the biz-context teaser when collapsed.
@@ -952,8 +1031,82 @@ function buildIntakePhaseChip(journeyCards) {
   return `<span class="bc-phase-chip">Phase 1 · ${esc(stripped)}</span>`;
 }
 
+// Pull any "Potential Flows" sub-block out of a section's bodyHtml so it can
+// be promoted to the synthetic "future" bucket. Matches the Scout convention:
+// an <h3> containing "Potential Flows" or "Future Flows", through everything
+// up to the next h2/h3 (or end of bodyHtml).
+function extractPotentialFlowsBlock(bodyHtml) {
+  if (!bodyHtml || typeof bodyHtml !== 'string') return { kept: bodyHtml, extracted: null };
+  const re = /<h3[^>]*>[^<]*(?:Potential|Future)\s+Flows[^<]*<\/h3>([\s\S]*?)(?=<h[23][\s>]|$)/i;
+  const m = bodyHtml.match(re);
+  if (!m) return { kept: bodyHtml, extracted: null };
+  return {
+    kept:      bodyHtml.slice(0, m.index) + bodyHtml.slice(m.index + m[0].length),
+    extracted: m[0],
+  };
+}
+
+// Count rows in the Potential-Flows table for the right-rail badge.
+function countPotentialFlowRows(html) {
+  if (!html) return 0;
+  const tbody = html.match(/<tbody[^>]*>([\s\S]*?)<\/tbody>/i);
+  if (!tbody) return 0;
+  return (tbody[1].match(/<tr\b/gi) || []).length;
+}
+
+// Right-rail Future Flows card was removed by user feedback 2026-05-20 — the
+// top "Future Flows" tab + the dedicated section already surface this. Keep
+// the function as a no-op so the fill() call sites stay stable; restore the
+// markup by returning the card HTML if it's ever re-introduced.
+function buildIntakeRailFuture(/* flowCount */) {
+  return '';
+}
+
+// Walk an array of sections, extract Potential Flows from any that contain it,
+// merge all extracted blocks into a single synthetic "PF" section, and return
+// the updated sections + the row count for the rail-future card.
+function liftPotentialFlowsToOwnSection(sections) {
+  const cleaned = [];
+  const extracts = [];
+  for (const sec of sections) {
+    const { kept, extracted } = extractPotentialFlowsBlock(sec.bodyHtml || '');
+    cleaned.push({ ...sec, bodyHtml: kept });
+    if (extracted) extracts.push(extracted);
+  }
+  if (extracts.length === 0) return { sections: cleaned, flowCount: 0 };
+  const merged = extracts.join('\n');
+  cleaned.push({
+    id: 'PF',
+    title: 'Potential Flows — Not Priced in This Proposal',
+    bodyHtml: merged,
+  });
+  return { sections: cleaned, flowCount: countPotentialFlowRows(merged) };
+}
+
+// Render the Source meta line. Hyperlinks to the storage folder when a
+// sourceFilesFolder URL exists in project.json or meta.sourceUrl is set.
+// Returns pre-escaped HTML (caller hands it to fill() without further escape).
+function buildIntakeSource(sourceText, sourceUrl) {
+  if (!sourceText) return '';
+  if (!sourceUrl)  return esc(sourceText);
+  return `<a class="source-link" href="${esc(sourceUrl)}" target="_blank" rel="noopener" title="Open source files in storage">${esc(sourceText)} <span class="src-icon">↗</span></a>`;
+}
+
 function buildIntake(c) {
   const m = c.meta;
+
+  // sourceFilesFolder lives in project.json — read here so the Source line
+  // can hyperlink to GCS storage without changing the intake-content.json schema.
+  let sourceUrl = m.sourceUrl || '';
+  if (!sourceUrl && client) {
+    const projPath = path.join(root, 'projects', client, 'project.json');
+    if (fs.existsSync(projPath)) {
+      try {
+        const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
+        sourceUrl = proj.sourceFilesFolder || '';
+      } catch { /* non-fatal */ }
+    }
+  }
 
   fill('client-name',     m.clientName);
   fill('client-slug',     m.clientSlug || client);
@@ -963,7 +1116,7 @@ function buildIntake(c) {
   fill('date',            m.date);
   fill('architect',       m.architect);
   fill('architect-email', m.architectEmail);
-  fill('source',          m.source || '');
+  fill('source',          buildIntakeSource(m.source || '', sourceUrl));
 
   const bc = c.bizContext || {};
   fill('bc-snapshot',    bc.snapshot || '');
@@ -986,17 +1139,23 @@ function buildIntake(c) {
       </div>`
     : '');
 
+  // Lift any "Potential Flows" sub-block out of existing sections into its own
+  // synthetic PF section so it can render as a Future-Flows tab + rail card.
+  const lifted = liftPotentialFlowsToOwnSection(c.sections || []);
+  const futureFlowCount = lifted.flowCount;
+
   // Build per-section HTML blocks + rail-nav metadata in one pass so anchor ids stay in sync.
   const secMeta = [];
-  const secEntries = (c.sections || []).map(sec => {
+  const secEntries = lifted.sections.map(sec => {
     const rawId     = String(sec.id || '');
     const displayId = rawId.replace(/^S?0*/i, '') || rawId;   // "S01" / "01" → "1"
     const anchorId  = `sec-${displayId || rawId}`;
+    const catKey    = intakeCatFor(rawId) || 'other';
     secMeta.push({ id: rawId, displayId, title: sec.title || '', anchorId });
     return {
       id: rawId,
       html:
-        `<details class="section-block" id="${esc(anchorId)}" data-section-id="${esc(displayId)}">\n` +
+        `<details class="section-block" id="${esc(anchorId)}" data-section-id="${esc(displayId)}" data-cat="${esc(catKey)}">\n` +
         `  <summary class="section-head">\n` +
         `    <div class="section-num">${esc(displayId)}</div>\n` +
         `    <div class="section-title">${esc(sec.title)}</div>\n` +
@@ -1008,8 +1167,10 @@ function buildIntake(c) {
     };
   });
 
+  fill('cat-tabs',        buildIntakeCatTabs(secEntries));
   fill('form-sections',   groupIntakeSectionsByCategory(secEntries));
   fill('rail-nav',        buildIntakeRailNav(secMeta));
+  fill('rail-future',     buildIntakeRailFuture(futureFlowCount));
   fill('rail-attention',  buildIntakeRailAttention(bc.p0Blockers));
   fill('rail-links',      buildIntakeRailLinks(m));
 
@@ -1051,7 +1212,7 @@ function buildIntakeFromMd(md, clientSlug) {
   fill('date',            meta.date);
   fill('architect',       meta.architect);
   fill('architect-email', meta.architectEmail);
-  fill('source',          meta.source);
+  fill('source',          buildIntakeSource(meta.source, proj.sourceFilesFolder || ''));
 
   // Biz context — populate from company_context.json if available
   const journeyArr = ctx.aiJourney
@@ -1085,11 +1246,12 @@ function buildIntakeFromMd(md, clientSlug) {
     const rawId     = sec.id || '';
     const displayId = rawId.replace(/^S?0*/i, '') || rawId;
     const anchorId  = `sec-${displayId || rawId}`;
+    const catKey    = intakeCatFor(rawId) || 'other';
     secMetaMd.push({ id: rawId, displayId, title: sec.title || '', anchorId });
     return {
       id: rawId,
       html:
-        `<details class="section-block" id="${esc(anchorId)}" data-section-id="${esc(displayId)}">\n` +
+        `<details class="section-block" id="${esc(anchorId)}" data-section-id="${esc(displayId)}" data-cat="${esc(catKey)}">\n` +
         `  <summary class="section-head">\n` +
         `    <div class="section-num">${esc(displayId)}</div>\n` +
         `    <div class="section-title">${esc(sec.title)}</div>\n` +
@@ -1101,8 +1263,12 @@ function buildIntakeFromMd(md, clientSlug) {
     };
   });
 
+  fill('cat-tabs',      buildIntakeCatTabs(secEntriesMd));
   fill('form-sections', groupIntakeSectionsByCategory(secEntriesMd));
-  fill('rail-nav',       buildIntakeRailNav(secMetaMd));
+  fill('rail-nav',      buildIntakeRailNav(secMetaMd));
+  // MD path doesn't currently surface inferred-flow tables in section bodies;
+  // empty by default. Future work: parse "Potential Flows" markdown table.
+  fill('rail-future',   buildIntakeRailFuture(0));
   // ctx.p0Blockers in company_context.json uses {system, blocker} — adapt for attention list
   const railP0 = (ctx.p0Blockers || []).map(b => ({
     title: b.system, clientAction: b.blocker, body: b.blocker,
@@ -1456,8 +1622,12 @@ function buildPortal(c) {
     return parts.join('');
   }).join(''));
 
-  // Internal docs — project-level gated links (e.g. Pitch Kit) — not shown in client doc-grid
-  const internalDocs = (c.internalDocs || []).filter(d => d.href);
+  // Client portal is publicly accessible — strip internal-only docs (e.g.
+  // Pitch Kit / integration-deck) so they never leak to clients. The Pitch
+  // Kit lives on the architect portal (firebase/public/index.html) only.
+  const INTERNAL_DOC_TITLES = /^(pitch\s*kit|integration\s*deck|architect\s*guide)$/i;
+  const internalDocs = (c.internalDocs || [])
+    .filter(d => d && d.href && !INTERNAL_DOC_TITLES.test(d.title || ''));
   fill('internal-docs', internalDocs.length > 0
     ? `<div class="internal-docs">
         <span class="internal-docs-label">Internal</span>
