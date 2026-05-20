@@ -13,6 +13,11 @@ Read `docs/PLANNING_CONTEXT.md` at the start of every session before doing anyth
 
 Do not wait to be asked. The goal is that no UI mistake is ever repeated across sessions.
 
+**HTML pre-flight — MANDATORY:** Before writing or editing ANY `.html` file, you MUST:
+1. Read `commons/branding/HTML_DESIGN_STANDARDS.json` — this is the machine-readable source of truth for palette, forbidden patterns, components, and template pipeline
+2. Check `HTML_DESIGN_STANDARDS.json` `templates` section — if a matching template exists for the document type, generate it via `fill-template.js`, never from scratch
+3. Never invent CSS, color vars, or layout patterns — use only what is defined in `HTML_DESIGN_STANDARDS.json`
+
 **HTML lint enforcement:** `commons/branding/lint-html.js` runs automatically (via PostToolUse hook) after every `.html` file is written or edited. If it reports violations, fix them immediately — do not defer or explain them away. Every `.html` file in this repo must pass all lint checks before the session ends.
 
 **FROZEN TEMPLATE — `commons/templates/intake-template.html`:** This file is frozen as of 2026-05-14. The current design (collapsible section tiles, compact Q grid, sticky bar, UC details/summary, white-page standards) is the approved baseline. Do NOT modify this file without explicit user approval. If a change is needed, state what will change and wait for confirmation before touching the file.
