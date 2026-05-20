@@ -162,6 +162,66 @@ if (cfg.requiresClient && !client) {
   console.error(`❌ --client <slug> is required for --template ${templateType}`);
   process.exit(1);
 }
+
+// ─── ELEVENTY DISPATCH ───────────────────────────────────────────────────────
+// Templates that have been ported to the new Eleventy + DTCG tokens + Nunjucks
+// pipeline. For these, this script becomes a thin CLI shim: it runs Eleventy
+// then copies the matching output file to the legacy outFile path so all 9
+// callers (regen-all-clients, republish, update-firebase, generate-client-portal,
+// firebase/deploy.sh, DSPipeline/scout/orchestrate.js, petra.toml, quinn.toml,
+// mira.toml) keep working without any change.
+//
+// See docs/HTML_PIPELINE_MIGRATION.md for which templates are ported and why.
+const ELEVENTY_TEMPLATES = new Set([
+  'ds-pricing-model',
+  'architect-guide',
+  'client-portal',
+  'integration-deck',
+]);
+if (ELEVENTY_TEMPLATES.has(templateType)) {
+  const { spawnSync } = require('child_process');
+  const eleventyBuildDir = path.join(root, 'docs', 'eleventy', '_build');
+
+  // Eleventy output path for each ported template type. Mirrors permalinks
+  // declared in docs/eleventy/site/**/*.njk.
+  const eleventyOutMap = {
+    'ds-pricing-model': () => path.join(eleventyBuildDir, 'resources', 'ds-pricing-model.html'),
+    'architect-guide':  () => path.join(eleventyBuildDir, 'resources', 'architect-guide.html'),
+    'client-portal':    (c) => path.join(eleventyBuildDir, 'portal', `${c}.html`),
+    'integration-deck': (c) => path.join(eleventyBuildDir, 'internal', `integration-deck-${c}.html`),
+  };
+  const eleventySrc = eleventyOutMap[templateType](client);
+
+  // Resolve target path (handles --out-override the same way the legacy code does)
+  const _outIdx       = args.indexOf('--out-override');
+  const _outOverride  = _outIdx !== -1 ? args[_outIdx + 1] : null;
+  const finalOutFile  = _outOverride
+    ? path.resolve(root, _outOverride)
+    : cfg.outFile(client);
+
+  // Run Eleventy from the project root. The npm script wraps token rebuild + eleventy.
+  const buildResult = spawnSync('npm', ['run', 'build:html'], {
+    cwd: root,
+    stdio: 'inherit',
+  });
+  if (buildResult.status !== 0) {
+    console.error(`✗ Eleventy build failed for template "${templateType}".`);
+    process.exit(buildResult.status || 1);
+  }
+
+  if (!fs.existsSync(eleventySrc)) {
+    console.error(`✗ Eleventy did not produce expected output: ${eleventySrc}`);
+    console.error(`  Check pagination filters in docs/eleventy/site/*.njk and ensure`);
+    console.error(`  the client has the right content files (project.json, portal-content.json, etc.).`);
+    process.exit(1);
+  }
+
+  fs.mkdirSync(path.dirname(finalOutFile), { recursive: true });
+  fs.copyFileSync(eleventySrc, finalOutFile);
+  console.log(`✓ Written (via Eleventy): ${finalOutFile}`);
+  process.exit(0);
+}
+
 const templateFile = path.join(root, 'commons', 'templates', `${templateType}-template.html`);
 const cssFile      = path.join(root, 'commons', 'templates', 'shared-base.css.html');
 

@@ -75,17 +75,16 @@ const CHECKS = [
   {
     name: 'No off-palette CSS vars',
     test: c => {
-      // Only the 11 standard vars are allowed. Flag any custom var definitions
-      // like --blue, --gray, --purple, --teal, --navy, etc.
-      const allowedVars = new Set([
-        '--brand','--brand-dk','--dark','--mid','--light','--border',
-        '--green','--amber','--amber-bg','--blue-bg','--blue-br',
-      ]);
-      const defined = [...c.matchAll(/--([a-z][a-z0-9-]*)(?=\s*:)/g)].map(m => `--${m[1]}`);
+      // Allowlist is read from HTML_DESIGN_STANDARDS.json so the lint stays
+      // in sync with the DTCG tokens compiled by scripts/build-tokens.js.
+      // Variable names use [a-zA-Z0-9-] to match Style Dictionary's camelCase
+      // output (e.g. --font-lineHeight-body).
+      const allowedVars = new Set(STANDARDS.palette.allowedVars || []);
+      const defined = [...c.matchAll(/--([a-zA-Z][a-zA-Z0-9-]*)(?=\s*:)/g)].map(m => `--${m[1]}`);
       const offPalette = defined.filter(v => !allowedVars.has(v));
       return offPalette.length === 0;
     },
-    message: 'Off-palette CSS custom variables defined — only the 11 standard vars are allowed (see HTML_DESIGN_STANDARDS.md: Color Palette). Remove --blue, --gray, or any other invented vars.',
+    message: 'Off-palette CSS custom variables defined — only the vars listed in HTML_DESIGN_STANDARDS.json palette.allowedVars are permitted. Generated tokens come from tokens/*.json via scripts/build-tokens.js — update tokens/ + run build:tokens, then add the new name to allowedVars.',
   },
 
   // ── Body background ────────────────────────────────────────────────────────
