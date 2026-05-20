@@ -7,7 +7,7 @@
 
 **Started:** 2026-05-20
 **Current owner:** active migration
-**Status:** foundation complete + **4 of 6 templates ported with CLI shim dispatching** (ds-pricing-model, architect-guide, client-portal, integration-deck). The 4 ported templates produce HTML via Eleventy now; the legacy `fill-template.js` shim copies output to the original paths so all 9 callers and 3 agent .tomls work unchanged. Remaining: corporate-brief (blocked — template file missing from repo), proposal (heavy), intake (HARD parity gate).
+**Status:** foundation complete + **all 7 templates ported with CLI shim dispatching** (ds-pricing-model, architect-guide, client-portal, integration-deck, corporate-brief, proposal, intake). All 7 ported templates produce HTML via Eleventy; the legacy `fill-template.js` shim copies output to the original paths so all 9 callers and 3 agent .tomls work unchanged. HARD parity gate passed (5/5 VR baselines clean). Migration complete — only pending work is lint tooling replacement (low priority).
 
 ---
 
@@ -40,8 +40,11 @@ new pipeline makes drift structurally impossible:
 | `architect-guide` port | **working** — pulls `commons/sales/architect-guide.md`, renders via `mdToHtml` filter | `docs/eleventy/_includes/layouts/architect-guide.njk` + `site/resources/architect-guide.11tydata.js` |
 | `client-portal` port | **working** — paginated over `_data/clientsWithPortal.js`, generates one HTML per client with portal-content.json | `docs/eleventy/_includes/layouts/client-portal.njk` + 3 components + `site/portal/client.njk` + `_data/clients.js` |
 | `integration-deck` port | **working** — shell with Firestore runtime fetch; CLIENT_SLUG injected via `window.__CLIENT_SLUG` outside the raw block | `docs/eleventy/_includes/layouts/integration-deck.njk` + `site/internal/deck.njk` |
-| **CLI shim in `fill-template.js`** | **working** — for the 4 ported templates the script now runs `npm run build:html` (Eleventy) and copies the matching `docs/eleventy/_build/...` file to the legacy outFile path. All 9 consumers (regen scripts, agent .tomls, firebase deploy) keep working without change. Frozen-client guard still fires before the Eleventy dispatch. | `commons/branding/fill-template.js` lines ~160–215 (look for `ELEVENTY_TEMPLATES`) |
-| Hard parity gate after CLI shim | **passing** — `npm run vr:diff:intake` reports 5 clean, 0 HARD-failed after the new pipeline regenerated ds-pricing-model, architect-guide, homage portal, agilemind integration-deck via the shim | `npm run vr:diff:intake` |
+| `corporate-brief` port | **working** — layout + 3 components (stack-card, sibling-row, intel-card) + `clientsWithBrief.js` data filter + `site/intake/corporate-brief.njk` pagination; shim dispatches via `intake/corporate-brief-{slug}.html` permalink | `docs/eleventy/_includes/layouts/corporate-brief.njk` + 3 components + `_data/clientsWithBrief.js` + `site/intake/` |
+| `proposal` port | **working** — layout + 5 components (flow-card, stage-card, fomo-card, cs-card, investment) + `clientsWithProposal.js` data filter + `site/intake/proposal.njk` pagination + `proposal.11tydata.js` sidecar (pricing math, case-study scoring, diagram SVG, proposalAbout); shim dispatches via `intake/proposal-{slug}.html` permalink | `docs/eleventy/_includes/layouts/proposal.njk` + 5 components + `_data/clientsWithProposal.js` + `site/intake/proposal*` |
+| **`intake` port** | **working** — CSS + JS lifted verbatim from frozen `intake-template.html`; Nunjucks slots replace all `<!-- FILL:X -->` markers; `CLIENT_SLUG`/`architectEmail` injected outside `{% raw %}` block; Firestore submit + soft-lock banner intact; `clientsWithIntake.js` data filter; shim dispatches via `intake/intake-questionnaire-{slug}.html` permalink. HARD parity gate passed (5/5 VR baselines, 0 HARD diffs). | `docs/eleventy/_includes/layouts/intake.njk` + `_data/clientsWithIntake.js` + `site/intake/intake.njk` + `site/intake/intake.11tydata.js` |
+| **CLI shim in `fill-template.js`** | **working** — for all 6 ported templates the script now runs `npm run build:html` (Eleventy) and copies the matching `docs/eleventy/_build/...` file to the legacy outFile path. All 9 consumers (regen scripts, agent .tomls, firebase deploy) keep working without change. Frozen-client guard still fires before the Eleventy dispatch. | `commons/branding/fill-template.js` lines ~160–215 (look for `ELEVENTY_TEMPLATES`) |
+| Hard parity gate after CLI shim | **passing** — `npm run vr:diff:intake` reports 5 clean, 0 HARD-failed | `npm run vr:diff:intake` |
 | npm scripts | **working** | `npm run build:tokens`, `npm run build:html`, `npm run vr:baseline`, `npm run vr:diff`, `npm run vr:diff:intake` |
 | Codespace persistence | **working** — `.devcontainer/devcontainer.json` `postCreateCommand` runs `npm install` on rebuild; all new deps in `package.json` devDependencies | — |
 
@@ -49,14 +52,12 @@ new pipeline makes drift structurally impossible:
 
 | Order | Task | Risk | Estimated time |
 |---|---|---|---|
-| 1 | Port `corporate-brief` template — **blocked**: `commons/templates/corporate-brief-template.html` is missing from the repo (not present in HEAD). `buildCorporateBrief` exists in `fill-template.js` but has no template to fill. Reverse-engineer from `projects/sample/intake/corporate-brief-sample.html` (the only known output) or create from scratch. Defer until source template is reconstructed. | blocked | 60 min (after unblock) |
-| 2 | Port `proposal` template — move pricing math, FOMO scoring, case-study selection, diagram-gen to computed-data helpers | medium | 2–3 hr |
-| 3 | Port `intake` template — **HARD parity gate**, Firestore submit JS must stay intact | high | 2–3 hr |
-| 4 | Build CLI shim: `fill-template.js` dispatches to Eleventy for ported templates, falls back to legacy for the rest | low | 45 min |
-| 5 | Run `regen-all-clients` + `npm run vr:diff:intake`; resolve any HARD diffs to zero | low (gated) | 30 min |
-| 6 | Replace `lint-html.js` with htmlhint + stylelint configs + custom DataSkate rules | medium | 60 min |
-| 7 | Mobile-first responsive layer (deferred per user instruction — desktop-only for now, add later) | — | future |
-| 8 | Update `CLAUDE.md`, `HTML_DESIGN_STANDARDS.json`, `template-registry.json` | low | 30 min |
+| ~~1~~ | ~~Port `proposal` template~~ | ~~medium~~ | **done** |
+| ~~2~~ | ~~Port `intake` template — HARD parity gate, Firestore submit JS must stay intact~~ | ~~high~~ | **done** |
+| ~~3~~ | ~~Run `regen-all-clients` + `npm run vr:diff:intake`; resolve any HARD diffs to zero~~ | ~~low~~ | **done — 5/5 clean** |
+| 4 | Replace `lint-html.js` with htmlhint + stylelint configs + custom DataSkate rules | medium | 60 min |
+| 5 | Mobile-first responsive layer (deferred per user instruction — desktop-only for now, add later) | — | future |
+| ~~6~~ | ~~Update `CLAUDE.md`, `HTML_DESIGN_STANDARDS.json`, `template-registry.json`~~ | ~~low~~ | **done** |
 
 ---
 
@@ -129,6 +130,13 @@ tests/visual/baseline/                    ← 29 baseline PNGs (committed)
 - **9 consumers of `fill-template.js`**: `scripts/regen-all-clients.js`, `scripts/republish.js`, `scripts/update-firebase.js`, `scaffold/generate-client-portal.js`, `firebase/deploy.sh`, `DSPipeline/scout/orchestrate.js`, plus 3 agent .tomls (`petra.toml`, `quinn.toml`, `mira.toml`). The CLI shim must preserve `--template X --client Y` interface exactly.
 - **Firestore runtime fetch**: per-client documents (intake, proposal, integration-deck, client-portal) load content dynamically from Firestore at runtime. The build-time templates render the shell; runtime JS fetches data. Don't break the inline `<script>` blocks that talk to Firestore.
 - **Template versioning (PR #33)**: `scripts/bump-template.js` and the Layer 2 versioning system have their own `templateFile/cssFile` assumptions in `template-registry.json`. Update the registry when porting each template.
+- **Client-logo flow + sizing (documented, not yet hardened)**: the per-client logo shown next to the DataSkate wordmark on the corporate-brief / proposal / integration-deck / client-portal flows through this chain:
+  1. **Vera scrapes a URL** ([`DSPipeline/agents/vera.toml`](../DSPipeline/agents/vera.toml) Step 1b) — first match of `og:image` → `apple-touch-icon` → `icon`, stored as `vera.json` `company.logoUrl`. Clearbit fallback is dead.
+  2. **Download** ([`scaffold/generate-client-portal.js`](../scaffold/generate-client-portal.js) `downloadLogo()`) writes the image to **`projects/{slug}/intake/logo-{slug}.png`** *and* `firebase/public/logos/{slug}.png`.
+  3. **Sync net** ([`scripts/update-firebase.js`](../scripts/update-firebase.js) `syncLogo()`) re-copies `intake/logo-{slug}.{ext}` → `firebase/public/logos/{slug}.{ext}`.
+  4. **Resolve** — legacy `resolveClientLogoPath()` and Eleventy `_data/clients.js` both read **`firebase/public/logos/{slug}.{ext}`** (NOT the intake folder directly) and emit the public URL into `<img class="client-logo-img">`.
+  - **Sizing is owned entirely by CSS**: `.client-logo-img { height:32px; width:auto; max-width:140px; object-fit:contain; }` plus `onerror="…display='none'"`. This guarantees the header layout never breaks for any source dimensions.
+  - **Known unmanaged risk (decision 2026-05-20: document, don't fix yet)**: image *selection* is not validated. `og:image` is preferred first but is usually a 1200×630 social banner, not a square logo — squeezed to 32px tall it can be illegible. There is no aspect-ratio / min-dimension guard and no human approval gate before the client-facing corporate brief ships. Revisit (selection guard, or review gate via a `project.json` `logoApproved` flag) when a real client surfaces a bad logo.
 
 ### Decisions / preferences locked in
 
@@ -138,6 +146,95 @@ tests/visual/baseline/                    ← 29 baseline PNGs (committed)
 - **Data model**: Eleventy data cascade — sidecar `.11tydata.js` for page-specific data, `_data/*.js` for global.
 - **Markdown**: project-local converter in `commons/branding/md-to-html.js`, not markdown-it. Preserves the `.md-table` / `.code-block` class hooks the architect-guide CSS depends on.
 - **Component naming**: kebab-case, `<noun>-card.njk` for repeating units, `<name>.njk` for layouts.
+- **`esc` filter returns a Nunjucks `SafeString`** (`.eleventy.js`): Nunjucks autoescape is ON by default, so a plain-string `esc` result was being double-escaped (`M&A` → `M&amp;amp;A`). The filter now escapes `& < > "` (NOT `'`, matching the legacy `esc()` in `fill-template.js`) and marks the result safe so it is the only escape. For text without special chars this is identical to bare `{{ x }}`, so it's a safe drop-in — this fixed a latent double-escape in the previously-ported templates too (re-baselined `fb-portal-homage`). Helper filters added alongside: `domainOnly` (strip scheme/trailing slash) and `iStartsWith` (case-insensitive prefix test).
+
+---
+
+## Proposal port — implementation plan (ready to execute)
+
+Research was completed in the session ending 2026-05-20. Start coding directly — no re-reading needed.
+
+### Files to CREATE (8 new files)
+
+```
+docs/eleventy/_data/clientsWithProposal.js      ← filter clients where c.proposal != null
+docs/eleventy/site/intake/proposal.njk           ← paginated entry: permalink /intake/proposal-{slug}.html
+docs/eleventy/site/intake/proposal.11tydata.js   ← eleventyComputed: proposal, proposalPricing, proposalAbout, proposalCS, proposalDiagram, docTitle
+docs/eleventy/_includes/layouts/proposal.njk     ← main layout (CSS lifted verbatim from proposal-template.html)
+docs/eleventy/_includes/components/proposal-flow-card.njk
+docs/eleventy/_includes/components/proposal-stage-card.njk
+docs/eleventy/_includes/components/proposal-fomo-card.njk
+docs/eleventy/_includes/components/proposal-cs-card.njk
+docs/eleventy/_includes/components/proposal-investment.njk   ← model grid + rate tables + negotiate panel
+```
+
+### File to MODIFY
+
+`commons/branding/fill-template.js` — add `'proposal'` to `ELEVENTY_TEMPLATES` set (line ~176) and add `'proposal': (c) => path.join(eleventyBuildDir, 'intake', `proposal-${c}.html`)` to `eleventyOutMap` (after line ~193).
+
+### Key implementation notes
+
+**`proposal.11tydata.js` sidecar — `eleventyComputed` functions:**
+- `proposal` → `data.client.proposal`
+- `proposalPricing` → only computed when `proposal.pricing == true`; reads `data.pricing` (global), uses `data.client.proposal.meta.flowCount` + `data.client.proposal.buyerProfile.primary`; outputs: `{ recModel, n, yearFmt, p1Fmt, p2Fmt, implTotalFmt, retainerFmt, diffFmt, implPerFlowFmt, baseFmtD, p2FmtD, tmTotalFmt, tmPerFlowFmt, tm, ... }`
+- `PROFILE_RECOMMENDED_MODEL` map: `{ 'roi-analytical':'iaas', 'risk-averse':'iaas', 'relationship-builder':'iaas', 'technical-champion':'tm', 'budget-conscious':'impl' }` — default `'iaas'` for any unmapped profile (e.g. `'operational-pragmatist'`)
+- `proposalAbout` → read `commons/sales/about-dataskate.md`; if content starts with `<`, return raw; else wrap paragraphs. Same logic as `fill-template.js` line 242–246.
+- `proposalCS` → read `commons/social-proof/client-case-studies.json`; score by system overlap (from `diagramNodes` + flow routes, +3 per match) + relevance tags (+1); pick top 2
+- `proposalDiagram` → check `projects/{slug}/intake/system-diagram.svg` first; fallback: build inline SVG from `proposal.solution.diagramNodes` using `buildDiagramSvg()` (copy from `fill-template.js` line 894–937, using local `esc()`)
+- `docTitle` → `'DataSkate × ' + clientName + ' — Integration Roadmap'`
+
+**JS constants injection pattern (same as integration-deck.njk):**
+```html
+<script>
+window.__PROP_SLUG  = "{{ (proposal.meta.clientSlug or '') | esc }}";
+window.__PROP_NAME  = "{{ (proposal.meta.clientName or '') | esc }}";
+window.__PROP_EMAIL = "{{ (proposal.meta.architectEmail or '') | esc }}";
+window.__PROP_ARCH  = "{{ (proposal.meta.architect or '') | esc }}";
+window.__PROP_RATE  = {{ pricing.baseRate if proposalPricing else 0 }};
+window.__PROP_FLOWS = {{ proposal.meta.flowCount if proposal else 0 }};
+window.__PROP_MODEL = "{{ (proposalPricing.recModel if proposalPricing else '') | esc }}";
+</script>
+{% raw %}<script>
+const CLIENT_SLUG         = window.__PROP_SLUG;
+...rest of Firebase JS verbatim from proposal-template.html lines 554-780...
+</script>{% endraw %}
+```
+
+**`body` tag:** `<body data-buyer-profile="{{ ((proposal.buyerProfile and proposal.buyerProfile.primary) or '') | esc }}">`
+
+**HTML escape rules (critical):**
+- `| esc`: all user text (names, titles, labels, assumptions, etc.)
+- `| safe`: pre-rendered HTML that should NOT be re-escaped: `proposalAbout`, `proposalDiagram`, `flow.value`, `outcome.body`, `step.body`, `proposal.roi.body`, stage items (`stage.items[i]`)
+- Bare `{{ x }}` is fine for numeric values (Nunjucks autoescape won't change them)
+- Price strings in `onclick` attrs (e.g. `$300.00`) have no special chars — bare `{{ proposalPricing.baseFmtD }}` is safe
+
+**Conditional sections:**
+- ROI: `{% if proposal.roi %}` — open by default when `proposal.buyerProfile.primary == 'roi-analytical'`
+- Timeline: `{% if proposal.timeline and proposal.timeline | length > 0 %}`
+- FOMO: `{% if proposal.fomo and proposal.fomo | length > 0 %}`
+- Thought starters: `{% if proposal.fomoThoughtStarters and proposal.fomoThoughtStarters | length > 0 %}`
+- Investment: `{% if proposalPricing %}` — wraps `<details id="investment-details">` + includes `proposal-investment.njk`
+- Case studies: `{% if proposalCS and proposalCS | length > 0 %}`
+
+**Stage card loop:**
+```njk
+{% for stageKey in ['stage1', 'stage2', 'stage3'] %}
+{% set stage = proposal.journey[stageKey] %}
+{% set stageNum = loop.index %}
+{% include "components/proposal-stage-card.njk" %}
+{% endfor %}
+```
+
+**Investment component `proposal-investment.njk`:**
+In scope from layout: `proposalPricing`, `pricing` (global). IaaS is default-visible when `recModel == 'iaas'` (iaasDisplay = `style="display:none"` if not iaas). T&M card only rendered when `proposalPricing.tm` is non-null.
+
+**Test client:** `agilemind` has `projects/agilemind/intake/proposal-content.json` (4 flows, `pricing: true`, `buyerProfile.primary: 'operational-pragmatist'`). After build, output should be at `docs/eleventy/_build/intake/proposal-agilemind.html`.
+
+**CLI shim test:** `node commons/branding/fill-template.js --template proposal --client agilemind`
+
+### Data shape reference
+
+All fields documented in `projects/agilemind/intake/proposal-content.json`. Top-level keys: `meta`, `challenge`, `solution`, `roi`, `journey`, `flows`, `outcomes`, `included`, `oos`, `assumptions`, `timeline`, `pricing`, `fomo`, `buyerProfile`, `fomoThoughtStarters`, `nextSteps`, `about`.
 
 ---
 

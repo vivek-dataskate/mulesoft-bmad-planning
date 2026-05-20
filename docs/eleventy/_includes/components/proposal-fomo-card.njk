@@ -1,0 +1,35 @@
+{#
+  components/proposal-fomo-card.njk
+  Variables set by parent loop: fomoItem
+#}
+{% if fomoItem.relevanceTier == 'exact-match' %}
+  {% set tierLabel = 'Exact match' %}{% set tierCls = 'tier-exact' %}
+{% elif fomoItem.relevanceTier == 'same-industry' %}
+  {% set tierLabel = 'Same industry' %}{% set tierCls = 'tier-adjacent' %}
+{% elif fomoItem.relevanceTier == 'adjacent-industry' %}
+  {% set tierLabel = 'Adjacent industry' %}{% set tierCls = 'tier-adjacent' %}
+{% elif fomoItem.relevanceTier == 'industry-stat' %}
+  {% set tierLabel = 'Industry data' %}{% set tierCls = 'tier-stat' %}
+{% else %}
+  {% set tierLabel = fomoItem.relevanceTier %}{% set tierCls = 'tier-stat' %}
+{% endif %}
+<div class="fomo-card">
+  <div class="fomo-card-head">
+    <div>
+      <div class="fomo-co">
+        {% if fomoItem.sourceUrl %}<a href="{{ fomoItem.sourceUrl | esc }}" target="_blank" rel="noopener" class="fomo-co-link">{{ fomoItem.name | esc }} ↗</a>
+        {% else %}{{ fomoItem.name | esc }}{% endif %}
+      </div>
+      {% if fomoItem.revenue %}<div class="fomo-meta">{{ fomoItem.revenue | esc }}</div>{% endif %}
+    </div>
+    {% if tierLabel %}<span class="fomo-tier-badge {{ tierCls | esc }}">{{ tierLabel | esc }}</span>{% endif %}
+  </div>
+  {% if fomoItem.analogyNote %}<div class="fomo-analogy">{{ fomoItem.analogyNote | esc }}</div>{% endif %}
+  {% if fomoItem.savings %}<div class="fomo-savings-val">{{ fomoItem.savings | esc }}</div>{% endif %}
+  <div class="fomo-built">{{ (fomoItem.whatTheyBuilt or fomoItem.what or '') | esc }}</div>
+  {% if fomoItem.aiAgentDescription %}<div class="fomo-agent">{{ fomoItem.aiAgentDescription | esc }}</div>{% endif %}
+  {% if fomoItem.fomoAngle %}<div class="fomo-angle">{{ fomoItem.fomoAngle | esc }}</div>{% endif %}
+  {% if fomoItem.sourceUrl and fomoItem.sourceLabel and fomoItem.relevanceTier == 'industry-stat' %}
+  <div class="fomo-source"><a href="{{ fomoItem.sourceUrl | esc }}" target="_blank" rel="noopener">{{ fomoItem.sourceLabel | esc }}</a></div>
+  {% endif %}
+</div>
