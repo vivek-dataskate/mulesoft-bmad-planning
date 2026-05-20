@@ -144,8 +144,8 @@ async function uploadHtmlToStorage(slug) {
   // [localFilename, storageDest, projectJsonKey, firebase/public/ subdir, useHostingUrl]
   // useHostingUrl=true → serve from Firebase Hosting (no Storage auth wall)
   const pairs = [
-    [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,  'intakeUrl',   'intake',   false],
-    [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`, 'proposalUrl', 'proposal', false],
+    [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,  'intakeUrl',   'intake',   true],
+    [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`, 'proposalUrl', 'proposal', true],
     [`integration-deck-${slug}.html`,      `internal/${slug}/pitch-kit.html`,   'pitchKitUrl', 'internal', true],
   ];
 
