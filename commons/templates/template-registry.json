@@ -19,8 +19,8 @@
       "fillCommand": "node commons/branding/fill-template.js --template intake --client {client}",
       "perClient": true,
       "frozen": true,
-      "frozenNote": "commons/templates/intake-template.html is FROZEN. Do not modify without explicit user approval. The current design (collapsible sections + UCs, compact Q grid, sticky bar, section tiles, white-page standards) is the approved baseline as of 2026-05-14. Warn the user before making any CSS or structural changes.",
-      "notes": "Sticky submit bar + Firestore save. No mailto. Success banner on completion."
+      "frozenNote": "commons/templates/intake-template.html is FROZEN. Do not modify without explicit user approval. The current approved baseline (2026-05-20) is the 2-column layout: main column with sticky category tabs (Business / Technical / Production / Future Flows) + collapsible section tiles, plus a sticky right rail with Progress / Subsections / Needs Attention / Links. Header is 2-column (title left, meta right). Biz-context is teaser-by-default. Sticky bar has Expand-all / Collapse-all tools on the left. Submit writes to Firestore intake_responses/{client}.versions[] via arrayUnion — versioning + soft-lock banner instead of hard lock. Print/Save PDF force-opens all <details>. See HTML_DESIGN_STANDARDS.json components: categoryTabs, intakeRail, railProgress, railNav, railAttention, railLinks, barTools, softLockBanner, docHeaderMeta, sourceLink, businessContextPanel (teaser variant), phaseChip.",
+      "notes": "Sticky submit bar + Firestore versioned write. No mailto. Architect Guide MUST NOT appear in rail-links (internal-only). Pitch Kit MUST NOT appear in client portal."
     },
     {
       "id": "proposal",
@@ -59,19 +59,20 @@
     {
       "id": "integration-deck",
       "name": "Integration Deck",
-      "audience": "external",
-      "loginRequired": false,
+      "audience": "internal",
+      "loginRequired": true,
+      "loginDomain": "@dataskate.ai",
       "category": "sales",
-      "purpose": "Per-client deep-research pitch deck with FOMO data, nearby peer examples, talking points, and AI journey narrative. Shared with client before or alongside proposal.",
+      "purpose": "Per-client deep-research pitch deck with FOMO data, nearby peer examples, talking points, and AI journey narrative. Internal AE briefing artifact — used to prep the architect/AE before client calls. Not shared with client directly.",
       "templateFile": "commons/templates/integration-deck-template.html",
       "cssFile": "commons/templates/shared-base.css.html",
       "contentFile": "projects/{client}/intake/integration-deck-content.json",
       "outputPath": "projects/{client}/intake/integration-deck-{client}.html",
-      "firebasePath": null,
+      "firebasePath": "internal/integration-deck-{client}.html",
       "generatedBy": "scout",
       "fillCommand": "node commons/branding/fill-template.js --template integration-deck --client {client}",
       "perClient": true,
-      "notes": "Requires web research in Scout Session 3a. Content sourced from company_context.json competitorFOMO and nearbyPeers."
+      "notes": "Requires web research in Scout Session 3a. Content sourced from company_context.json competitorFOMO and nearbyPeers. Firebase Google auth gated to @dataskate.ai. Logo height 28px (deck spec)."
     },
     {
       "id": "client-portal",

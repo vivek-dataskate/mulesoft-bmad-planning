@@ -1011,10 +1011,14 @@ function buildIntakeRailAttention(p0Blockers) {
   if (!p0Blockers || !p0Blockers.length) return '';
   return p0Blockers.map(b => {
     const target = b.sectionRef ? `sec:${b.sectionRef}` : 'biz';
+    // Strip leading separator characters from the body — historical data carries
+    // ' — '/'— '/': '/'- ' prefixes from when title+body rendered inline. With
+    // the title now display:block, that punctuation looks orphaned at body start.
+    const rawBody = (b.clientAction || b.body || b.blocker || '').replace(/^\s*[—\-:·]+\s*/, '');
     return (
       `<li data-target="${esc(target)}" tabindex="0" role="link">` +
-        `<strong>${esc(b.title || b.system || 'P0 Blocker')}</strong>` +
-        `${esc(b.clientAction || b.body || b.blocker || '')}` +
+        `<strong class="attn-title">${esc(b.title || b.system || 'P0 Blocker')}</strong>` +
+        `<span class="attn-body">${esc(rawBody)}</span>` +
       `</li>`
     );
   }).join('\n');
@@ -1032,18 +1036,33 @@ function buildIntakePhaseChip(journeyCards) {
 }
 
 // Pull any "Potential Flows" sub-block out of a section's bodyHtml so it can
-// be promoted to the synthetic "future" bucket. Matches the Scout convention:
-// an <h3> containing "Potential Flows" or "Future Flows", through everything
-// up to the next h2/h3 (or end of bodyHtml).
+// be promoted to the synthetic "future" bucket. Stops at the close of the
+// first <table> so we don't accidentally swallow a trailing </details> or
+// </div> that belongs to an enclosing UC wrapper (that bug nested all
+// subsequent sections inside section 1 in browsers).
 function extractPotentialFlowsBlock(bodyHtml) {
   if (!bodyHtml || typeof bodyHtml !== 'string') return { kept: bodyHtml, extracted: null };
-  const re = /<h3[^>]*>[^<]*(?:Potential|Future)\s+Flows[^<]*<\/h3>([\s\S]*?)(?=<h[23][\s>]|$)/i;
+  // Match: <h3>...Potential|Future Flows...</h3>(optional paragraphs)<table>...</table>
+  // The terminating </table> is the hard boundary — never extend past it.
+  const re = /<h3[^>]*>[^<]*(?:Potential|Future)\s+Flows[^<]*<\/h3>\s*(?:<p\b[\s\S]*?<\/p>\s*)*<table[\s\S]*?<\/table>/i;
   const m = bodyHtml.match(re);
   if (!m) return { kept: bodyHtml, extracted: null };
-  return {
-    kept:      bodyHtml.slice(0, m.index) + bodyHtml.slice(m.index + m[0].length),
-    extracted: m[0],
+  const kept      = bodyHtml.slice(0, m.index) + bodyHtml.slice(m.index + m[0].length);
+  const extracted = m[0];
+  // Safety: refuse to extract if the slice would unbalance <details> tags in
+  // either the kept content or the extracted block. Better to leave PF inline
+  // than to ship malformed DOM that nests every subsequent section.
+  const detailsDepth = (s) => {
+    const r = /<\/?details\b[^>]*>/g;
+    let dm, d = 0;
+    while ((dm = r.exec(s)) !== null) d += dm[0].startsWith('</') ? -1 : 1;
+    return d;
   };
+  if (detailsDepth(kept) !== detailsDepth(bodyHtml) || detailsDepth(extracted) !== 0) {
+    console.warn('⚠ Potential Flows extraction would unbalance <details> — keeping inline.');
+    return { kept: bodyHtml, extracted: null };
+  }
+  return { kept, extracted };
 }
 
 // Count rows in the Potential-Flows table for the right-rail badge.
