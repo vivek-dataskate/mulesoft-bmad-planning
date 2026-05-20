@@ -11,8 +11,9 @@
 //   node commons/branding/fill-template.js --template architect-guide   [--src path/to/file.md]
 
 'use strict';
-const fs   = require('fs');
-const path = require('path');
+const fs     = require('fs');
+const path   = require('path');
+const crypto = require('crypto');
 
 const args         = process.argv.slice(2);
 const templateType = args[args.indexOf('--template') + 1];
@@ -23,7 +24,39 @@ const resourceName = nameIdx !== -1 ? args[nameIdx + 1] : null;
 const srcIdx       = args.indexOf('--src');
 const resourceSrc  = srcIdx !== -1 ? args[srcIdx + 1] : null;
 
-const KNOWN_TEMPLATES = ['proposal', 'intake', 'integration-deck', 'client-portal', 'ds-pricing-model', 'architect-guide'];
+const KNOWN_TEMPLATES = ['proposal', 'intake', 'integration-deck', 'client-portal', 'corporate-brief', 'ds-pricing-model', 'architect-guide'];
+
+// ─── DS-GENERATED fingerprint helpers ────────────────────────────────────────
+// Embedded as the last line of every generated file so lint-html.js can detect:
+//   • body-hash mismatch  → file was edited directly (forbidden; edit template)
+//   • inputs-hash mismatch → template or shared CSS changed; regenerate
+// Lint and fill MUST compute identically — keep these helpers in sync with the
+// equivalent block in commons/branding/lint-html.js.
+const FINGERPRINT_RE = /[\r\n]*<!-- DS-GENERATED:[^\n]*-->\s*$/m;
+
+function stripFingerprint(html) {
+  return html.replace(FINGERPRINT_RE, '').replace(/\s*$/, '\n');
+}
+
+function hash16(...buffers) {
+  const h = crypto.createHash('sha256');
+  for (const b of buffers) h.update(b);
+  return h.digest('hex').slice(0, 16);
+}
+
+function inputsHashOf(templateId) {
+  const r = path.resolve(__dirname, '../..');
+  const tplPath = path.join(r, 'commons', 'templates', `${templateId}-template.html`);
+  const cssPath = path.join(r, 'commons', 'templates', 'shared-base.css.html');
+  return hash16(fs.readFileSync(tplPath), fs.readFileSync(cssPath));
+}
+
+function embedFingerprint(html, templateId) {
+  const body     = stripFingerprint(html);
+  const bodyHash = hash16(`template=${templateId}|`, body);
+  const inHash   = inputsHashOf(templateId);
+  return body + `<!-- DS-GENERATED: template=${templateId} body-hash=${bodyHash} inputs-hash=${inHash} -->\n`;
+}
 
 if (!templateType) {
   console.error('Usage: node fill-template.js --template <proposal|intake|portal|flyer|resource> [--client <slug>] [--name <slug> --src <path>]');
@@ -91,6 +124,11 @@ const typeConfig = {
     requiresClient: true,
     contentFile: (c) => path.join(root, 'projects', c, 'intake', 'integration-deck-content.json'),
     outFile:     (c) => path.join(root, 'projects', c, 'intake', `integration-deck-${c}.html`),
+  },
+  'corporate-brief': {
+    requiresClient: true,
+    contentFile: (c) => path.join(root, 'projects', c, 'intake', 'corporate-brief-content.json'),
+    outFile:     (c) => path.join(root, 'projects', c, 'intake', `corporate-brief-${c}.html`),
   },
 };
 
@@ -174,9 +212,15 @@ if (templateType === 'proposal') {
   // Shell only — content lives in Firestore, fetched post-auth at runtime
   fill('client-slug', client);
   fill('client-logo', clientLogoHtml(resolveClientLogoPath(client), client));
+} else if (templateType === 'corporate-brief') {
+  buildCorporateBrief(content);
 } else if (templateType === 'architect-guide') {
   buildResource(content);
 }
+
+// Embed DS-GENERATED fingerprint so lint-html.js can detect direct edits
+// (body-hash mismatch) or stale generations (inputs-hash mismatch).
+html = embedFingerprint(html, templateType);
 
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, html, 'utf8');
@@ -1471,6 +1515,134 @@ function buildIntegrationDeck(c) {
 
   // AI journey narrative
   fill('ai-narrative', c.aiJourneyNarrative || '');
+}
+
+// ─── CORPORATE BRIEF ─────────────────────────────────────────────────────────
+//
+// 1-page pre-call research summary sent to the buyer 48h before the deep-dive
+// call. Renders projects/{slug}/intake/corporate-brief-content.json against
+// commons/templates/corporate-brief-template.html.
+//
+// Source of truth: company_context.json.corporateStack — populated by Scout's
+// grounded inference (operating brand) and enriched by Vera (operating
+// platform's full sibling list, financial sponsor's portfolio companies,
+// integration signals per sibling).
+//
+// Content shape (see orchestrate.js renderCorporateBrief() for the writer):
+//   meta:               { clientName, clientSlug, date, architect, architectEmail, subtitle }
+//   intro:              one-paragraph cover line
+//   operatingBrand:     { name, website, linkedIn, industry, hqLocation, founded, scale, evidence }
+//   operatingPlatform:  { name, website, linkedIn, evidence, greenfieldFlag, siblingBrands[] } | null
+//   financialSponsor:   { name, website, linkedIn, evidence } | null
+//   forwardLookingTalkingPoints: [{ horizon: '6mo'|'18mo'|'5yr', insight, sourceUrl }]
+//   intelTheBuyerLacks:          [{ insight, sourceUrl, whyTheyLackIt }]
+//   citations:          [{ label, url }]
+//   closing:            one-line sign-off
+function buildCorporateBrief(c) {
+  const m = c.meta || {};
+  fill('client-name',     m.clientName);
+  fill('client-slug',     m.clientSlug || client || '');
+  fill('subtitle',        m.subtitle || 'What we noticed before the deep-dive call');
+  fill('architect',       m.architect       || 'DataSkate Team');
+  fill('architect-email', m.architectEmail  || 'kailash@dataskate.ai');
+  fill('date',            m.date            || '');
+  fill('client-logo',     clientLogoHtml(resolveClientLogoPath(m.clientSlug || client), m.clientName));
+
+  fill('intro', c.intro
+    ? `<strong>Before our deep-dive call:</strong> ${esc(c.intro)}`
+    : `<strong>Before our deep-dive call:</strong> Here's what we noticed about your business in public records and industry data. We don't pitch what you already know — this brief tells you what we observed so we can spend the call on what's <em>not</em> in public records.`);
+
+  // ── Corporate stack: 3 cards (operating brand, platform, sponsor) ─────────
+  const cardOrEmpty = (role, modifier, entity, evidenceFallback) => {
+    if (!entity || !entity.name) {
+      return `<div class="stack-card empty-card">
+        <div class="stack-role">${esc(role)}</div>
+        <div class="stack-name">Not applicable — independent / family-owned</div>
+      </div>`;
+    }
+    const meta = [
+      entity.industry  ? esc(entity.industry)  : null,
+      entity.hqLocation? esc(entity.hqLocation): null,
+      entity.founded   ? `Founded ${esc(entity.founded)}` : null,
+      entity.scale     ? esc(entity.scale)     : null,
+    ].filter(Boolean).join(' · ');
+    const links = [
+      entity.website  ? `<a href="${esc(entity.website)}" target="_blank" rel="noopener">${esc(entity.website.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</a>` : null,
+      entity.linkedIn ? `<a href="${esc(entity.linkedIn)}" target="_blank" rel="noopener">LinkedIn</a>` : null,
+    ].filter(Boolean).join(' &middot; ');
+    return `<div class="stack-card ${modifier}">
+      <div class="stack-role">${esc(role)}</div>
+      <div class="stack-name">${esc(entity.name)}</div>
+      ${meta   ? `<div class="stack-meta">${meta}</div>` : ''}
+      ${links  ? `<div class="stack-meta">${links}</div>` : ''}
+      ${entity.evidence ? `<div class="stack-evidence">${esc(entity.evidence)}</div>` : (evidenceFallback ? `<div class="stack-evidence">${esc(evidenceFallback)}</div>` : '')}
+    </div>`;
+  };
+  fill('stack-cards',
+    cardOrEmpty('Operating brand',    'brand-card',    c.operatingBrand,    null) +
+    cardOrEmpty('Operating platform', 'platform-card', c.operatingPlatform, null) +
+    cardOrEmpty('Financial sponsor',  'sponsor-card',  c.financialSponsor,  null)
+  );
+
+  // ── Siblings ──────────────────────────────────────────────────────────────
+  const platform   = c.operatingPlatform || {};
+  const siblings   = Array.isArray(platform.siblingBrands) ? platform.siblingBrands : [];
+  const greenfield = platform.greenfieldFlag === true;
+  fill('siblings-eyebrow', siblings.length ? ` — ${siblings.length} under ${esc(platform.name || 'platform')}` : '');
+  fill('greenfield-banner', greenfield && siblings.length
+    ? `<div class="sibling-greenfield-banner"><strong>Greenfield opportunity:</strong> none of the ${siblings.length} sibling brands shows a public integration footprint yet. The first sibling to invest sets the playbook for the rest.</div>`
+    : '');
+  fill('sibling-rows', siblings.length
+    ? siblings.map(s => {
+        const name = typeof s === 'string' ? s : (s.name || '');
+        if (!name) return '';
+        const obj  = typeof s === 'string' ? {} : s;
+        const link = obj.website ? `<a href="${esc(obj.website)}" target="_blank" rel="noopener">${esc(name)}</a>` : esc(name);
+        const sig  = obj.integrationSignal || 'unknown — no public integration footprint found';
+        const sigClass = /^unknown/i.test(sig) ? 'sibling-signal unknown' : 'sibling-signal';
+        const src = obj.sourceUrl ? ` <a href="${esc(obj.sourceUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--mid)">[source]</a>` : '';
+        return `<div class="sibling-row">
+          <div>
+            <div class="sibling-name">${link}</div>
+            ${obj.website ? `<div class="sibling-meta">${esc(obj.website.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</div>` : ''}
+          </div>
+          <div class="${sigClass}">${esc(sig)}${src}</div>
+        </div>`;
+      }).filter(Boolean).join('\n')
+    : `<div style="font-size:12px;color:var(--mid);font-style:italic">No sibling brands identified — operating brand stands alone.</div>`
+  );
+
+  // ── Intel (forward-looking + intelTheBuyerLacks) ──────────────────────────
+  const horizonLabels = { '6mo': '6 months', '18mo': '18 months', '5yr': '5 years' };
+  const fwd = Array.isArray(c.forwardLookingTalkingPoints) ? c.forwardLookingTalkingPoints : [];
+  const gap = Array.isArray(c.intelTheBuyerLacks)          ? c.intelTheBuyerLacks          : [];
+  const intelCards = [
+    ...fwd.map(f => `<div class="intel-card">
+      <span class="intel-tag horizon-${esc(f.horizon || '18mo')}">In ${esc(horizonLabels[f.horizon] || f.horizon || '18 months')}</span>
+      <div class="intel-text">${esc(f.insight || '')}</div>
+      ${f.sourceUrl ? `<div class="intel-source"><a href="${esc(f.sourceUrl)}" target="_blank" rel="noopener">source</a></div>` : ''}
+    </div>`),
+    ...gap.map(g => `<div class="intel-card">
+      <span class="intel-tag you-lack">Worth knowing</span>
+      <div class="intel-text">${esc(g.insight || '')}</div>
+      ${g.whyTheyLackIt ? `<div class="intel-source" style="color:var(--mid)">Why it's not in your research: ${esc(g.whyTheyLackIt)}</div>` : ''}
+      ${g.sourceUrl ? `<div class="intel-source"><a href="${esc(g.sourceUrl)}" target="_blank" rel="noopener">source</a></div>` : ''}
+    </div>`),
+  ].join('\n');
+  fill('intel-eyebrow', (fwd.length + gap.length) ? ` — ${fwd.length + gap.length} signal${fwd.length + gap.length === 1 ? '' : 's'}` : '');
+  fill('intel-cards', intelCards || `<div style="font-size:12px;color:var(--mid);font-style:italic">No forward-looking or gap intel surfaced yet — Vera enriches this on Step 2c/2d.</div>`);
+
+  // ── Citations ─────────────────────────────────────────────────────────────
+  const cites = Array.isArray(c.citations) ? c.citations : [];
+  fill('citations', cites.length
+    ? cites.map(ct => `<span class="citation-chip"><a href="${esc(ct.url || '#')}" target="_blank" rel="noopener">${esc(ct.label || ct.url || 'source')}</a></span>`).join('')
+    : `<span class="citation-chip" style="font-style:italic">No citations recorded for this engagement yet.</span>`
+  );
+
+  // ── Closing ───────────────────────────────────────────────────────────────
+  fill('closing', c.closing
+    ? `<p>${esc(c.closing)}</p>`
+    : `<p>This brief is the homework. The call is for the rest.</p>`);
 }
 
 // ─── RESOURCE ────────────────────────────────────────────────────────────────
