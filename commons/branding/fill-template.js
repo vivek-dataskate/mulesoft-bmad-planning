@@ -342,14 +342,16 @@ function buildProposal(c) {
     : '');
   fill('diagram-caption', sol.diagramCaption ? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
 
-  // Persist systemDiagram.future to project.json for downstream tools
-  if (diagramMermaid && client) {
+  // Persist systemDiagram.future nodes to project.json for downstream tools
+  if (diagramNodes && client) {
     const projPath = path.join(root, 'projects', client, 'project.json');
     if (fs.existsSync(projPath)) {
       try {
         const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
         if (!proj.systemDiagram) proj.systemDiagram = {};
-        proj.systemDiagram.future = { title: 'Future State — Unified', mermaid: diagramMermaid };
+        if (!proj.systemDiagram.future) proj.systemDiagram.future = {};
+        proj.systemDiagram.future.diagramNodes = diagramNodes;
+        if (sol.mermaid) proj.systemDiagram.future.mermaid = sol.mermaid;
         fs.writeFileSync(projPath, JSON.stringify(proj, null, 2) + '\n');
       } catch (e) { /* non-fatal */ }
     }
