@@ -15,7 +15,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const TEXT_EXTS = new Set(['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.html', '.htm', '.rst']);
+const TEXT_EXTS = new Set(['.txt', '.md', '.json', '.yaml', '.yml', '.csv', '.rst']);
 
 async function extractFileContent(fullPath, filename) {
   const ext = path.extname(filename).toLowerCase();
@@ -48,6 +48,20 @@ async function extractFileContent(fullPath, filename) {
       console.error(`DOCX extraction failed for ${filename}: ${e.message}`);
       return null;
     }
+  }
+
+  if (ext === '.html' || ext === '.htm') {
+    const raw = fs.readFileSync(fullPath, 'utf8');
+    // Strip tags, collapse whitespace, decode common entities
+    return raw
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .replace(/&#?\w+;/g, ' ')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim() || null;
   }
 
   return null;

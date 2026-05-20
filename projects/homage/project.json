@@ -51,7 +51,17 @@
     }
   ],
   "sourceFilesFolder": "https://console.cloud.google.com/storage/browser/dataskateclients.firebasestorage.app/source-files/homage",
-  "intakeUrl": "https://firebasestorage.googleapis.com/v0/b/dataskateclients.firebasestorage.app/o/client-docs%2Fhomage%2Fintake.html?alt=media",
-  "proposalUrl": "https://firebasestorage.googleapis.com/v0/b/dataskateclients.firebasestorage.app/o/client-docs%2Fhomage%2Fproposal.html?alt=media",
-  "pitchKitUrl": "https://dataskateclients.web.app/internal/homage.html"
+  "intakeUrl": "https://dataskateclients.web.app/intake/homage.html",
+  "proposalUrl": "https://dataskateclients.web.app/proposal/homage.html",
+  "pitchKitUrl": "https://dataskateclients.web.app/internal/homage.html",
+  "systemDiagram": {
+    "current": {
+      "title": "Current State — Fragmented",
+      "mermaid": "graph LR\n  SH[\"Shopify Plus\"] -->|\"22 flows\"| CE[\"Celigo\\n(Sikich managed)\"]\n  SS[\"ShipStation\"] --> TU[\"Turbine\\n(standalone)\"]\n  OR[\"Orderful EDI\\n(standalone)\"] -->|\"810/856/997\"| RT[\"Fanatics · DSG · Rallyhouse\"]\n  CE --> NS[\"NetSuite\"]\n  TU --> NS\n  style CE fill:#FFF5F5,stroke:#ed1c24,color:#c0392b\n  style TU fill:#FFF5F5,stroke:#ed1c24,color:#c0392b\n  style OR fill:#FFF5F5,stroke:#ed1c24,color:#c0392b"
+    },
+    "future": {
+      "title": "Future State — Unified",
+      "mermaid": "graph LR\n  SH[\"Shopify Plus\"] --> MS[\"MuleSoft\\n(DataSkate managed)\"]\n  SS[\"ShipStation\"] --> MS\n  OR[\"Orderful\"] --> MS\n  MS -->|\"22+ flows\"| NS[\"NetSuite\"]\n  MS --> RT[\"Fanatics · DSG · Rallyhouse\"]\n  style MS fill:#F0FFF4,stroke:#38A169,color:#276749"
+    }
+  }
 }
