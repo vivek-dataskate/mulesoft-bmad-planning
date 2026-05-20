@@ -1,0 +1,12 @@
+{#
+  components/proposal-cs-card.njk
+  Variables set by parent loop: cs
+#}
+<div class="cs-card">
+  <div class="cs-co">{{ cs.company | esc }}</div>
+  <div class="cs-meta">{{ cs.size | esc }} &middot; {{ (cs.systems or []) | join(', ') | esc }}</div>
+  <div class="cs-headline">{{ cs.headline | esc }}</div>
+  <div class="cs-built">{{ cs.whatWeBuilt | esc }}</div>
+  <div class="cs-outcome">&#10003; {{ cs.outcome | esc }}</div>
+  <div class="cs-ai">AI in Year 2: {{ cs.aiAngle | esc }}</div>
+</div>

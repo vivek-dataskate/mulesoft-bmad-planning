@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DataSkate × AgileMind — Integration Roadmap</title>
+<link rel="stylesheet" href="/tokens.css">
 <style>
 /* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
 :root {
@@ -31,6 +33,7 @@ body {
 }
 a { color: var(--brand); }
 </style>
+
 
 <style>
 body { max-width: 1080px; margin: 0 auto; padding: 0 0 80px; }
@@ -85,6 +88,8 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .challenge-card p { font-size: 12px; color: #44546A; margin: 0; line-height: 1.5; }
 
 /* ── SOLUTION DIAGRAM ── */
+.diagram-wrap { margin: 16px -40px 4px; display: flex; justify-content: center; overflow-x: auto; }
+.diagram-wrap svg { width: 100%; height: auto; max-width: 1010px; }
 .diagram-caption { font-size: 11px; color: var(--mid); text-align: center; margin-top: 8px; font-style: italic; line-height: 1.5; }
 
 /* ── FLOW CARDS ── */
@@ -181,7 +186,7 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .fomo-source a { color: var(--brand); text-decoration: underline; }
 .fomo-agent { font-size: 11px; color: #1D4ED8; background: #EFF6FF; border-radius: 4px; padding: 5px 8px; margin-bottom: 6px; line-height: 1.5; }
 .fomo-agent::before { content: '\26A1 AI agent: '; font-weight: 600; }
-/* ── AI THOUGHT STARTERS (standalone block, bottom of AI tab) ── */
+/* ── AI THOUGHT STARTERS ── */
 .ai-starters { padding: 16px 40px 22px; background: #F0F4FF; border-top: 2px solid var(--brand); }
 .ai-starters-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand); margin-bottom: 10px; }
 .ai-starters-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -222,7 +227,7 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .managed-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
 .managed-table th { text-align: left; padding: 8px 10px; background: var(--light); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); border-bottom: 2px solid var(--border); }
 .managed-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
-.managed-table tr:last-child td { border-bottom: none; font-weight: 600; background: var(--light); }
+.managed-table tr:last-child td { border-bottom: none; }
 .negotiate-panel { margin-top: 20px; border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
 .negotiate-header { margin-bottom: 16px; }
 .negotiate-label { font-size: 10px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
@@ -303,26 +308,38 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   .complexity-badge, .fomo-tier-badge, .stage-card, .model-card, .rec-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
-</head>
-<body data-buyer-profile="operational-pragmatist">
 
-<!-- HEADER -->
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
 <div class="header">
   <div class="header-top">
     <div class="logo-group">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:32px;width:auto;display:block;" aria-label="DataSkate">
-      <path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/>
-      <path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/>
-      <path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
-      <path fill="#231f20" d="m302.54,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
-      <path fill="#231f20" d="m361.69,320.49v-44.07h10.95v16.1h23.46v9.94h-23.46v18.03c0,6.07,3.13,8.46,7.64,8.46s7.64-2.3,7.64-8.46v-1.2h10.95v1.2c0,12.6-7.54,18.68-18.58,18.68s-18.58-6.07-18.58-18.68Z"/>
-      <path fill="#231f20" d="m405.39,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
-      <path fill="#ed1c24" d="m471.93,324.82h8.83c.18,3.77,3.68,6.44,10.03,6.44s10.03-2.85,10.03-6.44c0-4.32-4.78-4.88-10.49-5.61-7.91-1.01-17.48-2.48-17.48-12.88,0-8.92,6.99-15,17.85-15s17.57,6.16,17.75,13.98h-8.65c-.28-3.5-3.5-6.07-9.02-6.07-5.8,0-9.11,2.76-9.11,6.35,0,4.32,4.78,4.78,10.4,5.52,7.91,1.01,17.57,2.48,17.57,12.88,0,9.2-7.45,15.18-18.86,15.18s-18.58-6.07-18.86-14.35Z"/>
-      <path fill="#ed1c24" d="m520.51,272.65h8.74v40.02l20.88-20.15h11.5l-23.73,22.17,24.56,23.27h-11.68l-21.53-21.16v21.16h-8.74v-65.32Z"/>
-      <path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/>
-      <path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
-      <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
-    </svg><div class="client-logo-block"><div class="client-logo-sep"></div><img src="https://dataskateclients.web.app/logos/agilemind.png" alt="AgileMind" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
+      <span style="--logo-h: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:var(--logo-h,28px);width:auto;display:block;flex-shrink:0;" aria-label="DataSkate">
+<path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/>
+<path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/>
+<path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#231f20" d="m302.54,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#231f20" d="m361.69,320.49v-44.07h10.95v16.1h23.46v9.94h-23.46v18.03c0,6.07,3.13,8.46,7.64,8.46s7.64-2.3,7.64-8.46v-1.2h10.95v1.2c0,12.6-7.54,18.68-18.58,18.68s-18.58-6.07-18.58-18.68Z"/>
+<path fill="#231f20" d="m405.39,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#ed1c24" d="m471.93,324.82h8.83c.18,3.77,3.68,6.44,10.03,6.44s10.03-2.85,10.03-6.44c0-4.32-4.78-4.88-10.49-5.61-7.91-1.01-17.48-2.48-17.48-12.88,0-8.92,6.99-15,17.85-15s17.57,6.16,17.75,13.98h-8.65c-.28-3.5-3.5-6.07-9.02-6.07-5.8,0-9.11,2.76-9.11,6.35,0,4.32,4.78,4.78,10.4,5.52,7.91,1.01,17.57,2.48,17.57,12.88,0,9.2-7.45,15.18-18.86,15.18s-18.58-6.07-18.86-14.35Z"/>
+<path fill="#ed1c24" d="m520.51,272.65h8.74v40.02l20.88-20.15h11.5l-23.73,22.17,24.56,23.27h-11.68l-21.53-21.16v21.16h-8.74v-65.32Z"/>
+<path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/>
+<path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
+<path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
+</svg></span>
+      
+      <div class="client-logo-block"><div class="client-logo-sep"></div><img src="https://dataskateclients.web.app/logos/agilemind.png" alt="AgileMind" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
+      
     </div>
     <span class="eyebrow">Integration Roadmap — Confidential</span>
   </div>
@@ -338,7 +355,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
 </div>
 
-<!-- STICKY BAR — buttons only, no redundant title -->
+
 <div class="sticky-bar no-print">
   <button class="btn btn-outline" onclick="toggleAllSections(this)">Expand All</button>
   <button class="btn btn-outline" onclick="window.print()">Print / PDF</button>
@@ -346,7 +363,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <button class="btn btn-primary" id="accept-btn" onclick="showAcceptPanel()" style="background:var(--green)">Accept Proposal ✓</button>
 </div>
 
-<!-- ACCEPT PROPOSAL PANEL -->
+
 <div class="accept-panel no-print" id="accept-panel">
   <div class="accept-panel-head">Accept this Proposal</div>
   <div class="accept-panel-sub">Your name and email confirm acceptance. We'll follow up with an SOW for signature.</div>
@@ -358,7 +375,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
 </div>
 
-<!-- TAB NAV -->
+
 <div class="tab-nav no-print">
   <button class="tab-btn active" data-tab="proposal" onclick="showTab('proposal',this)">Proposal</button>
   <button class="tab-btn" data-tab="solution" onclick="showTab('solution',this)">Solution</button>
@@ -366,10 +383,10 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <button class="tab-btn" data-tab="about" onclick="showTab('about',this)">About Us</button>
 </div>
 
-<!-- ═══════ TAB 1: PROPOSAL ═══════ -->
+
 <div id="tab-proposal" class="tab-panel">
 
-<!-- THE CHALLENGE -->
+
 <details class="section-block" open>
   <summary class="section-head">
     <div class="section-summary">
@@ -379,23 +396,34 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
+    
     <p class="pull-quote">Before the solution — there are real questions left to answer: QuickBooks Online or Desktop, where Holly's spreadsheets live, whether the ISBN lookup table can be built before go-live. Those are worth nailing down — and they can be. Here is what is happening right now while those questions sit open: Crystal Robinson manually creates the QuickBooks invoice, manually transfers the account details and line items from the Salesforce Agreement, and then manually updates the invoice number, date, and payment information back into the Salesforce Agreement using a custom field. At 15 to 30 minutes per agreement, across a back-to-school pipeline that compresses into 60 days — that is the labor cost of the status quo, running every cycle.</p>
-    <div class="challenge-grid"><div class="challenge-card">
-          <div class="card-label">Crystal's Manual Invoicing Loop</div>
-          <p>Crystal Robinson creates every QuickBooks invoice by hand — entering line items from the Salesforce Agreement, then updating the invoice number, date, and open balance back into Salesforce manually. At 15–30 minutes per agreement, this runs every time Abby closes a deal.</p>
-        </div>
-<div class="challenge-card">
-          <div class="card-label">Holly's Spreadsheet Is the Only Source</div>
-          <p>The moment Holly Wale closes her laptop, the rest of the team is working from stale inventory data. Maria cannot answer 'what is the current available stock for Intensified Algebra Vol 1?' without calling Holly directly.</p>
-        </div>
-<div class="challenge-card">
-          <div class="card-label">60-Day Back-to-School Crunch</div>
-          <p>District POs compress May through July — the same 60-day window where Crystal is manually processing the most invoices and Holly is manually tracking the most inventory demand at the same time. AgileMind's April 1 fiscal year means their books open while districts are still spending.</p>
-        </div></div>
+    
+    
+    <div class="challenge-grid">
+      
+      <div class="challenge-card">
+        <div class="card-label">Crystal's Manual Invoicing Loop</div>
+        <p>Crystal Robinson creates every QuickBooks invoice by hand — entering line items from the Salesforce Agreement, then updating the invoice number, date, and open balance back into Salesforce manually. At 15–30 minutes per agreement, this runs every time Abby closes a deal.</p>
+      </div>
+      
+      <div class="challenge-card">
+        <div class="card-label">Holly's Spreadsheet Is the Only Source</div>
+        <p>The moment Holly Wale closes her laptop, the rest of the team is working from stale inventory data. Maria cannot answer 'what is the current available stock for Intensified Algebra Vol 1?' without calling Holly directly.</p>
+      </div>
+      
+      <div class="challenge-card">
+        <div class="card-label">60-Day Back-to-School Crunch</div>
+        <p>District POs compress May through July — the same 60-day window where Crystal is manually processing the most invoices and Holly is manually tracking the most inventory demand at the same time. AgileMind's April 1 fiscal year means their books open while districts are still spending.</p>
+      </div>
+      
+    </div>
+    
   </div>
 </details>
 
-<!-- ROI / BUSINESS CASE — conditional -->
+
+
 <details class="section-block">
   <summary class="section-head">
     <div class="section-summary">
@@ -406,11 +434,31 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <p>Crystal Robinson spends 15–30 minutes manually re-entering data between QuickBooks and Salesforce on every agreement. At AgileMind's back-to-school volume — even 150 agreements in the May–July window — that is 37–75 hours of billing labor per cycle doing nothing but moving data that already exists in Salesforce. Industry benchmarks for CRM + accounting integration (Bizdata360 / Salesforce, 2024–2025) report 30% productivity recovery and 60% reduction in data entry errors — consistent with what a comparable services company recovered when automating the same Salesforce ↔ QuickBooks invoice and payment sync: $25,000 in annual billing labor eliminated.</p>
-    <div style="display:flex;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;"><div style="flex:1;min-width:120px;"><span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">15–30 min</span><div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">of manual work per agreement — Crystal's time re-entering invoice data between QuickBooks and Salesforce, running every cycle</div></div><div style="flex:1;min-width:120px;"><span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">30%</span><div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">productivity gain reported by companies that connected CRM to accounting systems (Bizdata360 / Salesforce benchmark, 2024–2025)</div></div><div style="flex:1;min-width:120px;"><span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">$25K/yr</span><div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">in annual billing labor eliminated by automating the same Salesforce-to-QuickBooks invoice and payment sync (comparable services company, verified)</div></div></div>
+    
+    <div style="display:flex;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;">
+      
+      <div style="flex:1;min-width:120px;">
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">15–30 min</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">of manual work per agreement — Crystal's time re-entering invoice data between QuickBooks and Salesforce, running every cycle</div>
+      </div>
+      
+      <div style="flex:1;min-width:120px;">
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">30%</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">productivity gain reported by companies that connected CRM to accounting systems (Bizdata360 / Salesforce benchmark, 2024–2025)</div>
+      </div>
+      
+      <div style="flex:1;min-width:120px;">
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">$25K/yr</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">in annual billing labor eliminated by automating the same Salesforce-to-QuickBooks invoice and payment sync (comparable services company, verified)</div>
+      </div>
+      
+    </div>
+    
   </div>
 </details>
 
-<!-- WHAT'S INCLUDED -->
+
+
 <details class="section-block">
   <summary class="section-head">
     <div class="section-summary">
@@ -421,35 +469,42 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="included-grid">
+      
       <div class="inc-card">
-      <div class="inc-check">&#10003;</div>
-      <div><strong>4 Integration Flows — Built and Deployed</strong><span>UC1 (Agreement → QB Invoice), UC2 (QB Payment Status → Salesforce Agreement), UC3 (Demand Worksheet → Salesforce Inventory__c), UC4 (QB Inventory Costs → Salesforce Inventory__c). All flows delivered on CloudHub 2.0.</span></div>
-    </div>
-<div class="inc-card">
-      <div class="inc-check">&#10003;</div>
-      <div><strong>MuleSoft Hosting on CloudHub 2.0</strong><span>DataSkate manages the runtime environment, vCore allocation, and deployment pipeline. AgileMind does not manage MuleSoft infrastructure.</span></div>
-    </div>
-<div class="inc-card">
-      <div class="inc-check">&#10003;</div>
-      <div><strong>Field Mapping and DataWeave Transforms</strong><span>All DataWeave mapping from source to target systems — including the state × product → ISBN lookup logic for UC1 — designed, built, and documented by DataSkate.</span></div>
-    </div>
-<div class="inc-card">
-      <div class="inc-check">&#10003;</div>
-      <div><strong>Error Handling and Dead Letter Queue</strong><span>Failed events are routed to a dead letter queue with alerting. Crystal and Holly receive notifications on integration failures — no silent data loss.</span></div>
-    </div>
-<div class="inc-card">
-      <div class="inc-check">&#10003;</div>
-      <div><strong>UAT Support — 2 Weeks</strong><span>DataSkate supports AgileMind's User Acceptance Testing phase — fixing issues, validating edge cases, and confirming all P0 prerequisites are resolved before go-live.</span></div>
-    </div>
-<div class="inc-card">
-      <div class="inc-check">&#10003;</div>
-      <div><strong>30-Day Hypercare Post Go-Live</strong><span>Dedicated support in the first 30 days after go-live — critical for back-to-school period. QuickBooks OAuth token rotation (100-day expiry risk), edge case ISBN routing issues, and invoice sync timing are all covered.</span></div>
-    </div>
+        <div class="inc-check">&#10003;</div>
+        <div><strong>4 Integration Flows — Built and Deployed</strong><span>UC1 (Agreement → QB Invoice), UC2 (QB Payment Status → Salesforce Agreement), UC3 (Demand Worksheet → Salesforce Inventory__c), UC4 (QB Inventory Costs → Salesforce Inventory__c). All flows delivered on CloudHub 2.0.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>MuleSoft Hosting on CloudHub 2.0</strong><span>DataSkate manages the runtime environment, vCore allocation, and deployment pipeline. AgileMind does not manage MuleSoft infrastructure.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>Field Mapping and DataWeave Transforms</strong><span>All DataWeave mapping from source to target systems — including the state × product → ISBN lookup logic for UC1 — designed, built, and documented by DataSkate.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>Error Handling and Dead Letter Queue</strong><span>Failed events are routed to a dead letter queue with alerting. Crystal and Holly receive notifications on integration failures — no silent data loss.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>UAT Support — 2 Weeks</strong><span>DataSkate supports AgileMind's User Acceptance Testing phase — fixing issues, validating edge cases, and confirming all P0 prerequisites are resolved before go-live.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>30-Day Hypercare Post Go-Live</strong><span>Dedicated support in the first 30 days after go-live — critical for back-to-school period. QuickBooks OAuth token rotation (100-day expiry risk), edge case ISBN routing issues, and invoice sync timing are all covered.</span></div>
+      </div>
+      
     </div>
   </div>
 </details>
 
-<!-- WHAT YOU GET -->
+
 <details class="section-block">
   <summary class="section-head">
     <div class="section-summary">
@@ -460,23 +515,28 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="outcomes-grid">
+      
       <div class="outcome-card">
-      <div class="outcome-icon">&#9203;</div>
-      <div class="outcome-card-text"><h4>Hours Recovered at Back-to-School</h4><p>Crystal's 15–30-minute manual invoicing loop stops on go-live day. At AgileMind's back-to-school volume — even 150 agreements in a 60-day window — that is measurable hours returned to finance every cycle, during AgileMind's most compressed billing period.</p></div>
-    </div>
-<div class="outcome-card">
-      <div class="outcome-icon">&#128200;</div>
-      <div class="outcome-card-text"><h4>Inventory in One View</h4><p>Holly's demand worksheet and QuickBooks cost data both land in Salesforce Inventory__c automatically. Maria can see quantities, committed stock, unit costs, and projected shorts without toggling between three systems or calling Holly.</p></div>
-    </div>
-<div class="outcome-card">
-      <div class="outcome-icon">&#129302;</div>
-      <div class="outcome-card-text"><h4>AgentForce — Built on Phase 1's Foundation</h4><p>Maria's question — 'What have we spent on Intensified Algebra Vol 1 over the last five years?' — becomes answerable in Phase 3 by an AgentForce agent reading the Inventory__c records and Invoice history Phase 1 builds. The Salesforce objects DataSkate creates on go-live day are what AgentForce reads in Year 2. That architecture is decided once.</p></div>
-    </div>
+        <div class="outcome-icon">&#9203;</div>
+        <div class="outcome-card-text"><h4>Hours Recovered at Back-to-School</h4><p>Crystal's 15–30-minute manual invoicing loop stops on go-live day. At AgileMind's back-to-school volume — even 150 agreements in a 60-day window — that is measurable hours returned to finance every cycle, during AgileMind's most compressed billing period.</p></div>
+      </div>
+      
+      <div class="outcome-card">
+        <div class="outcome-icon">&#128200;</div>
+        <div class="outcome-card-text"><h4>Inventory in One View</h4><p>Holly's demand worksheet and QuickBooks cost data both land in Salesforce Inventory__c automatically. Maria can see quantities, committed stock, unit costs, and projected shorts without toggling between three systems or calling Holly.</p></div>
+      </div>
+      
+      <div class="outcome-card">
+        <div class="outcome-icon">&#129302;</div>
+        <div class="outcome-card-text"><h4>AgentForce — Built on Phase 1's Foundation</h4><p>Maria's question — 'What have we spent on Intensified Algebra Vol 1 over the last five years?' — becomes answerable in Phase 3 by an AgentForce agent reading the Inventory__c records and Invoice history Phase 1 builds. The Salesforce objects DataSkate creates on go-live day are what AgentForce reads in Year 2. That architecture is decided once.</p></div>
+      </div>
+      
     </div>
   </div>
 </details>
 
-<!-- INVESTMENT — after scope so client sees what they get and how much together -->
+
+
 <details class="section-block" id="investment-details">
   <summary class="section-head">
     <div class="section-summary">
@@ -486,7 +546,15 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    <div class="model-grid">
+    
+
+
+
+
+
+<div class="model-grid">
+
+  
   <div class="model-card recommended" data-model="iaas">
     <div class="rec-badge">Recommended for you</div>
     <div class="model-name">Model 1 — IaaS (Managed Service)</div>
@@ -504,6 +572,8 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     </div>
     <button class="btn btn-primary model-select-btn no-print" onclick="selectModel('iaas','Model 1 — IaaS (Managed Service)','$300.00/flow/month (Period 1)')">Select this Model →</button>
   </div>
+
+  
   <div class="model-card" data-model="impl">
     
     <div class="model-name">Model 2 — Implementation Only</div>
@@ -514,25 +584,35 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="model-vp">Design, build, and deployment. Code ownership transfers at go-live. Your team handles support after handoff.</div>
     <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$14,000 one-time fee')">Select this Model →</button>
   </div>
-  <div class="model-card" data-model="tm">
+
   
-  <div class="model-name">Model 3 — Time &amp; Materials</div>
-  <div class="model-impl">$15,200</div>
-  <div class="model-impl-label">Estimated total · 4 flows · billed on actual hours logged</div>
-  <hr class="model-divider">
-  <div class="best-for">Resource rates</div>
-  <table class="tm-rate-table">
-    <thead><tr><th>Role</th><th>Rate/hr</th><th>~hrs/flow</th></tr></thead>
-    <tbody>
-      <tr><td>Offshore Architect</td><td>$45.00</td><td>~20h</td></tr>
-      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~40h</td></tr>
-      <tr><td>Offshore Developer</td><td>$25.00</td><td>~60h</td></tr>
-    </tbody>
-  </table>
-  <div class="model-vp">Scope can evolve mid-engagement. DataSkate logs hours in a shared sheet; you only pay for actual work done. Ideal when requirements are still forming.</div>
-  <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('tm','Model 3 — Time &amp; Materials','$3,800/flow est.')">Select this Model →</button>
+  
+  <div class="model-card" data-model="tm">
+    
+    <div class="model-name">Model 3 — Time &amp; Materials</div>
+    <div class="model-impl">$15,200</div>
+    <div class="model-impl-label">Estimated total · 4 flows · billed on actual hours logged</div>
+    <hr class="model-divider">
+    <div class="best-for">Resource rates</div>
+    <table class="tm-rate-table">
+      <thead><tr><th>Role</th><th>Rate/hr</th><th>~hrs/flow</th></tr></thead>
+      <tbody>
+        
+        <tr><td>Offshore Architect</td><td>$45.00</td><td>~20h</td></tr>
+        
+        <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~40h</td></tr>
+        
+        <tr><td>Offshore Developer</td><td>$25.00</td><td>~60h</td></tr>
+        
+      </tbody>
+    </table>
+    <div class="model-vp">Scope can evolve mid-engagement. DataSkate logs hours in a shared sheet; you only pay for actual work done. Ideal when requirements are still forming.</div>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('tm','Model 3 — Time &amp; Materials','$3,800/flow est.')">Select this Model →</button>
+  </div>
+  
+
 </div>
-</div>
+
 
 <div id="iaas-rate-section">
   <div class="managed-intro">
@@ -552,6 +632,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ($2,500) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
 </div>
 
+
 <div id="impl-persuasion" style="display:none">
   <div class="impl-pitch">
     <div class="impl-pitch-head">Here's how the three models compare at the 12-month mark</div>
@@ -564,6 +645,8 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
 </div>
 
+
+
 <div id="tm-rate-section" style="display:none">
   <div class="managed-intro">
     <h3>T&amp;M Resource Breakdown</h3>
@@ -574,14 +657,20 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (4 flows)</th><th>Estimated cost</th></tr>
     </thead>
     <tbody>
+      
       <tr><td>Offshore Architect</td><td>$45.00</td><td>~80h</td><td>$3,600</td></tr>
+      
       <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~160h</td><td>$5,600</td></tr>
+      
       <tr><td>Offshore Developer</td><td>$25.00</td><td>~240h</td><td>$6,000</td></tr>
+      
       <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$15,200</strong></td></tr>
     </tbody>
   </table>
   <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced bi-weekly based on actual hours logged. Minimum engagement: 80 hours. Time tracked via shared sheet provided at SOW signing.</p>
 </div>
+
+
 
 <div class="negotiate-panel no-print" id="negotiate-panel" style="display:none">
   <div class="negotiate-header">
@@ -606,10 +695,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <button class="btn btn-primary btn-submit" id="negotiate-btn" onclick="submitSelection()">Confirm Selection →</button>
   <div class="accept-success" id="selection-success">&#10003; Your email app should open. We'll follow up within one business day.</div>
 </div>
+
   </div>
 </details>
 
-<!-- WHAT'S NOT INCLUDED -->
+
+
 <details class="section-block">
   <summary class="section-head">
     <div class="section-summary">
@@ -620,31 +711,37 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="oos-grid">
+      
       <div class="oos-card">
-      <div class="oos-x">&#215;</div>
-      <div><strong>Salesforce Org Configuration and Object Provisioning</strong><span>The Inventory__c object schema is designed by DataSkate, but creating it in AgileMind's Salesforce org is an IT / Salesforce admin task (Chloe). Salesforce org licensing, Einstein / AgentForce licensing for Phase 3, and Education Cloud upgrade decisions are outside this engagement.</span></div>
-    </div>
-<div class="oos-card">
-      <div class="oos-x">&#215;</div>
-      <div><strong>QuickBooks Setup, Licensing, and Connected App Registration</strong><span>QuickBooks licensing (including any Desktop → Online upgrade decision) and the Intuit Developer Console Connected App registration are client responsibilities. DataSkate configures the MuleSoft connector once OAuth credentials are provided.</span></div>
-    </div>
-<div class="oos-card">
-      <div class="oos-x">&#215;</div>
-      <div><strong>Holly's Spreadsheet Migration to Cloud Storage</strong><span>If Holly's demand worksheet is currently on a local machine, migrating it to Google Drive or SharePoint/OneDrive is the client's IT responsibility (Chloe). DataSkate builds the UC3 integration connector once the cloud storage location is confirmed and accessible.</span></div>
-    </div>
-<div class="oos-card">
-      <div class="oos-x">&#215;</div>
-      <div><strong>Historical Data Migration</strong><span>This engagement handles net-new data from go-live forward. Historical invoice records, payment history, and inventory quantities are not migrated from QuickBooks or Excel into Salesforce as part of this scope.</span></div>
-    </div>
-<div class="oos-card">
-      <div class="oos-x">&#215;</div>
-      <div><strong>Product Catalog Master Data Sync (UC5-potential)</strong><span>The product/book title sync between QuickBooks and Salesforce (UC5-potential) is not in scope for this engagement. Maria's confirmation of system of record (QuickBooks or Salesforce) for product catalog is a prerequisite — promote to a future sprint once confirmed.</span></div>
-    </div>
+        <div class="oos-x">&#215;</div>
+        <div><strong>Salesforce Org Configuration and Object Provisioning</strong><span>The Inventory__c object schema is designed by DataSkate, but creating it in AgileMind's Salesforce org is an IT / Salesforce admin task (Chloe). Salesforce org licensing, Einstein / AgentForce licensing for Phase 3, and Education Cloud upgrade decisions are outside this engagement.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>QuickBooks Setup, Licensing, and Connected App Registration</strong><span>QuickBooks licensing (including any Desktop → Online upgrade decision) and the Intuit Developer Console Connected App registration are client responsibilities. DataSkate configures the MuleSoft connector once OAuth credentials are provided.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>Holly's Spreadsheet Migration to Cloud Storage</strong><span>If Holly's demand worksheet is currently on a local machine, migrating it to Google Drive or SharePoint/OneDrive is the client's IT responsibility (Chloe). DataSkate builds the UC3 integration connector once the cloud storage location is confirmed and accessible.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>Historical Data Migration</strong><span>This engagement handles net-new data from go-live forward. Historical invoice records, payment history, and inventory quantities are not migrated from QuickBooks or Excel into Salesforce as part of this scope.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>Product Catalog Master Data Sync (UC5-potential)</strong><span>The product/book title sync between QuickBooks and Salesforce (UC5-potential) is not in scope for this engagement. Maria's confirmation of system of record (QuickBooks or Salesforce) for product catalog is a prerequisite — promote to a future sprint once confirmed.</span></div>
+      </div>
+      
     </div>
   </div>
 </details>
 
-<!-- HOW TO MOVE FORWARD -->
+
 <details class="section-block" open>
   <summary class="section-head">
     <div class="section-summary">
@@ -655,37 +752,41 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="next-steps">
+      
       <div class="ns-item">
-      <div class="ns-num">1</div>
-      <h4>Fill Out Intake Form</h4>
-      <p>Complete the AgileMind intake questionnaire — it covers the P0 items that must be resolved before build can start: QuickBooks version, Holly's file storage location, and Salesforce State/Country Picklist confirmation.</p>
-    </div>
-<div class="ns-item">
-      <div class="ns-num">2</div>
-      <h4>Schedule Technical Deep Dive</h4>
-      <p>Book a 60-minute call with Kailash Chanda (<a href="mailto:kailash@dataskate.ai">kailash@dataskate.ai</a>) — DataSkate's MuleSoft architect — to walk through the UC1 ISBN routing logic and confirm the QuickBooks connector path before field mapping begins.</p>
-    </div>
-<div class="ns-item">
-      <div class="ns-num">3</div>
-      <h4>Review Integration Deck</h4>
-      <p>Share the integration deck with your team. It covers the full AgileMind integration architecture, architect talking points, and the peer landscape for internal conversations with Linda and the executive team.</p>
-    </div>
-<div class="ns-item">
-      <div class="ns-num">4</div>
-      <h4>Align on Scope and SOW</h4>
-      <p>Once P0 items are resolved, DataSkate issues the Statement of Work. The $2,500 kickoff retainer is credited at go-live — no implementation fee on the IaaS model.</p>
-    </div>
+        <div class="ns-num">1</div>
+        <h4>Fill Out Intake Form</h4>
+        <p>Complete the AgileMind intake questionnaire — it covers the P0 items that must be resolved before build can start: QuickBooks version, Holly's file storage location, and Salesforce State/Country Picklist confirmation.</p>
+      </div>
+      
+      <div class="ns-item">
+        <div class="ns-num">2</div>
+        <h4>Schedule Technical Deep Dive</h4>
+        <p>Book a 60-minute call with Kailash Chanda (<a href="mailto:kailash@dataskate.ai">kailash@dataskate.ai</a>) — DataSkate's MuleSoft architect — to walk through the UC1 ISBN routing logic and confirm the QuickBooks connector path before field mapping begins.</p>
+      </div>
+      
+      <div class="ns-item">
+        <div class="ns-num">3</div>
+        <h4>Review Integration Deck</h4>
+        <p>Share the integration deck with your team. It covers the full AgileMind integration architecture, architect talking points, and the peer landscape for internal conversations with Linda and the executive team.</p>
+      </div>
+      
+      <div class="ns-item">
+        <div class="ns-num">4</div>
+        <h4>Align on Scope and SOW</h4>
+        <p>Once P0 items are resolved, DataSkate issues the Statement of Work. The $2,500 kickoff retainer is credited at go-live — no implementation fee on the IaaS model.</p>
+      </div>
+      
     </div>
   </div>
 </details>
 
+</div>
 
-</div><!-- /tab-proposal -->
 
-<!-- ═══════ TAB 2: SOLUTION ═══════ -->
 <div id="tab-solution" class="tab-panel" style="display:none">
 
-<!-- THE SOLUTION -->
+
 <details class="section-block" open>
   <summary class="section-head">
     <div class="section-summary">
@@ -696,41 +797,42 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <p class="lead">DataSkate manages a MuleSoft runtime between Salesforce, QuickBooks Online, and Holly's inventory worksheet — handling event triggers, field transforms, error recovery, and OAuth token rotation automatically. Unlike native marketplace connectors, the DataSkate layer includes retry logic, dead letter queuing, and an operations layer that runs without internal IT resources. No code changes are required in Salesforce or QuickBooks.</p>
-    <svg viewBox="0 0 500 190" style="width:100%;max-width:500px;height:auto;display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg">
-  <defs><style>
-    .sv-src{fill:#fff;stroke:#C9302C;stroke-width:1.5}
-    .sv-hub{fill:#E31F26;stroke:#8B1515;stroke-width:1.5}
-    .sv-tgt{fill:#fff;stroke:#2E9E6B;stroke-width:1.5}
-    .sv-line{stroke:#C8CACC;stroke-width:1.5;fill:none}
-    .sv-lsrc{font:600 11px system-ui,sans-serif;fill:#C9302C}
-    .sv-lhub{font:700 13px system-ui,sans-serif;fill:#fff}
-    .sv-lsub{font:400 9px system-ui,sans-serif;fill:rgba(255,255,255,.85)}
-    .sv-ltgt{font:600 11px system-ui,sans-serif;fill:#2E9E6B}
-  </style></defs>
-  <rect class="sv-src" x="5" y="33" width="140" height="30" rx="6"/>
-    <text class="sv-lsrc" x="75" y="53" text-anchor="middle">Salesforce</text>
-    <line class="sv-line" x1="145" y1="48" x2="190" y2="95"/>
-  <rect class="sv-src" x="5" y="80" width="140" height="30" rx="6"/>
-    <text class="sv-lsrc" x="75" y="100" text-anchor="middle">QuickBooks Online</text>
-    <line class="sv-line" x1="145" y1="95" x2="190" y2="95"/>
-  <rect class="sv-src" x="5" y="128" width="140" height="30" rx="6"/>
-    <text class="sv-lsrc" x="75" y="148" text-anchor="middle">Google Sheets / Excel</text>
-    <line class="sv-line" x1="145" y1="143" x2="190" y2="95"/>
-  <rect class="sv-hub" x="190" y="70" width="120" height="50" rx="8"/>
-  <text class="sv-lhub" x="250" y="90" text-anchor="middle">MuleSoft</text>
-  <text class="sv-lsub" x="250" y="106" text-anchor="middle">DataSkate Managed</text>
-  <rect class="sv-tgt" x="355" y="48" width="138" height="30" rx="6"/>
-    <text class="sv-ltgt" x="424" y="68" text-anchor="middle">QuickBooks Online</text>
-    <line class="sv-line" x1="310" y1="95" x2="355" y2="63"/>
-  <rect class="sv-tgt" x="355" y="112" width="138" height="30" rx="6"/>
-    <text class="sv-ltgt" x="424" y="132" text-anchor="middle">Salesforce</text>
-    <line class="sv-line" x1="310" y1="95" x2="355" y2="127"/>
-</svg>
+    <div class="diagram-wrap"><svg viewBox="0 0 500 156" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
+    <style>
+      .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}
+      .sv-hub{fill:#E8F5EE;stroke:var(--green);stroke-width:2}
+      .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}
+      .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
+      .sv-lhub{font:700 12px system-ui,sans-serif;fill:var(--green)}
+      .sv-lsub{font:400 9px system-ui,sans-serif;fill:var(--green)}
+    </style>
+  </defs>
+  <rect class="sv-src" x="5" y="23" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="44" text-anchor="middle">Salesforce</text>
+    <line class="sv-line" x1="145" y1="39" x2="190" y2="78" marker-end="url(#arr)"/>
+  <rect class="sv-src" x="5" y="62" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="83" text-anchor="middle">QuickBooks Online</text>
+    <line class="sv-line" x1="145" y1="78" x2="190" y2="78" marker-end="url(#arr)"/>
+  <rect class="sv-src" x="5" y="101" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="122" text-anchor="middle">Google Sheets / Excel</text>
+    <line class="sv-line" x1="145" y1="117" x2="190" y2="78" marker-end="url(#arr)"/>
+  <rect class="sv-hub" x="190" y="52" width="120" height="52" rx="8"/>
+  <text class="sv-lhub" x="250" y="74" text-anchor="middle">MuleSoft</text>
+  <text class="sv-lsub" x="250" y="90" text-anchor="middle">DataSkate Managed</text>
+  <rect class="sv-tgt" x="355" y="36" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="57" text-anchor="middle">QuickBooks Online</text>
+    <line class="sv-line" x1="310" y1="78" x2="355" y2="52" marker-end="url(#arr)"/>
+  <rect class="sv-tgt" x="355" y="88" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="109" text-anchor="middle">Salesforce</text>
+    <line class="sv-line" x1="310" y1="78" x2="355" y2="104" marker-end="url(#arr)"/>
+</svg></div>
     <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Salesforce or QuickBooks. Salesforce and QuickBooks Online are both source and target: UC1 flows Salesforce → QB; UC2, UC4 flow QB → Salesforce; UC3 flows Google Sheets / Excel → Salesforce.</p>
   </div>
 </details>
 
-<!-- PROPOSED INTEGRATIONS -->
+
 <details class="section-block" open>
   <summary class="section-head">
     <div class="section-summary">
@@ -741,39 +843,52 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="flow-grid">
-      <div class="flow-card">
-      <div class="flow-num">Flow 1</div>
       
-      <div class="flow-name">Salesforce Agreement → QuickBooks Invoice Creation</div>
-      <div class="flow-route">Salesforce → MuleSoft → QuickBooks Online</div>
-      <div class="flow-value">When Abby marks an Agreement Closed Won, a QuickBooks invoice appears automatically — line items populated, customer matched, and the correct state-based ISBN resolved from the configurable lookup table. Crystal doesn't touch it.</div>
-    </div>
+      
 <div class="flow-card">
-      <div class="flow-num">Flow 2</div>
+  <div class="flow-num">Flow 1</div>
+  
+  <div class="flow-name">Salesforce Agreement → QuickBooks Invoice Creation</div>
+  <div class="flow-route">Salesforce → MuleSoft → QuickBooks Online</div>
+  <div class="flow-value">When Abby marks an Agreement Closed Won, a QuickBooks invoice appears automatically — line items populated, customer matched, and the correct state-based ISBN resolved from the configurable lookup table. Crystal doesn't touch it.</div>
+</div>
+
       
-      <div class="flow-name">QuickBooks Invoice Status → Salesforce Agreement Sync</div>
-      <div class="flow-route">QuickBooks Online → MuleSoft → Salesforce</div>
-      <div class="flow-value">Invoice number, payment date, and open balance write back to the Salesforce Agreement automatically on a scheduled cadence. Crystal's manual update step stops on go-live day.</div>
-    </div>
+      
 <div class="flow-card">
-      <div class="flow-num">Flow 3</div>
+  <div class="flow-num">Flow 2</div>
+  
+  <div class="flow-name">QuickBooks Invoice Status → Salesforce Agreement Sync</div>
+  <div class="flow-route">QuickBooks Online → MuleSoft → Salesforce</div>
+  <div class="flow-value">Invoice number, payment date, and open balance write back to the Salesforce Agreement automatically on a scheduled cadence. Crystal's manual update step stops on go-live day.</div>
+</div>
+
       
-      <div class="flow-name">Holly's Demand Worksheet → Salesforce Inventory__c</div>
-      <div class="flow-route">Google Sheets / Excel → MuleSoft → Salesforce</div>
-      <div class="flow-value">Holly's inventory quantities, committed stock, and projected shorts load into a new Salesforce Inventory__c object on a schedule. Anyone on the team can see current available stock for any title without calling Holly.</div>
-    </div>
+      
 <div class="flow-card">
-      <div class="flow-num">Flow 4</div>
+  <div class="flow-num">Flow 3</div>
+  
+  <div class="flow-name">Holly's Demand Worksheet → Salesforce Inventory__c</div>
+  <div class="flow-route">Google Sheets / Excel → MuleSoft → Salesforce</div>
+  <div class="flow-value">Holly's inventory quantities, committed stock, and projected shorts load into a new Salesforce Inventory__c object on a schedule. Anyone on the team can see current available stock for any title without calling Holly.</div>
+</div>
+
       
-      <div class="flow-name">QuickBooks Inventory Items → Salesforce Inventory__c (Cost Data)</div>
-      <div class="flow-route">QuickBooks Online → MuleSoft → Salesforce</div>
-      <div class="flow-value">Unit costs for every curriculum title pull from QuickBooks into the same Salesforce Inventory__c view. Maria can see on-hand quantities and unit costs for any title — and answer cost-per-program and 5-year spend questions from Salesforce without opening QuickBooks.</div>
-    </div>
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 4</div>
+  
+  <div class="flow-name">QuickBooks Inventory Items → Salesforce Inventory__c (Cost Data)</div>
+  <div class="flow-route">QuickBooks Online → MuleSoft → Salesforce</div>
+  <div class="flow-value">Unit costs for every curriculum title pull from QuickBooks into the same Salesforce Inventory__c view. Maria can see on-hand quantities and unit costs for any title — and answer cost-per-program and 5-year spend questions from Salesforce without opening QuickBooks.</div>
+</div>
+
+      
     </div>
   </div>
 </details>
 
-<!-- KEY ASSUMPTIONS & DEPENDENCIES -->
+
 <details class="section-block">
   <summary class="section-head">
     <div class="section-summary">
@@ -785,44 +900,62 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="section-body">
     <table class="assumptions-table">
       <thead>
-        <tr>
-          <th>Assumption</th>
-          <th>Owner</th>
-          <th>When</th>
-        </tr>
+        <tr><th>Assumption</th><th>Owner</th><th>When</th></tr>
       </thead>
       <tbody>
+        
+        
+        
+        
         <tr>
-      <td><span class="p0-flag">P0</span>QuickBooks version confirmed: Online, Desktop Pro/Premier, or Enterprise. Connector selection and architecture path differ completely between Online and Desktop — this must be resolved before architecture sprint begins.</td>
-      <td><span class="owner-badge owner-client">Client</span></td>
-      <td>Before architecture sprint begins</td>
-    </tr>
-<tr>
-      <td><span class="p0-flag">P0</span>QuickBooks Connected App registered at developer.intuit.com; OAuth 2.0 Client ID and Secret provided to DataSkate; QuickBooks sandbox company provisioned for integration testing; fiscal year April 1 confirmed in QB company settings.</td>
-      <td><span class="owner-badge owner-client">Client</span></td>
-      <td>Before integration build sprint begins</td>
-    </tr>
-<tr>
-      <td><span class="p0-flag">P0</span>Holly's demand worksheet confirmed as stored in Google Drive, SharePoint, or OneDrive — local machine files cannot be accessed from CloudHub 2.0. If local, file must be migrated before UC3 build can begin.</td>
-      <td><span class="owner-badge owner-client">Client</span></td>
-      <td>Before integration build sprint begins</td>
-    </tr>
-<tr>
-      <td>Google Service Account (Google Sheets path) or Azure AD app registration and Graph API permissions (OneDrive/SharePoint path) provisioned by Chloe (IT). Holly's column headers documented and stable before DataWeave mapping is written.</td>
-      <td><span class="owner-badge owner-both">Both</span></td>
-      <td>Before UC3 DataWeave mapping is written</td>
-    </tr>
-<tr>
-      <td>Salesforce State/Country Picklist format confirmed (ISO codes e.g. US-CA vs free text e.g. California). A sample Agreement record showing the mailing state field value is required — determines the key format for the ISBN lookup table DataSkate configures.</td>
-      <td><span class="owner-badge owner-client">Client</span></td>
-      <td>Before UC1 DataWeave mapping is written</td>
-    </tr>
+          <td><span class="p0-flag">P0</span>QuickBooks version confirmed: Online, Desktop Pro/Premier, or Enterprise. Connector selection and architecture path differ completely between Online and Desktop — this must be resolved before architecture sprint begins.</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before architecture sprint begins</td>
+        </tr>
+        
+        
+        
+        
+        <tr>
+          <td><span class="p0-flag">P0</span>QuickBooks Connected App registered at developer.intuit.com; OAuth 2.0 Client ID and Secret provided to DataSkate; QuickBooks sandbox company provisioned for integration testing; fiscal year April 1 confirmed in QB company settings.</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before integration build sprint begins</td>
+        </tr>
+        
+        
+        
+        
+        <tr>
+          <td><span class="p0-flag">P0</span>Holly's demand worksheet confirmed as stored in Google Drive, SharePoint, or OneDrive — local machine files cannot be accessed from CloudHub 2.0. If local, file must be migrated before UC3 build can begin.</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before integration build sprint begins</td>
+        </tr>
+        
+        
+        
+        
+        <tr>
+          <td>Google Service Account (Google Sheets path) or Azure AD app registration and Graph API permissions (OneDrive/SharePoint path) provisioned by Chloe (IT). Holly's column headers documented and stable before DataWeave mapping is written.</td>
+          <td><span class="owner-badge owner-both">Both</span></td>
+          <td>Before UC3 DataWeave mapping is written</td>
+        </tr>
+        
+        
+        
+        
+        <tr>
+          <td>Salesforce State/Country Picklist format confirmed (ISO codes e.g. US-CA vs free text e.g. California). A sample Agreement record showing the mailing state field value is required — determines the key format for the ISBN lookup table DataSkate configures.</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before UC1 DataWeave mapping is written</td>
+        </tr>
+        
       </tbody>
     </table>
   </div>
 </details>
 
-<!-- DELIVERY TIMELINE — conditional -->
+
+
 <details class="section-block">
   <summary class="section-head">
     <div class="section-summary">
@@ -833,48 +966,81 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="timeline">
+      
+      
+      
       <div class="tl-item">
         <div class="tl-dot">1</div>
         <div class="tl-content">
           <div class="tl-weeks">Weeks 1–2</div>
           <h4>Phase 1 — Discovery &amp; Field Mapping</h4>
-          <ul style="margin:4px 0 0;padding-left:16px;"><li style="font-size:12px;color:#44546A;line-height:1.5;">QuickBooks version and QB sandbox confirmation (Crystal or Maria)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Holly's worksheet storage location confirmed and cloud-accessible (Chloe / IT)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Salesforce State/Country Picklist format confirmed (Abby / Salesforce admin)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">ISBN lookup table data collected from Abby — current state × product → ISBN mapping</li><li style="font-size:12px;color:#44546A;line-height:1.5;">DataWeave field mapping spec drafted for UC1–UC4</li><li style="font-size:12px;color:#44546A;line-height:1.5;">MuleSoft CloudHub 2.0 environment provisioned by DataSkate</li></ul>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">QuickBooks version and QB sandbox confirmation (Crystal or Maria)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Holly's worksheet storage location confirmed and cloud-accessible (Chloe / IT)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Salesforce State/Country Picklist format confirmed (Abby / Salesforce admin)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">ISBN lookup table data collected from Abby — current state × product → ISBN mapping</li><li style="font-size:12px;color:#44546A;line-height:1.5;">DataWeave field mapping spec drafted for UC1–UC4</li><li style="font-size:12px;color:#44546A;line-height:1.5;">MuleSoft CloudHub 2.0 environment provisioned by DataSkate</li>
+          </ul>
+          
         </div>
       </div>
+      
+      
+      
+      
       <div class="tl-item">
         <div class="tl-dot phase2">2</div>
         <div class="tl-content">
           <div class="tl-weeks">Weeks 3–5</div>
           <h4>Phase 2 — Build &amp; Unit Test</h4>
-          <ul style="margin:4px 0 0;padding-left:16px;"><li style="font-size:12px;color:#44546A;line-height:1.5;">UC1: Salesforce Agreement event → QuickBooks invoice creation with state-based ISBN lookup</li><li style="font-size:12px;color:#44546A;line-height:1.5;">UC2: QuickBooks invoice status → Salesforce Agreement scheduled sync (April 1 fiscal year offset)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">UC3: Holly's demand worksheet → Salesforce Inventory__c scheduled load</li><li style="font-size:12px;color:#44546A;line-height:1.5;">UC4: QuickBooks inventory items → Salesforce Inventory__c cost data sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Inventory__c custom object created in Salesforce with all required fields (DataSkate spec, Chloe provision)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Error handling, dead letter queue, and QuickBooks OAuth token rotation automation configured</li></ul>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">UC1: Salesforce Agreement event → QuickBooks invoice creation with state-based ISBN lookup</li><li style="font-size:12px;color:#44546A;line-height:1.5;">UC2: QuickBooks invoice status → Salesforce Agreement scheduled sync (April 1 fiscal year offset)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">UC3: Holly's demand worksheet → Salesforce Inventory__c scheduled load</li><li style="font-size:12px;color:#44546A;line-height:1.5;">UC4: QuickBooks inventory items → Salesforce Inventory__c cost data sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Inventory__c custom object created in Salesforce with all required fields (DataSkate spec, Chloe provision)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Error handling, dead letter queue, and QuickBooks OAuth token rotation automation configured</li>
+          </ul>
+          
         </div>
       </div>
+      
+      
+      
+      
       <div class="tl-item">
         <div class="tl-dot phase3">3</div>
         <div class="tl-content">
           <div class="tl-weeks">Weeks 6–7</div>
           <h4>Phase 3 — UAT &amp; Integration Testing</h4>
-          <ul style="margin:4px 0 0;padding-left:16px;"><li style="font-size:12px;color:#44546A;line-height:1.5;">Crystal validates UC1 invoice creation against real Salesforce Agreements</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Crystal validates UC2 payment sync back to Salesforce Agreement custom fields</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Holly validates UC3 inventory quantities in Salesforce Inventory__c</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Maria validates UC4 cost fields and Inventory__c dashboard view</li><li style="font-size:12px;color:#44546A;line-height:1.5;">All P0 blockers must be fully resolved before UAT can start</li></ul>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Crystal validates UC1 invoice creation against real Salesforce Agreements</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Crystal validates UC2 payment sync back to Salesforce Agreement custom fields</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Holly validates UC3 inventory quantities in Salesforce Inventory__c</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Maria validates UC4 cost fields and Inventory__c dashboard view</li><li style="font-size:12px;color:#44546A;line-height:1.5;">All P0 blockers must be fully resolved before UAT can start</li>
+          </ul>
+          
         </div>
       </div>
+      
+      
+      
+      
       <div class="tl-item">
         <div class="tl-dot phase3">4</div>
         <div class="tl-content">
           <div class="tl-weeks">Week 8</div>
           <h4>Phase 4 — Go Live &amp; Handoff</h4>
-          <ul style="margin:4px 0 0;padding-left:16px;"><li style="font-size:12px;color:#44546A;line-height:1.5;">CloudHub 2.0 production deployment</li><li style="font-size:12px;color:#44546A;line-height:1.5;">30-day hypercare begins — DataSkate monitoring for OAuth token rotation, ISBN routing edge cases, and invoice sync timing</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Year 2 automation roadmap review with Kailash — UC5, UC6, UC7 promotion criteria and AgentForce readiness checklist</li></ul>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">CloudHub 2.0 production deployment</li><li style="font-size:12px;color:#44546A;line-height:1.5;">30-day hypercare begins — DataSkate monitoring for OAuth token rotation, ISBN routing edge cases, and invoice sync timing</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Year 2 automation roadmap review with Kailash — UC5, UC6, UC7 promotion criteria and AgentForce readiness checklist</li>
+          </ul>
+          
         </div>
       </div>
+      
     </div>
   </div>
 </details>
 
-</div><!-- /tab-solution -->
 
-<!-- ═══════ TAB 3: AI VISION ═══════ -->
+</div>
+
+
 <div id="tab-ai" class="tab-panel" style="display:none">
 
-<!-- YOUR AI JOURNEY -->
+
 <details class="section-block" open>
   <summary class="section-head">
     <div class="section-summary">
@@ -885,30 +1051,65 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="stage-grid">
-      <div class="stage-card stage1">
-      <div class="stage-label">Connected</div>
-      <div class="stage-year">Year 1</div>
-      <h4>Agreement-to-Invoice and Inventory in One View</h4>
-      <ul><li>Crystal stops manually creating QuickBooks invoices — when Abby marks an Agreement Closed Won, the invoice appears in QuickBooks automatically with line items, the correct state-based ISBN, and the customer account already matched</li><li>Crystal stops toggling between QuickBooks and Salesforce — invoice number, payment date, and open balance write back to the Salesforce Agreement automatically on a schedule</li><li>Holly's inventory quantities, committed stock, and projected shorts appear in Salesforce Inventory__c on a schedule — anyone on the team can see available stock for any title without calling Holly</li><li>Maria's cost-per-program question — 'what did we spend on Intensified Algebra Vol 1 over 5 years?' — becomes answerable from Salesforce without opening QuickBooks</li></ul>
-    </div>
+      
+      
+      
+      
+<div class="stage-card stage1">
+  <div class="stage-label">Connected</div>
+  <div class="stage-year">Year 1</div>
+  <h4>Agreement-to-Invoice and Inventory in One View</h4>
+  <ul>
+    <li>Crystal stops manually creating QuickBooks invoices — when Abby marks an Agreement Closed Won, the invoice appears in QuickBooks automatically with line items, the correct state-based ISBN, and the customer account already matched</li>
+    <li>Crystal stops toggling between QuickBooks and Salesforce — invoice number, payment date, and open balance write back to the Salesforce Agreement automatically on a schedule</li>
+    <li>Holly's inventory quantities, committed stock, and projected shorts appear in Salesforce Inventory__c on a schedule — anyone on the team can see available stock for any title without calling Holly</li>
+    <li>Maria's cost-per-program question — 'what did we spend on Intensified Algebra Vol 1 over 5 years?' — becomes answerable from Salesforce without opening QuickBooks</li>
+    
+  </ul>
+</div>
+
+      
+      
+      
+      
 <div class="stage-card stage2">
-      <div class="stage-label">Automated</div>
-      <div class="stage-year">Year 1–2</div>
-      <h4>Shortage Alerts and Fulfillment Triggers Fire Themselves</h4>
-      <ul><li>When available inventory for a title drops below Holly's 3% buffer threshold, a Salesforce alert fires automatically to Holly and the responsible sales rep — before the shortage becomes a fulfillment problem</li><li>When a district's Opportunity stage crosses 60% probability, a pre-fulfillment reservation triggers in QuickBooks — reducing the manual crunch at back-to-school</li><li>Product catalog sync keeps QuickBooks items and Salesforce Products aligned — new title additions by Maria don't silently diverge from Abby's opportunity line items</li></ul>
-    </div>
+  <div class="stage-label">Automated</div>
+  <div class="stage-year">Year 1–2</div>
+  <h4>Shortage Alerts and Fulfillment Triggers Fire Themselves</h4>
+  <ul>
+    <li>When available inventory for a title drops below Holly's 3% buffer threshold, a Salesforce alert fires automatically to Holly and the responsible sales rep — before the shortage becomes a fulfillment problem</li>
+    <li>When a district's Opportunity stage crosses 60% probability, a pre-fulfillment reservation triggers in QuickBooks — reducing the manual crunch at back-to-school</li>
+    <li>Product catalog sync keeps QuickBooks items and Salesforce Products aligned — new title additions by Maria don't silently diverge from Abby's opportunity line items</li>
+    
+  </ul>
+</div>
+
+      
+      
+      
+      
 <div class="stage-card stage3">
-      <div class="stage-label">Agentic</div>
-      <div class="stage-year">Year 2+</div>
-      <h4>AgentForce — Activated</h4>
-      <ul><li>An AgentForce agent monitors Salesforce open Agreements where the QuickBooks open balance has aged past 30 days — and drafts a follow-up email to the district's finance contact that names the specific invoice number, amount due, and program. Crystal reviews and sends with one click.</li><li>Maria's question — 'What did we spend on Intensified Algebra Vol 1 the last five fiscal years and what is left in inventory?' — is answered in seconds by an AgentForce agent reading the Inventory__c object and Invoice history that Phases 1 and 2 built. No call to Holly required.</li><li>An AgentForce agent runs pre-season demand forecasting weekly: reading open Opportunity pipeline by probability stage from Salesforce, comparing to current QuickBooks inventory levels in Inventory__c, and generating a draft purchase order recommendation for Holly's one-click approval — replacing the manual red-cell Excel exercise.</li></ul>
+  <div class="stage-label">Agentic</div>
+  <div class="stage-year">Year 2+</div>
+  <h4>AgentForce — Activated</h4>
+  <ul>
+    <li>An AgentForce agent monitors Salesforce open Agreements where the QuickBooks open balance has aged past 30 days — and drafts a follow-up email to the district's finance contact that names the specific invoice number, amount due, and program. Crystal reviews and sends with one click.</li>
+    <li>Maria's question — 'What did we spend on Intensified Algebra Vol 1 the last five fiscal years and what is left in inventory?' — is answered in seconds by an AgentForce agent reading the Inventory__c object and Invoice history that Phases 1 and 2 built. No call to Holly required.</li>
+    <li>An AgentForce agent runs pre-season demand forecasting weekly: reading open Opportunity pipeline by probability stage from Salesforce, comparing to current QuickBooks inventory levels in Inventory__c, and generating a draft purchase order recommendation for Holly's one-click approval — replacing the manual red-cell Excel exercise.</li>
+    
+  </ul>
+</div>
+
+      
     </div>
-    </div>
+    
     <p class="pull-quote">The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once.</p>
+    
   </div>
 </details>
 
-<!-- PEER COMPARISON — conditional -->
+
+
 <details class="section-block" open>
   <summary class="section-head">
     <div class="section-summary">
@@ -919,9 +1120,20 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="fomo-grid">
-      <div class="fomo-card">
+      
+      
+
+  
+
+<div class="fomo-card">
   <div class="fomo-card-head">
-    <div><div class="fomo-co"><a href="https://www.salesforce.com/customer-stories/carnegie-learning/" target="_blank" rel="noopener" class="fomo-co-link">Carnegie Learning ↗</a></div></div>
+    <div>
+      <div class="fomo-co">
+        <a href="https://www.salesforce.com/customer-stories/carnegie-learning/" target="_blank" rel="noopener" class="fomo-co-link">Carnegie Learning ↗</a>
+        
+      </div>
+      
+    </div>
     <span class="fomo-tier-badge tier-exact">Exact match</span>
   </div>
   <div class="fomo-analogy">Direct K-12 curriculum competitor — same Salesforce platform, same school district buyers</div>
@@ -931,9 +1143,20 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-angle">92% of the time Carnegie Learning's K-12 reps spent preparing for district calls — gone on go-live. Up to an hour of pre-call research per rep, per call, eliminated. They sell to the same school districts AgileMind sells to. The integration that freed their team runs on the same Salesforce platform AgileMind already pays for.</div>
   
 </div>
-      <div class="fomo-card">
+
+      
+      
+
+  
+
+<div class="fomo-card">
   <div class="fomo-card-head">
-    <div><div class="fomo-co">A specialty services company (Salesforce + QuickBooks integration)</div></div>
+    <div>
+      <div class="fomo-co">
+        A specialty services company (Salesforce + QuickBooks integration)
+      </div>
+      
+    </div>
     <span class="fomo-tier-badge tier-adjacent">Adjacent industry</span>
   </div>
   <div class="fomo-analogy">Same UC1 + UC2 pattern: Salesforce ↔ QuickBooks invoice and payment sync</div>
@@ -943,9 +1166,21 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-angle">$25,000 in annual billing labor eliminated by automating exactly the workflow Crystal runs today — invoice creation, payment sync, and customer record transfer between Salesforce and QuickBooks. 2,000+ invoices processed without a human hand. That specific task — Crystal toggling between two systems for every agreement — stops on go-live day.</div>
   
 </div>
-      <div class="fomo-card">
+
+      
+      
+
+  
+
+<div class="fomo-card">
   <div class="fomo-card-head">
-    <div><div class="fomo-co"><a href="https://www.bizdata360.com/quickbooks-salesforce-integration/" target="_blank" rel="noopener" class="fomo-co-link">Industry benchmark (CRM + accounting integration) ↗</a></div></div>
+    <div>
+      <div class="fomo-co">
+        <a href="https://www.bizdata360.com/quickbooks-salesforce-integration/" target="_blank" rel="noopener" class="fomo-co-link">Industry benchmark (CRM + accounting integration) ↗</a>
+        
+      </div>
+      
+    </div>
     <span class="fomo-tier-badge tier-stat">Industry data</span>
   </div>
   <div class="fomo-analogy">Cross-industry benchmark for CRM + accounting integration (Bizdata360/Salesforce, 2024–2025)</div>
@@ -953,11 +1188,25 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-built">Organizations that connect CRM to accounting/ERP systems across industries report consistent operational improvements in productivity, administrative cost, and data accuracy</div>
   
   <div class="fomo-angle">30% finance team productivity recovered. 60% fewer data entry errors. Across industries that have connected CRM to accounting. Crystal's workflow is in that 30%. At AgileMind's billing volume — even at 150 agreements per back-to-school season — 15–30 minutes of manual entry per agreement represents hours of recoverable time before the busiest window of the year hits.</div>
+  
   <div class="fomo-source"><a href="https://www.bizdata360.com/quickbooks-salesforce-integration/" target="_blank" rel="noopener">Bizdata360 / Salesforce integration benchmark research</a></div>
+  
 </div>
-      <div class="fomo-card">
+
+      
+      
+
+  
+
+<div class="fomo-card">
   <div class="fomo-card-head">
-    <div><div class="fomo-co"><a href="https://www.salesforce.com/customer-stories/wiley/" target="_blank" rel="noopener" class="fomo-co-link">Wiley ↗</a></div></div>
+    <div>
+      <div class="fomo-co">
+        <a href="https://www.salesforce.com/customer-stories/wiley/" target="_blank" rel="noopener" class="fomo-co-link">Wiley ↗</a>
+        
+      </div>
+      
+    </div>
     <span class="fomo-tier-badge tier-adjacent">Same industry</span>
   </div>
   <div class="fomo-analogy">Educational publisher — same Salesforce platform with Phase 3 Agentforce outcomes already live</div>
@@ -967,24 +1216,26 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-angle">40% faster case resolution, 50% faster onboarding for new agents — recovered by connecting Salesforce Service Cloud to their back-end systems. Wiley is a publisher running the same Salesforce core AgileMind has. Their team's manual service queue shrank when the right data was routed automatically. The same integration pattern, applied to billing and inventory, produces the same class of outcome.</div>
   
 </div>
+
+      
     </div>
   </div>
 </details>
 
-<!-- AI THOUGHT STARTERS — conditional, standalone block -->
+
+
+
 <div class="ai-starters">
   <div class="ai-starters-eyebrow">What else teams like yours are exploring</div>
   <ul class="ai-starters-list">
-    <li>Inventory Shortage Alert Agent — Once UC3 loads Holly's inventory into Salesforce, a Salesforce Flow can fire an alert to the sales rep and Holly whenever available stock for a title drops below the 3% buffer. No more checking red cells in Excel — the system calls it out automatically before a district order creates a short. (Phase 2 — Automated)</li>
-    <li>Pre-Season Demand Forecast Agent — With Opportunity stage probabilities and inventory quantities both in Salesforce (post-UC3/UC4), an Agentforce agent can run a demand forecast each week: multiply pipeline units at each probability tier × probability → compare to QuickBooks on-hand quantities → generate a draft purchase order recommendation for Holly's one-click approval. Replaces the manual red-cell Excel exercise. (Phase 3 — Agentic)</li>
-    <li>AR Follow-Up Agent for District Finance — Once UC2 syncs QuickBooks payment status to Salesforce Agreements, an Agentforce agent can monitor for open balances aging past 30 days and draft a personalized follow-up email to the district's finance contact — referencing the specific invoice number, amount due, and program — queued for Crystal's one-click send. Turns AR follow-up from a weekly manual task into an automated daily watch. (Phase 3 — Agentic)</li>
-    <li>ISBN Routing Intelligence — The configurable ISBN lookup table (state × school → correct ISBN) can be extended with an Agentforce agent: when no ISBN match is found, instead of just flagging for manual review, the agent queries the district's state and enrolled program, checks for the closest ISBN match, and drafts a resolution note for Abby — reducing the manual review queue to true edge cases only. (Phase 2 → Phase 3)</li>
+    <li>Inventory Shortage Alert Agent — Once UC3 loads Holly's inventory into Salesforce, a Salesforce Flow can fire an alert to the sales rep and Holly whenever available stock for a title drops below the 3% buffer. No more checking red cells in Excel — the system calls it out automatically before a district order creates a short. (Phase 2 — Automated)</li><li>Pre-Season Demand Forecast Agent — With Opportunity stage probabilities and inventory quantities both in Salesforce (post-UC3/UC4), an Agentforce agent can run a demand forecast each week: multiply pipeline units at each probability tier × probability → compare to QuickBooks on-hand quantities → generate a draft purchase order recommendation for Holly's one-click approval. Replaces the manual red-cell Excel exercise. (Phase 3 — Agentic)</li><li>AR Follow-Up Agent for District Finance — Once UC2 syncs QuickBooks payment status to Salesforce Agreements, an Agentforce agent can monitor for open balances aging past 30 days and draft a personalized follow-up email to the district's finance contact — referencing the specific invoice number, amount due, and program — queued for Crystal's one-click send. Turns AR follow-up from a weekly manual task into an automated daily watch. (Phase 3 — Agentic)</li><li>ISBN Routing Intelligence — The configurable ISBN lookup table (state × school → correct ISBN) can be extended with an Agentforce agent: when no ISBN match is found, instead of just flagging for manual review, the agent queries the district's state and enrolled program, checks for the closest ISBN match, and drafts a resolution note for Abby — reducing the manual review queue to true edge cases only. (Phase 2 → Phase 3)</li>
   </ul>
 </div>
 
-</div><!-- /tab-ai -->
 
-<!-- ═══════ TAB 4: ABOUT US ═══════ -->
+</div>
+
+
 <div id="tab-about" class="tab-panel" style="display:none">
 
 <details class="section-block" open>
@@ -1035,6 +1286,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
 </details>
 
+
 <details class="section-block" open>
   <summary class="section-head">
     <div class="section-summary">
@@ -1045,7 +1297,9 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <div class="cs-grid">
-      <div class="cs-card">
+      
+      
+<div class="cs-card">
   <div class="cs-co">The Clorox Company</div>
   <div class="cs-meta">Fortune 500 · $7B+ revenue &middot; SAP, Salesforce, ServiceNow</div>
   <div class="cs-headline">From 6-week manual order cycles to real-time retail partner sync</div>
@@ -1053,7 +1307,10 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="cs-outcome">&#10003; 74% reduction in order processing time. Finance ops recovered 12+ hours per week. New partners onboarded in days, not weeks.</div>
   <div class="cs-ai">AI in Year 2: In Year 2, an AI agent monitors retail partner portals for demand signals and auto-flags reorder thresholds — surfaced every morning before the supply chain team opens their queue. The integration data layer built in Year 1 is exactly what the model reads.</div>
 </div>
-      <div class="cs-card">
+
+      
+      
+<div class="cs-card">
   <div class="cs-co">R&amp;L Carriers</div>
   <div class="cs-meta">$2B+ revenue · 10,000+ employees &middot; Oracle, Salesforce, TMS</div>
   <div class="cs-headline">Freight billing automated — the 48-hour dispatch-to-invoice relay eliminated</div>
@@ -1061,18 +1318,40 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="cs-outcome">&#10003; 48-hour billing lag reduced to under 2 hours. Customer support tickets dropped 31%. Finance team stopped running daily reconciliation reports.</div>
   <div class="cs-ai">AI in Year 2: In Year 2, an agent surfaces at-risk shipments — delay flagged with no outbound customer contact in 24 hours — every morning. The operations team responds to a short exception list, not a monitoring dashboard.</div>
 </div>
+
+      
     </div>
   </div>
 </details>
 
-</div><!-- /tab-about -->
+
+</div>
 
 <div class="footer">
   <span>Kailash Chanda &#183; <a href="mailto:kailash@dataskate.ai">kailash@dataskate.ai</a> &#183; DataSkate &#183; dataskate.ai</span>
   <strong>Confidential</strong>
 </div>
 
+
+
 <script>
+window.__PROP_SLUG  = "agilemind";
+window.__PROP_NAME  = "AgileMind";
+window.__PROP_EMAIL = "kailash@dataskate.ai";
+window.__PROP_ARCH  = "Kailash Chanda";
+window.__PROP_RATE  = 300;
+window.__PROP_FLOWS = 4;
+window.__PROP_MODEL = "iaas";
+</script>
+<script>
+const CLIENT_SLUG         = window.__PROP_SLUG;
+const CLIENT_NAME         = window.__PROP_NAME;
+const ARCHITECT_EMAIL     = window.__PROP_EMAIL;
+const ARCHITECT_NAME      = window.__PROP_ARCH;
+const PROPOSAL_RATE       = window.__PROP_RATE;
+const PROPOSAL_FLOW_COUNT = window.__PROP_FLOWS;
+const PROPOSAL_MODEL      = window.__PROP_MODEL;
+
 // ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyDCpzgZAMWWGwedG5At5Ml3gn_yA0dRVZk",
@@ -1082,13 +1361,6 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "620173241148",
   appId:             "1:620173241148:web:d5bf84e63e93ef94758c39"
 };
-const CLIENT_SLUG         = "agilemind";
-const CLIENT_NAME         = "AgileMind";
-const ARCHITECT_EMAIL     = "kailash@dataskate.ai";
-const ARCHITECT_NAME      = "Kailash Chanda";
-const PROPOSAL_RATE       = Number("300")      || 0;
-const PROPOSAL_FLOW_COUNT = Number("4") || 0;
-const PROPOSAL_MODEL      = "iaas";
 
 // ── FIREBASE INIT ─────────────────────────────────────────────────────────────
 (function () {
@@ -1156,7 +1428,6 @@ function selectModel(type, name, rate) {
   if (card) card.style.borderColor = 'var(--brand)';
   const el = id => document.getElementById(id);
 
-  // Toggle detail sections
   const rateSection = el('iaas-rate-section');
   const implPitch   = el('impl-persuasion');
   const tmSection   = el('tm-rate-section');
@@ -1164,11 +1435,9 @@ function selectModel(type, name, rate) {
   if (implPitch)   implPitch.style.display   = type === 'impl' ? '' : 'none';
   if (tmSection)   tmSection.style.display   = type === 'tm'   ? '' : 'none';
 
-  // Update negotiate panel header
   if (el('selected-model-name')) el('selected-model-name').textContent = name;
   if (el('selected-rate'))       el('selected-rate').textContent       = rate;
 
-  // Relabel rate field based on model type
   const rateLabel = el('negotiate-rate-label');
   const rateInput = el('negotiate-rate');
   if (type === 'impl') {
@@ -1201,7 +1470,6 @@ function submitSelection() {
     '?subject=' + encodeURIComponent('Proposal Selection — ' + CLIENT_NAME + ' — ' + model) +
     '&body='    + encodeURIComponent(bodyText);
   if (el('selection-success')) el('selection-success').style.display = 'block';
-  // Always log to Firestore — captures both confirmations and discount proposals
   logDiscount({ model, listed, proposed: rate, contactName: name, notes });
 }
 
@@ -1276,7 +1544,6 @@ async function submitAcceptance() {
       acceptedBy: { name: name.trim(), email: email.trim() },
       client:     CLIENT_SLUG,
     };
-    // If rate was never written (first acceptance) — record full context for lockedPricing seed
     if (!existing.ratePerFlow) {
       payload.ratePerFlow = PROPOSAL_RATE;
       payload.flowCount   = PROPOSAL_FLOW_COUNT;

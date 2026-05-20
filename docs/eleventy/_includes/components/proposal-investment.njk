@@ -1,0 +1,145 @@
+{#
+  components/proposal-investment.njk
+  Scope from layout: proposalPricing, pricing
+  Renders model grid + rate tables + negotiate panel.
+#}
+{% set pp = proposalPricing %}
+{% set iaasRec = ' recommended' if pp.recModel == 'iaas' else '' %}
+{% set implRec = ' recommended' if pp.recModel == 'impl' else '' %}
+{% set tmRec   = ' recommended' if pp.recModel == 'tm'   else '' %}
+
+<div class="model-grid">
+
+  {# ── Model 1: IaaS ── #}
+  <div class="model-card{{ iaasRec }}" data-model="iaas">
+    {% if iaasRec %}<div class="rec-badge">Recommended for you</div>{% endif %}
+    <div class="model-name">Model 1 — IaaS (Managed Service)</div>
+    <div class="model-impl">{{ pp.yearFmt }}</div>
+    <div class="model-impl-label">1-year total · two 6-month payments · billing starts at go-live</div>
+    <div class="model-service">{{ pp.baseFmtD }}/flow/month</div>
+    <div class="model-service-label">Period 1 rate · {{ pp.n }} flow{{ 's' if pp.n != 1 else '' }} · DataSkate owns support all year</div>
+    <div class="model-retainer">{{ pp.retainerFmt }} kickoff retainer — credited at go-live</div>
+    <hr class="model-divider">
+    <div class="best-for">What's covered</div>
+    <div class="model-vp">Design, build, deployment, monitoring, and all support for 12 months. At month 12: renew at the same rate, or take full code ownership — your choice.</div>
+    <div class="iaas-ai-callout">
+      <div class="iaas-ai-callout-head">AI Included — Within Year 1</div>
+      <p>By month 12, DataSkate begins building your first AI agent within the same engagement — full data automation and AI agent stack. No separate SOW, no Year 2 wait. The field structure and data layer we establish in week one is exactly what the model reads.</p>
+    </div>
+    <button class="btn btn-primary model-select-btn no-print" onclick="selectModel('iaas','Model 1 — IaaS (Managed Service)','{{ pp.baseFmtD }}/flow/month (Period 1)')">Select this Model →</button>
+  </div>
+
+  {# ── Model 2: Implementation Only ── #}
+  <div class="model-card{{ implRec }}" data-model="impl">
+    {% if implRec %}<div class="rec-badge">Recommended for you</div>{% endif %}
+    <div class="model-name">Model 2 — Implementation Only</div>
+    <div class="model-impl">{{ pp.implTotalFmt }}</div>
+    <div class="model-impl-label">One-time fee · {{ pp.n }} flows × {{ pp.implPerFlowFmt }}/flow · {{ pp.weeks }}-week delivery</div>
+    <hr class="model-divider">
+    <div class="best-for">What's covered</div>
+    <div class="model-vp">Design, build, and deployment. Code ownership transfers at go-live. Your team handles support after handoff.</div>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','{{ pp.implTotalFmt }} one-time fee')">Select this Model →</button>
+  </div>
+
+  {# ── Model 3: T&M (only rendered when T&M data exists) ── #}
+  {% if pp.tm %}
+  <div class="model-card{{ tmRec }}" data-model="tm">
+    {% if tmRec %}<div class="rec-badge">Recommended for you</div>{% endif %}
+    <div class="model-name">Model 3 — Time &amp; Materials</div>
+    <div class="model-impl">{{ pp.tm.totalFmt }}</div>
+    <div class="model-impl-label">Estimated total · {{ pp.n }} flow{{ 's' if pp.n != 1 else '' }} · billed on actual hours logged</div>
+    <hr class="model-divider">
+    <div class="best-for">Resource rates</div>
+    <table class="tm-rate-table">
+      <thead><tr><th>Role</th><th>Rate/hr</th><th>~hrs/flow</th></tr></thead>
+      <tbody>
+        {% for r in pp.tm.resources %}
+        <tr><td>{{ r.role | esc }}</td><td>{{ r.ratePerHourFmt }}</td><td>~{{ r.hoursPerFlow }}h</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="model-vp">Scope can evolve mid-engagement. DataSkate logs hours in a shared sheet; you only pay for actual work done. Ideal when requirements are still forming.</div>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('tm','Model 3 — Time &amp; Materials','{{ pp.tm.perFlowFmt }}/flow est.')">Select this Model →</button>
+  </div>
+  {% endif %}
+
+</div>
+
+{# ── IaaS payment schedule — visible by default only when IaaS is recommended ── #}
+<div id="iaas-rate-section"{% if pp.recModel != 'iaas' %} style="display:none"{% endif %}>
+  <div class="managed-intro">
+    <h3>IaaS Payment Schedule</h3>
+    <p>Two payments over 12 months. Billing begins at go-live — not at signing.</p>
+  </div>
+  <table class="managed-table">
+    <thead>
+      <tr><th>Period</th><th>Duration</th><th>Rate / flow / month</th><th>6-month payment ({{ pp.n }} flows)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Period 1</td><td>Month 1–6</td><td>{{ pp.baseFmtD }}</td><td>{{ pp.p1Fmt }}</td></tr>
+      <tr><td>Period 2</td><td>Month 7–12</td><td>{{ pp.p2FmtD }}</td><td>{{ pp.p2Fmt }}</td></tr>
+      <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>{{ pp.yearFmt }}</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ({{ pp.retainerFmt }}) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
+</div>
+
+{# ── Impl persuasion — hidden until client selects impl ── #}
+<div id="impl-persuasion" style="display:none">
+  <div class="impl-pitch">
+    <div class="impl-pitch-head">Here's how the three models compare at the 12-month mark</div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only {{ pp.implTotalFmt }} · IaaS {{ pp.yearFmt }} — a difference of {{ pp.diffFmt }}. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Support:</strong> IaaS — DataSkate owns all monitoring, incident response, and fixes for 12 months. Implementation Only — your team owns support from go-live.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>At month 12:</strong> IaaS clients choose to renew at the current rate or take code ownership. Either way, they've had 12 months of DataSkate-managed uptime.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>MuleSoft expertise:</strong> Implementation Only requires someone on your team who can administer Anypoint Platform after handoff. IaaS does not.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>AI readiness — included at no charge:</strong> Before go-live, DataSkate delivers a personalized Agentic Readiness Document — mapping your integrated data layer to specific AI agents, with timing and cost estimates. Free for all implementation clients.</span></div>
+    <p class="impl-pitch-note">If Implementation Only is still the right fit, continue below.</p>
+  </div>
+</div>
+
+{# ── T&M resource breakdown — hidden until client selects T&M ── #}
+{% if pp.tm %}
+<div id="tm-rate-section" style="display:none">
+  <div class="managed-intro">
+    <h3>T&amp;M Resource Breakdown</h3>
+    <p>Estimates based on typical hours per flow. Actual hours may vary; scope increases require written approval before work begins.</p>
+  </div>
+  <table class="managed-table">
+    <thead>
+      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs ({{ pp.n }} flows)</th><th>Estimated cost</th></tr>
+    </thead>
+    <tbody>
+      {% for r in pp.tm.resources %}
+      <tr><td>{{ r.role | esc }}</td><td>{{ r.ratePerHourFmt }}</td><td>~{{ r.totalHours }}h</td><td>{{ r.rowTotalFmt }}</td></tr>
+      {% endfor %}
+      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>{{ pp.tm.totalFmt }}</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced {{ pp.tm.invoiceCycle | esc }} based on actual hours logged. Minimum engagement: {{ pp.tm.minimumHours }} hours. Time tracked via shared sheet provided at SOW signing.</p>
+</div>
+{% endif %}
+
+{# ── Negotiate / selection panel — hidden until model selected ── #}
+<div class="negotiate-panel no-print" id="negotiate-panel" style="display:none">
+  <div class="negotiate-header">
+    <div class="negotiate-label">Your Selection</div>
+    <h3 id="selected-model-name">—</h3>
+    <p>Listed: <strong id="selected-rate">—</strong>. Leave the field blank to accept as listed, or enter a proposed figure to discuss.</p>
+  </div>
+  <div class="negotiate-grid">
+    <div>
+      <label class="negotiate-field-label">Your name <span class="negotiate-required">*</span></label>
+      <input class="cta-input" type="text" id="negotiate-name" placeholder="Your full name" autocomplete="name" />
+    </div>
+    <div>
+      <label class="negotiate-field-label" id="negotiate-rate-label">Proposed rate (optional)</label>
+      <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $275/flow/month" oninput="onRateInput(this.value)" />
+    </div>
+  </div>
+  <div style="margin-bottom:20px">
+    <label class="negotiate-field-label">Notes <span class="negotiate-optional">(optional)</span></label>
+    <textarea class="cta-input" id="negotiate-notes" placeholder="Any context or questions?" oninput="onNotesInput(this)"></textarea>
+  </div>
+  <button class="btn btn-primary btn-submit" id="negotiate-btn" onclick="submitSelection()">Confirm Selection →</button>
+  <div class="accept-success" id="selection-success">&#10003; Your email app should open. We'll follow up within one business day.</div>
+</div>
