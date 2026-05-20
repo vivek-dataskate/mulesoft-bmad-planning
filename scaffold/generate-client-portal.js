@@ -376,9 +376,10 @@ async function buildPortalContent(slug) {
       archivedFiles, sourceFilesUrl, localScopingCount,
       intakeUrl, proposalUrl, devRepoUrl, docUrls,
     }),
-    internalDocs: pitchKitUrl
-      ? [{ icon: '📊', title: 'Pitch Kit', href: pitchKitUrl }]
-      : [],
+    // Pitch Kit (integration-deck) is an INTERNAL doc — surfaces only on the
+    // architect portal (firebase/public/index.html), never on the client portal.
+    // Leaving the field empty rather than wiring pitchKitUrl here.
+    internalDocs: [],
     sprintStats: stats.total > 0
       ? { total: stats.total, done: stats.done, active: stats.active, review: stats.review, planned: stats.planned }
       : null,
