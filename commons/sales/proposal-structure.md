@@ -198,7 +198,6 @@ For bidirectional flows: note bidirectionality in the diagram caption text, not 
 ## Reference Implementations
 
 - `projects/mrn-healthcare/intake/proposal-mrn-healthcare.html` — MRN Healthcare, May 2026, 10 flows, IaaS + One-Time models. Healthcare GPO vertical. ROI/Business Case section included (specific ARR numbers from scoping). CSS source of truth.
-- `projects/peerless/intake/proposal-peerless.html` — Peerless Fence, May 2026, 7 flows, Standard + One-Time models, new AE intro pricing. Home services / contractor vertical. Key Assumptions table with P0 blockers (CE Live Service, HD Portal write endpoints). ROI section omitted (no specific volume data from scoping).
 
 ---
 
