@@ -1,28 +1,92 @@
-<svg viewBox="0 0 500 120" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 860 248" width="860" height="248"
+     xmlns="http://www.w3.org/2000/svg"
+     style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff;">
+
   <defs>
-    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 Z" fill="#C8CACC"/>
+    </marker>
     <style>
-      .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}
-      .sv-hub{fill:#E8F5EE;stroke:var(--green);stroke-width:2}
-      .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}
-      .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
-      .sv-lhub{font:700 12px system-ui,sans-serif;fill:var(--green)}
-      .sv-lsub{font:400 9px system-ui,sans-serif;fill:var(--green)}
+      text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     </style>
   </defs>
-  <rect class="sv-src" x="5" y="24" width="140" height="32" rx="6"/>
-    <text class="sv-lsrc" x="75" y="45" text-anchor="middle">Shopify Plus</text>
-    <line class="sv-line" x1="145" y1="40" x2="190" y2="60" marker-end="url(#arr)"/>
-  <rect class="sv-src" x="5" y="64" width="140" height="32" rx="6"/>
-    <text class="sv-lsrc" x="75" y="85" text-anchor="middle">Orderful EDI</text>
-    <line class="sv-line" x1="145" y1="80" x2="190" y2="60" marker-end="url(#arr)"/>
-  <rect class="sv-hub" x="190" y="34" width="120" height="52" rx="8"/>
-  <text class="sv-lhub" x="250" y="56" text-anchor="middle">MuleSoft</text>
-  <text class="sv-lsub" x="250" y="72" text-anchor="middle">DataSkate Managed</text>
-  <rect class="sv-tgt" x="355" y="24" width="140" height="32" rx="6"/>
-    <text class="sv-ltgt" x="425" y="45" text-anchor="middle">NetSuite</text>
-    <line class="sv-line" x1="310" y1="60" x2="355" y2="40" marker-end="url(#arr)"/>
-  <rect class="sv-tgt" x="355" y="64" width="140" height="32" rx="6"/>
-    <text class="sv-ltgt" x="425" y="85" text-anchor="middle">ShipStation</text>
-    <line class="sv-line" x1="310" y1="60" x2="355" y2="80" marker-end="url(#arr)"/>
+
+  <!-- Current state panel -->
+  <rect x="0" y="0" width="400" height="248" rx="8"
+        fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
+  <rect x="0" y="0" width="400" height="36" rx="8"
+        fill="#ed1c24"/>
+  <rect x="0" y="28" width="400" height="8"
+        fill="#ed1c24"/>
+  <text x="200" y="25" text-anchor="middle"
+        font-size="10" font-weight="700" fill="#fff" letter-spacing="1.5">
+    CURRENT STATE — FRAGMENTED
+  </text>
+
+  <!-- Future state panel -->
+  <rect x="460" y="0" width="400" height="248" rx="8"
+        fill="#F0FFF8" stroke="#2E9E6B" stroke-width="1.5"/>
+  <rect x="460" y="0" width="400" height="36" rx="8"
+        fill="#2E9E6B"/>
+  <rect x="460" y="28" width="400" height="8"
+        fill="#2E9E6B"/>
+  <text x="660" y="25" text-anchor="middle"
+        font-size="10" font-weight="700" fill="#fff" letter-spacing="1.5">
+    FUTURE STATE — UNIFIED
+  </text>
+
+  <!-- Arrow between panels -->
+  <text x="430" y="118" text-anchor="middle"
+        font-size="22" fill="#C8CACC">→</text>
+
+  <!-- Diagram content -->
+  <g transform="translate(0,48)">
+    <path d="M90,42 C117.5,42 117.5,42 145,42" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="117.5" y="37" text-anchor="middle" font-size="9" fill="var(--mid)" font-style="italic">22 flows</text>
+<path d="M90,94 C117.5,94 117.5,94 145,94" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M90,146 C117.5,146 117.5,146 145,146" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="117.5" y="141" text-anchor="middle" font-size="9" fill="var(--mid)" font-style="italic">810/856/997</text>
+<path d="M255,42 C282.5,42 282.5,94 310,94" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M255,94 C282.5,94 282.5,94 310,94" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="-20" y="23" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="35" y="46.5" text-anchor="middle" font-size="10" fill="var(--dark)">Shopify Plus</text>
+<rect x="145" y="23" width="110" height="38" rx="6" fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
+<text x="200" y="40" text-anchor="middle" font-size="10" fill="#c0392b" font-weight="600">Celigo</text>
+<text x="200" y="53" text-anchor="middle" font-size="9" fill="#c0392b">(Sikich managed)</text>
+<rect x="-20" y="75" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="35" y="98.5" text-anchor="middle" font-size="10" fill="var(--dark)">ShipStation</text>
+<rect x="145" y="75" width="110" height="38" rx="6" fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
+<text x="200" y="92" text-anchor="middle" font-size="10" fill="#c0392b" font-weight="600">Turbine</text>
+<text x="200" y="105" text-anchor="middle" font-size="10" fill="#c0392b">(standalone)</text>
+<rect x="-20" y="127" width="110" height="38" rx="6" fill="#FFF5F5" stroke="#ed1c24" stroke-width="1.5"/>
+<text x="35" y="144" text-anchor="middle" font-size="10" fill="#c0392b" font-weight="600">Orderful EDI</text>
+<text x="35" y="157" text-anchor="middle" font-size="10" fill="#c0392b">(standalone)</text>
+<rect x="145" y="127" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="200" y="150.5" text-anchor="middle" font-size="9" fill="var(--dark)">Fanatics · DSG · Rallyhouse</text>
+<rect x="310" y="75" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="365" y="98.5" text-anchor="middle" font-size="10" fill="var(--dark)">NetSuite</text>
+  </g>
+  <g transform="translate(0,48)">
+    <path d="M550,42 C577.5,42 577.5,94 605,94" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M550,94 C577.5,94 577.5,94 605,94" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M550,146 C577.5,146 577.5,94 605,94" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M715,94 C742.5,94 742.5,68 770,68" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="742.5" y="76" text-anchor="middle" font-size="9" fill="var(--mid)" font-style="italic">22+ flows</text>
+<path d="M715,94 C742.5,94 742.5,120 770,120" fill="none" stroke="#C8CACC" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="440" y="23" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="495" y="46.5" text-anchor="middle" font-size="10" fill="var(--dark)">Shopify Plus</text>
+<rect x="605" y="75" width="110" height="38" rx="6" fill="#F0FFF4" stroke="#38A169" stroke-width="1.5"/>
+<text x="660" y="92" text-anchor="middle" font-size="10" fill="#276749" font-weight="600">MuleSoft</text>
+<text x="660" y="105" text-anchor="middle" font-size="9" fill="#276749">(DataSkate managed)</text>
+<rect x="440" y="75" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="495" y="98.5" text-anchor="middle" font-size="10" fill="var(--dark)">ShipStation</text>
+<rect x="440" y="127" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="495" y="150.5" text-anchor="middle" font-size="10" fill="var(--dark)">Orderful</text>
+<rect x="770" y="49" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="825" y="72.5" text-anchor="middle" font-size="10" fill="var(--dark)">NetSuite</text>
+<rect x="770" y="101" width="110" height="38" rx="6" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<text x="825" y="124.5" text-anchor="middle" font-size="9" fill="var(--dark)">Fanatics · DSG · Rallyhouse</text>
+  </g>
+
 </svg>
