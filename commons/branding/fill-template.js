@@ -188,6 +188,19 @@ if (templateType === 'proposal' && client) {
 
 if (templateType === 'integration-deck' && client) {
   savePitchKitToFirestore(content, client);
+  // Persist systemDiagram.current + future to project.json
+  if (content.systemDiagram) {
+    const projPath = path.join(root, 'projects', client, 'project.json');
+    if (fs.existsSync(projPath)) {
+      try {
+        const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
+        if (!proj.systemDiagram) proj.systemDiagram = {};
+        if (content.systemDiagram.current) proj.systemDiagram.current = content.systemDiagram.current;
+        if (content.systemDiagram.future)  proj.systemDiagram.future  = content.systemDiagram.future;
+        fs.writeFileSync(projPath, JSON.stringify(proj, null, 2) + '\n');
+      } catch (e) { /* non-fatal */ }
+    }
+  }
 }
 
 // ─── PROPOSAL ────────────────────────────────────────────────────────────────
