@@ -14,6 +14,34 @@ const COMPETITORS = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'competitors.json'), 'utf8')
 );
 
+const STANDARDS = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'HTML_DESIGN_STANDARDS.json'), 'utf8')
+);
+
+// Hex exceptions allowlist for the arbitrary-hex rule — normalised to lowercase.
+const HEX_EXCEPTIONS = new Set(
+  ((STANDARDS.forbidden.find(f => f.id === 'arbitrary-hex') || {}).exceptions || [])
+    .map(h => h.toLowerCase())
+);
+
+// Map of template id (read from DS-GENERATED fingerprint) → key in logo.heights.
+const LOGO_TEMPLATE_KEY = {
+  intake: 'intake',
+  proposal: 'proposal',
+  'architect-guide': 'guide',
+  'client-portal': 'portal',
+  'integration-deck': 'deck',
+  'corporate-brief': 'proposal',
+  'ds-pricing-model': 'guide',
+};
+
+function expectedLogoHeightForFile(content) {
+  const m = content.match(/<!--\s*DS-GENERATED:\s*template=([a-z-]+)/i);
+  if (!m) return null;
+  const key = LOGO_TEMPLATE_KEY[m[1]] || m[1];
+  return ((STANDARDS.logo || {}).heights || {})[key] || null;
+}
+
 const ROOT = path.resolve(__dirname, '../..');
 
 // Full-scan targets (used when no file arg is passed)
@@ -140,6 +168,111 @@ const CHECKS = [
       return false;
     },
     message: () => `Competitor domain linked in href — remove the link but keep the use case text. Found: ${(CHECKS._competitorDomainsFound || []).join(', ')}. See commons/branding/competitors.json.`,
+  },
+
+  // ── Arbitrary hex colors ───────────────────────────────────────────────────
+  // Strips three legitimate-hex zones first so they don't false-flag:
+  //  1. <svg>…</svg> — the inline wordmark uses literal brand colors
+  //  2. :root { ... } — palette variable definitions own their hex values
+  //  3. Any `--name: #xxx;` declaration line (per-component palette extensions)
+  // Everything remaining must be in HTML_DESIGN_STANDARDS arbitrary-hex.exceptions.
+  {
+    name: 'No arbitrary hex colors',
+    test: c => {
+      const stripped = c
+        .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+        .replace(/:root\s*\{[^}]*\}/g, '')
+        .replace(/--[a-z][a-z0-9-]*\s*:\s*#[0-9a-fA-F]{3,8}\s*;?/g, '');
+      // Match 3/4/6/8-digit hex. Negative lookbehind on `&` skips HTML numeric
+      // entities like &#9660; that would otherwise match as `#9660`. For 8-digit
+      // (#RRGGBBAA), check if the base 6-digit is in the exceptions list —
+      // palette+alpha overlays count as legitimate uses of the palette.
+      const matches = stripped.match(/(?<!&)#[0-9a-fA-F]{3,8}\b/g) || [];
+      const offenders = [...new Set(matches.map(h => h.toLowerCase()))]
+        .filter(h => {
+          if (HEX_EXCEPTIONS.has(h)) return false;
+          if (h.length === 9) {                                  // #RRGGBBAA
+            const base = h.slice(0, 7);                          // #RRGGBB
+            if (HEX_EXCEPTIONS.has(base)) return false;
+          }
+          return true;
+        });
+      if (offenders.length === 0) return true;
+      CHECKS._hexOffenders = offenders;
+      return false;
+    },
+    message: () => `Hex colors used outside palette and exceptions list: ${(CHECKS._hexOffenders || []).join(', ')}. Add to HTML_DESIGN_STANDARDS.json forbidden[arbitrary-hex].exceptions or replace with a CSS variable from the palette.`,
+  },
+
+  // ── Logo height per template type ──────────────────────────────────────────
+  // Reads DS-GENERATED fingerprint to learn which template emitted the file,
+  // then verifies the inline SVG height matches logo.heights[template].
+  {
+    name: 'Logo height matches spec',
+    test: c => {
+      const expected = expectedLogoHeightForFile(c);
+      if (!expected) return true;                 // unknown template — skip silently
+      const m = c.match(/viewBox="140 258 590 96"[^>]*?height:(\d+)px/);
+      if (!m) return true;                        // no inline-height (CSS-sized) — separate check handles SVG presence
+      const actual = m[1] + 'px';
+      if (actual === expected) return true;
+      CHECKS._logoExpected = expected;
+      CHECKS._logoActual = actual;
+      return false;
+    },
+    message: () => `Logo height ${CHECKS._logoActual} does not match HTML_DESIGN_STANDARDS.json logo.heights spec (${CHECKS._logoExpected}). Update the inline SVG style attribute.`,
+  },
+
+  // ── <details> structural balance ───────────────────────────────────────────
+  // Catches the class of bug where a generator slices through a <details>
+  // wrapper and leaves an unclosed tag → browser auto-nests every subsequent
+  // sibling inside the broken parent, rendering only the first one visibly.
+  // Strips <script>/<style> first so JS-comment mentions of `<details>` don't
+  // false-trigger.
+  {
+    name: '<details> balance',
+    test: c => {
+      const stripped = c
+        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+        .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+        .replace(/<!--[\s\S]*?-->/g, '');
+      const re = /<\/?details\b[^>]*>/g;
+      let m, depth = 0, deepestOpen = null;
+      while ((m = re.exec(stripped)) !== null) {
+        if (m[0].startsWith('</')) {
+          depth--;
+          if (depth < 0) { CHECKS._detailsErr = 'orphaned </details> at byte ' + m.index; return false; }
+        } else {
+          depth++;
+          deepestOpen = m.index;
+        }
+      }
+      if (depth !== 0) {
+        CHECKS._detailsErr = depth + ' unclosed <details> remaining (last open near byte ' + deepestOpen + ')';
+        return false;
+      }
+      return true;
+    },
+    message: () => `<details> tags are not balanced: ${CHECKS._detailsErr || 'unbalanced'}. This causes the browser to nest every subsequent sibling section inside the broken parent — only the first one renders visibly.`,
+  },
+
+  // ── Mailto in submit handlers ──────────────────────────────────────────────
+  // Intake-form-specific rule (HTML_DESIGN_STANDARDS.json forbidden[mailto-submit]).
+  // Intake submits MUST go to Firestore — no email composition fallback.
+  // Proposal selection flows are allowed to use mailto as a supplementary
+  // notification since they also write to Firestore (logDiscount).
+  {
+    name: 'No mailto in submit handler',
+    test: c => {
+      // Scope by DS-GENERATED fingerprint — only enforce on intake template.
+      const fp = c.match(/<!--\s*DS-GENERATED:\s*template=([a-z-]+)/i);
+      if (!fp || fp[1] !== 'intake') return true;
+      const formAction   = /<form[^>]*action=["']\s*mailto:/i.test(c);
+      const clickMailto  = /\bon(?:click|submit)\s*=\s*["'][^"']*mailto:/i.test(c);
+      const locationSet  = /location\.href\s*=\s*['"]mailto:/i.test(c);
+      return !(formAction || clickMailto || locationSet);
+    },
+    message: 'mailto: detected in an intake submit handler (form action / onclick / location.href). Intake submits must save to Firestore only. See HTML_DESIGN_STANDARDS.json forbidden[mailto-submit].',
   },
 ];
 
