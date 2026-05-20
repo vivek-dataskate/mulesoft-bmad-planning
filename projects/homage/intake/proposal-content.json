@@ -34,7 +34,8 @@
       "sources": ["Shopify Plus", "Orderful EDI"],
       "targets": ["NetSuite", "ShipStation"]
     },
-    "diagramCaption": "DataSkate-managed MuleSoft layer — no code changes required in Shopify Plus or NetSuite"
+    "diagramCaption": "DataSkate-managed MuleSoft layer — no code changes required in Shopify Plus or NetSuite",
+    "mermaid": "graph LR\n  SH[\"Shopify Plus\"] --> MS[\"MuleSoft\\n(DataSkate managed)\"]\n  SS[\"ShipStation\"] --> MS\n  OR[\"Orderful\"] --> MS\n  MS -->|\"22+ flows\"| NS[\"NetSuite\"]\n  MS --> RT[\"Fanatics · DSG · Rallyhouse\"]\n  style MS fill:#F0FFF4,stroke:#38A169,color:#276749"
   },
 
   "roi": {
