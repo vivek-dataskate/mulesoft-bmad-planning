@@ -56,19 +56,88 @@ body {
 }
 
 /* ── PORTAL LAYOUT ── */
-#portal { display: none; max-width: 1100px; margin: 0 auto; padding: 0 40px 80px; }
+#portal { display: none; max-width: 1440px; margin: 0 auto; padding: 0 40px 80px; }
+.portal-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr 280px;
+  gap: 32px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .portal-grid { grid-template-columns: 1fr; gap: 24px; }
+  .left-rail, .right-rail { position: static !important; }
+}
+
+/* ── LEFT/RIGHT RAILS ── */
+.left-rail, .right-rail {
+  position: sticky; top: 20px;
+  font-size: 13px;
+}
+.rail-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--mid);
+  margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.rail-title.secondary { margin-top: 28px; }
+.rail-link {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px; margin-bottom: 4px;
+  border-radius: 6px;
+  text-decoration: none; color: var(--dark);
+  transition: background .15s, color .15s;
+}
+.rail-link:hover { background: var(--light); color: var(--brand); }
+.rail-icon { font-size: 16px; flex-shrink: 0; line-height: 1.4; }
+.rail-link-title { font-size: 13px; font-weight: 700; }
+.rail-link-sub { font-size: 11px; color: var(--mid); margin-top: 2px; font-weight: 500; }
+.rail-link:hover .rail-link-sub { color: var(--mid); }
+
+.rail-item {
+  padding: 10px 12px;
+  border-left: 3px solid transparent;
+  margin-bottom: 6px;
+  background: #FAFAFA;
+}
+.rail-item.attention { border-left-color: var(--amber); background: var(--amber-bg); }
+.rail-item.recent    { border-left-color: var(--border); }
+.rail-item-name { font-size: 12px; font-weight: 700; }
+.rail-item-name a { color: var(--dark); text-decoration: none; }
+.rail-item-name a:hover { color: var(--brand); }
+.rail-item-meta { font-size: 11px; color: var(--mid); margin-top: 2px; }
+.rail-empty { font-size: 12px; color: var(--mid); font-style: italic; padding: 8px 12px; }
+
+/* ── SEARCH ROW ── */
+.search-row { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; }
+.search-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit; font-size: 14px;
+  color: var(--dark); background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+}
+.search-input::placeholder { color: var(--mid); }
+.search-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(237,28,36,.1);
+}
+.result-count { font-size: 12px; color: var(--mid); white-space: nowrap; }
 
 /* ── HEADER ── */
 .portal-header {
-  padding: 28px 0 20px;
+  padding: 24px 0 16px;
   border-bottom: 3px solid var(--brand);
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 40px;
+  display: flex; align-items: center;
+  gap: 40px;
+  margin-bottom: 28px;
 }
-.portal-header-left { display: flex; flex-direction: column; gap: 6px; }
+.portal-header-left { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 .portal-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--mid); }
 .portal-title { font-size: 24px; font-weight: 800; color: var(--dark); }
-.portal-header-right { display: flex; align-items: center; gap: 16px; }
+.portal-header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .user-chip {
   font-size: 12px; color: var(--mid);
   background: #F7F7F7; border: 1px solid var(--border);
@@ -81,36 +150,45 @@ body {
 }
 .btn-signout:hover { border-color: var(--brand); color: var(--brand); }
 
-/* ── STATS BAR ── */
+/* ── STATS BAR (compact pills inside header, generous breathing room) ── */
 .stats-bar {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
-  margin-bottom: 40px;
+  display: flex; gap: 36px;
+  flex: 1; justify-content: center;
+  flex-wrap: wrap;
 }
 .stat-card {
+  display: flex; align-items: center; gap: 14px;
   background: #FAFAFA; border: 1px solid var(--border);
-  border-radius: 8px; padding: 20px 20px 16px;
-  cursor: pointer; transition: border-color .15s, box-shadow .15s;
+  border-radius: 6px; padding: 12px 22px;
+  cursor: pointer; transition: border-color .15s, background .15s;
   user-select: none;
+  min-width: 140px;
 }
-.stat-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,.08); }
-.stat-card.filter-active { border-color: var(--brand); background: var(--light); box-shadow: 0 2px 8px rgba(237,28,36,.12); }
-.stat-card .stat-num { font-size: 28px; font-weight: 800; color: var(--dark); }
-.stat-card .stat-label { font-size: 12px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+.stat-card:hover { border-color: var(--brand); background: var(--light); }
+.stat-card.filter-active { border-color: var(--brand); background: var(--light); }
+.stat-card .stat-num { font-size: 22px; font-weight: 800; color: var(--dark); line-height: 1; }
+.stat-card .stat-label { font-size: 10px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; line-height: 1.3; }
 .stat-card.stat-total  .stat-num { color: var(--brand); }
 .stat-card.stat-signed .stat-num { color: var(--green); }
-
-/* ── SECTION HEAD ── */
-.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; margin-top: 48px; }
-.section-head:first-of-type { margin-top: 0; }
-.section-head h2 { font-size: 16px; font-weight: 700; color: var(--dark); }
+@media (max-width: 1100px) {
+  .portal-header { flex-wrap: wrap; gap: 16px; }
+  .stats-bar { flex: 0 0 100%; justify-content: flex-start; gap: 16px; }
+}
 
 /* ── PROJECT TABLE ── */
 .project-table { width: 100%; border-collapse: collapse; }
-.project-table th {
+.project-table thead th {
   background: var(--dark); color: #fff;
   font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
   padding: 10px 14px; text-align: left;
+  position: sticky; top: 0; z-index: 5;
 }
+.project-table th.sortable { cursor: pointer; user-select: none; }
+.project-table th.sortable:hover { background: #333; }
+.project-table th .sort-arrow {
+  font-size: 9px; margin-left: 6px; opacity: .35; display: inline-block;
+}
+.project-table th.sort-active .sort-arrow { opacity: 1; }
 .project-table td {
   padding: 14px 14px;
   border-bottom: 1px solid var(--border);
@@ -121,15 +199,7 @@ body {
 
 .client-name { font-size: 14px; font-weight: 700; color: var(--dark); text-decoration: none; }
 .client-name:hover { color: var(--brand); text-decoration: underline; }
-.client-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
 
-/* Intake progress cell */
-.intake-cell {
-  cursor: pointer;
-  display: inline-flex; align-items: center; gap: 8px;
-}
-.intake-cell:hover .intake-label { color: var(--brand); text-decoration: underline; }
-.intake-label { font-size: 12px; font-weight: 600; }
 .intake-badge {
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
   padding: 2px 8px; border-radius: 20px; white-space: nowrap;
@@ -140,30 +210,6 @@ body {
 
 /* Empty state */
 .empty-row td { text-align: center; padding: 48px 20px; color: var(--mid); font-size: 13px; }
-
-/* ── DOCS & RESOURCES ── */
-.resource-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
-}
-.resource-card {
-  display: flex; flex-direction: column; gap: 6px;
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 16px 18px;
-  text-decoration: none; color: inherit;
-  transition: border-color .15s, box-shadow .15s;
-  background: #fff;
-}
-.resource-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,.08); }
-.resource-icon { font-size: 22px; line-height: 1; margin-bottom: 4px; }
-.resource-title { font-size: 13px; font-weight: 700; color: var(--dark); }
-.resource-desc  { font-size: 12px; color: var(--mid); line-height: 1.4; }
-.resource-tag   {
-  margin-top: auto; padding-top: 8px;
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
-  color: var(--brand);
-}
 
 /* ── RESPONSES MODAL ── */
 .modal-overlay {
@@ -248,74 +294,91 @@ body {
       <div class="portal-eyebrow">Internal — Architect Access Only</div>
       <div class="portal-title">Engagement Portal</div>
     </div>
+
+    <!-- Stats / filter chips (inline in header) -->
+    <div class="stats-bar">
+      <div class="stat-card stat-total filter-active" data-filter="all" onclick="applyFilter('all')">
+        <div class="stat-num" id="stat-total">—</div>
+        <div class="stat-label">Total<br>Engagements</div>
+      </div>
+      <div class="stat-card" data-filter="intake_sent" onclick="applyFilter('intake_sent')">
+        <div class="stat-num" id="stat-intake-sent">—</div>
+        <div class="stat-label">Intake<br>Sent</div>
+      </div>
+      <div class="stat-card" data-filter="intake_submitted" onclick="applyFilter('intake_submitted')">
+        <div class="stat-num" id="stat-intake-submitted">—</div>
+        <div class="stat-label">Intake<br>Submitted</div>
+      </div>
+      <div class="stat-card stat-signed" data-filter="sow_signed" onclick="applyFilter('sow_signed')">
+        <div class="stat-num" id="stat-sow-signed">—</div>
+        <div class="stat-label">SOW<br>Signed</div>
+      </div>
+    </div>
+
     <div class="portal-header-right">
       <span class="user-chip" id="user-email-chip"></span>
       <button class="btn-signout" onclick="signOut()">Sign out</button>
     </div>
   </div>
 
-  <!-- Stats -->
-  <div class="stats-bar">
-    <div class="stat-card stat-total filter-active" data-filter="all" onclick="applyFilter('all')">
-      <div class="stat-num" id="stat-total">—</div>
-      <div class="stat-label">Total Engagements</div>
-    </div>
-    <div class="stat-card" data-filter="intake_sent" onclick="applyFilter('intake_sent')">
-      <div class="stat-num" id="stat-intake-sent">—</div>
-      <div class="stat-label">Intake Sent</div>
-    </div>
-    <div class="stat-card" data-filter="intake_submitted" onclick="applyFilter('intake_submitted')">
-      <div class="stat-num" id="stat-intake-submitted">—</div>
-      <div class="stat-label">Intake Submitted</div>
-    </div>
-    <div class="stat-card stat-signed" data-filter="sow_signed" onclick="applyFilter('sow_signed')">
-      <div class="stat-num" id="stat-sow-signed">—</div>
-      <div class="stat-label">SOW Signed</div>
-    </div>
-  </div>
+  <div class="portal-grid">
 
-  <!-- Active Engagements -->
-  <div class="section-head" style="margin-top:0">
-    <h2>Active Engagements</h2>
-  </div>
-  <table class="project-table">
-    <thead>
-      <tr>
-        <th>Client</th>
-        <th>Architect</th>
-        <th>Status</th>
-        <th>Last Activity</th>
-        <th>Pitch Kit</th>
-      </tr>
-    </thead>
-    <tbody id="project-tbody">
-      <tr class="empty-row"><td colspan="5">Loading engagements…</td></tr>
-    </tbody>
-  </table>
+    <!-- ── LEFT RAIL: Resources ── -->
+    <aside class="left-rail">
+      <div class="rail-title">Resources</div>
+      <a class="rail-link" href="/resources/architect-guide.html" target="_blank">
+        <span class="rail-icon">🏗️</span>
+        <span>
+          <div class="rail-link-title">Architect Guide</div>
+          <div class="rail-link-sub">Delivery · Internal</div>
+        </span>
+      </a>
+      <a class="rail-link" href="/resources/ds-pricing-model.html" target="_blank">
+        <span class="rail-icon">📄</span>
+        <span>
+          <div class="rail-link-title">DS Pricing Model</div>
+          <div class="rail-link-sub">Sales · Client-facing</div>
+        </span>
+      </a>
+      <a class="rail-link" href="/resources/capabilities.html" target="_blank">
+        <span class="rail-icon">⚙️</span>
+        <span>
+          <div class="rail-link-title">How We Deliver</div>
+          <div class="rail-link-sub">Delivery · Internal</div>
+        </span>
+      </a>
+    </aside>
 
-  <!-- Docs & Resources -->
-  <div class="section-head">
-    <h2>Docs &amp; Resources</h2>
-  </div>
-  <div class="resource-grid">
-    <a class="resource-card" href="/resources/architect-guide.html" target="_blank">
-      <div class="resource-icon">🏗️</div>
-      <div class="resource-title">Architect Guide</div>
-      <div class="resource-desc">Full playbook — proposition, pricing, AE briefing, client objections, Phase 2 pivot.</div>
-      <div class="resource-tag">Delivery · Internal</div>
-    </a>
-    <a class="resource-card" href="/resources/ds-pricing-model.html" target="_blank">
-      <div class="resource-icon">📄</div>
-      <div class="resource-title">DS Pricing Model</div>
-      <div class="resource-desc">Client-ready one-pager summarising DataSkate pricing models and engagement options.</div>
-      <div class="resource-tag">Sales · Client-facing</div>
-    </a>
-    <a class="resource-card" href="/resources/capabilities.html" target="_blank">
-      <div class="resource-icon">⚙️</div>
-      <div class="resource-title">How We Deliver</div>
-      <div class="resource-desc">BMAD pipeline — 9 Scout agents, knowledge capture loop, and what comes out of each stage.</div>
-      <div class="resource-tag">Delivery · Internal</div>
-    </a>
+    <!-- ── CENTER: Search + table ── -->
+    <main class="center-col">
+      <div class="search-row">
+        <input class="search-input" id="search-input" type="search" placeholder="Search clients by name or architect…" autocomplete="off">
+        <span class="result-count" id="result-count">—</span>
+      </div>
+      <table class="project-table">
+        <thead>
+          <tr>
+            <th class="sortable" data-col="name"      onclick="setSort('name')">Client          <span class="sort-arrow"></span></th>
+            <th class="sortable" data-col="architect" onclick="setSort('architect')">Architect  <span class="sort-arrow"></span></th>
+            <th class="sortable" data-col="status"    onclick="setSort('status')">Status        <span class="sort-arrow"></span></th>
+            <th class="sortable" data-col="activity"  onclick="setSort('activity')">Last Activity <span class="sort-arrow"></span></th>
+            <th class="sortable" data-col="pitchkit"  onclick="setSort('pitchkit')">Pitch Kit   <span class="sort-arrow"></span></th>
+          </tr>
+        </thead>
+        <tbody id="project-tbody">
+          <tr class="empty-row"><td colspan="5">Loading engagements…</td></tr>
+        </tbody>
+      </table>
+    </main>
+
+    <!-- ── RIGHT RAIL: Needs Attention + Recent ── -->
+    <aside class="right-rail">
+      <div class="rail-title">Needs Attention</div>
+      <div id="needs-attention-list"><div class="rail-empty">Loading…</div></div>
+      <div class="rail-title secondary">Recent (last 7 days)</div>
+      <div id="recent-activity-list"><div class="rail-empty">Loading…</div></div>
+    </aside>
+
   </div>
 </div>
 
@@ -421,11 +484,70 @@ async function loadProjects() {
   _intakeMap = intakeMap;
   renderStats(projects, intakeMap);
   renderProjects(projects, intakeMap);
+  renderNeedsAttention(projects, intakeMap);
+  renderRecentActivity(projects, intakeMap);
 }
 
-let _projects  = [];
-let _intakeMap = {};
-let _filter    = 'all';
+let _projects    = [];
+let _intakeMap   = {};
+let _filter      = 'all';
+let _search      = '';
+let _sortColumn  = 'name';   // default: clients alphabetical by name
+let _sortDir     = 'asc';
+
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('search-input');
+  if (input) input.addEventListener('input', (e) => {
+    _search = e.target.value.trim().toLowerCase();
+    renderProjects(_projects, _intakeMap);
+  });
+});
+
+function setSort(column) {
+  if (_sortColumn === column) {
+    _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    _sortColumn = column;
+    _sortDir = (column === 'activity') ? 'desc' : 'asc';  // newest-first for dates
+  }
+  renderProjects(_projects, _intakeMap);
+}
+
+function sortValue(p, intakeMap) {
+  const intake = intakeMap[p.id] || {};
+  switch (_sortColumn) {
+    case 'name':      return (p.name      || '').toLowerCase();
+    case 'architect': return (p.architect || '').toLowerCase();
+    case 'status': {
+      const order = { submitted: 0, sent: 1, none: 2 };
+      return order[intake.state] != null ? order[intake.state] : 3;
+    }
+    case 'activity':
+      return (intake.lastActivityAt && intake.lastActivityAt.seconds)
+        ? intake.lastActivityAt.seconds : 0;
+    case 'pitchkit':  return p.pitchKitUrl ? 0 : 1;
+    default:          return 0;
+  }
+}
+
+function updateSortArrows() {
+  document.querySelectorAll('.project-table th.sortable').forEach(th => {
+    const arrow  = th.querySelector('.sort-arrow');
+    const active = th.dataset.col === _sortColumn;
+    th.classList.toggle('sort-active', active);
+    arrow.textContent = active ? (_sortDir === 'asc' ? '▲' : '▼') : '▲';
+  });
+}
+
+function daysSince(ts) {
+  if (!ts || !ts.seconds) return null;
+  return Math.floor((Date.now() / 1000 - ts.seconds) / 86400);
+}
+
+function matchesSearch(p) {
+  if (!_search) return true;
+  return (p.name + ' ' + (p.architect || '')).toLowerCase().includes(_search);
+}
 
 function renderStats(projects, intakeMap) {
   const intakeSent      = projects.filter(p => intakeMap[p.id] && intakeMap[p.id].state === 'sent').length;
@@ -447,8 +569,10 @@ function applyFilter(filter) {
 
 function renderProjects(projects, intakeMap) {
   const tbody = document.getElementById('project-tbody');
+  updateSortArrows();
 
   const visible = projects.filter(p => {
+    if (!matchesSearch(p)) return false;
     if (_filter === 'all')              return true;
     if (_filter === 'intake_sent')      return intakeMap[p.id] && intakeMap[p.id].state === 'sent';
     if (_filter === 'intake_submitted') return intakeMap[p.id] && intakeMap[p.id].state === 'submitted';
@@ -456,30 +580,46 @@ function renderProjects(projects, intakeMap) {
     return true;
   });
 
+  // Sort
+  const dir = _sortDir === 'asc' ? 1 : -1;
+  visible.sort((a, b) => {
+    const va = sortValue(a, intakeMap), vb = sortValue(b, intakeMap);
+    if (va < vb) return -1 * dir;
+    if (va > vb) return  1 * dir;
+    return (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase());
+  });
+
+  // Result count
+  const countEl = document.getElementById('result-count');
+  if (countEl) {
+    const total = projects.length;
+    countEl.textContent = visible.length === total
+      ? total + ' client' + (total !== 1 ? 's' : '')
+      : 'Showing ' + visible.length + ' of ' + total;
+  }
+
   if (!visible.length) {
     const label = document.querySelector(`.stat-card[data-filter="${_filter}"] .stat-label`);
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No engagements with status "${label ? label.textContent : _filter}".</td></tr>`;
+    const msg = _search
+      ? `No clients match "${esc(_search)}".`
+      : `No engagements with status "${label ? label.textContent.replace(/\s+/g, ' ').trim() : _filter}".`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">${msg}</td></tr>`;
     return;
   }
   tbody.innerHTML = visible.map(p => {
     const intake = intakeMap[p.id] || { state: 'none', count: 0 };
 
-    let badgeCls, badgeText, intakeSub;
+    let badgeCls, badgeText;
     if (intake.state === 'submitted') {
       badgeCls  = 'badge-submitted';
       badgeText = 'Intake Submitted';
-      intakeSub = intake.count + ' answer' + (intake.count !== 1 ? 's' : '');
     } else if (intake.state === 'sent') {
       badgeCls  = 'badge-progress';
       badgeText = 'Intake Sent';
-      intakeSub = 'Awaiting submission';
     } else {
       badgeCls  = 'badge-none';
       badgeText = 'Not Sent';
-      intakeSub = '';
     }
-
-    const clickable = intake.state !== 'none';
 
     // Last activity: prefer intake Firestore timestamp, fall back to manifest
     let lastActivity = '—';
@@ -490,14 +630,7 @@ function renderProjects(projects, intakeMap) {
       lastActivity = 'Created ' + p.createdAt;
     }
 
-    const statusCell = clickable
-      ? `<div class="intake-cell" onclick="viewResponses('${esc(p.id)}', '${esc(p.name)}')">
-          <div>
-            <span class="intake-badge ${badgeCls}">${badgeText}</span>
-            <div style="font-size:11px;color:var(--mid);margin-top:4px">${intakeSub}</div>
-          </div>
-        </div>`
-      : `<span class="intake-badge ${badgeCls}">${badgeText}</span>`;
+    const statusCell = `<span class="intake-badge ${badgeCls}">${badgeText}</span>`;
 
     const pitchKitCell = p.pitchKitUrl
       ? `<a href="${esc(p.pitchKitUrl)}" target="_blank" style="font-size:12px;font-weight:600;color:var(--brand);text-decoration:none;white-space:nowrap;">View Deck ↗</a>`
@@ -506,7 +639,6 @@ function renderProjects(projects, intakeMap) {
     return `<tr>
       <td>
         <a class="client-name" href="/portal/${esc(p.id)}.html" target="_blank">${esc(p.name)}</a>
-        <div class="client-sub">${esc(p.createdAt || '')}</div>
       </td>
       <td style="font-size:13px;color:var(--mid)">${esc(p.architect || '—')}</td>
       <td>${statusCell}</td>
@@ -514,6 +646,69 @@ function renderProjects(projects, intakeMap) {
       <td>${pitchKitCell}</td>
     </tr>`;
   }).join('');
+}
+
+// ── Right-rail: clients waiting on architect action ──
+function renderNeedsAttention(projects, intakeMap) {
+  const el = document.getElementById('needs-attention-list');
+  if (!el) return;
+  const items = [];
+
+  for (const p of projects) {
+    const intake = intakeMap[p.id] || {};
+    if (intake.state === 'submitted' && !p.sowSigned) {
+      const d = daysSince(intake.submittedAt);
+      if (d !== null && d >= 5) items.push({ id: p.id, name: p.name, reason: `intake ${d}d ago — awaiting SOW`, priority: d });
+    }
+    if (intake.state === 'sent') {
+      const d = daysSince(intake.lastActivityAt);
+      if (d !== null && d >= 7) items.push({ id: p.id, name: p.name, reason: `sent ${d}d ago — no response`, priority: d });
+    }
+  }
+
+  items.sort((a, b) => b.priority - a.priority);
+
+  if (!items.length) {
+    el.innerHTML = '<div class="rail-empty">Nothing pending — inbox zero ✨</div>';
+    return;
+  }
+  el.innerHTML = items.slice(0, 8).map(i => `
+    <div class="rail-item attention">
+      <div class="rail-item-name"><a href="/portal/${esc(i.id)}.html" target="_blank">${esc(i.name)}</a></div>
+      <div class="rail-item-meta">${esc(i.reason)}</div>
+    </div>
+  `).join('');
+}
+
+// ── Right-rail: most recent intake activity in last 7 days ──
+function renderRecentActivity(projects, intakeMap) {
+  const el = document.getElementById('recent-activity-list');
+  if (!el) return;
+  const items = [];
+
+  for (const p of projects) {
+    const intake = intakeMap[p.id] || {};
+    const d = daysSince(intake.lastActivityAt);
+    if (d === null || d > 7) continue;
+    let action;
+    if (intake.state === 'submitted')   action = 'intake submitted';
+    else if (intake.state === 'sent')   action = 'intake updated';
+    else                                action = 'updated';
+    items.push({ id: p.id, name: p.name, action, days: d });
+  }
+
+  items.sort((a, b) => a.days - b.days);
+
+  if (!items.length) {
+    el.innerHTML = '<div class="rail-empty">No activity in last 7 days.</div>';
+    return;
+  }
+  el.innerHTML = items.slice(0, 8).map(i => `
+    <div class="rail-item recent">
+      <div class="rail-item-name"><a href="/portal/${esc(i.id)}.html" target="_blank">${esc(i.name)}</a></div>
+      <div class="rail-item-meta">${esc(i.action)} ${i.days === 0 ? 'today' : i.days + 'd ago'}</div>
+    </div>
+  `).join('');
 }
 
 async function viewResponses(clientId, clientName) {
