@@ -1,0 +1,13 @@
+{#
+  components/proposal-stage-card.njk
+  Variables set by parent: stage, stageNum
+#}
+<div class="stage-card stage{{ stageNum }}">
+  <div class="stage-label">{{ stage.label | esc }}</div>
+  <div class="stage-year">{{ stage.year | esc }}</div>
+  <h4>{{ stage.headline | esc }}</h4>
+  <ul>
+    {% for item in stage.items %}<li>{{ item | safe }}</li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,0 +1,214 @@
+{#
+  layouts/corporate-brief.njk
+  ───────────────────────────
+  Per-client corporate-brief — 1-page pre-call research summary sent 48h before
+  the deep-dive call. Inputs (via the sidecar `corporate-brief.11tydata.js`):
+
+    brief = {
+      meta: { clientName, clientSlug, date, architect, architectEmail, subtitle? },
+      intro: string | null,                  // null → default "Before our deep-dive call:" copy
+      operatingBrand:    { name, website, linkedIn, industry, hqLocation, founded, scale, evidence } | null,
+      operatingPlatform: { name, website, linkedIn, evidence, greenfieldFlag, siblingBrands[] } | null,
+      financialSponsor:  { name, website, linkedIn, evidence } | null,
+      forwardLookingTalkingPoints: [{ horizon: '6mo'|'18mo'|'5yr', insight, sourceUrl }],
+      intelTheBuyerLacks:          [{ insight, sourceUrl, whyTheyLackIt }],
+      citations: [{ label, url }],
+      closing:   string | null
+    }
+
+  Source of truth: company_context.json.corporateStack — populated by Scout's
+  grounded inference and enriched by Vera.
+
+  Defaulting policy mirrors buildCorporateBrief() in fill-template.js — see
+  the inline notes below for each fallback.
+#}
+{% extends "layouts/base.njk" %}
+
+{% block head %}
+<style>
+a { text-decoration: none; }
+
+/* ── Page shell ── */
+.brief-header { background:#fff; border-bottom:3px solid var(--brand); padding:24px 56px 18px; max-width:960px; margin:0 auto; }
+.brief-header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.brief-eyebrow { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--mid); }
+.brief-title { font-size:24px; font-weight:800; color:var(--dark); margin-bottom:6px; border-left:4px solid var(--brand); padding-left:16px; }
+.brief-subtitle { font-size:13px; color:var(--mid); padding-left:20px; margin-bottom:8px; }
+.brief-meta { font-size:11px; color:var(--mid); padding-left:20px; }
+
+.logo-group { display:flex; align-items:center; gap:0; }
+.client-logo-block { display:flex; align-items:center; gap:8px; margin-left:6px; }
+.client-logo-sep { width:1px; height:32px; background:var(--border); }
+.client-logo-img { height:32px; width:auto; max-width:140px; object-fit:contain; }
+
+.page { max-width:960px; margin:0 auto; padding:0 56px 60px; }
+
+/* ── Intro line ── */
+.brief-intro { font-size:14px; color:var(--dark); padding:24px 0 8px; line-height:1.55; }
+.brief-intro strong { color:var(--brand); font-weight:700; }
+
+/* ── Section heads (consistent with integration deck) ── */
+section.brief-section { border-bottom:1px solid var(--border); padding:24px 0; }
+section.brief-section:last-of-type { border-bottom:none; }
+section.brief-section h2 { font-size:11px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--brand); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+section.brief-section h2::before { content:''; display:inline-block; width:18px; height:2px; background:var(--brand); flex-shrink:0; }
+
+/* ── Stack cards (Operating Brand / Operating Platform / Financial Sponsor) ── */
+.stack-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.stack-card { border:1px solid var(--border); border-radius:7px; padding:14px 16px 16px; background:#fff; display:flex; flex-direction:column; gap:6px; }
+.stack-card .stack-role { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--mid); }
+.stack-card .stack-name { font-size:15px; font-weight:800; color:var(--dark); line-height:1.25; }
+.stack-card .stack-meta { font-size:12px; color:var(--mid); line-height:1.45; }
+.stack-card .stack-meta a { color:var(--brand); }
+.stack-card .stack-meta a:hover { text-decoration:underline; }
+.stack-card .stack-evidence { font-size:12px; color:var(--dark); line-height:1.5; padding-top:4px; border-top:1px dashed var(--border); margin-top:4px; }
+.stack-card.brand-card { border-left:3px solid var(--brand); }
+.stack-card.platform-card { border-left:3px solid var(--green); }
+.stack-card.sponsor-card { border-left:3px solid var(--amber); }
+.stack-card.empty-card { background:var(--light); color:var(--mid); font-style:italic; }
+.stack-card.empty-card .stack-name { color:var(--mid); font-weight:600; font-size:13px; }
+
+/* ── Sibling brands ── */
+.siblings-wrap { display:flex; flex-direction:column; gap:10px; }
+.sibling-row { display:grid; grid-template-columns:200px 1fr; gap:14px; align-items:start; padding:10px 12px; border:1px solid var(--border); border-radius:6px; background:#fff; }
+.sibling-name { font-size:13px; font-weight:700; color:var(--dark); }
+.sibling-name a { color:var(--dark); }
+.sibling-name a:hover { color:var(--brand); }
+.sibling-meta { font-size:11px; color:var(--mid); margin-top:2px; }
+.sibling-signal { font-size:12px; color:var(--dark); line-height:1.5; }
+.sibling-signal.unknown { color:var(--mid); font-style:italic; }
+.sibling-greenfield-banner { font-size:12px; color:var(--amber); background:var(--amber-bg); border:1px solid var(--amber); border-radius:5px; padding:8px 12px; margin-bottom:10px; }
+
+/* ── Intel cards (forward-looking + intelTheBuyerLacks) ── */
+.intel-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.intel-card { border:1px solid var(--border); border-radius:6px; padding:12px 14px; background:#fff; }
+.intel-tag { font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:2px 7px; border-radius:3px; display:inline-block; margin-bottom:8px; }
+.intel-tag.horizon-6mo  { background:var(--light); color:var(--brand-dk); }
+.intel-tag.horizon-18mo { background:var(--amber-bg); color:var(--amber); }
+.intel-tag.horizon-5yr  { background:#F0FFF6; color:#276749; }
+.intel-tag.you-lack     { background:var(--brand); color:#fff; }
+.intel-text { font-size:13px; color:var(--dark); line-height:1.5; }
+.intel-source { font-size:11px; color:var(--mid); margin-top:6px; }
+.intel-source a { color:var(--brand); }
+
+/* ── Citations ── */
+.citations { display:flex; flex-wrap:wrap; gap:8px; padding-top:6px; }
+.citation-chip { font-size:11px; padding:4px 10px; border:1px solid var(--border); border-radius:12px; background:#fff; color:var(--mid); }
+.citation-chip a { color:var(--mid); }
+.citation-chip a:hover { color:var(--brand); }
+
+/* ── Closing ── */
+.brief-closing { font-size:13px; color:var(--dark); padding:18px 0 0; line-height:1.6; }
+.brief-closing .signoff { font-size:11px; color:var(--mid); margin-top:10px; }
+
+/* ── Print ── */
+@media print {
+  .brief-header, .page { padding:16px 32px; }
+  .stack-grid, .intel-grid { gap:10px; }
+}
+
+/* ── Responsive ── */
+@media (max-width:760px) {
+  .brief-header, .page { padding-left:24px; padding-right:24px; }
+  .stack-grid { grid-template-columns:1fr; }
+  .intel-grid { grid-template-columns:1fr; }
+  .sibling-row { grid-template-columns:1fr; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+{% set meta      = brief.meta or {} %}
+{% set subtitle  = meta.subtitle  or 'What we noticed before the deep-dive call' %}
+{% set architect = meta.architect or 'DataSkate Team' %}
+{% set archEmail = meta.architectEmail or 'kailash@dataskate.ai' %}
+{% set platform  = brief.operatingPlatform or {} %}
+{% set siblings  = platform.siblingBrands or [] %}
+{% set greenfield = (platform.greenfieldFlag == true) and (siblings | length > 0) %}
+{% set fwd       = brief.forwardLookingTalkingPoints or [] %}
+{% set gap       = brief.intelTheBuyerLacks or [] %}
+{% set intelCount = (fwd | length) + (gap | length) %}
+{% set cites     = brief.citations or [] %}
+
+<div class="brief-header">
+  <div class="brief-header-top">
+    <div class="logo-group">
+      <span style="--logo-h: 32px;">{{ branding.logo | safe }}</span>
+      {% if client.logoPath %}
+      <div class="client-logo-block"><div class="client-logo-sep"></div><img src="{{ client.logoPath | esc }}" alt="{{ meta.clientName | esc }}" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
+      {% endif %}
+    </div>
+    <span class="brief-eyebrow">Corporate Brief</span>
+  </div>
+  <div class="brief-title">{{ meta.clientName | esc }}</div>
+  <div class="brief-subtitle">{{ subtitle | esc }}</div>
+  <div class="brief-meta">Prepared by {{ architect | esc }} · {{ (meta.date or '') | esc }}</div>
+</div>
+
+<div class="page">
+
+  <p class="brief-intro">
+    {%- if brief.intro -%}
+    <strong>Before our deep-dive call:</strong> {{ brief.intro | esc }}
+    {%- else -%}
+    <strong>Before our deep-dive call:</strong> Here's what we noticed about your business in public records and industry data. We don't pitch what you already know — this brief tells you what we observed so we can spend the call on what's <em>not</em> in public records.
+    {%- endif -%}
+  </p>
+
+  <section class="brief-section">
+    <h2>Corporate Stack</h2>
+    <div class="stack-grid">
+      {% set role = 'Operating brand'    %}{% set modifier = 'brand-card'    %}{% set entity = brief.operatingBrand    %}{% include "components/corporate-stack-card.njk" %}
+      {% set role = 'Operating platform' %}{% set modifier = 'platform-card' %}{% set entity = brief.operatingPlatform %}{% include "components/corporate-stack-card.njk" %}
+      {% set role = 'Financial sponsor'  %}{% set modifier = 'sponsor-card'  %}{% set entity = brief.financialSponsor  %}{% include "components/corporate-stack-card.njk" %}
+    </div>
+  </section>
+
+  <section class="brief-section">
+    <h2>Sibling Brands{% if siblings | length > 0 %} — {{ siblings | length }} under {{ (platform.name or 'platform') | esc }}{% endif %}</h2>
+    {% if greenfield %}
+    <div class="sibling-greenfield-banner"><strong>Greenfield opportunity:</strong> none of the {{ siblings | length }} sibling brands shows a public integration footprint yet. The first sibling to invest sets the playbook for the rest.</div>
+    {% endif %}
+    <div class="siblings-wrap">
+      {% if siblings | length > 0 %}
+        {% for sibling in siblings %}{% include "components/corporate-sibling-row.njk" %}{% endfor %}
+      {% else %}
+        <div style="font-size:12px;color:var(--mid);font-style:italic">No sibling brands identified — operating brand stands alone.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="brief-section">
+    <h2>What We Noticed{% if intelCount > 0 %} — {{ intelCount }} signal{% if intelCount != 1 %}s{% endif %}{% endif %}</h2>
+    {% if intelCount > 0 %}
+    <div class="intel-grid">
+      {% for item in fwd %}{% set variant = 'forward' %}{% include "components/corporate-intel-card.njk" %}{% endfor %}
+      {% for item in gap %}{% set variant = 'lack'    %}{% include "components/corporate-intel-card.njk" %}{% endfor %}
+    </div>
+    {% else %}
+    <div class="intel-grid"><div style="font-size:12px;color:var(--mid);font-style:italic">No forward-looking or gap intel surfaced yet — Vera enriches this on Step 2c/2d.</div></div>
+    {% endif %}
+  </section>
+
+  <section class="brief-section">
+    <h2>Sources</h2>
+    <div class="citations">
+      {% if cites | length > 0 %}
+        {% for ct in cites %}<span class="citation-chip"><a href="{{ (ct.url or '#') | esc }}" target="_blank" rel="noopener">{{ (ct.label or ct.url or 'source') | esc }}</a></span>{% endfor %}
+      {% else %}
+        <span class="citation-chip" style="font-style:italic">No citations recorded for this engagement yet.</span>
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="brief-closing">
+    {% if brief.closing %}
+    <p>{{ brief.closing | esc }}</p>
+    {% else %}
+    <p>This brief is the homework. The call is for the rest.</p>
+    {% endif %}
+    <div class="signoff">— {{ architect | esc }} · <a href="mailto:{{ archEmail | esc }}">{{ archEmail | esc }}</a></div>
+  </div>
+
+</div>
+{% endblock %}

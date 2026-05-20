@@ -177,6 +177,9 @@ const ELEVENTY_TEMPLATES = new Set([
   'architect-guide',
   'client-portal',
   'integration-deck',
+  'corporate-brief',
+  'proposal',
+  'intake',
 ]);
 if (ELEVENTY_TEMPLATES.has(templateType)) {
   const { spawnSync } = require('child_process');
@@ -189,6 +192,9 @@ if (ELEVENTY_TEMPLATES.has(templateType)) {
     'architect-guide':  () => path.join(eleventyBuildDir, 'resources', 'architect-guide.html'),
     'client-portal':    (c) => path.join(eleventyBuildDir, 'portal', `${c}.html`),
     'integration-deck': (c) => path.join(eleventyBuildDir, 'internal', `integration-deck-${c}.html`),
+    'corporate-brief':  (c) => path.join(eleventyBuildDir, 'intake', `corporate-brief-${c}.html`),
+    'proposal':         (c) => path.join(eleventyBuildDir, 'intake', `proposal-${c}.html`),
+    'intake':           (c) => path.join(eleventyBuildDir, 'intake', `intake-questionnaire-${c}.html`),
   };
   const eleventySrc = eleventyOutMap[templateType](client);
 

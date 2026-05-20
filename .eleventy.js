@@ -15,8 +15,9 @@
 // (or markdown) via Eleventy's computed-data layer.
 
 'use strict';
-const fs   = require('fs');
-const path = require('path');
+const fs       = require('fs');
+const path     = require('path');
+const nunjucks = require('nunjucks');
 const { mdToHtml, extractH1Title } = require('./commons/branding/md-to-html');
 
 module.exports = function(eleventyConfig) {
@@ -46,15 +47,35 @@ module.exports = function(eleventyConfig) {
     return fs.readFileSync(abs, 'utf8');
   });
 
-  // HTML escape filter (matches commons/branding/fill-template.js esc())
+  // Case-insensitive startsWith — used by component templates to classify
+  // sibling-brand signals ("unknown ..." styles italic + muted).
+  eleventyConfig.addFilter('iStartsWith', function(s, prefix) {
+    return String(s || '').toLowerCase().startsWith(String(prefix || '').toLowerCase());
+  });
+
+  // Strip scheme + trailing slash from a URL for display labels —
+  // matches the inline .replace(/^https?:\/\//, '').replace(/\/$/, '') the
+  // legacy buildCorporateBrief() does on entity.website.
+  eleventyConfig.addFilter('domainOnly', function(url) {
+    if (!url) return '';
+    return String(url).replace(/^https?:\/\//, '').replace(/\/$/, '');
+  });
+
+  // HTML escape filter (matches commons/branding/fill-template.js esc()).
+  // Returns a Nunjucks SafeString so the explicit escape is the ONLY escape —
+  // Nunjucks autoescape (on by default) would otherwise double-escape the
+  // result (e.g. "M&A" → "M&amp;amp;A"). For text with no special chars this
+  // is identical to bare {{ x }}, so it's a safe drop-in everywhere.
   eleventyConfig.addFilter('esc', function(s) {
-    if (s == null) return '';
-    return String(s)
+    if (s == null) return new nunjucks.runtime.SafeString('');
+    // Escape & < > " but NOT ' — matches the legacy esc() in fill-template.js
+    // exactly (it leaves apostrophes literal; valid in text + double-quoted attrs).
+    const escaped = String(s)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+      .replace(/"/g, '&quot;');
+    return new nunjucks.runtime.SafeString(escaped);
   });
 
   // Resolve a client's logo path (matches resolveClientLogoPath() in fill-template.js)

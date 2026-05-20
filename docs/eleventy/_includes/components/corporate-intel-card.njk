@@ -1,0 +1,36 @@
+{#
+  components/corporate-intel-card.njk
+  ───────────────────────────────────
+  One card in the "What We Noticed" intel grid. Two shapes:
+    - Forward-looking talking point: { horizon: '6mo'|'18mo'|'5yr', insight, sourceUrl }
+    - Intel-the-buyer-lacks:         { insight, sourceUrl, whyTheyLackIt }
+
+  Inputs (set by the layout immediately before {% include %}):
+    item    — the row object (either shape)
+    variant — "forward" | "lack"
+#}
+{%- if variant == 'forward' -%}
+{%- set _horizonLabel = '18 months' -%}
+{%- if item.horizon == '6mo'  %}{% set _horizonLabel = '6 months'  %}{% endif -%}
+{%- if item.horizon == '18mo' %}{% set _horizonLabel = '18 months' %}{% endif -%}
+{%- if item.horizon == '5yr'  %}{% set _horizonLabel = '5 years'   %}{% endif -%}
+{%- set _horizonClass = 'horizon-' + (item.horizon or '18mo') -%}
+<div class="intel-card">
+  <span class="intel-tag {{ _horizonClass }}">In {{ _horizonLabel | esc }}</span>
+  <div class="intel-text">{{ (item.insight or '') | esc }}</div>
+  {%- if item.sourceUrl -%}
+  <div class="intel-source"><a href="{{ item.sourceUrl | esc }}" target="_blank" rel="noopener">source</a></div>
+  {%- endif -%}
+</div>
+{%- else -%}
+<div class="intel-card">
+  <span class="intel-tag you-lack">Worth knowing</span>
+  <div class="intel-text">{{ (item.insight or '') | esc }}</div>
+  {%- if item.whyTheyLackIt -%}
+  <div class="intel-source" style="color:var(--mid)">Why it's not in your research: {{ item.whyTheyLackIt | esc }}</div>
+  {%- endif -%}
+  {%- if item.sourceUrl -%}
+  <div class="intel-source"><a href="{{ item.sourceUrl | esc }}" target="_blank" rel="noopener">source</a></div>
+  {%- endif -%}
+</div>
+{%- endif -%}
