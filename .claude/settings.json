@@ -10,39 +10,5 @@
         "ANYPOINT_REGION": "PROD_US"
       }
     }
-  },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE 'standards/playbooks/.*_playbook\\.md|standards/connector-registry\\.json|standards/snippet-registry\\.json|projects/.*/decisions\\.json' && cd /workspaces/mulesoft-bmad-planning && node scaffold/generate-capabilities.js 2>/dev/null || true",
-            "statusMessage": "Regenerating capabilities portal…"
-          },
-          {
-            "type": "command",
-            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -q 'connector-registry.json' && cd /workspaces/mulesoft-bmad-planning && node standards/build-connector-index.js 2>/dev/null || true",
-            "statusMessage": "Rebuilding connector index files…"
-          },
-          {
-            "type": "command",
-            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE '\\.html$' && echo \"$fp\" | grep -qv 'node_modules' && cd /workspaces/mulesoft-bmad-planning && node commons/branding/lint-html.js \"$fp\" 2>&1 || true",
-            "statusMessage": "Validating HTML against design standards…"
-          },
-          {
-            "type": "command",
-            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE 'commons/templates/.*-template\\.html$' && cd /workspaces/mulesoft-bmad-planning && node scripts/regen-all-clients.js 2>&1 | tail -20 || true",
-            "statusMessage": "Template changed — regenerating all client HTML…"
-          },
-          {
-            "type": "command",
-            "command": "fp=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$fp\" | grep -qE 'projects/.*/intake/.*\\.html$' && echo \"$fp\" | grep -qv 'node_modules' && bash /workspaces/mulesoft-bmad-planning/scripts/deploy-and-test.sh \"$fp\" 2>&1 | tail -20 || true",
-            "statusMessage": "Deploying to Firebase and testing live URLs…"
-          }
-        ]
-      }
-    ]
   }
 }

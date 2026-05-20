@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+#
+# Pre-commit hook for mulesoft-bmad-planning.
+#
+# Runs the three side-effect checks that used to live as Claude Code PostToolUse
+# hooks. Lives in scripts/git-hooks/ (tracked, not .git/hooks/) so it's portable
+# across clones. Activate per-clone with:
+#
+#   git config core.hooksPath scripts/git-hooks
+#
+# What it does on every commit:
+#   1. Lints every staged .html file via commons/branding/lint-html.js.
+#      Hard-fails the commit on lint violations.
+#   2. If standards/connector-registry.json is staged → rebuild
+#      standards/connector-names.json and re-stage it.
+#   3. If any standards/playbooks/*_playbook.md, standards/snippet-registry.json,
+#      standards/connector-registry.json, or projects/*/decisions.json is staged
+#      → regenerate docs/capabilities/index.html and re-stage it.
+#
+# To skip the hook for an emergency commit: `git commit --no-verify`.
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
+[ -z "$STAGED" ] && exit 0
+
+fail=0
+
+# ── 1. HTML lint on staged .html files ────────────────────────────────────────
+HTML_FILES="$(printf '%s\n' "$STAGED" | grep -E '\.html$' | grep -v 'node_modules' || true)"
+if [ -n "$HTML_FILES" ]; then
+  echo "→ pre-commit: linting $(printf '%s\n' "$HTML_FILES" | wc -l | tr -d ' ') HTML file(s)…"
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    [ -f "$f" ] || continue
+    if ! node commons/branding/lint-html.js "$f"; then
+      echo "✗ lint-html.js failed for $f" >&2
+      fail=1
+    fi
+  done <<< "$HTML_FILES"
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo "" >&2
+  echo "✗ Pre-commit blocked by HTML lint violations. Fix the files above and re-stage." >&2
+  echo "  (To bypass for an emergency: git commit --no-verify)" >&2
+  exit 1
+fi
+
+# ── 2. connector-registry.json → rebuild connector-names.json ─────────────────
+if printf '%s\n' "$STAGED" | grep -qx 'standards/connector-registry.json'; then
+  echo "→ pre-commit: connector-registry.json staged — rebuilding connector-names.json…"
+  if ! node standards/build-connector-index.js; then
+    echo "✗ build-connector-index.js failed" >&2
+    exit 1
+  fi
+  git add standards/connector-names.json
+fi
+
+# ── 3. Capabilities-input change → regenerate docs/capabilities/index.html ────
+if printf '%s\n' "$STAGED" | grep -qE '^(standards/playbooks/[^/]+/.+_playbook\.md|standards/snippet-registry\.json|standards/connector-registry\.json|projects/[^/]+/decisions\.json)$'; then
+  echo "→ pre-commit: capabilities inputs changed — regenerating docs/capabilities/index.html…"
+  if ! node scaffold/generate-capabilities.js; then
+    echo "✗ generate-capabilities.js failed" >&2
+    exit 1
+  fi
+  git add docs/capabilities/index.html
+fi
+
+exit 0

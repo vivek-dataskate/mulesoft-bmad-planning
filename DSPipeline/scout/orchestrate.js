@@ -736,6 +736,171 @@ function writeClientRegistry(slug) {
   logFileInfo(registryPath, 'client-registry.json (after write)');
 }
 
+// ─── Vera Corporate-Stack Enrichment Merge (post-Vera, pre-brief) ───────────
+// Per the agent-boundary rule, Vera writes her sibling + sponsor-portfolio
+// research into vera.json.corporateStackEnrichment instead of writing back
+// into company_context.json directly. The orchestrator is the only writer
+// allowed to mutate company_context.json, so the merge happens here.
+//
+// Runs immediately after Vera and BEFORE renderCorporateBrief() / Petra /
+// Mira read the stack — so by the time any downstream consumer touches
+// company_context.json.corporateStack, the enriched data is already there.
+//
+// Merge rules (per-list keyed by case-insensitive name):
+//   - siblingBrands[]:           Vera's entries WIN over Scout's seeded ones.
+//                                Scout-only siblings are preserved.
+//   - portfolioCompanies[]:      Vera-only (Scout's seed doesn't populate this).
+//   - siblingsTruncated:         Carried through verbatim.
+function mergeVeraCorporateStackEnrichment(slug) {
+  const projectDir = path.join(PROJECTS_DIR, slug);
+  const veraPath   = path.join(projectDir, 'run', 'vera.json');
+  const ctxPath    = path.join(projectDir, 'company_context.json');
+
+  const vera = readJson(veraPath);
+  const ctx  = readJson(ctxPath);
+
+  if (!vera || !vera.corporateStackEnrichment) {
+    stepLog('mergeVeraCorporateStackEnrichment: vera.json has no corporateStackEnrichment — skipping', 'DATA');
+    return;
+  }
+  if (!ctx) {
+    stepLog('mergeVeraCorporateStackEnrichment: company_context.json missing — skipping', 'WARN');
+    return;
+  }
+
+  ctx.corporateStack = ctx.corporateStack || {};
+  const enrich = vera.corporateStackEnrichment;
+
+  // Operating platform siblings — merge by name (Vera's research overrides Scout's seed)
+  if (enrich.operatingPlatform && Array.isArray(enrich.operatingPlatform.siblingBrands)) {
+    ctx.corporateStack.operatingPlatform = ctx.corporateStack.operatingPlatform || {};
+    const seedSiblings   = Array.isArray(ctx.corporateStack.operatingPlatform.siblingBrands)
+      ? ctx.corporateStack.operatingPlatform.siblingBrands : [];
+    const veraSiblings   = enrich.operatingPlatform.siblingBrands;
+    const nameKey = (s) => String(s && s.name || '').trim().toLowerCase();
+    const byName  = new Map();
+    for (const s of seedSiblings) if (nameKey(s)) byName.set(nameKey(s), s);
+    for (const s of veraSiblings) if (nameKey(s)) byName.set(nameKey(s), { ...byName.get(nameKey(s)), ...s });
+    ctx.corporateStack.operatingPlatform.siblingBrands = Array.from(byName.values());
+    if (typeof enrich.operatingPlatform.siblingsTruncated === 'boolean') {
+      ctx.corporateStack.operatingPlatform.siblingsTruncated = enrich.operatingPlatform.siblingsTruncated;
+    }
+    stepLog(`mergeVeraCorporateStackEnrichment: merged ${veraSiblings.length} sibling enrichment(s) into ${byName.size} total`, 'DATA');
+  }
+
+  // Financial sponsor portfolio companies — Vera-only field
+  if (enrich.financialSponsor && Array.isArray(enrich.financialSponsor.portfolioCompanies)) {
+    ctx.corporateStack.financialSponsor = ctx.corporateStack.financialSponsor || {};
+    ctx.corporateStack.financialSponsor.portfolioCompanies = enrich.financialSponsor.portfolioCompanies;
+    stepLog(`mergeVeraCorporateStackEnrichment: wrote ${enrich.financialSponsor.portfolioCompanies.length} sponsor portfolio company(ies)`, 'DATA');
+  }
+
+  // Forward-looking talking points + intel-they-lack arrays (vera.toml Step 2c/2d)
+  // The brief reads these from company_context.json — copy them across so the
+  // post-Vera renderCorporateBrief() call picks them up without a separate read
+  // of vera.json. Replace, don't merge: Vera owns these arrays end-to-end.
+  if (Array.isArray(vera.forwardLookingTalkingPoints)) {
+    ctx.forwardLookingTalkingPoints = vera.forwardLookingTalkingPoints;
+    stepLog(`mergeVeraCorporateStackEnrichment: carried ${vera.forwardLookingTalkingPoints.length} forwardLookingTalkingPoint(s) to company_context`, 'DATA');
+  }
+  if (Array.isArray(vera.intelTheBuyerLacks)) {
+    ctx.intelTheBuyerLacks = vera.intelTheBuyerLacks;
+    stepLog(`mergeVeraCorporateStackEnrichment: carried ${vera.intelTheBuyerLacks.length} intelTheBuyerLacks entry(ies) to company_context`, 'DATA');
+  }
+
+  writeJson(ctxPath, ctx);
+  logFileInfo(ctxPath, 'company_context.json (after Vera enrichment merge)');
+  console.log(`  ${green('✓')} company_context.json — corporateStack enriched from vera.json`);
+}
+
+// ─── Corporate Brief (post-Vera) ─────────────────────────────────────────────
+// Composes projects/{slug}/intake/corporate-brief-content.json from the data
+// Scout's grounded inference already wrote into company_context.json, then
+// renders the HTML via fill-template.js. Runs alongside writeClientRegistry()
+// in the post-Vera hook so the brief is ready as soon as research completes —
+// long before Petra/Quinn finish their work, which means the architect can
+// email the brief 48h pre-call without waiting on the full deliverable set.
+//
+// Source-of-truth chain (so the brief never drifts):
+//   company_context.json.corporateStack  → operating / platform / sponsor
+//   company_context.json.forwardLookingTalkingPoints[]  (Vera 2c)
+//   company_context.json.intelTheBuyerLacks[]           (Vera 2d)
+//   project.json                         → architect, displayName, date
+function renderCorporateBrief(slug) {
+  const projectDir   = path.join(PROJECTS_DIR, slug);
+  const project      = readJson(path.join(projectDir, 'project.json')) || {};
+  const ctx          = readJson(path.join(projectDir, 'company_context.json')) || {};
+  const stack        = ctx.corporateStack || {};
+
+  // Bail if Scout's inference produced nothing — no point rendering an empty brief.
+  if (!stack.operatingBrand || !stack.operatingBrand.name) {
+    stepLog('renderCorporateBrief: no corporateStack.operatingBrand — skipping brief', 'WARN');
+    return null;
+  }
+
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  // Auto-build citation chips from the entities we cite — these are the URLs
+  // the architect wants surfaced as "sources" in the brief footer.
+  const citations = [];
+  const addCite = (label, url) => { if (url && !citations.find(c => c.url === url)) citations.push({ label, url }); };
+  addCite(`${stack.operatingBrand.name} website`,    stack.operatingBrand.website);
+  addCite(`${stack.operatingBrand.name} LinkedIn`,   stack.operatingBrand.linkedIn);
+  if (stack.operatingPlatform) {
+    addCite(`${stack.operatingPlatform.name} website`,  stack.operatingPlatform.website);
+    addCite(`${stack.operatingPlatform.name} LinkedIn`, stack.operatingPlatform.linkedIn);
+  }
+  if (stack.financialSponsor) {
+    addCite(`${stack.financialSponsor.name} website`,  stack.financialSponsor.website);
+    addCite(`${stack.financialSponsor.name} LinkedIn`, stack.financialSponsor.linkedIn);
+  }
+  // Promote any per-sibling sourceUrl into the citation list too.
+  (stack.operatingPlatform?.siblingBrands || []).forEach(s => {
+    if (typeof s === 'object' && s.sourceUrl) addCite(`${s.name} — source`, s.sourceUrl);
+  });
+
+  // Inherit fields Vera enriches if present; otherwise leave the brief lean and
+  // let the template render a "no signals yet" placeholder.
+  const content = {
+    meta: {
+      clientName:     project.displayName || stack.operatingBrand.name,
+      clientSlug:     slug,
+      date:           today,
+      architect:      project.architect      || 'DataSkate Team',
+      architectEmail: project.architectEmail || 'kailash@dataskate.ai',
+      subtitle:       'What we noticed before the deep-dive call',
+    },
+    intro: null, // template substitutes default copy when null
+    operatingBrand:    stack.operatingBrand    || null,
+    operatingPlatform: stack.operatingPlatform || null,
+    financialSponsor:  stack.financialSponsor  || null,
+    forwardLookingTalkingPoints: ctx.forwardLookingTalkingPoints || [],
+    intelTheBuyerLacks:          ctx.intelTheBuyerLacks          || [],
+    citations,
+    closing: null, // template substitutes default sign-off when null
+  };
+
+  const contentPath = path.join(projectDir, 'intake', 'corporate-brief-content.json');
+  fs.mkdirSync(path.dirname(contentPath), { recursive: true });
+  writeJson(contentPath, content);
+  logFileInfo(contentPath, 'corporate-brief-content.json');
+
+  // Render HTML via the same fill-template pipeline used for proposal/intake/deck.
+  const result = spawnSync(
+    process.execPath,
+    [path.join(ROOT, 'commons', 'branding', 'fill-template.js'), '--template', 'corporate-brief', '--client', slug],
+    { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' }
+  );
+  if (result.status !== 0) {
+    stepLog(`renderCorporateBrief: fill-template.js exited ${result.status} — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
+    return null;
+  }
+
+  const outPath = path.join(projectDir, 'intake', `corporate-brief-${slug}.html`);
+  logFileInfo(outPath, `corporate-brief-${slug}.html`);
+  return outPath;
+}
+
 // ─── Firebase Deploy (post-Mira) ─────────────────────────────────────────────
 // Runs after Mira has audited all client-facing documents.
 // Delegates entirely to update-firebase.js — the single canonical sync script —
@@ -1126,10 +1291,44 @@ async function runPipeline(slug) {
 
     // Post-Vera: write initial client-registry entry + promote library contributions
     if (agent.slug === 'vera') {
+      // Per the agent-boundary rule, Vera writes her sibling/portfolio research
+      // into vera.json.corporateStackEnrichment — NOT directly into
+      // company_context.json. The orchestrator owns that merge, so the file
+      // remains the single source of truth before any downstream agent reads
+      // it (Hawk, Petra, Mira) or any derivative renders (corporate brief,
+      // proposal portfolioContext, integration-deck portfolio block).
+      stepLog('POST-VERA: merging corporateStackEnrichment into company_context.json', 'START');
+      try {
+        mergeVeraCorporateStackEnrichment(slug);
+        stepLog('POST-VERA: corporate stack merge done', 'END');
+      } catch (e) {
+        stepLog(`POST-VERA: corporate stack merge FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  Corporate stack merge failed — siblings/sponsor portfolio may be stale in company_context.json`);
+      }
+
       stepLog('POST-VERA: writing client-registry entry', 'START');
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} standards/client-registry.json — initial entry written (status: scoping)`);
       stepLog('POST-VERA: client-registry written', 'END');
+
+      // Generate the pre-call corporate brief immediately so the architect can
+      // email it 48h before the deep-dive without waiting on the full Petra /
+      // Quinn deliverable set. Skips silently if Vera couldn't surface a
+      // corporate stack (independent / family-owned clients).
+      stepLog('POST-VERA: rendering corporate-brief', 'START');
+      try {
+        const briefHtml = renderCorporateBrief(slug);
+        if (briefHtml) {
+          console.log(`  ${green('✓')} projects/${slug}/intake/corporate-brief-${slug}.html — generated`);
+        } else {
+          console.log(`  ${dim('↳ corporate brief skipped — no corporate stack in company_context.json')}`);
+        }
+        stepLog('POST-VERA: corporate-brief done', 'END');
+      } catch (e) {
+        stepLog(`POST-VERA: corporate-brief FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  Corporate brief render failed — re-run manually: node commons/branding/fill-template.js --template corporate-brief --client ${slug}`);
+      }
+
       stepLog('POST-VERA: running promote-library.js', 'START');
       try {
         require('child_process').execSync(`node DSPipeline/promote-library.js --client ${slug}`, { cwd: ROOT, stdio: 'inherit' });
