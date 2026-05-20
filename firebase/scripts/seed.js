@@ -28,19 +28,6 @@ const projects = [
     lastActivityAt: admin.firestore.FieldValue.serverTimestamp()
   },
   {
-    id: 'peerless',
-    name: 'Peerless Fence Group',
-    industry: 'construction / distribution',
-    architect: 'Raghuram Potluri',
-    architectEmail: 'raghuram@dataskate.ai',
-    status: 'intake_sent',
-    completionPercent: 0,
-    intakeUrl: '/intake/peerless.html',
-    proposalUrl: '/proposal/peerless.html',
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    lastActivityAt: admin.firestore.FieldValue.serverTimestamp()
-  },
-  {
     id: 'mrn-healthcare',
     name: 'MRN Healthcare',
     industry: 'healthcare',
