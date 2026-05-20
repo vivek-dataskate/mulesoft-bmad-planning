@@ -335,32 +335,39 @@ function buildProposal(c) {
   const sol = c.solution || {};
   fill('solution-lead', sol.lead ? `<p class="lead">${esc(sol.lead)}</p>` : '');
 
-  // Static SVG diagram — no CDN, no tab-timing issues
-  const diagramNodes = sol.diagramNodes || null;
-  const diagramSvg = diagramNodes ? buildDiagramSvg(diagramNodes) : null;
-  fill('solution-diagram', diagramSvg ? `<div class="diagram-wrap">${diagramSvg}</div>` : '');
-  fill('diagram-caption', sol.diagramCaption ? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
-
-  // Save SVG to intake folder so it's available as a standalone asset
-  if (diagramSvg && client) {
-    const svgPath = path.join(root, 'projects', client, 'intake', 'system-diagram.svg');
-    try { fs.writeFileSync(svgPath, diagramSvg); } catch (e) { /* non-fatal */ }
-  }
-
-  // Persist systemDiagram.future nodes to project.json for downstream tools
-  if (diagramNodes && client) {
+  // Generate two-panel system diagram (current + future state) via generate-diagrams.js
+  // Falls back to simple future-only SVG if project.json has no systemDiagram.current
+  let diagramSvgInline = null;
+  if (client) {
     const projPath = path.join(root, 'projects', client, 'project.json');
-    if (fs.existsSync(projPath)) {
+    const projForDiagram = fs.existsSync(projPath) ? JSON.parse(fs.readFileSync(projPath, 'utf8')) : {};
+    if (projForDiagram.systemDiagram && projForDiagram.systemDiagram.current) {
+      // Full two-panel diagram
       try {
-        const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
-        if (!proj.systemDiagram) proj.systemDiagram = {};
-        if (!proj.systemDiagram.future) proj.systemDiagram.future = {};
-        proj.systemDiagram.future.diagramNodes = diagramNodes;
-        if (sol.mermaid) proj.systemDiagram.future.mermaid = sol.mermaid;
-        fs.writeFileSync(projPath, JSON.stringify(proj, null, 2) + '\n');
-      } catch (e) { /* non-fatal */ }
+        require('child_process').execSync(
+          `node ${path.join(root, 'scripts', 'generate-diagrams.js')} ${client}`,
+          { cwd: root, stdio: 'pipe' }
+        );
+        const svgPath = path.join(root, 'projects', client, 'intake', 'system-diagram.svg');
+        if (fs.existsSync(svgPath)) diagramSvgInline = fs.readFileSync(svgPath, 'utf8');
+      } catch (e) { /* non-fatal — fall through to simple diagram */ }
     }
   }
+  if (!diagramSvgInline) {
+    // Fallback: simple future-state-only diagram from diagramNodes
+    const diagramNodes = sol.diagramNodes || null;
+    if (diagramNodes) {
+      diagramSvgInline = buildDiagramSvg(diagramNodes);
+      if (client) {
+        const svgPath = path.join(root, 'projects', client, 'intake', 'system-diagram.svg');
+        try { fs.writeFileSync(svgPath, diagramSvgInline); } catch (e) { /* non-fatal */ }
+      }
+    }
+  }
+  fill('solution-diagram', diagramSvgInline
+    ? `<div class="diagram-wrap">${diagramSvgInline}</div>`
+    : '');
+  fill('diagram-caption', sol.diagramCaption ? `<p class="diagram-caption">${esc(sol.diagramCaption)}</p>` : '');
 
   // ROI / Business Case — conditional full <details> block
   // roi-analytical profile: opens by default so numbers are immediately visible
