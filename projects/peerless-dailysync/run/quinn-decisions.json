@@ -1,0 +1,218 @@
+{
+  "agent": "quinn",
+  "client": "peerless-dailysync",
+  "generatedAt": "2026-05-20",
+  "decisions": [
+    {
+      "id": "QD-001",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.1 (UC1 lookback window)",
+      "rationale": "Pre-filled 15-min lookback + idempotency on HD F-number from DataSkate default for ~10-min propagation floors. No transcript anchor — medium confidence."
+    },
+    {
+      "id": "QD-002",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.3 (UC1 target object — Lead vs Opportunity)",
+      "rationale": "Pre-filled 'Lead first, convert to Opportunity at Quoted status' from Salesforce playbook + sage architectKnowledge. Cora Barahi to confirm — medium confidence."
+    },
+    {
+      "id": "QD-003",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.5 (UC2 fields to watch)",
+      "rationale": "Pre-filled Account/Quote header fields + QuoteLineItem only on SKU/Quantity change, derived from Raghuram FK-034 (use standard Salesforce objects). Medium confidence — depends on UC2 architecture choice and HD endpoint coverage."
+    },
+    {
+      "id": "QD-004",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.6 (UC2 immediate vs debounced)",
+      "rationale": "Pre-filled 5-min debounced window from DataSkate CDC standard. No client-side discussion in transcripts — confirm."
+    },
+    {
+      "id": "QD-005",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.8 (UC3 document types — 299A/299B/118 all-three vs only legally-binding)",
+      "rationale": "Pre-filled all three from pain-quote extrapolation (Ashley does 118 manually via DocHub today). Medium confidence."
+    },
+    {
+      "id": "QD-006",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.9 (UC3 SF target object)",
+      "rationale": "Pre-filled Salesforce standard Contract object (linked to Account via ContentDocumentLink) per Raghuram FK-034. Medium confidence — confirm with Cora Barahi."
+    },
+    {
+      "id": "QD-007",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.12 (UC4 job-number reservation)",
+      "rationale": "Pre-filled MuleSoft-Object-Store-owned counter as architect default. Logged as Internal Flag #6. Medium confidence — depends on CE API capability discovery."
+    },
+    {
+      "id": "QD-008",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.15 (UC5 mismatch thresholds)",
+      "rationale": "Pre-filled customer name (any non-whitespace diff), material (any change), pricing ($50 OR 2% threshold) from industry pattern + ops conversation. Low confidence — operational SME (Ashley) owns the rule."
+    },
+    {
+      "id": "QD-009",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.16 (UC5 flagged mismatch destination)",
+      "rationale": "Pre-filled Salesforce Quote list view with status picklist from DataSkate default. Medium confidence — Ashley owns the daily queue."
+    },
+    {
+      "id": "QD-010",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.17 (UC6 promo SKU validation rule)",
+      "rationale": "Pre-filled HD promo prefix == Salesforce DiscountType__c AND %s match from rex.json HD Portal quirk on promotion SKU validation. Low-to-medium confidence — confirm with Jeff Kelly."
+    },
+    {
+      "id": "QD-011",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.18 (UC6 action on mismatch — block vs alert)",
+      "rationale": "Pre-filled alert-only from operational-pragmatist profile (don't break things). Medium confidence."
+    },
+    {
+      "id": "QD-012",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.20 (UC7 state-holiday handling)",
+      "rationale": "Pre-filled federal + IL/IN/OH/WI state holidays per Peerless operating states. Logged as Internal Flag #7. Medium confidence — Peerless legal must confirm whether state-only holidays count."
+    },
+    {
+      "id": "QD-013",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.21 (UC7 IDP signature confidence)",
+      "rationale": "Pre-filled FK-040 two-tier threshold (overall 85% + per-field 80%). High confidence — established DataSkate architect rule."
+    },
+    {
+      "id": "QD-014",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.22 (UC7 signer-role reject list)",
+      "rationale": "Pre-filled ['declined','unavailable','n/a','none',null,''] from rex.json HD Portal quirk. High confidence."
+    },
+    {
+      "id": "QD-015",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.28 (UC8 IDP routing threshold)",
+      "rationale": "Pre-filled two-threshold rule (FK-040). High confidence — same as UC7."
+    },
+    {
+      "id": "QD-016",
+      "type": "questionnaire-prefill",
+      "scope": "Q1.29 (UC8 post-process disposition)",
+      "rationale": "Pre-filled move-to-processed-folder from DataSkate default. Low confidence — ops preference."
+    },
+    {
+      "id": "QD-017",
+      "type": "questionnaire-prefill",
+      "scope": "Q2.3 (existing Amarius-built SF integration)",
+      "rationale": "Pre-filled 'investigate before re-implementing UC1' from sage internalFlag and FK-039 pattern (don't double-build). Medium confidence — confirm with Cora Barahi."
+    },
+    {
+      "id": "QD-018",
+      "type": "questionnaire-prefill",
+      "scope": "Q4.1 (volumes per flow)",
+      "rationale": "Pre-filled volumes (~50–100 leads/day, ~20–40 jobs/day, ~5–15 PDFs/day off-peak / 15–30/day peak) from ARR ($31.8M) + 8 locations + residential-fence industry pattern. Low confidence — Peerless ops to confirm."
+    },
+    {
+      "id": "QD-019",
+      "type": "questionnaire-prefill",
+      "scope": "Q4.3 (latency targets per flow)",
+      "rationale": "Pre-filled tight latency budgets per flow from rex.json HD propagation floor + DataSkate defaults. Medium confidence."
+    },
+    {
+      "id": "QD-020",
+      "type": "questionnaire-prefill",
+      "scope": "Q5.3 (regulatory compliance)",
+      "rationale": "Pre-filled state contractor licensing + federal/state right-of-rescission + state deposit rules from IL/IN/OH/WI operating states. Medium confidence — Peerless legal to confirm."
+    },
+    {
+      "id": "QD-021",
+      "type": "questionnaire-prefill",
+      "scope": "Q5.8 (audit trail retention)",
+      "rationale": "Pre-filled 7 years for compliance records (UC3, UC7) + archive to S3. Industry standard. Low-to-medium confidence — Peerless legal to confirm."
+    },
+    {
+      "id": "QD-022",
+      "type": "questionnaire-prefill",
+      "scope": "Q6.3 (failure notification recipients)",
+      "rationale": "Pre-filled Tier 1 (Brian Cook + Raghuram) and Tier 2 (Ashley + Jeff Kelly) from sage.json namedContacts. Medium confidence — emails still needed."
+    },
+    {
+      "id": "QD-023",
+      "type": "questionnaire-prefill",
+      "scope": "Q7.1 (deployment model)",
+      "rationale": "Pre-filled CloudHub 2.0 (NOT customer-managed runtime) because CE Live Service relay handles the on-prem reach — confirmed by rex.json + computerease playbook. High confidence."
+    },
+    {
+      "id": "QD-024",
+      "type": "questionnaire-prefill",
+      "scope": "Q8.2 (post-go-live support model)",
+      "rationale": "Pre-filled DataSkate IaaS from flo.json recommendation. High confidence — explicitly stated in pricing."
+    },
+    {
+      "id": "QD-025",
+      "type": "questionnaire-prefill",
+      "scope": "Q9.4 (blackout periods)",
+      "rationale": "Pre-filled Friday avoid (HD install-date quirk), end-of-month (Jean Jacobs availability), peak-season caution. Medium confidence — derived from rex.json + sage."
+    },
+    {
+      "id": "QD-026",
+      "type": "questionnaire-prefill",
+      "scope": "Q9.5 (target go-live)",
+      "rationale": "Pre-filled 'early Sept 2026' from Jeff Kelly's 'start next week' aspiration + 14-week catalog formula. Low confidence — Peerless leadership owns final date."
+    },
+    {
+      "id": "QD-027",
+      "type": "field-mapping",
+      "scope": "Section 3.2 (UC1 HD Portal → SF Lead)",
+      "rationale": "Field mapping derived from canonical-lead.yaml + Salesforce standard Lead + HD Portal quirks (F-number is the lead identifier). Not yet confirmed with Cora Barahi or Marius — client to validate."
+    },
+    {
+      "id": "QD-028",
+      "type": "field-mapping",
+      "scope": "Section 3.3 (UC2 SF → HD write-back)",
+      "rationale": "Field mapping assumes HD Portal write endpoints exist (P0-blocked on Q1.4). If endpoints differ from REST conventions, mapping changes. Medium confidence."
+    },
+    {
+      "id": "QD-029",
+      "type": "field-mapping",
+      "scope": "Section 3.4 (UC3 HD contract → SF Contract object)",
+      "rationale": "Field mapping uses Salesforce standard Contract object per Raghuram FK-034. Pending HD download endpoint confirmation (Q1.7). Medium confidence."
+    },
+    {
+      "id": "QD-030",
+      "type": "field-mapping",
+      "scope": "Section 3.5 (UC4 HD+SF → CE Customer+Job)",
+      "rationale": "Field mapping derived from canonical-job.yaml + ComputerEase playbook free-form codes (department, customer-type, sales-rep-initials). Code-mapping documents required from Jean Jacobs (Q1.13). Medium confidence pending CE production API discovery."
+    },
+    {
+      "id": "QD-031",
+      "type": "field-mapping",
+      "scope": "Section 3.6 (UC5 four-system validation)",
+      "rationale": "Validation field set assumed from rex.json + Vera business objects. Deltek column TBD pending Q1.14. Medium confidence."
+    },
+    {
+      "id": "QD-032",
+      "type": "field-mapping",
+      "scope": "Section 3.7 (UC6 promo SKU + discount)",
+      "rationale": "Validation rule pre-filled but depends on UC7 IDP-extracted contract discount %. Confirm with Jeff Kelly."
+    },
+    {
+      "id": "QD-033",
+      "type": "field-mapping",
+      "scope": "Section 3.8 (UC7 compliance)",
+      "rationale": "Rescission date calculation + signer-role validation derived from HD Portal quirks and FK-040. Architect preference noted (rule-based, NOT LLM). High confidence on rule; medium on field placement (Compliance_Status__c is new custom field)."
+    },
+    {
+      "id": "QD-034",
+      "type": "field-mapping",
+      "scope": "Section 3.9 (UC8 Change Order PDF → SF)",
+      "rationale": "Field mapping derived from canonical-change-order.yaml + IDP submit/poll pattern. Critical-field list per document class TBD in IDP Workshop. Confirm Change_Order__c custom object creation in Q3.2."
+    }
+  ],
+  "summary": {
+    "totalQuestions": 76,
+    "preFilled": 64,
+    "blankForClient": 12,
+    "p0BlockerQuestions": 11,
+    "fieldMappingTables": 9
+  }
+}
