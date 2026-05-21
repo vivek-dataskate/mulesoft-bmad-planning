@@ -77,20 +77,31 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: intake-test-failure-${{ github.run_id }}
-          path: tests/intake/
+          path: portal/tests/intake/
+          retention-days: 7
+
+      - name: HTML contract tests — shared + per-type contracts for all generated pages
+        run: npm run test:html
+
+      - name: Upload HTML contract failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-contract-failure-${{ github.run_id }}
+          path: portal/tests/html/
           retention-days: 7
 
       - name: Visual regression — intake pixel diff gate (BackstopJS)
         run: |
           node pipeline/scripts/generate-backstop-config.js --intake
-          npx backstop test --config tests/backstop/backstop.json
+          npx backstop test --config portal/tests/backstop/backstop.json
 
       - name: Upload VR diff artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: vr-diff-${{ github.run_id }}
-          path: tests/backstop/backstop_data/html_report/
+          path: portal/tests/backstop/backstop_data/html_report/
           retention-days: 7
 
       - name: Authenticate to Google Cloud

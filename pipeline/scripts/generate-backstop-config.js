@@ -99,6 +99,6 @@ const config = {
   debugWindow: false,
 };
 
-const out = path.join(ROOT, 'tests', 'backstop', 'backstop.json');
+const out = path.join(ROOT, 'portal', 'tests', 'backstop', 'backstop.json');
 fs.writeFileSync(out, JSON.stringify(config, null, 2));
 console.log(`backstop.json written — ${scenarios.length} scenario(s)${intakeOnly ? ' [intake only]' : ''}`);

@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 11 is next (Phases 0–10 complete)
+**Status:** Phase 11 is next (Phases 0–10 complete, Phase 9.5 added and complete)
 
 ---
 
@@ -20,7 +20,6 @@
 ├── commons/            # shared branding, tokens, sales collateral
 ├── docs/               # GitHub Pages output only (do not edit manually)
 │   └── capabilities/
-├── tests/              # portal + pipeline tests (backstop moved here)
 ├── _inbox/             # raw inbound (Krisp/ moved here)
 └── _bmad/              # BMAD framework (output/ moved inside)
 ```
@@ -340,6 +339,22 @@ For `agilemind/`, `homage/`, `sample/`:
 - [x] Confirm `hypercare/` level complete (issue-triage, error-rate, scope-change, handoff-checklist)
 - [x] Add `hypercare/diagrams/.gitkeep` to `projects/_template/`
 - 📌 **COMMIT: `docs: update DIAGRAM_FRAMEWORK.md — new paths + production + hypercare levels (Phase 9)`**
+
+---
+
+### Phase 9.5 — Move tests to co-located subdirs ✅
+- [x] `tests/integration/` + `tests/unit/` + `tests/fixtures/` → `mulesoft/tests/`
+- [x] `tests/html/` + `tests/intake/` + `tests/backstop/` → `portal/tests/`
+- [x] Remove root `tests/` directory
+- [x] Create `pipeline/tests/.gitkeep`
+- [x] Add `tests/.gitkeep` to `projects/_template/dev/{slug}-integration/` and all 4 existing client dev stubs
+- [x] Fix `__dirname` relative paths in `portal/tests/html/helpers.js`, `portal/tests/intake/helpers.js`, `mulesoft/tests/integration/scaffold-generate.test.js`
+- [x] Fix `require('../../../generate')` in all 5 `mulesoft/tests/unit/scaffold/*.test.js`
+- [x] Update `package.json` — `testMatch`, `test:unit/integration`, `test:intake:*`, `test:html`, `vr:*`, `lint`
+- [x] Update `.github/workflows/portal.yml` — artifact paths + backstop config path
+- [x] Update `.gitignore` — backstop gitignore paths
+- [x] Update `pipeline/scripts/generate-backstop-config.js` — backstop.json output path
+- 📌 **COMMIT: `refactor: move tests to co-located subdirs — mulesoft/tests/ portal/tests/ pipeline/tests/`**
 
 ---
 

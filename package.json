@@ -7,11 +7,11 @@
     "load-inbox": "node pipeline/scripts/load-inbox.js",
     "move-sources": "node pipeline/scripts/move-sources.js",
     "test": "jest",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration",
+    "test:unit": "jest mulesoft/tests/unit",
+    "test:integration": "jest mulesoft/tests/integration",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":80,\"functions\":80,\"branches\":70}}'",
-    "lint": "eslint mulesoft/generate.js pipeline/tools/*.js tests/**/*.js",
+    "lint": "eslint mulesoft/generate.js pipeline/tools/*.js mulesoft/tests/**/*.js portal/tests/**/*.js",
     "lint:html": "htmlhint 'portal/public/**/*.html' 'projects/**/intake/*.html' --config .htmlhintrc && node commons/branding/lint-html.js",
     "lint:style": "stylelint 'portal/public/**/*.html' 'projects/**/intake/*.html'",
     "lint:format": "prettier --check './*.json' '.htmlhintrc'",
@@ -21,21 +21,23 @@
     "build:tokens": "node pipeline/scripts/build-tokens.js",
     "build:html": "npm run build:tokens && eleventy",
     "build:html:watch": "eleventy --serve",
-    "test:intake:structural": "jest --testPathPattern=tests/intake/structural --testTimeout=15000",
-    "test:intake:behavioral": "jest --testPathPattern=tests/intake/behavioral --testTimeout=30000 --runInBand",
+    "test:intake:structural": "jest --testPathPattern=portal/tests/intake/structural --testTimeout=15000",
+    "test:intake:behavioral": "jest --testPathPattern=portal/tests/intake/behavioral --testTimeout=30000 --runInBand",
     "test:intake": "npm run test:intake:structural && npm run test:intake:behavioral",
-    "vr:baseline": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config tests/backstop/backstop.json reference",
-    "vr:baseline:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config tests/backstop/backstop.json reference",
-    "vr:diff": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config tests/backstop/backstop.json",
-    "vr:diff:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config tests/backstop/backstop.json",
-    "vr:approve": "npx backstop approve --config tests/backstop/backstop.json"
+    "test:html": "jest --testPathPattern=portal/tests/html/runner --testTimeout=60000 --runInBand",
+    "vr:baseline": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config portal/tests/backstop/backstop.json reference",
+    "vr:baseline:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config portal/tests/backstop/backstop.json reference",
+    "vr:diff": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config portal/tests/backstop/backstop.json",
+    "vr:diff:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config portal/tests/backstop/backstop.json",
+    "vr:approve": "npx backstop approve --config portal/tests/backstop/backstop.json"
   },
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
-      "<rootDir>/tests/unit/**/*.test.js",
-      "<rootDir>/tests/integration/**/*.test.js",
-      "<rootDir>/tests/intake/**/*.test.js"
+      "<rootDir>/mulesoft/tests/unit/**/*.test.js",
+      "<rootDir>/mulesoft/tests/integration/**/*.test.js",
+      "<rootDir>/portal/tests/intake/**/*.test.js",
+      "<rootDir>/portal/tests/html/**/*.test.js"
     ],
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
