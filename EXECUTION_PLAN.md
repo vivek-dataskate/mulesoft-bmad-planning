@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 10 is next (Phases 0–9 complete)
+**Status:** Phase 11 is next (Phases 0–10 complete)
 
 ---
 
@@ -343,10 +343,11 @@ For `agilemind/`, `homage/`, `sample/`:
 
 ---
 
-### Phase 10 — Update `orchestrate.js` for `_template`
-- [ ] Replace ad-hoc folder creation with `cp -r projects/_template/ projects/{client}/`
-- [ ] Replace `{slug}` placeholder in `dev/{slug}-integration/` with actual client slug on copy
-- [ ] Test new client provisioning end to end
+### Phase 10 — Update `orchestrate.js` for `_template` ✅
+- [x] Replace ad-hoc folder creation with `cp -r projects/_template/ projects/{client}/`
+- [x] Replace `{slug}` placeholder in `dev/{slug}-integration/` with actual client slug on copy
+- [x] Remove `if (!fs.existsSync)` guards on `decisions.json` + `company_context.json` (template now pre-creates these)
+- [ ] Test new client provisioning end to end (Phase 11)
 - 📌 **COMMIT: `feat: orchestrate.js provisions new clients from _template/`**
 
 ---

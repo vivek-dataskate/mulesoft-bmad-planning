@@ -338,11 +338,28 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
     inboxFiles,
   });
 
-  const projectDir = path.join(PROJECTS_DIR, slug);
-  stepLog('Creating project directory structure: intake/client/, scoping/run/');
-  fs.mkdirSync(path.join(projectDir, 'intake', 'client'), { recursive: true });
-  fs.mkdirSync(path.join(projectDir, 'scoping', 'run'),   { recursive: true });
-  stepLog('Project directories created', 'END');
+  const projectDir  = path.join(PROJECTS_DIR, slug);
+  const templateDir = path.join(PROJECTS_DIR, '_template');
+
+  // Provision full folder structure from _template/ — single source of truth for new clients
+  stepLog(`Provisioning project from _template/: cp -r → projects/${slug}/`);
+  const cpResult = spawnSync('cp', ['-r', templateDir, projectDir], { encoding: 'utf8' });
+  if (cpResult.error || cpResult.status !== 0) {
+    const errMsg = (cpResult.stderr || '') + (cpResult.error?.message || '');
+    stepLog(`cp -r _template/ failed: ${errMsg}`, 'ERROR');
+    console.error(`  ${red('✗')} Failed to provision project from _template/: ${errMsg}`);
+    process.exit(1);
+  }
+
+  // Rename dev/{slug}-integration/ placeholder to dev/${slug}-integration/
+  const devStub = path.join(projectDir, 'dev', '{slug}-integration');
+  const devReal = path.join(projectDir, 'dev', `${slug}-integration`);
+  if (fs.existsSync(devStub)) {
+    fs.renameSync(devStub, devReal);
+    stepLog(`Renamed dev/{slug}-integration/ → dev/${slug}-integration/`, 'DATA');
+  }
+
+  stepLog('Project directory structure provisioned from _template/', 'END');
 
   // Move only text files to scoping/ — binary originals stay in _inbox/ until after Sage
   // (keeps Sage's context clean: no duplicate binary+txt representations)
@@ -390,40 +407,36 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
   logFileInfo(path.join(projectDir, 'project.json'), `projects/${slug}/project.json`);
   console.log(`  ${green('✓')} Created projects/${slug}/project.json`);
 
-  // Initialize decisions.json
+  // Initialize decisions.json — always overwrite the template placeholder
   const decisionsPath = path.join(projectDir, 'decisions.json');
-  if (!fs.existsSync(decisionsPath)) {
-    writeJson(decisionsPath, { client: slug, createdAt: isoNow(), decisions: [] });
-    stepLog(`INIT decisions.json (empty)`, 'DATA');
-    console.log(`  ${green('✓')} Initialized projects/${slug}/decisions.json`);
-  }
+  writeJson(decisionsPath, { client: slug, createdAt: isoNow(), decisions: [] });
+  stepLog(`INIT decisions.json (empty)`, 'DATA');
+  console.log(`  ${green('✓')} Initialized projects/${slug}/decisions.json`);
 
-  // Initialize company_context.json shell
+  // Initialize company_context.json shell — always overwrite the template placeholder
   const ctxPath = path.join(projectDir, 'company_context.json');
-  if (!fs.existsSync(ctxPath)) {
-    writeJson(ctxPath, {
-      client:          slug,
-      generatedAt:     isoNow(),
-      snapshot:        null,
-      industry:        null,
-      businessObjects: [],
-      hqLocation:      null,
-      revenueEstimate: null,
-      aiJourney:       { phase1: null, phase2: null, phase3: null },
-      confirmedFlows:  [],
-      potentialFlows:  [],
-      signals:         [],
-      namedContacts:   [],
-      systemFindings:  [],
-      p0Blockers:      [],
-      nearbyPeers:     [],
-      competitorFOMO:  [],
-      aiThoughtStarters: [],
-      psychologyProfile: null,
-    });
-    stepLog(`INIT company_context.json (shell — all fields null/empty)`, 'DATA');
-    console.log(`  ${green('✓')} Initialized projects/${slug}/company_context.json`);
-  }
+  writeJson(ctxPath, {
+    client:          slug,
+    generatedAt:     isoNow(),
+    snapshot:        null,
+    industry:        null,
+    businessObjects: [],
+    hqLocation:      null,
+    revenueEstimate: null,
+    aiJourney:       { phase1: null, phase2: null, phase3: null },
+    confirmedFlows:  [],
+    potentialFlows:  [],
+    signals:         [],
+    namedContacts:   [],
+    systemFindings:  [],
+    p0Blockers:      [],
+    nearbyPeers:     [],
+    competitorFOMO:  [],
+    aiThoughtStarters: [],
+    psychologyProfile: null,
+  });
+  stepLog(`INIT company_context.json (shell — all fields null/empty)`, 'DATA');
+  console.log(`  ${green('✓')} Initialized projects/${slug}/company_context.json`);
 
   // Initialize pipeline-state.json
   const statePath = path.join(projectDir, 'scoping', 'run', 'pipeline-state.json');
