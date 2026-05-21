@@ -16,4 +16,4 @@ Every HTML document (intake questionnaire and proposal) must include the DataSka
 - For **proposals**: logo goes in `.header-top` flex row (left side), eyebrow text floats right
 - For **intake forms**: logo goes above the `.eyebrow` div, inside `.doc-header`, in its own `<div style="margin-bottom:16px;">` wrapper
 - Height: `32px` for proposals, `28px` for intake forms
-- The HTML_DESIGN_STANDARDS.md Header Component section now documents this requirement explicitly
+- The HTML_DESIGN_STANDARDS.json Header Component section now documents this requirement explicitly

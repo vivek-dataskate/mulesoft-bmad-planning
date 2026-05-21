@@ -2,12 +2,14 @@
 // build-tokens.js
 //
 // Compiles tokens/*.json → commons/branding/generated/tokens.css
-// via Style Dictionary. Replaces the hand-maintained palette block in
-// shared-base.css.html.
+// via Style Dictionary. Also copies the output to firebase/public/tokens.css
+// so the Engagement Portal picks up palette changes without a manual copy.
 //
 // Run: npm run build:tokens   (or)   node build-tokens.js
 
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const StyleDictionary = require('style-dictionary');
 
 // Custom CSS format: produces exactly the same --brand, --brand-dk, etc.
@@ -80,4 +82,11 @@ const sd = StyleDictionary.extend({
 });
 
 sd.buildAllPlatforms();
+
+// Copy to firebase/public so the Engagement Portal stays in sync
+const src  = path.resolve(__dirname, '../commons/branding/generated/tokens.css');
+const dest = path.resolve(__dirname, '../firebase/public/tokens.css');
+fs.copyFileSync(src, dest);
+
 console.log('✓ Tokens built → commons/branding/generated/tokens.css + tokens.js');
+console.log('✓ Copied       → firebase/public/tokens.css');

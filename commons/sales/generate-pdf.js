@@ -74,7 +74,7 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <style>
-  /* ── CSS custom properties — verbatim from commons/branding/HTML_DESIGN_STANDARDS.md ── */
+  /* ── CSS custom properties — verbatim from commons/branding/tokens.css + lint-html.js ── */
   :root {
     --brand:    #ed1c24;
     --brand-dk: #a01019;
@@ -95,7 +95,7 @@ const html = `<!DOCTYPE html>
     background: #fff;
   }
 
-  /* ── Header — from HTML_DESIGN_STANDARDS.md ── */
+  /* ── Header — from tokens.css + lint-html.js ── */
   .header {
     padding: 32px 64px 28px;
     border-bottom: 3px solid var(--brand);
@@ -158,7 +158,7 @@ const html = `<!DOCTYPE html>
   .page { padding: 40px 64px; page-break-after: always; }
   .page:last-child { page-break-after: auto; }
 
-  /* ── Section headers — from HTML_DESIGN_STANDARDS.md ── */
+  /* ── Section headers — from tokens.css + lint-html.js ── */
   .section-head { display: flex; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--border); margin-bottom: 28px; padding-bottom: 10px; }
   .section-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--brand); }
   .section-title { font-size: 18px; font-weight: 800; color: var(--dark); }
@@ -166,7 +166,7 @@ const html = `<!DOCTYPE html>
   /* ── Subsection label ── */
   .sub-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); margin: 24px 0 10px; }
 
-  /* ── Table — from HTML_DESIGN_STANDARDS.md (.dtbl pattern) ── */
+  /* ── Table — from tokens.css + lint-html.js (.dtbl pattern) ── */
   table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
   th { background: var(--dark); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
   td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--dark); }
@@ -207,7 +207,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
 
-<!-- HEADER — standard pattern from HTML_DESIGN_STANDARDS.md -->
+<!-- HEADER — standard pattern from tokens.css + lint-html.js -->
 <div class="header">
   <div class="header-top">
     ${SVG_LOGO}

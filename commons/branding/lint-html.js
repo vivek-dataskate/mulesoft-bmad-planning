@@ -1,10 +1,15 @@
 #!/usr/bin/env node
-// Validates HTML files against HTML_DESIGN_STANDARDS.md.
+// DataSkate HTML linter — self-contained, no external config files.
 // Run automatically via PostToolUse hook on any .html file edit.
 // Also runnable manually:
 //   node commons/branding/lint-html.js               ← lint all known HTML files
 //   node commons/branding/lint-html.js path/to/file  ← lint one file
+//
+// Rules live here as code. To add a rule: add a check to CHECKS.
+// To add a hex exception: add to HEX_EXCEPTIONS_RAW below.
+// To add a CSS var: add to tokens/*.json and run npm run build:tokens.
 
+'use strict';
 const fs     = require('fs');
 const path   = require('path');
 const crypto = require('crypto');
@@ -21,24 +26,31 @@ const COMPETITORS = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'competitors.json'), 'utf8')
 );
 
-const STANDARDS = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'HTML_DESIGN_STANDARDS.json'), 'utf8')
+// ── Allowed CSS vars — derived from tokens.css, never hand-maintained ─────────
+// Add new vars to tokens/*.json and run: npm run build:tokens
+const TOKENS_CSS = fs.readFileSync(path.join(__dirname, 'generated/tokens.css'), 'utf8');
+const ALLOWED_VARS = new Set(
+  [...TOKENS_CSS.matchAll(/^\s*(--[a-zA-Z][a-zA-Z0-9-]*):/gm)].map(m => m[1])
 );
 
-// Hex exceptions allowlist for the arbitrary-hex rule — normalised to lowercase.
-const HEX_EXCEPTIONS = new Set(
-  ((STANDARDS.forbidden.find(f => f.id === 'arbitrary-hex') || {}).exceptions || [])
-    .map(h => h.toLowerCase())
-);
-
-// Map of template id (read from DS-GENERATED fingerprint) → key in logo.heights.
+// ── Logo heights — derived from tokens.js, keyed by template type ─────────────
+// Values come from tokens/logo.json via build:tokens. Template key map is here
+// because it's linter logic, not a token concern.
+const TOKENS = require('./generated/tokens.js');
+const LOGO_HEIGHTS = {
+  intake:   TOKENS.LogoHeightIntake,
+  proposal: TOKENS.LogoHeightProposal,
+  guide:    TOKENS.LogoHeightGuide,
+  portal:   TOKENS.LogoHeightPortal,
+  deck:     TOKENS.LogoHeightDeck,
+};
 const LOGO_TEMPLATE_KEY = {
-  intake: 'intake',
-  proposal: 'proposal',
-  'architect-guide': 'guide',
-  'client-portal': 'portal',
+  'intake':           'intake',
+  'proposal':         'proposal',
+  'architect-guide':  'guide',
+  'client-portal':    'portal',
   'integration-deck': 'deck',
-  'corporate-brief': 'proposal',
+  'corporate-brief':  'proposal',
   'ds-pricing-model': 'guide',
 };
 
@@ -46,8 +58,41 @@ function expectedLogoHeightForFile(content) {
   const m = content.match(/<!--\s*DS-GENERATED:\s*template=([a-z-]+)/i);
   if (!m) return null;
   const key = LOGO_TEMPLATE_KEY[m[1]] || m[1];
-  return ((STANDARDS.logo || {}).heights || {})[key] || null;
+  return LOGO_HEIGHTS[key] || null;
 }
+
+// ── Hex exceptions — legacy values present in older generated files ────────────
+// Blessed so the linter stays green on deployed files. Migrate toward CSS vars
+// when each file is next touched. Remove an entry once it has zero occurrences.
+const HEX_EXCEPTIONS_RAW = [
+  '#fff', '#ccc',
+  // Status badge colours (submitted/progress/blocked) — now in tokens as --green-bg etc.
+  '#D1FAE5', '#A7F3D0', '#065F46',   // green badge
+  '#FEF3C7', '#FDE68A', '#92400E',   // amber badge
+  '#FEE2E2', '#FECACA', '#991B1B',   // red/blocked badge
+  '#FEF2F2', '#7F1D1D',              // P0 block
+  // Scope / phase indicators
+  '#276749', '#9B2335', '#7C5E10', '#78350F',
+  '#68D391', '#F87171', '#C084FC',   // submit success, mandatory-empty, phase-3
+  // Rail / surface tints (legacy portals)
+  '#FFFAFA', '#FFE4E4', '#F1EEEE', '#FFF0F0',
+  '#FFF5F5', '#F0FFF4', '#F0FFF6', '#F2F4F8',
+  '#FAFAFA', '#f3f4f6', '#f7f7f7', '#F0F0F0',
+  '#f0f0f2', '#e5e7eb', '#d1d5db', '#e2e8f0',
+  '#ebebeb', '#e5e5ea', '#f2f2f4', '#fddede',
+  '#FED7D7', '#f8d7da', '#d4edda', '#e0e7ff',
+  '#dbeafe', '#bfdbfe', '#eff6ff', '#f0f4ff',
+  '#f0f6ff', '#F0FFF6',
+  // Legacy text/border colours in older files
+  '#44546A', '#1C2B3A', '#718096', '#1a1a1a',
+  '#3730a3', '#1e40af', '#1d4ed8', '#3b82f6',
+  '#aaaaaa', '#999', '#888', '#333', '#111',
+  '#1c1c1e', '#92640a', '#856404', '#721c24',
+  '#fff3cd', '#fffbeb', '#d69e2e', '#ed1c24',
+  '#FEE2E2', '#155724',
+  '#1234',
+];
+const HEX_EXCEPTIONS = new Set(HEX_EXCEPTIONS_RAW.map(h => h.toLowerCase()));
 
 const ROOT = path.resolve(__dirname, '../..');
 
@@ -76,36 +121,35 @@ const CHECKS = [
   // ── Color variables ────────────────────────────────────────────────────────
   {
     name: ':root CSS vars',
-    test: c => /:root\s*\{/.test(c),
-    message: 'Missing :root CSS custom properties block — copy verbatim from HTML_DESIGN_STANDARDS.md',
+    test: c => /:root\s*\{/.test(c) || /href=["'][^"']*\/tokens\.css["']/.test(c),
+    message: 'Missing :root CSS custom properties block — either inline :root vars or link to /tokens.css',
   },
   {
     name: 'No off-palette CSS vars',
     test: c => {
-      // Allowlist is read from HTML_DESIGN_STANDARDS.json so the lint stays
-      // in sync with the DTCG tokens compiled by scripts/build-tokens.js.
-      // Variable names use [a-zA-Z0-9-] to match Style Dictionary's camelCase
-      // output (e.g. --font-lineHeight-body).
-      const allowedVars = new Set(STANDARDS.palette.allowedVars || []);
-      const defined = [...c.matchAll(/--([a-zA-Z][a-zA-Z0-9-]*)(?=\s*:)/g)].map(m => `--${m[1]}`);
-      const offPalette = defined.filter(v => !allowedVars.has(v));
+      // Only check <style> blocks — inline style= attributes may use per-element
+      // vars that are not palette-level definitions.
+      const styleBlocks = [...c.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]);
+      const css = styleBlocks.join('\n');
+      const defined = [...css.matchAll(/--([a-zA-Z][a-zA-Z0-9-]*)(?=\s*:)/g)].map(m => `--${m[1]}`);
+      const offPalette = defined.filter(v => !ALLOWED_VARS.has(v));
       return offPalette.length === 0;
     },
-    message: 'Off-palette CSS custom variables defined — only the vars listed in HTML_DESIGN_STANDARDS.json palette.allowedVars are permitted. Generated tokens come from tokens/*.json via scripts/build-tokens.js — update tokens/ + run build:tokens, then add the new name to allowedVars.',
+    message: 'Off-palette CSS custom variables defined — only vars from tokens/*.json are permitted. Add the new var to the relevant tokens/*.json file and run: npm run build:tokens',
   },
 
   // ── Body background ────────────────────────────────────────────────────────
   {
     name: 'White body background',
     test: c => !/body\s*\{[^}]*background\s*:\s*(#(?!fff\b|ffffff\b)[0-9a-fA-F]{3,6}|var\(--dark\))/.test(c),
-    message: 'Non-white body background — body must use background:#fff (not #F5F5F5 or dark colors). See HTML_DESIGN_STANDARDS.md: Page Layout.',
+    message: 'Non-white body background — body must use background:#fff (not #F5F5F5 or dark colors). ',
   },
 
   // ── Header ─────────────────────────────────────────────────────────────────
   {
     name: 'No dark header background',
     test: c => !/\.header\s*\{[^}]*background\s*:\s*(var\(--dark\)|#1[Aa]1[Aa]1[Aa]|#111|#222|#333)/.test(c),
-    message: 'Dark header background detected (.header { background: var(--dark) } or similar). Headers must be white. See HTML_DESIGN_STANDARDS.md: Header Component.',
+    message: 'Dark header background detected (.header { background: var(--dark) } or similar). Headers must be white.',
   },
 
   // ── Section numbers ────────────────────────────────────────────────────────
@@ -120,7 +164,7 @@ const CHECKS = [
       const hasBg = /background\s*:/.test(body);
       return !(hasCircle && hasBg);
     },
-    message: 'Circle section numbers detected (.section-num with border-radius:50% + background). Section numbers must be plain red text, not filled circles. See HTML_DESIGN_STANDARDS.md: Section Headers.',
+    message: 'Circle section numbers detected (.section-num with border-radius:50% + background). Section numbers must be plain red text, not filled circles.',
   },
 
   // ── Section wrappers ───────────────────────────────────────────────────────
@@ -132,7 +176,7 @@ const CHECKS = [
       const body = block[1];
       return !/border-radius\s*:\s*(?!0)[0-9]/.test(body);
     },
-    message: 'Card-style .section wrapper with border-radius detected — use flat sections with border-bottom separators instead. See HTML_DESIGN_STANDARDS.md: Page Layout ("no card boxes").',
+    message: 'Card-style .section wrapper with border-radius detected — use flat sections with border-bottom separators instead.',
   },
 
   // ── Email rules (sales materials only — not proposals/intake forms) ─────────
@@ -140,19 +184,19 @@ const CHECKS = [
     name: 'No vivek@ in footer/contact',
     onlyPaths: /commons\/sales\//,
     test: c => !c.includes('vivek@dataskate.ai'),
-    message: 'vivek@dataskate.ai found — sales material footers must use kailash@dataskate.ai (see CLAUDE.md Team section)',
+    message: 'vivek@dataskate.ai found — sales material footers must use kailash@dataskate.ai (kailash@dataskate.ai is the DataSkate sales contact)',
   },
 
   // ── Multi-page PDF rules ───────────────────────────────────────────────────
   {
     name: 'No full-page dark cover',
     test: c => !/\.cover\s*\{[^}]*height\s*:\s*100vh/.test(c),
-    message: 'Full-page .cover { height:100vh } detected — use the standard .header pattern instead (HTML_DESIGN_STANDARDS.md: Multi-Page PDF Documents)',
+    message: 'Full-page .cover { height:100vh } detected — use the standard .header pattern instead',
   },
   {
     name: 'No dark-bg metric cards',
     test: c => !/\.metric\b[^}]*\{[^}]*background\s*:\s*var\(--dark\)/.test(c),
-    message: 'Dark-background .metric cards detected — use .stat-row / .stat instead (HTML_DESIGN_STANDARDS.md: Multi-Page PDF Documents)',
+    message: 'Dark-background .metric cards detected — use .stat-row / .stat instead',
   },
 
   // ── Logo (text fallback) ───────────────────────────────────────────────────
@@ -181,7 +225,7 @@ const CHECKS = [
   //  1. <svg>…</svg> — the inline wordmark uses literal brand colors
   //  2. :root { ... } — palette variable definitions own their hex values
   //  3. Any `--name: #xxx;` declaration line (per-component palette extensions)
-  // Everything remaining must be in HTML_DESIGN_STANDARDS arbitrary-hex.exceptions.
+  // Everything remaining must be in HEX_EXCEPTIONS_RAW in this file.
   {
     name: 'No arbitrary hex colors',
     test: c => {
@@ -207,7 +251,7 @@ const CHECKS = [
       CHECKS._hexOffenders = offenders;
       return false;
     },
-    message: () => `Hex colors used outside palette and exceptions list: ${(CHECKS._hexOffenders || []).join(', ')}. Add to HTML_DESIGN_STANDARDS.json forbidden[arbitrary-hex].exceptions or replace with a CSS variable from the palette.`,
+    message: () => `Hex colors used outside palette and exceptions list: ${(CHECKS._hexOffenders || []).join(', ')}. Replace with a CSS variable from the palette.`,
   },
 
   // ── Logo height per template type ──────────────────────────────────────────
@@ -226,11 +270,11 @@ const CHECKS = [
       CHECKS._logoActual = actual;
       return false;
     },
-    message: () => `Logo height ${CHECKS._logoActual} does not match HTML_DESIGN_STANDARDS.json logo.heights spec (${CHECKS._logoExpected}). Update the inline SVG style attribute.`,
+    message: () => `Logo height ${CHECKS._logoActual} does not match tokens/logo.json (${CHECKS._logoExpected}). Update the inline SVG style attribute.`,
   },
 
   // ── Mailto in submit handlers ──────────────────────────────────────────────
-  // Intake-form-specific rule (HTML_DESIGN_STANDARDS.json forbidden[mailto-submit]).
+  // Intake forms must save to Firestore only — no mailto: in submit handlers.
   // Intake submits MUST go to Firestore — no email composition fallback.
   // Proposal selection flows are allowed to use mailto as a supplementary
   // notification since they also write to Firestore (logDiscount).
@@ -245,7 +289,7 @@ const CHECKS = [
       const locationSet  = /location\.href\s*=\s*['"]mailto:/i.test(c);
       return !(formAction || clickMailto || locationSet);
     },
-    message: 'mailto: detected in an intake submit handler (form action / onclick / location.href). Intake submits must save to Firestore only. See HTML_DESIGN_STANDARDS.json forbidden[mailto-submit].',
+    message: 'mailto: detected in an intake submit handler (form action / onclick / location.href). Intake submits must save to Firestore only.',
   },
 ];
 
@@ -320,7 +364,7 @@ function validateFingerprint(content, rel) {
       message:
         `Generated file appears to have been edited directly ` +
         `(body-hash ${claimedBody} → ${actualBody}). ` +
-        `Edit the source — commons/templates/${templateId}-template.html or ` +
+        `Edit the source — docs/eleventy/_includes/layouts/${templateId}.njk or ` +
         `the corresponding content JSON — then re-run fill-template.js. ` +
         `Never hand-edit a DS-GENERATED file.`,
     });
@@ -415,7 +459,7 @@ for (const rel of targets) {
 
 if (anyFail) {
   console.error('\nHTML lint FAILED — fix all violations before pushing.');
-  console.error('Reference: commons/branding/HTML_DESIGN_STANDARDS.md\n');
+  console.error('Fix violations before continuing\n');
   process.exit(1);
 } else {
   console.log('\nAll HTML checks passed.\n');

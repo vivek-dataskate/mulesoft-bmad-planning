@@ -17,6 +17,10 @@ echo "$FIREBASE_SA_KEY" > /tmp/firebase-sa.json
 export GOOGLE_APPLICATION_CREDENTIALS="/tmp/firebase-sa.json"
 unset FIREBASE_TOKEN  # expired token overrides service account — always use SA key
 
+# ── Design tokens ────────────────────────────────────────────────────────────
+echo "→ Building design tokens..."
+node "$REPO_ROOT/scripts/build-tokens.js"
+
 # ── Sales resources ───────────────────────────────────────────────────────────
 echo "→ Publishing sales resources..."
 mkdir -p "$PUBLIC/resources"

@@ -14,7 +14,7 @@ metadata:
 - `templates{}` — fill command and paths for all 6 template types
 - `print.css` — print overrides (force details open, hide sticky-bar)
 
-`commons/branding/HTML_DESIGN_STANDARDS.md` — human-readable pointer ONLY. Do not add rules there.
+`commons/branding/HTML_DESIGN_STANDARDS.json` — human-readable pointer ONLY. Do not add rules there.
 
 **Before writing any HTML fragment for a content JSON**, read the JSON for the correct class names and component patterns. Do not invent classes or CSS variables.
 
