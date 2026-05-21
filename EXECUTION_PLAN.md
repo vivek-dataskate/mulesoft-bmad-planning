@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 5 is next (Phases 0–4 complete)
+**Status:** Phase 6 is next (Phases 0–5 complete)
 
 ---
 
@@ -263,15 +263,15 @@ No code references to update — pure `git mv`.
 
 ---
 
-### Phase 5 — Restructure `commons/` and `projects/`
-- [ ] `git mv standards/reference-network.json commons/sales/`
-- [ ] `git mv standards/intake-checklist.json pipeline/`
-- [ ] `git mv standards/client-registry.json projects/`
-- [ ] `git mv standards/project-statuses.json projects/`
-- [ ] `git mv standards/decisions-schema.json projects/`
-- [ ] Remove empty `standards/` directory
-- [ ] Create `projects/_template/` with all phase folders + placeholder files
-- [ ] Create placeholder `project.json`, `decisions.json`, `company_context.json` in `_template/`
+### Phase 5 — Restructure `commons/` and `projects/` ✅
+- [x] `git mv standards/reference-network.json commons/sales/`
+- [x] `git mv standards/intake-checklist.json pipeline/`
+- [x] `git mv standards/client-registry.json projects/`
+- [x] `git mv standards/project-statuses.json projects/`
+- [x] `git mv standards/decisions-schema.json projects/`
+- [x] Remove empty `standards/` directory
+- [x] Create `projects/_template/` with all phase folders + placeholder files
+- [x] Create placeholder `project.json`, `decisions.json`, `company_context.json` in `_template/`
 - 📌 **COMMIT: `refactor: restructure commons/ + projects/ + create _template`**
 
 ---
@@ -363,3 +363,44 @@ For `agilemind/`, `homage/`, `sample/`:
 - [ ] Update `README.md` with new folder map
 - [ ] Update memory files
 - 📌 **COMMIT: `chore: post-refactor cleanup — remove empty dirs + update README`**
+
+---
+
+## Technical Safeguards for Scale
+
+These are not part of the refactor execution but must be implemented as the system scales. Add as follow-on work items after Phase 12.
+
+---
+
+### Safeguard 1 — Protect `projects/_template/` from accidental drift
+
+**Risk:** `orchestrate.js` treats `projects/_template/` as the absolute source of truth for new client structure. Any accidental structural change (added file, renamed folder, missing `.gitkeep`) will silently break or pollute all future client initializations.
+
+**Actions required:**
+- [ ] Add a pre-commit hook in `pipeline/scripts/git-hooks/pre-commit` that detects changes to `projects/_template/` and requires explicit confirmation (or blocks entirely)
+- [ ] Add a CI check in `.github/workflows/portal.yml` that validates `_template/` structure against a known schema — fail the build if folders or placeholder files are missing
+- [ ] Document in `projects/_template/README.md` that changes to this folder must be intentional and reviewed — never casual
+
+---
+
+### Safeguard 2 — Prevent Git bloat from high-frequency SVG commits
+
+**Risk:** `mulesoft/diagram-templates/` generates SVGs into `projects/{client}/*/diagrams/` at multiple pipeline hooks (post-Flo, post-Petra, post-Quinn). If these regenerate on every run, `.git` history will balloon — SVGs are binary-like diffs and do not compress well in git history.
+
+**Actions required:**
+- [ ] Update `mulesoft/generate-diagram.js` (when built) to minify/optimize SVG output before writing — strip comments, whitespace, and metadata using `svgo` or equivalent
+- [ ] Add a `.gitattributes` rule to treat `*.svg` files as binary (`*.svg binary`) to prevent line-diff noise
+- [ ] Add a content-hash check in the diagram generator — only write the SVG if content has actually changed (compare hash of new output vs existing file before overwriting)
+- [ ] Consider adding `projects/*/*/diagrams/*.svg` to a separate git-lfs tracking rule if diagram volume grows beyond ~500 SVGs total across all clients
+
+---
+
+### Safeguard 3 — Keep `dev/{client}-integration/` in sync with client GitHub repo
+
+**Risk:** The local `projects/{client}/dev/{client}-integration/` folder is a backup copy. If the developer pushes changes directly to the client's external GitHub repo (hotfixes, config changes, dependency bumps), the local backup silently falls out of sync. There is currently no pull/sync mechanism.
+
+**Actions required:**
+- [ ] Add `pipeline/scripts/sync-client-repo.sh` — pulls latest from client GitHub repo into `projects/{client}/dev/{client}-integration/` and commits the delta with a `chore: sync {client} from upstream` message
+- [ ] Add a `sync` command to `package.json` that runs sync for all clients: `node pipeline/scripts/regen-all-clients.js --sync`
+- [ ] Document in `projects/_template/dev/` that this folder is a **backup**, not the working copy — developers should always push to the client GitHub repo first, then sync back here
+- [ ] Add a staleness check to `pipeline/tools/check-registry-freshness.js` — warn if `dev/{client}-integration/` has not been synced in more than 14 days
