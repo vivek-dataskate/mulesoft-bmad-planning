@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 2 is next (Phases 0–1 complete)
+**Status:** Phase 3 is next (Phases 0–2 complete)
 
 ---
 
@@ -195,20 +195,20 @@ No code references to update — pure `git mv`.
 
 ---
 
-### Phase 2 — Assemble `pipeline/`
-- [ ] `git mv DSPipeline/ pipeline/`
-- [ ] `git mv logs/ pipeline/logs/`
-- [ ] `git mv scripts/ pipeline/scripts/`
-- [ ] `git mv scaffold/extract-text.js pipeline/tools/`
-- [ ] `git mv scaffold/generate-capabilities.js pipeline/tools/`
-- [ ] `git mv scaffold/generate-client-portal.js pipeline/tools/`
-- [ ] `git mv scaffold/generate-knowledge-base.js pipeline/tools/`
-- [ ] `git mv scaffold/check-registry-freshness.js pipeline/tools/`
-- [ ] `git mv scaffold/create-client-repo.sh pipeline/tools/`
-- [ ] `git mv scaffold/create-github-issues.sh pipeline/tools/`
-- [ ] `git mv docs/FIELD_KNOWLEDGE.md pipeline/`
-- [ ] `git mv docs/PLANNING_CONTEXT.md pipeline/`
-- [ ] `git mv docs/TEST_STRATEGY.md pipeline/`
+### Phase 2 — Assemble `pipeline/` ✅
+- [x] `git mv DSPipeline/ pipeline/`
+- [x] `mv logs/ pipeline/logs/` (gitignored — mv only)
+- [x] `git mv scripts/ pipeline/scripts/`
+- [x] `git mv scaffold/extract-text.js pipeline/tools/`
+- [x] `git mv scaffold/generate-capabilities.js pipeline/tools/`
+- [x] `git mv scaffold/generate-client-portal.js pipeline/tools/`
+- [x] `git mv scaffold/generate-knowledge-base.js pipeline/tools/`
+- [x] `git mv scaffold/check-registry-freshness.js pipeline/tools/`
+- [x] `git mv scaffold/create-client-repo.sh pipeline/tools/`
+- [x] `git mv scaffold/create-github-issues.sh pipeline/tools/`
+- [x] `git mv docs/FIELD_KNOWLEDGE.md pipeline/`
+- [x] `git mv docs/PLANNING_CONTEXT.md pipeline/`
+- [x] `git mv docs/TEST_STRATEGY.md pipeline/`
 - 📌 **COMMIT: `refactor: assemble pipeline/ from DSPipeline + scripts + scaffold tools`**
 
 ---
