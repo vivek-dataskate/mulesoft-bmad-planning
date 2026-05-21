@@ -224,6 +224,77 @@ function buildIntakeSource(sourceText, sourceUrl) {
   return `<a class="source-link" href="${esc(sourceUrl)}" target="_blank" rel="noopener" title="Open source files in storage">${esc(sourceText)} <span class="src-icon">↗</span></a>`;
 }
 
+// ─── SYSTEM MAP ───────────────────────────────────────────────────────────────
+
+// Parse section 10's h3 subsections and return one metadata object per system.
+// The section 10 bodyHtml has h3 headers like "<h3>10.1 — Salesforce</h3>"
+// followed by question blocks. We extract each system's id/label/questionCount.
+function extractSystemNodes(sections) {
+  const sec10 = sections.find(s => String(s.id) === '10');
+  if (!sec10 || !sec10.bodyHtml) return [];
+
+  const html = sec10.bodyHtml;
+  const h3Re = /<h3[^>]*>([\s\S]*?)<\/h3>/g;
+  const positions = [];
+  let m;
+  while ((m = h3Re.exec(html)) !== null) {
+    const rawText = m[1].replace(/<[^>]+>/g, '').trim();
+    const labelMatch = rawText.match(/^[\d.]+\s*[—\-]\s*(.+)$/);
+    const label = labelMatch ? labelMatch[1].trim() : rawText;
+    const id = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    positions.push({ matchIndex: m.index, end: m.index + m[0].length, label, id });
+  }
+
+  return positions.map((pos, i) => {
+    const bodyStart = pos.end;
+    const bodyEnd = i + 1 < positions.length ? positions[i + 1].matchIndex : html.length;
+    const bodyHtml = html.slice(bodyStart, bodyEnd);
+    const questionCount = (bodyHtml.match(/<textarea/g) || []).length;
+    return { id: pos.id, label: pos.label, questionCount };
+  });
+}
+
+// Wrap each system's question group in section 10 with a portal-home div
+// so the JS can move it into the system drawer without losing event listeners.
+function wrapSystemHomesInSec10(sections) {
+  return sections.map(sec => {
+    if (String(sec.id) !== '10' || !sec.bodyHtml) return sec;
+
+    const html = sec.bodyHtml;
+    const h3Re = /<h3[^>]*>([\s\S]*?)<\/h3>/g;
+    const positions = [];
+    let m;
+    while ((m = h3Re.exec(html)) !== null) {
+      const rawText = m[1].replace(/<[^>]+>/g, '').trim();
+      const labelMatch = rawText.match(/^[\d.]+\s*[—\-]\s*(.+)$/);
+      const label = labelMatch ? labelMatch[1].trim() : rawText;
+      const id = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      positions.push({ matchIndex: m.index, end: m.index + m[0].length, h3Html: m[0], id });
+    }
+
+    if (positions.length === 0) return sec;
+
+    let newHtml = html.slice(0, positions[0].matchIndex); // pre-first-h3 content
+    for (let i = 0; i < positions.length; i++) {
+      const { h3Html, id, end } = positions[i];
+      const bodyEnd = i + 1 < positions.length ? positions[i + 1].matchIndex : html.length;
+      const bodyHtml = html.slice(end, bodyEnd);
+      newHtml += h3Html;
+      newHtml += `<div id="sys-home-${id}" class="sys-home" data-sys="${id}">${bodyHtml}</div>`;
+    }
+
+    return { ...sec, bodyHtml: newHtml };
+  });
+}
+
+// Read the per-client system diagram SVG inline so the template can embed it.
+function readSystemDiagramSvg(slug) {
+  if (!slug) return '';
+  const svgPath = path.join(ROOT, 'projects', slug, 'intake', 'system-diagram.svg');
+  if (!fs.existsSync(svgPath)) return '';
+  try { return fs.readFileSync(svgPath, 'utf8'); } catch { return ''; }
+}
+
 // ─── JSON PATH ────────────────────────────────────────────────────────────────
 
 function buildFromJson(c, slug) {
@@ -261,8 +332,14 @@ function buildFromJson(c, slug) {
     : '';
 
   const lifted         = liftPotentialFlowsToOwnSection(c.sections || []);
+  const systemNodes    = extractSystemNodes(lifted.sections);
+  const buildSections  = systemNodes.length > 0
+    ? wrapSystemHomesInSec10(lifted.sections)
+    : lifted.sections;
+  const systemDiagramSvg = readSystemDiagramSvg(slug || m.clientSlug || '');
+
   const secMeta        = [];
-  const secEntries     = lifted.sections.map(sec => {
+  const secEntries     = buildSections.map(sec => {
     const rawId     = String(sec.id || '');
     const displayId = rawId.replace(/^S?0*/i, '') || rawId;
     const anchorId  = `sec-${displayId || rawId}`;
@@ -318,6 +395,9 @@ function buildFromJson(c, slug) {
     railLinks:        buildIntakeRailLinks(m),
     internalFlagsHtml,
     pricingSummaryHtml,
+    systemNodes,
+    systemNodesJson: JSON.stringify(systemNodes),
+    systemDiagramSvg,
   };
 }
 

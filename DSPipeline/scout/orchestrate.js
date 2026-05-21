@@ -1148,8 +1148,7 @@ function resolvedAgentToml(agent, slug) {
   return path.relative(ROOT, outPath);  // e.g. projects/pacific-title-company/run/vera.toml
 }
 
-function printAgentBanner(agent, slug, resolvedToml) {
-  const totalAgents = 9;
+function printAgentBanner(agent, slug, resolvedToml, totalAgents) {
   console.log('\n' + bold('━'.repeat(60)));
   console.log(bold(`  NEXT: ${agent.name} — ${agent.role}  [${agent.position}/${totalAgents}]`));
   console.log(bold('━'.repeat(60)));
@@ -1259,7 +1258,8 @@ async function runPipeline(slug) {
     });
 
     const resolvedToml = resolvedAgentToml(agent, slug);
-    printAgentBanner(agent, slug, resolvedToml);
+    const activeAgentCount = agents.filter(a => a.status !== 'parked').length;
+    printAgentBanner(agent, slug, resolvedToml, activeAgentCount);
 
     const startMs = Date.now();
 
@@ -1677,17 +1677,18 @@ async function runDeltaPipeline(slug, recordingFile) {
   const relRecording = path.relative(ROOT, recordingDest);
 
   const deltaAgents = [
-    { slug: 'sage',  name: 'Sage',  role: 'Document Intelligence', outputFile: 'run/sage.json',  note: `Point Sage at: ${relRecording}` },
-    { slug: 'flo',   name: 'Flo',   role: 'Flow Analyst + Pricing', outputFile: 'run/flo.json',   note: 'Flo reads sage.json — will flag new flows vs existing' },
-    { slug: 'quinn', name: 'Quinn', role: 'Intake Questionnaire',   outputFile: 'run/quinn.json', note: 'Quinn preserves answered questions; new gaps get [NEW] badge' },
-    { slug: 'petra', name: 'Petra', role: 'Proposal Writer',        outputFile: 'run/petra.json', note: 'Petra appends [NEW] flows — preserves pricing section' },
-    { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       outputFile: 'run/mira.json',  note: 'Final audit before re-deploy' },
+    { slug: 'sage',  name: 'Sage',  role: 'Document Intelligence', toml: 'DSPipeline/agents/sage.toml',  outputFile: 'run/sage.json',  note: `Point Sage at: ${relRecording}` },
+    { slug: 'flo',   name: 'Flo',   role: 'Flow Analyst + Pricing', toml: 'DSPipeline/agents/flo.toml',   outputFile: 'run/flo.json',   note: 'Flo reads sage.json — will flag new flows vs existing' },
+    { slug: 'quinn', name: 'Quinn', role: 'Intake Questionnaire',   toml: 'DSPipeline/agents/quinn.toml', outputFile: 'run/quinn.json', note: 'Quinn preserves answered questions; new gaps get [NEW] badge' },
+    { slug: 'petra', name: 'Petra', role: 'Proposal Writer',        toml: 'DSPipeline/agents/petra.toml', outputFile: 'run/petra.json', note: 'Petra appends [NEW] flows — preserves pricing section' },
+    { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       toml: 'DSPipeline/agents/mira.toml',  outputFile: 'run/mira.json',  note: 'Final audit before re-deploy' },
   ];
 
   for (const [di, agent] of deltaAgents.entries()) {
     const stepLabel = `DELTA STEP ${di + 1}/${deltaAgents.length}: ${agent.name}`;
     stepLog(`${stepLabel} (${agent.slug}) — STARTED`, 'START');
-    const cmd = `claude --agent-file DSPipeline/agents/${agent.slug}.toml`;
+    const resolvedToml = resolvedAgentToml(agent, slug);
+    const cmd = `claude --agent-file ${resolvedToml}`;
     console.log('\n' + bold('─'.repeat(60)));
     console.log(bold(`  DELTA: ${agent.name} — ${agent.role}`));
     if (agent.note) console.log(`  ${dim(agent.note)}`);

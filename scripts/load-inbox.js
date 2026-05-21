@@ -135,19 +135,35 @@ function interactiveList(clients) {
 }
 
 function getSessionStatus(client) {
-  const intakePath = path.join(PROJECTS, client.slug, "intake");
-  const s1 = fs.existsSync(path.join(intakePath, "scout-s1.md"));
-  const s2 = fs.existsSync(path.join(intakePath, "scout-s2.md"));
-  const html = fs.existsSync(path.join(intakePath, `intake-questionnaire-${client.slug}.html`));
-  if (html)  return { session: 3, label: "DONE ✓",      next: null };
-  if (s2)    return { session: 2, label: "needs S3",    next: "talk to Scout → Session 3 (HTML)" };
-  if (s1)    return { session: 1, label: "needs S2",    next: "talk to Scout → Session 2 (Questionnaire)" };
-  return       { session: 0, label: "not started",  next: "load-inbox → talk to Scout → Session 1 (Research)" };
+  const intakePath  = path.join(PROJECTS, client.slug, "intake");
+  const statePath   = path.join(PROJECTS, client.slug, "run", "pipeline-state.json");
+  const hasIntakeHtml = fs.existsSync(path.join(intakePath, `intake-questionnaire-${client.slug}.html`));
+  const hasProposal   = fs.existsSync(path.join(intakePath, `proposal-${client.slug}.html`));
+
+  if (hasIntakeHtml && hasProposal) return { label: "DONE ✓",      next: null };
+
+  if (fs.existsSync(statePath)) {
+    try {
+      const state    = JSON.parse(fs.readFileSync(statePath, "utf8"));
+      const done     = (state.completed || []);
+      const agents   = ["sage","vera","rex","ivy","flo","hawk","petra","quinn","mira"];
+      const lastDone = agents.filter(a => done.includes(a)).pop();
+      const nextUp   = agents.find(a => !done.includes(a));
+      if (lastDone) return { label: `in progress (last: ${lastDone})`, next: `run orchestrate.js --client ${client.slug} to resume` };
+    } catch { /* fall through */ }
+    return { label: "pipeline started",  next: `run orchestrate.js --client ${client.slug} to resume` };
+  }
+
+  if (fs.existsSync(path.join(PROJECTS, client.slug, "project.json"))) {
+    return { label: "project created",   next: `run orchestrate.js --client ${client.slug}` };
+  }
+
+  return { label: "not started", next: "run orchestrate.js to begin" };
 }
 
 function statusReport(clients) {
-  console.log("\nScout session status across all clients:\n");
-  console.log("  #   Client                        Stage        Next step");
+  console.log("\nPipeline status across all clients:\n");
+  console.log("  #   Client                        Stage                 Next step");
   console.log("  ─── ─────────────────────────────────────────────────────────────────");
   clients.forEach((c, i) => {
     const { result, skipped } = getFilesToCopy(c.path);
@@ -155,7 +171,7 @@ function statusReport(clients) {
     const status = getSessionStatus(c);
     const num = String(i + 1).padStart(3);
     const name = (c.folder.replace(/_Customer$/i, "").replace(/_customer$/i, "") + blocked).padEnd(32);
-    console.log(`  ${num} ${name} ${status.label.padEnd(12)} ${status.next || ""}`);
+    console.log(`  ${num} ${name} ${status.label.padEnd(22)} ${status.next || ""}`);
   });
   console.log();
 }

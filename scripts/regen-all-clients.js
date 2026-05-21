@@ -25,21 +25,6 @@ const args  = process.argv.slice(2);
 
 const filterTemplate  = args.indexOf('--template') !== -1 ? args[args.indexOf('--template') + 1] : null;
 const filterClient    = args.indexOf('--client')   !== -1 ? args[args.indexOf('--client')   + 1] : null;
-const forceRepublish  = args.includes('--force-republish');
-
-// Returns true if projects/{slug}/project.json has frozen:true.
-// Frozen clients have their HTML deliverables shipped to a client and must not
-// be overwritten by template regeneration. Use --force-republish to override.
-function isFrozen(slug) {
-  const pjPath = path.join(root, 'projects', slug, 'project.json');
-  if (!fs.existsSync(pjPath)) return false;
-  try {
-    const pj = JSON.parse(fs.readFileSync(pjPath, 'utf8'));
-    return pj.frozen === true;
-  } catch {
-    return false;
-  }
-}
 
 const TEMPLATES = [
   {
@@ -96,17 +81,9 @@ try {
 
 let regenerated = 0;
 let skipped = 0;
-let frozenSkipped = 0;
 let errors = 0;
 
 for (const client of clients) {
-  // Frozen-client guard: shipped clients are off-limits unless --force-republish.
-  if (isFrozen(client) && !forceRepublish) {
-    console.log(`⏭  ${client} — skipped (frozen — already shipped to client; pass --force-republish to override)`);
-    frozenSkipped += templates.length;
-    continue;
-  }
-
   for (const tmpl of templates) {
     const src = tmpl.buildSrc(client);
     if (!fs.existsSync(src)) {
@@ -125,5 +102,5 @@ for (const client of clients) {
   }
 }
 
-console.log(`\nDone: ${regenerated} regenerated, ${skipped} skipped (no content), ${frozenSkipped} skipped (frozen client), ${errors} errors`);
+console.log(`\nDone: ${regenerated} regenerated, ${skipped} skipped (no content), ${errors} errors`);
 if (errors > 0) process.exit(1);

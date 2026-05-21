@@ -21,8 +21,8 @@ function escSvg(s) {
 }
 
 function buildDiagramSvg(nodes) {
-  const sources = nodes.sources || [];
-  const targets = nodes.targets || [];
+  const sources = Array.from(nodes.sources || []);
+  const targets = Array.from(nodes.targets || []);
   const rows    = Math.max(sources.length, targets.length, 1);
   const BOX_H   = 32, GAP = 12;
   const h       = Math.max(120, rows * (BOX_H + GAP) + GAP * 2);

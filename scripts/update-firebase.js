@@ -9,7 +9,7 @@
  *   4. Regenerate firebase/public/portal/{slug}.html
  *   5. Deploy to Firebase Hosting
  *
- * Called by: Scout (session 3), run-scout-pipeline.js, deploy.sh
+ * Called by: DSPipeline/scout/orchestrate.js (post-Mira), deploy.sh
  *
  * Usage:
  *   node scripts/update-firebase.js agilemind
@@ -27,6 +27,8 @@ const PUBLIC   = path.join(ROOT, 'firebase', 'public');
 const BUCKET   = 'dataskateclients.firebasestorage.app';
 const PORTAL   = 'https://dataskateclients.web.app';
 const FB_PROJ  = 'dataskateclients';
+const BUILD    = path.join(ROOT, 'docs', 'eleventy', '_build');
+const MANIFEST = path.join(ROOT, 'docs', 'eleventy', 'version-manifest.json');
 
 // Service account: prefer the repo's Firebase Admin SDK key (canonical deploy SA,
 // restored by .devcontainer/setup.sh from FIREBASE_SA_KEY) over GOOGLE_APPLICATION_CREDENTIALS.
@@ -140,17 +142,105 @@ function syncLogo(slug) {
   }
 }
 
+// ── 2a. Versioned publish for frozen clients ──────────────────────────────────
+// Frozen clients have their HTML in client hands at a stable URL. Instead of
+// overwriting the flat file, we publish a new dated+versioned file and update
+// a thin redirect at the flat path — so the client's saved link never breaks.
+// Called automatically by uploadHtmlToStorage when a client is frozen.
+function republishFrozenHtml(slug) {
+  const projPath = path.join(ROOT, 'projects', slug, 'project.json');
+  const proj     = JSON.parse(fs.readFileSync(projPath, 'utf8'));
+  proj.deployments = proj.deployments || [];
+
+  if (!fs.existsSync(MANIFEST)) {
+    log(`[${slug}] no version-manifest.json — frozen publish skipped`);
+    return;
+  }
+  const manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+  const today    = new Date().toISOString().slice(0, 10);
+
+  // segment = Firebase Hosting subdir; src = Eleventy _build/ output path
+  const templates = [
+    { type: 'proposal',          segment: 'proposal',  src: path.join(BUILD, 'intake',   `proposal-${slug}.html`) },
+    { type: 'intake',            segment: 'intake',    src: path.join(BUILD, 'intake',   `intake-questionnaire-${slug}.html`) },
+    { type: 'integration-deck',  segment: 'internal',  src: path.join(BUILD, 'internal', `integration-deck-${slug}.html`) },
+    { type: 'corporate-brief',   segment: 'corporate-brief', src: path.join(BUILD, 'intake', `corporate-brief-${slug}.html`) },
+  ];
+
+  let changed = false;
+
+  for (const tmpl of templates) {
+    if (!fs.existsSync(tmpl.src)) continue;
+    const tplEntry = manifest.templates && manifest.templates[tmpl.type];
+    if (!tplEntry) continue;
+    const version = tplEntry.current;
+
+    const outRel = `firebase/public/${tmpl.segment}/${slug}/${today}-${version}.html`;
+    const outAbs = path.join(ROOT, outRel);
+    const url    = `${PORTAL}/${tmpl.segment}/${slug}/${today}-${version}.html`;
+
+    if (fs.existsSync(outAbs)) {
+      log(`[${slug}] ${tmpl.type} ${version} already published today — skipping`);
+      continue;
+    }
+
+    fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+    fs.copyFileSync(tmpl.src, outAbs);
+    log(`[${slug}] ${tmpl.type} → ${outRel}`);
+
+    // First versioned publish: archive the legacy flat file so version history
+    // has a direct link to v1 rather than pointing at the redirect.
+    const flatPath  = path.join(PUBLIC, tmpl.segment, `${slug}.html`);
+    const legacyIdx = proj.deployments.findIndex(
+      d => d.template === tmpl.type && d.legacyUnversioned
+    );
+    if (legacyIdx !== -1) {
+      const leg     = proj.deployments[legacyIdx];
+      const legDate = (leg.publishedAt || '').slice(0, 10);
+      const legVer  = leg.version || 'v1';
+      const legRel  = `firebase/public/${tmpl.segment}/${slug}/${legDate}-${legVer}.html`;
+      const legAbs  = path.join(ROOT, legRel);
+      if (!fs.existsSync(legAbs) && fs.existsSync(flatPath)) {
+        fs.mkdirSync(path.dirname(legAbs), { recursive: true });
+        fs.copyFileSync(flatPath, legAbs);
+        log(`[${slug}] archived legacy ${legVer} → ${legRel}`);
+      }
+      const legUrl = `${PORTAL}/${tmpl.segment}/${slug}/${legDate}-${legVer}.html`;
+      const { legacyUnversioned: _drop, ...legRest } = leg;
+      proj.deployments[legacyIdx] = { ...legRest, url: legUrl, filePath: legRel };
+    }
+
+    // Overwrite flat file with a redirect to the new versioned URL.
+    // The flat URL is what was shared with the client and must stay stable.
+    if (fs.existsSync(flatPath)) {
+      const redirect = [
+        '<!DOCTYPE html>',
+        '<html><head><meta charset="utf-8">',
+        '<title>Redirecting…</title>',
+        `<meta http-equiv="refresh" content="0;url=${url}">`,
+        `<script>location.replace(${JSON.stringify(url)})</script>`,
+        '</head><body></body></html>',
+      ].join('\n') + '\n';
+      fs.writeFileSync(flatPath, redirect);
+      log(`[${slug}] redirect updated → ${tmpl.segment}/${slug}.html → ${version}`);
+    }
+
+    proj.templateVersions        = proj.templateVersions || {};
+    proj.templateVersions[tmpl.type] = version;
+    proj.deployments.push({ template: tmpl.type, version, filePath: outRel, url, publishedAt: new Date().toISOString() });
+    changed = true;
+  }
+
+  if (changed) {
+    fs.writeFileSync(projPath, JSON.stringify(proj, null, 2) + '\n');
+    log(`[${slug}] project.json updated (versioned deployments)`);
+  }
+}
+
 // ── 2. Upload intake + proposal HTML → Firebase Storage (public) ─────────────
 // Files are kept locally in firebase/public/{type}/ for git tracking and also
 // uploaded to Storage for serving. Source files in projects/{slug}/intake/ are
 // not deleted.
-//
-// Frozen-client guard: clients with project.json.frozen=true have their shipped
-// HTML in client hands at a known URL. This function would otherwise (a) copy
-// local files over the shipped bytes at firebase/public/{type}/{slug}.html, and
-// (b) reset project.json.{type}Url back to the legacy unversioned URL — undoing
-// any republish that scripts/republish.js did. Skip the whole upload step for
-// frozen clients; republish.js owns their files and URL fields.
 async function uploadHtmlToStorage(slug) {
   const intakeDir = path.join(ROOT, 'projects', slug, 'intake');
   if (!fs.existsSync(intakeDir)) return;
@@ -159,8 +249,8 @@ async function uploadHtmlToStorage(slug) {
   if (fs.existsSync(projPathPre)) {
     try {
       const projPre = JSON.parse(fs.readFileSync(projPathPre, 'utf8'));
-      if (projPre.frozen === true) {
-        log(`[${slug}] frozen — skipping HTML upload (republish.js owns versioned files + URLs)`);
+      if (projPre.deployments && projPre.deployments.length > 0) {
+        republishFrozenHtml(slug);
         return;
       }
     } catch { /* malformed JSON; proceed cautiously */ }
@@ -366,19 +456,248 @@ function allSlugs() {
     .map(d => d.name);
 }
 
+// ── CMD: Export discount log → CSV ───────────────────────────────────────────
+async function cmdExportDiscounts(args) {
+  const projIdx    = args.indexOf('--project');
+  const filterSlug = projIdx !== -1 ? args[projIdx + 1] : null;
+  const outIdx     = args.indexOf('--out');
+  const outFile    = outIdx !== -1 ? args[outIdx + 1] : path.join(process.cwd(), 'discount-log.csv');
+
+  if (!admin.apps.length) getBucket();
+  const db   = admin.firestore();
+  const col  = db.collection('discountLog');
+  const snap = filterSlug
+    ? await col.where('project', '==', filterSlug).get()
+    : await col.get();
+
+  const CSV_COLS = ['Date', 'Project', 'Client', 'Architect', 'Model', 'Listed Rate', 'Proposed Rate', 'Has Discount', 'Contact Name', 'Notes'];
+  const rows = [CSV_COLS];
+  snap.forEach(doc => {
+    const data = doc.data();
+    for (const e of (data.entries || [])) {
+      rows.push([
+        e.ts ? new Date(e.ts).toLocaleDateString('en-US') : '',
+        e.project  || data.project || doc.id,
+        e.client   || data.client  || '',
+        e.architect || '',
+        e.model || '',
+        e.listedRate   || '',
+        e.proposedRate || '',
+        e.hasDiscount  ? 'Yes' : 'No',
+        e.contactName  || '',
+        (e.notes || '').replace(/[\r\n]+/g, ' '),
+      ]);
+    }
+  });
+
+  const csv = rows
+    .map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','))
+    .join('\n');
+  fs.writeFileSync(outFile, csv, 'utf8');
+  log(`Exported ${rows.length - 1} discount entries → ${outFile}`);
+  if (filterSlug) log(`  (filtered to project: ${filterSlug})`);
+}
+
+// ── CMD: Upload agent framework → Firebase Storage ────────────────────────────
+async function cmdUploadAgents() {
+  const os = require('os');
+  const AGENT_DIR    = path.join(ROOT, '.agent');
+  const STORAGE_PATH = 'agent-framework/agents-latest.tar.gz';
+
+  if (!fs.existsSync(AGENT_DIR)) {
+    console.error(`ERROR: ${AGENT_DIR} not found. Nothing to upload.`);
+    process.exit(1);
+  }
+
+  const tmp = path.join(os.tmpdir(), 'agents-latest.tar.gz');
+  log('Creating tarball…');
+  execSync(`tar -czf "${tmp}" -C "${ROOT}" .agent`, { stdio: 'pipe' });
+  log(`Tarball: ${humanSize(fs.statSync(tmp).size)}`);
+
+  const bucket = getBucket();
+  log(`Uploading to gs://${BUCKET}/${STORAGE_PATH}…`);
+  await bucket.upload(tmp, {
+    destination: STORAGE_PATH,
+    metadata: { contentType: 'application/gzip', metadata: { uploadedAt: new Date().toISOString() } },
+  });
+  fs.unlinkSync(tmp);
+  log(`Done. Agent framework uploaded → ${STORAGE_PATH}`);
+  log('Restore with: node scripts/restore-agents.js');
+}
+
+// ── CMD: Restore agent framework from Firebase Storage ────────────────────────
+async function cmdRestoreAgents(args) {
+  const os = require('os');
+  const force = args.includes('--force');
+  const AGENT_DIR    = path.join(ROOT, '.agent');
+  const STORAGE_PATH = 'agent-framework/agents-latest.tar.gz';
+
+  if (!force && fs.existsSync(AGENT_DIR)) {
+    log('.agent/ already present — skipping restore. Use --force to re-download.');
+    return;
+  }
+
+  if (!fs.existsSync(SA_PATH)) {
+    log('WARNING: Service account not found — skipping agent framework restore.');
+    log('  Set FIREBASE_SA_KEY secret in Codespace settings and rebuild to get agents.');
+    return;
+  }
+
+  const bucket = getBucket();
+  const tmp = path.join(os.tmpdir(), 'agents-latest.tar.gz');
+  log(`Downloading gs://${BUCKET}/${STORAGE_PATH}…`);
+  await bucket.file(STORAGE_PATH).download({ destination: tmp });
+  log(`Downloaded ${humanSize(fs.statSync(tmp).size)} — extracting…`);
+
+  if (fs.existsSync(AGENT_DIR)) fs.rmSync(AGENT_DIR, { recursive: true });
+  execSync(`tar -xzf "${tmp}" -C "${ROOT}"`, { stdio: 'pipe' });
+  fs.unlinkSync(tmp);
+
+  const fileCount = execSync(`find "${AGENT_DIR}" -type f | wc -l`).toString().trim();
+  log(`Done. Agent framework restored: ${fileCount} files in .agent/`);
+}
+
+// ── CMD: Archive source files → Firebase Storage ─────────────────────────────
+async function cmdMoveSources(args) {
+  const msIdx    = args.indexOf('--move-sources');
+  const client   = args[msIdx + 1];
+  if (!client || client.startsWith('--')) {
+    console.error('Usage: node scripts/update-firebase.js --move-sources <client> [--dir path] [--keep]');
+    process.exit(1);
+  }
+  const dirIdx    = args.indexOf('--dir');
+  const customDir = dirIdx !== -1 ? args[dirIdx + 1] : null;
+  const keepLocal = args.includes('--keep');
+  const sourceDir = customDir || path.join(ROOT, 'projects', client, 'scoping');
+
+  if (!fs.existsSync(sourceDir)) {
+    log(`No source folder at ${sourceDir} — nothing to archive.`);
+    return;
+  }
+
+  const files = fs.readdirSync(sourceDir)
+    .filter(f => fs.statSync(path.join(sourceDir, f)).isFile())
+    .map(f => path.join(sourceDir, f));
+
+  if (!files.length) { log(`No files in ${sourceDir} — nothing to upload.`); return; }
+
+  log(`Client: ${client}  Source: ${sourceDir}  Files: ${files.length}`);
+  const bucket   = getBucket();
+  const uploaded = [];
+
+  for (const file of files) {
+    const filename = path.basename(file);
+    const dest     = `source-files/${client}/${filename}`;
+    process.stdout.write(`  [${client}] upload: ${filename} (${humanSize(fs.statSync(file).size)}) ... `);
+    try {
+      await bucket.upload(file, { destination: dest, metadata: { cacheControl: 'private, max-age=0' } });
+      console.log('done');
+      uploaded.push({
+        name: filename,
+        size: humanSize(fs.statSync(file).size),
+        url: `https://console.cloud.google.com/storage/browser/_details/${BUCKET}/${dest}`,
+        uploadedAt: new Date().toISOString().slice(0, 10),
+      });
+      if (!keepLocal) fs.unlinkSync(file);
+    } catch (err) {
+      console.log('FAILED');
+      console.error(`  ${err.message}`);
+    }
+  }
+
+  if (uploaded.length) {
+    const projPath = path.join(ROOT, 'projects', client, 'project.json');
+    if (fs.existsSync(projPath)) {
+      const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
+      const existingUrls = new Set((proj.sourceFiles || []).map(e => e.url));
+      proj.sourceFiles = [...(proj.sourceFiles || []), ...uploaded.filter(e => !existingUrls.has(e.url))];
+      proj.sourceFilesFolder = `https://console.cloud.google.com/storage/browser/${BUCKET}/source-files/${client}`;
+      fs.writeFileSync(projPath, JSON.stringify(proj, null, 2) + '\n');
+      log(`project.json updated — ${uploaded.length} file(s) archived.`);
+    }
+    if (!keepLocal) { try { fs.rmdirSync(sourceDir); } catch (_) {} }
+  }
+  log(`Done. ${uploaded.length}/${files.length} file(s) uploaded to gs://${BUCKET}/source-files/${client}/`);
+}
+
+// ── CMD: Register client in Firestore projects collection ────────────────────
+async function cmdAddClient(args) {
+  const idx    = args.indexOf('--add-client');
+  const client = args[idx + 1];
+  if (!client || client.startsWith('--')) {
+    console.error('Usage: node scripts/update-firebase.js --add-client <client> [--status status]');
+    process.exit(1);
+  }
+  const statusIdx = args.indexOf('--status');
+  const status    = statusIdx !== -1 ? args[statusIdx + 1] : 'intake_sent';
+  const VALID = ['intake_sent', 'intake_in_progress', 'intake_complete', 'proposal_sent', 'in_progress', 'complete'];
+  if (!VALID.includes(status)) {
+    console.error(`Invalid status "${status}". Valid: ${VALID.join(', ')}`);
+    process.exit(1);
+  }
+
+  const projFile = path.join(ROOT, 'projects', client, 'project.json');
+  if (!fs.existsSync(projFile)) {
+    console.error(`project.json not found: ${projFile}`);
+    process.exit(1);
+  }
+  const proj = JSON.parse(fs.readFileSync(projFile, 'utf8'));
+
+  if (!admin.apps.length) getBucket();
+  const db = admin.firestore();
+  await db.collection('projects').doc(client).set({
+    name:              proj.clientName || client,
+    slug:              client,
+    industry:          proj.industry   || proj.vertical || '',
+    architect:         proj.architect  || '',
+    architectEmail:    proj.architectEmail || '',
+    status,
+    completionPercent: 0,
+    intakeUrl:         `https://${FB_PROJ}.web.app/portal/${client}.html`,
+    proposalUrl:       proj.proposalUrl || null,
+    createdAt:         admin.firestore.FieldValue.serverTimestamp(),
+    lastActivityAt:    admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+  log(`Client "${proj.clientName || client}" registered in Firestore (status: ${status})`);
+  log(`  View at: https://${FB_PROJ}.web.app`);
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  const args     = process.argv.slice(2);
+  const args = process.argv.slice(2);
+
+  if (args.includes('--export-discounts')) { await cmdExportDiscounts(args); return; }
+  if (args.includes('--upload-agents'))    { await cmdUploadAgents();        return; }
+  if (args.includes('--restore-agents'))   { await cmdRestoreAgents(args);   return; }
+  if (args.includes('--move-sources'))     { await cmdMoveSources(args);     return; }
+  if (args.includes('--add-client'))       { await cmdAddClient(args);       return; }
+
   const runAll   = args.includes('--all');
   const noDeploy = args.includes('--no-deploy');
   const slug     = args.find(a => !a.startsWith('--'));
 
   if (!runAll && !slug) {
-    console.error('Usage: node scripts/update-firebase.js <slug>|--all [--no-deploy]');
+    console.error('Usage:');
+    console.error('  node scripts/update-firebase.js <slug>|--all [--no-deploy]');
+    console.error('  node scripts/update-firebase.js --export-discounts [--project slug] [--out file]');
+    console.error('  node scripts/update-firebase.js --upload-agents');
+    console.error('  node scripts/update-firebase.js --restore-agents [--force]');
+    console.error('  node scripts/update-firebase.js --move-sources <client> [--dir path] [--keep]');
+    console.error('  node scripts/update-firebase.js --add-client <client> [--status status]');
     process.exit(1);
   }
 
   const slugs = runAll ? allSlugs() : [slug];
+
+  // Run Eleventy once up front so republishFrozenHtml() has fresh _build/ output.
+  const needsBuild = slugs.some(s => {
+    try { const p = JSON.parse(fs.readFileSync(path.join(ROOT, 'projects', s, 'project.json'), 'utf8')); return p.deployments && p.deployments.length > 0; }
+    catch { return false; }
+  });
+  if (needsBuild) {
+    log('Previously published client(s) detected — running Eleventy build...');
+    execSync('npm run build:html', { cwd: ROOT, stdio: 'inherit' });
+  }
 
   for (const s of slugs) {
     const projFile = path.join(ROOT, 'projects', s, 'project.json');
