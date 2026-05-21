@@ -27,13 +27,13 @@ function discoverTargets() {
       if (slug.startsWith('_')) continue;
       const projDir = path.join(projectsDir, slug);
       if (!fs.statSync(projDir).isDirectory()) continue;
-      const intakeDir = path.join(projDir, 'intake');
-      if (!fs.existsSync(intakeDir)) continue;
-      for (const file of fs.readdirSync(intakeDir)) {
+      const intakeClientDir = path.join(projDir, 'intake', 'client');
+      if (!fs.existsSync(intakeClientDir)) continue;
+      for (const file of fs.readdirSync(intakeClientDir)) {
         if (!file.endsWith('.html')) continue;
         targets.push({
           label: `proj-${slug}-${file.replace(/\.html$/, '')}`,
-          absPath: path.join(intakeDir, file),
+          absPath: path.join(intakeClientDir, file),
         });
       }
     }

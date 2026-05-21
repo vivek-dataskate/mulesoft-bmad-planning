@@ -751,11 +751,17 @@ body.is-complete .btn-submit {
    The architecture diagram + system cards sit above the form, always visible.
    Clicking a card activates a filter: questions tagged to that system stay
    visible; untagged and non-matching questions are hidden.  */
-.sys-map-view { margin: 14px 0 0; }
-
-
+.sys-map-view {
+  position: sticky;
+  top: 106px;          /* sticky-bar 44px + cat-tabs ~62px */
+  z-index: 140;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  margin: 8px -24px 0;
+  padding: 6px 24px 8px;
+}
 .sys-cards-row {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
 }
 .sys-cards {
   display: flex; gap: 10px; flex-wrap: wrap;
@@ -1382,21 +1388,29 @@ function refreshCatTabLabels() {
 // Focuses the field after a short delay so the scroll completes first.
 function jumpToFirstUnanswered(scope) {
   const root = scope || document;
-  const fields = root.querySelectorAll('textarea.answer, input.tbl-ans');
-  for (const f of fields) {
-    if ((f.value || '').trim().length === 0) {
-      // Ensure the surrounding details blocks are open so the field is visible
-      let p = f.parentElement;
-      while (p) {
-        if (p.tagName === 'DETAILS') p.setAttribute('open', '');
-        p = p.parentElement;
-      }
-      f.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => f.focus({ preventScroll: true }), 350);
-      return true;
-    }
+  const fields = Array.from(root.querySelectorAll('textarea.answer, input.tbl-ans'))
+    .filter(f => (f.value || '').trim().length === 0);
+  if (!fields.length) return false;
+
+  function scrollTo(f) {
+    let p = f.parentElement;
+    while (p) { if (p.tagName === 'DETAILS') p.setAttribute('open', ''); p = p.parentElement; }
+    f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => f.focus({ preventScroll: true }), 350);
   }
-  return false;
+
+  // When called from the toolbar (no scope), advance to the next blank BELOW
+  // the current scroll position. Wraps back to the first blank when at the end.
+  if (!scope) {
+    const stickyHeight = 180; // sticky-bar + cat-tabs + sys-cards ~180px
+    const scrolledPast = window.scrollY + stickyHeight;
+    const next = fields.find(f => f.getBoundingClientRect().top + window.scrollY > scrolledPast);
+    scrollTo(next || fields[0]); // wrap to top when nothing remains below
+    return true;
+  }
+
+  scrollTo(fields[0]);
+  return true;
 }
 
 // Print/Save-PDF — force-open every <details>, expand the biz-context, and

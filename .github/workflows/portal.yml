@@ -63,7 +63,24 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Visual regression — intake parity gate
+      - name: Install Puppeteer browser
+        run: npx puppeteer browsers install chrome
+
+      - name: Intake structural tests — DOM & code checks (no browser)
+        run: npm run test:intake:structural
+
+      - name: Intake behavioral tests — Puppeteer interactions + regressions
+        run: npm run test:intake:behavioral
+
+      - name: Upload behavioral test failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intake-test-failure-${{ github.run_id }}
+          path: tests/intake/
+          retention-days: 7
+
+      - name: Visual regression — intake pixel diff gate (BackstopJS)
         run: |
           node pipeline/scripts/generate-backstop-config.js --intake
           npx backstop test --config tests/backstop/backstop.json

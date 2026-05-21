@@ -166,14 +166,14 @@ function computeProposalCS(proposal) {
 
 function computeProposalDiagram(proposal, slug) {
   if (slug) {
-    const svgPath = path.join(ROOT, 'projects', slug, 'intake', 'system-diagram.svg');
+    const svgPath = path.join(ROOT, 'projects', slug, 'intake', 'diagrams', 'system-diagram.svg');
     if (fs.existsSync(svgPath)) return fs.readFileSync(svgPath, 'utf8');
   }
   const diagramNodes = (proposal.solution || {}).diagramNodes;
   if (!diagramNodes) return '';
   const svg = buildDiagramSvg(diagramNodes);
   if (slug) {
-    const svgPath = path.join(ROOT, 'projects', slug, 'intake', 'system-diagram.svg');
+    const svgPath = path.join(ROOT, 'projects', slug, 'intake', 'diagrams', 'system-diagram.svg');
     try { fs.writeFileSync(svgPath, svg); } catch (_) { /* non-fatal */ }
   }
   return svg;

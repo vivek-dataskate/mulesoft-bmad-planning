@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 7 is next (Phases 0–6 complete)
+**Status:** Phase 8 is next (Phases 0–7 complete)
 
 ---
 
@@ -302,16 +302,16 @@ Files to update (17 total):
 
 ---
 
-### Phase 7 — Update config files
-- [ ] `.eleventy.js` — input: `portal/src`, output: `portal/_build`, includes: `portal/_includes`, data: `portal/_data`
-- [ ] `package.json` — all script paths
-- [ ] `.gitignore` — `firebase/.firebase` → `portal/.firebase`, `docs/eleventy/_build` → `portal/_build`
-- [ ] `.prettierignore` — update paths
-- [ ] `.stylelintrc.json` — update paths
-- [ ] `.github/workflows/portal.yml` — all paths
-- [ ] `.github/workflows/capabilities.yml` — `standards/` → `mulesoft/`
-- [ ] `tests/backstop/backstop.json` — update report/bitmap paths
-- 📌 **COMMIT: `refactor: update .eleventy.js, package.json, and CI workflow paths`**
+### Phase 7 — Update config files ✅
+- [x] `.eleventy.js` — input: `portal/src`, output: `portal/_build`, includes: `portal/_includes`, data: `portal/_data`; fix `clientLogo` shortcode logo path
+- [x] `package.json` — all script paths, jest coverageFrom updated
+- [x] `.gitignore` — `firebase/.firebase` → `portal/.firebase`, `docs/eleventy/_build` → `portal/_build`, backstop paths → `tests/backstop/backstop_data/`; untracked accidentally-committed build artifacts
+- [x] `.prettierignore` — update paths
+- [x] `.stylelintrc.json` — update paths
+- [x] `.github/workflows/portal.yml` — all paths
+- [x] `.github/workflows/capabilities.yml` — `standards/` → `mulesoft/`
+- [x] `tests/backstop/backstop.json` — update firebase → portal URLs (on-disk copy; file is gitignored)
+- 📌 **COMMIT: `refactor: update .eleventy.js, package.json, CI workflows, and gitignore paths (Phase 7)`**
 
 ---
 

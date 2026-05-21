@@ -21,6 +21,9 @@
     "build:tokens": "node pipeline/scripts/build-tokens.js",
     "build:html": "npm run build:tokens && eleventy",
     "build:html:watch": "eleventy --serve",
+    "test:intake:structural": "jest --testPathPattern=tests/intake/structural --testTimeout=15000",
+    "test:intake:behavioral": "jest --testPathPattern=tests/intake/behavioral --testTimeout=30000 --runInBand",
+    "test:intake": "npm run test:intake:structural && npm run test:intake:behavioral",
     "vr:baseline": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config tests/backstop/backstop.json reference",
     "vr:baseline:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config tests/backstop/backstop.json reference",
     "vr:diff": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config tests/backstop/backstop.json",
@@ -31,7 +34,8 @@
     "testEnvironment": "node",
     "testMatch": [
       "<rootDir>/tests/unit/**/*.test.js",
-      "<rootDir>/tests/integration/**/*.test.js"
+      "<rootDir>/tests/integration/**/*.test.js",
+      "<rootDir>/tests/intake/**/*.test.js"
     ],
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [

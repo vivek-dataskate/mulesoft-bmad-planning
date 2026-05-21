@@ -120,10 +120,10 @@ async function archiveScoping(slug) {
 }
 
 // ── 1b. Sync client logo → portal/public/logos/{slug}.{ext} ────────────────
-// Looks for logo-{slug}.{ext} or {slug}.{ext} in projects/{slug}/intake/
+// Looks for logo-{slug}.{ext} or {slug}.{ext} in projects/{slug}/intake/client/
 // and copies to portal/public/logos/{slug}.{ext} so Eleventy can resolve logo URLs.
 function syncLogo(slug) {
-  const intakeDir  = path.join(ROOT, 'projects', slug, 'intake');
+  const intakeDir  = path.join(ROOT, 'projects', slug, 'intake', 'client');
   const logosDir   = path.join(PUBLIC, 'logos');
   if (!fs.existsSync(intakeDir)) return;
 
@@ -239,10 +239,10 @@ function republishFrozenHtml(slug) {
 
 // ── 2. Upload intake + proposal HTML → Firebase Storage (public) ─────────────
 // Files are kept locally in portal/public/{type}/ for git tracking and also
-// uploaded to Storage for serving. Source files in projects/{slug}/intake/ are
+// uploaded to Storage for serving. Source files in projects/{slug}/intake/client/ are
 // not deleted.
 async function uploadHtmlToStorage(slug) {
-  const intakeDir = path.join(ROOT, 'projects', slug, 'intake');
+  const intakeDir = path.join(ROOT, 'projects', slug, 'intake', 'client');
   if (!fs.existsSync(intakeDir)) return;
 
   const projPathPre = path.join(ROOT, 'projects', slug, 'project.json');
@@ -317,7 +317,7 @@ function syncDiagram(slug) {
     return;
   }
 
-  const svgSrc = path.join(ROOT, 'projects', slug, 'intake', 'system-diagram.svg');
+  const svgSrc = path.join(ROOT, 'projects', slug, 'intake', 'diagrams', 'system-diagram.svg');
   if (!fs.existsSync(svgSrc)) return;
 
   const diagramsDir = path.join(PUBLIC, 'diagrams');

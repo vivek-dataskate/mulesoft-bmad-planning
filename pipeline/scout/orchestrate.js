@@ -339,10 +339,9 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
   });
 
   const projectDir = path.join(PROJECTS_DIR, slug);
-  stepLog('Creating project directory structure: intake/, scoping/, run/');
-  fs.mkdirSync(path.join(projectDir, 'intake'), { recursive: true });
-  fs.mkdirSync(path.join(projectDir, 'scoping'), { recursive: true });
-  fs.mkdirSync(path.join(projectDir, 'run'),     { recursive: true });
+  stepLog('Creating project directory structure: intake/client/, scoping/run/');
+  fs.mkdirSync(path.join(projectDir, 'intake', 'client'), { recursive: true });
+  fs.mkdirSync(path.join(projectDir, 'scoping', 'run'),   { recursive: true });
   stepLog('Project directories created', 'END');
 
   // Move only text files to scoping/ — binary originals stay in _inbox/ until after Sage
@@ -427,7 +426,7 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
   }
 
   // Initialize pipeline-state.json
-  const statePath = path.join(projectDir, 'run', 'pipeline-state.json');
+  const statePath = path.join(projectDir, 'scoping', 'run', 'pipeline-state.json');
   writeJson(statePath, {
     client:      slug,
     startedAt:   isoNow(),
@@ -435,7 +434,7 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
     completed:   [],
   });
   stepLog(`INIT pipeline-state.json (step=1, completed=[])`, 'DATA');
-  console.log(`  ${green('✓')} Initialized projects/${slug}/run/pipeline-state.json`);
+  console.log(`  ${green('✓')} Initialized projects/${slug}/scoping/run/pipeline-state.json`);
 
   // Ensure telemetry directory exists
   fs.mkdirSync(path.dirname(TELEMETRY_CSV), { recursive: true });
@@ -453,12 +452,12 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
 // ─── Pipeline State ───────────────────────────────────────────────────────────
 
 function readState(slug) {
-  const statePath = path.join(PROJECTS_DIR, slug, 'run', 'pipeline-state.json');
+  const statePath = path.join(PROJECTS_DIR, slug, 'scoping', 'run', 'pipeline-state.json');
   return readJson(statePath) || { client: slug, currentStep: 1, completed: [] };
 }
 
 function writeState(slug, state) {
-  const statePath = path.join(PROJECTS_DIR, slug, 'run', 'pipeline-state.json');
+  const statePath = path.join(PROJECTS_DIR, slug, 'scoping', 'run', 'pipeline-state.json');
   writeJson(statePath, state);
 }
 
@@ -541,14 +540,14 @@ function assembleContext(slug, agentSlug) {
   const ctxPath    = path.join(projectDir, 'company_context.json');
   const ctx        = readJson(ctxPath) || {};
 
-  const runFile = path.join(projectDir, 'run', `${agentSlug}.json`);
+  const runFile = path.join(projectDir, 'scoping', 'run', `${agentSlug}.json`);
   const data    = readJson(runFile);
   if (!data) {
-    stepLog(`assembleContext(${agentSlug}): run/${agentSlug}.json not found — skipping merge`, 'WARN');
+    stepLog(`assembleContext(${agentSlug}): scoping/run/${agentSlug}.json not found — skipping merge`, 'WARN');
     return;
   }
 
-  stepLog(`assembleContext(${agentSlug}): merging run/${agentSlug}.json → company_context.json`, 'START');
+  stepLog(`assembleContext(${agentSlug}): merging scoping/run/${agentSlug}.json → company_context.json`, 'START');
   logFileInfo(runFile, `run/${agentSlug}.json`);
 
   // Track which fields we update for the log
@@ -664,7 +663,7 @@ function assembleContext(slug, agentSlug) {
 
 function aggregateDecisions(slug) {
   const projectDir    = path.join(PROJECTS_DIR, slug);
-  const runDir        = path.join(projectDir, 'run');
+  const runDir        = path.join(projectDir, 'scoping', 'run');
   const decisionsPath = path.join(projectDir, 'decisions.json');
   const decisionFiles = fs.existsSync(runDir)
     ? fs.readdirSync(runDir).filter(f => f.endsWith('-decisions.json')).sort()
@@ -697,11 +696,11 @@ function writeClientRegistry(slug) {
   const registryPath = path.join(ROOT, 'projects/client-registry.json');
   const projectDir   = path.join(PROJECTS_DIR, slug);
   const project      = readJson(path.join(projectDir, 'project.json')) || {};
-  const vera         = readJson(path.join(projectDir, 'run', 'vera.json')) || {};
-  const flo          = readJson(path.join(projectDir, 'run', 'flo.json')) || {};
+  const vera         = readJson(path.join(projectDir, 'scoping', 'run', 'vera.json')) || {};
+  const flo          = readJson(path.join(projectDir, 'scoping', 'run', 'flo.json')) || {};
 
   // Prefer flo.confirmedFlows (most accurate); fall back to sage.systems[] before Flo runs
-  const sage = readJson(path.join(projectDir, 'run', 'sage.json')) || {};
+  const sage = readJson(path.join(projectDir, 'scoping', 'run', 'sage.json')) || {};
   const systems = flo.confirmedFlows?.length
     ? (flo.confirmedFlows).flatMap(f => f.systems || []).filter((v, i, a) => a.indexOf(v) === i)
     : (sage.systems || []).map(s => s.name).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
@@ -753,7 +752,7 @@ function writeClientRegistry(slug) {
 //   - siblingsTruncated:         Carried through verbatim.
 function mergeVeraCorporateStackEnrichment(slug) {
   const projectDir = path.join(PROJECTS_DIR, slug);
-  const veraPath   = path.join(projectDir, 'run', 'vera.json');
+  const veraPath   = path.join(projectDir, 'scoping', 'run', 'vera.json');
   const ctxPath    = path.join(projectDir, 'company_context.json');
 
   const vera = readJson(veraPath);
@@ -894,7 +893,7 @@ function renderCorporateBrief(slug) {
 
   // Copy from _build/ to the canonical project path.
   const eleventySrc = path.join(ROOT, 'portal', '_build', 'intake', `corporate-brief-${slug}.html`);
-  const outPath     = path.join(projectDir, 'intake', `corporate-brief-${slug}.html`);
+  const outPath     = path.join(projectDir, 'intake', 'client', `corporate-brief-${slug}.html`);
   if (!fs.existsSync(eleventySrc)) {
     stepLog(`renderCorporateBrief: Eleventy did not produce corporate-brief-${slug}.html`, 'WARN');
     return null;
@@ -910,7 +909,7 @@ function renderCorporateBrief(slug) {
 
 function renderIntake(slug) {
   const projectDir = path.join(PROJECTS_DIR, slug);
-  const quinnData  = readJson(path.join(projectDir, 'run', 'quinn.json')) || {};
+  const quinnData  = readJson(path.join(projectDir, 'scoping', 'run', 'quinn.json')) || {};
   if (!quinnData.intakeContent) {
     stepLog('renderIntake: quinn.json has no intakeContent — skipping', 'WARN');
     console.log(`  ${yellow('⚠')}  quinn.json missing intakeContent — intake HTML not rendered`);
@@ -926,7 +925,7 @@ function renderIntake(slug) {
     return null;
   }
   const src = path.join(ROOT, 'portal', '_build', 'intake', `intake-questionnaire-${slug}.html`);
-  const dst = path.join(projectDir, 'intake', `intake-questionnaire-${slug}.html`);
+  const dst = path.join(projectDir, 'intake', 'client', `intake-questionnaire-${slug}.html`);
   if (!fs.existsSync(src)) {
     stepLog(`renderIntake: Eleventy did not produce intake-questionnaire-${slug}.html`, 'WARN');
     return null;
@@ -941,7 +940,7 @@ function renderIntake(slug) {
 
 function renderProposalAndDeck(slug) {
   const projectDir = path.join(PROJECTS_DIR, slug);
-  const petraData  = readJson(path.join(projectDir, 'run', 'petra.json')) || {};
+  const petraData  = readJson(path.join(projectDir, 'scoping', 'run', 'petra.json')) || {};
   const intakeDir  = path.join(projectDir, 'intake');
   fs.mkdirSync(intakeDir, { recursive: true });
   let anyWritten = false;
@@ -966,8 +965,8 @@ function renderProposalAndDeck(slug) {
     return null;
   }
   const copies = [
-    [path.join('intake', `proposal-${slug}.html`),           path.join(intakeDir, `proposal-${slug}.html`)],
-    [path.join('internal', `integration-deck-${slug}.html`), path.join(intakeDir, `integration-deck-${slug}.html`)],
+    [path.join('intake', `proposal-${slug}.html`),           path.join(intakeDir, 'client', `proposal-${slug}.html`)],
+    [path.join('internal', `integration-deck-${slug}.html`), path.join(intakeDir, 'client', `integration-deck-${slug}.html`)],
   ];
   const out = [];
   for (const [buildRel, dst] of copies) {
@@ -985,7 +984,7 @@ function renderProposalAndDeck(slug) {
 
 function applyMiraRewrites(slug) {
   const projectDir = path.join(PROJECTS_DIR, slug);
-  const miraData   = readJson(path.join(projectDir, 'run', 'mira.json')) || {};
+  const miraData   = readJson(path.join(projectDir, 'scoping', 'run', 'mira.json')) || {};
   const rewrites   = miraData.rewrittenContent || {};
   const intakeDir  = path.join(projectDir, 'intake');
   const BUILD      = path.join(ROOT, 'portal', '_build');
@@ -1015,7 +1014,7 @@ function applyMiraRewrites(slug) {
   }
   for (const buildRel of toRender) {
     const src = path.join(BUILD, buildRel);
-    const dst = path.join(intakeDir, path.basename(buildRel));
+    const dst = path.join(intakeDir, 'client', path.basename(buildRel));
     if (!fs.existsSync(src)) { stepLog(`applyMiraRewrites: missing ${buildRel}`, 'WARN'); continue; }
     fs.copyFileSync(src, dst);
     logFileInfo(dst, path.basename(dst));
@@ -1139,13 +1138,13 @@ function archiveScopingFiles(slug) {
 
 function resolvedAgentToml(agent, slug) {
   const src    = path.join(ROOT, agent.toml);
-  const outDir = path.join(PROJECTS_DIR, slug, 'run');
+  const outDir = path.join(PROJECTS_DIR, slug, 'scoping', 'run');
   const outPath = path.join(outDir, `${agent.slug}.toml`);
   fs.mkdirSync(outDir, { recursive: true });
   const raw = fs.readFileSync(src, 'utf8');
   const resolved = raw.replace(/\{client\}/g, slug);
   fs.writeFileSync(outPath, resolved);
-  return path.relative(ROOT, outPath);  // e.g. projects/pacific-title-company/run/vera.toml
+  return path.relative(ROOT, outPath);  // e.g. projects/pacific-title-company/scoping/run/vera.toml
 }
 
 function printAgentBanner(agent, slug, resolvedToml, totalAgents) {
@@ -1441,14 +1440,14 @@ async function runPipeline(slug) {
       try {
         const briefHtml = renderCorporateBrief(slug);
         if (briefHtml) {
-          console.log(`  ${green('✓')} projects/${slug}/intake/corporate-brief-${slug}.html — generated`);
+          console.log(`  ${green('✓')} projects/${slug}/intake/client/corporate-brief-${slug}.html — generated`);
         } else {
           console.log(`  ${dim('↳ corporate brief skipped — no corporate stack in company_context.json')}`);
         }
         stepLog('POST-VERA: corporate-brief done', 'END');
       } catch (e) {
         stepLog(`POST-VERA: corporate-brief FAILED — ${e.message}`, 'WARN');
-        console.log(`  ${yellow('⚠')}  Corporate brief render failed — re-run manually: npm run build:html (then copy _build/intake/corporate-brief-${slug}.html → projects/${slug}/intake/)`);
+        console.log(`  ${yellow('⚠')}  Corporate brief render failed — re-run manually: npm run build:html (then copy _build/intake/corporate-brief-${slug}.html → projects/${slug}/intake/client/)`);
       }
 
       stepLog('POST-VERA: running promote-library.js', 'START');
@@ -1478,7 +1477,7 @@ async function runPipeline(slug) {
     // Post-Flo: write flowCount + pricingComputed to project.json, aggregate decisions, write registry
     if (agent.slug === 'flo') {
       stepLog('POST-FLO: updating project.json with pricing', 'START');
-      const floData = readJson(path.join(projectDir, 'run', 'flo.json')) || {};
+      const floData = readJson(path.join(projectDir, 'scoping', 'run', 'flo.json')) || {};
       if (floData.pricing) {
         stepLog(`POST-FLO: pricing — flowCount=${floData.pricing.flowCount}, period1Rate=${floData.pricing.period1RatePerFlow}`, 'DATA');
         logObj('flo.pricing', floData.pricing);
@@ -1508,7 +1507,7 @@ async function runPipeline(slug) {
       stepLog('POST-QUINN: rendering intake HTML', 'START');
       try {
         const intakeHtml = renderIntake(slug);
-        if (intakeHtml) console.log(`  ${green('✓')} projects/${slug}/intake/intake-questionnaire-${slug}.html — rendered`);
+        if (intakeHtml) console.log(`  ${green('✓')} projects/${slug}/intake/intake/client/intake-questionnaire-${slug}.html — rendered`);
         stepLog('POST-QUINN: intake render done', 'END');
       } catch (e) {
         stepLog(`POST-QUINN: renderIntake FAILED — ${e.message}`, 'WARN');
@@ -1613,9 +1612,9 @@ async function runPipeline(slug) {
   const project = readJson(path.join(projectDir, 'project.json'));
   console.log(`
   ${bold('Client deliverables:')}
-    Proposal:         projects/${slug}/intake/proposal-${slug}.html
-    Intake form:      projects/${slug}/intake/intake-questionnaire-${slug}.html
-    Integration deck: projects/${slug}/intake/integration-deck-${slug}.html
+    Proposal:         projects/${slug}/intake/client/proposal-${slug}.html
+    Intake form:      projects/${slug}/intake/client/intake-questionnaire-${slug}.html
+    Integration deck: projects/${slug}/intake/client/integration-deck-${slug}.html
 
   ${bold('Live URLs:')}
     Intake:    ${project.intakeUrl   || dim('(not deployed yet)')}
@@ -1623,7 +1622,7 @@ async function runPipeline(slug) {
     Pitch kit: ${project.pitchKitUrl || dim('(not deployed yet)')}
 
   ${bold('Internal:')}
-    Run files: projects/${slug}/run/
+    Run files: projects/${slug}/scoping/run/
     Context:   projects/${slug}/company_context.json
     Decisions: projects/${slug}/decisions.json
   `);
@@ -1677,11 +1676,11 @@ async function runDeltaPipeline(slug, recordingFile) {
   const relRecording = path.relative(ROOT, recordingDest);
 
   const deltaAgents = [
-    { slug: 'sage',  name: 'Sage',  role: 'Document Intelligence', toml: 'pipeline/agents/sage.toml',  outputFile: 'run/sage.json',  note: `Point Sage at: ${relRecording}` },
-    { slug: 'flo',   name: 'Flo',   role: 'Flow Analyst + Pricing', toml: 'pipeline/agents/flo.toml',   outputFile: 'run/flo.json',   note: 'Flo reads sage.json — will flag new flows vs existing' },
-    { slug: 'quinn', name: 'Quinn', role: 'Intake Questionnaire',   toml: 'pipeline/agents/quinn.toml', outputFile: 'run/quinn.json', note: 'Quinn preserves answered questions; new gaps get [NEW] badge' },
-    { slug: 'petra', name: 'Petra', role: 'Proposal Writer',        toml: 'pipeline/agents/petra.toml', outputFile: 'run/petra.json', note: 'Petra appends [NEW] flows — preserves pricing section' },
-    { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       toml: 'pipeline/agents/mira.toml',  outputFile: 'run/mira.json',  note: 'Final audit before re-deploy' },
+    { slug: 'sage',  name: 'Sage',  role: 'Document Intelligence', toml: 'pipeline/agents/sage.toml',  outputFile: 'scoping/run/sage.json',  note: `Point Sage at: ${relRecording}` },
+    { slug: 'flo',   name: 'Flo',   role: 'Flow Analyst + Pricing', toml: 'pipeline/agents/flo.toml',   outputFile: 'scoping/run/flo.json',   note: 'Flo reads sage.json — will flag new flows vs existing' },
+    { slug: 'quinn', name: 'Quinn', role: 'Intake Questionnaire',   toml: 'pipeline/agents/quinn.toml', outputFile: 'scoping/run/quinn.json', note: 'Quinn preserves answered questions; new gaps get [NEW] badge' },
+    { slug: 'petra', name: 'Petra', role: 'Proposal Writer',        toml: 'pipeline/agents/petra.toml', outputFile: 'scoping/run/petra.json', note: 'Petra appends [NEW] flows — preserves pricing section' },
+    { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       toml: 'pipeline/agents/mira.toml',  outputFile: 'scoping/run/mira.json',  note: 'Final audit before re-deploy' },
   ];
 
   for (const [di, agent] of deltaAgents.entries()) {
@@ -1709,7 +1708,7 @@ async function runDeltaPipeline(slug, recordingFile) {
     // Post-Flo: if lockedPricing exists, override Flo's recalculated pricing with locked rate
     if (agent.slug === 'flo' && project.lockedPricing && project.lockedPricing.ratePerFlowPerMonth) {
       const lockedRate = project.lockedPricing.ratePerFlowPerMonth;
-      const floPath    = path.join(projectDir, 'run', 'flo.json');
+      const floPath    = path.join(projectDir, 'scoping', 'run', 'flo.json');
       const floData    = readJson(floPath);
       if (floData && floData.pricing) {
         const n  = Number(floData.pricing.flowCount) || (floData.confirmedFlows || []).length;

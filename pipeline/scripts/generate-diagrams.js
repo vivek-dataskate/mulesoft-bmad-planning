@@ -4,7 +4,7 @@
  *
  * Reads project.json systemDiagram.current + .future (Mermaid graph LR strings),
  * renders a two-panel side-by-side SVG and saves it to
- * projects/{client}/intake/system-diagram.svg
+ * projects/{client}/intake/diagrams/system-diagram.svg
  *
  * Usage: node scripts/generate-diagrams.js homage
  */
@@ -24,10 +24,10 @@ const diagrams = proj.systemDiagram;
 if (!diagrams) { console.error(`No systemDiagram in project.json`); process.exit(1); }
 
 const svg     = buildDualPanelSvg(diagrams.current, diagrams.future);
-const outPath = path.join(ROOT, 'projects', slug, 'intake', 'system-diagram.svg');
+const outPath = path.join(ROOT, 'projects', slug, 'intake', 'diagrams', 'system-diagram.svg');
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, svg);
-console.log(`✓ Written: projects/${slug}/intake/system-diagram.svg`);
+console.log(`✓ Written: projects/${slug}/intake/diagrams/system-diagram.svg`);
 
 // ─── Mermaid graph LR parser ─────────────────────────────────────────────────
 
