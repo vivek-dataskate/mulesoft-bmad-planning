@@ -186,8 +186,9 @@ body {
 }
 .project-table tr:hover td { background: var(--light); }
 
-.client-name { font-size: 14px; font-weight: 700; color: var(--dark); text-decoration: none; }
-.client-name:hover { color: var(--brand); text-decoration: underline; }
+.client-name { font-size: 14px; font-weight: 700; color: var(--brand); text-decoration: underline; }
+.client-name:hover { color: var(--brand-dk); text-decoration: underline; }
+.client-name-arrow { font-size: 11px; opacity: .6; margin-left: 4px; font-weight: 400; }
 
 .intake-badge {
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
@@ -627,7 +628,7 @@ function renderProjects(projects, intakeMap) {
 
     return `<tr>
       <td>
-        <a class="client-name" href="/portal/${esc(p.id)}.html" target="_blank">${esc(p.name)}</a>
+        <a class="client-name" href="/portal/${esc(p.id)}.html" target="_blank">${esc(p.name)}<span class="client-name-arrow">↗</span></a>
       </td>
       <td style="font-size:13px;color:var(--mid)">${esc(p.architect || '—')}</td>
       <td>${statusCell}</td>

@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DataSkate Architect Guide — DataSkate</title>
+<title>DataSkate Architect Guide</title>
 <link rel="stylesheet" href="/tokens.css">
 <style>
 /* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
@@ -247,18 +247,17 @@ firebase.auth().onAuthStateChanged(function(user) {
   </div>
   <div class="top-bar-divider"></div>
   <div>
-    <div class="top-bar-eyebrow">DataSkate Internal</div>
+    <div class="top-bar-eyebrow">For: Kailash / Raghuram — Internal Reference | DataSkate Confidential</div>
     <div class="top-bar-title">DataSkate Architect Guide</div>
   </div>
 </div>
 
 <div class="docs-shell">
   <nav class="nav-left" id="nav-left" aria-label="Sections"></nav>
-  <main class="doc-content" id="doc-content"><p><strong>For: Kailash / Raghuram — Internal Reference | DataSkate Confidential</strong></p>
-<blockquote><p>The deployed version of this guide lives at <code>firebase/public/resources/architect-guide.html</code> (3-column docs layout, Firebase-gated).<br>This file is the content source of truth — keep both in sync when updating.</p></blockquote>
-<hr>
-<h2>Part 1 — The DataSkate Proposition</h2>
-<h3>What Clients Are Actually Buying</h3>
+  <main class="doc-content" id="doc-content">
+    
+    <h2 id="part-1">Part 1 — The DataSkate Proposition</h2>
+    <h3>What Clients Are Actually Buying</h3>
 <p>What a client is evaluating is not integration flows. It is the ability to run their business on data — and eventually, to let AI handle the parts that don't need a human decision.</p>
 <p>Every hour their team spends moving data manually — exporting spreadsheets, copying records between systems, chasing vendor reports — is an hour not spent on the business. Every manual step is a place where things go wrong, get delayed, or get dropped.</p>
 <p>Connected systems eliminate that layer. Once it's gone, automation becomes possible. Once automation is in place, AI can take over workflows that currently require a person to notice something, decide something, and act on it.</p>
@@ -268,28 +267,6 @@ firebase.auth().onAuthStateChanged(function(user) {
 <tr><td>Stage 2</td><td>Automated</td><td>Year 1</td><td>Rules and triggers fire without human involvement. A customer goes quiet — a re-engagement sequence starts automatically. A vendor report arrives — it is parsed, matched, and loaded without anyone touching their inbox.</td></tr>
 <tr><td>Stage 3</td><td>Agentic</td><td>Renewal+ or Phase 2 SOW</td><td>AI agents monitor connected systems, detect patterns, and take actions. They surface next-best-action recommendations. They flag anomalies before vendors do. They operate business processes with the team in the loop for approvals, not execution.</td></tr></tbody></table>
 <p>The 1-year managed service gets the client to Stage 2. Renewal opens Stage 3.</p>
-<div class="dg-flow">
-  <div class="dg-step">
-    <div class="dg-step-num">Stage 1</div>
-    <div class="dg-step-name">Connected</div>
-    <div class="dg-step-tag">Year 1</div>
-    <div class="dg-step-desc">Systems talk to each other. Data moves automatically. Manual exports stop.</div>
-  </div>
-  <div class="dg-arrow">→</div>
-  <div class="dg-step">
-    <div class="dg-step-num">Stage 2</div>
-    <div class="dg-step-name">Automated</div>
-    <div class="dg-step-tag">Year 1</div>
-    <div class="dg-step-desc">Rules and triggers fire without human involvement. Workflows run on their own.</div>
-  </div>
-  <div class="dg-arrow">→</div>
-  <div class="dg-step highlight">
-    <div class="dg-step-num">Stage 3</div>
-    <div class="dg-step-name">Agentic</div>
-    <div class="dg-step-tag">Renewal+</div>
-    <div class="dg-step-desc">AI agents monitor, detect patterns, and act. The team approves — not executes.</div>
-  </div>
-</div>
 <h3>What We Guarantee</h3>
 <ul><li><strong>Delivery timeline is contractual.</strong> 2 weeks for requirements, then 1.5 weeks per flow.</li><li><strong>Billing starts at go-live — not at contract signing.</strong> Only upfront cost is the retainer, credited at go-live.</li><li><strong>Client owns the code from day one.</strong> All code lives in their GitHub repository.</li><li><strong>Continuous visibility.</strong> Anypoint Monitoring is live from go-live — uptime, performance, error rates.</li><li><strong>Changes are included.</strong> Field mapping, config, performance tuning — covered. Action changes are change orders, scoped in writing before proceeding.</li></ul>
 <h3>What's Happening in Their Industry Right Now</h3>
@@ -306,33 +283,14 @@ firebase.auth().onAuthStateChanged(function(user) {
 <blockquote><p>We build and manage MuleSoft integrations as a service — fixed monthly rate per flow, fully managed for the contract term. Every integration we build is architected to support automation and AI workflows as your business evolves. Clients who start with us in year one are positioned for agent-assisted operations at renewal.</p></blockquote>
 <p><strong>One paragraph (for proposals):</strong></p>
 <blockquote><p>Most businesses are one layer away from operating with AI. That layer is reliable, connected, well-maintained data infrastructure — and it is exactly what DataSkate builds. We start with the most pressing integration needs, architect them for long-term automation readiness, and manage them in production so the team never has to. The result is not just connected systems — it is a business that can respond faster, scale without adding headcount, and eventually run workflows that the competition is still doing manually.</p></blockquote>
-<hr>
-<h2>Part 2 — Pricing Reference</h2>
-<p><em>Rates are in <code>commons/sales/pricing-model.md</code> — always read that file. Never quote numbers from memory.</em></p>
-<h3>Two Engagement Models</h3>
+    
+    <h2 id="part-2">Part 2 — Pricing Reference</h2>
+    <p><em>Rates are in <code>commons/sales/pricing-model.md</code> — always read that file. Never quote numbers from memory.</em></p>
+<h3>Three Engagement Models</h3>
 <table class="md-table"><thead><tr><th>Model</th><th>Implementation Fee</th><th>Ongoing</th><th>How It Works</th><th>Use When</th></tr></thead><tbody><tr><td><strong>IaaS (Managed Service)</strong></td><td>$0 — included in monthly rate</td><td>$300/flow/month · 1-year minimum</td><td>DataSkate builds and runs everything. 24/7 uptime, connector upgrades, minor enhancements all included.</td><td>Client does not have a dedicated integration engineer. Recommended for most engagements.</td></tr>
-<tr><td><strong>Implementation Only</strong></td><td>$3,500/flow · 50% at SOW, 50% at UAT</td><td>None — code ownership transfers</td><td>DataSkate builds and hands off. Client owns all ops from day one.</td><td>Client has a developer who will maintain the integration. Pivot to Phase 2 at go-live.</td></tr></tbody></table>
-<p>Every proposal shows exactly these two models. No hybrids, no bundles.</p>
-<div class="dg-cards">
-  <div class="dg-card primary">
-    <div class="dg-card-label">Recommended</div>
-    <div class="dg-card-title">IaaS — Managed Service</div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Implementation fee</span><strong>$0 — included</strong></div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Ongoing</span><strong>$300/flow/month</strong></div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Commitment</span>1-year minimum per flow</div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Who runs it</span>DataSkate — 24/7 uptime, upgrades, tuning</div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Use when</span>Client has no dedicated integration engineer</div>
-  </div>
-  <div class="dg-card">
-    <div class="dg-card-label">Alternative</div>
-    <div class="dg-card-title">Implementation Only</div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Implementation fee</span><strong>$3,500/flow</strong></div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Ongoing</span>None — code transfers at UAT</div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Commitment</span>None after delivery</div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Who runs it</span>Client owns all ops from day one</div>
-    <div class="dg-card-row"><span class="dg-card-row-label">Use when</span>Client has a developer who will maintain it</div>
-  </div>
-</div>
+<tr><td><strong>Implementation Only</strong></td><td>$3,500/flow (standard) · $0 if AE sells full $50K Anypoint license · 50% at SOW, 50% at UAT</td><td>None — code ownership transfers</td><td>DataSkate builds and hands off. Client owns all ops from day one.</td><td>Client has a developer who will maintain the integration. Pivot to Phase 2 at go-live.</td></tr>
+<tr><td><strong>T&amp;M — Time &amp; Materials</strong></td><td>N/A — billed on actual hours</td><td>$45/hr Architect · $35/hr Sr Dev · $25/hr Dev · billed bi-weekly</td><td>Dedicated offshore resources. Scope can flex mid-project. Minimum 80 hours.</td><td>Scope is evolving or client needs flexibility to change requirements mid-engagement.</td></tr></tbody></table>
+<p>Every proposal shows exactly these three models. No hybrids, no bundles.</p>
 <h3>IaaS Kickoff Retainer</h3>
 <table class="md-table"><thead><tr><th>Engagement Size</th><th>Retainer</th></tr></thead><tbody><tr><td>1–5 flows</td><td>$2,500</td></tr>
 <tr><td>6–10 flows</td><td>$5,000</td></tr>
@@ -351,31 +309,9 @@ firebase.auth().onAuthStateChanged(function(user) {
 <tr><td>Flow Replacement</td><td>New trigger/target/process — old flow closes + fresh 12-month contract</td><td>$1,500</td></tr></tbody></table>
 <h3>Timeline Formula</h3>
 <ul><li>Requirements phase: 2 weeks (flat, all engagements)</li><li>Development: 1.5 weeks per flow</li><li>5 flows → 9.5 weeks | 7 flows → 12.5 weeks | 10 flows → 17 weeks</li></ul>
-<div class="dg-timeline">
-  <div class="dg-tl-row">
-    <div class="dg-tl-label">Requirements</div>
-    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar req" style="width:12%">2 wks</div></div>
-    <div class="dg-tl-weeks">2 weeks</div>
-  </div>
-  <div class="dg-tl-row">
-    <div class="dg-tl-label">5 flows</div>
-    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:56%">+ 7.5 wks dev</div></div>
-    <div class="dg-tl-weeks">9.5 weeks</div>
-  </div>
-  <div class="dg-tl-row">
-    <div class="dg-tl-label">7 flows</div>
-    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:74%">+ 10.5 wks dev</div></div>
-    <div class="dg-tl-weeks">12.5 weeks</div>
-  </div>
-  <div class="dg-tl-row">
-    <div class="dg-tl-label">10 flows</div>
-    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:100%">+ 15 wks dev</div></div>
-    <div class="dg-tl-weeks">17 weeks</div>
-  </div>
-</div>
-<hr>
-<h2>Part 3 — Briefing a MuleSoft AE</h2>
-<h3>Your Opening (30 seconds)</h3>
+    
+    <h2 id="part-3">Part 3 — Briefing a MuleSoft AE</h2>
+    <h3>Your Opening (30 seconds)</h3>
 <blockquote><p>"DataSkate plugs a gap that kills a lot of MuleSoft deals — the implementation cost objection. We absorb the build cost through a managed service model: $0 upfront for the client, we build it, we run it, and we invoice monthly. Your client gets integrations running without a budget fight. You close the full $50k license. We'll walk through exactly how that works."</p></blockquote>
 <p>Share the DS Pricing Model one-pager at the start. Walk through it, don't read it.</p>
 <h3>Why IaaS Helps the AE's Quota</h3>
@@ -390,7 +326,9 @@ firebase.auth().onAuthStateChanged(function(user) {
 <blockquote><p><em>"The [industry] companies that got connected in 2023 are running AI workflows today. The ones getting connected now will have that capability by 2026. The ones still evaluating will be building what their competitors already finished. That window is not closing dramatically — it is just closing."</em></p></blockquote>
 <h3>AE Objections</h3>
 <p><strong>"My client just wants to own the integration."</strong></p>
-<blockquote><p>That's the Implementation Only model — $3,500/flow, 50% at SOW, 50% at UAT. Clean handoff, no ongoing fees. The question to ask: who on their team will maintain it, upgrade connectors, and handle incidents at 2am? If they have that person, Implementation Only is right. If they don't, IaaS protects them and protects your renewal.</p></blockquote>
+<blockquote><p>That's the Implementation Only model — $3,500/flow standard (or $0 if you sell the full $50K Anypoint license), 50% at SOW, 50% at UAT. Clean handoff, no ongoing fees. The question to ask: who on their team will maintain it, upgrade connectors, and handle incidents at 2am? If they have that person, Implementation Only is right. If they don't, IaaS protects them and protects your renewal.</p></blockquote>
+<p><strong>"My client's scope is still unclear and they want flexibility to change direction mid-build."</strong></p>
+<blockquote><p>T&amp;M is the right model. We provide dedicated offshore resources billed at actual hours — Architect at $45/hr, Sr Dev at $35/hr, Developer at $25/hr. Minimum 80 hours. Scope can flex with written approval on increases. Use this when the client genuinely can't lock scope upfront; switch to IaaS at renewal once flows are stable.</p></blockquote>
 <p><strong>"The retainer will slow down the deal."</strong></p>
 <blockquote><p>The retainer is $2,500–$5,000 depending on size — credited back at go-live. It filters out clients who aren't serious. A client who won't commit $2,500 before we assign engineers was going to be a problem client. The retainer actually accelerates your deal.</p></blockquote>
 <p><strong>"I already have budget approved for a one-time number."</strong></p>
@@ -439,10 +377,10 @@ firebase.auth().onAuthStateChanged(function(user) {
 <blockquote><p>[Name] — on the implementation cost concern from last time. DataSkate does it as a managed service, $0 upfront on IaaS. But the more relevant angle: every connection they build is AI-ready from day one. Worth 20 minutes to see if that changes the picture?</p></blockquote>
 <p><strong>Introducing after close:</strong></p>
 <blockquote><p>[Name] — looping in Vivek from DataSkate who'll run the implementation and managed service. He'll kick off scoping and map the automation roadmap for year two as part of the engagement.</p></blockquote>
-<hr>
-<h2>Part 4 — Presenting to a Client</h2>
-<h3>Your Opening (60 seconds)</h3>
-<blockquote><p>"Before I walk through the technical architecture, I want to spend five minutes on the commercial model — because how we structure the engagement affects what we build. DataSkate runs two models: managed service, where we build and run everything for a fixed monthly rate, and implementation only, where we build and hand off. The right choice depends on whether you have a team that can own integration maintenance. Let me show you both."</p></blockquote>
+    
+    <h2 id="part-4">Part 4 — Presenting to a Client</h2>
+    <h3>Your Opening (60 seconds)</h3>
+<blockquote><p>"Before I walk through the technical architecture, I want to spend five minutes on the commercial model — because how we structure the engagement affects what we build. DataSkate runs three models: managed service, where we build and run everything for a fixed monthly rate; implementation only, where we build and hand off; and time-and-materials, where scope can flex as you go. The right choice depends on whether you have a team that can own maintenance and how locked-in your scope is. Let me show you all three."</p></blockquote>
 <p>Share the DS Pricing Model one-pager. Give them 30 seconds to read it before you talk.</p>
 <h3>Reading the Room Before You Pitch</h3>
 <table class="md-table"><thead><tr><th>What They Say</th><th>What It Means</th><th>How You Lead</th></tr></thead><tbody><tr><td>"We have too much manual work"</td><td>Stage 1 problems — connections don't exist</td><td>Lead with reliability and time savings</td></tr>
@@ -454,7 +392,9 @@ firebase.auth().onAuthStateChanged(function(user) {
 <table class="md-table"><thead><tr><th>Option</th><th>What It Costs</th><th>What's Missing</th></tr></thead><tbody><tr><td>Internal developer hire</td><td>$100k–$120k/year</td><td>No 24/7, single point of failure, slow to scale</td></tr>
 <tr><td>Traditional SI project</td><td>$30k–$80k upfront</td><td>Maintenance falls on client from day one</td></tr>
 <tr><td>DIY tools (Zapier, Make)</td><td>Low upfront, variable</td><td>Breaks at enterprise data volumes</td></tr>
-<tr><td><strong>DataSkate managed service</strong></td><td><strong>Fixed monthly rate/flow</strong></td><td><strong>Nothing — all included</strong></td></tr></tbody></table>
+<tr><td><strong>DataSkate IaaS</strong></td><td><strong>$300/flow/month — all in</strong></td><td><strong>Nothing — build, run, maintain included</strong></td></tr>
+<tr><td><strong>DataSkate Implementation Only</strong></td><td><strong>$3,500/flow (one-time)</strong></td><td><strong>Ongoing ops — client's team owns from day one</strong></td></tr>
+<tr><td><strong>DataSkate T&amp;M</strong></td><td><strong>$25–$45/hr, actual hours</strong></td><td><strong>Fixed-price certainty — use when scope is unclear</strong></td></tr></tbody></table>
 <blockquote><p><em>"The rate is transparent and predictable — you'll know every payment amount before you commit. It steps up modestly every 6 months, less than inflation for what it covers. What stays constant is the scope: uptime, performance, upgrades, minor enhancements — all included at every rate, every period."</em></p></blockquote>
 <p>Don't lead with the escalation. Lead with: you pay when you are live, you know every number before you sign, nothing is hidden.</p>
 <h3>Client Objections</h3>
@@ -470,6 +410,8 @@ firebase.auth().onAuthStateChanged(function(user) {
 <blockquote><p>Replace it with a flow you actually need — $1,500 replacement fee and start fresh. The 1-year term is what lets us charge $0 upfront. Shorter commitments would mean higher rates.</p></blockquote>
 <p><strong>"We have our own IT team. We don't need managed service."</strong></p>
 <blockquote><p>Then Implementation Only is the right model. Where we'd come back is Phase 2: agent development. Once your systems are connected, the next layer is AI agents that use those connections to automate workflows. That's specialised work most IT teams aren't set up for.</p></blockquote>
+<p><strong>"We're not ready to lock down scope — we'll need to change things as we go."</strong></p>
+<blockquote><p>T&amp;M is built for exactly that. You get dedicated offshore resources at $25–$45/hr billed on actual hours, with scope that can flex mid-project with written approval. Once the flows stabilise and you know what you need, the conversation turns to IaaS for ongoing managed service.</p></blockquote>
 <p><strong>"Your rates are higher than what we've seen."</strong></p>
 <blockquote><p>Compare what's included. A freelancer quotes build cost only — you own incident response and maintenance from day one. DataSkate's rate covers build, deployment, 24/7 monitoring, connector upgrades, and minor enhancements.</p></blockquote>
 <p><strong>"What do we get for the monthly fee after go-live?"</strong></p>
@@ -512,27 +454,12 @@ firebase.auth().onAuthStateChanged(function(user) {
 <blockquote><p>[Name] — thinking about what you shared. The [specific pain] is a classic Stage 1 problem. We've solved this pattern for [similar company type]. Want me to send over what that looked like?</p></blockquote>
 <p><strong>On the agentic angle:</strong></p>
 <blockquote><p>[Name] — one thing I didn't mention: clients who start with our managed service get their data clean, connected, and AI-ready within year one — so renewal opens the door to agentic automation without rebuilding anything. Worth including in your evaluation criteria?</p></blockquote>
-<hr>
-<h2>Part 5 — When the Client Self-Maintains (Phase 2 Pivot)</h2>
-<p>When a client has a developer and plans to own integration maintenance, do not push IaaS. Agree with them, close Implementation Only, and plant the Phase 2 seed immediately.</p>
+    
+    <h2 id="part-5">Part 5 — When the Client Self-Maintains (Phase 2 Pivot)</h2>
+    <p>When a client has a developer and plans to own integration maintenance, do not push IaaS. Agree with them, close Implementation Only, and plant the Phase 2 seed immediately.</p>
 <h3>The Phase 2 Pivot</h3>
 <table class="md-table"><thead><tr><th>Phase</th><th>Who Owns It</th><th>What It Is</th></tr></thead><tbody><tr><td>Phase 1 — Connected</td><td>Client's developer</td><td>Integration flows built by DataSkate, maintained in-house</td></tr>
 <tr><td>Phase 2 — Automated &amp; Agentic</td><td>DataSkate (SOW)</td><td>AI agents that use the connected data to automate workflows</td></tr></tbody></table>
-<div class="dg-flow">
-  <div class="dg-step">
-    <div class="dg-step-num">Phase 1</div>
-    <div class="dg-step-name">Connected</div>
-    <div class="dg-step-tag">Client owns ops</div>
-    <div class="dg-step-desc">DataSkate builds. Client developer maintains. Code lives in their GitHub.</div>
-  </div>
-  <div class="dg-arrow">→</div>
-  <div class="dg-step highlight">
-    <div class="dg-step-num">Phase 2</div>
-    <div class="dg-step-name">Agentic</div>
-    <div class="dg-step-tag">DataSkate SOW</div>
-    <div class="dg-step-desc">AI agents act on connected data. Separate engagement, scoped at go-live.</div>
-  </div>
-</div>
 <h3>What to Say</h3>
 <p><strong>At scoping:</strong></p>
 <blockquote><p><em>"That makes sense — Implementation Only is the right structure for you. Your developer runs the integration layer, you own the code. What I want to put on the roadmap now is Phase 2: once your systems are connected, the next unlock is agents — AI that uses those connections to automate decisions and surface what your team doesn't have time to find manually. Separate engagement, separate timeline. Let's get Phase 1 right and come back to this at go-live."</em></p></blockquote>
@@ -540,16 +467,16 @@ firebase.auth().onAuthStateChanged(function(user) {
 <blockquote><p><em>"Your flows are live. This is exactly the moment to scope Phase 2 — your data is clean, connected, and ready. We know where the agent opportunities are in your stack. Worth 30 minutes to map it out?"</em></p></blockquote>
 <h3>Signals That Phase 2 is Ready</h3>
 <ul><li>Flows have been live 60–90 days and are stable</li><li>Client team is using the connected data in their workflows</li><li>Client mentions manual reporting, repetitive decisions, or "we still export to Excel"</li><li>AI or automation comes up in any context</li></ul>
-<hr>
-<h2>Part 6 — Closing the Conversation</h2>
-<h3>If the Client is Hesitating on Model Choice</h3>
-<blockquote><p>"The simplest way to decide: do you have someone on your team whose job it will be to wake up at 2am when an integration breaks and fix it? If yes — Implementation Only. If no — IaaS."</p></blockquote>
+    
+    <h2 id="part-6">Part 6 — Closing the Conversation</h2>
+    <h3>If the Client is Hesitating on Model Choice</h3>
+<blockquote><p>"Three questions close the model choice. One: do you have someone whose job it will be to wake up at 2am when an integration breaks? If yes — Implementation Only. If no — IaaS. Two: is your scope locked? If no — T&amp;M until it is. Three: are you buying a full $50K Anypoint license through your AE? If yes — Implementation Only at $0 implementation fee."</p></blockquote>
 <h3>If the AE is Hesitating on Introducing DataSkate</h3>
 <blockquote><p>"Your client is going to ask you who's running the integrations after go-live. Most SIs make that your client's problem. DataSkate makes it ours. That's the conversation."</p></blockquote>
 <h3>If Either Audience Asks About AI / Agents</h3>
 <blockquote><p>"Phase 2 is where this gets interesting. The integration layer we build in Phase 1 is the data foundation every AI use case runs on. Agent development, automated workflows, decision intelligence — none of it works without clean, reliable, connected data. We architect Phase 1 so Phase 2 is possible. Most SIs don't think past the delivery."</p></blockquote>
-<hr>
-<p><em>DataSkate — dataskate.ai | kailash@dataskate.ai</em><br><em>Rates and terms: see <code>commons/sales/pricing-model.md</code> — do not quote specific numbers from memory</em></p></main>
+    
+  </main>
   <nav class="nav-right" id="nav-right" aria-label="On this page">
     <div class="nav-right-label">On this page</div>
     <div id="nav-right-links"></div>
