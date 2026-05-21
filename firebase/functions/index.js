@@ -140,7 +140,7 @@ exports.krispWebhook = onRequest(
 
     const datePrefix = new Date(startTime).toISOString().slice(0, 10); // YYYY-MM-DD
     const folderSlug = `${datePrefix}-${toSlug(title)}`;
-    const githubPath = `Krisp/${folderSlug}.json`;
+    const githubPath = `_inbox/Krisp/${folderSlug}/krisp-meeting.json`;
 
     // 1. Save to Firestore
     try {
