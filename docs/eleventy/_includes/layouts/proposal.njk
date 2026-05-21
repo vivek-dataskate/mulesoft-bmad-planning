@@ -710,6 +710,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 
 </div>{# /tab-about #}
 
+{% if proposalDeployments | length > 1 %}
+<div style="border-top:1px solid var(--border);padding:8px 40px;font-size:11px;color:var(--mid);display:flex;align-items:center;gap:6px;" class="no-print">
+  <span>Prior versions:</span>
+  {% for d in proposalDeployments %}{% if loop.index < loop.length %}<a href="{{ d.url | esc }}" style="color:var(--mid);text-decoration:underline;" target="_blank" rel="noopener">{{ d.version | esc }} &middot; {{ d.dateLabel | esc }}</a>{% if loop.index < loop.length - 1 %}<span>&#183;</span>{% endif %}{% endif %}{% endfor %}
+</div>
+{% endif %}
 <div class="footer">
   <span>{{ meta.architect | esc }} &#183; <a href="mailto:{{ meta.architectEmail | esc }}">{{ meta.architectEmail | esc }}</a> &#183; DataSkate &#183; dataskate.ai</span>
   <strong>Confidential</strong>

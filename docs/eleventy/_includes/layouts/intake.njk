@@ -848,7 +848,7 @@ body.is-complete .btn-submit {
   <div class="bc-header" onclick="toggleBC()">
     <div class="bc-title-row">
       <span class="bc-title">How We See Your Business</span>
-      {{ intakeRendered.phaseChipHtml | safe }}
+      {% include "components/intake-phase-chip.njk" %}
     </div>
     <span class="bc-chevron" id="bc-chevron">▼</span>
     <span class="bc-snapshot-teaser">{{ intakeRendered.bcSnapshot | safe }}</span>
@@ -867,7 +867,7 @@ body.is-complete .btn-submit {
 
 <!-- CATEGORY TABS — sticky, clickable; jumps to bucket anchor -->
 <div class="cat-tabs no-print" id="cat-tabs">
-  {{ intakeRendered.catTabsHtml | safe }}
+  {% include "components/intake-cat-tabs.njk" %}
 </div>
 
 <!-- FORM SECTIONS — DOM ordered Business → Technical → Production -->
@@ -907,7 +907,7 @@ body.is-complete .btn-submit {
   <div class="rail-card">
     <div class="rail-label">Subsections</div>
     <nav class="rail-nav" id="rail-nav">
-      {{ intakeRendered.railNavHtml | safe }}
+      {% include "components/intake-rail-nav.njk" %}
     </nav>
   </div>
 
@@ -915,7 +915,7 @@ body.is-complete .btn-submit {
   <div class="rail-card rail-attention">
     <div class="rail-label">Needs Attention</div>
     <ul class="attention-list" id="attention-list">
-      {{ intakeRendered.railAttentionHtml | safe }}
+      {% include "components/intake-rail-attention.njk" %}
     </ul>
     <div class="attention-empty" id="attention-empty" style="display:none">Nothing flagged. Good to go.</div>
   </div>
@@ -924,7 +924,7 @@ body.is-complete .btn-submit {
   <div class="rail-card">
     <div class="rail-label">Links</div>
     <ul class="rail-links">
-      {{ intakeRendered.railLinksHtml | safe }}
+      {% include "components/intake-rail-links.njk" %}
     </ul>
   </div>
 
@@ -932,6 +932,12 @@ body.is-complete .btn-submit {
 
 <!-- Footer lives INSIDE .wrap and spans both columns (grid-column: 1/-1)
      so the right rail doesn't leave a tall empty band beside it. -->
+{% if intakeDeployments | length > 1 %}
+<div style="border-top:1px solid var(--border);padding:8px 32px;font-size:11px;color:var(--mid);display:flex;align-items:center;gap:6px;" class="no-print">
+  <span>Prior versions:</span>
+  {% for d in intakeDeployments %}{% if loop.index < loop.length %}<a href="{{ d.url | esc }}" style="color:var(--mid);text-decoration:underline;" target="_blank" rel="noopener">{{ d.version | esc }} &middot; {{ d.dateLabel | esc }}</a>{% if loop.index < loop.length - 1 %}<span>&#183;</span>{% endif %}{% endif %}{% endfor %}
+</div>
+{% endif %}
 <div class="footer no-print">
   <span>{{ intakeRendered.architect | esc }} · {{ intakeRendered.architectEmail | esc }} · DataSkate</span>
   <strong>Confidential</strong>
@@ -1753,13 +1759,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pill.click(); }
     });
   });
-
-  // #7 — biz-context auto-open on first visit
-  const BC_SEEN_KEY = 'bc_seen_' + CLIENT_SLUG;
-  if (!localStorage.getItem(BC_SEEN_KEY)) {
-    document.getElementById('biz-context').classList.add('is-open');
-    localStorage.setItem(BC_SEEN_KEY, '1');
-  }
 
   // #9 + #13 — inject word count + min-hint spans for all non-pill textareas
   injectAnswerHints();

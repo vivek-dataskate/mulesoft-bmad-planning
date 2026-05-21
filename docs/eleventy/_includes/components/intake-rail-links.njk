@@ -1,0 +1,4 @@
+{# intake-rail-links.njk — external link list in right rail.
+   Input: intakeRendered.railLinks = [{ label, url }] #}
+{% for l in intakeRendered.railLinks %}<li><a href="{{ l.url | esc }}" target="_blank" rel="noopener">{{ l.label | esc }}</a></li>
+{% endfor %}

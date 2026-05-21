@@ -25,13 +25,12 @@ node "$REPO_ROOT/scripts/build-tokens.js"
 echo "→ Publishing sales resources..."
 mkdir -p "$PUBLIC/resources"
 
-# Generate the pricing flyer from pricing-model.md via fill-template.js
-node "$REPO_ROOT/commons/branding/fill-template.js" --template ds-pricing-model
-echo "   resources/architect-flyer.html (from pricing-model.md)"
-
-# Generate architect-guide from markdown
-node "$REPO_ROOT/commons/branding/fill-template.js" --template architect-guide
-echo "   resources/architect-guide.html (from architect-guide.md)"
+# Run Eleventy once — builds all templates (resources + all client portals/intake).
+npm --prefix "$REPO_ROOT" run build:html
+cp "$REPO_ROOT/docs/eleventy/_build/resources/ds-pricing-model.html" "$PUBLIC/resources/ds-pricing-model.html"
+echo "   resources/ds-pricing-model.html"
+cp "$REPO_ROOT/docs/eleventy/_build/resources/architect-guide.html" "$PUBLIC/resources/architect-guide.html"
+echo "   resources/architect-guide.html"
 
 # ── Function dependencies ─────────────────────────────────────────────────────
 echo "→ Installing function dependencies..."

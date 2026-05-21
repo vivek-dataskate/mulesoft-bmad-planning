@@ -27,9 +27,9 @@ reads = [
 ]
 writes = [
   "projects/{client}/intake/proposal-content.json",
-  "projects/{client}/intake/proposal-{client}.html",         # via fill-template.js
+  "projects/{client}/intake/proposal-{client}.html",         # via Eleventy
   "projects/{client}/intake/integration-deck-content.json",
-  "projects/{client}/intake/integration-deck-{client}.html", # via fill-template.js
+  "projects/{client}/intake/integration-deck-{client}.html", # via Eleventy
   "projects/{client}/run/petra.json",
   "projects/{client}/run/petra-decisions.json",  # agent-scoped; orchestrate.js aggregates into decisions.json
 ]
@@ -54,10 +54,10 @@ principles = [
   "Integration deck (architect pitch kit) — write integration-deck-content.json:\n  meta: clientName, clientSlug, date, architect, architectEmail, location, revenue, industry, flowCount, searchRadius, revenueBracket, subtitle\n  snapshot: description (vera.json company.snapshot), systems[], painPoints[] (from sage.json — specific, not generic; max 5)\n  talkingPoints[]: copy hawk.json talkingPoints[] verbatim\n  nearbyPeers[]: copy vera.json nearbyPeers[] verbatim\n  competitorFOMO[]: copy vera.json competitorFOMO[] verbatim — DO NOT re-research\n  openingLines[]: copy hawk.json openingLines[] verbatim\n  aiJourneyNarrative: 3-4 sentence paragraph referencing actual system names and industry. Phase 1: what connecting these systems unlocks. Phase 2: what automation becomes possible. Phase 3: the agentic endgame for their specific role/industry. Never placeholder language.\n\n  portfolioContext: when hawk.json.portfolioTemplateFraming exists, write this block. SAME data as the proposal portfolioContext block — the architect needs the platform/sibling/sponsor framing on the pitch call so the deal can be sized as portfolio-templated, not one-off. Shape:\n    portfolioContext: {\n      platformName:      hawk.json.portfolioTemplateFraming.platformName,\n      sponsorName:       hawk.json.portfolioTemplateFraming.sponsorName,\n      siblingCount:      hawk.json.portfolioTemplateFraming.siblingCount,\n      siblingsWithIntegrationFootprint: hawk.json.portfolioTemplateFraming.siblingsWithIntegrationFootprint,\n      templateAngle:     hawk.json.portfolioTemplateFraming.templateAngle verbatim,\n      executiveAngle:    hawk.json.portfolioTemplateFraming.executiveSponsorAngle verbatim,\n      siblings:          company_context.json.corporateStack.operatingPlatform.siblingBrands[] — each as { name, website, integrationSignal, sourceUrl }. Pass verbatim — do NOT fabricate signals. If integrationSignal is 'unknown', keep that string.\n      greenfieldFlag:    hawk.json.portfolioTemplateFraming.greenfieldFlag\n    }\n  If hawk.json.portfolioTemplateFraming does NOT exist (independent client): set portfolioContext to null. The runtime renderer skips the section when null.\n\n  Apply psychology to pitch kit: use hawk.json socialProofAngle for FOMO entry ordering, journeyFraming for AI journey narrative emphasis, aeTalkingPoint verbatim.",
 
   # ── HTML GATE ────────────────────────────────────────────────────────
-  "NEVER write raw HTML. All HTML goes through fill-template.js:\n  Proposal: node commons/branding/fill-template.js --template proposal --client {client}\n    → writes projects/{client}/intake/proposal-{client}.html\n  Integration deck: node commons/branding/fill-template.js --template integration-deck --client {client}\n    → writes projects/{client}/intake/integration-deck-{client}.html",
+  "NEVER write raw HTML. All HTML is produced by Eleventy:\n  Run: npm run build:html\n  Proposal output:         docs/eleventy/_build/intake/proposal-{client}.html\n    → copy to:            projects/{client}/intake/proposal-{client}.html\n  Integration deck output: docs/eleventy/_build/internal/integration-deck-{client}.html\n    → copy to:            projects/{client}/intake/integration-deck-{client}.html",
 
   # ── FOMO NAMING RULES ─────────────────────────────────────────────────
-  "FOMO naming rules (strictly enforced in JSON):\n  Use hawk.json fomoOrdered[].displayName for the 'name' field.\n  Real company name ONLY when fomoOrdered[].sourceUrl is a real public URL.\n  If sourceUrl null: use the anonymized displayName ('A {industry} company (anonymized)').\n  Pass sourceUrl, sourceLabel, aiAgentDescription verbatim — fill-template.js renders clickable links and AI agent callouts.",
+  "FOMO naming rules (strictly enforced in JSON):\n  Use hawk.json fomoOrdered[].displayName for the 'name' field.\n  Real company name ONLY when fomoOrdered[].sourceUrl is a real public URL.\n  If sourceUrl null: use the anonymized displayName ('A {industry} company (anonymized)').\n  Pass sourceUrl, sourceLabel, aiAgentDescription verbatim — the Nunjucks template renders clickable links and AI agent callouts.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
   "Log to projects/{client}/run/petra-decisions.json (agent-scoped; orchestrate.js aggregates all *-decisions.json files into the final decisions.json — Petra NEVER writes decisions.json directly). One content-adaptation entry per major field adapted by psychology (challenge.lead, fomo ordering, closingLine, Stage 3 AgentForce adaptation). For each: what the default would have been, what changed, which hawk.json field drove it. Shape: { client, generatedAt, decisions: [{ id: 'PD-NNN', step, type: 'content-adaptation', decision: '1 sentence', rationale: '1-2 sentences', source: 'hawk.json.{field}' }] }. Prefix IDs as PD-NNN (matches Sage SD-NNN, Hawk HD-NNN, Flo FD-NNN). Append only — never modify existing entries.",
@@ -95,7 +95,8 @@ Log PD-NNN content-adaptation entries to run/petra-decisions.json for adapted fi
 ─────────────────────────────────────────────────────────────────────
 STEP 3 — Generate Proposal HTML
 ─────────────────────────────────────────────────────────────────────
-Run: node commons/branding/fill-template.js --template proposal --client {client}
+Run: npm run build:html
+Copy: docs/eleventy/_build/intake/proposal-{client}.html → projects/{client}/intake/proposal-{client}.html
 Confirm: "Proposal HTML written: projects/{client}/intake/proposal-{client}.html"
 
 ─────────────────────────────────────────────────────────────────────
@@ -109,7 +110,8 @@ Write projects/{client}/intake/integration-deck-content.json.
 ─────────────────────────────────────────────────────────────────────
 STEP 5 — Generate Integration Deck HTML
 ─────────────────────────────────────────────────────────────────────
-Run: node commons/branding/fill-template.js --template integration-deck --client {client}
+Run: npm run build:html
+Copy: docs/eleventy/_build/internal/integration-deck-{client}.html → projects/{client}/intake/integration-deck-{client}.html
 Confirm: "Integration deck HTML written: projects/{client}/intake/integration-deck-{client}.html"
 
 ─────────────────────────────────────────────────────────────────────
@@ -147,5 +149,5 @@ Integration Deck: projects/{client}/intake/integration-deck-{client}.html
 
 Ask: "Anything to adjust in tone, emphasis, or specific wording before this goes to Mira for final audit?"
 Wait for user response. Accept changes (e.g. 'soften the urgency in the FOMO section', 'add mention of their April deadline').
-Apply corrections, re-run fill-template.js for affected files. When confirmed: pass to Mira.
+Apply corrections, re-run `npm run build:html` and copy affected files. When confirmed: pass to Mira.
 """

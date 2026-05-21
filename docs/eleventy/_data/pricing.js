@@ -1,8 +1,7 @@
 // docs/eleventy/_data/pricing.js
 //
 // Exposes parsed pricing values to Eleventy templates as the `pricing` global.
-// Replaces parsePricingModelMd + the regex parsing inside fill-template.js
-// buildFlyer/buildProposal. Source of truth: commons/sales/pricing-model.md.
+// Source of truth: commons/sales/pricing-model.md.
 //
 // Usage in templates:  {{ pricing.baseRate }}  {{ pricing.fmt(pricing.implPerFlow) }}
 

@@ -209,5 +209,12 @@ module.exports = {
       if (!p) return '';
       return computeProposalDiagram(p, slug);
     },
+
+    proposalDeployments: data => {
+      const deps = (data.client && data.client.meta && data.client.meta.deployments) || [];
+      return deps
+        .filter(d => d.template === 'proposal')
+        .map(d => ({ ...d, dateLabel: (d.publishedAt || '').slice(0, 10) }));
+    },
   },
 };

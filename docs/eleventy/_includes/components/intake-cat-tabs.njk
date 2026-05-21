@@ -1,0 +1,4 @@
+{# intake-cat-tabs.njk — sticky category tab bar.
+   Input: intakeRendered.catTabs = [{ key, num, label, blurb, count, isActive }] #}
+{% for c in intakeRendered.catTabs %}<button type="button" class="cat-tab{% if c.isActive %} is-active{% endif %}" data-cat="{{ c.key | esc }}"><span class="ct-num">{{ c.num | esc }} · {{ c.label | upper }}</span><span class="ct-title">{{ c.label | esc }}</span><span class="ct-meta">{{ c.count }} {{ 'section' if c.count == 1 else 'sections' }} · {{ c.blurb | esc }}</span></button>
+{% endfor %}
