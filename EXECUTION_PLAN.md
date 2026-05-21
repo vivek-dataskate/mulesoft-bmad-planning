@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Not started — Phase 0 is next
+**Status:** Phase 2 is next (Phases 0–1 complete)
 
 ---
 
@@ -176,21 +176,21 @@ commons/
 
 ## Phase Checklist
 
-### Phase 0 — Pre-flight
-- [ ] Create branch `refactor/folder-structure`
-- [ ] Run `npm test` — confirm baseline green
-- [ ] Confirm `git status` clean
-- 📌 **COMMIT: `chore: pre-refactor baseline — tests green before restructure`**
+### Phase 0 — Pre-flight ✅
+- [x] Create branch `refactor/folder-structure`
+- [x] Run `npm test` — confirm baseline green (123/123)
+- [x] Confirm `git status` clean
+- 📌 **COMMIT: `chore: pre-refactor baseline — cleanup dead scaffold files, update scripts, add EXECUTION_PLAN`**
 
 ---
 
-### Phase 1 — Zero-reference moves
+### Phase 1 — Zero-reference moves ✅
 No code references to update — pure `git mv`.
-- [ ] `git mv Krisp/ _inbox/Krisp/`
-- [ ] `git mv tokens/ commons/tokens/`
-- [ ] `git mv _bmad-output/ _bmad/output/`
-- [ ] `git mv backstop.json tests/backstop/`
-- [ ] `git mv backstop_data/ tests/backstop/backstop_data/`
+- [x] `git mv Krisp/ _inbox/Krisp/`
+- [x] `git mv tokens/ commons/tokens/`
+- [x] `git mv _bmad-output/ _bmad/output/`
+- [x] `mv backstop.json tests/backstop/` (gitignored — mv + .gitignore unchanged)
+- [x] `git mv backstop_data/ tests/backstop/backstop_data/`
 - 📌 **COMMIT: `refactor: move zero-reference files to final locations`**
 
 ---
