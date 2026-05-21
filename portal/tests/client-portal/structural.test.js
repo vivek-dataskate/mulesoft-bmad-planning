@@ -44,10 +44,14 @@ slugs.forEach(slug => {
       expect(html).toMatch(/class="doc-grid/);
     });
 
-    // ── Branding ────────────────────────────────────────────────────────────
+    // ── Identity / branding ─────────────────────────────────────────────────
 
-    test('DataSkate branding is present', () => {
-      expect(html).toMatch(/[Dd]ata[Ss]kate/);
+    test('"Engagement Portal" eyebrow is present', () => {
+      expect(html).toMatch(/Engagement Portal/);
+    });
+
+    test('"Powered by DataSkate" footer is present', () => {
+      expect(html).toMatch(/Powered by.*DataSkate|DataSkate/);
     });
 
     // ── No broken internal anchors ──────────────────────────────────────────

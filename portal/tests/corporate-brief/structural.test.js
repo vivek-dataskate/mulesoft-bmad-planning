@@ -36,11 +36,24 @@ slugs.forEach(slug => {
       expect(html).toMatch(/brief-header-top/);
     });
 
-    // ── Section content ─────────────────────────────────────────────────────
+    // ── Eyebrow / identity ──────────────────────────────────────────────────
 
-    test('executive summary section is present', () => {
-      // Section headings use text content — check for common brief section labels
-      expect(html).toMatch(/Executive Summary|Summary|Situation/i);
+    test('"Corporate Brief" eyebrow is present', () => {
+      expect(html).toMatch(/Corporate Brief/);
+    });
+
+    // ── Section content (actual h2 headings in the template) ───────────────
+
+    test('"Corporate Stack" section is present', () => {
+      expect(html).toMatch(/Corporate Stack/);
+    });
+
+    test('"What We Noticed" intelligence section is present', () => {
+      expect(html).toMatch(/What We Noticed/);
+    });
+
+    test('"Sources" citations section is present', () => {
+      expect(html).toMatch(/Sources/);
     });
 
     test('citations block is present', () => {

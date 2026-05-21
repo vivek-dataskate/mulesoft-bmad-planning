@@ -52,6 +52,10 @@ if (resources.includes('architect-guide')) {
     let html;
     beforeAll(() => { html = getResourceHtml('architect-guide'); });
 
+    test('"DataSkate Internal" top-bar eyebrow is present', () => {
+      expect(html).toMatch(/DataSkate Internal/);
+    });
+
     test('docs-shell wrapper is present', () => {
       expect(html).toMatch(/class="docs-shell/);
     });
@@ -82,12 +86,17 @@ if (resources.includes('ds-pricing-model')) {
     let html;
     beforeAll(() => { html = getResourceHtml('ds-pricing-model'); });
 
-    test('page has a heading or title element', () => {
-      expect(html).toMatch(/<h[1-4]|class="[^"]*title[^"]*"|class="[^"]*header[^"]*"/);
+    test('"MuleSoft Integration Services — Pricing Overview" tagline is present', () => {
+      expect(html).toMatch(/MuleSoft Integration Services/);
+      expect(html).toMatch(/Pricing Overview/);
     });
 
-    test('pricing-related content is present', () => {
-      expect(html).toMatch(/pric|rate|tier|model/i);
+    test('"Confidential" notice is present', () => {
+      expect(html).toMatch(/Confidential/);
+    });
+
+    test('pricing model cards are present', () => {
+      expect(html).toMatch(/class="model-card/);
     });
   });
 }

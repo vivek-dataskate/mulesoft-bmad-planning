@@ -27,6 +27,18 @@ slugs.forEach(slug => {
       expect(html).toMatch(/class="header/);
     });
 
+    test('"Integration Roadmap" eyebrow is present', () => {
+      expect(html).toMatch(/Integration Roadmap/);
+    });
+
+    test('<h1> heading is present', () => {
+      expect(html).toMatch(/<h1[^>]*>/);
+    });
+
+    test('h1 contains "MuleSoft Integration" or a custom title', () => {
+      expect(html).toMatch(/MuleSoft Integration|<h1[^>]*>[^<]+<\/h1>/);
+    });
+
     test('"Confidential" label is present', () => {
       expect(html).toMatch(/[Cc]onfidential/);
     });
