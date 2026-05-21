@@ -61,7 +61,6 @@ module.exports = function() {
       proposal:       readJsonSafe(path.join(projDir, 'intake', 'proposal-content.json')),
       corporateBrief: readJsonSafe(path.join(projDir, 'intake', 'corporate-brief-content.json')),
       intakeJson:     readJsonSafe(path.join(projDir, 'intake', 'intake-content.json')),
-      intakeMd:       readFileSafe(path.join(projDir, 'intake', `intake-questionnaire-${slug}.md`)),
       logoPath:       resolveClientLogoPath(slug),
       clientName:     meta.displayName || meta.name || slug,
       frozen:         meta.frozen === true,

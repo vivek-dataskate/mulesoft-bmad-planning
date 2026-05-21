@@ -29,13 +29,7 @@ reads = [
   "commons/branding/competitors.json",          # brand names to strip from client-facing copy
 ]
 writes = [
-  "projects/{client}/intake/proposal-content.json",     # in-place rewrite if needed
-  "projects/{client}/intake/intake-content.json",       # in-place rewrite if needed
-  "projects/{client}/intake/integration-deck-content.json", # in-place rewrite if needed
-  "projects/{client}/intake/proposal-{client}.html",    # re-rendered via Eleventy
-  "projects/{client}/intake/intake-questionnaire-{client}.html",
-  "projects/{client}/intake/integration-deck-{client}.html",
-  "projects/{client}/run/mira.json",
+  "projects/{client}/run/mira.json",   # ONLY output — rewrittenContent embedded here; orchestrate.js applies rewrites + re-renders HTML
 ]
 
 principles = [
@@ -64,7 +58,7 @@ principles = [
   "PORTFOLIO CONTEXT CONSISTENCY — when proposal-content.json.portfolioContext is non-null:\n  Verify the platformName, sponsorName, and siblings[] match company_context.json.corporateStack exactly (Petra should have passed verbatim; if there is drift, that is a Petra bug — rewrite using company_context.json as truth).\n  Verify EVERY sibling.integrationSignal field either (a) cites a real sourceUrl that Mira can fetch, or (b) is literally the string 'unknown — no public integration footprint found'. Any other value without a source is fabrication — replace with 'unknown'.\n  Verify the templateAngle sentence references the actual platformName and at least one named sibling. Generic phrasing like 'sister brands could benefit' is REJECT — rewrite using Hawk's portfolioTemplateFraming.templateAngle verbatim.\n  Verify the executiveAngle is omitted entirely when corporateStack.financialSponsor is null (no PE sponsor = no executive-sponsor framing).\n  If portfolioContext is null but company_context.json.corporateStack.operatingPlatform exists with 2+ siblings: ESCALATE — Petra missed it. Mira fills in the block from company_context.json + hawk.json and records an escalation note.",
 
   # ── REWRITE PROTOCOL ─────────────────────────────────────────────────
-  "REWRITE PROTOCOL — when Mira rewrites:\n  1. Edit the content JSON directly (proposal-content.json / intake-content.json / integration-deck-content.json).\n  2. Record: { original: '...', rewritten: '...', reason: '...' } in mira.json audits[].rewrites[].\n  3. After all rewrites: run `npm run build:html` once, then copy each modified template's output from docs/eleventy/_build/ to projects/{client}/intake/.\n  4. Do not re-render files where no rewrites were made.",
+  "REWRITE PROTOCOL — AGENT BOUNDARY RULE (see DSPipeline/AGENT-BOUNDARY-POLICY.md):\n  DO NOT edit content JSON files on disk. DO NOT run npm run build:html. DO NOT write any HTML files.\n  Instead:\n  1. Read the current content from the files on disk (read-only access is fine).\n  2. Build the complete rewritten version of each document that had any changes.\n  3. Record each change: { field: '{json path}', original: '...', rewritten: '...', reason: '...' } in mira.json audits[].rewrites[].\n  4. Embed the complete rewritten content objects in mira.json.rewrittenContent (null for any document with no rewrites).\n  The orchestrator reads rewrittenContent, writes the JSON files, runs build:html once, and copies affected HTML.",
 
   # ── ESCALATION ────────────────────────────────────────────────────────
   "ESCALATION — some issues Mira cannot resolve alone:\n  - First FOMO entry is anonymized after exhausting search strategies: flag for human resolution.\n  - A fact claimed in the proposal has no traceable source in sage.json or vera.json: flag and null the field, do not invent a substitute.\n  These become mira.json escalations[] — shown prominently in the conversational review.",
@@ -111,13 +105,11 @@ If flo.json flags.salesforceDetected: apply AgentForce Consistency checks.
 Rewrite any failing fields.
 
 ─────────────────────────────────────────────────────────────────────
-STEP 6 — Re-render HTML (only for files with rewrites)
+STEP 6 — Embed rewrittenContent in mira.json
 ─────────────────────────────────────────────────────────────────────
-If any content JSON was rewritten, run: npm run build:html
-Then copy each affected output from docs/eleventy/_build/ to projects/{client}/intake/:
-  Proposal:         _build/intake/proposal-{client}.html
-  Intake:           _build/intake/intake-questionnaire-{client}.html
-  Integration deck: _build/internal/integration-deck-{client}.html
+For each document that had any rewrites, include the complete rewritten object in mira.json.rewrittenContent.
+Set to null for documents with no rewrites — orchestrate.js skips those.
+Do NOT run npm run build:html. Do NOT write files. The orchestrator handles all of this post-Mira.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 7 — Write mira.json
@@ -135,10 +127,15 @@ Write projects/{client}/run/mira.json:
       "checkType": "banned-phrase | authenticity | psychology | naming | agentforce",
       "rewrites": [
         { "field": "{json path}", "original": "...", "rewritten": "...", "reason": "..." }
-      ],
-      "htmlRerendered": true | false
+      ]
     }
   ],
+  "rewrittenContent": {
+    "intake":          { ...complete rewritten intake-content.json... } | null,
+    "proposal":        { ...complete rewritten proposal-content.json... } | null,
+    "integrationDeck": { ...complete rewritten integration-deck-content.json... } | null,
+    "corporateBrief":  { ...complete rewritten corporate-brief-content.json... } | null
+  },
   "escalations": [
     { "issue": "...", "file": "...", "field": "...", "resolution": "human required" }
   ],

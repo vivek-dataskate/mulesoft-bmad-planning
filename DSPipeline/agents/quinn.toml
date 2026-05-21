@@ -28,10 +28,7 @@ reads = [
   "commons/sales/pricing-model.md",             # for pricing summary (internal section only — never recalculate, use flo.json)
 ]
 writes = [
-  "projects/{client}/intake/intake-questionnaire-{client}.md",
-  "projects/{client}/intake/intake-content.json",
-  "projects/{client}/intake/intake-questionnaire-{client}.html",   # via Eleventy
-  "projects/{client}/run/quinn.json",
+  "projects/{client}/run/quinn.json",   # ONLY output — intakeContent embedded here; orchestrate.js extracts + renders HTML
   "projects/{client}/run/quinn-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
   "docs/FIELD_KNOWLEDGE.md",                    # 8a: observation entries
   "standards/playbooks/{system}/{system}_playbook.json",   # 8b: new quirks append, maturity log update
@@ -64,8 +61,8 @@ principles = [
   # ── QUESTIONNAIRE OUTPUT FORMAT ───────────────────────────────────────
   "QUESTIONNAIRE MD STRUCTURE:\n  HEADER: client name, date, Scout source file. Three-line instruction: pre-filled answers shown — client leaves or corrects. Blank Answer lines are genuine unknowns. No checkboxes. Plain text.\n  SECTION 1: USE CASES — one sub-section per confirmed UC. UC block + scope boundary + single field-mapping cross-reference line + [POTENTIAL FLOW] sub-section for top 3 gaps.\n  SECTION 2: SYSTEMS AND ACCESS\n  SECTION 3: DATA AND FIELD MAPPING — 3.1 External ID fields table; 3.2-3.N one sub-section per confirmed flow with pre-filled mapping table. THIS IS THE ONLY PLACE FIELD MAPPING TABLES APPEAR.\n  SECTION 4: VOLUME AND PERFORMANCE\n  SECTION 5: SECURITY AND COMPLIANCE\n  SECTION 6: ERROR HANDLING\n  SECTION 7: DEPLOYMENT AND DEVOPS (Access Chain table at bottom)\n  SECTION 8: OPERATIONS AND SUPPORT\n  SECTION 9: TESTING AND GO-LIVE\n  SECTION 10: SYSTEM-SPECIFIC DETAILS — one sub-section per system, max 3 questions\n  INTERNAL FLAGS: numbered list of technical risks — never send to client\n  PRICING SUMMARY (internal): computed from flo.json pricing — do NOT recalculate. Label clearly 'Internal — Do Not Send to Client'.",
 
-  # ── HTML GENERATION ───────────────────────────────────────────────────
-  "Intake HTML generation:\n  NEVER write raw HTML. Output: projects/{client}/intake/intake-content.json.\n  Then run: npm run build:html\n  Copy: docs/eleventy/_build/intake/intake-questionnaire-{client}.html → projects/{client}/intake/intake-questionnaire-{client}.html\n\n  PSYCHOLOGY-ADAPTED WELCOME TEXT — apply ivy.json contentModifiers:\n  bizContext.snapshot: reframe through primaryProfile lens:\n    operational-pragmatist → end with what specifically stops on go-live day\n    visionary-strategic → end with the AI future they described\n    peer-comparison → include a one-line peer reference\n    risk-averse-conservative → end with stability and support model\n    roi-analytical → include a cost-or-time anchor\n  journeyCards[0] (Connected): use journeyFraming to set tone\n  journeyCards[2] (Agentic): for visionary-strategic write most specifically; for risk-averse-conservative frame as opt-in future capability\n  primaryPainQuote: if not null → use verbatim as opening line of bizContext.snapshot (attributed lightly). Only if positive enough to open with — if blunt, use as second sentence after a framing line.",
+  # ── INTAKE CONTENT (embedded in quinn.json) ──────────────────────────
+  "Intake content — AGENT BOUNDARY RULE (see DSPipeline/AGENT-BOUNDARY-POLICY.md):\n  DO NOT write intake-content.json separately. DO NOT write any .md file. DO NOT run npm run build:html.\n  Instead: build the full intake-content.json object and embed it as the `intakeContent` field in quinn.json.\n  The orchestrator reads quinn.json.intakeContent, writes intake-content.json, runs build:html, and copies the HTML.\n\n  PSYCHOLOGY-ADAPTED WELCOME TEXT — apply ivy.json contentModifiers:\n  bizContext.snapshot: reframe through primaryProfile lens:\n    operational-pragmatist → end with what specifically stops on go-live day\n    visionary-strategic → end with the AI future they described\n    peer-comparison → include a one-line peer reference\n    risk-averse-conservative → end with stability and support model\n    roi-analytical → include a cost-or-time anchor\n  journeyCards[0] (Connected): use journeyFraming to set tone\n  journeyCards[2] (Agentic): for visionary-strategic write most specifically; for risk-averse-conservative frame as opt-in future capability\n  primaryPainQuote: if not null → use verbatim as opening line of bizContext.snapshot (attributed lightly). Only if positive enough to open with — if blunt, use as second sentence after a framing line.",
 
   # ── KNOWLEDGE WRITE-BACK (8a-8c) + CONTEXT UPDATES ───────────────────
   # 8e (company_context.json) is handled by orchestrate.js post-Quinn reading quinn.json contextUpdates.
@@ -115,11 +112,11 @@ Build Section 3 tables per confirmed flow.
 Log QD-NNN field-mapping entries for assumed fields.
 
 ─────────────────────────────────────────────────────────────────────
-STEP 5 — Write Questionnaire MD
+STEP 5 — Assemble Questionnaire Content
 ─────────────────────────────────────────────────────────────────────
 Apply Questionnaire Output Format principle.
-Write projects/{client}/intake/intake-questionnaire-{client}.md.
-All sections S1-S10 + Internal Flags + Pricing Summary (from flo.json — do NOT recalculate).
+Assemble all sections S1-S10 + Internal Flags + Pricing Summary (from flo.json — do NOT recalculate).
+This content goes into the intakeContent object in STEP 7 — do NOT write any .md file.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 6 — Knowledge Write-back (8a-8c)
@@ -145,13 +142,13 @@ Wait for user response. Accept changes and update questionnaire MD accordingly.
 When confirmed: proceed to HTML generation.
 
 ─────────────────────────────────────────────────────────────────────
-STEP 7 — Generate Intake HTML
+STEP 7 — Build intakeContent object
 ─────────────────────────────────────────────────────────────────────
 Apply Psychology-Adapted Welcome Text from ivy.json.
-Write projects/{client}/intake/intake-content.json (full schema per Scout Session 3b principle).
-Run: npm run build:html
-Copy: docs/eleventy/_build/intake/intake-questionnaire-{client}.html → projects/{client}/intake/intake-questionnaire-{client}.html
-Confirm: "Intake HTML written: projects/{client}/intake/intake-questionnaire-{client}.html"
+Build the complete intake-content.json object (full schema per HTML generation principle).
+Do NOT write it to disk. Do NOT run npm run build:html.
+Embed it as the `intakeContent` field in quinn.json (STEP 9).
+The orchestrator handles extraction, build, and copy post-Quinn.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 8 — (Firebase deploy removed — runs post-Mira via orchestrate.js)
@@ -173,11 +170,7 @@ Write projects/{client}/run/quinn.json:
     "fieldMappingFlows": N,
     "openItems": ["{question that could not be pre-filled}"]
   },
-  "deliverables": {
-    "questionnaireMd": "projects/{client}/intake/intake-questionnaire-{client}.md",
-    "intakeContentJson": "projects/{client}/intake/intake-content.json",
-    "intakeHtml": "projects/{client}/intake/intake-questionnaire-{client}.html"
-  },
+  "intakeContent": { ...complete intake-content.json object — orchestrate.js extracts this and renders HTML... },
   "knowledgeWritebacks": ["{FIELD_KNOWLEDGE FK-NNN}", "{playbook.json path}"],
   "contextUpdates": {
     "p0Blockers": null,

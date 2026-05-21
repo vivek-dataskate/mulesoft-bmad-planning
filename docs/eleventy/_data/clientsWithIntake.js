@@ -1,7 +1,5 @@
-// Subset of clients that have intake content — either intake-content.json or
-// intake-questionnaire-{slug}.md — used by site/intake/intake.njk to paginate.
-// JSON takes priority over MD when both exist.
+// Subset of clients that have intake-content.json — used by site/intake/intake.njk to paginate.
 const clients = require('./clients')();
 module.exports = function() {
-  return clients.filter(c => c.intakeJson != null || c.intakeMd != null);
+  return clients.filter(c => c.intakeJson != null);
 };

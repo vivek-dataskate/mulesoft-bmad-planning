@@ -905,6 +905,124 @@ function renderCorporateBrief(slug) {
   return outPath;
 }
 
+// ─── Render Intake (post-Quinn) ───────────────────────────────────────────────
+// Extracts quinn.json.intakeContent → writes intake-content.json → Eleventy → copies HTML.
+
+function renderIntake(slug) {
+  const projectDir = path.join(PROJECTS_DIR, slug);
+  const quinnData  = readJson(path.join(projectDir, 'run', 'quinn.json')) || {};
+  if (!quinnData.intakeContent) {
+    stepLog('renderIntake: quinn.json has no intakeContent — skipping', 'WARN');
+    console.log(`  ${yellow('⚠')}  quinn.json missing intakeContent — intake HTML not rendered`);
+    return null;
+  }
+  const contentPath = path.join(projectDir, 'intake', 'intake-content.json');
+  fs.mkdirSync(path.dirname(contentPath), { recursive: true });
+  writeJson(contentPath, quinnData.intakeContent);
+  logFileInfo(contentPath, 'intake-content.json');
+  const result = spawnSync('npm', ['run', 'build:html'], { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' });
+  if (result.status !== 0) {
+    stepLog(`renderIntake: Eleventy build failed — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
+    return null;
+  }
+  const src = path.join(ROOT, 'docs', 'eleventy', '_build', 'intake', `intake-questionnaire-${slug}.html`);
+  const dst = path.join(projectDir, 'intake', `intake-questionnaire-${slug}.html`);
+  if (!fs.existsSync(src)) {
+    stepLog(`renderIntake: Eleventy did not produce intake-questionnaire-${slug}.html`, 'WARN');
+    return null;
+  }
+  fs.copyFileSync(src, dst);
+  logFileInfo(dst, `intake-questionnaire-${slug}.html`);
+  return dst;
+}
+
+// ─── Render Proposal + Integration Deck (post-Petra) ─────────────────────────
+// Extracts petra.json.proposalContent + integrationDeckContent → writes JSON → Eleventy → copies HTML.
+
+function renderProposalAndDeck(slug) {
+  const projectDir = path.join(PROJECTS_DIR, slug);
+  const petraData  = readJson(path.join(projectDir, 'run', 'petra.json')) || {};
+  const intakeDir  = path.join(projectDir, 'intake');
+  fs.mkdirSync(intakeDir, { recursive: true });
+  let anyWritten = false;
+  if (petraData.proposalContent) {
+    writeJson(path.join(intakeDir, 'proposal-content.json'), petraData.proposalContent);
+    logFileInfo(path.join(intakeDir, 'proposal-content.json'), 'proposal-content.json');
+    anyWritten = true;
+  }
+  if (petraData.integrationDeckContent) {
+    writeJson(path.join(intakeDir, 'integration-deck-content.json'), petraData.integrationDeckContent);
+    logFileInfo(path.join(intakeDir, 'integration-deck-content.json'), 'integration-deck-content.json');
+    anyWritten = true;
+  }
+  if (!anyWritten) {
+    stepLog('renderProposalAndDeck: petra.json has no proposalContent or integrationDeckContent — skipping', 'WARN');
+    console.log(`  ${yellow('⚠')}  petra.json missing content fields — proposal/deck HTML not rendered`);
+    return null;
+  }
+  const result = spawnSync('npm', ['run', 'build:html'], { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' });
+  if (result.status !== 0) {
+    stepLog(`renderProposalAndDeck: Eleventy build failed — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
+    return null;
+  }
+  const copies = [
+    [path.join('intake', `proposal-${slug}.html`),           path.join(intakeDir, `proposal-${slug}.html`)],
+    [path.join('internal', `integration-deck-${slug}.html`), path.join(intakeDir, `integration-deck-${slug}.html`)],
+  ];
+  const out = [];
+  for (const [buildRel, dst] of copies) {
+    const src = path.join(ROOT, 'docs', 'eleventy', '_build', buildRel);
+    if (!fs.existsSync(src)) { stepLog(`renderProposalAndDeck: missing ${buildRel}`, 'WARN'); continue; }
+    fs.copyFileSync(src, dst);
+    logFileInfo(dst, path.basename(dst));
+    out.push(dst);
+  }
+  return out.length ? out : null;
+}
+
+// ─── Apply Mira Rewrites (post-Mira) ─────────────────────────────────────────
+// Reads mira.json.rewrittenContent → writes any non-null content JSONs → Eleventy → copies HTML.
+
+function applyMiraRewrites(slug) {
+  const projectDir = path.join(PROJECTS_DIR, slug);
+  const miraData   = readJson(path.join(projectDir, 'run', 'mira.json')) || {};
+  const rewrites   = miraData.rewrittenContent || {};
+  const intakeDir  = path.join(projectDir, 'intake');
+  const BUILD      = path.join(ROOT, 'docs', 'eleventy', '_build');
+  const fileMap = {
+    intake:          { content: 'intake-content.json',           buildSrc: path.join('intake',    `intake-questionnaire-${slug}.html`) },
+    proposal:        { content: 'proposal-content.json',         buildSrc: path.join('intake',    `proposal-${slug}.html`) },
+    integrationDeck: { content: 'integration-deck-content.json', buildSrc: path.join('internal',  `integration-deck-${slug}.html`) },
+    corporateBrief:  { content: 'corporate-brief-content.json',  buildSrc: path.join('intake',    `corporate-brief-${slug}.html`) },
+  };
+  let anyWritten = false;
+  const toRender = [];
+  for (const [key, { content, buildSrc }] of Object.entries(fileMap)) {
+    if (!rewrites[key]) continue;
+    writeJson(path.join(intakeDir, content), rewrites[key]);
+    logFileInfo(path.join(intakeDir, content), content);
+    toRender.push(buildSrc);
+    anyWritten = true;
+  }
+  if (!anyWritten) {
+    stepLog('applyMiraRewrites: no rewrittenContent in mira.json — no re-render needed', 'DATA');
+    return null;
+  }
+  const result = spawnSync('npm', ['run', 'build:html'], { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' });
+  if (result.status !== 0) {
+    stepLog(`applyMiraRewrites: Eleventy build failed — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
+    return null;
+  }
+  for (const buildRel of toRender) {
+    const src = path.join(BUILD, buildRel);
+    const dst = path.join(intakeDir, path.basename(buildRel));
+    if (!fs.existsSync(src)) { stepLog(`applyMiraRewrites: missing ${buildRel}`, 'WARN'); continue; }
+    fs.copyFileSync(src, dst);
+    logFileInfo(dst, path.basename(dst));
+  }
+  return toRender;
+}
+
 // ─── Firebase Deploy (post-Mira) ─────────────────────────────────────────────
 // Runs after Mira has audited all client-facing documents.
 // Delegates entirely to update-firebase.js — the single canonical sync script —
@@ -1383,6 +1501,46 @@ async function runPipeline(slug) {
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} standards/client-registry.json updated`);
       stepLog('POST-FLO: client-registry updated', 'END');
+    }
+
+    // Post-Quinn: extract intakeContent → write intake-content.json → build → copy HTML
+    if (agent.slug === 'quinn') {
+      stepLog('POST-QUINN: rendering intake HTML', 'START');
+      try {
+        const intakeHtml = renderIntake(slug);
+        if (intakeHtml) console.log(`  ${green('✓')} projects/${slug}/intake/intake-questionnaire-${slug}.html — rendered`);
+        stepLog('POST-QUINN: intake render done', 'END');
+      } catch (e) {
+        stepLog(`POST-QUINN: renderIntake FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  renderIntake failed — run manually: node -e "require('./DSPipeline/scout/orchestrate.js')" (or check logs)`);
+      }
+    }
+
+    // Post-Petra: extract proposalContent + integrationDeckContent → build → copy HTML
+    if (agent.slug === 'petra') {
+      stepLog('POST-PETRA: rendering proposal + integration deck HTML', 'START');
+      try {
+        const rendered = renderProposalAndDeck(slug);
+        if (rendered) console.log(`  ${green('✓')} proposal + integration deck HTML rendered (${rendered.length} files)`);
+        stepLog('POST-PETRA: proposal/deck render done', 'END');
+      } catch (e) {
+        stepLog(`POST-PETRA: renderProposalAndDeck FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  renderProposalAndDeck failed — check logs`);
+      }
+    }
+
+    // Post-Mira: apply rewrites → re-render → deploy to Firebase
+    if (agent.slug === 'mira') {
+      stepLog('POST-MIRA: applying Mira rewrites', 'START');
+      try {
+        const applied = applyMiraRewrites(slug);
+        if (applied) console.log(`  ${green('✓')} Mira rewrites applied + HTML re-rendered (${applied.length} file(s))`);
+        else console.log(`  ${dim('↳ no rewrites to apply')}`);
+        stepLog('POST-MIRA: Mira rewrites done', 'END');
+      } catch (e) {
+        stepLog(`POST-MIRA: applyMiraRewrites FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  applyMiraRewrites failed — check logs`);
+      }
     }
 
     // Post-Mira: deploy to Firebase (all docs audited — safe to publish)
