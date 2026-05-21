@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 8 is next (Phases 0–7 complete)
+**Status:** Phase 9 is next (Phases 0–8 complete)
 
 ---
 
@@ -315,14 +315,17 @@ Files to update (17 total):
 
 ---
 
-### Phase 8 — Migrate existing clients to phase-based structure
+### Phase 8 — Migrate existing clients to phase-based structure ✅
 For `agilemind/`, `homage/`, `sample/`:
-- [ ] Create all phase folders matching `_template/`
-- [ ] Move agent JSONs from `run/` → `scoping/run/`
-- [ ] Move intake HTML → `intake/client/`
-- [ ] Move raw transcripts → `scoping/transcripts/`
-- [ ] `project.json`, `decisions.json`, `company_context.json` stay at client root
-- 📌 **COMMIT: `refactor: migrate agilemind + homage + sample to phase-based structure`**
+- [x] Create all phase folders matching `_template/` (sow/, requirements/, planning/, dev/, test/, hypercare/)
+- [x] Move agent JSONs from `run/` → `scoping/run/`
+- [x] Move intake HTML + logos → `intake/client/`
+- [x] Move `intake/system-diagram.svg` → `intake/diagrams/`
+- [x] `project.json`, `decisions.json`, `company_context.json` stay at client root
+- [x] Update orchestrate.js, generate-backstop-config.js, generate-diagrams.js, update-firebase.js, proposal.11tydata.js
+- [x] .gitignore: `projects/*/scoping/` → `projects/*/scoping/transcripts/` (allow `scoping/run/` to be tracked)
+- [x] Also added `agilemind2/` with full phase structure
+- 📌 **COMMIT: `refactor: migrate clients to phase-based structure + update all path references (Phase 8)`**
 
 ---
 
