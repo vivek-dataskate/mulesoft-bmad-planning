@@ -172,7 +172,7 @@ function mdToHtml(md) {
   return blocks.join('\n');
 }
 
-// Extract h1 title from markdown — used by buildResource to populate the page header.
+// Extract h1 title from markdown — used by the Eleventy mdH1 filter in architect-guide.njk.
 // Returns the first '# Heading' text, or null.
 function extractH1Title(md) {
   const m = md.match(/^#+ (.+)/m);

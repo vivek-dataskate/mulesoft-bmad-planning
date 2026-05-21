@@ -38,7 +38,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const ROOT     = path.resolve(__dirname, '..');
-const MANIFEST = path.join(ROOT, 'commons', 'templates', 'version-manifest.json');
+const MANIFEST = path.join(ROOT, 'docs', 'eleventy', 'version-manifest.json');
 const FILL     = path.join(ROOT, 'commons', 'branding', 'fill-template.js');
 const FIREBASE_HOST = 'https://dataskateclients.web.app';
 
