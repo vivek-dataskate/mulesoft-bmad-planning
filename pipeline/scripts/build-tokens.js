@@ -10,7 +10,7 @@
 // CSS var names preserve the historical short form (--brand, --brand-dk, etc.) so
 // no consumer templates need to change when we upgrade token tooling.
 //
-// Run: npm run build:tokens   (or)   node scripts/build-tokens.js
+// Run: npm run build:tokens   (or)   node pipeline/scripts/build-tokens.js
 
 'use strict';
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Thin passthrough — all Firebase logic lives in update-firebase.js (single-window pattern).
-// Usage: node scripts/upload-agent-framework.js
+// Usage: node pipeline/scripts/upload-agent-framework.js
 'use strict';
 const { spawnSync } = require('child_process');
 const path = require('path');

@@ -1138,12 +1138,12 @@ function archiveScopingFiles(slug) {
   stepLog(`archiveScopingFiles: ${scopingFiles.length} file(s) to archive: ${scopingFiles.join(', ')}`, 'DATA');
   console.log('  Archiving scoping source files to Firebase Storage...');
   try {
-    execSync(`node scripts/move-sources.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+    execSync(`node pipeline/scripts/move-sources.js ${slug}`, { cwd: ROOT, stdio: 'inherit' });
     stepLog('archiveScopingFiles: archive complete', 'END');
     console.log(`  ${green('✓')} Source files archived`);
   } catch (e) {
     stepLog(`archiveScopingFiles: FAILED — ${e.message}`, 'ERROR');
-    console.log(`  ${yellow('⚠')}  move-sources.js failed — run manually: node scripts/move-sources.js ${slug}`);
+    console.log(`  ${yellow('⚠')}  move-sources.js failed — run manually: node pipeline/scripts/move-sources.js ${slug}`);
   }
 }
 

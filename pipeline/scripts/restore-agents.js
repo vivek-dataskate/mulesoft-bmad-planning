@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Thin passthrough — all Firebase logic lives in update-firebase.js (single-window pattern).
-// Usage: node scripts/restore-agents.js [--force]
+// Usage: node pipeline/scripts/restore-agents.js [--force]
 'use strict';
 const { spawnSync } = require('child_process');
 const path = require('path');

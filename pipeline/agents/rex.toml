@@ -16,15 +16,15 @@ interaction = "conversational"
 version = "1.0.0"
 
 reads = [
-  "projects/{client}/run/sage.json",
-  "projects/{client}/run/vera.json",
+  "projects/{client}/scoping/run/sage.json",
+  "projects/{client}/scoping/run/vera.json",
   "mulesoft/connector-names.json",              # 65KB — display names + auth + category for all 350 connectors
   "mulesoft/connector-registry.json",              # queried on-demand via query-connector.py (never fully loaded)
   "mulesoft/playbooks/{system}/{system}_playbook.json",  # loaded per detected system
   "mulesoft/canonical-models/registry.json",   # for stub creation (7D)
 ]
 writes = [
-  "projects/{client}/run/rex.json",
+  "projects/{client}/scoping/run/rex.json",
   "projects/{client}/canonical-extensions.yaml",
   "mulesoft/playbooks/{system}/{system}_playbook.json",   # stub creation + maturity log update
   "mulesoft/connector-registry.json",           # new system stubs
@@ -76,7 +76,7 @@ workflow = """
 === REX WORKFLOW ===
 
 VALIDATION:
-Read projects/{client}/run/sage.json and projects/{client}/run/vera.json.
+Read projects/{client}/scoping/run/sage.json and projects/{client}/scoping/run/vera.json.
 Both must have status=complete.
 If not → output { "status": "invalid", "reason": "sage.json and/or vera.json missing. Run Sage and Vera first." }
 
@@ -135,7 +135,7 @@ Update registry for verified systems. (build-connector-index.js runs via orchest
 ─────────────────────────────────────────────────────────────────────
 STEP 7 — Write rex.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/rex.json:
+Write projects/{client}/scoping/run/rex.json:
 {
   "status": "complete",
   "client": "{slug}",

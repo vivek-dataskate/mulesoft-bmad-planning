@@ -101,6 +101,10 @@ section.brief-section h2::before { content:''; display:inline-block; width:18px;
 .brief-closing { font-size:13px; color:var(--dark); padding:18px 0 0; line-height:1.6; }
 .brief-closing .signoff { font-size:11px; color:var(--mid); margin-top:10px; }
 
+/* ── Footer ── */
+.brief-footer { border-top:1px solid var(--border); padding:14px 56px; font-size:11px; color:var(--mid); display:flex; justify-content:space-between; align-items:center; max-width:960px; margin:0 auto; }
+.brief-footer a { color:var(--mid); text-decoration:none; }
+
 /* ── Print ── */
 @media print {
   .brief-header, .page { padding:16px 32px; }
@@ -211,4 +215,10 @@ section.brief-section h2::before { content:''; display:inline-block; width:18px;
   </div>
 
 </div>
+
+<div class="brief-footer no-print">
+  <span>{{ architect | esc }} · <a href="mailto:{{ archEmail | esc }}">{{ archEmail | esc }}</a> · DataSkate · dataskate.ai</span>
+  <strong>Confidential</strong>
+</div>
+
 {% endblock %}

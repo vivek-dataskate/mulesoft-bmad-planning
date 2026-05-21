@@ -140,7 +140,7 @@ exports.krispWebhook = onRequest(
 
     const datePrefix = new Date(startTime).toISOString().slice(0, 10); // YYYY-MM-DD
     const folderSlug = `${datePrefix}-${toSlug(title)}`;
-    const githubPath = `Krisp/${folderSlug}.json`;
+    const githubPath = `_inbox/Krisp/${folderSlug}/krisp-meeting.json`;
 
     // 1. Save to Firestore
     try {
@@ -155,13 +155,30 @@ exports.krispWebhook = onRequest(
       return res.status(500).json({ error: 'firestore', message: e.message });
     }
 
-    // 2. Commit to GitHub _inbox/{date}-{title}/krisp-meeting.json
+    // 2. Commit to GitHub — strip any presigned/signed URL fields that embed
+    // temporary AWS credentials (Krisp embeds STS keys in recording_url).
+    const REDACTED_URL_KEYS = new Set([
+      'recording_url', 'recordingUrl', 'recording_link',
+      'audio_url', 'audioUrl', 'video_url', 'videoUrl',
+      'download_url', 'downloadUrl'
+    ]);
+    function sanitizeForGitHub(obj) {
+      if (!obj || typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) return obj.map(sanitizeForGitHub);
+      return Object.fromEntries(
+        Object.entries(obj).map(([k, v]) => [
+          k,
+          REDACTED_URL_KEYS.has(k) ? '[redacted — presigned URL]' : sanitizeForGitHub(v)
+        ])
+      );
+    }
+
     try {
       const token = githubToken.value().trim();
       await commitToGitHub(
         token,
         githubPath,
-        JSON.stringify(payload, null, 2),
+        JSON.stringify(sanitizeForGitHub(payload), null, 2),
         `inbox: Krisp meeting "${title}" [skip ci]`
       );
       console.log(`Committed ${githubPath} to GitHub`);

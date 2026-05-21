@@ -16,10 +16,10 @@ interaction = "conversational"
 version = "1.0.0"
 
 reads = [
-  "projects/{client}/run/ivy.json",
-  "projects/{client}/run/hawk.json",
-  "projects/{client}/run/flo.json",
-  "projects/{client}/run/sage.json",
+  "projects/{client}/scoping/run/ivy.json",
+  "projects/{client}/scoping/run/hawk.json",
+  "projects/{client}/scoping/run/flo.json",
+  "projects/{client}/scoping/run/sage.json",
   "projects/{client}/intake/proposal-{client}.html",
   "projects/{client}/intake/intake-questionnaire-{client}.html",
   "projects/{client}/intake/integration-deck-{client}.html",
@@ -29,7 +29,7 @@ reads = [
   "commons/branding/competitors.json",          # brand names to strip from client-facing copy
 ]
 writes = [
-  "projects/{client}/run/mira.json",   # ONLY output — rewrittenContent embedded here; orchestrate.js applies rewrites + re-renders HTML
+  "projects/{client}/scoping/run/mira.json",   # ONLY output — rewrittenContent embedded here; orchestrate.js applies rewrites + re-renders HTML
 ]
 
 principles = [
@@ -114,7 +114,7 @@ Do NOT run npm run build:html. Do NOT write files. The orchestrator handles all 
 ─────────────────────────────────────────────────────────────────────
 STEP 7 — Write mira.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/mira.json:
+Write projects/{client}/scoping/run/mira.json:
 {
   "status": "complete",
   "client": "{slug}",

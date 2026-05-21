@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Thin passthrough — all Firebase logic lives in update-firebase.js (single-window pattern).
-// Usage: node scripts/export-discount-log.js [--project slug] [--out file]
+// Usage: node pipeline/scripts/export-discount-log.js [--project slug] [--out file]
 'use strict';
 const { spawnSync } = require('child_process');
 const path = require('path');

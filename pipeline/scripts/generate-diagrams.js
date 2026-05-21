@@ -6,7 +6,7 @@
  * renders a two-panel side-by-side SVG and saves it to
  * projects/{client}/intake/diagrams/system-diagram.svg
  *
- * Usage: node scripts/generate-diagrams.js homage
+ * Usage: node pipeline/scripts/generate-diagrams.js homage
  */
 'use strict';
 const fs   = require('fs');
@@ -14,7 +14,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '../..');
 const slug = process.argv[2];
-if (!slug) { console.error('Usage: node scripts/generate-diagrams.js <slug>'); process.exit(1); }
+if (!slug) { console.error('Usage: node pipeline/scripts/generate-diagrams.js <slug>'); process.exit(1); }
 
 const projPath = path.join(ROOT, 'projects', slug, 'project.json');
 if (!fs.existsSync(projPath)) { console.error(`No project.json at projects/${slug}/`); process.exit(1); }

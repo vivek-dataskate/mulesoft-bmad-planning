@@ -21,17 +21,17 @@ interaction = "conversational"
 version = "1.0.0"
 
 reads = [
-  "projects/{client}/run/ivy.json",
-  "projects/{client}/run/vera.json",
-  "projects/{client}/run/flo.json",
-  "projects/{client}/run/sage.json",            # for primaryPainQuote + aspirationQuote
+  "projects/{client}/scoping/run/ivy.json",
+  "projects/{client}/scoping/run/vera.json",
+  "projects/{client}/scoping/run/flo.json",
+  "projects/{client}/scoping/run/sage.json",            # for primaryPainQuote + aspirationQuote
   "commons/sales/proposal-structure.md",        # for default closingLine and Stage 3 writing rules
   "commons/sales/reference-network.json",           # read when vera.json credentialingAnchors[] is non-empty — for howToReference wording
   "commons/sales/psychology-profiles.json",     # read for secondary profile contentModifiers when ivy.json secondaryProfile is not null
 ]
 writes = [
-  "projects/{client}/run/hawk.json",
-  "projects/{client}/run/hawk-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
+  "projects/{client}/scoping/run/hawk.json",
+  "projects/{client}/scoping/run/hawk-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
 ]
 
 principles = [
@@ -115,7 +115,7 @@ Apply AE Talking Point principle — write one sentence.
 ─────────────────────────────────────────────────────────────────────
 STEP 6 — Write hawk.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/hawk.json:
+Write projects/{client}/scoping/run/hawk.json:
 {
   "status": "complete",
   "client": "{slug}",

@@ -12,9 +12,9 @@
  * Called by: pipeline/scout/orchestrate.js (post-Mira), deploy.sh
  *
  * Usage:
- *   node scripts/update-firebase.js agilemind
- *   node scripts/update-firebase.js --all
- *   node scripts/update-firebase.js --all --no-deploy
+ *   node pipeline/scripts/update-firebase.js agilemind
+ *   node pipeline/scripts/update-firebase.js --all
+ *   node pipeline/scripts/update-firebase.js --all --no-deploy
  */
 
 const admin = require('firebase-admin');
@@ -522,7 +522,7 @@ async function cmdUploadAgents() {
   });
   fs.unlinkSync(tmp);
   log(`Done. Agent framework uploaded → ${STORAGE_PATH}`);
-  log('Restore with: node scripts/restore-agents.js');
+  log('Restore with: node pipeline/scripts/restore-agents.js');
 }
 
 // ── CMD: Restore agent framework from Firebase Storage ────────────────────────
@@ -562,7 +562,7 @@ async function cmdMoveSources(args) {
   const msIdx    = args.indexOf('--move-sources');
   const client   = args[msIdx + 1];
   if (!client || client.startsWith('--')) {
-    console.error('Usage: node scripts/update-firebase.js --move-sources <client> [--dir path] [--keep]');
+    console.error('Usage: node pipeline/scripts/update-firebase.js --move-sources <client> [--dir path] [--keep]');
     process.exit(1);
   }
   const dirIdx    = args.indexOf('--dir');
@@ -625,7 +625,7 @@ async function cmdAddClient(args) {
   const idx    = args.indexOf('--add-client');
   const client = args[idx + 1];
   if (!client || client.startsWith('--')) {
-    console.error('Usage: node scripts/update-firebase.js --add-client <client> [--status status]');
+    console.error('Usage: node pipeline/scripts/update-firebase.js --add-client <client> [--status status]');
     process.exit(1);
   }
   const statusIdx = args.indexOf('--status');
@@ -678,12 +678,12 @@ async function main() {
 
   if (!runAll && !slug) {
     console.error('Usage:');
-    console.error('  node scripts/update-firebase.js <slug>|--all [--no-deploy]');
-    console.error('  node scripts/update-firebase.js --export-discounts [--project slug] [--out file]');
-    console.error('  node scripts/update-firebase.js --upload-agents');
-    console.error('  node scripts/update-firebase.js --restore-agents [--force]');
-    console.error('  node scripts/update-firebase.js --move-sources <client> [--dir path] [--keep]');
-    console.error('  node scripts/update-firebase.js --add-client <client> [--status status]');
+    console.error('  node pipeline/scripts/update-firebase.js <slug>|--all [--no-deploy]');
+    console.error('  node pipeline/scripts/update-firebase.js --export-discounts [--project slug] [--out file]');
+    console.error('  node pipeline/scripts/update-firebase.js --upload-agents');
+    console.error('  node pipeline/scripts/update-firebase.js --restore-agents [--force]');
+    console.error('  node pipeline/scripts/update-firebase.js --move-sources <client> [--dir path] [--keep]');
+    console.error('  node pipeline/scripts/update-firebase.js --add-client <client> [--status status]');
     process.exit(1);
   }
 

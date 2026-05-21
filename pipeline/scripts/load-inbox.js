@@ -4,8 +4,8 @@
  * so Scout can process them with no behavior changes.
  *
  * Usage:
- *   node scripts/load-inbox.js              — interactive list
- *   node scripts/load-inbox.js econo-petro  — fuzzy match by name
+ *   node pipeline/scripts/load-inbox.js              — interactive list
+ *   node pipeline/scripts/load-inbox.js econo-petro  — fuzzy match by name
  *
  * Rules:
  *   - _inbox/ must be empty before loading (warns if not)
@@ -131,14 +131,14 @@ function interactiveList(clients) {
     console.log(`  ${String(i + 1).padStart(2)}. ${c.folder}${done}${status}`);
     console.log(`      slug: ${c.slug} | files: ${result.length}`);
   });
-  console.log(`\nUsage: node scripts/load-inbox.js "<folder name or slug>"`);
+  console.log(`\nUsage: node pipeline/scripts/load-inbox.js "<folder name or slug>"`);
 }
 
 function getSessionStatus(client) {
   const intakePath  = path.join(PROJECTS, client.slug, "intake");
-  const statePath   = path.join(PROJECTS, client.slug, "run", "pipeline-state.json");
-  const hasIntakeHtml = fs.existsSync(path.join(intakePath, `intake-questionnaire-${client.slug}.html`));
-  const hasProposal   = fs.existsSync(path.join(intakePath, `proposal-${client.slug}.html`));
+  const statePath   = path.join(PROJECTS, client.slug, "scoping", "run", "pipeline-state.json");
+  const hasIntakeHtml = fs.existsSync(path.join(intakePath, 'client', `intake-questionnaire-${client.slug}.html`));
+  const hasProposal   = fs.existsSync(path.join(intakePath, 'client', `proposal-${client.slug}.html`));
 
   if (hasIntakeHtml && hasProposal) return { label: "DONE ✓",      next: null };
 

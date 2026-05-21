@@ -6,8 +6,8 @@
  * Skips duplicate files (those ending with " (N).mp4").
  *
  * Usage:
- *   node scripts/transcribe-recordings.js               # scans _bulkinbox/
- *   node scripts/transcribe-recordings.js --dir <path>  # scans a specific directory
+ *   node pipeline/scripts/transcribe-recordings.js               # scans _bulkinbox/
+ *   node pipeline/scripts/transcribe-recordings.js --dir <path>  # scans a specific directory
  * Requires: GEMINI_API_KEY env var
  *
  * Status: written to {dir}/transcription-status.json after every file.

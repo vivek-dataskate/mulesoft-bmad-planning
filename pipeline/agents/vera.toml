@@ -15,7 +15,7 @@ interaction = "conversational"
 version = "1.0.0"
 
 reads = [
-  "projects/{client}/run/sage.json",
+  "projects/{client}/scoping/run/sage.json",
   "mulesoft/canonical-models/registry.json",  # to determine standard/standardBody for business objects
   "mulesoft/playbooks/usecases/{vertical}.json",         # loaded after vertical is identified in Step 1
   "commons/sales/reference-network.json",           # read when competitive-evaluation signal detected — surfaces DataSkate named reference clients
@@ -23,7 +23,7 @@ reads = [
   "commons/sales/psychology-profiles.json",     # read when competitive-evaluation signal detected — profile signal phrases for basic profiling pass
 ]
 writes = [
-  "projects/{client}/run/vera.json",            # all research output; libraryContributions[] promoted to standards/ by promote-library.js
+  "projects/{client}/scoping/run/vera.json",            # all research output; libraryContributions[] promoted to standards/ by promote-library.js
 ]
 
 principles = [
@@ -77,7 +77,7 @@ workflow = """
 === VERA WORKFLOW ===
 
 VALIDATION:
-Read projects/{client}/run/sage.json. Check: does it have status=complete?
+Read projects/{client}/scoping/run/sage.json. Check: does it have status=complete?
 If no → output { "status": "invalid", "reason": "sage.json missing or incomplete. Run Sage first." }
 If yes → proceed.
 
@@ -130,7 +130,7 @@ Stage library contributions in vera.json.libraryContributions[] — do NOT write
 ─────────────────────────────────────────────────────────────────────
 STEP 7 — Write vera.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/vera.json:
+Write projects/{client}/scoping/run/vera.json:
 {
   "status": "complete",
   "client": "{slug}",

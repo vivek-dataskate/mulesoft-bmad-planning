@@ -16,14 +16,14 @@ interaction = "gated"
 version = "1.0.0"
 
 reads = [
-  "projects/{client}/run/sage.json",
-  "projects/{client}/run/vera.json",
-  "projects/{client}/run/rex.json",
+  "projects/{client}/scoping/run/sage.json",
+  "projects/{client}/scoping/run/vera.json",
+  "projects/{client}/scoping/run/rex.json",
   "commons/sales/pricing-model.md",             # single source of truth for all pricing
 ]
 writes = [
-  "projects/{client}/run/flo.json",
-  "projects/{client}/run/flo-decisions.json",   # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
+  "projects/{client}/scoping/run/flo.json",
+  "projects/{client}/scoping/run/flo-decisions.json",   # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
   # project.json (flowCount, pricingComputed) and decisions.json are written by orchestrate.js post-Flo
 ]
 
@@ -100,7 +100,7 @@ Check for Salesforce in any confirmed flow system. Set flags.salesforceDetected 
 ─────────────────────────────────────────────────────────────────────
 STEP 6 — Write flo.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/flo.json:
+Write projects/{client}/scoping/run/flo.json:
 {
   "status": "complete",
   "client": "{slug}",

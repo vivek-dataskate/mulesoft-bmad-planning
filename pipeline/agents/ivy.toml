@@ -23,12 +23,12 @@ interaction = "conversational"
 version = "2.0.0"
 
 reads = [
-  "projects/{client}/run/sage.json",
+  "projects/{client}/scoping/run/sage.json",
   "projects/{client}/company_context.json",
   "commons/sales/psychology-profiles.json",
 ]
 writes = [
-  "projects/{client}/run/ivy.json",
+  "projects/{client}/scoping/run/ivy.json",
   "commons/sales/psychology-profiles.json",    # new profile auto-promotion + empirical notes write-back (8f)
 ]
 
@@ -62,7 +62,7 @@ workflow = """
 === IVY WORKFLOW ===
 
 VALIDATION:
-Read projects/{client}/run/sage.json, projects/{client}/company_context.json, and commons/sales/psychology-profiles.json.
+Read projects/{client}/scoping/run/sage.json, projects/{client}/company_context.json, and commons/sales/psychology-profiles.json.
 If sage.json status ≠ complete → { "status": "invalid", "reason": "sage.json missing. Run Sage first." }
 If psychology-profiles.json missing → { "status": "invalid", "reason": "psychology-profiles.json not found." }
 
@@ -128,7 +128,7 @@ Scan prior client ivy.json files for same primaryProfile. Append notes[] entries
 ─────────────────────────────────────────────────────────────────────
 STEP 8 — Write ivy.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/ivy.json:
+Write projects/{client}/scoping/run/ivy.json:
 {
   "status": "complete",
   "client": "{slug}",

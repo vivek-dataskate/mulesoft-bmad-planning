@@ -4,8 +4,8 @@
 // with the actual file tree (new clients, new portal pages, etc.).
 //
 // Usage:
-//   node scripts/generate-backstop-config.js           ← all pages
-//   node scripts/generate-backstop-config.js --intake  ← intake pages only (CI gate)
+//   node pipeline/scripts/generate-backstop-config.js           ← all pages
+//   node pipeline/scripts/generate-backstop-config.js --intake  ← intake pages only (CI gate)
 
 'use strict';
 const fs   = require('fs');

@@ -17,10 +17,10 @@ interaction = "conversational"
 version = "1.0.0"
 
 reads = [
-  "projects/{client}/run/flo.json",
-  "projects/{client}/run/rex.json",
-  "projects/{client}/run/vera.json",
-  "projects/{client}/run/ivy.json",
+  "projects/{client}/scoping/run/flo.json",
+  "projects/{client}/scoping/run/rex.json",
+  "projects/{client}/scoping/run/vera.json",
+  "projects/{client}/scoping/run/ivy.json",
   "projects/{client}/project.json",
   "portal/_includes/layouts/intake.njk",  # canonical intake layout — edit here
   "mulesoft/playbooks/{system}/{system}_playbook.json",  # per confirmed system (from flo.json downstreamLoadList)
@@ -28,8 +28,8 @@ reads = [
   "commons/sales/pricing-model.md",             # for pricing summary (internal section only — never recalculate, use flo.json)
 ]
 writes = [
-  "projects/{client}/run/quinn.json",   # ONLY output — intakeContent embedded here; orchestrate.js extracts + renders HTML
-  "projects/{client}/run/quinn-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
+  "projects/{client}/scoping/run/quinn.json",   # ONLY output — intakeContent embedded here; orchestrate.js extracts + renders HTML
+  "projects/{client}/scoping/run/quinn-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
   "pipeline/FIELD_KNOWLEDGE.md",                    # 8a: observation entries
   "mulesoft/playbooks/{system}/{system}_playbook.json",   # 8b: new quirks append, maturity log update
   "pipeline/PLANNING_CONTEXT.md",                   # 8c: critical notes
@@ -157,7 +157,7 @@ STEP 8 — (Firebase deploy removed — runs post-Mira via orchestrate.js)
 ─────────────────────────────────────────────────────────────────────
 STEP 9 — Write quinn.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/quinn.json:
+Write projects/{client}/scoping/run/quinn.json:
 {
   "status": "complete",
   "client": "{slug}",

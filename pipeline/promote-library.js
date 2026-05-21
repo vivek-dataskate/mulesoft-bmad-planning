@@ -55,7 +55,7 @@ function promoteLibrary({ clientSlug = null, dryRun = false } = {}) {
     ? [clientSlug]
     : fs.readdirSync(PROJECTS).filter(d =>
         fs.statSync(path.join(PROJECTS, d)).isDirectory() &&
-        fs.existsSync(path.join(PROJECTS, d, 'run', 'vera.json'))
+        fs.existsSync(path.join(PROJECTS, d, 'scoping', 'run', 'vera.json'))
       );
 
   let totalNew     = 0;
@@ -63,7 +63,7 @@ function promoteLibrary({ clientSlug = null, dryRun = false } = {}) {
   let totalSkipped = 0;
 
   for (const slug of slugs) {
-    const veraPath = path.join(PROJECTS, slug, 'run', 'vera.json');
+    const veraPath = path.join(PROJECTS, slug, 'scoping', 'run', 'vera.json');
     if (!fs.existsSync(veraPath)) continue;
 
     const vera = JSON.parse(fs.readFileSync(veraPath, 'utf8'));

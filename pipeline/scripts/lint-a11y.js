@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Accessibility audit via axe-core + puppeteer.
 // Usage:
-//   node scripts/lint-a11y.js                    ← audit key public pages
-//   node scripts/lint-a11y.js path/to/file.html  ← audit one file
+//   node pipeline/scripts/lint-a11y.js                    ← audit key public pages
+//   node pipeline/scripts/lint-a11y.js path/to/file.html  ← audit one file
 //
 // Runs automatically via: npm run lint:a11y
 // Not wired into PostToolUse hook (puppeteer startup is too slow for per-save use).

@@ -261,7 +261,7 @@ async function buildPortalContent(slug) {
 
   // Client logo — read from vera.json, download to intake/ and portal/public/logos/
   let clientLogoPath = null;
-  const veraFile = path.join(projectDir, 'run', 'vera.json');
+  const veraFile = path.join(projectDir, 'scoping', 'run', 'vera.json');
   if (fs.existsSync(veraFile)) {
     try {
       const vera = JSON.parse(fs.readFileSync(veraFile, 'utf8'));

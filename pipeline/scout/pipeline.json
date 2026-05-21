@@ -10,8 +10,8 @@
       "role": "Document Analyst",
       "model": "haiku",
       "mode": "gated",
-      "toml": "DSPipeline/agents/sage.toml",
-      "outputFile": "run/sage.json",
+      "toml": "pipeline/agents/sage.toml",
+      "outputFile": "scoping/run/sage.json",
       "gatePrompt": "Sage extraction complete — correct anything before Vera starts vertical research?"
     },
     {
@@ -21,8 +21,8 @@
       "role": "Vertical Intelligence Analyst",
       "model": "opus",
       "mode": "conversational",
-      "toml": "DSPipeline/agents/vera.toml",
-      "outputFile": "run/vera.json",
+      "toml": "pipeline/agents/vera.toml",
+      "outputFile": "scoping/run/vera.json",
       "gatePrompt": "Vera research confirmed — proceed to Rex (systems analysis)?"
     },
     {
@@ -32,8 +32,8 @@
       "role": "Systems Analyst",
       "model": "sonnet",
       "mode": "conversational",
-      "toml": "DSPipeline/agents/rex.toml",
-      "outputFile": "run/rex.json",
+      "toml": "pipeline/agents/rex.toml",
+      "outputFile": "scoping/run/rex.json",
       "gatePrompt": "Rex systems confirmed — proceed to Ivy (buyer psychology)?"
     },
     {
@@ -43,8 +43,8 @@
       "role": "Buyer Intelligence Analyst",
       "model": "sonnet",
       "mode": "conversational",
-      "toml": "DSPipeline/agents/ivy.toml",
-      "outputFile": "run/ivy.json",
+      "toml": "pipeline/agents/ivy.toml",
+      "outputFile": "scoping/run/ivy.json",
       "gatePrompt": "Ivy profile confirmed — proceed to Flo (flow count + pricing)?"
     },
     {
@@ -54,8 +54,8 @@
       "role": "Integration Flow Analyst + Pricing",
       "model": "opus",
       "mode": "gated",
-      "toml": "DSPipeline/agents/flo.toml",
-      "outputFile": "run/flo.json",
+      "toml": "pipeline/agents/flo.toml",
+      "outputFile": "scoping/run/flo.json",
       "gatePrompt": "Flo flow count and pricing confirmed — proceed to Hawk (deal framing)?"
     },
     {
@@ -65,8 +65,8 @@
       "role": "Deal Urgency Strategist",
       "model": "opus",
       "mode": "conversational",
-      "toml": "DSPipeline/agents/hawk.toml",
-      "outputFile": "run/hawk.json",
+      "toml": "pipeline/agents/hawk.toml",
+      "outputFile": "scoping/run/hawk.json",
       "gatePrompt": "Hawk framing confirmed — proceed to Petra (proposal + integration deck)?"
     },
     {
@@ -76,8 +76,8 @@
       "role": "Proposal Writer",
       "model": "opus",
       "mode": "conversational",
-      "toml": "DSPipeline/agents/petra.toml",
-      "outputFile": "run/petra.json",
+      "toml": "pipeline/agents/petra.toml",
+      "outputFile": "scoping/run/petra.json",
       "gatePrompt": "Petra proposal and integration deck confirmed — proceed to Quinn (intake questionnaire)?"
     },
     {
@@ -87,8 +87,8 @@
       "role": "Intake Specialist",
       "model": "sonnet",
       "mode": "conversational",
-      "toml": "DSPipeline/agents/quinn.toml",
-      "outputFile": "run/quinn.json",
+      "toml": "pipeline/agents/quinn.toml",
+      "outputFile": "scoping/run/quinn.json",
       "additionalOutputs": [
         "intake/intake-content.json"
       ],
@@ -102,8 +102,8 @@
       "model": "sonnet",
       "mode": "conversational",
       "status": "parked",
-      "toml": "DSPipeline/agents/sol.toml",
-      "outputFile": "run/sol.json",
+      "toml": "pipeline/agents/sol.toml",
+      "outputFile": "scoping/run/sol.json",
       "gatePrompt": null,
       "note": "Parked — writes SOW and scopes delivery. Net-new capability with no Scout precedent. Design separately."
     },
@@ -114,8 +114,8 @@
       "role": "Buyer Advocate",
       "model": "opus",
       "mode": "conversational",
-      "toml": "DSPipeline/agents/mira.toml",
-      "outputFile": "run/mira.json",
+      "toml": "pipeline/agents/mira.toml",
+      "outputFile": "scoping/run/mira.json",
       "gatePrompt": null
     }
   ]

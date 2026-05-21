@@ -14,10 +14,10 @@
 //
 // Usage:
 //
-//   node scripts/republish.js --client agilemind --template proposal
+//   node pipeline/scripts/republish.js --client agilemind --template proposal
 //      → republishes at the manifest's current version for that template
 //
-//   node scripts/republish.js --client agilemind --template proposal --version v3
+//   node pipeline/scripts/republish.js --client agilemind --template proposal --version v3
 //      → forces a specific version (must already be the manifest's current,
 //        i.e. the working template represents that version)
 //
@@ -66,7 +66,7 @@ const template = argv('--template');
 const version  = argv('--version');
 
 if (!client || !template) {
-  console.error('Usage: node scripts/republish.js --client <slug> --template <type> [--version <vN>]');
+  console.error('Usage: node pipeline/scripts/republish.js --client <slug> --template <type> [--version <vN>]');
   console.error('       template: ' + Object.keys(TEMPLATE_TO_PATH_SEGMENT).join(' | '));
   process.exit(1);
 }
@@ -116,7 +116,7 @@ const url      = `${FIREBASE_HOST}/${segment}/${client}/${today}-${targetVersion
 
 if (fs.existsSync(outAbs)) {
   console.error(`✗ Refusing to overwrite existing republish at ${outRel}.`);
-  console.error(`  Bump the template version (node scripts/bump-template.js --template ${template})`);
+  console.error(`  Bump the template version (node pipeline/scripts/bump-template.js --template ${template})`);
   console.error(`  before republishing the same client twice on the same day at the same version.`);
   process.exit(1);
 }
@@ -150,7 +150,7 @@ fs.copyFileSync(eleventySrc, outAbs);
 // current without the URL ever changing in their hands.
 proj.deployments = proj.deployments || [];
 
-const flatPath = path.join(ROOT, 'firebase', 'public', segment, `${client}.html`);
+const flatPath = path.join(ROOT, 'portal', 'public', segment, `${client}.html`);
 
 // If v1 was published at the flat path (legacyUnversioned), archive its bytes
 // to a dated+versioned path first so version history has a real direct link.
@@ -210,7 +210,7 @@ console.log(`  projects/${client}/project.json updated:`);
 console.log(`    templateVersions.${template} = ${targetVersion}`);
 console.log(`    deployments[] += entry`);
 console.log(`\nNext steps to make it live:`);
-console.log(`  1) node scripts/update-firebase.js ${client}`);
+console.log(`  1) node pipeline/scripts/update-firebase.js ${client}`);
 console.log(`     → rebuilds projects-manifest.json`);
 console.log(`     → (HTML upload step skips frozen clients automatically)`);
 console.log(`  2) cd firebase && firebase deploy --only hosting`);

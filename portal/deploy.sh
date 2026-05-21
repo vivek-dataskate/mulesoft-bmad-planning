@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # DataSkate Portal — full rebuild and deploy.
 # For a single-project update (e.g. from Scout), call:
-#   node scripts/update-firebase.js <slug>
+#   node pipeline/scripts/update-firebase.js <slug>
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,7 +19,7 @@ unset FIREBASE_TOKEN  # expired token overrides service account — always use S
 
 # ── Design tokens ────────────────────────────────────────────────────────────
 echo "→ Building design tokens..."
-node "$REPO_ROOT/scripts/build-tokens.js"
+node "$REPO_ROOT/pipeline/scripts/build-tokens.js"
 
 # ── Sales resources ───────────────────────────────────────────────────────────
 echo "→ Publishing sales resources..."
@@ -38,7 +38,7 @@ cd "$SCRIPT_DIR/functions" && npm install --silent && cd "$REPO_ROOT"
 
 # ── Core sync: archive scoping, sync HTML, rebuild manifest + portals, deploy ─
 echo "→ Running unified Firebase sync..."
-node "$REPO_ROOT/scripts/update-firebase.js" --all
+node "$REPO_ROOT/pipeline/scripts/update-firebase.js" --all
 
 rm -f /tmp/firebase-sa.json
 echo ""

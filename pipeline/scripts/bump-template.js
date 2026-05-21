@@ -7,8 +7,8 @@
 // version automatically; existing frozen clients keep their pinned version.
 //
 // Usage:
-//   node scripts/bump-template.js --template proposal
-//   node scripts/bump-template.js --template intake
+//   node pipeline/scripts/bump-template.js --template proposal
+//   node pipeline/scripts/bump-template.js --template intake
 //
 // Templates supported: proposal | intake | integration-deck | client-portal | corporate-brief
 
@@ -24,7 +24,7 @@ const tIdx = args.indexOf('--template');
 const tpl  = tIdx !== -1 ? args[tIdx + 1] : null;
 
 if (!tpl) {
-  console.error('Usage: node scripts/bump-template.js --template <proposal|intake|integration-deck|client-portal|corporate-brief>');
+  console.error('Usage: node pipeline/scripts/bump-template.js --template <proposal|intake|integration-deck|client-portal|corporate-brief>');
   process.exit(1);
 }
 

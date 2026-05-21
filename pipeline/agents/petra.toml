@@ -17,17 +17,17 @@ interaction = "conversational"
 version = "1.0.0"
 
 reads = [
-  "projects/{client}/run/flo.json",
-  "projects/{client}/run/ivy.json",
-  "projects/{client}/run/hawk.json",
-  "projects/{client}/run/vera.json",
-  "projects/{client}/run/sage.json",
+  "projects/{client}/scoping/run/flo.json",
+  "projects/{client}/scoping/run/ivy.json",
+  "projects/{client}/scoping/run/hawk.json",
+  "projects/{client}/scoping/run/vera.json",
+  "projects/{client}/scoping/run/sage.json",
   "projects/{client}/project.json",
   "commons/sales/proposal-structure.md",        # for Stage 3 writing rules, included items, OOS defaults
 ]
 writes = [
-  "projects/{client}/run/petra.json",           # ONLY output — proposalContent + integrationDeckContent embedded here; orchestrate.js extracts + renders HTML
-  "projects/{client}/run/petra-decisions.json",  # agent-scoped; orchestrate.js aggregates into decisions.json
+  "projects/{client}/scoping/run/petra.json",           # ONLY output — proposalContent + integrationDeckContent embedded here; orchestrate.js extracts + renders HTML
+  "projects/{client}/scoping/run/petra-decisions.json",  # agent-scoped; orchestrate.js aggregates into decisions.json
 ]
 
 principles = [
@@ -56,7 +56,7 @@ principles = [
   "FOMO naming rules (strictly enforced in JSON):\n  Use hawk.json fomoOrdered[].displayName for the 'name' field.\n  Real company name ONLY when fomoOrdered[].sourceUrl is a real public URL.\n  If sourceUrl null: use the anonymized displayName ('A {industry} company (anonymized)').\n  Pass sourceUrl, sourceLabel, aiAgentDescription verbatim — the Nunjucks template renders clickable links and AI agent callouts.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
-  "Log to projects/{client}/run/petra-decisions.json (agent-scoped; orchestrate.js aggregates all *-decisions.json files into the final decisions.json — Petra NEVER writes decisions.json directly). One content-adaptation entry per major field adapted by psychology (challenge.lead, fomo ordering, closingLine, Stage 3 AgentForce adaptation). For each: what the default would have been, what changed, which hawk.json field drove it. Shape: { client, generatedAt, decisions: [{ id: 'PD-NNN', step, type: 'content-adaptation', decision: '1 sentence', rationale: '1-2 sentences', source: 'hawk.json.{field}' }] }. Prefix IDs as PD-NNN (matches Sage SD-NNN, Hawk HD-NNN, Flo FD-NNN). Append only — never modify existing entries.",
+  "Log to projects/{client}/scoping/run/petra-decisions.json (agent-scoped; orchestrate.js aggregates all *-decisions.json files into the final decisions.json — Petra NEVER writes decisions.json directly). One content-adaptation entry per major field adapted by psychology (challenge.lead, fomo ordering, closingLine, Stage 3 AgentForce adaptation). For each: what the default would have been, what changed, which hawk.json field drove it. Shape: { client, generatedAt, decisions: [{ id: 'PD-NNN', step, type: 'content-adaptation', decision: '1 sentence', rationale: '1-2 sentences', source: 'hawk.json.{field}' }] }. Prefix IDs as PD-NNN (matches Sage SD-NNN, Hawk HD-NNN, Flo FD-NNN). Append only — never modify existing entries.",
 ]
 
 workflow = """
@@ -113,7 +113,7 @@ Do NOT write integration-deck-content.json separately. Do NOT run npm run build:
 ─────────────────────────────────────────────────────────────────────
 STEP 6 — Write petra.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/petra.json:
+Write projects/{client}/scoping/run/petra.json:
 {
   "status": "complete",
   "client": "{slug}",

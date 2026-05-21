@@ -31,9 +31,9 @@ Scout reads the scoping notes, infers which systems are involved (explicit and i
 - `projects/{client}/intake/intake-questionnaire.md` — tailored questionnaire with pre-filled understandings from the scoping notes, base questions, and system-specific gotcha questions generated dynamically per detected system
 
 Scout also automatically registers every detected system in three commons artifacts (creating stubs if none exist):
-- `standards/playbooks/{system}/{system}_playbook.json` — stub created on first detection, enriched as the project progresses
-- `standards/connector-registry.json` — stub entry with auth type to be confirmed
-- `standards/intake-checklist.json` — baseline autoWarning so the next project sees this system flagged immediately
+- `mulesoft/playbooks/playbooks/{system}/{system}_playbook.json` — stub created on first detection, enriched as the project progresses
+- `mulesoft/connector-registry.json` — stub entry with auth type to be confirmed
+- `pipeline/intake-checklist.json` — baseline autoWarning so the next project sees this system flagged immediately
 
 **Send the intake questionnaire to the client. Wait for their responses before proceeding to Step 1.**
 
@@ -61,7 +61,7 @@ The Analyst produces:
 - `projects/{client}/prd.md` — structured requirements
 - `projects/{client}/api-discovery/{system}-contract.md` — one per undocumented system (curl-verified field contracts + targeted gap questions)
 
-The Analyst also enriches the commons stubs Scout created — confirming auth types, object types, and known constraints from the intake documents.
+The Analyst also enriches the commons stubs Scout created — confirming auth types, object types, and known constraints from the intake documents. Analyst output goes into `projects/{client}/api-discovery/` and enriches `mulesoft/playbooks/playbooks/{system}/`.
 
 **Do not proceed to Step 3 until you have sent the gap questions to the client and received confirmation.** The Architect needs confirmed field contracts, not guesses.
 
@@ -75,12 +75,12 @@ or
 Talk to Winston (the architect). Read projects/{client}/prd.md. Walk the 6-level decision tree. Produce projects/{client}/architecture.md and projects/{client}/decisions.json
 ```
 
-The Architect reads `docs/FIELD_KNOWLEDGE.md` and all existing `standards/playbooks/*/*_playbook.json` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
+The Architect reads `pipeline/FIELD_KNOWLEDGE.md` and all existing `mulesoft/playbooks/playbooks/*/*_playbook.json` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
 
 **Validate before proceeding:**
 ```bash
 node -e "
-  const schema = require('./standards/decisions-schema.json');
+  const schema = require('./mulesoft/decisions-schema.json');
   const d = require('./projects/{client}/decisions.json');
   // check required fields: client, pattern, connectors, security, flows
   console.log('valid');
@@ -94,7 +94,7 @@ The three decisions a tech lead must personally review in `decisions.json`:
 
 Everything else the Architect decides autonomously.
 
-The Architect enriches all commons stubs before completing the MD run — playbook {system}_playbook.json updated with design-confirmed auth and objects, connector-registry updated with confirmed auth type, intake-checklist updated with any specific gotchas found during architecture.
+The Architect enriches all commons stubs before completing the MD run — `mulesoft/playbooks/playbooks/{system}/_playbook.json` updated with design-confirmed auth and objects, `mulesoft/connector-registry.json` updated with confirmed auth type, `pipeline/intake-checklist.json` updated with any specific gotchas found during architecture.
 
 ### Step 4: Run the PM
 
@@ -103,7 +103,7 @@ The Architect enriches all commons stubs before completing the MD run — playbo
 ```
 or
 ```
-Talk to John (the PM). Read projects/{client}/decisions.json and standards/stories/. Generate projects/{client}/stories.md
+Talk to John (the PM). Read projects/{client}/decisions.json and mulesoft/playbooks/stories/. Generate projects/{client}/stories.md
 ```
 
 Stories reference exact file names, acceptance criteria, and coverage floors — developers pick them up without needing to interpret the architecture doc.
@@ -111,9 +111,9 @@ Stories reference exact file names, acceptance criteria, and coverage floors —
 ### Step 5: Generate and push the client repo
 
 ```bash
-node scaffold/generate.js --decisions projects/{client}/decisions.json --output /tmp/{client}-mule
+node mulesoft/generate.js --decisions projects/{client}/decisions.json --output /tmp/{client}-mule
 
-GITHUB_TOKEN=ghp_... bash scaffold/create-client-repo.sh \
+GITHUB_TOKEN=ghp_... bash pipeline/tools/create-client-repo.sh \
   --client {client} \
   --org {your-github-org}
 ```
@@ -139,10 +139,10 @@ Then select `CO` and specify the client.
 
 The close-out reads every internal flag from the intake questionnaire, every open item from architecture.md, every story that was built, and every system involved. It interviews the architect question by question — per system (auth, connector behaviour, field mapping surprises), per internal flag (was it resolved? how?), per architecture open item, and per cross-cutting pattern. Based on the answers it automatically updates:
 
-- `docs/FIELD_KNOWLEDGE.md` — new FK entries for any non-obvious finding
-- `standards/playbooks/{system}/` — implementation learnings, confirmed DWL mappings, maturity update
-- `standards/intake-checklist.json` — new or updated autoWarnings so the next project sees these issues at intake time
-- `standards/connector-registry.json` — confirmed auth types, versions, and any new connectors used
+- `pipeline/FIELD_KNOWLEDGE.md` — new FK entries for any non-obvious finding
+- `mulesoft/playbooks/playbooks/{system}/` — implementation learnings, confirmed DWL mappings, maturity update
+- `pipeline/intake-checklist.json` — new or updated autoWarnings so the next project sees these issues at intake time
+- `mulesoft/connector-registry.json` — confirmed auth types, versions, and any new connectors used
 
 ### Step 8: Ad-hoc debrief (any time)
 
@@ -164,31 +164,32 @@ For every client engagement:
 | Artifact | Who uses it | Where |
 |----------|-------------|-------|
 | Intake questionnaire (HTML) | Client fills it in | `projects/{client}/intake/intake-questionnaire-{client}.html` |
+| Corporate Brief (HTML) | Client — pre-call research summary | `projects/{client}/intake/corporate-brief-{client}.html` |
 | Proposal (HTML) | Client reads + signs | `projects/{client}/intake/proposal-{client}.html` |
-| Integration Deck (HTML) | Client — pre-proposal pitch | `projects/{client}/intake/integration-deck-{client}.html` |
-| Client Portal (HTML) | Client — live project hub | `firebase/public/portal/{client}.html` |
+| Integration Deck (HTML) | AE/Architect internal briefing | `projects/{client}/intake/integration-deck-{client}.html` |
+| Client Portal (HTML) | Client — live project hub | `portal/public/portal/{client}.html` |
 | PRD | Tech lead review, client sign-off | `projects/{client}/prd.md` |
 | API contract files | Send gap questions to client | `projects/{client}/api-discovery/` |
 | Architecture doc | Tech lead approval | `projects/{client}/architecture.md` |
 | `decisions.json` | Drives all code generation | `projects/{client}/decisions.json` |
 | Sprint stories | Developer task board | `projects/{client}/stories.md` |
 | Compiling Mule project | Developer codes against it | `github.com/{org}/{client}-mule` |
-| Codespace URL | Developer opens it, done | Printed by `create-client-repo.sh` |
+| Codespace URL | Developer opens it, done | Printed by `pipeline/tools/create-client-repo.sh` |
 
 After close-out, every project also contributes to the commons:
 
 | Commons artifact | Updated by | What grows |
 |-----------------|-----------|-----------|
-| `docs/FIELD_KNOWLEDGE.md` | Architect (DK / CO) | FK entries — lessons from every project |
-| `standards/playbooks/{system}/` | Scout (stub) → Architect (design) → CO (implementation) | Auth, DWL mappings, known quirks per system |
-| `standards/intake-checklist.json` | Scout (stub) → Architect Debrief Q6 / CO | autoWarnings — every system ever seen gets an entry |
-| `standards/connector-registry.json` | Scout (stub) → Analyst → Architect → CO | Confirmed auth, versions, staleness |
+| `pipeline/FIELD_KNOWLEDGE.md` | Architect (DK / CO) | FK entries — lessons from every project |
+| `mulesoft/playbooks/playbooks/{system}/` | Scout (stub) → Architect (design) → CO (implementation) | Auth, DWL mappings, known quirks per system |
+| `pipeline/intake-checklist.json` | Scout (stub) → Architect Debrief Q6 / CO | autoWarnings — every system ever seen gets an entry |
+| `mulesoft/connector-registry.json` | Scout (stub) → Analyst → Architect → CO | Confirmed auth, versions, staleness |
 
 ---
 
 ## Engagement Documents & Template System
 
-DataSkate maintains a template system that generates all client-facing and internal HTML documents. All templates live in `docs/eleventy/_includes/layouts/`. Content is always sourced from JSON or Markdown — never hardcoded into HTML. `commons/branding/fill-template.js` is the CLI shim that invokes Eleventy and copies output to the right paths. See `docs/eleventy/template-registry.json` for the authoritative template inventory.
+DataSkate maintains a template system that generates all client-facing and internal HTML documents. All templates live in `portal/_includes/layouts/`. Content is always sourced from JSON or Markdown — never hardcoded into HTML. The build is driven by Eleventy via `npm run build:html` (from the repo root). See `portal/template-registry.json` for the authoritative template inventory.
 
 ### Dynamic documents — Firestore-loaded at runtime
 
@@ -196,15 +197,15 @@ All per-client documents are dynamic. The HTML shell loads content from Firestor
 
 | Document | Who uses it | Generated by | Layout |
 |---|---|---|---|
-| Intake Questionnaire | Client fills it in | Scout | `docs/eleventy/_includes/layouts/intake.njk` |
-| Proposal | Client reads + agrees | Scout | `docs/eleventy/_includes/layouts/proposal.njk` |
-| Integration Deck | Client — deep-research pitch deck | Scout (research session) | `docs/eleventy/_includes/layouts/integration-deck.njk` |
-| Corporate Brief | Client — pre-call research summary | Scout | `docs/eleventy/_includes/layouts/corporate-brief.njk` |
-| Client Portal | Client — live project hub | scaffold | `docs/eleventy/_includes/layouts/client-portal.njk` |
+| Intake Questionnaire | Client fills it in | Scout | `portal/_includes/layouts/intake.njk` |
+| Proposal | Client reads + agrees | Scout | `portal/_includes/layouts/proposal.njk` |
+| Corporate Brief | Client — pre-call research summary | Scout | `portal/_includes/layouts/corporate-brief.njk` |
+| Integration Deck | AE/Architect internal briefing deck | Scout (research session) | `portal/_includes/layouts/integration-deck.njk` |
+| Client Portal | Client — live project hub | scaffold | `portal/_includes/layouts/client-portal.njk` |
 
 Per-client output paths:
-- Intake / Proposal / Integration Deck → `projects/{client}/intake/{type}-{client}.html`
-- Client Portal → `firebase/public/portal/{client}.html`
+- Intake / Proposal / Corporate Brief / Integration Deck → `projects/{client}/intake/{type}-{client}.html`
+- Client Portal → `portal/public/portal/{client}.html`
 
 The **DS Pricing Model** card is hardcoded into every client portal — always present, no configuration needed.
 
@@ -214,8 +215,9 @@ Internal and shared resources are regenerated from their Markdown source files w
 
 | Document | Audience | Access | Source | Output |
 |---|---|---|---|---|
-| Architect Guide | Internal | @dataskate.ai login | `commons/sales/architect-guide.md` | `firebase/public/resources/architect-guide.html` |
-| DS Pricing Model | External | Public | `commons/sales/pricing-model.md` (rates parsed) | `firebase/public/resources/ds-pricing-model.html` |
+| Architect Guide | Internal | @dataskate.ai login | `commons/sales/architect-guide.md` | `portal/public/resources/architect-guide.html` |
+| DS Pricing Model | External | Public | `commons/sales/pricing-model.md` (rates parsed) | `portal/public/resources/ds-pricing-model.html` |
+| Knowledge Base | Internal | @dataskate.ai login | Live-read from `pipeline/scout/pipeline.json`, `mulesoft/playbooks/*`, `pipeline/FIELD_KNOWLEDGE.md` | `portal/public/resources/capabilities.html` |
 
 ### The Architect Guide — single internal reference
 
@@ -227,25 +229,31 @@ Internal and shared resources are regenerated from their Markdown source files w
 - Phase 2 AI pivot narrative and email templates
 - Closing guide
 
-`commons/sales/pricing-model.md` is kept as a separate source file because both `fill-template.js` and the Scout agent parse it for live pricing calculations. Never delete it or hardcode rates from it.
+`commons/sales/pricing-model.md` is kept as a separate source file because both the Eleventy build and the Scout agent parse it for live pricing calculations. Never delete it or hardcode rates from it.
 
 ### Generating documents
 
 ```bash
-# Per-client (regenerate when content JSON changes or Scout produces new data)
-node commons/branding/fill-template.js --template intake           --client {slug}
-node commons/branding/fill-template.js --template proposal         --client {slug}
-node commons/branding/fill-template.js --template integration-deck --client {slug}
-node commons/branding/fill-template.js --template portal           --client {slug}
+# All templates — run from repo root (builds tokens + Eleventy)
+npm run build:html
 
-# Shared static resources (regenerate when source MD changes)
-node commons/branding/fill-template.js --template flyer                           # → ds-pricing-model.html
-node commons/branding/fill-template.js --template resource --name architect-guide # → architect-guide.html
+# Watch mode during template development
+npm run build:html:watch
+
+# Generate the knowledge base (capabilities) page
+node pipeline/tools/generate-knowledge-base.js
 ```
+
+Content for per-client documents is sourced from:
+- `projects/{client}/intake/intake-content.json` → intake
+- `projects/{client}/intake/proposal-content.json` → proposal
+- `projects/{client}/intake/corporate-brief-content.json` → corporate brief
+- `projects/{client}/intake/integration-deck-content.json` → integration deck
+- `projects/{client}/portal-content.json` → client portal
 
 ### Template registry
 
-`docs/eleventy/template-registry.json` is the authoritative dictionary of all templates. Each entry carries: `id`, `name`, `audience` (internal/external), `loginRequired`, `loginDomain`, `category`, `purpose`, `templateFile`, `cssFile`, `outputPath`, `firebasePath`, `generatedBy`, `fillCommand`, `perClient`. The registry is the single source of truth — update it whenever a template is added, renamed, or removed.
+`portal/template-registry.json` is the authoritative dictionary of all templates. Each entry carries: `id`, `name`, `audience` (internal/external), `loginRequired`, `loginDomain`, `category`, `purpose`, `templateFile`, `cssFile`, `outputPath`, `firebasePath`, `generatedBy`, `fillCommand`, `perClient`. The registry is the single source of truth — update it whenever a template is added, renamed, or removed.
 
 ### Document naming history
 
@@ -253,9 +261,13 @@ node commons/branding/fill-template.js --template resource --name architect-guid
 |---|---|---|
 | Architect Flyer | DS Pricing Model | Client-facing one-pager; attached to every client portal |
 | Pricing Model — Internal | _(deleted)_ | Content merged into Architect Guide |
-| Client Pitch Kit | Integration Deck | Per-client only; generated by Scout during deep-research session |
+| Client Pitch Kit | Integration Deck | Per-client only; generated by Scout during deep-research session. Now auth-gated internal. |
 | AE Pitch Kit | _(deleted)_ | Content merged into Architect Guide |
 | Proposal Structure HTML | _(deleted)_ | Stays as `commons/sales/proposal-structure.md` only — consumed by agents, never an HTML deliverable |
+| `docs/eleventy/` | `portal/` | Eleventy build merged into portal/ during folder structure refactor |
+| `firebase/` | `portal/` | Firebase Hosting root and deploy script merged into portal/ |
+| `scaffold/` | `mulesoft/` + `pipeline/tools/` | Code generator and tools split from scaffold/ by concern |
+| `standards/` | `mulesoft/` + `pipeline/` | Playbooks/registry → mulesoft/; intake-checklist/FIELD_KNOWLEDGE → pipeline/ |
 
 ---
 
@@ -271,7 +283,7 @@ Three specific problems it solves:
 
 2. **Speed** — the Analyst, Architect, and PM agents each take minutes. Code generation takes seconds. The bottleneck becomes client response time, not internal setup time.
 
-3. **Accumulation** — every new project teaches the system something. Lessons go into `docs/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `standards/playbooks/` grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.
+3. **Accumulation** — every new project teaches the system something. Lessons go into `pipeline/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `mulesoft/playbooks/playbooks/` grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.
 
 ---
 
@@ -288,87 +300,120 @@ mulesoft-bmad-planning/
 │       └── bmad-agent-pm.toml               John: decisions.json → sprint stories
 │           (bmad-agent-dev.toml is NOT used — developers use Anypoint Studio directly)
 │
-├── standards/
-│   ├── DESIGN_STANDARDS.md   The constitution — all pattern decisions flow from here
-│   ├── decisions-schema.json           Schema + empty template for decisions.json
-│   ├── connector-registry.json         All known connectors: versions, Maven coords, auth types
-│   ├── intake-checklist.json           Mandatory checks + autoWarnings per system (grows with every project)
-│   ├── snippet-registry.json           Three-tier registry of all reusable code assets
-│   └── scenarios/                      One reference file per integration pattern (A–U)
+├── pipeline/                       Agent orchestration engine
+│   ├── agents/                     Scout sub-agents (Sage, Vera, Rex, Ivy, Flo, Hawk, Quinn, Petra, Sol, Mira)
+│   ├── scout/
+│   │   ├── orchestrate.js          Scout pipeline runner — provisions new clients from projects/_template/
+│   │   └── pipeline.json           Agent config: roles, prompts, output schema for all 10 sub-agents
+│   ├── scripts/                    Automation scripts (build-tokens, bump-template, lint-a11y, etc.)
+│   ├── tools/                      One-off tools (generate-capabilities, create-client-repo, check-registry-freshness)
+│   ├── telemetry/                  Pipeline run logs and metrics
+│   ├── tests/                      Pipeline-level test suites
+│   ├── intake-checklist.json       Mandatory checks + autoWarnings per system (grows with every project)
+│   ├── FIELD_KNOWLEDGE.md          Lessons from real projects; agents apply verified entries
+│   ├── PLANNING_CONTEXT.md         Master system context — read before every session
+│   ├── ARCHITECTURE.md             Pipeline internal architecture notes
+│   └── AGENT-BOUNDARY-POLICY.md    Strict boundary rules: each agent writes only to its own JSON
 │
-├── templates/
-│   ├── prd-template.md
-│   ├── architecture-template.md
-│   ├── story-template.md
-│   └── connectors/                     XML config stubs per connector (28 connectors)
-│
-├── standards/stories/                      Reusable story templates the PM references
-│   ├── global-*.md                     Always-on or conditional global stories (10 files)
-│   └── flow-*.md                       Per-flow story templates (5 files)
-│
-├── scaffold/
-│   ├── generate.js                     Code generator: decisions.json → complete Mule project
-│   ├── create-client-repo.sh           Creates GitHub repo and pushes generated project
-│   ├── generate-capabilities.js        Builds the capabilities portal (HTML)
-│   ├── check-registry-freshness.js     Flags connectors not verified in >60 days
-│   └── xml-templates/                  Source XML the generator renders (triggers, snippets, etc.)
-│
-├── commons/                            Reusable library — shared across ALL client projects
-│   ├── pom.xml                         Packaged as mule-plugin; deployed to Anypoint Exchange
-│   ├── publish.sh                      Publish script (username+pass or connected app auth)
-│   ├── src/main/mule/                  Sub-flows injected by reference (flow-ref)
+├── mulesoft/                       MuleSoft code generation + knowledge base
+│   ├── generate.js                 Code generator: decisions.json → complete Mule project
+│   ├── connectors/                 XML connector config stubs (28 connectors)
+│   ├── templates/                  Mule project scaffolding (flows, pom, MUnit, DWL, devcontainer)
+│   ├── src/main/mule/              Commons sub-flows — injected by flow-ref into client projects
 │   │   ├── common-error-handler.xml    DLQ routing, error response, notification dispatch
 │   │   ├── common-retry.xml            Retry-queue pattern with exponential backoff
 │   │   ├── common-notification.xml     Slack + email (scatter-gather, skips blank channels)
 │   │   ├── common-batch.xml            Batch on-complete: log, alert, persist watermark
 │   │   └── common-correlation.xml      Generate / propagate / extract correlation ID
-│   ├── src/main/resources/dwl/         DWL modules — importable by any client project
+│   ├── src/main/resources/dwl/     DWL modules — importable by any client project
 │   │   ├── error-envelope.dwl          Standard error envelope builder
 │   │   ├── pii-mask.dwl                Recursive payload masking (20+ field patterns)
 │   │   ├── canonical-date.dwl          Date normalization (ISO, US, epoch, Salesforce format)
 │   │   └── build-audit-record.dwl      CEF-compatible audit records; chains pii-mask
-│   ├── branding/
-│   │   ├── fill-template.js            Merges content JSON/MD into HTML shell templates
-│   │   ├── lint-html.js                Enforces HTML design standards (runs as PostToolUse hook)
-│   │   └── HTML_DESIGN_STANDARDS.json    Color palette, typography, component rules — the UI constitution
-│   ├── templates/                      Shared CSS partial used by Eleventy pipeline
-│   │   └── shared-base.css.html        Typography reset + base styles (inlined by base.njk via |inline filter)
-│   └── sales/                          Source markdown — agents read, fill-template.js parses
-│       ├── architect-guide.md          Single internal reference: proposition, pricing, AE briefing, objections, Phase 2
-│       ├── pricing-model.md            Authoritative rate source — parsed by fill-template.js and Scout
-│       └── proposal-structure.md       Proposal section outline — used by Scout/Analyst; never an HTML file
+│   ├── playbooks/
+│   │   ├── playbooks/              System playbooks (salesforce/, netsuite/, etc.)
+│   │   ├── scenarios/              One reference file per integration pattern (A–U+)
+│   │   ├── stories/                Reusable story templates the PM references
+│   │   └── usecases/               Use-case reference files
+│   ├── canonical-models/           Hub schemas — the canonical interchange format
+│   ├── doc-templates/              PRD, architecture, and story templates
+│   ├── DESIGN_STANDARDS.md         The constitution — all pattern decisions flow from here
+│   ├── connector-registry.json     All known connectors: versions, Maven coords, auth types
+│   ├── snippet-registry.json       Three-tier registry of all reusable code assets
+│   ├── pom.xml                     Commons library pom (mule-plugin, deployed to Exchange)
+│   └── publish.sh                  Publish commons library to Anypoint Exchange
 │
-├── firebase/
-│   └── public/                         Firebase Hosting root — deployed to dataskateclients.web.app
-│       ├── index.html                  Architect Portal — Google auth gated to @dataskate.ai
-│       ├── resources/
-│       │   ├── architect-guide.html    Internal — @dataskate.ai only; generated from architect-guide.md
-│       │   └── ds-pricing-model.html   External — public; generated from pricing-model.md (rates)
-│       └── portal/
-│           └── {client}.html           Per-client project hub; generated by fill-template.js --template portal
+├── portal/                         Web UI — Eleventy build + Firebase Hosting (merged)
+│   ├── src/                        Eleventy source pages
+│   │   ├── intake/
+│   │   ├── internal/
+│   │   ├── portal/
+│   │   └── resources/
+│   ├── _includes/layouts/          Nunjucks layout templates
+│   │   ├── intake.njk              Intake questionnaire
+│   │   ├── proposal.njk            Client proposal
+│   │   ├── corporate-brief.njk     Pre-call research summary (1-pager)
+│   │   ├── integration-deck.njk    AE/Architect internal briefing deck
+│   │   ├── client-portal.njk       Client project hub
+│   │   ├── ds-pricing-model.njk    Public pricing one-pager
+│   │   ├── architect-guide.njk     Internal architect reference
+│   │   └── base.njk                Shared base layout (inlines shared-base.css.html)
+│   ├── _data/                      Eleventy global data files
+│   ├── _build/                     Eleventy output (do not edit manually)
+│   ├── public/                     Firebase Hosting root — deployed to dataskateclients.web.app
+│   │   ├── index.html              Architect Portal — Google auth gated to @dataskate.ai
+│   │   ├── resources/
+│   │   │   ├── architect-guide.html    Internal — @dataskate.ai only
+│   │   │   ├── ds-pricing-model.html   External — public
+│   │   │   └── capabilities.html       Knowledge Base — @dataskate.ai only
+│   │   └── portal/
+│   │       └── {client}.html           Per-client project hub
+│   ├── functions/                  Firebase Cloud Functions
+│   ├── scripts/                    Firebase / portal utility scripts
+│   ├── tests/                      Portal test suites (structural + behavioral per template)
+│   ├── template-registry.json      Authoritative template inventory (v1.3)
+│   ├── version-manifest.json       Per-template version pins (current: v1 for all templates)
+│   ├── firebase.json               Firebase Hosting + Functions config
+│   ├── deploy.sh                   Deploy portal/public to Firebase Hosting
+│   └── SETUP.md                    Portal development setup guide
+│
+├── commons/                        Shared branding, sales collateral, design tokens
+│   ├── branding/
+│   │   ├── lint-html.js            Enforces HTML design standards (runs as PostToolUse hook)
+│   │   ├── add-client-card.js      Adds a new client card to the Architect Portal
+│   │   └── HTML_DESIGN_STANDARDS.json  Color palette, typography, component rules — the UI constitution
+│   ├── templates/
+│   │   └── shared-base.css.html    Typography reset + base styles (inlined by base.njk via |inline filter)
+│   ├── tokens/                     Design tokens source (consumed by build:tokens)
+│   ├── sales/                      Source markdown — agents read, Eleventy build parses
+│   │   ├── architect-guide.md      Single internal reference: proposition, pricing, AE briefing, objections, Phase 2
+│   │   ├── pricing-model.md        Authoritative rate source — parsed by Eleventy build and Scout
+│   │   └── proposal-structure.md   Proposal section outline — used by Scout/Analyst; never an HTML file
+│   └── social-proof/               Client testimonials and case study snippets
 │
 ├── docs/
-│   ├── PLANNING_CONTEXT.md            Master system context — read before every session
-│   ├── FIELD_KNOWLEDGE.md             Lessons from real projects; agents apply verified entries
-│   ├── PATTERNS_RESEARCH.md           Research reference: EIP, flow control, coupling, compensation
-│   └── CHUNK_PROGRESS.md              Build progress log
+│   └── capabilities/               GitHub Pages output — capabilities portal static export
+│
+├── _inbox/                         Raw inbound files (Krisp recordings, call notes, etc.)
 │
 └── projects/
+    ├── _template/                  Canonical new-client folder (copied by orchestrate.js)
     └── {client}/
-        ├── scoping/                    Drop raw scoping call notes here (Step 0)
-        ├── intake/                     Drop completed intake questionnaire responses here (Step 1)
+        ├── scoping/                Drop raw scoping call notes here (Step 0)
+        ├── intake/                 Drop completed intake questionnaire responses here (Step 1)
         │   ├── intake-questionnaire-{client}.md   Generated by Scout — send to client
         │   ├── intake-content.json               Content for intake HTML (Scout output)
         │   ├── intake-questionnaire-{client}.html  Client-facing intake form (dynamic, Firestore)
+        │   ├── corporate-brief-content.json      Research summary content (Scout output)
+        │   ├── corporate-brief-{client}.html     Pre-call research summary (dynamic, Firestore)
         │   ├── proposal-content.json             Content for proposal HTML (Scout output)
         │   ├── proposal-{client}.html            Client-facing proposal (dynamic, Firestore)
         │   ├── integration-deck-content.json     Research content for integration deck (Scout output)
-        │   └── integration-deck-{client}.html    Client-facing pitch deck (dynamic, Firestore)
-        ├── portal-content.json         Content for client portal (scaffold output)
-        ├── project.json                Project metadata: client, architect, architectEmail, phase
-        ├── company_context.json        Company research: industry, systems, peers, FOMO data
-        ├── canonical-extensions.yaml   Per-client deviations from canonical models (Analyst output)
-        ├── api-discovery/              API contract files (Analyst output)
+        │   └── integration-deck-{client}.html    Internal AE briefing deck (auth-gated)
+        ├── portal-content.json     Content for client portal (scaffold output)
+        ├── project.json            Project metadata: client, architect, architectEmail, phase
+        ├── company_context.json    Company research: industry, systems, peers, FOMO data, corporateStack
+        ├── api-discovery/          API contract files (Analyst output)
         ├── prd.md
         ├── architecture.md
         ├── decisions.json
@@ -379,7 +424,7 @@ mulesoft-bmad-planning/
 
 ## The Decision Tree (What the Architect Does)
 
-The Architect walks 6 decisions in order. Every decision has a schema constraint in `decisions-schema.json`. The tech lead's job is to review the output, not re-walk the tree.
+The Architect walks 6 decisions in order. Every decision has a schema constraint in `mulesoft/decisions-schema.json`. The tech lead's job is to review the output, not re-walk the tree.
 
 | Level | Decision | Why it comes first |
 |-------|----------|-------------------|
@@ -390,7 +435,7 @@ The Architect walks 6 decisions in order. Every decision has a schema constraint
 | 5 | Deployment profile | minimal / standard / enterprise / regulated — drives which sub-flows are generated |
 | 6 | Connector selection | Registry lookup, version pinning, playbook lookup, staleness check (>60d = warning) |
 
-The 21 integration patterns (A–U) are in `standards/scenarios/`. Each scenario file specifies the integration style, compensation strategy, flow control config, and EDA fit assessment so the Architect isn't deriving them from first principles every time.
+The 21 integration patterns (A–U) are in `mulesoft/playbooks/scenarios/`. Each scenario file specifies the integration style, compensation strategy, flow control config, and EDA fit assessment so the Architect isn't deriving them from first principles every time.
 
 ---
 
@@ -399,29 +444,31 @@ The 21 integration patterns (A–U) are in `standards/scenarios/`. Each scenario
 Every generated client project declares `mulesoft-commons` as a Maven dependency. This means:
 
 - Error handling, retry, notifications, and audit logging are **one implementation, one place to fix**
-- A bug fix in `common-error-handler.xml` benefits all client projects on next deploy — not just the one that found the bug
+- A bug fix in `mulesoft/src/main/mule/common-error-handler.xml` benefits all client projects on next deploy — not just the one that found the bug
 - New client projects automatically inherit any sub-flow improvements published to Exchange
 
+The commons library source lives in `mulesoft/src/`. Publish to Exchange with `bash mulesoft/publish.sh`.
+
 **Why retry-queue instead of `until-successful`:**
-`until-successful` blocks the consumer thread for the entire retry duration and loses state on Mule restart. The retry-queue pattern publishes a message back to a retry queue with `X-Retry-Attempt` metadata, releases the consumer immediately, and survives restarts. The commons `common-retry.xml` implements this with exponential backoff.
+`until-successful` blocks the consumer thread for the entire retry duration and loses state on Mule restart. The retry-queue pattern publishes a message back to a retry queue with `X-Retry-Attempt` metadata, releases the consumer immediately, and survives restarts. `mulesoft/src/main/mule/common-retry.xml` implements this with exponential backoff.
 
 **Why `set-correlation-id` instead of `set-variable`:**
-Mule 4.6+ introduced `set-correlation-id` as a first-class element. `set-variable` creates a flow variable — it does not set the Mule event's `correlationId`, which is what appears in logs and gets propagated by the runtime. `common-correlation.xml` uses `set-correlation-id` everywhere.
+Mule 4.6+ introduced `set-correlation-id` as a first-class element. `set-variable` creates a flow variable — it does not set the Mule event's `correlationId`, which is what appears in logs and gets propagated by the runtime. `mulesoft/src/main/mule/common-correlation.xml` uses `set-correlation-id` everywhere.
 
 ---
 
 ## System Playbooks — How Integration Knowledge Accumulates
 
-The playbooks in `standards/playbooks/` encode what we know about each external system. Each playbook is **system-specific, not pair-specific** — the Salesforce playbook is reused whether the other side is NetSuite, SAP, Workday, or anything else.
+The playbooks in `mulesoft/playbooks/playbooks/` encode what we know about each external system. Each playbook is **system-specific, not pair-specific** — the Salesforce playbook is reused whether the other side is NetSuite, SAP, Workday, or anything else.
 
 ```
-standards/playbooks/salesforce/       standards/playbooks/netsuite/
-  system/sf-auth.xml                  system/ns-auth.xml
-  system/sf-query.xml                 system/ns-query.xml
-  objects/account/                    system/ns-upsert.xml
-  objects/opportunity/                objects/sales-order/
-  objects/contact/                    objects/invoice/
-                                      objects/customer/
+mulesoft/playbooks/playbooks/salesforce/    mulesoft/playbooks/playbooks/netsuite/
+  system/sf-auth.xml                          system/ns-auth.xml
+  system/sf-query.xml                         system/ns-query.xml
+  objects/account/                            system/ns-upsert.xml
+  objects/opportunity/                        objects/sales-order/
+  objects/contact/                            objects/invoice/
+                                              objects/customer/
 ```
 
 **Every object has bidirectional DWL transforms:**
@@ -430,8 +477,8 @@ standards/playbooks/salesforce/       standards/playbooks/netsuite/
 
 **Cross-system flows become two imports:**
 ```dataweave
-import sfOpportunityToCanonical from "standards/playbooks/salesforce/objects/opportunity/sf-opportunity-to-canonical.dwl"
-import canonicalToNsOrder       from "standards/playbooks/netsuite/objects/sales-order/canonical-to-ns-order.dwl"
+import sfOpportunityToCanonical from "mulesoft/playbooks/playbooks/salesforce/objects/opportunity/sf-opportunity-to-canonical.dwl"
+import canonicalToNsOrder       from "mulesoft/playbooks/playbooks/netsuite/objects/sales-order/canonical-to-ns-order.dwl"
 ---
 canonicalToNsOrder(sfOpportunityToCanonical(payload))
 ```
@@ -447,20 +494,20 @@ No new code needed. The full field mapping, null handling, and status enum trans
 | Scout run | Scout | Stub {system}_playbook.json created on first detection — marks system as known |
 | Analyst run | Analyst | Stub enriched with auth type and object types confirmed from intake |
 | Architect MD run | Architect | Stub enriched with design-confirmed auth, objects needed, and known quirks |
-| CO run (post-delivery) | Architect | Real implementation learnings added — confirmed DWL mappings, maturity updated, gotchas documented |
+| CO run (post-delivery) | Architect | Real implementation learnings added to `mulesoft/playbooks/playbooks/{system}/` — confirmed DWL mappings, maturity updated, gotchas documented |
 | Second client | CO run | Maturity advances from `observation` to `verified` — Architect applies it automatically |
 
 ### Known critical quirks encoded in the playbooks
 
 | System | Quirk | Where it's handled |
 |--------|-------|-------------------|
-| NetSuite | REST requires **PS256 JWT** — MuleSoft JWT Module does NOT support PS256 | `ns-auth.xml` (Nimbus JOSE via Groovy) |
-| NetSuite | SuiteQL max 1,000 records/page; governance units → 429 on overrun | `ns-query.xml` (exponential backoff) |
-| NetSuite | Invoices are system-generated — cannot POST to create one | `ns-invoice-to-canonical.dwl` (read-only direction only) |
-| NetSuite | Item lookup requires internalId — no lookup by product code via REST | `canonical-to-ns-order.dwl` (itemMapping helper parameter) |
-| Salesforce | SOQL OFFSET breaks silently on > 2,000 records | `sf-query.xml` (cursor pagination via `nextRecordsUrl`) |
-| Salesforce | `BillingCountryCode` only exists if "State and Country Picklists" feature is enabled | `canonical-to-sf-account.dwl` (`useCountryCode` flag) |
-| Salesforce | `CurrencyIsoCode` on Account only writable on multi-currency orgs | `canonical-to-sf-account.dwl` (`isMultiCurrency` flag) |
+| NetSuite | REST requires **PS256 JWT** — MuleSoft JWT Module does NOT support PS256 | `mulesoft/playbooks/playbooks/netsuite/system/ns-auth.xml` (Nimbus JOSE via Groovy) |
+| NetSuite | SuiteQL max 1,000 records/page; governance units → 429 on overrun | `mulesoft/playbooks/playbooks/netsuite/system/ns-query.xml` (exponential backoff) |
+| NetSuite | Invoices are system-generated — cannot POST to create one | `mulesoft/playbooks/playbooks/netsuite/objects/invoice/ns-invoice-to-canonical.dwl` (read-only direction only) |
+| NetSuite | Item lookup requires internalId — no lookup by product code via REST | `mulesoft/playbooks/playbooks/netsuite/objects/sales-order/canonical-to-ns-order.dwl` (itemMapping helper parameter) |
+| Salesforce | SOQL OFFSET breaks silently on > 2,000 records | `mulesoft/playbooks/playbooks/salesforce/system/sf-query.xml` (cursor pagination via `nextRecordsUrl`) |
+| Salesforce | `BillingCountryCode` only exists if "State and Country Picklists" feature is enabled | `mulesoft/playbooks/playbooks/salesforce/objects/account/canonical-to-sf-account.dwl` (`useCountryCode` flag) |
+| Salesforce | `CurrencyIsoCode` on Account only writable on multi-currency orgs | `mulesoft/playbooks/playbooks/salesforce/objects/account/canonical-to-sf-account.dwl` (`isMultiCurrency` flag) |
 
 ### Playbook maturity model
 
@@ -475,16 +522,16 @@ No new code needed. The full field mapping, null handling, and status enum trans
 
 ## How Field Knowledge Accumulates
 
-`docs/FIELD_KNOWLEDGE.md` is the architect's lesson log. When any engagement surfaces something not covered by existing standards — during analysis, architecture, UAT, or production — it goes here.
+`pipeline/FIELD_KNOWLEDGE.md` is the architect's lesson log. When any engagement surfaces something not covered by existing standards — during analysis, architecture, UAT, or production — it goes here.
 
-All agents read this file at the start of every session and apply `verified` entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.
+All agents read `pipeline/FIELD_KNOWLEDGE.md` at the start of every session and apply `verified` entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.
 
 **How a finding travels from a project to a system improvement:**
 
 ```
 Scout detects a system for the first time
         ↓
-Stub created in standards/playbooks/, connector-registry, intake-checklist
+Stub created in mulesoft/playbooks/playbooks/, mulesoft/connector-registry.json, pipeline/intake-checklist.json
         ↓
 Analyst + Architect enrich the stubs with design knowledge
         ↓
@@ -498,7 +545,7 @@ Second engagement hits the same system → CO again → status promoted to verif
         Agents now apply it automatically on future projects
         ↓
 Architect decides it's universal → PK command → agent drafts the target file change
-        Promoted to scenario file, standards doc, or commons playbook
+        Promoted to mulesoft/playbooks/scenarios/, mulesoft/DESIGN_STANDARDS.md, or mulesoft/src/
 ```
 
 No client names are stored — counts only.
@@ -507,17 +554,19 @@ No client names are stored — counts only.
 
 ## Capabilities Portal
 
-A generated HTML portal at `docs/capabilities/index.html` shows every registered capability:
+A generated HTML portal at `portal/public/resources/capabilities.html` (the **Knowledge Base**) shows every registered capability:
 
 - **Connectors** — all connectors, versions, staleness badges (green/yellow/red by days since verified)
 - **Code Assets** — all three tiers: snippets, commons sub-flows/DWL, Exchange schemas
 - **System Playbooks** — all objects per system, maturity status, client count
-- **Intake Warnings** — all autoWarnings in intake-checklist.json with trigger keywords and severity
+- **Scout Agents** — all pipeline agents from `pipeline/scout/pipeline.json`, their roles and capabilities
+- **Intake Warnings** — all autoWarnings in `pipeline/intake-checklist.json` with trigger keywords and severity
+- **Field Knowledge** — FK entries from `pipeline/FIELD_KNOWLEDGE.md`
 
 GitHub Actions auto-regenerates this on every push that touches a registry file or decisions.json. To regenerate manually:
 
 ```bash
-node scaffold/generate-capabilities.js
+node pipeline/tools/generate-knowledge-base.js
 ```
 
 ---
@@ -585,7 +634,7 @@ When a `verified` finding is clearly universal — bake it into the target file:
 /bmad-agent-architect-debrief → PK
 ```
 
-The agent lists verified entries, you pick one, it drafts the exact change to the target file (scenario, standards doc, playbook, or commons DWL), applies it, and updates the FK status to `promoted-to-standard`.
+The agent lists verified entries, you pick one, it drafts the exact change to the target file (`mulesoft/playbooks/scenarios/`, `mulesoft/DESIGN_STANDARDS.md`, `mulesoft/playbooks/playbooks/{system}/`, or `mulesoft/src/main/resources/dwl/`), applies it, and updates the FK status to `promoted-to-standard`.
 
 ### Add a new connector (NC)
 
@@ -593,7 +642,7 @@ The agent lists verified entries, you pick one, it drafts the exact change to th
 /bmad-agent-architect-debrief → NC
 ```
 
-The agent asks for the connector name, Exchange coordinates, auth type, and required properties. It writes the `connector-registry.json` entry, creates the XML config stub in `scaffold/connectors/`, runs the freshness check, and suggests the commit message.
+The agent asks for the connector name, Exchange coordinates, auth type, and required properties. It writes the `mulesoft/connector-registry.json` entry, creates the XML config stub in `mulesoft/connectors/`, runs the freshness check, and suggests the commit message.
 
 ### Add a new integration pattern (NP)
 
@@ -601,7 +650,7 @@ The agent asks for the connector name, Exchange coordinates, auth type, and requ
 /bmad-agent-architect-debrief → NP
 ```
 
-The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `standards/scenarios/`, adds the enum value to `decisions-schema.json`, and adds the catalog row to `DESIGN_STANDARDS.md`.
+The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `mulesoft/playbooks/scenarios/`, adds the enum value to `mulesoft/decisions-schema.json`, and adds the catalog row to `mulesoft/DESIGN_STANDARDS.md`.
 
 ### Add a new system playbook (NB)
 
@@ -609,7 +658,7 @@ The agent asks for the pattern letter, integration style, compensation strategy,
 /bmad-agent-architect-debrief → NB
 ```
 
-The agent asks for the system name, auth method, objects needing DWL transforms, and any known quirks. It scaffolds the full folder structure under `standards/playbooks/{system}/`, writes skeleton auth/query/upsert sub-flows and bidirectional DWL transforms, registers the assets in `snippet-registry.json`, and regenerates the capabilities portal.
+The agent asks for the system name, auth method, objects needing DWL transforms, and any known quirks. It scaffolds the full folder structure under `mulesoft/playbooks/playbooks/{system}/`, writes skeleton auth/query/upsert sub-flows and bidirectional DWL transforms, registers the assets in `mulesoft/snippet-registry.json`, and regenerates the knowledge base.
 
 ---
 
@@ -619,7 +668,7 @@ Two workflows run automatically on GitHub's servers. No Codespace needs to be op
 
 | Workflow | File | Trigger | What it does |
 |----------|------|---------|--------------|
-| **Regenerate Capabilities Portal** | `capabilities.yml` | Push to connector registry, playbooks, decisions, or generator script | Rebuilds `docs/capabilities/index.html` and commits it to main |
+| **Regenerate Knowledge Base** | `capabilities.yml` | Push to `mulesoft/connector-registry.json`, `mulesoft/playbooks/`, `mulesoft/snippet-registry.json`, or `pipeline/scout/pipeline.json` | Rebuilds `portal/public/resources/capabilities.html` and commits to main |
 | **Regenerate Client Portals** | `portal.yml` | Every 30 min + push to any `projects/*/` config file | Generates per-client portal HTML and deploys to Firebase Hosting |
 
 ### Client Portal
@@ -644,7 +693,7 @@ Each client gets a live portal at `https://dataskateclients.web.app/portal/{clie
 To push immediately from your Codespace (requires `FIREBASE_SA_KEY` as a Codespace secret):
 
 ```bash
-cd firebase && bash deploy.sh
+bash portal/deploy.sh
 ```
 
 ---
@@ -675,7 +724,7 @@ This system automates the **integration runtime pipeline** — the path from dis
 | **Runtime Fabric (RTF)** | Available as `devops.deployment` option in `decisions.json` |
 | **API Manager + API Gateway** | OAS 3.0 specs generated per HTTP flow; security policies (client-id, OAuth2, mTLS) driven from `decisions.json` security tier |
 | **Anypoint Exchange** | Connector versions pinned from Exchange; `commons/publish.sh` publishes the shared library |
-| **Anypoint Connectors** | 28 connector config stubs in `scaffold/connectors/`; 345 entries in `connector-registry.json` with auth types, versions, and Maven coordinates |
+| **Anypoint Connectors** | 28 connector config stubs in `mulesoft/connectors/`; 345 entries in `mulesoft/connector-registry.json` with auth types, versions, and Maven coordinates |
 | **Anypoint MQ** | Subscriber and publisher configs generated; queue setup, DLQ, TTL, and depth alert stories generated per async flow |
 | **Anypoint Monitoring** | Alert configs and custom dashboard stories generated; mandatory in all non-minimal scaffold profiles |
 | **Anypoint Visualizer** | API-led layer tags written into `mule-artifact.json`; a dedicated Visualizer verification story is generated per project |

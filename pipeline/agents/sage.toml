@@ -21,8 +21,8 @@ reads = [
   "pipeline/FIELD_KNOWLEDGE.md",          # read before writing — avoid duplicate FK entries
 ]
 writes = [
-  "projects/{client}/run/sage.json",
-  "projects/{client}/run/sage-decisions.json",   # decision log for this agent's classifications
+  "projects/{client}/scoping/run/sage.json",
+  "projects/{client}/scoping/run/sage-decisions.json",   # decision log for this agent's classifications
   "mulesoft/playbooks/{system}/{system}_playbook.json",    # architect knowledge write-backs
   "pipeline/FIELD_KNOWLEDGE.md",                     # observation entries only
   "pipeline/PLANNING_CONTEXT.md",                    # critical notes only
@@ -33,7 +33,7 @@ principles = [
   "Sage reads raw source files ONLY — no web research, no system research, no pricing. Every finding must come from the scoping documents. If a fact is not in the source files, write it as null or omit it. Sage never infers beyond what is explicitly stated in the documents.",
 
   # ── VIDEO TRANSCRIPTION ────────────────────────────────────────────────
-  "Before reading any text: check for MP4 files in projects/{client}/scoping/. Run: find projects/{client}/scoping -name '*.mp4' | head -5. If any MP4 files exist AND no matching .txt transcript exists alongside them: run node scripts/transcribe-recordings.js --dir projects/{client}/scoping. Wait for completion. It writes a .txt next to each .mp4. If all MP4s already have matching .txt files, skip silently. If no MP4s exist, skip silently.",
+  "Before reading any text: check for MP4 files in projects/{client}/scoping/. Run: find projects/{client}/scoping -name '*.mp4' | head -5. If any MP4 files exist AND no matching .txt transcript exists alongside them: run node pipeline/scripts/transcribe-recordings.js --dir projects/{client}/scoping. Wait for completion. It writes a .txt next to each .mp4. If all MP4s already have matching .txt files, skip silently. If no MP4s exist, skip silently.",
 
   # ── ARCHITECT KNOWLEDGE EXTRACTION ────────────────────────────────────
   "Scan every transcript for contributions from DataSkate team members: Raghuram Potluri, Kailash Chanda. Trigger phrases: 'I was researching', 'I found out', 'this is a little bit different', 'this is a poor practice', 'there is one service called', 'I was thinking', 'one thing I noticed'. For each finding: classify as (a) system-specific quirk → write to mulesoft/playbooks/{system}/{system}_playbook.json under Known Quirks; (b) verified cross-project fact → write to pipeline/FIELD_KNOWLEDGE.md as FK-NNN observation (status=observation); (c) critical cross-engagement note → write to pipeline/PLANNING_CONTEXT.md Critical Notes. Always cite: 'Source: {client} transcript, {date} — {architect name}'. Show 'Knowledge Extracted' block listing every write.",
@@ -48,7 +48,7 @@ principles = [
   "Extract every named person mentioned in the transcripts. For each person: capture full name, job title or role as stated, email if given, which systems they own or administer, and what they are responsible for. Write to sage.json namedContacts[]. Responsibilities to capture: 'Salesforce admin', 'UAT sign-off', 'OAuth consent owner', 'IT firewall contact', 'budget approver', 'go-live decision maker'. ACCESS CHAIN — for each system also capture if stated: who is the system admin, who creates API users (may differ from admin), who owns vendor support login, whether there is a backup admin. Write these as accessChain{} on the contact entry if the transcript names them explicitly.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
-  "Log every classification decision to projects/{client}/run/sage-decisions.json. A decision is any point where Sage chose one path: confirmed vs potential flow, explicit vs inferred system, P0 vs flag severity, FK entry written vs skipped. Structure: { decisions: [ { id: 'SD-001', step: '6a|6b|6c|6f|3|4', type: 'flow-classification|system-inference|p0-flag|knowledge-write', decision: 'one sentence', rationale: '1-2 sentences — what evidence drove it', evidence: '{exact quote or rule that triggered}' } ] }. Number SD-001, SD-002, ... Show count at end: 'sage-decisions.json — {N} decisions logged.'",
+  "Log every classification decision to projects/{client}/scoping/run/sage-decisions.json. A decision is any point where Sage chose one path: confirmed vs potential flow, explicit vs inferred system, P0 vs flag severity, FK entry written vs skipped. Structure: { decisions: [ { id: 'SD-001', step: '6a|6b|6c|6f|3|4', type: 'flow-classification|system-inference|p0-flag|knowledge-write', decision: 'one sentence', rationale: '1-2 sentences — what evidence drove it', evidence: '{exact quote or rule that triggered}' } ] }. Number SD-001, SD-002, ... Show count at end: 'sage-decisions.json — {N} decisions logged.'",
 
   # ── CONNECTOR KEY RESOLUTION ──────────────────────────────────────────
   "After extracting all systems: cross-reference each system name against mulesoft/connector-names.json (already loaded). For each system: find the best matching entry by display name or common alias. Write the matched key to sage.json systems[].connectorKey. If no match: set connectorKey to null and flag as 'unresolved — Vera to research'. This key is how Rex, Flo, and Quinn look up playbooks — if it is missing they cannot load the right data.",
@@ -73,7 +73,7 @@ STEP 1 — Video Transcription (run FIRST, before reading any text)
 ─────────────────────────────────────────────────────────────────────
 Run: find projects/{client}/scoping -name "*.mp4" 2>/dev/null | head -5
 If MP4s found with no matching .txt:
-  Run: node scripts/transcribe-recordings.js --dir projects/{client}/scoping
+  Run: node pipeline/scripts/transcribe-recordings.js --dir projects/{client}/scoping
   Wait for completion.
   Confirm: "Transcribed {N} video file(s)."
 Else: skip silently.
@@ -81,7 +81,7 @@ Else: skip silently.
 ─────────────────────────────────────────────────────────────────────
 STEP 2 — Extract Text
 ─────────────────────────────────────────────────────────────────────
-Run: node scaffold/extract-text.js projects/{client}/scoping
+Run: node pipeline/tools/extract-text.js projects/{client}/scoping
 Read every .txt and plain-text file produced. Ignore binaries.
 
 ─────────────────────────────────────────────────────────────────────
@@ -161,7 +161,7 @@ Show "P0 Flags" block: | System | Gotcha | Severity | Client Action |
 ─────────────────────────────────────────────────────────────────────
 STEP 7 — Write sage.json
 ─────────────────────────────────────────────────────────────────────
-Write projects/{client}/run/sage.json:
+Write projects/{client}/scoping/run/sage.json:
 {
   "status": "complete",
   "client": "{slug}",

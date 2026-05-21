@@ -3,7 +3,7 @@
 // Color/hex enforcement  → stylelint (.stylelintrc.json)
 // Structure/tag rules    → htmlhint (.htmlhintrc)
 // Formatting             → prettier (.prettierrc.json)
-// Accessibility          → node scripts/lint-a11y.js
+// Accessibility          → node pipeline/scripts/lint-a11y.js
 //
 // Run automatically via PostToolUse hook on any .html file edit.
 // Also runnable manually:
