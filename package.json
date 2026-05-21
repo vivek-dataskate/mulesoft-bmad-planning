@@ -4,29 +4,28 @@
   "description": "MuleSoft BMAD Planning System — scaffold generator and pipeline scripts",
   "private": true,
   "scripts": {
-    "transcribe": "node scripts/transcribe-recordings.js",
-    "load-inbox": "node scripts/load-inbox.js",
+    "load-inbox": "node pipeline/scripts/load-inbox.js",
+    "move-sources": "node pipeline/scripts/move-sources.js",
     "test": "jest",
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":80,\"functions\":80,\"branches\":70}}'",
-    "move-sources": "node scripts/move-sources.js",
-    "lint": "eslint scaffold/*.js tests/**/*.js",
-    "lint:html": "htmlhint 'firebase/public/**/*.html' 'projects/**/intake/*.html' --config .htmlhintrc && node commons/branding/lint-html.js",
-    "lint:style": "stylelint 'firebase/public/**/*.html' 'projects/**/intake/*.html'",
+    "lint": "eslint mulesoft/generate.js pipeline/tools/*.js tests/**/*.js",
+    "lint:html": "htmlhint 'portal/public/**/*.html' 'projects/**/intake/*.html' --config .htmlhintrc && node commons/branding/lint-html.js",
+    "lint:style": "stylelint 'portal/public/**/*.html' 'projects/**/intake/*.html'",
     "lint:format": "prettier --check './*.json' '.htmlhintrc'",
-    "lint:a11y": "node scripts/lint-a11y.js",
+    "lint:a11y": "node pipeline/scripts/lint-a11y.js",
     "lint:all": "npm run lint:html && npm run lint:style && npm run lint:format",
-    "prepare": "cp .claude/hooks/lint-html.sh .git/hooks/lint-html-claude.sh 2>/dev/null; { cp scripts/pre-commit-hook.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit; } 2>/dev/null || true",
+    "prepare": "cp .claude/hooks/lint-html.sh .git/hooks/lint-html-claude.sh 2>/dev/null; { cp pipeline/scripts/pre-commit-hook.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit; } 2>/dev/null || true",
     "build:tokens": "node pipeline/scripts/build-tokens.js",
     "build:html": "npm run build:tokens && eleventy",
     "build:html:watch": "eleventy --serve",
-    "vr:baseline": "node scripts/generate-backstop-config.js && npx backstop reference",
-    "vr:baseline:intake": "node scripts/generate-backstop-config.js --intake && npx backstop reference",
-    "vr:diff": "node scripts/generate-backstop-config.js && npx backstop test",
-    "vr:diff:intake": "node scripts/generate-backstop-config.js --intake && npx backstop test",
-    "vr:approve": "npx backstop approve"
+    "vr:baseline": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config tests/backstop/backstop.json reference",
+    "vr:baseline:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config tests/backstop/backstop.json reference",
+    "vr:diff": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config tests/backstop/backstop.json",
+    "vr:diff:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config tests/backstop/backstop.json",
+    "vr:approve": "npx backstop approve --config tests/backstop/backstop.json"
   },
   "jest": {
     "testEnvironment": "node",
@@ -36,8 +35,8 @@
     ],
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
-      "scaffold/generate.js",
-"scaffold/check-registry-freshness.js"
+      "mulesoft/generate.js",
+      "pipeline/tools/check-registry-freshness.js"
     ],
     "coverageThreshold": {
       "global": {

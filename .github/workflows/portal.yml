@@ -38,26 +38,26 @@ jobs:
         run: |
           CLIENT="${{ github.event.inputs.client }}"
           if [ -n "$CLIENT" ]; then
-            node scaffold/generate-client-portal.js "$CLIENT"
+            node pipeline/tools/generate-client-portal.js "$CLIENT"
           else
-            node scaffold/generate-client-portal.js
+            node pipeline/tools/generate-client-portal.js
           fi
 
       - name: Generate knowledge base
-        run: node scaffold/generate-knowledge-base.js
+        run: node pipeline/tools/generate-knowledge-base.js
 
-      - name: Sync intake + proposal HTML into firebase/public
+      - name: Sync intake + proposal HTML into portal/public
         run: |
-          mkdir -p firebase/public/intake firebase/public/proposal
+          mkdir -p portal/public/intake portal/public/proposal
           for html in projects/*/intake/intake-questionnaire-*.html; do
             [ -f "$html" ] || continue
             slug=$(basename "$html" | sed 's/intake-questionnaire-//' | sed 's/\.html//')
-            cp "$html" "firebase/public/intake/${slug}.html"
+            cp "$html" "portal/public/intake/${slug}.html"
           done
           for html in projects/*/intake/proposal-*.html; do
             [ -f "$html" ] || continue
             slug=$(basename "$html" | sed 's/proposal-//' | sed 's/\.html//')
-            cp "$html" "firebase/public/proposal/${slug}.html"
+            cp "$html" "portal/public/proposal/${slug}.html"
           done
 
       - name: Install dependencies
@@ -65,15 +65,15 @@ jobs:
 
       - name: Visual regression — intake parity gate
         run: |
-          node scripts/generate-backstop-config.js --intake
-          npx backstop test
+          node pipeline/scripts/generate-backstop-config.js --intake
+          npx backstop test --config tests/backstop/backstop.json
 
       - name: Upload VR diff artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: vr-diff-${{ github.run_id }}
-          path: backstop_data/html_report/
+          path: tests/backstop/backstop_data/html_report/
           retention-days: 7
 
       - name: Authenticate to Google Cloud
@@ -83,6 +83,6 @@ jobs:
 
       - name: Deploy to Firebase Hosting
         run: |
-          cd firebase
+          cd portal
           npm install --prefix functions --silent
           npx firebase-tools deploy --only hosting --project dataskateclients --force

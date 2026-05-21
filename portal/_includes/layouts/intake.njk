@@ -270,7 +270,14 @@ body.filter-unanswered details.uc.has-unanswered .p0-block { display: block; }
 
 /* ── CATEGORY TABS — sticky pinned navigation at top of main column ── */
 .cat-tabs {
-  display: none;
+  position: sticky;
+  top: 44px;             /* directly below .sticky-bar */
+  z-index: 150;
+  background: #fff;
+  border-bottom: 2px solid var(--brand);
+  display: flex;
+  margin: 20px -24px 0;  /* full-bleed against .wrap padding */
+  padding: 0 24px;
 }
 .cat-tab {
   flex: 1;
@@ -746,10 +753,6 @@ body.is-complete .btn-submit {
    visible; untagged and non-matching questions are hidden.  */
 .sys-map-view { margin: 14px 0 0; }
 
-.sys-diagram-wrap {
-  border: 1px solid var(--border); border-radius: 8px; padding: 16px;
-  background: #FAFAFA; margin-bottom: 16px; overflow-x: auto; text-align: center;
-}
 
 .sys-cards-row {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
@@ -874,6 +877,9 @@ body.sys-filter-on .q.sys-match { border-left: 3px solid var(--brand); padding-l
     <button type="button" class="bar-tool" onclick="jumpToFirstUnanswered()" title="Jump to the next blank question">
       <span class="bt-icon">→</span> Next unanswered
     </button>
+    <button type="button" class="bar-tool" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+      <span class="bt-icon">↑</span> Top
+    </button>
     <a href="#" class="bar-filter is-hidden" id="filter-link" role="button"
        onclick="toggleUnansweredFilter(event)"
        title="Hide answered questions so only the blanks remain">
@@ -934,11 +940,8 @@ body.sys-filter-on .q.sys-match { border-left: 3px solid var(--brand); padding-l
 <div class="draft-banner" id="draft-banner" aria-live="polite">Draft restored — continue where you left off.</div>
 
 <!-- SYSTEM MAP — architecture diagram + clickable system filter cards -->
-{% if intakeRendered.systemNodes | length > 0 or intakeRendered.systemDiagramSvg %}
+{% if intakeRendered.systemNodes | length > 0 %}
 <div class="sys-map-view no-print" id="sys-map-view">
-  {% if intakeRendered.systemDiagramSvg %}
-  <div class="sys-diagram-wrap">{{ intakeRendered.systemDiagramSvg | safe }}</div>
-  {% endif %}
   {% if intakeRendered.systemNodes | length > 0 %}
   <div class="sys-cards-row">
     <div class="sys-cards" id="sys-cards">
@@ -1083,33 +1086,58 @@ function tagQuestionsWithSystems() {
 
   const patterns = SYS_NODES.map(n => {
     const lower = n.label.toLowerCase();
-    // Use full label + any individual word ≥6 chars as keywords
-    const words = lower.split(/\s+/).filter(w => w.length >= 6);
+    const words = lower.split(/\s+/).filter(w => w.length >= 4);
     return { id: n.id, keywords: [lower, ...words] };
   });
 
-  // 1. Text-based: scan .q-text content
+  function matchSystems(text) {
+    const lower = (text || '').toLowerCase();
+    return patterns.filter(p => p.keywords.some(kw => lower.includes(kw))).map(p => p.id);
+  }
+
+  function addSystems(q, sysIds) {
+    if (!sysIds.length) return;
+    const existing = q.dataset.systems ? q.dataset.systems.split(',').filter(Boolean) : [];
+    sysIds.forEach(sid => { if (!existing.includes(sid)) existing.push(sid); });
+    q.dataset.systems = existing.join(',');
+  }
+
+  // 1. Text-based: scan .q-text content for explicit system name mentions
   document.querySelectorAll('.q').forEach(q => {
     const textEl = q.querySelector('.q-text');
-    if (!textEl) return;
-    const qText = textEl.textContent.toLowerCase();
-    const matched = patterns
-      .filter(p => p.keywords.some(kw => qText.includes(kw)))
-      .map(p => p.id);
-    if (matched.length) q.dataset.systems = matched.join(',');
+    if (textEl) addSystems(q, matchSystems(textEl.textContent));
   });
 
-  // 2. Container-based: questions inside #sys-home-{id} always belong to that system
+  // 2. Container-based: questions inside #sys-home-{id} belong to that system (section 10)
   SYS_NODES.forEach(node => {
     const home = document.getElementById('sys-home-' + node.id);
-    if (!home) return;
-    home.querySelectorAll('.q').forEach(q => {
-      const existing = q.dataset.systems ? q.dataset.systems.split(',') : [];
-      if (!existing.includes(node.id)) {
-        existing.push(node.id);
-        q.dataset.systems = existing.join(',');
+    if (home) home.querySelectorAll('.q').forEach(q => addSystems(q, [node.id]));
+  });
+
+  // 3. UC-context: questions inherit systems from their parent use-case's h3 title
+  document.querySelectorAll('details.uc').forEach(uc => {
+    const h3 = uc.querySelector('summary h3, .uc-hd h3');
+    if (!h3) return;
+    const ucSystems = matchSystems(h3.textContent);
+    if (ucSystems.length) uc.querySelectorAll('.q').forEach(q => addSystems(q, ucSystems));
+  });
+
+  // 4. Heading-context: within each section, questions inherit from the nearest preceding h3
+  document.querySelectorAll('details.section-block').forEach(sec => {
+    let currentSystems = [];
+    sec.querySelectorAll('h3, .q').forEach(el => {
+      if (el.tagName === 'H3') {
+        currentSystems = matchSystems(el.textContent);
+      } else if (currentSystems.length) {
+        addSystems(el, currentSystems);
       }
     });
+  });
+
+  // 5. Fallback: any question still untagged belongs to ALL systems — shown as sys-match everywhere
+  const allSysIds = SYS_NODES.map(n => n.id).join(',');
+  document.querySelectorAll('.q').forEach(q => {
+    if (!q.dataset.systems) q.dataset.systems = allSysIds;
   });
 }
 
@@ -2027,9 +2055,9 @@ document.addEventListener('DOMContentLoaded', () => {
   updateProgress();             // first paint of progress, dot colors, filter chip, etc.
   refreshFilterChip();    // ensure the sticky-bar count chip is correct on first paint
 
-  // Back-to-top button — show after scrolling 400px
+  // Back-to-top button — show after scrolling 150px
   const btt = document.getElementById('back-to-top');
-  if (btt) window.addEventListener('scroll', () => btt.classList.toggle('is-visible', window.scrollY > 400), { passive: true });
+  if (btt) window.addEventListener('scroll', () => btt.classList.toggle('is-visible', window.scrollY > 150), { passive: true });
 
   // Soft-lock banner — if this browser has submitted before, surface the
   // version + "edits create v(N+1)" note so the user knows what's saved.

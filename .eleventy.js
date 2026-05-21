@@ -3,12 +3,12 @@
 // Configures Eleventy as the HTML generator for all DataSkate per-client and
 // resource documents.
 //
-// Layout: docs/eleventy/
+// Layout: portal/
 //   _includes/        ← layouts + components (Nunjucks)
 //     layouts/        ← base.njk and per-template wrappers
 //     components/     ← one file per visual unit (flow-card, model-card, etc.)
 //   _data/            ← shared data (about-dataskate, pricing-model, etc.)
-//   site/             ← per-client + per-template entry pages
+//   src/              ← per-client + per-template entry pages
 //
 // Per-client data is mounted at `site/<template>/<client>.njk` with
 // `templateData` pointing to projects/<client>/intake/<template>-content.json
@@ -79,7 +79,7 @@ module.exports = function(eleventyConfig) {
     if (!slug) return '';
     const PORTAL = 'https://dataskateclients.web.app';
     for (const ext of ['.svg', '.png']) {
-      const logoFile = path.join(__dirname, 'firebase/public/logos', slug + ext);
+      const logoFile = path.join(__dirname, 'portal/public/logos', slug + ext);
       if (fs.existsSync(logoFile)) {
         const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
         return `<div class="client-logo-block"><div class="client-logo-sep"></div><img src="${esc(PORTAL + '/logos/' + slug + ext)}" alt="${esc(clientName||'')}" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>`;
