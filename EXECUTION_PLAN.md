@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 3 is next (Phases 0–2 complete)
+**Status:** Phase 4 is next (Phases 0–3 complete)
 
 ---
 
@@ -213,29 +213,29 @@ No code references to update — pure `git mv`.
 
 ---
 
-### Phase 3 — Assemble `mulesoft/`
-- [ ] `git mv scaffold/generate.js mulesoft/`
-- [ ] `git mv scaffold/connectors/ mulesoft/connectors/`
-- [ ] `git mv scaffold/xml-templates/ mulesoft/templates/`
-- [ ] `git mv scaffold/devcontainer-templates/ mulesoft/templates/devcontainer/`
-- [ ] `git mv standards/canonical-models/ mulesoft/canonical-models/`
-- [ ] `git mv standards/playbooks/ mulesoft/playbooks/`
-- [ ] `git mv standards/scenarios/ mulesoft/playbooks/scenarios/`
-- [ ] `git mv standards/usecases/ mulesoft/playbooks/usecases/`
-- [ ] `git mv standards/stories/ mulesoft/playbooks/stories/`
-- [ ] `git mv standards/connector-registry.json mulesoft/`
-- [ ] `git mv standards/connector-names.json mulesoft/`
-- [ ] `git mv standards/snippet-registry.json mulesoft/`
-- [ ] `git mv standards/build-connector-index.js mulesoft/`
-- [ ] `git mv standards/query-connector.py mulesoft/`
-- [ ] `git mv standards/DESIGN_STANDARDS.md mulesoft/`
-- [ ] `git mv standards/doc-templates/ mulesoft/doc-templates/`
-- [ ] `git mv docs/PATTERNS_RESEARCH.md mulesoft/`
-- [ ] `git mv docs/DIAGRAM_FRAMEWORK.md mulesoft/`
-- [ ] `git mv commons/src/ mulesoft/src/`
-- [ ] `git mv commons/pom.xml mulesoft/`
-- [ ] `git mv commons/publish.sh mulesoft/`
-- [ ] Remove empty `scaffold/` directory
+### Phase 3 — Assemble `mulesoft/` ✅
+- [x] `git mv scaffold/generate.js mulesoft/`
+- [x] `git mv scaffold/connectors/ mulesoft/connectors/`
+- [x] `git mv scaffold/xml-templates/ mulesoft/templates/`
+- [x] `git mv scaffold/devcontainer-templates/ mulesoft/templates/devcontainer/`
+- [x] `git mv standards/canonical-models/ mulesoft/canonical-models/`
+- [x] `git mv standards/playbooks/ mulesoft/playbooks/`
+- [x] `git mv standards/scenarios/ mulesoft/playbooks/scenarios/`
+- [x] `git mv standards/usecases/ mulesoft/playbooks/usecases/`
+- [x] `git mv standards/stories/ mulesoft/playbooks/stories/`
+- [x] `git mv standards/connector-registry.json mulesoft/`
+- [x] `git mv standards/connector-names.json mulesoft/`
+- [x] `git mv standards/snippet-registry.json mulesoft/`
+- [x] `git mv standards/build-connector-index.js mulesoft/`
+- [x] `git mv standards/query-connector.py mulesoft/`
+- [x] `git mv standards/DESIGN_STANDARDS.md mulesoft/`
+- [x] `git mv standards/doc-templates/ mulesoft/doc-templates/`
+- [x] `git mv docs/PATTERNS_RESEARCH.md mulesoft/`
+- [x] `git mv docs/DIAGRAM_FRAMEWORK.md mulesoft/`
+- [x] `git mv commons/src/ mulesoft/src/`
+- [x] `git mv commons/pom.xml mulesoft/`
+- [x] `git mv commons/publish.sh mulesoft/`
+- [x] Remove empty `scaffold/` directory
 - 📌 **COMMIT: `refactor: assemble mulesoft/ from scaffold + standards + commons Maven`**
 
 ---
