@@ -61,8 +61,15 @@ slugs.forEach(slug => {
       expect(html).toMatch(/class="citations/);
     });
 
-    test('DataSkate branding is present', () => {
-      expect(html).toMatch(/[Dd]ata[Ss]kate/);
+    // ── Footer ─────────────────────────────────────────────────────────────
+
+    test('footer has DataSkate · dataskate.ai branding', () => {
+      expect(html).toMatch(/brief-footer/);
+      expect(html).toMatch(/DataSkate · dataskate\.ai/);
+    });
+
+    test('footer shows "Confidential" label', () => {
+      expect(html).toMatch(/brief-footer[\s\S]*?Confidential/);
     });
 
     // ── No interactive scripts ──────────────────────────────────────────────

@@ -50,8 +50,9 @@ slugs.forEach(slug => {
       expect(html).toMatch(/Engagement Portal/);
     });
 
-    test('"Powered by DataSkate" footer is present', () => {
-      expect(html).toMatch(/Powered by.*DataSkate|DataSkate/);
+    test('footer has DataSkate branding and dataskate.ai link', () => {
+      expect(html).toMatch(/DataSkate/);
+      expect(html).toMatch(/dataskate\.ai/);
     });
 
     // ── No broken internal anchors ──────────────────────────────────────────
