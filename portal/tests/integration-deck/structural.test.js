@@ -23,11 +23,21 @@ slugs.forEach(slug => {
     let html;
     beforeAll(() => { html = getDeckHtml(slug); });
 
-    // ── Auth gate shell ─────────────────────────────────────────────────────
+    // ── Login screen content ────────────────────────────────────────────────
 
     test('#login-screen is present', () => {
       expect(html).toMatch(/id="login-screen"/);
     });
+
+    test('login screen shows "Architect Pitch Kit" title', () => {
+      expect(html).toMatch(/Architect Pitch Kit/);
+    });
+
+    test('login screen shows "DataSkate Internal" badge', () => {
+      expect(html).toMatch(/DataSkate Internal/);
+    });
+
+    // ── Auth gate shell ─────────────────────────────────────────────────────
 
     test('#deck-loading element is present', () => {
       expect(html).toMatch(/id="deck-loading"/);
@@ -39,6 +49,10 @@ slugs.forEach(slug => {
 
     test('#deck-loading starts hidden (display:none)', () => {
       expect(html).toMatch(/deck-loading[^>]*display:\s*none|display:\s*none[^<]*deck-loading/);
+    });
+
+    test('loading screen refers to "pitch kit"', () => {
+      expect(html).toMatch(/pitch kit/i);
     });
 
     test('#deck-content starts hidden (display:none)', () => {
@@ -65,6 +79,10 @@ slugs.forEach(slug => {
 
     test('Google auth provider is used', () => {
       expect(html).toMatch(/GoogleAuthProvider/);
+    });
+
+    test('Firestore reads from pitchKits collection', () => {
+      expect(html).toMatch(/pitchKits/);
     });
   });
 });
