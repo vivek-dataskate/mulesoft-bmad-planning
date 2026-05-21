@@ -4,8 +4,8 @@
  * scaffold/generate-client-portal.js
  *
  * Gathers live project data (project.json, responses.json, stories.md, GitHub)
- * and writes portal-content.json for each client, then delegates HTML rendering
- * to commons/branding/fill-template.js.
+ * and writes portal-content.json for each client, then runs Eleventy to render
+ * the portal HTML.
  *
  * HTML is NEVER generated here — only data is gathered.
  *
@@ -20,10 +20,10 @@ const https = require('https');
 const http  = require('http');
 const { spawnSync } = require('child_process');
 
-const REPO_ROOT     = path.resolve(__dirname, '..');
-const GITHUB_TOKEN  = process.env.GITHUB_TOKEN || process.env.GITHUB_DEPLOY_TOKEN || null;
-const PUBLIC        = path.join(REPO_ROOT, 'firebase', 'public');
-const FILL_TEMPLATE = path.join(REPO_ROOT, 'commons', 'branding', 'fill-template.js');
+const REPO_ROOT    = path.resolve(__dirname, '..');
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GITHUB_DEPLOY_TOKEN || null;
+const PUBLIC       = path.join(REPO_ROOT, 'firebase', 'public');
+const BUILD        = path.join(REPO_ROOT, 'docs', 'eleventy', '_build');
 
 const STATUSES = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'standards', 'project-statuses.json'), 'utf8'));
 const PHASES   = STATUSES.phases;
@@ -418,7 +418,8 @@ async function main() {
 
   if (!GITHUB_TOKEN) console.log('  ⚠  No GITHUB_TOKEN — sprint data will use local stories.md only');
 
-  let count = 0;
+  // Write portal-content.json for each client first — Eleventy reads these.
+  let dataCount = 0;
   for (const slug of slugs) {
     const content = await buildPortalContent(slug);
     if (!content) { console.log(`  ⚠  ${slug} — no project.json, skipping`); continue; }
@@ -426,14 +427,32 @@ async function main() {
     const contentFile = path.join(REPO_ROOT, 'projects', slug, 'portal-content.json');
     fs.writeFileSync(contentFile, JSON.stringify(content, null, 2), 'utf8');
     console.log(`  ✓  projects/${slug}/portal-content.json`);
+    dataCount++;
+  }
 
-    const result = spawnSync('node', [FILL_TEMPLATE, '--template', 'client-portal', '--client', slug], {
-      cwd: REPO_ROOT, stdio: 'inherit',
-    });
-    if (result.status !== 0) {
-      console.error(`  ✗  ${slug} — fill-template.js rendering failed`);
+  if (dataCount === 0) {
+    console.log('\n0 client portal(s) generated — no valid projects found.');
+    return;
+  }
+
+  // Run Eleventy once — builds all portal pages in a single pass.
+  const buildResult = spawnSync('npm', ['run', 'build:html'], { cwd: REPO_ROOT, stdio: 'inherit' });
+  if (buildResult.status !== 0) {
+    console.error('✗ Eleventy build failed.');
+    process.exit(buildResult.status || 1);
+  }
+
+  // Copy portal outputs from _build/ to firebase/public/portal/.
+  let count = 0;
+  for (const slug of slugs) {
+    const src = path.join(BUILD, 'portal', `${slug}.html`);
+    const dst = path.join(PUBLIC, 'portal', `${slug}.html`);
+    if (!fs.existsSync(src)) {
+      console.error(`  ✗  ${slug} — Eleventy did not produce portal/${slug}.html`);
       continue;
     }
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
+    fs.copyFileSync(src, dst);
     count++;
   }
 

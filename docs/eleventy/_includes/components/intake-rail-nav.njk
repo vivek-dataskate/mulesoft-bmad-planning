@@ -1,0 +1,6 @@
+{# intake-rail-nav.njk — subsection jump-nav grouped by intake category.
+   Input: intakeRendered.railNav = [{ label, key, sections: [{ anchorId, displayId, title }] }] #}
+{% for group in intakeRendered.railNav %}
+<div class="nav-cat">{{ group.label | esc }}</div>
+{% for s in group.sections %}<a href="#{{ s.anchorId | esc }}" data-section="{{ s.anchorId | esc }}"><span>§{{ s.displayId | esc }} {{ s.title | esc }}</span><span class="nav-count"></span></a>
+{% endfor %}{% endfor %}

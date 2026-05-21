@@ -16,7 +16,7 @@
       "outputPath": "projects/{client}/intake/intake-questionnaire-{client}.html",
       "firebasePath": null,
       "generatedBy": "scout",
-      "fillCommand": "node commons/branding/fill-template.js --template intake --client {client}",
+      "fillCommand": "npm run build:html",
       "perClient": true,
       "notes": "Sticky submit bar + Firestore versioned write. No mailto. Architect Guide MUST NOT appear in rail-links (internal-only). Pitch Kit MUST NOT appear in client portal."
     },
@@ -33,7 +33,7 @@
       "outputPath": "projects/{client}/intake/proposal-{client}.html",
       "firebasePath": "client-docs/{client}/proposal.html",
       "generatedBy": "scout",
-      "fillCommand": "node commons/branding/fill-template.js --template proposal --client {client}",
+      "fillCommand": "npm run build:html",
       "perClient": true,
       "notes": "Pricing computed from commons/sales/pricing-model.md. Never hardcode rates."
     },
@@ -50,7 +50,7 @@
       "outputPath": "projects/{client}/intake/corporate-brief-{client}.html",
       "firebasePath": "client-docs/{client}/corporate-brief.html",
       "generatedBy": "scout",
-      "fillCommand": "node commons/branding/fill-template.js --template corporate-brief --client {client}",
+      "fillCommand": "npm run build:html",
       "perClient": true,
       "notes": "Sourced from company_context.json.corporateStack (Scout grounded inference + Vera Step 2b–2d enrichment). Tile lives in top row of the client portal; appears before Scoping/Intake/Proposal so the buyer's first impression is research depth, not a form."
     },
@@ -68,7 +68,7 @@
       "outputPath": "projects/{client}/intake/integration-deck-{client}.html",
       "firebasePath": "internal/integration-deck-{client}.html",
       "generatedBy": "scout",
-      "fillCommand": "node commons/branding/fill-template.js --template integration-deck --client {client}",
+      "fillCommand": "npm run build:html",
       "perClient": true,
       "notes": "Requires web research in Scout Session 3a. Content sourced from company_context.json competitorFOMO and nearbyPeers. Firebase Google auth gated to @dataskate.ai. Logo height 28px (deck spec)."
     },
@@ -85,7 +85,7 @@
       "outputPath": "firebase/public/portal/{client}.html",
       "firebasePath": "portal/{client}.html",
       "generatedBy": "scaffold",
-      "fillCommand": "node commons/branding/fill-template.js --template client-portal --client {client}",
+      "fillCommand": "npm run build:html",
       "perClient": true,
       "notes": "DS Pricing Model card is hardcoded in template — always present. Other doc cards filled per-client."
     },
@@ -120,7 +120,7 @@
       "outputPath": "firebase/public/resources/ds-pricing-model.html",
       "firebasePath": "resources/ds-pricing-model.html",
       "generatedBy": "static",
-      "fillCommand": "node commons/branding/fill-template.js --template ds-pricing-model",
+      "fillCommand": "npm run build:html",
       "perClient": false,
       "notes": "Print layout (210mm wide). Rates parsed from commons/sales/pricing-model.md — never hardcoded."
     },
@@ -158,7 +158,7 @@
       "outputPath": "firebase/public/resources/architect-guide.html",
       "firebasePath": "resources/architect-guide.html",
       "generatedBy": "static",
-      "fillCommand": "node commons/branding/fill-template.js --template architect-guide",
+      "fillCommand": "npm run build:html",
       "perClient": false,
       "notes": "Pricing section references commons/sales/pricing-model.md — never hardcode rates in this file."
     }

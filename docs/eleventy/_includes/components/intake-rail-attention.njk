@@ -1,0 +1,4 @@
+{# intake-rail-attention.njk — P0 blocker items in rail attention card.
+   Input: intakeRendered.railAttention = [{ target, title, body }] #}
+{% for b in intakeRendered.railAttention %}<li data-target="{{ b.target | esc }}" tabindex="0" role="link"><strong class="attn-title">{{ b.title | esc }}</strong><span class="attn-body">{{ b.body | esc }}</span></li>
+{% endfor %}
