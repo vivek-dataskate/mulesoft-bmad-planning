@@ -55,7 +55,7 @@ new pipeline makes drift structurally impossible:
 | ~~1~~ | ~~Port `proposal` template~~ | ~~medium~~ | **done** |
 | ~~2~~ | ~~Port `intake` template — HARD parity gate, Firestore submit JS must stay intact~~ | ~~high~~ | **done** |
 | ~~3~~ | ~~Run `regen-all-clients` + `npm run vr:diff:intake`; resolve any HARD diffs to zero~~ | ~~low~~ | **done — 5/5 clean** |
-| 4 | Replace `lint-html.js` with htmlhint + stylelint configs + custom DataSkate rules | medium | 60 min |
+| ~~4~~ | ~~Replace `lint-html.js` with htmlhint + stylelint configs + custom DataSkate rules~~ | ~~medium~~ | **done** |
 | 5 | Mobile-first responsive layer (deferred per user instruction — desktop-only for now, add later) | — | future |
 | ~~6~~ | ~~Update `CLAUDE.md`, `HTML_DESIGN_STANDARDS.json`, `template-registry.json`~~ | ~~low~~ | **done** |
 
