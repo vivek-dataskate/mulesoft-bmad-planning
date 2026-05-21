@@ -1,5 +1,5 @@
 'use strict';
-// portal/tests/deck/helpers.js
+// portal/tests/integration-deck/helpers.js
 
 const fs   = require('fs');
 const path = require('path');

@@ -1,13 +1,13 @@
 'use strict';
 /**
- * portal/tests/deck/structural.test.js
+ * portal/tests/integration-deck/structural.test.js
  *
  * Fast, browser-free checks on generated integration-deck HTML.
  * Decks are Firebase auth-gated — only the shell structure is verified here.
  * Authenticated content (renderDeck output) requires a live Firestore connection
  * and cannot be tested in a file:// context.
  *
- * Runs against every built deck slug.
+ * Runs against every built integration-deck slug.
  */
 
 const { getDeckHtml, getBuiltSlugs } = require('./helpers');
@@ -19,7 +19,7 @@ if (slugs.length === 0) {
 }
 
 slugs.forEach(slug => {
-  describe(`[${slug}] deck structural`, () => {
+  describe(`[${slug}] integration-deck structural`, () => {
     let html;
     beforeAll(() => { html = getDeckHtml(slug); });
 
