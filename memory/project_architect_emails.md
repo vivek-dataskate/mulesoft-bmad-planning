@@ -17,7 +17,7 @@ Two architects available for assignment. Selection happens during Scout onboardi
 **Why:** Vivek asked that architect email is derived from the selection, not typed manually, to avoid errors.
 
 **How to apply:**
-- Scout stores both `architect` (display name) and `architectEmail` (email) in `project.json` at onboarding time.
+- `orchestrate.js` onboarding stores both `architect` (display name) and `architectEmail` (email) in `project.json` via the numbered picker prompt.
 - When generating intake HTML or proposals: read `project.json` → use `architectEmail` in the CC field and proposal footer.
 - Never hardcode a specific architect email in templates or HTML — always derive from `project.json`.
 - Vivek's email (`vivek@dataskate.ai`) is ALWAYS included alongside the architect email in CC fields.

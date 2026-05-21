@@ -1520,7 +1520,7 @@ async function runPipeline(slug) {
       stepLog('POST-QUINN: rendering intake HTML', 'START');
       try {
         const intakeHtml = renderIntake(slug);
-        if (intakeHtml) console.log(`  ${green('✓')} projects/${slug}/intake/intake/client/intake-questionnaire-${slug}.html — rendered`);
+        if (intakeHtml) console.log(`  ${green('✓')} projects/${slug}/intake/client/intake-questionnaire-${slug}.html — rendered`);
         stepLog('POST-QUINN: intake render done', 'END');
       } catch (e) {
         stepLog(`POST-QUINN: renderIntake FAILED — ${e.message}`, 'WARN');
@@ -1700,7 +1700,7 @@ async function runDeltaPipeline(slug, recordingFile) {
     const stepLabel = `DELTA STEP ${di + 1}/${deltaAgents.length}: ${agent.name}`;
     stepLog(`${stepLabel} (${agent.slug}) — STARTED`, 'START');
     const resolvedToml = resolvedAgentToml(agent, slug);
-    const cmd = `claude --agent-file ${resolvedToml}`;
+    const cmd = `claude --dangerously-skip-permissions --system-prompt "$(cat ${resolvedToml})" 'Execute your complete workflow now. Follow every step in the workflow section, then type /exit when finished.'`;
     console.log('\n' + bold('─'.repeat(60)));
     console.log(bold(`  DELTA: ${agent.name} — ${agent.role}`));
     if (agent.note) console.log(`  ${dim(agent.note)}`);

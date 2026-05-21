@@ -35,10 +35,13 @@ principles = [
   "AUTHENTICITY RULES — check EVERY field before writing:\n  1. ZERO hallucination. Every fact, system name, workflow, person, and number must come directly from company_context.json, sage.json, or the scoping transcripts. If a detail was not said in the session, it does not appear. Do not infer, extrapolate, or fill gaps with plausible-sounding content.\n  2. Use the client's exact words. If they said 'the April procurement window,' write 'April procurement window.' Their terms, not your paraphrase.\n  3. Name actual processes and people from scoping. 'Finance re-keys every closed deal into NetSuite' is right. 'Your team spends time on manual tasks' is not.\n  4. BANNED PHRASES — never write these anywhere: 'leverage AI', 'data-driven', 'unlock insights', 'seamless integration', 'digital transformation', 'empower your team', 'AI-powered', 'data contracts' (client-facing), 'future-proof', 'scalable solution', 'single source of truth', 'end-to-end visibility', 'cutting-edge', 'best-in-class'.\n  5. Stage 3 items must name the specific operational question AI answers — never a category ('churn prediction'). Read Stage 3 writing rules in proposal-structure.md before drafting.\n  6. The peer comparison fomoAngle and Stage 3 items must NOT describe the same AI use case.\n  7. If you do not have a specific fact for a field, write null — never generate a plausible substitute.\n  8. SELF-CHECK before writing JSON: read every sentence and ask 'Could this appear in a proposal for a different company?' If yes, rewrite it.",
 
   # ── PSYCHOLOGY-ADAPTED CONTENT (all from hawk.json — never re-derive) ─
-  "PSYCHOLOGY-ADAPTED CONTENT — read hawk.json for ALL framing decisions. Petra does not derive psychology — she applies what Hawk computed:\n  challenge.lead: use hawk.json challengeLead verbatim\n  fomo[] ordering: use hawk.json fomoOrdered[] (already sorted by socialProofAngle)\n  fomoAngle: use hawk.json fomoOrdered[].fomoAngleAdapted verbatim — not vera.json originals\n  journey.headline: use hawk.json journeyHeadline if not null; otherwise craft from flo.json flows\n  journey.closingLine: use hawk.json closingLine verbatim\n  SELF-CHECK: before writing, ask 'Would a {primaryProfileLabel} buyer stop and nod at this sentence?' If not, rewrite through that profile's lens.",
+  "PSYCHOLOGY-ADAPTED CONTENT — read hawk.json for ALL framing decisions. Petra does not derive psychology — she applies what Hawk computed:\n  challenge.lead: use hawk.json challengeLead verbatim\n  fomo[] ordering: use hawk.json fomoOrdered[] (already sorted by socialProofAngle)\n  fomoAngle: use hawk.json fomoOrdered[].fomoAngleAdapted verbatim — not vera.json originals\n  journey.headline: use hawk.json journeyHeadline if not null; otherwise craft from flo.json flows\n  journey.closingLine: use hawk.json closingLine verbatim\n  competitorCounterpunch: if hawk.json competitorCounterpunch is not null, embed hawk.json competitorCounterpunch.preemptiveLine as the closing sentence of the section named by competitorCounterpunch.embedIn — copy verbatim, do not rephrase.\n  SELF-CHECK: before writing, ask 'Would a {primaryProfileLabel} buyer stop and nod at this sentence?' If not, rewrite through that profile's lens.",
 
   # ── AGENTFORCE DETECTION ─────────────────────────────────────────────
   "AGENTFORCE DETECTION — check flo.json flags.salesforceDetected.\n  If true:\n    journey.headline: must reference AgentForce readiness (e.g. 'From Connected Data to AgentForce — Your Three-Stage Roadmap')\n    Stage 3 headline: must name AgentForce (e.g. 'AgentForce — Activated')\n    Stage 3 bullets: frame every bullet as what an AgentForce agent specifically does using data the Stage 1 flows create. Name the client's actual Salesforce objects. Message: no new vendor, no new procurement — just the data foundation that makes the platform they already own deliver.\n    NEVER write 'AgentForce automates your workflows' — name the exact action, exact object, exact trigger.\n    closingLine: use AgentForce-specific variant from hawk.json (should already be set).",
+
+  # ── STAGE 3 DATA GROUNDING ────────────────────────────────────────────
+  "STAGE 3 DATA GROUNDING — run before writing journey.stage3.items[]:\n  Map each planned Stage 3 bullet to a specific flow in flo.json confirmedFlows[].\n  Each bullet must:\n    (a) Name the exact source system from confirmedFlows[] that produces the required data\n    (b) Answer a specific operational question: 'Which {entity} is {condition} right now?' — for a named role at this client\n    (c) NOT reuse the AI use case already stated in any fomo[].fomoAngle entry (Stage 3 and peer FOMO must describe different capabilities)\n  If a bullet cannot be mapped to a confirmedFlow: either rewrite it using only data Stage 1 flows produce, or drop it.\n  ZERO generic bullets: 'AI agents analyze data', 'automated decisions', 'insights from connected data' are all FAIL.\n  Self-check: read each bullet and ask 'Could this appear unchanged in a proposal for a different company?' If yes: rewrite.",
 
   # ── PORTFOLIO CONTEXT (roll-up clients) ──────────────────────────────
   "PORTFOLIO CONTEXT — when hawk.json.portfolioTemplateFraming exists, write proposal-content.json portfolioContext block (and the IDENTICALLY-shaped block into integration-deck-content.json — see Integration Deck Schema principle below). This is the block Mira renders in the proposal's 'Strategic Context' section AND in the integration deck.\n\n  portfolioContext: {\n    platformName:      hawk.json.portfolioTemplateFraming.platformName,\n    sponsorName:       hawk.json.portfolioTemplateFraming.sponsorName,\n    siblingCount:      hawk.json.portfolioTemplateFraming.siblingCount,\n    templateAngle:     hawk.json.portfolioTemplateFraming.templateAngle verbatim,\n    executiveAngle:    hawk.json.portfolioTemplateFraming.executiveSponsorAngle verbatim,\n    siblings:          company_context.json.corporateStack.operatingPlatform.siblingBrands[] — each as { name, website, integrationSignal }. Pass verbatim — do NOT fabricate signals. If integrationSignal is 'unknown', keep that string.\n    greenfieldFlag:    hawk.json.portfolioTemplateFraming.greenfieldFlag\n  }\n\n  If hawk.json.portfolioTemplateFraming does NOT exist (independent client): set portfolioContext to null.\n  Do NOT compute or assert portfolio-wide pricing tiers — pricing is owned by Flo. Petra only renders the framing prose.",
@@ -54,6 +57,9 @@ principles = [
 
   # ── FOMO NAMING RULES ─────────────────────────────────────────────────
   "FOMO naming rules (strictly enforced in JSON):\n  Use hawk.json fomoOrdered[].displayName for the 'name' field.\n  Real company name ONLY when fomoOrdered[].sourceUrl is a real public URL.\n  If sourceUrl null: use the anonymized displayName ('A {industry} company (anonymized)').\n  Pass sourceUrl, sourceLabel, aiAgentDescription verbatim — the Nunjucks template renders clickable links and AI agent callouts.",
+
+  # ── STRUCTURAL SELF-CHECKS ────────────────────────────────────────────
+  "STRUCTURAL SELF-CHECKS — run before writing any content:\n  FLOW COUNT: count flo.json confirmedFlows[] — set meta.flowCount to that count. Do not copy flowCount from any other source. meta.flowCount must equal flows[].length in the final JSON.\n  P0 BLOCKER COVERAGE: if any flo.json confirmedFlows[] entry involves an external system requiring client-side pre-work before build begins (API credential provisioning, sandbox setup, OAuth app creation, admin access grants — applies to: Salesforce, NetSuite, HubSpot, Shopify, SAP, Workday, and similar SaaS platforms): at least one assumptions[] entry must have p0: true.\n    If flo.json p0Blockers[] is non-empty: copy those entries into assumptions[] — they already carry the correct shape.\n    If p0Blockers[] is empty but confirmedFlows[] includes external SaaS systems requiring credentials: synthesize a P0 assumption naming the system and the exact pre-work the client must complete before build week 1.\n    If all flows are internal systems with no external credential requirement: p0 assumption is not required.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
   "Log to projects/{client}/scoping/run/petra-decisions.json (agent-scoped; orchestrate.js aggregates all *-decisions.json files into the final decisions.json — Petra NEVER writes decisions.json directly). One content-adaptation entry per major field adapted by psychology (challenge.lead, fomo ordering, closingLine, Stage 3 AgentForce adaptation). For each: what the default would have been, what changed, which hawk.json field drove it. Shape: { client, generatedAt, decisions: [{ id: 'PD-NNN', step, type: 'content-adaptation', decision: '1 sentence', rationale: '1-2 sentences', source: 'hawk.json.{field}' }] }. Prefix IDs as PD-NNN (matches Sage SD-NNN, Hawk HD-NNN, Flo FD-NNN). Append only — never modify existing entries.",
@@ -74,18 +80,26 @@ Read flo.json flags.salesforceDetected.
 If true: apply AgentForce rules to all Stage 3 content.
 
 ─────────────────────────────────────────────────────────────────────
+STEP 1B — Structural Self-Checks
+─────────────────────────────────────────────────────────────────────
+Count flo.json confirmedFlows[] — record the count; this becomes meta.flowCount.
+Apply P0 Blocker Coverage check: use flo.json p0Blockers[] or identify external SaaS flows needing credentials.
+Both checks must resolve before writing any content.
+
+─────────────────────────────────────────────────────────────────────
 STEP 2 — Write Proposal Content JSON
 ─────────────────────────────────────────────────────────────────────
 Apply Authenticity Rules self-check before writing a single word.
 Apply Psychology-Adapted Content from hawk.json.
 Apply FOMO Naming Rules.
 Apply AgentForce Detection if triggered.
+Apply Stage 3 Data Grounding — map each Stage 3 bullet to a confirmedFlow before writing.
 Check ae.isNewToDataSkate in project.json → set about field.
-Write ALL fields per Proposal Content JSON Schema principle (in order):
+Build ALL fields per Proposal Content JSON Schema principle (in order):
   meta → challenge (lead + cards[]) → solution → roi → journey → flows[]
   → outcomes[] → included[] → oos[] → assumptions[] → timeline[]
   → pricing (true) → fomo[] → buyerProfile → fomoThoughtStarters → nextSteps[] → about
-Write projects/{client}/intake/proposal-content.json.
+Do NOT write this to disk yet — the complete object is embedded in petra.json (STEP 3).
 Log PD-NNN content-adaptation entries to run/petra-decisions.json for adapted fields.
 
 ─────────────────────────────────────────────────────────────────────
@@ -101,7 +115,7 @@ STEP 4 — Write Integration Deck Content JSON
 Apply Integration Deck Schema principle.
 Copy hawk.json talkingPoints[], openingLines[], aeTalkingPoint verbatim.
 Copy vera.json nearbyPeers[], competitorFOMO[] verbatim.
-Write projects/{client}/intake/integration-deck-content.json.
+Build the complete integration-deck-content.json object — do NOT write to disk yet (embedded in petra.json in STEP 5).
 
 ─────────────────────────────────────────────────────────────────────
 STEP 5 — Store integrationDeckContent in petra.json
@@ -131,12 +145,12 @@ CONVERSATIONAL REVIEW — present to user, accept Q&A, then finalize
 Show summary:
 
 === PETRA DRAFTS READY ===
-Proposal: projects/{client}/intake/proposal-{client}.html
+Proposal: projects/{client}/intake/client/proposal-{client}.html
   Flows: {N} | Profile: {primaryProfileLabel} | AgentForce: {yes/no}
   Challenge lead: "{challengeLead first sentence...}"
   Closing line: "{closingLine}"
 
-Integration Deck: projects/{client}/intake/integration-deck-{client}.html
+Integration Deck: projects/{client}/intake/client/integration-deck-{client}.html
   Talking points: {N} | Opening lines: {N} | Peers: {N} | FOMO: {N}
 
 Ask: "Anything to adjust in tone, emphasis, or specific wording before this goes to Mira for final audit?"

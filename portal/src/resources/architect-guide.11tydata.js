@@ -1,5 +1,4 @@
-// Data sidecar for architect-guide.njk — reads commons/sales/architect-guide.md
-// and exposes it (plus title extracted from H1) to the page.
+// Data sidecar for architect-guide.njk — reads commons/sales/architect-guide.json
 
 const fs   = require('fs');
 const path = require('path');
@@ -7,13 +6,14 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..', '..');
 
 module.exports = function() {
-  const md = fs.readFileSync(path.join(ROOT, 'commons', 'sales', 'architect-guide.md'), 'utf8');
-  const titleMatch = md.match(/^#+ (.+)/m);
-  const title = titleMatch ? titleMatch[1].trim() : 'Architect Guide';
+  const jsonPath = path.join(ROOT, 'commons', 'sales', 'architect-guide.json');
+  const guide = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  const meta  = guide.meta || {};
   return {
-    contentMd: md,
-    title,
-    docTitle: title + ' — DataSkate',
-    eyebrow: 'DataSkate Internal'
+    parts:    guide.parts || [],
+    meta,
+    title:    meta.title    || 'Architect Guide',
+    docTitle: meta.docTitle || (meta.title ? meta.title + ' — DataSkate' : 'Architect Guide — DataSkate'),
+    eyebrow:  meta.eyebrow  || 'DataSkate Internal',
   };
 };

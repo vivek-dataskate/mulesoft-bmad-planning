@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * scaffold/extract-text.js
+ * pipeline/tools/extract-text.js
  *
  * Extracts text from PDF, DOCX, XLSX, PPTX files in a directory, saving each
  * as a companion .txt file alongside the original. Skips files that already
@@ -12,8 +12,8 @@
  *   [N] Auto-add handler, install package if needed, extract now
  *
  * Usage:
- *   node scaffold/extract-text.js projects/{client}/scoping
- *   node scaffold/extract-text.js projects/{client}/intake
+ *   node pipeline/tools/extract-text.js projects/{client}/scoping
+ *   node pipeline/tools/extract-text.js projects/{client}/intake
  */
 
 const fs       = require('fs');
@@ -173,7 +173,7 @@ async function autoAddHandler(ext, fullPath, filename) {
   const entry = TYPE_REGISTRY[ext];
   if (!entry) {
     console.error(`   No known handler for "${ext}" in TYPE_REGISTRY.`);
-    console.error(`   Add an entry to TYPE_REGISTRY in scaffold/extract-text.js and re-run.`);
+    console.error(`   Add an entry to TYPE_REGISTRY in pipeline/tools/extract-text.js and re-run.`);
     process.exit(1);
   }
 
@@ -301,7 +301,7 @@ async function main() {
   const autoSkip  = args.includes('--auto-skip');   // set by orchestrate.js (non-interactive)
   const dir       = args.find(a => !a.startsWith('--'));
   if (!dir) {
-    console.error('Usage: node scaffold/extract-text.js <directory> [--auto-skip]');
+    console.error('Usage: node pipeline/tools/extract-text.js <directory> [--auto-skip]');
     process.exit(1);
   }
   if (!fs.existsSync(dir)) {

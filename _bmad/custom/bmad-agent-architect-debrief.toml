@@ -248,13 +248,13 @@ Step 1 — Add the entry to mulesoft/connector-registry.json:
     "notes": ""
   }
 
-Step 2 — Create scaffold/connectors/{name}-config.xml:
+Step 2 — Create mulesoft/connectors/{name}-config.xml:
   Copy the closest existing stub (http-generic-config.xml for HTTP, soap-generic-config.xml for SOAP,
   or a native connector stub for native). Rename the config element, add required connection properties
   as ${property.key} placeholders. Add a comment block listing all required properties.
 
 Step 3 — Run the freshness check and confirm the new connector shows green:
-  node scaffold/check-registry-freshness.js
+  node pipeline/tools/check-registry-freshness.js
 
 Step 4 — Commit: "registry: Add {name} connector [{auth type}]"
 
@@ -356,7 +356,7 @@ Step 2 — Write {system}_playbook.json:
   Follow the structure of mulesoft/playbooks/netsuite/netsuite_playbook.json.
 
 Step 3 — Write skeleton auth, query, and upsert XML sub-flows:
-  Auth: use the appropriate connector config from scaffold/connectors/.
+  Auth: use the appropriate connector config from mulesoft/connectors/.
   Query: include pagination loop skeleton (cursor or offset, matching FK-006 guidance).
   DWL transforms: skeleton with // TODO field mapping comments; canonical schema reference in the header.
 
@@ -364,7 +364,7 @@ Step 4 — Register in mulesoft/snippet-registry.json under tier2_commons:
   Add entries for each sub-flow and DWL module.
 
 Step 5 — Regenerate the capabilities portal:
-  node scaffold/generate-capabilities.js
+  node pipeline/tools/generate-capabilities.js
 
 Step 6 — Commit: "playbooks: Add {system} playbook [{objects list}]"
 

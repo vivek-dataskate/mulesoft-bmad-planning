@@ -259,7 +259,7 @@ async function buildPortalContent(slug) {
     : '';
   const createdAt = fmtDate(proj.createdAt);
 
-  // Client logo — read from vera.json, download to intake/ and portal/public/logos/
+  // Client logo — read from vera.json, download to intake/diagrams/ and portal/public/logos/
   let clientLogoPath = null;
   const veraFile = path.join(projectDir, 'scoping', 'run', 'vera.json');
   if (fs.existsSync(veraFile)) {
@@ -276,7 +276,7 @@ async function buildPortalContent(slug) {
         return null;
       }
 
-      const intakeDest = path.join(projectDir, 'intake', `logo-${slug}.png`);
+      const intakeDest = path.join(projectDir, 'intake', 'diagrams', `logo-${slug}.png`);
       const publicDest = path.join(PUBLIC, 'logos', `${slug}.png`);
 
       // Try the stored logoUrl first (skip Clearbit — it's dead)

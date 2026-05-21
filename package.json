@@ -4,7 +4,6 @@
   "description": "MuleSoft BMAD Planning System — scaffold generator and pipeline scripts",
   "private": true,
   "scripts": {
-    "load-inbox": "node pipeline/scripts/load-inbox.js",
     "move-sources": "node pipeline/scripts/move-sources.js",
     "test": "jest",
     "test:unit": "jest mulesoft/tests/unit",
@@ -12,8 +11,8 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":80,\"functions\":80,\"branches\":70}}'",
     "lint": "eslint mulesoft/generate.js pipeline/tools/*.js mulesoft/tests/**/*.js portal/tests/**/*.js",
-    "lint:html": "htmlhint 'portal/public/**/*.html' 'projects/**/intake/*.html' --config .htmlhintrc && node commons/branding/lint-html.js",
-    "lint:style": "stylelint 'portal/public/**/*.html' 'projects/**/intake/*.html'",
+    "lint:html": "htmlhint 'portal/public/**/*.html' 'projects/**/intake/client/*.html' --config .htmlhintrc && node commons/branding/lint-html.js",
+    "lint:style": "stylelint 'portal/public/**/*.html' 'projects/**/intake/client/*.html'",
     "lint:format": "prettier --check './*.json' '.htmlhintrc'",
     "lint:a11y": "node pipeline/scripts/lint-a11y.js",
     "lint:all": "npm run lint:html && npm run lint:style && npm run lint:format",

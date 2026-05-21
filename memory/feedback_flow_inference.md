@@ -9,7 +9,7 @@ Always run a flow inference / flow completeness check — do not limit flows to 
 **Why:** The 5 flows in the LeoLabs deck were the Salesforce Account Team's scoping, not necessarily everything LeoLabs needs. Sales decks capture what was discussed, not everything needed. Missing a flow that surfaces in Sprint 3 costs weeks. The user wants Scout and Mary to proactively surface potential additional flows and ask the client to confirm in/out of scope.
 
 **How to apply:**
-- Scout (Step 2b): after system inference, enumerate standard entity categories for each system pair (master/transactional/operational/analytical). Flag top 3 unmentioned but likely-needed flows as [POTENTIAL FLOW] in Section 1 of the questionnaire. Cap at 3. Only when there's a real business signal.
-- Mary (Step 5b): before writing the PRD flows table, cross-check all intake docs against standard entity types for the system pair. Add gaps as Non-Blocker open items with scope-confirmation questions. Add a "Potential Future Flows (Phase 2)" section for likely phase-2 items.
-- Both: never silently limit to what a sales deck says. Always surface gaps. The client can say "out of scope" in 10 seconds.
-- This is encoded permanently in `_bmad/custom/bmad-agent-scout.toml` and `_bmad/custom/bmad-agent-analyst.toml`.
+- Sage (pipeline agent 1): extracts all mentioned flows; Flo (agent 5) reconciles and applies the no-combine rule — each system instance = one flow. Both agents flag potential additional flows based on standard entity categories for the system pair.
+- Mary (Analyst): before writing the PRD flows table, cross-check all intake docs against standard entity types for the system pair. Add gaps as Non-Blocker open items with scope-confirmation questions. Add a "Potential Future Flows (Phase 2)" section for likely phase-2 items.
+- Both pipeline and Analyst: never silently limit to what a sales deck says. Always surface gaps. The client can say "out of scope" in 10 seconds.
+- Flo's no-combine rule is encoded in `pipeline/agents/flo.toml`.

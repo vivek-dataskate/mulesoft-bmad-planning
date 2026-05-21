@@ -1,21 +1,21 @@
 ---
 name: project-psychology-profiles
-description: "Scout now extracts buyer psychology profiles from transcripts (Step 1d) and applies them to ALL client/AE-facing content — proposal, integration deck, intake form welcome text"
+description: "Ivy extracts buyer psychology profiles from transcripts and applies them to all client-facing content — proposal, integration deck, intake form welcome text"
 metadata: 
   node_type: memory
   type: project
   originSessionId: 20f09748-fbe4-4a50-a7b5-d2a1358a07b9
 ---
 
-Scout Session 1 now includes Step 1d: Buyer Psychology & Social Proof Profile Extraction.
+Ivy (pipeline agent 4) runs buyer psychology profile extraction from scoping transcripts.
 
 **Why:** Every client-facing document (proposal, integration deck, intake welcome text) must be adapted to the buyer's psychological profile — not generic. The profile shapes challenge framing, FOMO ordering, journey stage emphasis, and the closing line.
 
 **How to apply:** 
 - `commons/sales/psychology-profiles.json` defines 5 named profiles with signal phrases, content modifiers, and social proof angles.
-- Scout reads the file in Session 1 activation, scores transcript signals against all profiles, writes `psychologyProfile` to `company_context.json`.
-- Steps 3c (proposal), 3d (integration deck), and Step 10 (intake HTML welcome text) all apply `psychologyProfile.contentModifiers`.
-- New profile patterns are researched immediately (B2B buyer psychology, Challenger Sale, Gartner archetypes, etc.) and added directly to `profiles[]` — no human review gate, no observation threshold. Scout names the archetype, populates all fields, and assigns it to the current client as `primaryProfile` in the same session.
+- Ivy scores transcript signals against all profiles, writes `psychologyProfile` to `scoping/run/ivy.json`; the orchestrator merges it into `company_context.json`.
+- Hawk, Petra, Quinn, and Mira all consume `ivy.json.contentModifiers` to adapt their output.
+- New profile patterns can be added directly to `profiles[]` — no human review gate, no observation threshold.
 
 **5 profiles:**
 - `roi-analytical` — lead with numbers; sort FOMO by savings amount

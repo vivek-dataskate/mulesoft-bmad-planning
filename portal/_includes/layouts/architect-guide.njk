@@ -3,11 +3,9 @@
   ────────────────────────────
   3-column docs shell (left nav of H2s, content, right nav of H3s).
   Static internal page — Firebase auth gated to @dataskate.ai.
-  Content is mdToHtml(<markdown source>) — same converter the legacy
-  fill-template.js used, factored out to commons/branding/md-to-html.js.
 
-  Page data:
-    docTitle, eyebrow, contentMd (raw markdown), title (from H1)
+  Page data (from architect-guide.11tydata.js → commons/sales/architect-guide.json):
+    docTitle, eyebrow, title, meta, parts[]  { id, title, bodyMd }
 #}
 {% extends "layouts/base.njk" %}
 
@@ -218,7 +216,12 @@ firebase.auth().onAuthStateChanged(function(user) {
 
 <div class="docs-shell">
   <nav class="nav-left" id="nav-left" aria-label="Sections"></nav>
-  <main class="doc-content" id="doc-content">{{ contentMd | mdToHtml | safe }}</main>
+  <main class="doc-content" id="doc-content">
+    {% for part in parts %}
+    <h2 id="{{ part.id | esc }}">{{ part.title | esc }}</h2>
+    {{ part.bodyMd | mdToHtml | safe }}
+    {% endfor %}
+  </main>
   <nav class="nav-right" id="nav-right" aria-label="On this page">
     <div class="nav-right-label">On this page</div>
     <div id="nav-right-links"></div>

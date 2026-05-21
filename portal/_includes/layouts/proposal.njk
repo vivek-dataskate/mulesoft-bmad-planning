@@ -6,7 +6,7 @@
 
     proposal        — proposal-content.json payload
     proposalPricing — null when proposal.pricing != true; else computed pricing object
-    proposalAbout   — HTML string from commons/sales/about-dataskate.md
+    proposalAbout   — structured object from commons/sales/about-dataskate.json
     proposalCS      — top-2 case studies scored by system + use-case overlap
     proposalDiagram — inline SVG string (from system-diagram.svg or buildDiagramSvg())
     client.logoPath — resolved Firebase URL of client logo
@@ -685,7 +685,36 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    {{ (proposal.about or proposalAbout) | safe }}
+    {% set about = proposalAbout %}
+    {% if about %}
+      {% if about.stats %}
+      <div class="about-hero">
+        {% for s in about.stats %}
+        <div class="about-stat">
+          <div class="about-stat-num">{{ s.num | esc }}</div>
+          <div class="about-stat-label">{{ s.label | esc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if about.lead %}<p class="about-lead">{{ about.lead | esc }}</p>{% endif %}
+      {% if about.aiCallout %}
+      <div class="about-ai-callout">
+        <div class="about-ai-label">{{ about.aiCallout.label | esc }}</div>
+        <p>{{ about.aiCallout.body | esc }}</p>
+      </div>
+      {% endif %}
+      {% if about.pillars %}
+      <div class="about-pillars">
+        {% for p in about.pillars %}
+        <div class="about-pillar">
+          <div class="about-pillar-head">{{ p.head | esc }}</div>
+          <p>{{ p.body | esc }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endif %}
   </div>
 </details>
 

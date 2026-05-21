@@ -122,11 +122,10 @@ function computeProposalPricing(proposal, pricing) {
 }
 
 function computeProposalAbout() {
-  const mdPath = path.join(ROOT, 'commons', 'sales', 'about-dataskate.md');
-  if (!fs.existsSync(mdPath)) return '';
-  const raw = fs.readFileSync(mdPath, 'utf8').trim();
-  if (raw.startsWith('<')) return raw;
-  return raw.split(/\n{2,}/).map(p => p.trim()).filter(Boolean).map(p => `<p>${p}</p>`).join('\n');
+  const jsonPath = path.join(ROOT, 'commons', 'sales', 'about-dataskate.json');
+  if (!fs.existsSync(jsonPath)) return null;
+  try { return JSON.parse(fs.readFileSync(jsonPath, 'utf8')); }
+  catch (e) { console.warn('⚠ about-dataskate.json parse error:', e.message); return null; }
 }
 
 function computeProposalCS(proposal) {

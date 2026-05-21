@@ -30,12 +30,8 @@ const FB_PROJ  = 'dataskateclients';
 const BUILD    = path.join(ROOT, 'portal', '_build');
 const MANIFEST = path.join(ROOT, 'portal', 'version-manifest.json');
 
-// Service account: prefer the repo's Firebase Admin SDK key (canonical deploy SA,
-// restored by .devcontainer/setup.sh from FIREBASE_SA_KEY) over GOOGLE_APPLICATION_CREDENTIALS.
-// Reason: external tooling sometimes sets GOOGLE_APPLICATION_CREDENTIALS to /tmp/sa-key.json
-// (the default Compute SA), which lacks Firebase permissions and fails the deploy with 403s
-// on firebasestorage.defaultBucket.get etc. The repo SA is the one provisioned for this
-// project and has the right roles. Fall back to env only if the repo file is missing.
+// Service account key restored from FIREBASE_SA_KEY Codespace secret via deploy.sh.
+// GOOGLE_APPLICATION_CREDENTIALS is set by deploy.sh to /tmp/firebase-sa.json.
 const REPO_SA_PATH = path.join(ROOT, 'dataskateclients-firebase-adminsdk-fbsvc-6d3f67e197.json');
 const SA_PATH      = fs.existsSync(REPO_SA_PATH)
   ? REPO_SA_PATH
@@ -120,10 +116,10 @@ async function archiveScoping(slug) {
 }
 
 // ── 1b. Sync client logo → portal/public/logos/{slug}.{ext} ────────────────
-// Looks for logo-{slug}.{ext} or {slug}.{ext} in projects/{slug}/intake/client/
+// Looks for logo-{slug}.{ext} or {slug}.{ext} in projects/{slug}/intake/diagrams/
 // and copies to portal/public/logos/{slug}.{ext} so Eleventy can resolve logo URLs.
 function syncLogo(slug) {
-  const intakeDir  = path.join(ROOT, 'projects', slug, 'intake', 'client');
+  const intakeDir  = path.join(ROOT, 'projects', slug, 'intake', 'diagrams');
   const logosDir   = path.join(PUBLIC, 'logos');
   if (!fs.existsSync(intakeDir)) return;
 
@@ -237,11 +233,14 @@ function republishFrozenHtml(slug) {
   }
 }
 
+const VALID_TEMPLATES = ['proposal', 'intake', 'corporate-brief', 'integration-deck'];
+
 // ── 2. Upload intake + proposal HTML → Firebase Storage (public) ─────────────
 // Files are kept locally in portal/public/{type}/ for git tracking and also
 // uploaded to Storage for serving. Source files in projects/{slug}/intake/client/ are
 // not deleted.
-async function uploadHtmlToStorage(slug) {
+// templateFilter: one of VALID_TEMPLATES, or null for all.
+async function uploadHtmlToStorage(slug, templateFilter = null) {
   const intakeDir = path.join(ROOT, 'projects', slug, 'intake', 'client');
   if (!fs.existsSync(intakeDir)) return;
 
@@ -256,21 +255,21 @@ async function uploadHtmlToStorage(slug) {
     } catch { /* malformed JSON; proceed cautiously */ }
   }
 
-  // [localFilename, storageDest, projectJsonKey, portal/public/ subdir, useHostingUrl]
-  // useHostingUrl=true → serve from Firebase Hosting (no Storage auth wall)
-  const pairs = [
-    [`corporate-brief-${slug}.html`,      `client-docs/${slug}/corporate-brief.html`, 'briefUrl',    'brief',    true],
-    [`intake-questionnaire-${slug}.html`, `client-docs/${slug}/intake.html`,  'intakeUrl',   'intake',   true],
-    [`proposal-${slug}.html`,             `client-docs/${slug}/proposal.html`, 'proposalUrl', 'proposal', true],
-    [`integration-deck-${slug}.html`,      `internal/${slug}/pitch-kit.html`,   'pitchKitUrl', 'internal', true],
+  const allPairs = [
+    { name: 'corporate-brief',  file: `corporate-brief-${slug}.html`,      dest: `client-docs/${slug}/corporate-brief.html`, urlKey: 'briefUrl',    pubSubdir: 'brief'    },
+    { name: 'intake',           file: `intake-questionnaire-${slug}.html`, dest: `client-docs/${slug}/intake.html`,          urlKey: 'intakeUrl',   pubSubdir: 'intake'   },
+    { name: 'proposal',         file: `proposal-${slug}.html`,             dest: `client-docs/${slug}/proposal.html`,        urlKey: 'proposalUrl', pubSubdir: 'proposal' },
+    { name: 'integration-deck', file: `integration-deck-${slug}.html`,     dest: `internal/${slug}/pitch-kit.html`,          urlKey: 'pitchKitUrl', pubSubdir: 'internal' },
   ];
+
+  const pairs = templateFilter ? allPairs.filter(p => p.name === templateFilter) : allPairs;
 
   const projPath = path.join(ROOT, 'projects', slug, 'project.json');
   const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
   let changed = false;
 
-  for (const [src, dest, urlKey, pubSubdir, useHostingUrl] of pairs) {
-    const srcPath = path.join(intakeDir, src);
+  for (const { file, dest, urlKey, pubSubdir } of pairs) {
+    const srcPath = path.join(intakeDir, file);
     if (!fs.existsSync(srcPath)) continue;
 
     // Copy to portal/public/{subdir}/ for git tracking
@@ -279,17 +278,14 @@ async function uploadHtmlToStorage(slug) {
     fs.copyFileSync(srcPath, path.join(pubDir, `${slug}.html`));
 
     const bucket = getBucket();
-    process.stdout.write(`  [${slug}] uploading ${src} → Storage ... `);
+    process.stdout.write(`  [${slug}] uploading ${file} → Storage ... `);
     await bucket.upload(srcPath, {
       destination: dest,
       metadata: { contentType: 'text/html; charset=utf-8', cacheControl: 'public, max-age=3600' },
     });
     console.log('done');
 
-    const url = useHostingUrl
-      ? `${PORTAL}/${pubSubdir}/${slug}.html`
-      : `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${dest.replace(/\//g, '%2F')}?alt=media`;
-
+    const url = `${PORTAL}/${pubSubdir}/${slug}.html`;
     if (proj[urlKey] !== url) {
       proj[urlKey] = url;
       changed = true;
@@ -381,7 +377,7 @@ function rebuildManifest() {
 
   if (fs.existsSync(projectsDir)) {
     for (const d of fs.readdirSync(projectsDir, { withFileTypes: true })) {
-      if (!d.isDirectory()) continue;
+      if (!d.isDirectory() || d.name.startsWith('_')) continue;
       const slug     = d.name;
       const projFile = path.join(projectsDir, slug, 'project.json');
       if (!fs.existsSync(projFile)) continue;
@@ -447,14 +443,6 @@ function deploy() {
   log(`Live: ${PORTAL}`);
 }
 
-// ── All project slugs ─────────────────────────────────────────────────────────
-function allSlugs() {
-  const projectsDir = path.join(ROOT, 'projects');
-  if (!fs.existsSync(projectsDir)) return [];
-  return fs.readdirSync(projectsDir, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => d.name);
-}
 
 // ── CMD: Export discount log → CSV ───────────────────────────────────────────
 async function cmdExportDiscounts(args) {
@@ -672,13 +660,14 @@ async function main() {
   if (args.includes('--move-sources'))     { await cmdMoveSources(args);     return; }
   if (args.includes('--add-client'))       { await cmdAddClient(args);       return; }
 
-  const runAll   = args.includes('--all');
   const noDeploy = args.includes('--no-deploy');
-  const slug     = args.find(a => !a.startsWith('--'));
+  const nonFlags = args.filter(a => !a.startsWith('--'));
+  const slug     = nonFlags[0];
+  const template = nonFlags[1] || null;
 
-  if (!runAll && !slug) {
+  if (!slug) {
     console.error('Usage:');
-    console.error('  node pipeline/scripts/update-firebase.js <slug>|--all [--no-deploy]');
+    console.error('  node pipeline/scripts/update-firebase.js <slug> [proposal|intake|corporate-brief|integration-deck] [--no-deploy]');
     console.error('  node pipeline/scripts/update-firebase.js --export-discounts [--project slug] [--out file]');
     console.error('  node pipeline/scripts/update-firebase.js --upload-agents');
     console.error('  node pipeline/scripts/update-firebase.js --restore-agents [--force]');
@@ -687,32 +676,41 @@ async function main() {
     process.exit(1);
   }
 
-  const slugs = runAll ? allSlugs() : [slug];
+  if (template && !VALID_TEMPLATES.includes(template)) {
+    console.error(`ERROR: unknown template "${template}". Valid: ${VALID_TEMPLATES.join(', ')}`);
+    process.exit(1);
+  }
 
-  // Run Eleventy once up front so republishFrozenHtml() has fresh _build/ output.
-  const needsBuild = slugs.some(s => {
-    try { const p = JSON.parse(fs.readFileSync(path.join(ROOT, 'projects', s, 'project.json'), 'utf8')); return p.deployments && p.deployments.length > 0; }
+  const projFile = path.join(ROOT, 'projects', slug, 'project.json');
+  if (!fs.existsSync(projFile)) { console.error(`ERROR: no project.json for "${slug}"`); process.exit(1); }
+
+  // Run Eleventy for this project if it has previously published versioned deployments.
+  const needsBuild = (() => {
+    try { const p = JSON.parse(fs.readFileSync(projFile, 'utf8')); return p.deployments && p.deployments.length > 0; }
     catch { return false; }
-  });
+  })();
   if (needsBuild) {
-    log('Previously published client(s) detected — running Eleventy build...');
+    log('Previously published client detected — running Eleventy build...');
     execSync('npm run build:html', { cwd: ROOT, stdio: 'inherit' });
   }
 
-  for (const s of slugs) {
-    const projFile = path.join(ROOT, 'projects', s, 'project.json');
-    if (!fs.existsSync(projFile)) { log(`SKIP ${s} — no project.json`); continue; }
-    log(`Processing: ${s}`);
-    try { await archiveScoping(s); } catch (e) { log(`  scoping archive skipped: ${e.message}`); }
-    try { syncLogo(s); } catch (e) { log(`  logo sync skipped: ${e.message}`); }
-    try { syncDiagram(s); } catch (e) { log(`  diagram sync skipped: ${e.message}`); }
-    try { await uploadHtmlToStorage(s); } catch (e) { log(`  html upload skipped: ${e.message}`); }
-    try { await seedPitchKit(s); } catch (e) { log(`  pitchKit seed skipped: ${e.message}`); }
+  log(`Processing: ${slug}${template ? ` (${template} only)` : ''}`);
+
+  if (template) {
+    try { await uploadHtmlToStorage(slug, template); } catch (e) { log(`  html upload skipped: ${e.message}`); }
+    if (template === 'integration-deck') {
+      try { await seedPitchKit(slug); } catch (e) { log(`  pitchKit seed skipped: ${e.message}`); }
+    }
+  } else {
+    try { await archiveScoping(slug); } catch (e) { log(`  scoping archive skipped: ${e.message}`); }
+    try { syncLogo(slug); } catch (e) { log(`  logo sync skipped: ${e.message}`); }
+    try { syncDiagram(slug); } catch (e) { log(`  diagram sync skipped: ${e.message}`); }
+    try { await uploadHtmlToStorage(slug); } catch (e) { log(`  html upload skipped: ${e.message}`); }
+    try { await seedPitchKit(slug); } catch (e) { log(`  pitchKit seed skipped: ${e.message}`); }
   }
 
   rebuildManifest();
-  // --all → empty list (regenerate all portals); single client → just that slug.
-  rebuildPortals(runAll ? [] : [slug]);
+  rebuildPortals([slug]);
   gitCommitHtml();
 
   if (!noDeploy) {

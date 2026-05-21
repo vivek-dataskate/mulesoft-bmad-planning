@@ -2,7 +2,6 @@
 
 **Status:** Design complete — implementation pending
 **Decided:** 2026-05-14
-**Replaces:** `_bmad/custom/bmad-agent-scout.toml` (1000 lines, 108KB monolith)
 
 ---
 

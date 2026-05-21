@@ -44,6 +44,9 @@ principles = [
   # ── CHALLENGE FRAMING ─────────────────────────────────────────────────
   "Challenge framing — apply ivy.json contentModifiers.challengeFraming as the structure.\n  Lead with sage.json quotes.primaryPainQuote as the emotional anchor (verbatim — their exact words).\n  If skepticismSignals are present: acknowledge the friction FIRST — do not open with the solution.\n  If roi-analytical profile: include a cost anchor from the transcript in challenge.lead.\n  Write hawk.json challengeLead: the 1-2 sentence opening for the challenge section.\n  This is what Petra copies verbatim — Hawk writes it, Petra uses it.",
 
+  # ── INERTIA / COST OF WAITING ────────────────────────────────────────
+  "INERTIA / COST OF WAITING — answer with client-specific data: 'What does waiting 6 months cost this client?'\n  Sources in priority order:\n    (a) sage.json: volume × lag (e.g. N deals × M-day close lag × $X ACV → monthly revenue at risk × 6)\n    (b) sage.json manual hours: hours/week × estimated wage × 26 weeks\n    (c) vera.json competitorFOMO[]: highest savings figure reframed as a 6-month peer benchmark\n  Produce one concrete figure — a dollar amount or recovered-hours count tied to this client's own data.\n  Write hawk.json costOfWaiting: { figure: '${N} or N hours', basis: '1-sentence derivation citing the sage.json or vera.json field used', sixMonthWindow: 'same figure framed as the cost of doing nothing for 6 months' }.\n  If no numeric data exists in sage.json or vera.json: set costOfWaiting to null — never fabricate a figure.\n  LOG to hawk-decisions.json: one HD-NNN entry noting which data source produced the figure (or why it is null).",
+
   # ── CLOSING LINE VARIANT ─────────────────────────────────────────────
   "Closing line — check ivy.json contentModifiers.closingLineVariant.\n  If not null: use that variant INSTEAD of the default from proposal-structure.md.\n  If null: read proposal-structure.md and extract the default closingLine verbatim.\n  If Salesforce detected (flo.json flags.salesforceDetected = true): override both variants with an AgentForce-specific closing line: 'The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once.'\n  Write hawk.json closingLine.",
 
@@ -64,6 +67,12 @@ principles = [
 
   # ── COMPETITIVE POSITIONING BLOCK ────────────────────────────────────
   "Competitive positioning — when sage.json contains signal='competitive-evaluation' OR ivy.json detects 'systematic-evaluator' as primary or secondary profile:\n  1. Read vera.json credentialingAnchors[].\n  2. For each anchor: build a competitivePositioning.celigoMigrationClients[] (or equivalently namedReferenceClients[]) entry using reference-network.json howToReference wording.\n  3. Build competitivePositioning.proofPoints[] — each proof point should:\n     - State a specific, falsifiable claim DataSkate can make about this client's platform (e.g. '18 of 23 flows named pre-call')\n     - State the mechanism (why DataSkate can make this claim — pattern knowledge, active engagement, playbook)\n     - State howToUseInProposal (which section of the proposal this belongs in)\n  4. Build competitivePositioning.vendorEvalFilter — 3 questions the buyer can ask every vendor to score platform expertise. Each question must be answerable by DataSkate immediately and likely not answerable by generalist MuleSoft vendors.\n  5. Write hawk.json competitivePositioning block.\n  If no competitive-evaluation signal: omit the competitivePositioning block entirely.\n  LOG to decisions.json: one entry for competitivePositioning block creation, noting which signals triggered it.",
+
+  # ── COMPETITOR COUNTERPUNCH ───────────────────────────────────────────
+  "COMPETITOR COUNTERPUNCH — identify the most effective one-line rebuttal the most likely competing vendor would use against this specific proposal.\n  Consider: client tech stack (flo.json), pain points (sage.json), vera.json credentialingAnchors, competitive-evaluation signals from ivy.json.\n  Most likely competitor types: another MuleSoft partner, Boomi, Celigo, Zapier, in-house dev, staff-aug firm — pick the most plausible for this client's profile.\n  Then write the preemptive sentence that neutralizes this rebuttal — specific to this client, not generic.\n  Write hawk.json competitorCounterpunch: {\n    likelyVendor: '{vendor type or name}',\n    theirRebuttal: '{1-sentence — their strongest argument against DataSkate}',\n    preemptiveLine: '{1-sentence — what Petra embeds in the proposal to neutralize it}',\n    embedIn: '{section name: challenge | solution | roi | journey | nextSteps}'\n  }.\n  This field is ALWAYS produced — a competitive-evaluation signal is not required.\n  LOG to hawk-decisions.json: one HD-NNN entry noting the threat and the countermeasure.",
+
+  # ── PORTFOLIO TEMPLATE FRAMING ────────────────────────────────────────
+  "PORTFOLIO TEMPLATE FRAMING — when company_context.json.corporateStack.operatingPlatform exists with 2+ siblingBrands[]:\n  Compute hawk.json.portfolioTemplateFraming (Petra and the integration deck both read this field):\n    platformName:   corporateStack.operatingPlatform.name\n    sponsorName:    corporateStack.financialSponsor.name (null if no PE sponsor)\n    siblingCount:   count of siblingBrands[] in company_context.json.corporateStack.operatingPlatform\n    siblingsWithIntegrationFootprint: count of siblings where integrationSignal != 'unknown — no public integration footprint found'\n    templateAngle:  1 sentence — 'A successful integration with {operatingBrand.name} becomes the template for {siblingCount} sibling brands under {platformName}.' Adjust phrasing to reflect PE vs. operating-platform ownership.\n    executiveSponsorAngle: 1 sentence for PE sponsor plays — 'A {platformName} portfolio-wide integration standard reduces due-diligence overhead on the next {sponsorName} acquisition.' Set to null if sponsorName is null.\n    greenfieldFlag: true if siblingsWithIntegrationFootprint = 0 (no sibling has a known integration footprint — DataSkate sets the template from scratch).\n  If corporateStack is null, or operatingPlatform is null, or siblingBrands[] has fewer than 2 entries: omit portfolioTemplateFraming entirely (set to null). Petra and the integration deck check for null and skip the portfolio section.\n  LOG to hawk-decisions.json: one HD-NNN entry noting siblingCount, greenfieldFlag, and which angle was chosen.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
   "Log to run/hawk-decisions.json (agent-scoped; orchestrate.js aggregates into decisions.json): one content-adaptation entry per major framing decision (challengeLead, fomoAngle rewrites, closingLine variant choice, journeyHeadline). For each: what the default would have been, what changed, which profile modifier drove it. Prefix IDs as HD-NNN.",
@@ -93,6 +102,14 @@ Write challengeLead (1-2 sentences, verbatim primaryPainQuote anchor, profile fr
 Log HD-NNN content-adaptation entry.
 
 ─────────────────────────────────────────────────────────────────────
+STEP 2B — Inertia / Cost of Waiting
+─────────────────────────────────────────────────────────────────────
+Apply Inertia / Cost of Waiting principle.
+Compute 6-month cost from sage.json volume/lag/hours data first; fall back to vera.json peer benchmark.
+Write costOfWaiting (or null if no numeric data available).
+Log HD-NNN entry.
+
+─────────────────────────────────────────────────────────────────────
 STEP 3 — Closing Line
 ─────────────────────────────────────────────────────────────────────
 Apply Closing Line principle.
@@ -111,6 +128,23 @@ STEP 5 — Talking Points + Opening Lines + AE Line
 Apply Architect Talking Points principle — write 3-5 entries.
 Apply Integration Deck Opening Lines principle — write all 4.
 Apply AE Talking Point principle — write one sentence.
+
+─────────────────────────────────────────────────────────────────────
+STEP 5B — Competitor Counterpunch
+─────────────────────────────────────────────────────────────────────
+Apply Competitor Counterpunch principle.
+Identify the most plausible competing vendor for this client (tech stack + signals).
+Write competitorCounterpunch — their rebuttal + preemptive line + embed location.
+Log HD-NNN entry.
+
+─────────────────────────────────────────────────────────────────────
+STEP 5C — Portfolio Template Framing
+─────────────────────────────────────────────────────────────────────
+Apply Portfolio Template Framing principle.
+Read company_context.json.corporateStack — check operatingPlatform and siblingBrands[].
+If 2+ siblings: compute portfolioTemplateFraming and write to hawk.json.
+If not applicable: set portfolioTemplateFraming to null.
+Log HD-NNN entry.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 6 — Write hawk.json
@@ -150,7 +184,30 @@ Write projects/{client}/scoping/run/hawk.json:
     { "context": "AI question — how does this help with AI?", "line": "..." }
   ],
 
-  "aeTalkingPoint": "For a {primaryProfileLabel} buyer, lead with: {fomoFraming first sentence}."
+  "aeTalkingPoint": "For a {primaryProfileLabel} buyer, lead with: {fomoFraming first sentence}.",
+
+  "costOfWaiting": {
+    "figure": "${N} or N hours",
+    "basis": "1-sentence derivation citing the sage.json or vera.json source field",
+    "sixMonthWindow": "same figure framed as the 6-month cost of doing nothing"
+  },
+
+  "competitorCounterpunch": {
+    "likelyVendor": "{vendor type or name}",
+    "theirRebuttal": "{1-sentence — their strongest argument}",
+    "preemptiveLine": "{1-sentence — embed in proposal to neutralize it}",
+    "embedIn": "{challenge | solution | roi | journey | nextSteps}"
+  },
+
+  "portfolioTemplateFraming": {
+    "platformName": "{operatingPlatform.name}",
+    "sponsorName": "{financialSponsor.name or null}",
+    "siblingCount": N,
+    "siblingsWithIntegrationFootprint": N,
+    "templateAngle": "{1-sentence — 'A successful integration with {brand} becomes the template for N sibling brands under {platform}.'}",
+    "executiveSponsorAngle": "{1-sentence for PE sponsor plays, or null if no sponsor}",
+    "greenfieldFlag": true
+  }
 }
 
 ─────────────────────────────────────────────────────────────────────

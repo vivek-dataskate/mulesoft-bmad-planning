@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * check-registry-freshness.js
- * Run: node scaffold/check-registry-freshness.js
+ * Run: node pipeline/tools/check-registry-freshness.js
  * Purpose: Enforce the connector registry staleness policy:
  *   Green  (≤ 30 days) — current
  *   Yellow (31–60 days) — verify on Exchange before use in new project

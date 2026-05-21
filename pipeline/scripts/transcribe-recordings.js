@@ -6,7 +6,7 @@
  * Skips duplicate files (those ending with " (N).mp4").
  *
  * Usage:
- *   node pipeline/scripts/transcribe-recordings.js               # scans _bulkinbox/
+ *   node pipeline/scripts/transcribe-recordings.js               # scans _inbox/
  *   node pipeline/scripts/transcribe-recordings.js --dir <path>  # scans a specific directory
  * Requires: GEMINI_API_KEY env var
  *
@@ -33,7 +33,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 const dirArgIdx = process.argv.indexOf("--dir");
 const INBOX_DIR = dirArgIdx !== -1
   ? path.resolve(process.argv[dirArgIdx + 1])
-  : path.join(__dirname, "..", "_bulkinbox");
+  : path.join(__dirname, "..", "_inbox");
 
 const STATUS_FILE = path.join(INBOX_DIR, "transcription-status.json");
 
