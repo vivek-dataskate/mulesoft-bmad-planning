@@ -9,6 +9,13 @@ const fs     = require('fs');
 const path   = require('path');
 const crypto = require('crypto');
 const { execSync } = require('child_process');
+const { HTMLHint } = require('htmlhint');
+
+// Load .htmlhintrc from repo root — standard HTML rules (tag-pair, attr-lowercase, etc.)
+const HTMLHINT_RC_PATH = path.resolve(__dirname, '../../.htmlhintrc');
+const HTMLHINT_RULES = fs.existsSync(HTMLHINT_RC_PATH)
+  ? JSON.parse(fs.readFileSync(HTMLHINT_RC_PATH, 'utf8'))
+  : {};
 
 const COMPETITORS = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'competitors.json'), 'utf8')
@@ -222,39 +229,6 @@ const CHECKS = [
     message: () => `Logo height ${CHECKS._logoActual} does not match HTML_DESIGN_STANDARDS.json logo.heights spec (${CHECKS._logoExpected}). Update the inline SVG style attribute.`,
   },
 
-  // ── <details> structural balance ───────────────────────────────────────────
-  // Catches the class of bug where a generator slices through a <details>
-  // wrapper and leaves an unclosed tag → browser auto-nests every subsequent
-  // sibling inside the broken parent, rendering only the first one visibly.
-  // Strips <script>/<style> first so JS-comment mentions of `<details>` don't
-  // false-trigger.
-  {
-    name: '<details> balance',
-    test: c => {
-      const stripped = c
-        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-        .replace(/<style\b[\s\S]*?<\/style>/gi, '')
-        .replace(/<!--[\s\S]*?-->/g, '');
-      const re = /<\/?details\b[^>]*>/g;
-      let m, depth = 0, deepestOpen = null;
-      while ((m = re.exec(stripped)) !== null) {
-        if (m[0].startsWith('</')) {
-          depth--;
-          if (depth < 0) { CHECKS._detailsErr = 'orphaned </details> at byte ' + m.index; return false; }
-        } else {
-          depth++;
-          deepestOpen = m.index;
-        }
-      }
-      if (depth !== 0) {
-        CHECKS._detailsErr = depth + ' unclosed <details> remaining (last open near byte ' + deepestOpen + ')';
-        return false;
-      }
-      return true;
-    },
-    message: () => `<details> tags are not balanced: ${CHECKS._detailsErr || 'unbalanced'}. This causes the browser to nest every subsequent sibling section inside the broken parent — only the first one renders visibly.`,
-  },
-
   // ── Mailto in submit handlers ──────────────────────────────────────────────
   // Intake-form-specific rule (HTML_DESIGN_STANDARDS.json forbidden[mailto-submit]).
   // Intake submits MUST go to Firestore — no email composition fallback.
@@ -377,11 +351,12 @@ function validateFingerprint(content, rel) {
 const args   = process.argv.slice(2);
 const single = args[0] ? path.resolve(process.cwd(), args[0]) : null;
 
-// Paths excluded from linting — templates and CSS snippets are partial files
+// Paths excluded from linting — templates, CSS snippets, and Eleventy build artifacts
 const EXCLUDE_PATTERNS = [
-  /^commons\/branding\/templates\//,    // shell templates — CSS injected at fill time
-  /^commons\/branding\/[^/]+-base\.css\.html$/,  // CSS snippets in branding/
-  /^commons\/templates\//,             // all files in templates/ are partials or design previews
+  /^commons\/branding\/templates\//,              // shell templates — CSS injected at fill time
+  /^commons\/branding\/[^/]+-base\.css\.html$/,   // CSS snippets in branding/
+  /^commons\/templates\//,                        // all files in templates/ are partials or design previews
+  /^docs\/eleventy\/_build\/shared-base\.css\.html$/, // Eleventy passthrough of the CSS partial
 ];
 
 function isExcluded(rel) {
@@ -408,6 +383,17 @@ for (const rel of targets) {
   if (!fs.existsSync(file)) continue;
 
   const content  = fs.readFileSync(file, 'utf8');
+
+  // Standard HTML validation via htmlhint (tag balance, attr rules, etc.)
+  const hintMessages = Object.keys(HTMLHINT_RULES).length
+    ? HTMLHint.verify(content, HTMLHINT_RULES)
+    : [];
+  const hintFailures = hintMessages.map(m => ({
+    name: `htmlhint:${m.rule.id}`,
+    message: `${m.message} (line ${m.line}, col ${m.col})`,
+  }));
+
+  // DataSkate-specific semantic checks
   const failures = CHECKS.filter(c => {
     if (c.onlyPaths && !c.onlyPaths.test(rel)) return false;
     return !c.test(content);
@@ -416,7 +402,7 @@ for (const rel of targets) {
   // Fingerprint check is separate from CHECKS because it needs the file path
   // (to discover templateId from the embedded comment + frozen-client lookup).
   const fpFailures = validateFingerprint(content, rel);
-  const allFailures = [...failures, ...fpFailures];
+  const allFailures = [...hintFailures, ...failures, ...fpFailures];
 
   if (allFailures.length) {
     anyFail = true;
