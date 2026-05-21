@@ -1,6 +1,6 @@
 'use strict';
 
-const { sub, processIf, render, stripXmlDecl, extractMuleBody } = require('../../../mulesoft/generate');
+const { sub, processIf, render, stripXmlDecl, extractMuleBody } = require('../../../generate');
 
 describe('sub — token substitution', () => {
   test('replaces a known token', () => {

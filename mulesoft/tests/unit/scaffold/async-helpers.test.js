@@ -1,6 +1,6 @@
 'use strict';
 
-const { isAsyncPattern, isAsyncTrigger } = require('../../../mulesoft/generate');
+const { isAsyncPattern, isAsyncTrigger } = require('../../../generate');
 
 describe('isAsyncPattern', () => {
   test.each([

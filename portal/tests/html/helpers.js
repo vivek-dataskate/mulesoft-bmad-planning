@@ -4,7 +4,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const BUILD_DIR = path.resolve(__dirname, '../../portal/_build');
+const BUILD_DIR = path.resolve(__dirname, '../../_build');
 
 // Discover all built HTML files, grouped by template type.
 // Returns: { intake: [...paths], proposal: [...paths], portal: [...paths], ... }

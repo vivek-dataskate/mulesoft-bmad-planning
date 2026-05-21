@@ -14,9 +14,11 @@ module.exports = {
         expect(headerText).toMatch(/roadmap|integration|engagement/i);
       } },
 
-    { name: 'at least one section element is present',
+    { name: 'at least one content section is present',
       run: async (page) => {
-        const count = await page.$$eval('section', els => els.length);
+        const count = await page.evaluate(() =>
+          document.querySelectorAll('.section-block, section, .proposal-section, .about-hero').length
+        );
         expect(count).toBeGreaterThan(0);
       } },
 

@@ -24,6 +24,15 @@
     "test:intake:structural": "jest --testPathPattern=portal/tests/intake/structural --testTimeout=15000",
     "test:intake:behavioral": "jest --testPathPattern=portal/tests/intake/behavioral --testTimeout=30000 --runInBand",
     "test:intake": "npm run test:intake:structural && npm run test:intake:behavioral",
+    "test:proposal:structural": "jest --testPathPattern=portal/tests/proposal/structural --testTimeout=15000",
+    "test:proposal:behavioral": "jest --testPathPattern=portal/tests/proposal/behavioral --testTimeout=30000 --runInBand",
+    "test:proposal": "npm run test:proposal:structural && npm run test:proposal:behavioral",
+    "test:brief": "jest --testPathPattern=portal/tests/corporate-brief/structural --testTimeout=15000",
+    "test:deck": "jest --testPathPattern=portal/tests/deck/structural --testTimeout=15000",
+    "test:portal": "jest --testPathPattern=portal/tests/client-portal/structural --testTimeout=15000",
+    "test:resources:structural": "jest --testPathPattern=portal/tests/resources/structural --testTimeout=15000",
+    "test:resources:behavioral": "jest --testPathPattern=portal/tests/resources/behavioral --testTimeout=30000 --runInBand",
+    "test:resources": "npm run test:resources:structural && npm run test:resources:behavioral",
     "test:html": "jest --testPathPattern=portal/tests/html/runner --testTimeout=60000 --runInBand",
     "vr:baseline": "node pipeline/scripts/generate-backstop-config.js && npx backstop test --config portal/tests/backstop/backstop.json reference",
     "vr:baseline:intake": "node pipeline/scripts/generate-backstop-config.js --intake && npx backstop test --config portal/tests/backstop/backstop.json reference",
@@ -36,8 +45,7 @@
     "testMatch": [
       "<rootDir>/mulesoft/tests/unit/**/*.test.js",
       "<rootDir>/mulesoft/tests/integration/**/*.test.js",
-      "<rootDir>/portal/tests/intake/**/*.test.js",
-      "<rootDir>/portal/tests/html/**/*.test.js"
+      "<rootDir>/portal/tests/**/*.test.js"
     ],
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [

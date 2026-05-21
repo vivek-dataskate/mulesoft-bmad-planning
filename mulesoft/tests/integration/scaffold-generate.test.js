@@ -7,7 +7,7 @@
  * and asserts on the output file tree, content, and structural correctness.
  *
  * To run:
- *   npm test -- tests/integration/scaffold-generate.test.js
+ *   npm test -- mulesoft/tests/integration/scaffold-generate.test.js
  */
 
 const fs      = require('fs');
@@ -15,7 +15,7 @@ const path    = require('path');
 const os      = require('os');
 const { execSync } = require('child_process');
 
-const REPO_ROOT    = path.resolve(__dirname, '../..');
+const REPO_ROOT    = path.resolve(__dirname, '../../..');
 const GENERATE     = path.join(REPO_ROOT, 'mulesoft', 'generate.js');
 const FIXTURES_DIR = path.join(__dirname, '../fixtures/decisions');
 

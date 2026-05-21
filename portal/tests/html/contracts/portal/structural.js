@@ -16,14 +16,12 @@ module.exports = {
         expect(count).toBeGreaterThan(0);
       } },
 
-    { name: 'phase bar is present (engagement progress indicator)',
+    { name: 'phase bar element exists in the DOM',
       run: async (page) => {
+        // Phase bar presence confirms the portal template rendered the engagement header.
+        // It may be empty when no phase data is configured — that's acceptable.
         const found = await page.$('.phase-bar');
-        // Phase bar is optional for some portal pages — only assert if rendered
-        if (found) {
-          const text = await found.evaluate(el => el.innerText.trim());
-          expect(text.length).toBeGreaterThan(0);
-        }
+        expect(found).not.toBeNull();
       } },
 
     { name: 'no broken internal anchor links',

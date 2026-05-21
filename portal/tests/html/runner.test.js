@@ -53,7 +53,7 @@ function resolveType(buildDir, filename) {
 
 // ── Build-time discovery (synchronous — must complete before Jest collects) ───
 const builtFiles = discoverBuiltHtml();
-const BUILD_ROOT = path.resolve(__dirname, '../../portal/_build');
+const BUILD_ROOT = path.resolve(__dirname, '../../_build');
 
 // Flatten to [{label, filePath, buildDir}] for cleaner iteration
 const allFiles = [];

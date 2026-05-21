@@ -1,6 +1,6 @@
 'use strict';
 
-const { computeProfile } = require('../../../mulesoft/generate');
+const { computeProfile } = require('../../../generate');
 
 describe('computeProfile', () => {
   // ── Regulated ─────────────────────────────────────────────────────────────

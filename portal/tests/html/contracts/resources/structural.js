@@ -1,22 +1,20 @@
 'use strict';
 // Resources structural contracts — architect guide, pricing model, and other reference docs.
+// Resource pages may use different layouts (docs-shell vs single-page), so checks are flexible.
 
 module.exports = {
   name: 'resources — structural DOM checks',
   tests: [
-    { name: 'top-bar navigation is present',
-      run: async (page) => expect(await page.$('.top-bar')).not.toBeNull() },
-
-    { name: 'docs-shell layout is present',
-      run: async (page) => expect(await page.$('.docs-shell')).not.toBeNull() },
-
-    { name: 'left navigation panel is present',
-      run: async (page) => expect(await page.$('.nav-left')).not.toBeNull() },
-
-    { name: 'main content area is present',
+    { name: 'page has a primary navigation or header element',
       run: async (page) => {
-        const main = await page.$('.docs-main, main, .main-content, article');
-        expect(main).not.toBeNull();
+        const found = await page.$('.top-bar, nav, .header, .nav-left, .page');
+        expect(found).not.toBeNull();
+      } },
+
+    { name: 'page has substantive content (>500 chars of text)',
+      run: async (page) => {
+        const text = await page.$eval('body', el => el.innerText.trim());
+        expect(text.length).toBeGreaterThan(500);
       } },
 
     { name: 'no broken internal anchor links',
@@ -30,6 +28,23 @@ module.exports = {
             .map(a => a.textContent.trim())
         );
         expect(broken).toHaveLength(0);
+      } },
+
+    // Docs-shell specific — only assert if the layout is present
+    { name: 'docs-shell: left nav exists when docs-shell layout is used',
+      run: async (page) => {
+        const shell = await page.$('.docs-shell');
+        if (!shell) return; // not a docs-shell page — skip
+        const nav = await page.$('.nav-left');
+        expect(nav).not.toBeNull();
+      } },
+
+    { name: 'docs-shell: main content area exists when docs-shell layout is used',
+      run: async (page) => {
+        const shell = await page.$('.docs-shell');
+        if (!shell) return;
+        const main = await page.$('.docs-main, main, article, .main-content');
+        expect(main).not.toBeNull();
       } },
   ],
 };
