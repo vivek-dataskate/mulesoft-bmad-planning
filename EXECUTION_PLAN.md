@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 4 is next (Phases 0–3 complete)
+**Status:** Phase 5 is next (Phases 0–4 complete)
 
 ---
 
@@ -240,24 +240,25 @@ No code references to update — pure `git mv`.
 
 ---
 
-### Phase 4 — Assemble `portal/`
-- [ ] `git mv docs/eleventy/_includes/ portal/_includes/`
-- [ ] `git mv docs/eleventy/_data/ portal/_data/`
-- [ ] `git mv docs/eleventy/_build/ portal/_build/`
-- [ ] `git mv docs/eleventy/site/ portal/src/`
-- [ ] `git mv docs/eleventy/template-registry.json portal/`
-- [ ] `git mv docs/eleventy/version-manifest.json portal/`
-- [ ] `git mv firebase/public/ portal/public/`
-- [ ] `git mv firebase/functions/ portal/functions/`
-- [ ] `git mv firebase/scripts/ portal/scripts/`
-- [ ] `git mv firebase/firestore.rules portal/`
-- [ ] `git mv firebase/storage.rules portal/`
-- [ ] `git mv firebase/firebase.json portal/`
-- [ ] `git mv firebase/.firebaserc portal/`
-- [ ] `git mv firebase/deploy.sh portal/`
-- [ ] `git mv firebase/SETUP.md portal/`
-- [ ] `git mv docs/HTML_PIPELINE_MIGRATION.md portal/`
-- [ ] Remove empty `firebase/` and `docs/eleventy/` directories
+### Phase 4 — Assemble `portal/` ✅
+- [x] `git mv docs/eleventy/_includes/ portal/_includes/`
+- [x] `git mv docs/eleventy/_data/ portal/_data/`
+- [x] `mv docs/eleventy/_build/ portal/_build/` (gitignored — mv only)
+- [x] `git mv docs/eleventy/site/ portal/src/`
+- [x] `git mv docs/eleventy/template-registry.json portal/`
+- [x] `git mv docs/eleventy/version-manifest.json portal/`
+- [x] `git mv firebase/public/ portal/public/`
+- [x] `git mv firebase/functions/ portal/functions/`
+- [x] `git mv firebase/scripts/ portal/scripts/`
+- [x] `git mv firebase/firestore.rules portal/`
+- [x] `git mv firebase/storage.rules portal/`
+- [x] `git mv firebase/firebase.json portal/`
+- [x] `git mv firebase/.firebaserc portal/`
+- [x] `git mv firebase/deploy.sh portal/`
+- [x] `git mv firebase/SETUP.md portal/`
+- [x] `git mv firebase/firestore.indexes.json portal/` (was in firebase/, not in plan)
+- [x] `git mv docs/HTML_PIPELINE_MIGRATION.md portal/`
+- [x] Remove empty `firebase/` and `docs/eleventy/` directories
 - 📌 **COMMIT: `refactor: merge firebase + eleventy into portal/`**
 
 ---
