@@ -816,7 +816,7 @@ function mergeVeraCorporateStackEnrichment(slug) {
 // ─── Corporate Brief (post-Vera) ─────────────────────────────────────────────
 // Composes projects/{slug}/intake/corporate-brief-content.json from the data
 // Scout's grounded inference already wrote into company_context.json, then
-// renders the HTML via fill-template.js. Runs alongside writeClientRegistry()
+// renders the HTML via Eleventy. Runs alongside writeClientRegistry()
 // in the post-Vera hook so the brief is ready as soon as research completes —
 // long before Petra/Quinn finish their work, which means the architect can
 // email the brief 48h pre-call without waiting on the full deliverable set.
@@ -885,18 +885,22 @@ function renderCorporateBrief(slug) {
   writeJson(contentPath, content);
   logFileInfo(contentPath, 'corporate-brief-content.json');
 
-  // Render HTML via the same fill-template pipeline used for proposal/intake/deck.
-  const result = spawnSync(
-    process.execPath,
-    [path.join(ROOT, 'commons', 'branding', 'fill-template.js'), '--template', 'corporate-brief', '--client', slug],
-    { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' }
-  );
+  // Run Eleventy to render the corporate brief (and all other templates).
+  const result = spawnSync('npm', ['run', 'build:html'], { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' });
   if (result.status !== 0) {
-    stepLog(`renderCorporateBrief: fill-template.js exited ${result.status} — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
+    stepLog(`renderCorporateBrief: Eleventy build exited ${result.status} — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
     return null;
   }
 
-  const outPath = path.join(projectDir, 'intake', `corporate-brief-${slug}.html`);
+  // Copy from _build/ to the canonical project path.
+  const eleventySrc = path.join(ROOT, 'docs', 'eleventy', '_build', 'intake', `corporate-brief-${slug}.html`);
+  const outPath     = path.join(projectDir, 'intake', `corporate-brief-${slug}.html`);
+  if (!fs.existsSync(eleventySrc)) {
+    stepLog(`renderCorporateBrief: Eleventy did not produce corporate-brief-${slug}.html`, 'WARN');
+    return null;
+  }
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.copyFileSync(eleventySrc, outPath);
   logFileInfo(outPath, `corporate-brief-${slug}.html`);
   return outPath;
 }
@@ -1326,7 +1330,7 @@ async function runPipeline(slug) {
         stepLog('POST-VERA: corporate-brief done', 'END');
       } catch (e) {
         stepLog(`POST-VERA: corporate-brief FAILED — ${e.message}`, 'WARN');
-        console.log(`  ${yellow('⚠')}  Corporate brief render failed — re-run manually: node commons/branding/fill-template.js --template corporate-brief --client ${slug}`);
+        console.log(`  ${yellow('⚠')}  Corporate brief render failed — re-run manually: npm run build:html (then copy _build/intake/corporate-brief-${slug}.html → projects/${slug}/intake/)`);
       }
 
       stepLog('POST-VERA: running promote-library.js', 'START');

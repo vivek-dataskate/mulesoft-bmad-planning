@@ -119,7 +119,7 @@ async function archiveScoping(slug) {
 
 // ── 1b. Sync client logo → firebase/public/logos/{slug}.{ext} ────────────────
 // Looks for logo-{slug}.{ext} or {slug}.{ext} in projects/{slug}/intake/
-// and copies to firebase/public/logos/{slug}.{ext} so fill-template.js can find it.
+// and copies to firebase/public/logos/{slug}.{ext} so Eleventy can resolve logo URLs.
 function syncLogo(slug) {
   const intakeDir  = path.join(ROOT, 'projects', slug, 'intake');
   const logosDir   = path.join(PUBLIC, 'logos');

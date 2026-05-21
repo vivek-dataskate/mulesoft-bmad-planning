@@ -39,8 +39,17 @@ const { spawnSync } = require('child_process');
 
 const ROOT     = path.resolve(__dirname, '..');
 const MANIFEST = path.join(ROOT, 'docs', 'eleventy', 'version-manifest.json');
-const FILL     = path.join(ROOT, 'commons', 'branding', 'fill-template.js');
+const BUILD    = path.join(ROOT, 'docs', 'eleventy', '_build');
 const FIREBASE_HOST = 'https://dataskateclients.web.app';
+
+// Maps template type → path within Eleventy's _build/ output directory.
+const ELEVENTY_OUT = {
+  proposal:           (c) => path.join(BUILD, 'intake',    `proposal-${c}.html`),
+  intake:             (c) => path.join(BUILD, 'intake',    `intake-questionnaire-${c}.html`),
+  'integration-deck': (c) => path.join(BUILD, 'internal',  `integration-deck-${c}.html`),
+  'client-portal':    (c) => path.join(BUILD, 'portal',    `${c}.html`),
+  'corporate-brief':  (c) => path.join(BUILD, 'intake',    `corporate-brief-${c}.html`),
+};
 
 const TEMPLATE_TO_PATH_SEGMENT = {
   proposal:           'proposal',
@@ -112,36 +121,79 @@ if (fs.existsSync(outAbs)) {
   process.exit(1);
 }
 
-// ── Render via fill-template.js, --force-republish + --out-override ─────────
+// ── Render via Eleventy, then copy to versioned output path ─────────────────
 fs.mkdirSync(path.dirname(outAbs), { recursive: true });
 
 console.log(`→ Republishing ${client} / ${template} at ${targetVersion}`);
 console.log(`  Output:  ${outRel}`);
 console.log(`  URL:     ${url}`);
 
-const r = spawnSync('node', [
-  FILL,
-  '--template', template,
-  '--client',   client,
-  '--force-republish',
-  '--out-override', outAbs,
-], { stdio: 'inherit' });
-
-if (r.status !== 0) {
-  console.error(`✗ fill-template.js failed (exit ${r.status}). Republish aborted.`);
-  // Clean up empty output file if fill-template left one.
-  if (fs.existsSync(outAbs)) {
-    const sz = fs.statSync(outAbs).size;
-    if (sz === 0) fs.unlinkSync(outAbs);
-  }
-  process.exit(r.status);
+const buildResult = spawnSync('npm', ['run', 'build:html'], { cwd: ROOT, stdio: 'inherit' });
+if (buildResult.status !== 0) {
+  console.error(`✗ Eleventy build failed. Republish aborted.`);
+  process.exit(buildResult.status || 1);
 }
 
-// ── Update project.json: bump pin, append deployment, update *Url pointer ──
+const eleventySrc = ELEVENTY_OUT[template](client);
+if (!fs.existsSync(eleventySrc)) {
+  console.error(`✗ Eleventy did not produce expected output: ${eleventySrc}`);
+  console.error(`  Check that client "${client}" has the required content JSON for template "${template}".`);
+  process.exit(1);
+}
+
+fs.copyFileSync(eleventySrc, outAbs);
+
+// ── Write stable redirect at the flat URL ───────────────────────────────────
+// The flat path (e.g. firebase/public/proposal/homage.html) is what was
+// originally shared with the client. Overwrite it with a thin JS/meta redirect
+// to the new versioned file so the client's bookmarked link always resolves to
+// current without the URL ever changing in their hands.
+proj.deployments = proj.deployments || [];
+
+const flatPath = path.join(ROOT, 'firebase', 'public', segment, `${client}.html`);
+
+// If v1 was published at the flat path (legacyUnversioned), archive its bytes
+// to a dated+versioned path first so version history has a real direct link.
+const legacyIdx = proj.deployments.findIndex(
+  d => d.template === template && d.legacyUnversioned
+);
+if (legacyIdx !== -1) {
+  const leg    = proj.deployments[legacyIdx];
+  const legDate = (leg.publishedAt || '').slice(0, 10);
+  const legVer  = leg.version || 'v1';
+  const legRel  = path.posix.join('firebase', 'public', segment, client, `${legDate}-${legVer}.html`);
+  const legAbs  = path.join(ROOT, legRel);
+  if (!fs.existsSync(legAbs) && fs.existsSync(flatPath)) {
+    fs.mkdirSync(path.dirname(legAbs), { recursive: true });
+    fs.copyFileSync(flatPath, legAbs);
+    console.log(`  Archived legacy ${legVer} → ${legRel}`);
+  }
+  const legUrl = `${FIREBASE_HOST}/${segment}/${client}/${legDate}-${legVer}.html`;
+  const { legacyUnversioned: _drop, ...legRest } = leg;
+  proj.deployments[legacyIdx] = { ...legRest, url: legUrl, filePath: legRel };
+}
+
+if (fs.existsSync(flatPath)) {
+  const redirect = [
+    '<!DOCTYPE html>',
+    '<html><head><meta charset="utf-8">',
+    '<title>Redirecting…</title>',
+    `<meta http-equiv="refresh" content="0;url=${url}">`,
+    `<script>location.replace(${JSON.stringify(url)})</script>`,
+    '</head><body></body></html>',
+  ].join('\n') + '\n';
+  fs.writeFileSync(flatPath, redirect);
+  console.log(`  Stable redirect updated → firebase/public/${segment}/${client}.html`);
+} else {
+  console.log(`  ⚠ No flat file at firebase/public/${segment}/${client}.html — stable redirect not written`);
+}
+
+// ── Update project.json: bump pin, append versioned deployment ───────────────
+// The stable URL (flat path) already lives in project.json from initial publish
+// and must not be overwritten — the redirect there resolves to current.
 proj.templateVersions = proj.templateVersions || {};
 proj.templateVersions[template] = targetVersion;
 
-proj.deployments = proj.deployments || [];
 proj.deployments.push({
   template,
   version:     targetVersion,
@@ -150,27 +202,18 @@ proj.deployments.push({
   publishedAt: new Date().toISOString(),
 });
 
-// Convenience pointer field — e.g. proposalUrl, intakeUrl, integrationDeckUrl
-const urlField = {
-  proposal:           'proposalUrl',
-  intake:             'intakeUrl',
-  'integration-deck': 'integrationDeckUrl',
-  'client-portal':    'pitchKitUrl',
-  'corporate-brief':  'corporateBriefUrl',
-}[template];
-if (urlField) proj[urlField] = url;
-
 fs.writeFileSync(pjPath, JSON.stringify(proj, null, 2) + '\n');
 
+const stableUrl = `${FIREBASE_HOST}/${segment}/${client}.html`;
 console.log(`\n✓ Republished locally.`);
 console.log(`  projects/${client}/project.json updated:`);
 console.log(`    templateVersions.${template} = ${targetVersion}`);
-console.log(`    ${urlField || '(no convenience pointer for this template)'} = ${url}`);
 console.log(`    deployments[] += entry`);
 console.log(`\nNext steps to make it live:`);
 console.log(`  1) node scripts/update-firebase.js ${client}`);
-console.log(`     → rebuilds projects-manifest.json with the new URL`);
+console.log(`     → rebuilds projects-manifest.json`);
 console.log(`     → (HTML upload step skips frozen clients automatically)`);
 console.log(`  2) cd firebase && firebase deploy --only hosting`);
-console.log(`     → ships ${outRel} + updated manifest to the CDN`);
-console.log(`\nThe legacy URL (${proj.deployments[0] && proj.deployments[0].url}) keeps serving its original bytes.`);
+console.log(`     → ships versioned file + updated redirect + manifest to CDN`);
+console.log(`\nStable URL (unchanged): ${stableUrl}`);
+console.log(`Versioned URL:          ${url}`);

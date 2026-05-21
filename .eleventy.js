@@ -1,7 +1,7 @@
 // .eleventy.js
 //
 // Configures Eleventy as the HTML generator for all DataSkate per-client and
-// resource documents. Replaces commons/branding/fill-template.js piece by piece.
+// resource documents.
 //
 // Layout: docs/eleventy/
 //   _includes/        ← layouts + components (Nunjucks)
@@ -21,8 +21,7 @@ const nunjucks = require('nunjucks');
 const { mdToHtml, extractH1Title } = require('./commons/branding/md-to-html');
 
 module.exports = function(eleventyConfig) {
-  // Markdown-to-HTML filter — uses the project-local converter so both
-  // legacy fill-template.js and Eleventy produce structurally identical output.
+  // Markdown-to-HTML filter.
   eleventyConfig.addFilter('mdToHtml', function(md) { return mdToHtml(md || ''); });
   eleventyConfig.addFilter('mdH1', function(md) { return extractH1Title(md || ''); });
 
@@ -61,15 +60,12 @@ module.exports = function(eleventyConfig) {
     return String(url).replace(/^https?:\/\//, '').replace(/\/$/, '');
   });
 
-  // HTML escape filter (matches commons/branding/fill-template.js esc()).
-  // Returns a Nunjucks SafeString so the explicit escape is the ONLY escape —
-  // Nunjucks autoescape (on by default) would otherwise double-escape the
-  // result (e.g. "M&A" → "M&amp;amp;A"). For text with no special chars this
-  // is identical to bare {{ x }}, so it's a safe drop-in everywhere.
+  // HTML escape filter. Returns a Nunjucks SafeString so the explicit escape
+  // is the ONLY escape — Nunjucks autoescape (on by default) would otherwise
+  // double-escape the result (e.g. "M&A" → "M&amp;amp;A").
   eleventyConfig.addFilter('esc', function(s) {
     if (s == null) return new nunjucks.runtime.SafeString('');
-    // Escape & < > " but NOT ' — matches the legacy esc() in fill-template.js
-    // exactly (it leaves apostrophes literal; valid in text + double-quoted attrs).
+    // Escape & < > " but NOT ' (apostrophes are valid in text + double-quoted attrs).
     const escaped = String(s)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -78,7 +74,7 @@ module.exports = function(eleventyConfig) {
     return new nunjucks.runtime.SafeString(escaped);
   });
 
-  // Resolve a client's logo path (matches resolveClientLogoPath() in fill-template.js)
+  // Resolve a client's logo path.
   eleventyConfig.addShortcode('clientLogo', function(slug, clientName) {
     if (!slug) return '';
     const PORTAL = 'https://dataskateclients.web.app';

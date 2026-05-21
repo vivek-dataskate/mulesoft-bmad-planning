@@ -2,12 +2,10 @@
 // docs/eleventy/site/intake/intake.11tydata.js
 //
 // Eleventy computed data for the intake questionnaire template.
-// All rendering helpers are copied verbatim from commons/branding/fill-template.js
-// so the output is pixel-identical to what the legacy pipeline produces.
 //
-// Two content paths (matches fill-template.js dispatch):
-//   1. intake-content.json  → buildFromJson()   (JSON path)
-//   2. intake-questionnaire-{slug}.md → buildFromMd()  (Markdown path)
+// Two content paths:
+//   1. intake-content.json              → buildFromJson()  (JSON path)
+//   2. intake-questionnaire-{slug}.md   → buildFromMd()   (Markdown path)
 // JSON takes priority when both exist.
 
 const fs   = require('fs');
@@ -16,7 +14,7 @@ const path = require('path');
 // docs/eleventy/site/intake/ → 4 levels up → project root
 const ROOT = path.resolve(__dirname, '..', '..', '..', '..');
 
-// ─── SHARED HELPERS (copied from fill-template.js) ────────────────────────────
+// ─── SHARED HELPERS ──────────────────────────────────────────────────────────
 
 function esc(str) {
   return String(str)
@@ -74,7 +72,7 @@ function intakeCatFor(rawId) {
 
 // ─── RAIL NAV ─────────────────────────────────────────────────────────────────
 
-function buildIntakeRailNav(secMeta) {
+function buildIntakeRailNavGroups(secMeta) {
   const byCat  = new Map(INTAKE_CATEGORIES.map(c => [c.key, []]));
   const orphans = [];
   for (const s of secMeta) {
@@ -82,30 +80,14 @@ function buildIntakeRailNav(secMeta) {
     if (cat && byCat.has(cat)) byCat.get(cat).push(s);
     else orphans.push(s);
   }
-  const parts = [];
+  const groups = [];
   for (const cat of INTAKE_CATEGORIES) {
-    const items = byCat.get(cat.key);
-    if (!items || items.length === 0) continue;
-    parts.push(`<div class="nav-cat">${esc(cat.label)}</div>`);
-    for (const s of items) {
-      parts.push(
-        `<a href="#${esc(s.anchorId)}" data-section="${esc(s.anchorId)}">` +
-        `<span>§${esc(s.displayId)} ${esc(s.title)}</span>` +
-        `<span class="nav-count"></span></a>`
-      );
-    }
+    const sections = byCat.get(cat.key);
+    if (!sections || sections.length === 0) continue;
+    groups.push({ label: cat.label, key: cat.key, sections });
   }
-  if (orphans.length) {
-    parts.push(`<div class="nav-cat">Other</div>`);
-    for (const s of orphans) {
-      parts.push(
-        `<a href="#${esc(s.anchorId)}" data-section="${esc(s.anchorId)}">` +
-        `<span>§${esc(s.displayId)} ${esc(s.title)}</span>` +
-        `<span class="nav-count"></span></a>`
-      );
-    }
-  }
-  return parts.join('\n');
+  if (orphans.length) groups.push({ label: 'Other', key: null, sections: orphans });
+  return groups;
 }
 
 // ─── SECTION GROUPING ─────────────────────────────────────────────────────────
@@ -134,7 +116,7 @@ function groupIntakeSectionsByCategory(secEntries) {
 
 // ─── CAT TABS ─────────────────────────────────────────────────────────────────
 
-function buildIntakeCatTabs(secEntries) {
+function buildIntakeCatTabItems(secEntries) {
   const counts = new Map(INTAKE_CATEGORIES.map(c => [c.key, 0]));
   for (const e of secEntries) {
     const cat = intakeCatFor(e.id);
@@ -142,18 +124,14 @@ function buildIntakeCatTabs(secEntries) {
   }
   return INTAKE_CATEGORIES
     .filter(c => counts.get(c.key) > 0)
-    .map((c, i) => {
-      const n   = counts.get(c.key);
-      const cls = i === 0 ? 'cat-tab is-active' : 'cat-tab';
-      return (
-        `<button type="button" class="${cls}" data-cat="${c.key}">` +
-          `<span class="ct-num">${esc(c.num)} · ${esc(c.label.toUpperCase())}</span>` +
-          `<span class="ct-title">${esc(c.label)}</span>` +
-          `<span class="ct-meta">${n} ${n === 1 ? 'section' : 'sections'} · ${esc(c.blurb)}</span>` +
-        `</button>`
-      );
-    })
-    .join('\n');
+    .map((c, i) => ({
+      key:      c.key,
+      num:      c.num,
+      label:    c.label,
+      blurb:    c.blurb,
+      count:    counts.get(c.key),
+      isActive: i === 0,
+    }));
 }
 
 // ─── RAIL LINKS ───────────────────────────────────────────────────────────────
@@ -166,41 +144,32 @@ function buildIntakeRailLinks(meta) {
     { label: 'DS Pricing Model', url: 'https://dataskateclients.web.app/resources/ds-pricing-model.html' },
   ];
   if (client) {
-    links.unshift(
-      { label: 'Your Client Portal', url: `https://dataskateclients.web.app/portal/${client}.html` }
-    );
+    links.unshift({ label: 'Your Client Portal', url: `https://dataskateclients.web.app/portal/${client}.html` });
   }
   for (const l of (meta.links || [])) {
     if (l && l.label && l.url) links.push({ label: l.label, url: l.url });
   }
-  return links
-    .map(l => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a></li>`)
-    .join('\n');
+  return links;
 }
 
 // ─── RAIL ATTENTION ───────────────────────────────────────────────────────────
 
 function buildIntakeRailAttention(p0Blockers) {
-  if (!p0Blockers || !p0Blockers.length) return '';
-  return p0Blockers.map(b => {
-    const target  = b.sectionRef ? `sec:${b.sectionRef}` : 'biz';
-    const rawBody = (b.clientAction || b.body || b.blocker || '').replace(/^\s*[—\-:·]+\s*/, '');
-    return (
-      `<li data-target="${esc(target)}" tabindex="0" role="link">` +
-        `<strong class="attn-title">${esc(b.title || b.system || 'P0 Blocker')}</strong>` +
-        `<span class="attn-body">${esc(rawBody)}</span>` +
-      `</li>`
-    );
-  }).join('\n');
+  if (!p0Blockers || !p0Blockers.length) return [];
+  return p0Blockers.map(b => ({
+    target: b.sectionRef ? `sec:${b.sectionRef}` : 'biz',
+    title:  b.title || b.system || 'P0 Blocker',
+    body:   (b.clientAction || b.body || b.blocker || '').replace(/^\s*[—\-:·]+\s*/, ''),
+  }));
 }
 
 // ─── PHASE CHIP ───────────────────────────────────────────────────────────────
 
 function buildIntakePhaseChip(journeyCards) {
-  if (!journeyCards || !journeyCards.length) return '';
+  if (!journeyCards || !journeyCards.length) return null;
   const raw      = (journeyCards[0].label || 'Connected').trim();
   const stripped = raw.replace(/^phase\s*\d+\s*[—\-:·]\s*/i, '');
-  return `<span class="bc-phase-chip">Phase 1 · ${esc(stripped)}</span>`;
+  return { label: stripped };
 }
 
 // ─── POTENTIAL FLOWS EXTRACTION ───────────────────────────────────────────────
@@ -341,14 +310,14 @@ function buildFromJson(c, slug) {
     architectEmail:   m.architectEmail,
     sourceHtml:       buildIntakeSource(m.source || '', sourceUrl),
     bcSnapshot:       bc.snapshot || '',
-    phaseChipHtml:    buildIntakePhaseChip(bc.journeyCards),
+    phaseChip:        buildIntakePhaseChip(bc.journeyCards),
     journeyCardsHtml,
     p0BlockersHtml,
-    catTabsHtml:      buildIntakeCatTabs(secEntries),
+    catTabs:          buildIntakeCatTabItems(secEntries),
     formSectionsHtml: groupIntakeSectionsByCategory(secEntries),
-    railNavHtml:      buildIntakeRailNav(secMeta),
-    railAttentionHtml: buildIntakeRailAttention(bc.p0Blockers),
-    railLinksHtml:    buildIntakeRailLinks(m),
+    railNav:          buildIntakeRailNavGroups(secMeta),
+    railAttention:    buildIntakeRailAttention(bc.p0Blockers),
+    railLinks:        buildIntakeRailLinks(m),
     internalFlagsHtml,
     pricingSummaryHtml,
   };
@@ -722,14 +691,14 @@ function buildFromMd(md, slug, proj) {
     architectEmail:   meta.architectEmail,
     sourceHtml:       buildIntakeSource(meta.source, sourceUrl),
     bcSnapshot:       ctx.snapshot ? esc(ctx.snapshot) : '',
-    phaseChipHtml:    buildIntakePhaseChip(journeyArr),
+    phaseChip:        buildIntakePhaseChip(journeyArr),
     journeyCardsHtml,
     p0BlockersHtml,
-    catTabsHtml:      buildIntakeCatTabs(secEntries),
+    catTabs:          buildIntakeCatTabItems(secEntries),
     formSectionsHtml: groupIntakeSectionsByCategory(secEntries),
-    railNavHtml:      buildIntakeRailNav(secMeta),
-    railAttentionHtml: buildIntakeRailAttention(railP0),
-    railLinksHtml:    buildIntakeRailLinks({ clientSlug: slug }),
+    railNav:          buildIntakeRailNavGroups(secMeta),
+    railAttention:    buildIntakeRailAttention(railP0),
+    railLinks:        buildIntakeRailLinks({ clientSlug: slug }),
     internalFlagsHtml,
     pricingSummaryHtml: '',
   };
@@ -756,5 +725,12 @@ module.exports = {
     },
 
     intakeRendered: data => buildIntakeAll(data.client),
+
+    intakeDeployments: data => {
+      const deps = (data.client && data.client.meta && data.client.meta.deployments) || [];
+      return deps
+        .filter(d => d.template === 'intake')
+        .map(d => ({ ...d, dateLabel: (d.publishedAt || '').slice(0, 10) }));
+    },
   },
 };

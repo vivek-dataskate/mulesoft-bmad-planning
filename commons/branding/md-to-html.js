@@ -1,8 +1,7 @@
 // commons/branding/md-to-html.js
 //
-// Project-local markdown-to-HTML converter used by both:
-//   • commons/branding/fill-template.js   (legacy renderer)
-//   • .eleventy.js                        (new Eleventy pipeline, via filter)
+// Project-local markdown-to-HTML converter used by:
+//   • .eleventy.js  (via the mdToHtml / mdH1 filters)
 //
 // This is deliberately project-specific — it knows about DataSkate's
 // architect-guide structure (skip first H1, .md-table class on tables,
