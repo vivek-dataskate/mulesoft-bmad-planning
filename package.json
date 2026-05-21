@@ -23,9 +23,11 @@
     "build:tokens": "node scripts/build-tokens.js",
     "build:html": "npm run build:tokens && eleventy",
     "build:html:watch": "eleventy --serve",
-    "vr:baseline": "node scripts/visual-regression.js baseline",
-    "vr:diff": "node scripts/visual-regression.js diff",
-    "vr:diff:intake": "node scripts/visual-regression.js diff --intake"
+    "vr:baseline": "node scripts/generate-backstop-config.js && npx backstop reference",
+    "vr:baseline:intake": "node scripts/generate-backstop-config.js --intake && npx backstop reference",
+    "vr:diff": "node scripts/generate-backstop-config.js && npx backstop test",
+    "vr:diff:intake": "node scripts/generate-backstop-config.js --intake && npx backstop test",
+    "vr:approve": "npx backstop approve"
   },
   "jest": {
     "testEnvironment": "node",
@@ -51,13 +53,12 @@
   "devDependencies": {
     "@11ty/eleventy": "^2.0.1",
     "axe-core": "^4.11.4",
+    "backstopjs": "^6.3.25",
     "htmlhint": "^1.9.2",
     "jest": "^29.7.0",
-    "pixelmatch": "^5.3.0",
-    "pngjs": "^7.0.0",
     "postcss-html": "^1.8.1",
     "prettier": "^3.8.3",
-    "style-dictionary": "^3.9.2",
+    "style-dictionary": "^4.4.0",
     "stylelint": "^16.26.1"
   },
   "dependencies": {
