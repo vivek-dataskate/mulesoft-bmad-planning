@@ -19,7 +19,7 @@
     "lint:a11y": "node scripts/lint-a11y.js",
     "lint:all": "npm run lint:html && npm run lint:style && npm run lint:format",
     "prepare": "cp .claude/hooks/lint-html.sh .git/hooks/lint-html-claude.sh 2>/dev/null; { cp scripts/pre-commit-hook.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit; } 2>/dev/null || true",
-    "build:tokens": "node scripts/build-tokens.js",
+    "build:tokens": "node pipeline/scripts/build-tokens.js",
     "build:html": "npm run build:tokens && eleventy",
     "build:html:watch": "eleventy --serve",
     "vr:baseline": "node scripts/generate-backstop-config.js && npx backstop reference",

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * scaffold/generate-client-portal.js
+ * pipeline/tools/generate-client-portal.js
  *
  * Gathers live project data (project.json, responses.json, stories.md, GitHub)
  * and writes portal-content.json for each client, then runs Eleventy to render
@@ -10,8 +10,8 @@
  * HTML is NEVER generated here — only data is gathered.
  *
  * Usage:
- *   node scaffold/generate-client-portal.js              # all clients
- *   node scaffold/generate-client-portal.js zyris        # one client
+ *   node pipeline/tools/generate-client-portal.js              # all clients
+ *   node pipeline/tools/generate-client-portal.js zyris        # one client
  */
 
 const fs   = require('fs');
@@ -20,12 +20,12 @@ const https = require('https');
 const http  = require('http');
 const { spawnSync } = require('child_process');
 
-const REPO_ROOT    = path.resolve(__dirname, '..');
+const REPO_ROOT    = path.resolve(__dirname, '../..');
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GITHUB_DEPLOY_TOKEN || null;
-const PUBLIC       = path.join(REPO_ROOT, 'firebase', 'public');
-const BUILD        = path.join(REPO_ROOT, 'docs', 'eleventy', '_build');
+const PUBLIC       = path.join(REPO_ROOT, 'portal', 'public');
+const BUILD        = path.join(REPO_ROOT, 'portal', '_build');
 
-const STATUSES = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'standards', 'project-statuses.json'), 'utf8'));
+const STATUSES = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'projects', 'project-statuses.json'), 'utf8'));
 const PHASES   = STATUSES.phases;
 
 // ── Status helpers ────────────────────────────────────────────────────────────
@@ -259,7 +259,7 @@ async function buildPortalContent(slug) {
     : '';
   const createdAt = fmtDate(proj.createdAt);
 
-  // Client logo — read from vera.json, download to intake/ and firebase/public/logos/
+  // Client logo — read from vera.json, download to intake/ and portal/public/logos/
   let clientLogoPath = null;
   const veraFile = path.join(projectDir, 'run', 'vera.json');
   if (fs.existsSync(veraFile)) {
@@ -377,7 +377,7 @@ async function buildPortalContent(slug) {
       intakeUrl, proposalUrl, devRepoUrl, docUrls,
     }),
     // Pitch Kit (integration-deck) is an INTERNAL doc — surfaces only on the
-    // architect portal (firebase/public/index.html), never on the client portal.
+    // architect portal (portal/public/index.html), never on the client portal.
     // Leaving the field empty rather than wiring pitchKitUrl here.
     internalDocs: [],
     sprintStats: stats.total > 0
@@ -442,7 +442,7 @@ async function main() {
     process.exit(buildResult.status || 1);
   }
 
-  // Copy portal outputs from _build/ to firebase/public/portal/.
+  // Copy portal outputs from _build/ to portal/public/portal/.
   let count = 0;
   for (const slug of slugs) {
     const src = path.join(BUILD, 'portal', `${slug}.html`);
@@ -456,7 +456,7 @@ async function main() {
     count++;
   }
 
-  console.log(`\n${count} client portal(s) generated → firebase/public/portal/`);
+  console.log(`\n${count} client portal(s) generated → portal/public/portal/`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

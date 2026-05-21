@@ -1,4 +1,4 @@
-// docs/eleventy/_data/branding.js
+// portal/_data/branding.js
 //
 // Static branding strings used across every DataSkate document. Pulled into
 // templates as the `branding` global.

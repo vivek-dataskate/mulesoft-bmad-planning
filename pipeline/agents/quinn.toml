@@ -22,17 +22,17 @@ reads = [
   "projects/{client}/run/vera.json",
   "projects/{client}/run/ivy.json",
   "projects/{client}/project.json",
-  "docs/eleventy/_includes/layouts/intake.njk",  # canonical intake layout — edit here
-  "standards/playbooks/{system}/{system}_playbook.json",  # per confirmed system (from flo.json downstreamLoadList)
-  "standards/canonical-models/{vertical}/canonical-*.yaml",
+  "portal/_includes/layouts/intake.njk",  # canonical intake layout — edit here
+  "mulesoft/playbooks/{system}/{system}_playbook.json",  # per confirmed system (from flo.json downstreamLoadList)
+  "mulesoft/canonical-models/{vertical}/canonical-*.yaml",
   "commons/sales/pricing-model.md",             # for pricing summary (internal section only — never recalculate, use flo.json)
 ]
 writes = [
   "projects/{client}/run/quinn.json",   # ONLY output — intakeContent embedded here; orchestrate.js extracts + renders HTML
   "projects/{client}/run/quinn-decisions.json",  # agent-scoped decisions log (orchestrate.js aggregates into decisions.json)
-  "docs/FIELD_KNOWLEDGE.md",                    # 8a: observation entries
-  "standards/playbooks/{system}/{system}_playbook.json",   # 8b: new quirks append, maturity log update
-  "docs/PLANNING_CONTEXT.md",                   # 8c: critical notes
+  "pipeline/FIELD_KNOWLEDGE.md",                    # 8a: observation entries
+  "mulesoft/playbooks/{system}/{system}_playbook.json",   # 8b: new quirks append, maturity log update
+  "pipeline/PLANNING_CONTEXT.md",                   # 8c: critical notes
   # company_context.json is updated by orchestrate.js post-Quinn, not here
 ]
 
@@ -62,7 +62,7 @@ principles = [
   "QUESTIONNAIRE MD STRUCTURE:\n  HEADER: client name, date, Scout source file. Three-line instruction: pre-filled answers shown — client leaves or corrects. Blank Answer lines are genuine unknowns. No checkboxes. Plain text.\n  SECTION 1: USE CASES — one sub-section per confirmed UC. UC block + scope boundary + single field-mapping cross-reference line + [POTENTIAL FLOW] sub-section for top 3 gaps.\n  SECTION 2: SYSTEMS AND ACCESS\n  SECTION 3: DATA AND FIELD MAPPING — 3.1 External ID fields table; 3.2-3.N one sub-section per confirmed flow with pre-filled mapping table. THIS IS THE ONLY PLACE FIELD MAPPING TABLES APPEAR.\n  SECTION 4: VOLUME AND PERFORMANCE\n  SECTION 5: SECURITY AND COMPLIANCE\n  SECTION 6: ERROR HANDLING\n  SECTION 7: DEPLOYMENT AND DEVOPS (Access Chain table at bottom)\n  SECTION 8: OPERATIONS AND SUPPORT\n  SECTION 9: TESTING AND GO-LIVE\n  SECTION 10: SYSTEM-SPECIFIC DETAILS — one sub-section per system, max 3 questions\n  INTERNAL FLAGS: numbered list of technical risks — never send to client\n  PRICING SUMMARY (internal): computed from flo.json pricing — do NOT recalculate. Label clearly 'Internal — Do Not Send to Client'.",
 
   # ── INTAKE CONTENT (embedded in quinn.json) ──────────────────────────
-  "Intake content — AGENT BOUNDARY RULE (see DSPipeline/AGENT-BOUNDARY-POLICY.md):\n  DO NOT write intake-content.json separately. DO NOT write any .md file. DO NOT run npm run build:html.\n  Instead: build the full intake-content.json object and embed it as the `intakeContent` field in quinn.json.\n  The orchestrator reads quinn.json.intakeContent, writes intake-content.json, runs build:html, and copies the HTML.\n\n  PSYCHOLOGY-ADAPTED WELCOME TEXT — apply ivy.json contentModifiers:\n  bizContext.snapshot: reframe through primaryProfile lens:\n    operational-pragmatist → end with what specifically stops on go-live day\n    visionary-strategic → end with the AI future they described\n    peer-comparison → include a one-line peer reference\n    risk-averse-conservative → end with stability and support model\n    roi-analytical → include a cost-or-time anchor\n  journeyCards[0] (Connected): use journeyFraming to set tone\n  journeyCards[2] (Agentic): for visionary-strategic write most specifically; for risk-averse-conservative frame as opt-in future capability\n  primaryPainQuote: if not null → use verbatim as opening line of bizContext.snapshot (attributed lightly). Only if positive enough to open with — if blunt, use as second sentence after a framing line.",
+  "Intake content — AGENT BOUNDARY RULE (see pipeline/AGENT-BOUNDARY-POLICY.md):\n  DO NOT write intake-content.json separately. DO NOT write any .md file. DO NOT run npm run build:html.\n  Instead: build the full intake-content.json object and embed it as the `intakeContent` field in quinn.json.\n  The orchestrator reads quinn.json.intakeContent, writes intake-content.json, runs build:html, and copies the HTML.\n\n  PSYCHOLOGY-ADAPTED WELCOME TEXT — apply ivy.json contentModifiers:\n  bizContext.snapshot: reframe through primaryProfile lens:\n    operational-pragmatist → end with what specifically stops on go-live day\n    visionary-strategic → end with the AI future they described\n    peer-comparison → include a one-line peer reference\n    risk-averse-conservative → end with stability and support model\n    roi-analytical → include a cost-or-time anchor\n  journeyCards[0] (Connected): use journeyFraming to set tone\n  journeyCards[2] (Agentic): for visionary-strategic write most specifically; for risk-averse-conservative frame as opt-in future capability\n  primaryPainQuote: if not null → use verbatim as opening line of bizContext.snapshot (attributed lightly). Only if positive enough to open with — if blunt, use as second sentence after a framing line.",
 
   # ── KNOWLEDGE WRITE-BACK (8a-8c) + CONTEXT UPDATES ───────────────────
   # 8e (company_context.json) is handled by orchestrate.js post-Quinn reading quinn.json contextUpdates.
@@ -86,7 +86,7 @@ STEP 1 — Load System Knowledge
 ─────────────────────────────────────────────────────────────────────
 Read flo.json downstreamLoadList.
 Load playbooks and canonical models for each confirmed system.
-Run python3 standards/query-connector.py {connectorKeys} for any system not yet fully loaded.
+Run python3 mulesoft/query-connector.py {connectorKeys} for any system not yet fully loaded.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 2 — Assemble Question Set

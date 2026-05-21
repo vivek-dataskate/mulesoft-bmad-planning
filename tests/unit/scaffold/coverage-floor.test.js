@@ -1,6 +1,6 @@
 'use strict';
 
-const { getCoverageFloor } = require('../../../scaffold/generate');
+const { getCoverageFloor } = require('../../../mulesoft/generate');
 
 describe('getCoverageFloor', () => {
   // ── Fixed floors ──────────────────────────────────────────────────────────

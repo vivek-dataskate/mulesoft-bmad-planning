@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-// scripts/regen-all-clients.js
+// pipeline/scripts/regen-all-clients.js
 // Regenerates all client HTML files via Eleventy.
 // Runs `npm run build:html` once, then copies outputs from _build/ to their
 // final destinations. Called by PostToolUse hook when any Nunjucks layout is
 // saved. Also callable manually:
-//   node scripts/regen-all-clients.js [--template <type>] [--client <slug>]
+//   node pipeline/scripts/regen-all-clients.js [--template <type>] [--client <slug>]
 //
 // Templates regenerated per client:
 //   intake          → projects/{slug}/intake/intake-questionnaire-{slug}.html
 //   proposal        → projects/{slug}/intake/proposal-{slug}.html
 //   integration-deck→ projects/{slug}/intake/integration-deck-{slug}.html
-//   client-portal   → firebase/public/portal/{slug}.html
+//   client-portal   → portal/public/portal/{slug}.html
 //
 // Only copies files that Eleventy actually produced (i.e. client had content).
 
@@ -19,8 +19,8 @@ const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const root  = path.resolve(__dirname, '..');
-const BUILD = path.join(root, 'docs', 'eleventy', '_build');
+const root  = path.resolve(__dirname, '../..');
+const BUILD = path.join(root, 'portal', '_build');
 const args  = process.argv.slice(2);
 
 const filterTemplate  = args.indexOf('--template') !== -1 ? args[args.indexOf('--template') + 1] : null;
@@ -45,7 +45,7 @@ const TEMPLATES = [
   {
     type:     'client-portal',
     buildSrc: (s) => path.join(BUILD, 'portal',    `${s}.html`),
-    dest:     (s) => path.join(root, 'firebase', 'public', 'portal', `${s}.html`),
+    dest:     (s) => path.join(root, 'portal', 'public', 'portal', `${s}.html`),
   },
 ];
 

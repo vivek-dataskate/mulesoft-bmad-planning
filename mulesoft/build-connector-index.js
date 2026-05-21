@@ -4,7 +4,7 @@
  * connector-index.json is eliminated — query-connector.py reads the registry directly.
  * Run this whenever connector-registry.json is updated.
  *
- * Usage: node standards/build-connector-index.js
+ * Usage: node mulesoft/build-connector-index.js
  */
 const fs = require("fs");
 const path = require("path");
@@ -22,10 +22,10 @@ const registry = JSON.parse(fs.readFileSync(REGISTRY, "utf8"));
 const names = {
   _metadata: {
     description:
-      "Tier-1 names lookup — for system inference only. Load this to match system names from transcripts to connector keys. For gotchas and authOptions, call: python3 standards/query-connector.py <key> [<key> ...]",
+      "Tier-1 names lookup — for system inference only. Load this to match system names from transcripts to connector keys. For gotchas and authOptions, call: python3 mulesoft/query-connector.py <key> [<key> ...]",
     howToUse:
       "1. Load this file. 2. Match detected system names to connector keys. 3. Run query-connector.py with matched keys to get full data directly from connector-registry.json.",
-    regenerate: "node standards/build-connector-index.js",
+    regenerate: "node mulesoft/build-connector-index.js",
     totalConnectors: 0,
   },
   connectors: {},

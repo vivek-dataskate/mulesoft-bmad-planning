@@ -2,20 +2,20 @@
 'use strict';
 
 /**
- * scaffold/generate.js
+ * mulesoft/generate.js
  *
  * Reads decisions.json → generates a complete, compilable Mule 4.8.0 project
  * into /tmp/{client}-mule/ (or a custom output directory).
  *
  * Usage:
- *   node scaffold/generate.js projects/{client}/decisions.json
- *   node scaffold/generate.js projects/{client}/decisions.json /custom/output/path
+ *   node mulesoft/generate.js projects/{client}/decisions.json
+ *   node mulesoft/generate.js projects/{client}/decisions.json /custom/output/path
  *
  * Reads:
  *   decisions.json                        — project decisions
- *   standards/connector-registry.json    — connector metadata + Maven coords
- *   scaffold/xml-templates/              — Mule project templates
- *   scaffold/connectors/                 — per-connector config stubs
+ *   mulesoft/connector-registry.json    — connector metadata + Maven coords
+ *   mulesoft/templates/xml-templates/              — Mule project templates
+ *   mulesoft/connectors/                 — per-connector config stubs
  *
  * Generates (in output directory):
  *   pom.xml
@@ -36,16 +36,16 @@ const path = require('path');
 // ─── Paths ────────────────────────────────────────────────────────────────────
 
 const REPO_ROOT    = path.resolve(__dirname, '..');
-const TMPL_DIR     = path.join(__dirname, 'xml-templates');
+const TMPL_DIR     = path.join(__dirname, 'templates', 'xml-templates');
 const CONN_TMPL    = path.join(__dirname, 'connectors');
-const REGISTRY_F        = path.join(REPO_ROOT, 'standards', 'connector-registry.json');
-const SNIPPET_REG_F     = path.join(REPO_ROOT, 'standards', 'snippet-registry.json');
-const CANONICAL_REG_F   = path.join(REPO_ROOT, 'standards', 'canonical-models', 'registry.json');
-const DEVCONTAINER_TMPL_DIR = path.join(__dirname, 'devcontainer-templates');
+const REGISTRY_F        = path.join(REPO_ROOT, 'mulesoft', 'connector-registry.json');
+const SNIPPET_REG_F     = path.join(REPO_ROOT, 'mulesoft', 'snippet-registry.json');
+const CANONICAL_REG_F   = path.join(REPO_ROOT, 'mulesoft', 'canonical-models', 'registry.json');
+const DEVCONTAINER_TMPL_DIR = path.join(__dirname, 'templates', 'devcontainer');
 
 // Commons library version — read from commons/pom.xml when available
 function readCommonsVersion() {
-  const pomPath = path.join(REPO_ROOT, 'commons', 'pom.xml');
+  const pomPath = path.join(REPO_ROOT, 'mulesoft', 'pom.xml');
   if (!fs.existsSync(pomPath)) return '1.0.0';
   const xml = fs.readFileSync(pomPath, 'utf8');
   const m = xml.match(/<version>([^<]+)<\/version>/);
@@ -205,7 +205,7 @@ function loadCanonicalRegistry() {
 }
 
 // Derive the vertical slug from a canonical model path.
-// "standards/canonical-models/construction/canonical-job.yaml" → "construction"
+// "mulesoft/canonical-models/construction/canonical-job.yaml" → "construction"
 function verticalFromPath(canonicalModelPath) {
   const m = (canonicalModelPath ?? '').match(/canonical-models\/([^/]+)\//);
   return m ? m[1] : null;
@@ -231,7 +231,7 @@ function buildCanonicalFieldStubs(canonicalReg, vertical, record) {
     canonicalReg?.verticals?.[vertical]?.records?.[record]?.keyFieldAlignments ?? {}
   );
   if (fields.length === 0) {
-    return '    // TODO: Map source fields to canonical schema fields (see canonical YAML in standards/canonical-models/)';
+    return '    // TODO: Map source fields to canonical schema fields (see canonical YAML in mulesoft/canonical-models/)';
   }
   return fields
     .map(f => `    // "${f}": payload.TODO_${f.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_FIELD,`)
@@ -620,7 +620,7 @@ function genGlobalConfig(d, lookup, outDir) {
     }
 
     // Locate the config template file
-    const tmplRelative = conn.configTemplate ?? `scaffold/connectors/${key}-config.xml`;
+    const tmplRelative = conn.configTemplate ?? `mulesoft/connectors/${key}-config.xml`;
     const tmplName     = path.basename(tmplRelative);
     const tmplPath     = path.join(CONN_TMPL, tmplName);
 
@@ -838,7 +838,7 @@ function genFlowFile(flow, d, snippets, allFlows, outDir, coverageFloor) {
               <ee:transform doc:name="Map Canonical ${entity} to ${flow.target ?? 'Target'}"
                             resource="dwl/canonical-${entity}-to-${tgt}.dwl"/>
 
-            Canonical schema: ${flow.canonicalModel ?? `standards/canonical-models/UNKNOWN/canonical-${entity}.yaml`}
+            Canonical schema: ${flow.canonicalModel ?? `mulesoft/canonical-models/UNKNOWN/canonical-${entity}.yaml`}
             Client extensions: projects/${d.project?.client ?? 'CLIENT'}/canonical-extensions.yaml
             ─────────────────────────────────────────────────────────────────────────
         -->`;
@@ -908,7 +908,7 @@ function genDwlFiles(flow, d, allFlows, canonicalReg, outDir) {
   const fromCanonicalName = `canonical-${entity}-to-${tgt}`;
 
   const schemaVersion = '1.0.0';
-  const canonicalPath = flow.canonicalModel ?? `standards/canonical-models/${vertical ?? 'UNKNOWN_VERTICAL'}/canonical-${entity}.yaml`;
+  const canonicalPath = flow.canonicalModel ?? `mulesoft/canonical-models/${vertical ?? 'UNKNOWN_VERTICAL'}/canonical-${entity}.yaml`;
 
   const canonicalTokens = {
     ...tokens,
@@ -1127,7 +1127,7 @@ output application/json
 // ─── .devcontainer ────────────────────────────────────────────────────────────
 
 // Generate .devcontainer/devcontainer.json and .devcontainer/post-create.sh
-// from the templates in scaffold/devcontainer-templates/.
+// from the templates in mulesoft/templates/devcontainer/.
 // The post-create.sh runs silently on first Codespace open:
 //   - installs MuleSoft MCP server
 //   - configures Claude Code MCP
@@ -1152,7 +1152,7 @@ function genDevContainer(d, outDir) {
   const pcTmplPath   = path.join(DEVCONTAINER_TMPL_DIR, 'post-create.sh');
 
   if (!fs.existsSync(dcTmplPath) || !fs.existsSync(pcTmplPath)) {
-    console.warn('  ⚠  devcontainer templates missing in scaffold/devcontainer-templates/ — skipping .devcontainer generation');
+    console.warn('  ⚠  devcontainer templates missing in mulesoft/templates/devcontainer/ — skipping .devcontainer generation');
     return;
   }
 
@@ -1453,11 +1453,11 @@ function genClaudeFiles(outDir) {
 function main() {
   const args = process.argv.slice(2);
   if (args.length === 0) {
-    console.error('Usage: node scaffold/generate.js <path/to/decisions.json> [output-dir]');
+    console.error('Usage: node mulesoft/generate.js <path/to/decisions.json> [output-dir]');
     console.error('');
     console.error('Examples:');
-    console.error('  node scaffold/generate.js projects/leolabs/decisions.json');
-    console.error('  node scaffold/generate.js projects/leolabs/decisions.json /custom/output/path');
+    console.error('  node mulesoft/generate.js projects/leolabs/decisions.json');
+    console.error('  node mulesoft/generate.js projects/leolabs/decisions.json /custom/output/path');
     process.exit(1);
   }
 
@@ -1533,7 +1533,7 @@ function main() {
   //   idempotency-check.xml         → inline in mq-subscriber.xml and kafka-listener.xml
   //   correlation-id-propagate.xml  → inline in http-listener.xml (set-correlation-id) and mq-subscriber.xml
   //
-  // Snippets available in scaffold/xml-templates/snippets/ for developer reference but not
+  // Snippets available in mulesoft/templates/xml-templates/snippets/ for developer reference but not
   // auto-injected (patterns that require per-flow configuration decisions):
   //   claim-check-store.xml         → inject manually when payload > 1MB (per-flow decision)
   //   claim-check-retrieve.xml      → inject manually at consumer side
@@ -1658,7 +1658,7 @@ function main() {
     console.log('   ⚠  Regulated profile: uncomment Secrets Manager block in global-config.xml');
   }
   console.log('');
-  console.log('   Capabilities portal: node scaffold/generate-capabilities.js');
+  console.log('   Capabilities portal: node pipeline/tools/generate-capabilities.js');
 }
 
 // ─── Exports (for unit testing) ───────────────────────────────────────────────

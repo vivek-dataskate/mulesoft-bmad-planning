@@ -5,7 +5,7 @@
 //
 // Republishing a frozen client renders a new dated+versioned file at:
 //
-//   firebase/public/{template-type}/{client}/{YYYY-MM-DD}-{vN}.html
+//   portal/public/{template-type}/{client}/{YYYY-MM-DD}-{vN}.html
 //
 // The client's existing live URL — and all prior versioned URLs — are LEFT
 // UNTOUCHED. The client's project.json is updated so {type}Url points at the
@@ -26,7 +26,7 @@
 //   • Refuses if the client isn't frozen (only frozen clients have URLs already
 //     out in the world that need version-preserving republishes).
 //   • Bumps project.json.templateVersions[type] to the target version.
-//   • Renders directly to the versioned firebase path (skips local intermediate).
+//   • Renders directly to the versioned portal path (skips local intermediate).
 //   • Appends to deployments[]; updates the {type}Url convenience pointer.
 //   • Never overwrites an existing dated-versioned file — if one already exists
 //     at the computed path (same client, same date, same version), exits with
@@ -37,9 +37,9 @@ const fs   = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const ROOT     = path.resolve(__dirname, '..');
-const MANIFEST = path.join(ROOT, 'docs', 'eleventy', 'version-manifest.json');
-const BUILD    = path.join(ROOT, 'docs', 'eleventy', '_build');
+const ROOT     = path.resolve(__dirname, '../..');
+const MANIFEST = path.join(ROOT, 'portal', 'version-manifest.json');
+const BUILD    = path.join(ROOT, 'portal', '_build');
 const FIREBASE_HOST = 'https://dataskateclients.web.app';
 
 // Maps template type → path within Eleventy's _build/ output directory.
@@ -110,7 +110,7 @@ if (version && version !== tplEntry.current) {
 // ── Compute output path ─────────────────────────────────────────────────────
 const today    = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 const segment  = TEMPLATE_TO_PATH_SEGMENT[template];
-const outRel   = path.posix.join('firebase', 'public', segment, client, `${today}-${targetVersion}.html`);
+const outRel   = path.posix.join('portal', 'public', segment, client, `${today}-${targetVersion}.html`);
 const outAbs   = path.join(ROOT, outRel);
 const url      = `${FIREBASE_HOST}/${segment}/${client}/${today}-${targetVersion}.html`;
 
@@ -144,7 +144,7 @@ if (!fs.existsSync(eleventySrc)) {
 fs.copyFileSync(eleventySrc, outAbs);
 
 // ── Write stable redirect at the flat URL ───────────────────────────────────
-// The flat path (e.g. firebase/public/proposal/homage.html) is what was
+// The flat path (e.g. portal/public/proposal/homage.html) is what was
 // originally shared with the client. Overwrite it with a thin JS/meta redirect
 // to the new versioned file so the client's bookmarked link always resolves to
 // current without the URL ever changing in their hands.
@@ -161,7 +161,7 @@ if (legacyIdx !== -1) {
   const leg    = proj.deployments[legacyIdx];
   const legDate = (leg.publishedAt || '').slice(0, 10);
   const legVer  = leg.version || 'v1';
-  const legRel  = path.posix.join('firebase', 'public', segment, client, `${legDate}-${legVer}.html`);
+  const legRel  = path.posix.join('portal', 'public', segment, client, `${legDate}-${legVer}.html`);
   const legAbs  = path.join(ROOT, legRel);
   if (!fs.existsSync(legAbs) && fs.existsSync(flatPath)) {
     fs.mkdirSync(path.dirname(legAbs), { recursive: true });
@@ -183,9 +183,9 @@ if (fs.existsSync(flatPath)) {
     '</head><body></body></html>',
   ].join('\n') + '\n';
   fs.writeFileSync(flatPath, redirect);
-  console.log(`  Stable redirect updated → firebase/public/${segment}/${client}.html`);
+  console.log(`  Stable redirect updated → portal/public/${segment}/${client}.html`);
 } else {
-  console.log(`  ⚠ No flat file at firebase/public/${segment}/${client}.html — stable redirect not written`);
+  console.log(`  ⚠ No flat file at portal/public/${segment}/${client}.html — stable redirect not written`);
 }
 
 // ── Update project.json: bump pin, append versioned deployment ───────────────

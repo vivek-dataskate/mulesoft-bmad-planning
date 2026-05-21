@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Integration tests for scaffold/generate.js
+ * Integration tests for mulesoft/generate.js
  *
  * Each test runs the full scaffold generator against a fixture decisions.json
  * and asserts on the output file tree, content, and structural correctness.
@@ -16,7 +16,7 @@ const os      = require('os');
 const { execSync } = require('child_process');
 
 const REPO_ROOT    = path.resolve(__dirname, '../..');
-const GENERATE     = path.join(REPO_ROOT, 'scaffold', 'generate.js');
+const GENERATE     = path.join(REPO_ROOT, 'mulesoft', 'generate.js');
 const FIXTURES_DIR = path.join(__dirname, '../fixtures/decisions');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

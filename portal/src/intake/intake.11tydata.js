@@ -1,5 +1,5 @@
 'use strict';
-// docs/eleventy/site/intake/intake.11tydata.js
+// portal/src/intake/intake.11tydata.js
 //
 // Eleventy computed data for the intake questionnaire template.
 //
@@ -9,8 +9,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-// docs/eleventy/site/intake/ → 4 levels up → project root
-const ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+// portal/src/intake/ → 3 levels up → project root
+const ROOT = path.resolve(__dirname, '..', '..', '..');
 
 // ─── SHARED HELPERS ──────────────────────────────────────────────────────────
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# scaffold/create-client-repo.sh
+# pipeline/tools/create-client-repo.sh
 #
 # Creates a private GitHub repo for a client and pushes the generated Mule project.
 #
 # Usage:
-#   GITHUB_TOKEN=ghp_... GITHUB_ORG=my-org ./scaffold/create-client-repo.sh projects/leolabs/decisions.json
+#   GITHUB_TOKEN=ghp_... GITHUB_ORG=my-org ./pipeline/tools/create-client-repo.sh projects/leolabs/decisions.json
 #
 # Required environment variables:
 #   GITHUB_TOKEN  — Personal access token with repo:write + codespace:write scope
@@ -15,7 +15,7 @@
 #
 # What it does:
 #   1. Reads client name from decisions.json
-#   2. Runs scaffold/generate.js → /tmp/{client}-mule/ (or OUTPUT_DIR)
+#   2. Runs mulesoft/generate.js → /tmp/{client}-mule/ (or OUTPUT_DIR)
 #   3. Creates {client}-mule repo on GitHub — fails fast if it already exists
 #   4. Pushes generated code as initial commit on main
 #   5. Prints repo URL and one-click Codespace URL for the developer
@@ -99,7 +99,7 @@ info "Running scaffold generator..."
 rm -rf "$OUTPUT_DIR"
 
 # Run from repo root so relative template paths inside generate.js resolve correctly
-(cd "$REPO_ROOT" && node scaffold/generate.js "$DECISIONS" "$OUTPUT_DIR")
+(cd "$REPO_ROOT" && node mulesoft/generate.js "$DECISIONS" "$OUTPUT_DIR")
 
 ok "Project generated at $OUTPUT_DIR"
 echo ""

@@ -121,6 +121,16 @@ body.filter-unanswered details.uc.has-unanswered .p0-block { display: block; }
 .progress-pill { font-size: 12px; font-weight: 600; color: var(--mid); }
 .progress-pill span { color: var(--brand); font-weight: 800; }
 .bar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+/* Sys-filter pill — appears in sticky bar when a system card is active */
+.bar-sys-pill { display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; background: var(--light); border: 1.5px solid var(--brand); border-radius: 20px; padding: 3px 8px 3px 10px; color: var(--brand-dk); white-space: nowrap; }
+.bar-sys-pill.is-visible { display: inline-flex; }
+.bar-sys-pill button { background: none; border: none; cursor: pointer; padding: 1px 3px; font-size: 11px; line-height: 1; color: var(--mid); font-weight: 800; }
+.bar-sys-pill button:hover { color: var(--brand); }
+/* Floating back-to-top button */
+.back-to-top { position: fixed; bottom: 24px; right: 24px; z-index: 500; background: var(--dark); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; line-height: 1; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; }
+.back-to-top.is-visible { opacity: 0.75; pointer-events: auto; }
+.back-to-top:hover { opacity: 1 !important; }
+@media print { .back-to-top { display: none !important; } }
 
 /* ── BUTTONS ── */
 .btn {
@@ -260,14 +270,7 @@ body.filter-unanswered details.uc.has-unanswered .p0-block { display: block; }
 
 /* ── CATEGORY TABS — sticky pinned navigation at top of main column ── */
 .cat-tabs {
-  position: sticky;
-  top: 44px;             /* directly below .sticky-bar */
-  z-index: 150;
-  background: #fff;
-  border-bottom: 2px solid var(--brand);
-  display: flex;
-  margin: 20px -24px 0;  /* full-bleed against .wrap padding */
-  padding: 0 24px;
+  display: none;
 }
 .cat-tab {
   flex: 1;
@@ -738,80 +741,63 @@ body.is-complete .btn-submit {
 .footer a { color: var(--mid); text-decoration: none; }
 
 /* ── SYSTEM MAP ──────────────────────────────────────────────────────────────
-   Mode toggle: body.sys-map-mode shows .sys-map-view, hides the form sections.
-   The sys-drawer is a fixed right-panel that receives portaled question DOM nodes. */
-.sys-map-view { display: none; margin-top: 16px; }
-body.sys-map-mode .sys-map-view { display: block; }
-body.sys-map-mode details.section-block { display: none; }
-body.sys-map-mode .cat-tabs { display: none; }
-body.sys-map-mode .cat-anchor { display: none; }
-
-.sys-map-intro { font-size: 13px; color: var(--mid); margin-bottom: 16px; line-height: 1.6; }
+   The architecture diagram + system cards sit above the form, always visible.
+   Clicking a card activates a filter: questions tagged to that system stay
+   visible; untagged and non-matching questions are hidden.  */
+.sys-map-view { margin: 14px 0 0; }
 
 .sys-diagram-wrap {
   border: 1px solid var(--border); border-radius: 8px; padding: 16px;
-  background: #FAFAFA; margin-bottom: 20px; overflow-x: auto; text-align: center;
+  background: #FAFAFA; margin-bottom: 16px; overflow-x: auto; text-align: center;
 }
 
+.sys-cards-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
+}
 .sys-cards {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px; margin-bottom: 8px;
+  display: flex; gap: 10px; flex-wrap: wrap;
 }
 .sys-card {
-  border: 1.5px solid var(--border); border-radius: 8px; padding: 16px 14px;
+  border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px;
   cursor: pointer; background: #fff; transition: border-color 0.15s, box-shadow 0.15s;
-  user-select: none; position: relative;
+  user-select: none; min-width: 130px;
 }
 .sys-card:hover { border-color: var(--brand); box-shadow: 0 2px 8px rgba(237,28,36,0.1); }
 .sys-card.is-active { border-color: var(--brand); border-width: 2px; background: var(--light); }
-.sys-card.is-active::after { content: '→'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--brand); font-weight: 800; }
-.sys-card-icon { font-size: 18px; margin-bottom: 8px; }
-.sys-card-name { font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 4px; line-height: 1.3; }
+.sys-card-name { font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 3px; line-height: 1.3; }
+.sys-card.is-active .sys-card-name { color: var(--brand-dk); }
 .sys-card-count { font-size: 11px; color: var(--mid); }
-.sys-card-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.sys-card-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 7px; overflow: hidden; }
 .sys-card-fill { height: 100%; background: var(--brand); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
 .sys-card.is-done .sys-card-fill { background: var(--green); }
 .sys-card.is-done .sys-card-name { color: var(--green); }
 .sys-card.is-done .sys-card-name::after { content: ' ✓'; }
+.sys-filter-clear {
+  display: none; font-size: 12px; font-weight: 700; color: var(--brand);
+  background: #FEE2E2; border: 1px solid #FECACA; border-radius: 20px;
+  padding: 4px 12px; cursor: pointer; font-family: inherit; white-space: nowrap;
+  transition: background 0.1s;
+}
+.sys-filter-clear:hover { background: #FECACA; }
+.sys-filter-hint {
+  font-size: 11px; color: var(--mid); margin-top: 6px; font-style: italic;
+}
 
-/* Sys drawer — slides in from the right */
-.sys-drawer {
-  position: fixed; top: 0; right: -480px; width: 480px; height: 100vh;
-  background: #fff; z-index: 600; display: flex; flex-direction: column;
-  box-shadow: -4px 0 24px rgba(0,0,0,0.14); transition: right 0.28s ease;
-}
-.sys-drawer.is-open { right: 0; }
-.sys-drawer-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.22); z-index: 599;
-  opacity: 0; pointer-events: none; transition: opacity 0.28s;
-}
-.sys-drawer-overlay.is-open { opacity: 1; pointer-events: auto; }
-.sys-drawer-hd {
-  padding: 14px 20px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 10px; flex-shrink: 0; background: var(--light);
-}
-.sys-drawer-hd-text { flex: 1; min-width: 0; }
-.sys-drawer-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mid); margin-bottom: 2px; }
-.sys-drawer-title { font-size: 17px; font-weight: 800; color: var(--dark); }
-.sys-drawer-close {
-  background: none; border: 1px solid var(--border); border-radius: 4px;
-  cursor: pointer; font-size: 14px; color: var(--mid); padding: 4px 10px;
-  line-height: 1.4; flex-shrink: 0; font-family: inherit;
-  transition: background 0.1s, color 0.1s, border-color 0.1s;
-}
-.sys-drawer-close:hover { background: #FEE2E2; border-color: var(--brand); color: var(--brand); }
-.sys-drawer-body { padding: 20px; overflow-y: auto; flex: 1; }
-/* Inside drawer, the question font is slightly smaller to keep the panel tight */
-.sys-drawer-body .q-text { font-size: 14px; }
-.sys-drawer-body .section-head { display: none; } /* hide collapse chrome — always expanded in drawer */
-
-/* Active state for the System Map toggle button in the sticky bar */
-.bar-tool.is-active { background: var(--brand); color: #fff; border-color: var(--brand); }
-.bar-tool.is-active:hover { background: var(--brand-dk); border-color: var(--brand-dk); }
+/* ── SYSTEM FILTER MODE ──────────────────────────────────────────────────────
+   body.sys-filter-on is added when a system card is active.
+   .sys-match / .sys-nomatch / .sys-untagged are set on each .q block by JS.  */
+/* sys-nomatch = tagged to a different system → hidden */
+body.sys-filter-on .q.sys-nomatch { display: none; }
+/* sys-cross = no system tag (generic/cross-system) → visible but secondary */
+body.sys-filter-on .q.sys-cross { opacity: 0.45; }
+body.sys-filter-on details.uc.sys-hidden  { display: none; }
+body.sys-filter-on details.section-block.sys-hidden { display: none; }
+/* sys-match = explicitly about this system → highlighted */
+body.sys-filter-on .q.sys-match { border-left: 3px solid var(--brand); padding-left: 8px; }
 
 @media (max-width: 600px) {
-  .sys-drawer { width: 100vw; right: -100vw; }
-  .sys-cards { grid-template-columns: 1fr 1fr; }
+  .sys-cards { flex-direction: column; }
+  .sys-card { min-width: unset; }
 }
 
 /* ── PRINT — collapse rail, expand everything, paginate cleanly ── */
@@ -888,16 +874,16 @@ body.sys-map-mode .cat-anchor { display: none; }
     <button type="button" class="bar-tool" onclick="jumpToFirstUnanswered()" title="Jump to the next blank question">
       <span class="bt-icon">→</span> Next unanswered
     </button>
-    {% if intakeRendered.systemNodes | length > 0 or intakeRendered.systemDiagramSvg %}
-    <button type="button" class="bar-tool" id="sys-map-btn" onclick="toggleSysMap()" title="View integration architecture and navigate by system">
-      <span class="bt-icon">⬡</span> System Map
-    </button>
-    {% endif %}
     <a href="#" class="bar-filter is-hidden" id="filter-link" role="button"
        onclick="toggleUnansweredFilter(event)"
        title="Hide answered questions so only the blanks remain">
       <span class="bf-count">0</span><span class="bf-label"> unanswered</span><span class="bf-arrow"> ›</span>
     </a>
+    <span class="bar-sys-pill" id="bar-sys-pill">
+      <span id="bar-sys-label">System</span>
+      <button onclick="scrollToMap()" title="Jump back to system map">↑ Map</button>
+      <button onclick="clearSysFilter()" title="Clear system filter">✕</button>
+    </span>
   </div>
   <div class="progress-pill">Questions: <span id="answered-count">0</span> / <span id="total-count">0</span> · <span id="bar-pct">0</span>%</div>
   <div class="bar-actions">
@@ -947,24 +933,26 @@ body.sys-map-mode .cat-anchor { display: none; }
 <!-- DRAFT RESTORED BANNER — shown briefly when localStorage draft is loaded -->
 <div class="draft-banner" id="draft-banner" aria-live="polite">Draft restored — continue where you left off.</div>
 
-<!-- SYSTEM MAP VIEW — shown when System Map mode is active -->
+<!-- SYSTEM MAP — architecture diagram + clickable system filter cards -->
 {% if intakeRendered.systemNodes | length > 0 or intakeRendered.systemDiagramSvg %}
 <div class="sys-map-view no-print" id="sys-map-view">
   {% if intakeRendered.systemDiagramSvg %}
   <div class="sys-diagram-wrap">{{ intakeRendered.systemDiagramSvg | safe }}</div>
   {% endif %}
   {% if intakeRendered.systemNodes | length > 0 %}
-  <p class="sys-map-intro">Click a system card to view its specific questions. Fill them in, then close to return to the full form.</p>
-  <div class="sys-cards" id="sys-cards">
-    {% for node in intakeRendered.systemNodes %}
-    <div class="sys-card" data-sys="{{ node.id | esc }}" onclick="openSysDrawer('{{ node.id | esc }}')">
-      <div class="sys-card-icon">⬡</div>
-      <div class="sys-card-name">{{ node.label | esc }}</div>
-      <div class="sys-card-count" id="sys-card-count-{{ node.id | esc }}">0 / {{ node.questionCount }} answered</div>
-      <div class="sys-card-bar"><div class="sys-card-fill" id="sys-card-fill-{{ node.id | esc }}"></div></div>
+  <div class="sys-cards-row">
+    <div class="sys-cards" id="sys-cards">
+      {% for node in intakeRendered.systemNodes %}
+      <div class="sys-card" data-sys="{{ node.id | esc }}" onclick="clickSysCard('{{ node.id | esc }}')">
+        <div class="sys-card-name">{{ node.label | esc }}</div>
+        <div class="sys-card-count" id="sys-card-count-{{ node.id | esc }}">— / — questions</div>
+        <div class="sys-card-bar"><div class="sys-card-fill" id="sys-card-fill-{{ node.id | esc }}"></div></div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+    <button class="sys-filter-clear" id="sys-filter-clear" onclick="clearSysFilter()">Clear filter ✕</button>
   </div>
+  <div class="sys-filter-hint" id="sys-filter-hint">Click a system to filter questions by what it touches</div>
   {% endif %}
 </div>
 {% endif %}
@@ -1049,20 +1037,7 @@ body.sys-map-mode .cat-anchor { display: none; }
 
 </div><!-- /.wrap -->
 
-<!-- SYSTEM DRAWER — fixed right panel; portal target for system-specific questions -->
-{% if intakeRendered.systemNodes | length > 0 %}
-<div class="sys-drawer no-print" id="sys-drawer">
-  <div class="sys-drawer-hd">
-    <div class="sys-drawer-hd-text">
-      <div class="sys-drawer-eyebrow">System-Specific Questions</div>
-      <div class="sys-drawer-title" id="sys-drawer-title">System</div>
-    </div>
-    <button class="sys-drawer-close" onclick="closeSysDrawer(true)" aria-label="Close system panel">✕ Close</button>
-  </div>
-  <div class="sys-drawer-body" id="sys-drawer-body"></div>
-</div>
-<div class="sys-drawer-overlay no-print" id="sys-drawer-overlay" onclick="closeSysDrawer(true)"></div>
-{% endif %}
+<button class="back-to-top no-print" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
 
 {% endblock %}
 
@@ -1099,77 +1074,146 @@ const CLIENT_SLUG = window.__INTAKE_SLUG;
 })();
 
 // ── SYSTEM MAP ───────────────────────────────────────────────────────────────
-let _sysPortal = null; // { el, parent, nextSib } — tracks portaled DOM node
+// Tags each .q block with which system(s) it relates to, using two methods:
+//   1. Text match — question text mentions the system label (or a keyword from it)
+//   2. Container match — question lives inside a #sys-home-{id} div (section 10)
+// Must run before updateProgress() so updateSysCards() sees data-systems attrs.
+function tagQuestionsWithSystems() {
+  if (!SYS_NODES.length) return;
 
-function toggleSysMap() {
-  const isOn = document.body.classList.contains('sys-map-mode');
-  const btn = document.getElementById('sys-map-btn');
-  if (isOn) {
-    closeSysDrawer(true);
-    document.body.classList.remove('sys-map-mode');
-    if (btn) btn.classList.remove('is-active');
-  } else {
-    document.querySelectorAll('details.section-block').forEach(d => d.removeAttribute('open'));
-    document.body.classList.add('sys-map-mode');
-    if (btn) btn.classList.add('is-active');
-    const mapView = document.getElementById('sys-map-view');
-    if (mapView) mapView.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
+  const patterns = SYS_NODES.map(n => {
+    const lower = n.label.toLowerCase();
+    // Use full label + any individual word ≥6 chars as keywords
+    const words = lower.split(/\s+/).filter(w => w.length >= 6);
+    return { id: n.id, keywords: [lower, ...words] };
+  });
 
-function openSysDrawer(id) {
-  if (_sysPortal) closeSysDrawer(false);
+  // 1. Text-based: scan .q-text content
+  document.querySelectorAll('.q').forEach(q => {
+    const textEl = q.querySelector('.q-text');
+    if (!textEl) return;
+    const qText = textEl.textContent.toLowerCase();
+    const matched = patterns
+      .filter(p => p.keywords.some(kw => qText.includes(kw)))
+      .map(p => p.id);
+    if (matched.length) q.dataset.systems = matched.join(',');
+  });
 
-  const home = document.getElementById('sys-home-' + id);
-  const drawer = document.getElementById('sys-drawer');
-  const body = document.getElementById('sys-drawer-body');
-  const overlay = document.getElementById('sys-drawer-overlay');
-  const title = document.getElementById('sys-drawer-title');
-  if (!home || !drawer || !body) return;
-
-  _sysPortal = { el: home, parent: home.parentElement, nextSib: home.nextSibling };
-  body.appendChild(home);
-
-  const node = SYS_NODES.find(n => n.id === id);
-  if (title && node) title.textContent = node.label;
-
-  drawer.classList.add('is-open');
-  if (overlay) overlay.classList.add('is-open');
-  document.querySelectorAll('.sys-card').forEach(c => c.classList.toggle('is-active', c.dataset.sys === id));
-  body.scrollTop = 0;
-}
-
-function closeSysDrawer(clearActive) {
-  const drawer = document.getElementById('sys-drawer');
-  const overlay = document.getElementById('sys-drawer-overlay');
-  const body = document.getElementById('sys-drawer-body');
-
-  if (drawer) drawer.classList.remove('is-open');
-  if (overlay) overlay.classList.remove('is-open');
-
-  if (_sysPortal) {
-    const { el, parent, nextSib } = _sysPortal;
-    if (nextSib && nextSib.parentElement === parent) parent.insertBefore(el, nextSib);
-    else parent.appendChild(el);
-    _sysPortal = null;
-  }
-  if (clearActive) document.querySelectorAll('.sys-card').forEach(c => c.classList.remove('is-active'));
-}
-
-function updateSysCards() {
+  // 2. Container-based: questions inside #sys-home-{id} always belong to that system
   SYS_NODES.forEach(node => {
     const home = document.getElementById('sys-home-' + node.id);
     if (!home) return;
-    const inputs = home.querySelectorAll('textarea.answer, input.tbl-ans');
+    home.querySelectorAll('.q').forEach(q => {
+      const existing = q.dataset.systems ? q.dataset.systems.split(',') : [];
+      if (!existing.includes(node.id)) {
+        existing.push(node.id);
+        q.dataset.systems = existing.join(',');
+      }
+    });
+  });
+}
+
+// Activate a system filter — three states per question:
+//   sys-match   → explicitly tagged to this system (highlighted)
+//   sys-nomatch → explicitly tagged to a DIFFERENT system only (hidden)
+//   sys-cross   → no system tag at all, applies to every system (dimmed but visible)
+// This ensures all 87 questions are reachable via any system card.
+function activateSysFilter(id) {
+  document.querySelectorAll('.q').forEach(q => {
+    const systems = (q.dataset.systems || '').split(',').filter(Boolean);
+    const isMatch  = systems.includes(id);
+    const isCross  = systems.length === 0;           // untagged = generic/cross-system
+    const isOther  = systems.length > 0 && !isMatch; // tagged but to a different system
+    q.classList.toggle('sys-match',   isMatch);
+    q.classList.toggle('sys-nomatch', isOther);
+    q.classList.toggle('sys-cross',   isCross);
+  });
+  // Hide UCs/sections only when they have neither a match nor a cross-system question
+  document.querySelectorAll('details.uc').forEach(uc =>
+    uc.classList.toggle('sys-hidden', !uc.querySelector('.q.sys-match, .q.sys-cross'))
+  );
+  document.querySelectorAll('details.section-block').forEach(sec =>
+    sec.classList.toggle('sys-hidden', !sec.querySelector('.q.sys-match, .q.sys-cross'))
+  );
+  document.body.classList.add('sys-filter-on');
+  document.body.dataset.sysFilter = id;
+
+  const clearBtn = document.getElementById('sys-filter-clear');
+  if (clearBtn) clearBtn.style.display = 'inline-block';
+  const hint = document.getElementById('sys-filter-hint');
+  if (hint) hint.style.display = 'none';
+
+  const pill = document.getElementById('bar-sys-pill');
+  const pillLabel = document.getElementById('bar-sys-label');
+  if (pill && pillLabel) {
+    const node = SYS_NODES.find(n => n.id === id);
+    pillLabel.textContent = node ? node.label : id;
+    pill.classList.add('is-visible');
+  }
+}
+
+function clearSysFilter() {
+  document.querySelectorAll('.q').forEach(q =>
+    q.classList.remove('sys-match', 'sys-nomatch', 'sys-cross')
+  );
+  document.querySelectorAll('details.uc, details.section-block').forEach(el =>
+    el.classList.remove('sys-hidden')
+  );
+  document.querySelectorAll('.sys-card').forEach(c => c.classList.remove('is-active'));
+  document.body.classList.remove('sys-filter-on');
+  delete document.body.dataset.sysFilter;
+
+  const clearBtn = document.getElementById('sys-filter-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  const hint = document.getElementById('sys-filter-hint');
+  if (hint) hint.style.display = '';
+
+  const pill = document.getElementById('bar-sys-pill');
+  if (pill) pill.classList.remove('is-visible');
+}
+
+// Card click: toggle filter for that system. Second click clears it.
+function clickSysCard(id) {
+  const isAlreadyActive = document.body.dataset.sysFilter === id;
+  clearSysFilter();
+  if (isAlreadyActive) return;
+
+  activateSysFilter(id);
+  document.querySelectorAll('.sys-card').forEach(c =>
+    c.classList.toggle('is-active', c.dataset.sys === id)
+  );
+  // Auto-open and scroll to the first matching question
+  const firstMatch = document.querySelector('.q.sys-match');
+  if (firstMatch) {
+    let p = firstMatch.parentElement;
+    while (p) { if (p.tagName === 'DETAILS') p.setAttribute('open', ''); p = p.parentElement; }
+    requestAnimationFrame(() =>
+      firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    );
+  }
+}
+
+function scrollToMap() {
+  const map = document.getElementById('sys-map-view');
+  if (map) map.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Update the per-system progress bars on the cards.
+// Counts ALL questions tagged to that system (across all sections), not just section 10.
+function updateSysCards() {
+  SYS_NODES.forEach(node => {
+    const inputs = document.querySelectorAll(
+      `.q[data-systems*="${node.id}"] textarea.answer, .q[data-systems*="${node.id}"] input.tbl-ans`
+    );
     const filled = Array.from(inputs).filter(t => (t.value || '').trim().length > 0).length;
-    const total = inputs.length;
-    const pct = total > 0 ? Math.round(filled / total * 100) : 0;
-    const card = document.querySelector('.sys-card[data-sys="' + node.id + '"]');
+    const total  = inputs.length;
+    const pct    = total > 0 ? Math.round(filled / total * 100) : 0;
+    const card   = document.querySelector(`.sys-card[data-sys="${node.id}"]`);
     if (card) {
       const countEl = card.querySelector('.sys-card-count');
-      const fillEl = card.querySelector('.sys-card-fill');
-      if (countEl) countEl.textContent = filled + ' / ' + total + ' answered';
-      if (fillEl) fillEl.style.width = pct + '%';
+      const fillEl  = card.querySelector('.sys-card-fill');
+      if (countEl) countEl.textContent = filled + ' / ' + total + ' questions answered';
+      if (fillEl)  fillEl.style.width  = pct + '%';
       card.classList.toggle('is-done', total > 0 && filled === total);
     }
   });
@@ -1347,10 +1391,9 @@ function printAllExpanded() {
   const bc           = document.getElementById('biz-context');
   const bcWasOpen    = bc ? bc.classList.contains('is-open') : false;
   const filterWasOn  = document.body.classList.contains('filter-unanswered');
-  const sysMapWasOn  = document.body.classList.contains('sys-map-mode');
-
-  // Exit sys-map mode first so all section blocks are visible in the print layout
-  if (sysMapWasOn) { closeSysDrawer(false); document.body.classList.remove('sys-map-mode'); }
+  const sysFilterWasOn = document.body.classList.contains('sys-filter-on');
+  const sysFilterId    = document.body.dataset.sysFilter;
+  if (sysFilterWasOn) clearSysFilter(); // restore all questions for print
 
   // 2. Force every collapsible into its expanded state
   details.forEach(d => {
@@ -1365,7 +1408,7 @@ function printAllExpanded() {
     details.forEach(d => { if (!wasOpen.has(d)) d.removeAttribute('open'); });
     if (bc && !bcWasOpen) bc.classList.remove('is-open');
     if (filterWasOn)      document.body.classList.add('filter-unanswered');
-    if (sysMapWasOn)      document.body.classList.add('sys-map-mode');
+    if (sysFilterWasOn && sysFilterId) activateSysFilter(sysFilterId);
     window.removeEventListener('afterprint', restore);
   }
   window.addEventListener('afterprint', restore);
@@ -1979,9 +2022,14 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreDraft();
 
   wireAttentionClicks();
-  injectRowStatusDots();  // adds the dot element to every fillable table row
-  updateProgress();       // first paint of progress, dot colors, filter chip, etc.
+  injectRowStatusDots();        // adds the dot element to every fillable table row
+  tagQuestionsWithSystems();    // must run before updateProgress so sys-card counts are correct
+  updateProgress();             // first paint of progress, dot colors, filter chip, etc.
   refreshFilterChip();    // ensure the sticky-bar count chip is correct on first paint
+
+  // Back-to-top button — show after scrolling 400px
+  const btt = document.getElementById('back-to-top');
+  if (btt) window.addEventListener('scroll', () => btt.classList.toggle('is-visible', window.scrollY > 400), { passive: true });
 
   // Soft-lock banner — if this browser has submitted before, surface the
   // version + "edits create v(N+1)" note so the user knows what's saved.

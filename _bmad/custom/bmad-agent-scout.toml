@@ -1,7 +1,7 @@
 # MuleSoft BMAD — Scout (Pipeline Entry Point)
 #
 # This agent is a thin onboarding wrapper for the DSPipeline.
-# All pipeline logic lives in DSPipeline/scout/orchestrate.js.
+# All pipeline logic lives in pipeline/scout/orchestrate.js.
 #
 # What this agent does:
 #   1. Pre-extracts text from _inbox/ files (PDF/DOCX → .txt)
@@ -11,7 +11,7 @@
 #   5. Hands off to orchestrate.js for the agent pipeline loop
 #
 # What the orchestrator does (user runs in terminal):
-#   node DSPipeline/scout/orchestrate.js --client {slug}
+#   node pipeline/scout/orchestrate.js --client {slug}
 #   → Reads pipeline.json, shows each agent in order, waits for completion, tracks telemetry
 
 [agent]
@@ -116,10 +116,10 @@ activation_steps_prepend = [
     {N} source file(s) moved to projects/{slug}/scoping/
 
     To start the pipeline, run in your terminal:
-      node DSPipeline/scout/orchestrate.js --client {slug}
+      node pipeline/scout/orchestrate.js --client {slug}
 
     The orchestrator will guide you through each agent step.
-    Each step prints: 'Run in a new terminal: claude --agent-file DSPipeline/agents/{agent}.toml'
+    Each step prints: 'Run in a new terminal: claude --agent-file pipeline/agents/{agent}.toml'
     Run that command, let the agent complete, then press Enter in the orchestrator to continue.
 
   Do not run any further steps — the pipeline loop is managed by the orchestrator CLI.

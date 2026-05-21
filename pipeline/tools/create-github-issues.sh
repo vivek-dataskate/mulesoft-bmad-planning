@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scaffold/create-github-issues.sh
+# pipeline/tools/create-github-issues.sh
 #
 # Parses projects/{client}/stories.md and creates GitHub Issues in the
 # client's generated repo ({client}-mule). Developers get a real sprint board
@@ -7,7 +7,7 @@
 #
 # Usage:
 #   GITHUB_TOKEN=ghp_... GITHUB_ORG=my-org \
-#     ./scaffold/create-github-issues.sh projects/leolabs/decisions.json
+#     ./pipeline/tools/create-github-issues.sh projects/leolabs/decisions.json
 #
 # Required env vars:
 #   GITHUB_TOKEN  — PAT with repo:write scope on the client repo

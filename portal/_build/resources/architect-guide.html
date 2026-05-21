@@ -1,0 +1,660 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DataSkate Architect Guide — DataSkate</title>
+<link rel="stylesheet" href="/tokens.css">
+<style>
+/* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
+:root {
+  --brand:    #ed1c24;
+  --brand-dk: #a01019;
+  --dark:     #1A1A1A;
+  --mid:      #555F6E;
+  --light:    #FFF5F5;
+  --border:   #E8E0E0;
+  --green:    #2E9E6B;
+  --amber:    #D69E2E;
+  --amber-bg: #FFFBEB;
+  --blue-bg:  #F0F6FF;
+  --blue-br:  #3B82F6;
+}
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── BASE TYPOGRAPHY (HTML_DESIGN_STANDARDS.md §Typography) ── */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--dark);
+  background: #fff;
+}
+a { color: var(--brand); }
+</style>
+
+
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+.top-bar {
+  position: sticky; top: 0; z-index: 200;
+  background: #fff; border-bottom: 2px solid var(--brand);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 20px; height: 44px;
+}
+.top-bar-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.top-bar-divider { width: 1px; height: 24px; background: var(--border); }
+.top-bar-title { font-size: 12px; font-weight: 700; color: var(--dark); }
+.top-bar-eyebrow { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mid); }
+
+.docs-shell {
+  display: grid;
+  grid-template-columns: 200px 1fr 180px;
+  min-height: calc(100vh - 44px);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.nav-left {
+  position: sticky; top: 44px;
+  height: calc(100vh - 44px); overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 14px 0 24px;
+}
+.nav-left::-webkit-scrollbar { width: 3px; }
+.nav-left::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.nav-section { margin-bottom: 1px; }
+.nav-section-link {
+  display: block; padding: 5px 14px;
+  font-size: 12px; font-weight: 600; color: var(--mid);
+  text-decoration: none; border-left: 3px solid transparent;
+  transition: color .1s, border-color .1s, background .1s;
+  line-height: 1.35;
+}
+.nav-section-link:hover { color: var(--dark); background: #FAFAFA; }
+.nav-section-link.active { color: var(--brand); border-left-color: var(--brand); background: var(--light); font-weight: 700; }
+
+.doc-content {
+  padding: 20px 32px 48px;
+  min-width: 0; font-size: 13px;
+}
+.doc-content h2 {
+  font-size: 16px; font-weight: 800; color: var(--dark);
+  margin: 36px 0 6px;
+  border-bottom: 2px solid var(--border); padding-bottom: 6px;
+  scroll-margin-top: 52px;
+}
+.doc-content h2:first-child { margin-top: 0; }
+.doc-content h3 {
+  font-size: 13px; font-weight: 700; color: var(--brand-dk);
+  margin: 20px 0 5px; scroll-margin-top: 52px;
+}
+.doc-content h4 {
+  font-size: 11px; font-weight: 700; color: var(--mid);
+  text-transform: uppercase; letter-spacing: 0.7px;
+  margin: 14px 0 4px;
+}
+.doc-content p { margin: 5px 0; line-height: 1.6; color: var(--dark); }
+.doc-content > *:first-child { margin-top: 0; }
+.doc-content ul, .doc-content ol { margin: 5px 0 5px 18px; }
+.doc-content ul li { list-style: disc; margin: 2px 0; line-height: 1.55; }
+.doc-content ol li { list-style: decimal; margin: 2px 0; line-height: 1.55; }
+.doc-content blockquote {
+  margin: 10px 0; padding: 8px 14px;
+  border-left: 3px solid var(--brand); background: var(--light);
+  border-radius: 0 4px 4px 0;
+}
+.doc-content blockquote p { margin: 0; font-style: italic; color: var(--dark-dk, #111); font-size: 12px; }
+.doc-content pre.code-block {
+  background: #1C1C1E; color: #E5E5EA;
+  padding: 12px 16px; border-radius: 6px;
+  font-size: 12px; font-family: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  line-height: 1.5; margin: 10px 0; overflow-x: auto; white-space: pre-wrap;
+}
+.doc-content code {
+  background: #F2F2F4; padding: 1px 5px; border-radius: 3px;
+  font-size: 12px; font-family: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  color: var(--brand-dk);
+}
+.doc-content pre.code-block code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.doc-content hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+.md-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+.md-table th {
+  background: var(--dark); color: #fff;
+  padding: 6px 10px; text-align: left; font-weight: 600; font-size: 11px;
+}
+.md-table th:first-child { border-radius: 4px 0 0 0; }
+.md-table th:last-child  { border-radius: 0 4px 0 0; }
+.md-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.md-table tr:nth-child(even) td { background: #FAFAFA; }
+.md-table tr:last-child td { border-bottom: 2px solid var(--border); }
+
+.doc-content img {
+  max-width: 100%; height: auto; border-radius: 6px;
+  border: 1px solid var(--border); margin: 12px 0; display: block;
+}
+.doc-content figure { margin: 14px 0; }
+.doc-content figcaption { font-size: 11px; color: var(--mid); margin-top: 4px; text-align: center; }
+
+strong { font-weight: 700; }
+em { font-style: italic; }
+
+.nav-right {
+  position: sticky; top: 44px;
+  height: calc(100vh - 44px); overflow-y: auto;
+  border-left: 1px solid var(--border);
+  padding: 14px 0 24px;
+}
+.nav-right::-webkit-scrollbar { width: 3px; }
+.nav-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.nav-right-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--mid); padding: 0 14px; margin-bottom: 6px;
+}
+.nav-sub-link {
+  display: block; padding: 3px 14px;
+  font-size: 11px; color: var(--mid); text-decoration: none;
+  border-left: 2px solid transparent; transition: color .1s, border-color .1s;
+  line-height: 1.35;
+}
+.nav-sub-link:hover { color: var(--dark); }
+.nav-sub-link.active { color: var(--brand-dk); border-left-color: var(--brand); font-weight: 600; }
+
+.doc-footer {
+  border-top: 1px solid var(--border); padding: 10px 32px;
+  font-size: 11px; color: var(--mid);
+  display: flex; justify-content: space-between; align-items: center;
+  grid-column: 2;
+}
+.doc-footer a { color: var(--mid); text-decoration: none; }
+
+/* Diagrams (used in the embedded HTML within architect-guide.md) */
+.dg-flow { display: flex; align-items: stretch; gap: 0; margin: 12px 0; overflow-x: auto; }
+.dg-step { flex: 1; min-width: 130px; border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; background: #fff; display: flex; flex-direction: column; gap: 3px; }
+.dg-step.highlight { border-color: var(--brand); background: var(--light); }
+.dg-step-num { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); }
+.dg-step-name { font-size: 13px; font-weight: 800; color: var(--dark); }
+.dg-step.highlight .dg-step-name { color: var(--brand); }
+.dg-step-tag { font-size: 10px; font-weight: 600; color: var(--mid); background: #F0F0F2; border-radius: 20px; padding: 1px 8px; align-self: flex-start; }
+.dg-step.highlight .dg-step-tag { background: #FDDEDE; color: var(--brand); }
+.dg-step-desc { font-size: 11px; color: var(--mid); line-height: 1.45; margin-top: 2px; }
+.dg-arrow { display: flex; align-items: center; padding: 0 5px; color: var(--border); font-size: 18px; flex-shrink: 0; }
+.dg-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.dg-card { border: 1px solid var(--border); border-radius: 7px; padding: 12px 14px 10px; }
+.dg-card.primary { border-color: var(--brand); }
+.dg-card-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); margin-bottom: 3px; }
+.dg-card.primary .dg-card-label { color: var(--brand); }
+.dg-card-title { font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 6px; }
+.dg-card-row { display: flex; gap: 8px; align-items: baseline; font-size: 12px; color: var(--dark); padding: 3px 0; border-top: 1px solid var(--border); }
+.dg-card-row-label { color: var(--mid); flex-shrink: 0; min-width: 100px; font-size: 11px; }
+.dg-timeline { margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
+.dg-tl-row { display: flex; align-items: center; gap: 10px; }
+.dg-tl-label { font-size: 11px; color: var(--mid); min-width: 70px; text-align: right; }
+.dg-tl-bar-wrap { flex: 1; height: 22px; }
+.dg-tl-bar { height: 22px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; }
+.dg-tl-bar.req  { background: #888; }
+.dg-tl-bar.dev  { background: var(--brand); }
+.dg-tl-weeks { font-size: 11px; color: var(--mid); min-width: 54px; }
+
+@media (max-width: 1100px) {
+  .docs-shell { grid-template-columns: 180px 1fr; }
+  .nav-right { display: none; }
+}
+@media (max-width: 720px) {
+  .docs-shell { grid-template-columns: 1fr; }
+  .nav-left { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .doc-content { padding: 16px 16px 40px; }
+}
+</style>
+
+</head>
+<body>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="/firebase-config.js"></script>
+
+<script>
+firebase.initializeApp(FIREBASE_CONFIG);
+firebase.auth().onAuthStateChanged(function(user) {
+  if (!user || !user.email.endsWith('@dataskate.ai')) {
+    window.location.href = '/?redirect=' + encodeURIComponent(window.location.pathname);
+  }
+});
+</script>
+
+
+<div class="top-bar">
+  <div class="top-bar-logo">
+    <span style="--logo-h: 18px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:var(--logo-h,28px);width:auto;display:block;flex-shrink:0;" aria-label="DataSkate">
+<path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/>
+<path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/>
+<path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#231f20" d="m302.54,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#231f20" d="m361.69,320.49v-44.07h10.95v16.1h23.46v9.94h-23.46v18.03c0,6.07,3.13,8.46,7.64,8.46s7.64-2.3,7.64-8.46v-1.2h10.95v1.2c0,12.6-7.54,18.68-18.58,18.68s-18.58-6.07-18.58-18.68Z"/>
+<path fill="#231f20" d="m405.39,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#ed1c24" d="m471.93,324.82h8.83c.18,3.77,3.68,6.44,10.03,6.44s10.03-2.85,10.03-6.44c0-4.32-4.78-4.88-10.49-5.61-7.91-1.01-17.48-2.48-17.48-12.88,0-8.92,6.99-15,17.85-15s17.57,6.16,17.75,13.98h-8.65c-.28-3.5-3.5-6.07-9.02-6.07-5.8,0-9.11,2.76-9.11,6.35,0,4.32,4.78,4.78,10.4,5.52,7.91,1.01,17.57,2.48,17.57,12.88,0,9.2-7.45,15.18-18.86,15.18s-18.58-6.07-18.86-14.35Z"/>
+<path fill="#ed1c24" d="m520.51,272.65h8.74v40.02l20.88-20.15h11.5l-23.73,22.17,24.56,23.27h-11.68l-21.53-21.16v21.16h-8.74v-65.32Z"/>
+<path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/>
+<path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
+<path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
+</svg></span>
+  </div>
+  <div class="top-bar-divider"></div>
+  <div>
+    <div class="top-bar-eyebrow">DataSkate Internal</div>
+    <div class="top-bar-title">DataSkate Architect Guide</div>
+  </div>
+</div>
+
+<div class="docs-shell">
+  <nav class="nav-left" id="nav-left" aria-label="Sections"></nav>
+  <main class="doc-content" id="doc-content"><p><strong>For: Kailash / Raghuram — Internal Reference | DataSkate Confidential</strong></p>
+<blockquote><p>The deployed version of this guide lives at <code>firebase/public/resources/architect-guide.html</code> (3-column docs layout, Firebase-gated).<br>This file is the content source of truth — keep both in sync when updating.</p></blockquote>
+<hr>
+<h2>Part 1 — The DataSkate Proposition</h2>
+<h3>What Clients Are Actually Buying</h3>
+<p>What a client is evaluating is not integration flows. It is the ability to run their business on data — and eventually, to let AI handle the parts that don't need a human decision.</p>
+<p>Every hour their team spends moving data manually — exporting spreadsheets, copying records between systems, chasing vendor reports — is an hour not spent on the business. Every manual step is a place where things go wrong, get delayed, or get dropped.</p>
+<p>Connected systems eliminate that layer. Once it's gone, automation becomes possible. Once automation is in place, AI can take over workflows that currently require a person to notice something, decide something, and act on it.</p>
+<p>That is the arc. Integrations are step one — but the destination is an operation that runs faster than their competition can react.</p>
+<h3>The Three-Stage Journey</h3>
+<table class="md-table"><thead><tr><th>Stage</th><th>Name</th><th>When</th><th>What Happens</th></tr></thead><tbody><tr><td>Stage 1</td><td>Connected</td><td>Year 1</td><td>Systems talk to each other. Data moves automatically. The team stops doing manual data entry, stops running exports, stops being the integration layer between their software.</td></tr>
+<tr><td>Stage 2</td><td>Automated</td><td>Year 1</td><td>Rules and triggers fire without human involvement. A customer goes quiet — a re-engagement sequence starts automatically. A vendor report arrives — it is parsed, matched, and loaded without anyone touching their inbox.</td></tr>
+<tr><td>Stage 3</td><td>Agentic</td><td>Renewal+ or Phase 2 SOW</td><td>AI agents monitor connected systems, detect patterns, and take actions. They surface next-best-action recommendations. They flag anomalies before vendors do. They operate business processes with the team in the loop for approvals, not execution.</td></tr></tbody></table>
+<p>The 1-year managed service gets the client to Stage 2. Renewal opens Stage 3.</p>
+<div class="dg-flow">
+  <div class="dg-step">
+    <div class="dg-step-num">Stage 1</div>
+    <div class="dg-step-name">Connected</div>
+    <div class="dg-step-tag">Year 1</div>
+    <div class="dg-step-desc">Systems talk to each other. Data moves automatically. Manual exports stop.</div>
+  </div>
+  <div class="dg-arrow">→</div>
+  <div class="dg-step">
+    <div class="dg-step-num">Stage 2</div>
+    <div class="dg-step-name">Automated</div>
+    <div class="dg-step-tag">Year 1</div>
+    <div class="dg-step-desc">Rules and triggers fire without human involvement. Workflows run on their own.</div>
+  </div>
+  <div class="dg-arrow">→</div>
+  <div class="dg-step highlight">
+    <div class="dg-step-num">Stage 3</div>
+    <div class="dg-step-name">Agentic</div>
+    <div class="dg-step-tag">Renewal+</div>
+    <div class="dg-step-desc">AI agents monitor, detect patterns, and act. The team approves — not executes.</div>
+  </div>
+</div>
+<h3>What We Guarantee</h3>
+<ul><li><strong>Delivery timeline is contractual.</strong> 2 weeks for requirements, then 1.5 weeks per flow.</li><li><strong>Billing starts at go-live — not at contract signing.</strong> Only upfront cost is the retainer, credited at go-live.</li><li><strong>Client owns the code from day one.</strong> All code lives in their GitHub repository.</li><li><strong>Continuous visibility.</strong> Anypoint Monitoring is live from go-live — uptime, performance, error rates.</li><li><strong>Changes are included.</strong> Field mapping, config, performance tuning — covered. Action changes are change orders, scoped in writing before proceeding.</li></ul>
+<h3>What's Happening in Their Industry Right Now</h3>
+<p>Use this when the client or AE asks about AI relevance:</p>
+<table class="md-table"><thead><tr><th>Industry</th><th>What connected companies are already doing</th></tr></thead><tbody><tr><td>Healthcare / GPO</td><td>AI predicting member churn 30–45 days out — re-engagement sequences fire before a rep notices</td></tr>
+<tr><td>Construction</td><td>AI detecting budget variance from connected ERP + project data 3–4 weeks before a change order</td></tr>
+<tr><td>Financial services</td><td>AI scoring account health daily from CRM + support + billing — at-risk accounts surface early</td></tr>
+<tr><td>Distribution / Manufacturing</td><td>AI triggering procurement from connected inventory + supplier data — manual reorder cycle gone</td></tr></tbody></table>
+<p>None of these companies started with AI. They started by connecting their systems.</p>
+<h3>Positioning Statements</h3>
+<p><strong>One sentence:</strong></p>
+<blockquote><p>DataSkate connects your systems today so your business can run on AI tomorrow.</p></blockquote>
+<p><strong>Three sentences:</strong></p>
+<blockquote><p>We build and manage MuleSoft integrations as a service — fixed monthly rate per flow, fully managed for the contract term. Every integration we build is architected to support automation and AI workflows as your business evolves. Clients who start with us in year one are positioned for agent-assisted operations at renewal.</p></blockquote>
+<p><strong>One paragraph (for proposals):</strong></p>
+<blockquote><p>Most businesses are one layer away from operating with AI. That layer is reliable, connected, well-maintained data infrastructure — and it is exactly what DataSkate builds. We start with the most pressing integration needs, architect them for long-term automation readiness, and manage them in production so the team never has to. The result is not just connected systems — it is a business that can respond faster, scale without adding headcount, and eventually run workflows that the competition is still doing manually.</p></blockquote>
+<hr>
+<h2>Part 2 — Pricing Reference</h2>
+<p><em>Rates are in <code>commons/sales/pricing-model.md</code> — always read that file. Never quote numbers from memory.</em></p>
+<h3>Two Engagement Models</h3>
+<table class="md-table"><thead><tr><th>Model</th><th>Implementation Fee</th><th>Ongoing</th><th>How It Works</th><th>Use When</th></tr></thead><tbody><tr><td><strong>IaaS (Managed Service)</strong></td><td>$0 — included in monthly rate</td><td>$300/flow/month · 1-year minimum</td><td>DataSkate builds and runs everything. 24/7 uptime, connector upgrades, minor enhancements all included.</td><td>Client does not have a dedicated integration engineer. Recommended for most engagements.</td></tr>
+<tr><td><strong>Implementation Only</strong></td><td>$3,500/flow · 50% at SOW, 50% at UAT</td><td>None — code ownership transfers</td><td>DataSkate builds and hands off. Client owns all ops from day one.</td><td>Client has a developer who will maintain the integration. Pivot to Phase 2 at go-live.</td></tr></tbody></table>
+<p>Every proposal shows exactly these two models. No hybrids, no bundles.</p>
+<div class="dg-cards">
+  <div class="dg-card primary">
+    <div class="dg-card-label">Recommended</div>
+    <div class="dg-card-title">IaaS — Managed Service</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Implementation fee</span><strong>$0 — included</strong></div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Ongoing</span><strong>$300/flow/month</strong></div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Commitment</span>1-year minimum per flow</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Who runs it</span>DataSkate — 24/7 uptime, upgrades, tuning</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Use when</span>Client has no dedicated integration engineer</div>
+  </div>
+  <div class="dg-card">
+    <div class="dg-card-label">Alternative</div>
+    <div class="dg-card-title">Implementation Only</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Implementation fee</span><strong>$3,500/flow</strong></div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Ongoing</span>None — code transfers at UAT</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Commitment</span>None after delivery</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Who runs it</span>Client owns all ops from day one</div>
+    <div class="dg-card-row"><span class="dg-card-row-label">Use when</span>Client has a developer who will maintain it</div>
+  </div>
+</div>
+<h3>IaaS Kickoff Retainer</h3>
+<table class="md-table"><thead><tr><th>Engagement Size</th><th>Retainer</th></tr></thead><tbody><tr><td>1–5 flows</td><td>$2,500</td></tr>
+<tr><td>6–10 flows</td><td>$5,000</td></tr>
+<tr><td>11+ flows</td><td>$7,500</td></tr></tbody></table>
+<p>Non-refundable if client cancels. Fully credited against first 6-month payment at go-live.</p>
+<h3>Rate Schedule</h3>
+<table class="md-table"><thead><tr><th>Period</th><th>Months</th><th>Rate / Flow / Month</th></tr></thead><tbody><tr><td>Period 1</td><td>1–6</td><td>$300.00</td></tr>
+<tr><td>Period 2</td><td>7–12</td><td>$315.00</td></tr>
+<tr><td>Period 3</td><td>Year 2 H1</td><td>$330.75</td></tr>
+<tr><td>Period 4</td><td>Year 2 H2</td><td>$347.29</td></tr></tbody></table>
+<p>Escalates 5% every 6 months. No discounts, no exceptions. Flows scoped now lock in Period 1.</p>
+<h3>Change Orders</h3>
+<table class="md-table"><thead><tr><th>Tier</th><th>What It Covers</th><th>Fee</th></tr></thead><tbody><tr><td>Config</td><td>Field mapping, credentials, performance tuning</td><td>Free</td></tr>
+<tr><td>Modification</td><td>New logic, branch, transform</td><td>$750</td></tr>
+<tr><td>Extension</td><td>New object type, new secondary system</td><td>$1,500</td></tr>
+<tr><td>Flow Replacement</td><td>New trigger/target/process — old flow closes + fresh 12-month contract</td><td>$1,500</td></tr></tbody></table>
+<h3>Timeline Formula</h3>
+<ul><li>Requirements phase: 2 weeks (flat, all engagements)</li><li>Development: 1.5 weeks per flow</li><li>5 flows → 9.5 weeks | 7 flows → 12.5 weeks | 10 flows → 17 weeks</li></ul>
+<div class="dg-timeline">
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">Requirements</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar req" style="width:12%">2 wks</div></div>
+    <div class="dg-tl-weeks">2 weeks</div>
+  </div>
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">5 flows</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:56%">+ 7.5 wks dev</div></div>
+    <div class="dg-tl-weeks">9.5 weeks</div>
+  </div>
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">7 flows</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:74%">+ 10.5 wks dev</div></div>
+    <div class="dg-tl-weeks">12.5 weeks</div>
+  </div>
+  <div class="dg-tl-row">
+    <div class="dg-tl-label">10 flows</div>
+    <div class="dg-tl-bar-wrap"><div class="dg-tl-bar dev" style="width:100%">+ 15 wks dev</div></div>
+    <div class="dg-tl-weeks">17 weeks</div>
+  </div>
+</div>
+<hr>
+<h2>Part 3 — Briefing a MuleSoft AE</h2>
+<h3>Your Opening (30 seconds)</h3>
+<blockquote><p>"DataSkate plugs a gap that kills a lot of MuleSoft deals — the implementation cost objection. We absorb the build cost through a managed service model: $0 upfront for the client, we build it, we run it, and we invoice monthly. Your client gets integrations running without a budget fight. You close the full $50k license. We'll walk through exactly how that works."</p></blockquote>
+<p>Share the DS Pricing Model one-pager at the start. Walk through it, don't read it.</p>
+<h3>Why IaaS Helps the AE's Quota</h3>
+<table class="md-table"><thead><tr><th>Traditional deal</th><th>DataSkate IaaS deal</th></tr></thead><tbody><tr><td>SI takes $20k–$30k of your $50k budget</td><td>You sell the full $50k — full quota credit</td></tr>
+<tr><td>SI delivers and disappears</td><td>DataSkate manages for 12 months — client success is baked in</td></tr>
+<tr><td>Renewal depends on whether integrations held up</td><td>Renewal is confident — you know they are live and growing</td></tr></tbody></table>
+<h3>What to Say When a Client Asks About AI</h3>
+<blockquote><p><em>"The honest answer is: AI only works on connected, consistent data. Right now, your systems don't talk to each other — so there's nothing for an AI to act on reliably. What we're doing in year one is building that foundation. Clean APIs, real-time data streams, consistent models. By renewal, you have something an AI agent can actually call. That's what puts you ahead of competitors who are still debating whether to start."</em></p></blockquote>
+<h3>The IaaS Pitch</h3>
+<blockquote><p><em>"Before you finalize your implementation approach — there's a model worth understanding. DataSkate builds and manages MuleSoft integrations as a managed service. Zero upfront on implementation. Fixed monthly rate per flow, starting when you go live — not when you sign. They build it, run it, monitor it, and keep it current. Your team owns none of the ops."</em></p></blockquote>
+<h3>The FOMO Close (When a Deal Stalls)</h3>
+<blockquote><p><em>"The [industry] companies that got connected in 2023 are running AI workflows today. The ones getting connected now will have that capability by 2026. The ones still evaluating will be building what their competitors already finished. That window is not closing dramatically — it is just closing."</em></p></blockquote>
+<h3>AE Objections</h3>
+<p><strong>"My client just wants to own the integration."</strong></p>
+<blockquote><p>That's the Implementation Only model — $3,500/flow, 50% at SOW, 50% at UAT. Clean handoff, no ongoing fees. The question to ask: who on their team will maintain it, upgrade connectors, and handle incidents at 2am? If they have that person, Implementation Only is right. If they don't, IaaS protects them and protects your renewal.</p></blockquote>
+<p><strong>"The retainer will slow down the deal."</strong></p>
+<blockquote><p>The retainer is $2,500–$5,000 depending on size — credited back at go-live. It filters out clients who aren't serious. A client who won't commit $2,500 before we assign engineers was going to be a problem client. The retainer actually accelerates your deal.</p></blockquote>
+<p><strong>"I already have budget approved for a one-time number."</strong></p>
+<blockquote><p>Implementation Only is the right path. 50/50 payment structure maps cleanly to milestones. Phase 2 — agent development — comes after go-live.</p></blockquote>
+<p><strong>"12 months is too long."</strong></p>
+<blockquote><p>The 1-year term is per flow, not per client. They can start with 2 flows, prove the model, and add more. Each new flow starts its own 1-year clock independently.</p></blockquote>
+<p><strong>"Another SI quoted them less."</strong></p>
+<blockquote><p>Ask what's included after go-live. Most SIs deliver and disappear. DataSkate's rate covers build, deployment, 24/7 uptime, incident response, connector upgrades, and minor enhancements.</p></blockquote>
+<p><strong>"The client wants hourly billing."</strong></p>
+<blockquote><p>Hourly billing is the most expensive model for the client — they pay for every conversation, every estimate, every rework. Fixed rate gives total cost certainty.</p></blockquote>
+<p><strong>"What if DataSkate can't deliver on time?"</strong></p>
+<blockquote><p>Scope is locked before development starts. If something falls short, we fix it — that's what the managed service covers. The retainer is only forfeit if the client cancels.</p></blockquote>
+<p><strong>"How do I explain the escalating rate?"</strong></p>
+<blockquote><p>It's transparent and predictable — both payment amounts are in the contract before they sign. The 5% step-up is less than inflation for what's covered. It also creates urgency: flows scoped now lock in Period 1.</p></blockquote>
+<h3>Questions AEs Ask Us</h3>
+<p><strong>"Do you pay referral fees?"</strong></p>
+<blockquote><p>No. You sell the full Anypoint license at full value — full quota credit, zero split. The real return is a client who is live and using the platform at renewal.</p></blockquote>
+<p><strong>"How do I introduce DataSkate without it sounding like a referral?"</strong></p>
+<blockquote><p>Don't lead with "I have a partner." Lead with the model: <em>"Before you finalize your implementation approach, there's a managed service structure worth understanding."</em> You're presenting a smarter delivery structure.</p></blockquote>
+<p><strong>"What if the client has a problem with DataSkate's delivery?"</strong></p>
+<blockquote><p>The SOW is between DataSkate and your client. Delivery issues are our problem to fix. We have a direct financial incentive to keep every client healthy.</p></blockquote>
+<p><strong>"What can I promise about uptime?"</strong></p>
+<blockquote><p>99.9% uptime per flow, measured monthly. P1 incident response within 4 hours. All SLA terms are in the DataSkate SOW.</p></blockquote>
+<p><strong>"What if the client tries to negotiate DataSkate's rate?"</strong></p>
+<blockquote><p>The per-flow rate is fixed. If cost is the concern, the conversation moves to scope — fewer flows at the right rate beats a discounted rate that under-resources the engagement.</p></blockquote>
+<p><strong>"What if the client already has an SI in mind?"</strong></p>
+<blockquote><p>Don't compete head-on. Trigger the support question: <em>"Before you finalize, ask them: who owns this integration at 2am six months from now?"</em></p></blockquote>
+<p><strong>"How fast can you turn around a proposal?"</strong></p>
+<blockquote><p>First call within 48 hours of intro. Proposal within 5 business days.</p></blockquote>
+<p><strong>"What if the deal is small — 1 or 2 flows?"</strong></p>
+<blockquote><p>We take it. Small engagements are how the model gets proven. A 2-flow managed service that gets the client to Stage 2 is our strongest reference for a 10-flow Phase 2 SOW.</p></blockquote>
+<h3>AE Email Templates</h3>
+<p><strong>First Mention — Discovery Call Follow-Up</strong></p>
+<p>Subject: One more thing from today's call — implementation approach</p>
+<blockquote><p>Hi [Name], One thing I wanted to flag before you finalize. We work with a delivery partner — DataSkate — who does MuleSoft implementations differently. Their model: managed service at a fixed monthly rate per flow, starting when you go live. They build it, run it, monitor it, upgrade it. Zero upfront on implementation. More relevant to where you're headed: every integration they build is structured so AI can act on it in year two. Worth 30 minutes before you lock in an approach? [Your name]</p></blockquote>
+<p><strong>Warm Follow-Up — After Demo or Trial</strong></p>
+<p>Subject: DataSkate — why I think the model fits [Company]</p>
+<blockquote><p>Hi [Name], Year one: they connect your systems. Data flows automatically. Year two: those pipelines become the foundation for automation. For [Company], that means [specific example]. Zero upfront on implementation. Monthly rate per flow, starting at go-live. Happy to arrange 30 minutes with their architect. [Your name]</p></blockquote>
+<p><strong>Urgency — Rate Period Closing</strong></p>
+<p>Subject: Timing note before [date]</p>
+<blockquote><p>Hi [Name], Quick note — DataSkate's monthly rate steps up 5% every 6 months. Flows contracted in the current period lock in the current rate for the full term. Not trying to rush a decision — just making sure the timing picture is visible. [Your name]</p></blockquote>
+<h3>AE Slack / Teams Starters</h3>
+<p><strong>Opening a new prospect:</strong></p>
+<blockquote><p>Hey [Name] — quick question on the MuleSoft evaluation. Is the bigger concern getting integrations live without a lot of internal ops overhead — or making sure there's a path to AI on top of them once they're running? Asking because the answer shapes how I'd structure the engagement recommendation.</p></blockquote>
+<p><strong>After a stalled deal:</strong></p>
+<blockquote><p>[Name] — on the implementation cost concern from last time. DataSkate does it as a managed service, $0 upfront on IaaS. But the more relevant angle: every connection they build is AI-ready from day one. Worth 20 minutes to see if that changes the picture?</p></blockquote>
+<p><strong>Introducing after close:</strong></p>
+<blockquote><p>[Name] — looping in Vivek from DataSkate who'll run the implementation and managed service. He'll kick off scoping and map the automation roadmap for year two as part of the engagement.</p></blockquote>
+<hr>
+<h2>Part 4 — Presenting to a Client</h2>
+<h3>Your Opening (60 seconds)</h3>
+<blockquote><p>"Before I walk through the technical architecture, I want to spend five minutes on the commercial model — because how we structure the engagement affects what we build. DataSkate runs two models: managed service, where we build and run everything for a fixed monthly rate, and implementation only, where we build and hand off. The right choice depends on whether you have a team that can own integration maintenance. Let me show you both."</p></blockquote>
+<p>Share the DS Pricing Model one-pager. Give them 30 seconds to read it before you talk.</p>
+<h3>Reading the Room Before You Pitch</h3>
+<table class="md-table"><thead><tr><th>What They Say</th><th>What It Means</th><th>How You Lead</th></tr></thead><tbody><tr><td>"We have too much manual work"</td><td>Stage 1 problems — connections don't exist</td><td>Lead with reliability and time savings</td></tr>
+<tr><td>"Our data is always out of sync"</td><td>Stage 1/2 — connections exist but aren't maintained</td><td>Lead with managed service and uptime</td></tr>
+<tr><td>"We want AI but our data is a mess"</td><td>Needs Stage 1 before Stage 3 is possible</td><td>Lead with "clean foundation for AI"</td></tr>
+<tr><td>"We're growing fast and can't keep up"</td><td>Stage 2 — automation is the unlock</td><td>Lead with scale without headcount</td></tr>
+<tr><td>"We want to reduce IT costs"</td><td>Practical constraint</td><td>Lead with cost comparison vs. internal dev</td></tr></tbody></table>
+<h3>The Cost Conversation</h3>
+<table class="md-table"><thead><tr><th>Option</th><th>What It Costs</th><th>What's Missing</th></tr></thead><tbody><tr><td>Internal developer hire</td><td>$100k–$120k/year</td><td>No 24/7, single point of failure, slow to scale</td></tr>
+<tr><td>Traditional SI project</td><td>$30k–$80k upfront</td><td>Maintenance falls on client from day one</td></tr>
+<tr><td>DIY tools (Zapier, Make)</td><td>Low upfront, variable</td><td>Breaks at enterprise data volumes</td></tr>
+<tr><td><strong>DataSkate managed service</strong></td><td><strong>Fixed monthly rate/flow</strong></td><td><strong>Nothing — all included</strong></td></tr></tbody></table>
+<blockquote><p><em>"The rate is transparent and predictable — you'll know every payment amount before you commit. It steps up modestly every 6 months, less than inflation for what it covers. What stays constant is the scope: uptime, performance, upgrades, minor enhancements — all included at every rate, every period."</em></p></blockquote>
+<p>Don't lead with the escalation. Lead with: you pay when you are live, you know every number before you sign, nothing is hidden.</p>
+<h3>Client Objections</h3>
+<p><strong>"We don't want to pay monthly. We want to own the integration."</strong></p>
+<blockquote><p>You own it either way — all the code lives in your GitHub from day one. Under IaaS, you own the asset, we operate it. The monthly fee is for the service, not the code.</p></blockquote>
+<p><strong>"Why do we pay a retainer before seeing any work?"</strong></p>
+<blockquote><p>The retainer covers the requirements and scoping phase — two weeks of work where we analyse your systems, map your data, and produce the scope document you'll sign off on. It's fully credited against your first payment.</p></blockquote>
+<p><strong>"What if our requirements change during development?"</strong></p>
+<blockquote><p>That's exactly what scope sign-off is for. You approve the scope document before we write a single line of code. Changes after that point are change orders — scoped and priced in writing before we proceed.</p></blockquote>
+<p><strong>"What if we need to change a flow completely after go-live?"</strong></p>
+<blockquote><p>That's a flow replacement — flat $1,500 fee, old flow closes, fresh 12-month contract on the new flow. You get a full year on the new build.</p></blockquote>
+<p><strong>"What if a flow becomes useless after 6 months?"</strong></p>
+<blockquote><p>Replace it with a flow you actually need — $1,500 replacement fee and start fresh. The 1-year term is what lets us charge $0 upfront. Shorter commitments would mean higher rates.</p></blockquote>
+<p><strong>"We have our own IT team. We don't need managed service."</strong></p>
+<blockquote><p>Then Implementation Only is the right model. Where we'd come back is Phase 2: agent development. Once your systems are connected, the next layer is AI agents that use those connections to automate workflows. That's specialised work most IT teams aren't set up for.</p></blockquote>
+<p><strong>"Your rates are higher than what we've seen."</strong></p>
+<blockquote><p>Compare what's included. A freelancer quotes build cost only — you own incident response and maintenance from day one. DataSkate's rate covers build, deployment, 24/7 monitoring, connector upgrades, and minor enhancements.</p></blockquote>
+<p><strong>"What do we get for the monthly fee after go-live?"</strong></p>
+<blockquote><p>Uptime monitoring and incident response (24/7), performance management, connector upgrades, alerting, and minor enhancements. Action changes — if the flow needs to do something fundamentally different — are change orders. Everything else is covered.</p></blockquote>
+<p><strong>"Can we start with fewer flows?"</strong></p>
+<blockquote><p>Yes — and that's the recommended approach. Start with the 2–3 highest-impact flows, prove the model, then expand. Each new flow gets its own independent 12-month contract.</p></blockquote>
+<p><strong>"What happens at the end of 12 months?"</strong></p>
+<blockquote><p>We renegotiate. If you decide not to renew, you already own all the code — it's in your GitHub. Nothing is locked. The 1-year term is a commitment to the service, not to staying with DataSkate forever.</p></blockquote>
+<p><strong>"The monthly cost adds up."</strong></p>
+<blockquote><p>It does — and so does everything it replaces. One integration developer at $100k/year. Support contracts. Incident response at 2am. When you add that up, the managed service rate is usually more cost-effective.</p></blockquote>
+<p><strong>"A year is too long."</strong></p>
+<blockquote><p>The 1 year is the minimum needed to get you to Stage 2. The first 3–4 months, your systems get connected and reliable. By month 6–12, you're starting to automate. A 3-month project just delivers flows and leaves.</p></blockquote>
+<p><strong>"We talked to [other SI] and they don't have all these policies."</strong></p>
+<blockquote><p>That's because they deliver and disappear. They don't need policies about month 8 because they're not there at month 8. DataSkate is. Our policies protect you as much as they protect us.</p></blockquote>
+<p><strong>"You're too expensive compared to offshore developers."</strong></p>
+<blockquote><p>Offshore development is a different product. An offshore team builds the flows — then your team owns incidents at 3am, upgrades when Salesforce changes an API, debugging six months after go-live. DataSkate's rate is the full cost: build, run, maintain, improve.</p></blockquote>
+<p><strong>"We're a small company."</strong></p>
+<blockquote><p>MuleSoft is the platform of choice for your industry — not because companies are large, but because the systems they run on are. The question is whether you want to build and maintain integrations yourself or have a team run it for you.</p></blockquote>
+<p><strong>"What if DataSkate goes away?"</strong></p>
+<blockquote><p>All code is in your GitHub. Any MuleSoft developer could pick it up from day one. The dependency is on MuleSoft and Anypoint, not on DataSkate.</p></blockquote>
+<p><strong>"Can I talk to a reference customer?"</strong></p>
+<blockquote><p>Yes — a client live for at least 6 months in the same phase you are considering. We only use clients with enough running time to speak to the managed service experience.</p></blockquote>
+<h3>Client Email Templates</h3>
+<p><strong>Cold Outreach — Known Integration Pain</strong></p>
+<p>Subject: Automating [specific pain] at [Company]</p>
+<blockquote><p>Hi [Name], I'll be direct. Companies in [industry] typically spend [X hours/week] managing data between [System A] and [System B] manually. We've fixed this pattern for several [industry] organizations consistently. DataSkate builds and manages MuleSoft integrations as a service — fixed monthly rate, all-in. We architecture every integration to be AI-ready. Worth 20 minutes to see if [Company] fits the pattern? [Your name] | DataSkate</p></blockquote>
+<p><strong>Warm Outreach — Referral or AE Introduction</strong></p>
+<p>Subject: DataSkate intro — [AE Name] thought we should connect</p>
+<blockquote><p>Hi [Name], [AE Name] suggested I reach out. You're evaluating MuleSoft for [use case] and they thought our model might be a better fit than a traditional implementation. We don't do one-off integration projects. We run your integrations as a managed service — built, monitored, and maintained — and architected from day one to support AI workflows as your business evolves. The cost is a fixed monthly rate per flow. Full payment schedule disclosed upfront. Can we find 30 minutes this week? [Your name] | DataSkate</p></blockquote>
+<p><strong>Follow-Up After Discovery Call</strong></p>
+<p>Subject: DataSkate — what this looks like for [Company]</p>
+<blockquote><p>Hi [Name], Based on our conversation, here is what I am seeing: <strong>Where you are today:</strong> [2–3 sentences summarizing their manual pain] <strong>What Stage 1 looks like for [Company]:</strong> [N] integrations connecting [systems]. Built in [X] weeks. Managed by DataSkate from go-live. Billing starts at go-live — not at contract signing. <strong>What Stage 2 looks like (Year 1):</strong> [Specific automation examples] <strong>What Stage 3 looks like (Renewal+):</strong> [Specific agentic example] Want to walk through this on a call, or should I put together a formal proposal? [Your name]</p></blockquote>
+<p><strong>No-Response Follow-Up (5 Days)</strong></p>
+<p>Subject: Re: DataSkate proposal — one question</p>
+<blockquote><p>Hi [Name], One question before I follow up further: is the hesitation about budget, timeline, or the 1-year commitment? Each of those has a different answer and I don't want to send you generic follow-ups. [Your name]</p></blockquote>
+<h3>Client Slack / Teams Messages</h3>
+<p><strong>Opening:</strong></p>
+<blockquote><p>Hey [Name] — genuine question. If you could wave a wand and fix one thing about how your team moves data between your systems today, what would it be? Asking because that's usually where we start, and it's often a much faster fix than people expect.</p></blockquote>
+<p><strong>After discovery:</strong></p>
+<blockquote><p>[Name] — thinking about what you shared. The [specific pain] is a classic Stage 1 problem. We've solved this pattern for [similar company type]. Want me to send over what that looked like?</p></blockquote>
+<p><strong>On the agentic angle:</strong></p>
+<blockquote><p>[Name] — one thing I didn't mention: clients who start with our managed service get their data clean, connected, and AI-ready within year one — so renewal opens the door to agentic automation without rebuilding anything. Worth including in your evaluation criteria?</p></blockquote>
+<hr>
+<h2>Part 5 — When the Client Self-Maintains (Phase 2 Pivot)</h2>
+<p>When a client has a developer and plans to own integration maintenance, do not push IaaS. Agree with them, close Implementation Only, and plant the Phase 2 seed immediately.</p>
+<h3>The Phase 2 Pivot</h3>
+<table class="md-table"><thead><tr><th>Phase</th><th>Who Owns It</th><th>What It Is</th></tr></thead><tbody><tr><td>Phase 1 — Connected</td><td>Client's developer</td><td>Integration flows built by DataSkate, maintained in-house</td></tr>
+<tr><td>Phase 2 — Automated &amp; Agentic</td><td>DataSkate (SOW)</td><td>AI agents that use the connected data to automate workflows</td></tr></tbody></table>
+<div class="dg-flow">
+  <div class="dg-step">
+    <div class="dg-step-num">Phase 1</div>
+    <div class="dg-step-name">Connected</div>
+    <div class="dg-step-tag">Client owns ops</div>
+    <div class="dg-step-desc">DataSkate builds. Client developer maintains. Code lives in their GitHub.</div>
+  </div>
+  <div class="dg-arrow">→</div>
+  <div class="dg-step highlight">
+    <div class="dg-step-num">Phase 2</div>
+    <div class="dg-step-name">Agentic</div>
+    <div class="dg-step-tag">DataSkate SOW</div>
+    <div class="dg-step-desc">AI agents act on connected data. Separate engagement, scoped at go-live.</div>
+  </div>
+</div>
+<h3>What to Say</h3>
+<p><strong>At scoping:</strong></p>
+<blockquote><p><em>"That makes sense — Implementation Only is the right structure for you. Your developer runs the integration layer, you own the code. What I want to put on the roadmap now is Phase 2: once your systems are connected, the next unlock is agents — AI that uses those connections to automate decisions and surface what your team doesn't have time to find manually. Separate engagement, separate timeline. Let's get Phase 1 right and come back to this at go-live."</em></p></blockquote>
+<p><strong>At go-live:</strong></p>
+<blockquote><p><em>"Your flows are live. This is exactly the moment to scope Phase 2 — your data is clean, connected, and ready. We know where the agent opportunities are in your stack. Worth 30 minutes to map it out?"</em></p></blockquote>
+<h3>Signals That Phase 2 is Ready</h3>
+<ul><li>Flows have been live 60–90 days and are stable</li><li>Client team is using the connected data in their workflows</li><li>Client mentions manual reporting, repetitive decisions, or "we still export to Excel"</li><li>AI or automation comes up in any context</li></ul>
+<hr>
+<h2>Part 6 — Closing the Conversation</h2>
+<h3>If the Client is Hesitating on Model Choice</h3>
+<blockquote><p>"The simplest way to decide: do you have someone on your team whose job it will be to wake up at 2am when an integration breaks and fix it? If yes — Implementation Only. If no — IaaS."</p></blockquote>
+<h3>If the AE is Hesitating on Introducing DataSkate</h3>
+<blockquote><p>"Your client is going to ask you who's running the integrations after go-live. Most SIs make that your client's problem. DataSkate makes it ours. That's the conversation."</p></blockquote>
+<h3>If Either Audience Asks About AI / Agents</h3>
+<blockquote><p>"Phase 2 is where this gets interesting. The integration layer we build in Phase 1 is the data foundation every AI use case runs on. Agent development, automated workflows, decision intelligence — none of it works without clean, reliable, connected data. We architect Phase 1 so Phase 2 is possible. Most SIs don't think past the delivery."</p></blockquote>
+<hr>
+<p><em>DataSkate — dataskate.ai | kailash@dataskate.ai</em><br><em>Rates and terms: see <code>commons/sales/pricing-model.md</code> — do not quote specific numbers from memory</em></p></main>
+  <nav class="nav-right" id="nav-right" aria-label="On this page">
+    <div class="nav-right-label">On this page</div>
+    <div id="nav-right-links"></div>
+  </nav>
+</div>
+
+<footer style="border-top:1px solid var(--border);padding:18px 56px;font-size:12px;color:var(--mid);display:flex;justify-content:space-between;">
+  <span>DataSkate · <a href="https://dataskate.ai" style="color:var(--mid);">dataskate.ai</a></span>
+  <span>Internal Use Only</span>
+</footer>
+
+
+<script>
+(function () {
+  function slug(text) {
+    return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+  }
+
+  const content  = document.getElementById('doc-content');
+  const navLeft  = document.getElementById('nav-left');
+  const navRight = document.getElementById('nav-right-links');
+
+  const h2s = Array.from(content.querySelectorAll('h2'));
+  const h3s = Array.from(content.querySelectorAll('h3'));
+  h2s.forEach(el => { if (!el.id) el.id = slug(el.textContent); });
+  h3s.forEach(el => { if (!el.id) el.id = slug(el.textContent); });
+
+  h2s.forEach(h2 => {
+    const a = document.createElement('a');
+    a.href = '#' + h2.id;
+    a.className = 'nav-section-link';
+    a.textContent = h2.textContent;
+    a.addEventListener('click', e => { e.preventDefault(); h2.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    const div = document.createElement('div'); div.className = 'nav-section'; div.appendChild(a);
+    navLeft.appendChild(div);
+  });
+
+  function buildRightNav(activeH2) {
+    navRight.innerHTML = '';
+    if (!activeH2) return;
+    const idx  = h2s.indexOf(activeH2);
+    const next = h2s[idx + 1];
+    const sectionH3s = h3s.filter(h3 => {
+      const pos = h3.compareDocumentPosition(activeH2);
+      const posNext = next ? h3.compareDocumentPosition(next) : null;
+      return (pos & Node.DOCUMENT_POSITION_PRECEDING) &&
+             (!next || (posNext & Node.DOCUMENT_POSITION_FOLLOWING));
+    });
+    sectionH3s.forEach(h3 => {
+      const a = document.createElement('a');
+      a.href = '#' + h3.id;
+      a.className = 'nav-sub-link';
+      a.textContent = h3.textContent;
+      a.addEventListener('click', e => { e.preventDefault(); h3.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      navRight.appendChild(a);
+    });
+  }
+
+  let activeH2 = h2s[0] || null;
+  let activeH3 = null;
+
+  function setActiveH2(el) {
+    if (el === activeH2) return;
+    activeH2 = el;
+    navLeft.querySelectorAll('.nav-section-link').forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + el.id);
+    });
+    buildRightNav(el);
+  }
+
+  function setActiveH3(el) {
+    if (el === activeH3) return;
+    activeH3 = el;
+    navRight.querySelectorAll('.nav-sub-link').forEach(a => {
+      a.classList.toggle('active', el && a.getAttribute('href') === '#' + el.id);
+    });
+  }
+
+  function onScroll() {
+    const scrollY = window.scrollY + 52;
+    let currentH2 = h2s[0];
+    for (const h2 of h2s) { if (h2.offsetTop <= scrollY) currentH2 = h2; else break; }
+    if (currentH2) setActiveH2(currentH2);
+    const idx  = h2s.indexOf(currentH2);
+    const next = h2s[idx + 1];
+    const sectionH3s = h3s.filter(h3 => {
+      const afterH2   = h3.offsetTop >= (currentH2 ? currentH2.offsetTop : 0);
+      const beforeNext = !next || h3.offsetTop < next.offsetTop;
+      return afterH2 && beforeNext;
+    });
+    let currentH3 = null;
+    for (const h3 of sectionH3s) { if (h3.offsetTop <= scrollY) currentH3 = h3; else break; }
+    setActiveH3(currentH3);
+  }
+
+  if (h2s.length) {
+    setActiveH2(h2s[0]);
+    buildRightNav(h2s[0]);
+    navLeft.querySelector('.nav-section-link').classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+
+
+
+</body>
+</html>

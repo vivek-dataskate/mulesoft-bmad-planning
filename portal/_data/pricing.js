@@ -1,4 +1,4 @@
-// docs/eleventy/_data/pricing.js
+// portal/_data/pricing.js
 //
 // Exposes parsed pricing values to Eleventy templates as the `pricing` global.
 // Source of truth: commons/sales/pricing-model.md.

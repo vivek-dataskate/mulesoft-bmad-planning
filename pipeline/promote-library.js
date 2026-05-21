@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // promote-library.js
 // Promotes libraryContributions[] from per-client vera.json files into:
-//   1. standards/usecases/{vertical}.json  — use case library
-//   2. standards/client-registry.json      — prospect entries (isProspect: true)
+//   1. mulesoft/playbooks/usecases/{vertical}.json  — use case library
+//   2. projects/client-registry.json      — prospect entries (isProspect: true)
 // Vera stages entries with pendingPromotion: true — this script does the actual write.
 //
 // Field semantics:
@@ -11,9 +11,9 @@
 //   These are different things. Never put a research client into clients[].
 //
 // Usage:
-//   node DSPipeline/promote-library.js                        # all clients
-//   node DSPipeline/promote-library.js --client agilemind     # one client
-//   node DSPipeline/promote-library.js --dry-run              # preview only, no writes
+//   node pipeline/promote-library.js                        # all clients
+//   node pipeline/promote-library.js --client agilemind     # one client
+//   node pipeline/promote-library.js --dry-run              # preview only, no writes
 
 'use strict';
 
@@ -29,8 +29,8 @@ function cyan(s)   { return `\x1b[36m${s}\x1b[0m`; }
 
 const ROOT     = path.join(__dirname, '..');
 const PROJECTS = path.join(ROOT, 'projects');
-const USECASES = path.join(ROOT, 'standards', 'usecases');
-const REGISTRY = path.join(ROOT, 'standards', 'client-registry.json');
+const USECASES = path.join(ROOT, 'mulesoft', 'playbooks', 'usecases');
+const REGISTRY = path.join(ROOT, 'projects', 'client-registry.json');
 
 function dedupeKey(entry) {
   const uc = (entry.useCase || '').toLowerCase().trim();
@@ -229,7 +229,7 @@ const clientSlug = clientIdx !== -1 ? args[clientIdx + 1] : null;
 const dryRun     = args.includes('--dry-run');
 
 console.log('\n' + bold('━'.repeat(60)));
-console.log(bold('  DSPipeline — Promote Library'));
+console.log(bold('  pipeline — Promote Library'));
 if (clientSlug) console.log(`  Client:  ${cyan(clientSlug)}`);
 else             console.log(`  Scope:   ${dim('all clients')}`);
 if (dryRun)      console.log(`  ${yellow('DRY RUN — no files will be written')}`);

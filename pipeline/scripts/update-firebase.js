@@ -4,12 +4,12 @@
  *
  * What it does per project:
  *   1. Archive projects/{slug}/scoping/ files → Firebase Storage (private)
- *   2. Copy intake + proposal HTML       → firebase/public/intake|proposal/
+ *   2. Copy intake + proposal HTML       → portal/public/intake|proposal/
  *   3. Regenerate projects-manifest.json
- *   4. Regenerate firebase/public/portal/{slug}.html
+ *   4. Regenerate portal/public/portal/{slug}.html
  *   5. Deploy to Firebase Hosting
  *
- * Called by: DSPipeline/scout/orchestrate.js (post-Mira), deploy.sh
+ * Called by: pipeline/scout/orchestrate.js (post-Mira), deploy.sh
  *
  * Usage:
  *   node scripts/update-firebase.js agilemind
@@ -22,13 +22,13 @@ const { execSync, spawnSync } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT     = path.join(__dirname, '..');
-const PUBLIC   = path.join(ROOT, 'firebase', 'public');
+const ROOT     = path.join(__dirname, '../..');
+const PUBLIC   = path.join(ROOT, 'portal', 'public');
 const BUCKET   = 'dataskateclients.firebasestorage.app';
 const PORTAL   = 'https://dataskateclients.web.app';
 const FB_PROJ  = 'dataskateclients';
-const BUILD    = path.join(ROOT, 'docs', 'eleventy', '_build');
-const MANIFEST = path.join(ROOT, 'docs', 'eleventy', 'version-manifest.json');
+const BUILD    = path.join(ROOT, 'portal', '_build');
+const MANIFEST = path.join(ROOT, 'portal', 'version-manifest.json');
 
 // Service account: prefer the repo's Firebase Admin SDK key (canonical deploy SA,
 // restored by .devcontainer/setup.sh from FIREBASE_SA_KEY) over GOOGLE_APPLICATION_CREDENTIALS.
@@ -119,9 +119,9 @@ async function archiveScoping(slug) {
   if (!remaining.length) fs.rmdirSync(scopingDir);
 }
 
-// ── 1b. Sync client logo → firebase/public/logos/{slug}.{ext} ────────────────
+// ── 1b. Sync client logo → portal/public/logos/{slug}.{ext} ────────────────
 // Looks for logo-{slug}.{ext} or {slug}.{ext} in projects/{slug}/intake/
-// and copies to firebase/public/logos/{slug}.{ext} so Eleventy can resolve logo URLs.
+// and copies to portal/public/logos/{slug}.{ext} so Eleventy can resolve logo URLs.
 function syncLogo(slug) {
   const intakeDir  = path.join(ROOT, 'projects', slug, 'intake');
   const logosDir   = path.join(PUBLIC, 'logos');
@@ -135,7 +135,7 @@ function syncLogo(slug) {
         fs.mkdirSync(logosDir, { recursive: true });
         const dest = path.join(logosDir, `${slug}${ext}`);
         fs.copyFileSync(src, dest);
-        log(`[${slug}] logo synced → firebase/public/logos/${slug}${ext}`);
+        log(`[${slug}] logo synced → portal/public/logos/${slug}${ext}`);
         return;
       }
     }
@@ -175,7 +175,7 @@ function republishFrozenHtml(slug) {
     if (!tplEntry) continue;
     const version = tplEntry.current;
 
-    const outRel = `firebase/public/${tmpl.segment}/${slug}/${today}-${version}.html`;
+    const outRel = `portal/public/${tmpl.segment}/${slug}/${today}-${version}.html`;
     const outAbs = path.join(ROOT, outRel);
     const url    = `${PORTAL}/${tmpl.segment}/${slug}/${today}-${version}.html`;
 
@@ -198,7 +198,7 @@ function republishFrozenHtml(slug) {
       const leg     = proj.deployments[legacyIdx];
       const legDate = (leg.publishedAt || '').slice(0, 10);
       const legVer  = leg.version || 'v1';
-      const legRel  = `firebase/public/${tmpl.segment}/${slug}/${legDate}-${legVer}.html`;
+      const legRel  = `portal/public/${tmpl.segment}/${slug}/${legDate}-${legVer}.html`;
       const legAbs  = path.join(ROOT, legRel);
       if (!fs.existsSync(legAbs) && fs.existsSync(flatPath)) {
         fs.mkdirSync(path.dirname(legAbs), { recursive: true });
@@ -238,7 +238,7 @@ function republishFrozenHtml(slug) {
 }
 
 // ── 2. Upload intake + proposal HTML → Firebase Storage (public) ─────────────
-// Files are kept locally in firebase/public/{type}/ for git tracking and also
+// Files are kept locally in portal/public/{type}/ for git tracking and also
 // uploaded to Storage for serving. Source files in projects/{slug}/intake/ are
 // not deleted.
 async function uploadHtmlToStorage(slug) {
@@ -256,7 +256,7 @@ async function uploadHtmlToStorage(slug) {
     } catch { /* malformed JSON; proceed cautiously */ }
   }
 
-  // [localFilename, storageDest, projectJsonKey, firebase/public/ subdir, useHostingUrl]
+  // [localFilename, storageDest, projectJsonKey, portal/public/ subdir, useHostingUrl]
   // useHostingUrl=true → serve from Firebase Hosting (no Storage auth wall)
   const pairs = [
     [`corporate-brief-${slug}.html`,      `client-docs/${slug}/corporate-brief.html`, 'briefUrl',    'brief',    true],
@@ -273,7 +273,7 @@ async function uploadHtmlToStorage(slug) {
     const srcPath = path.join(intakeDir, src);
     if (!fs.existsSync(srcPath)) continue;
 
-    // Copy to firebase/public/{subdir}/ for git tracking
+    // Copy to portal/public/{subdir}/ for git tracking
     const pubDir = path.join(PUBLIC, pubSubdir);
     fs.mkdirSync(pubDir, { recursive: true });
     fs.copyFileSync(srcPath, path.join(pubDir, `${slug}.html`));
@@ -303,7 +303,7 @@ async function uploadHtmlToStorage(slug) {
 }
 
 
-// ── 1c. Generate + sync system diagram SVG → firebase/public/diagrams/ ─────────
+// ── 1c. Generate + sync system diagram SVG → portal/public/diagrams/ ─────────
 function syncDiagram(slug) {
   const projPath = path.join(ROOT, 'projects', slug, 'project.json');
   if (!fs.existsSync(projPath)) return;
@@ -311,7 +311,7 @@ function syncDiagram(slug) {
   if (!proj.systemDiagram || !proj.systemDiagram.current) return;
 
   try {
-    execSync(`node ${path.join(ROOT, 'scripts', 'generate-diagrams.js')} ${slug}`, { cwd: ROOT, stdio: 'pipe' });
+    execSync(`node ${path.join(ROOT, 'pipeline', 'scripts', 'generate-diagrams.js')} ${slug}`, { cwd: ROOT, stdio: 'pipe' });
   } catch (e) {
     log(`[${slug}] diagram generation failed: ${e.message}`);
     return;
@@ -323,7 +323,7 @@ function syncDiagram(slug) {
   const diagramsDir = path.join(PUBLIC, 'diagrams');
   fs.mkdirSync(diagramsDir, { recursive: true });
   fs.copyFileSync(svgSrc, path.join(diagramsDir, `${slug}.svg`));
-  log(`[${slug}] diagram synced → firebase/public/diagrams/${slug}.svg`);
+  log(`[${slug}] diagram synced → portal/public/diagrams/${slug}.svg`);
 }
 
 // ── 3. Seed pitchKits/{slug} in Firestore (Admin SDK — rules say write:false) ──
@@ -349,7 +349,7 @@ async function seedPitchKit(slug) {
   log(`[${slug}] pitchKits/${slug} seeded in Firestore${systemDiagramUrl ? ' (with diagram URL)' : ''}`);
 }
 
-// ── Commit all generated HTML in firebase/public/ to git ─────────────────────
+// ── Commit all generated HTML in portal/public/ to git ─────────────────────
 // Uses -c commit.gpgsign=false so this automated chore commit never depends on the
 // user's GPG/SSH signing agent being authenticated. Without this, a stale signing
 // agent (404 from the signing service) made the commit fail silently here while the
@@ -357,10 +357,10 @@ async function seedPitchKit(slug) {
 // deployed. The chore commit doesn't need to be signed; signing belongs on human commits.
 function gitCommitHtml() {
   try {
-    execSync('git add firebase/public/', { cwd: ROOT, stdio: 'pipe' });
-    const status = execSync('git status --porcelain firebase/public/', { cwd: ROOT }).toString().trim();
+    execSync('git add portal/public/', { cwd: ROOT, stdio: 'pipe' });
+    const status = execSync('git status --porcelain portal/public/', { cwd: ROOT }).toString().trim();
     if (!status) { log('git: no HTML changes to commit'); return; }
-    execSync('git -c commit.gpgsign=false commit -m "chore: sync generated HTML to firebase/public"', { cwd: ROOT, stdio: 'inherit' });
+    execSync('git -c commit.gpgsign=false commit -m "chore: sync generated HTML to portal/public"', { cwd: ROOT, stdio: 'inherit' });
     log('HTML files committed to git');
   } catch (e) {
     log(`git commit skipped: ${e.message}`);
@@ -425,7 +425,7 @@ function rebuildManifest() {
 //        non-empty   → regenerate only those clients (so a single-client sync
 //        doesn't rewrite portals for every project that has a project.json).
 function rebuildPortals(slugs) {
-  const args = [path.join(ROOT, 'scaffold', 'generate-client-portal.js'), ...(slugs || [])];
+  const args = [path.join(ROOT, 'pipeline', 'tools', 'generate-client-portal.js'), ...(slugs || [])];
   const result = spawnSync('node', args, { cwd: ROOT, stdio: 'inherit' });
   if (result.status !== 0) log('WARNING: portal generation exited with errors');
 }
@@ -442,7 +442,7 @@ function deploy() {
   const firebaseBin = fs.existsSync(localBin) ? `"${localBin}"` : 'npx firebase';
   execSync(
     `${firebaseBin} deploy --only hosting,storage --project ${FB_PROJ} --force`,
-    { cwd: path.join(ROOT, 'firebase'), stdio: 'inherit', env }
+    { cwd: path.join(ROOT, 'portal'), stdio: 'inherit', env }
   );
   log(`Live: ${PORTAL}`);
 }

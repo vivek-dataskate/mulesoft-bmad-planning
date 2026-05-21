@@ -2,8 +2,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-// docs/eleventy/site/intake/ → 4 levels up → project root
-const ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+// portal/src/intake/ → 3 levels up → project root
+const ROOT = path.resolve(__dirname, '..', '..', '..');
 
 const PROFILE_RECOMMENDED_MODEL = {
   'roi-analytical':       'iaas',

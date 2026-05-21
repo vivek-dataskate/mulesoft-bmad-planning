@@ -4,7 +4,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+const ROOT = path.resolve(__dirname, '..', '..', '..');
 
 module.exports = function() {
   const md = fs.readFileSync(path.join(ROOT, 'commons', 'sales', 'architect-guide.md'), 'utf8');

@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 6 is next (Phases 0–5 complete)
+**Status:** Phase 7 is next (Phases 0–6 complete)
 
 ---
 
@@ -104,7 +104,6 @@ mulesoft/
 ├── query-connector.py
 ├── DESIGN_STANDARDS.md
 ├── PATTERNS_RESEARCH.md
-├── DIAGRAM_FRAMEWORK.md
 └── pom.xml
 ```
 
@@ -231,7 +230,7 @@ No code references to update — pure `git mv`.
 - [x] `git mv standards/DESIGN_STANDARDS.md mulesoft/`
 - [x] `git mv standards/doc-templates/ mulesoft/doc-templates/`
 - [x] `git mv docs/PATTERNS_RESEARCH.md mulesoft/`
-- [x] `git mv docs/DIAGRAM_FRAMEWORK.md mulesoft/`
+- [x] ~~`git mv docs/DIAGRAM_FRAMEWORK.md mulesoft/`~~ reverted — lives in `docs/`
 - [x] `git mv commons/src/ mulesoft/src/`
 - [x] `git mv commons/pom.xml mulesoft/`
 - [x] `git mv commons/publish.sh mulesoft/`
@@ -404,3 +403,10 @@ These are not part of the refactor execution but must be implemented as the syst
 - [ ] Add a `sync` command to `package.json` that runs sync for all clients: `node pipeline/scripts/regen-all-clients.js --sync`
 - [ ] Document in `projects/_template/dev/` that this folder is a **backup**, not the working copy — developers should always push to the client GitHub repo first, then sync back here
 - [ ] Add a staleness check to `pipeline/tools/check-registry-freshness.js` — warn if `dev/{client}-integration/` has not been synced in more than 14 days
+
+---
+
+### Phase 13 — Implement `docs/DIAGRAM_FRAMEWORK.md`
+
+- [ ] Implement everything specified in `docs/DIAGRAM_FRAMEWORK.md`
+- 📌 **COMMIT: `feat: implement diagram framework`**

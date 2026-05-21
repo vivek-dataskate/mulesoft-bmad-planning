@@ -18,25 +18,25 @@ version = "1.0.0"
 reads = [
   "projects/{client}/run/sage.json",
   "projects/{client}/run/vera.json",
-  "standards/connector-names.json",              # 65KB — display names + auth + category for all 350 connectors
-  "standards/connector-registry.json",              # queried on-demand via query-connector.py (never fully loaded)
-  "standards/playbooks/{system}/{system}_playbook.json",  # loaded per detected system
-  "standards/canonical-models/registry.json",   # for stub creation (7D)
+  "mulesoft/connector-names.json",              # 65KB — display names + auth + category for all 350 connectors
+  "mulesoft/connector-registry.json",              # queried on-demand via query-connector.py (never fully loaded)
+  "mulesoft/playbooks/{system}/{system}_playbook.json",  # loaded per detected system
+  "mulesoft/canonical-models/registry.json",   # for stub creation (7D)
 ]
 writes = [
   "projects/{client}/run/rex.json",
   "projects/{client}/canonical-extensions.yaml",
-  "standards/playbooks/{system}/{system}_playbook.json",   # stub creation + maturity log update
-  "standards/connector-registry.json",           # new system stubs
-  "standards/intake-checklist.json",             # autoWarnings entries
+  "mulesoft/playbooks/{system}/{system}_playbook.json",   # stub creation + maturity log update
+  "mulesoft/connector-registry.json",           # new system stubs
+  "pipeline/intake-checklist.json",             # autoWarnings entries
 ]
 
 principles = [
   # ── CONNECTOR REGISTRY — TWO-TIER LOADING ─────────────────────────────
-  "NEVER load the full connector-registry.json (368KB) or connector-registry.json (155KB). Use two-tier loading:\n  Tier 1 — standards/connector-names.json (65KB): loaded at activation for system name matching.\n  Tier 2 — On-demand query: after system keys are confirmed, run:\n    python3 standards/query-connector.py {key1} {key2} ...\n  This returns ONLY the detected systems' full entries (~3KB vs 155KB). Run it after Step 1 (system inference) completes and connector keys are known.",
+  "NEVER load the full connector-registry.json (368KB) or connector-registry.json (155KB). Use two-tier loading:\n  Tier 1 — mulesoft/connector-names.json (65KB): loaded at activation for system name matching.\n  Tier 2 — On-demand query: after system keys are confirmed, run:\n    python3 mulesoft/query-connector.py {key1} {key2} ...\n  This returns ONLY the detected systems' full entries (~3KB vs 155KB). Run it after Step 1 (system inference) completes and connector keys are known.",
 
   # ── RESEARCH-FIRST PROTOCOL ────────────────────────────────────────────
-  "Before writing any finding about a system, Rex MUST:\n  1. Check standards/playbooks/{system}/{system}_playbook.json for known quirks.\n  2. Run python3 standards/query-connector.py {key} — gets auth type, authOptions, notes from connector-registry.json.\n  3. Run web searches if the above are insufficient: '{SystemName} API documentation', '{SystemName} MuleSoft connector', '{SystemName} REST API quirks'\n  4. Extract: auth method, API style, rate limits, pagination, sandbox behavior, quirks.\n  5. Write a SPECIFIC confirmed finding — not a question. If API docs say OAuth 2.0 Client Credentials, write that as the confirmed finding and flag only the client-specific credential values as unknowns.\n  NEVER ACCEPTABLE: 'We need to ask the client what auth method they use' when the API docs confirm it.",
+  "Before writing any finding about a system, Rex MUST:\n  1. Check mulesoft/playbooks/{system}/{system}_playbook.json for known quirks.\n  2. Run python3 mulesoft/query-connector.py {key} — gets auth type, authOptions, notes from connector-registry.json.\n  3. Run web searches if the above are insufficient: '{SystemName} API documentation', '{SystemName} MuleSoft connector', '{SystemName} REST API quirks'\n  4. Extract: auth method, API style, rate limits, pagination, sandbox behavior, quirks.\n  5. Write a SPECIFIC confirmed finding — not a question. If API docs say OAuth 2.0 Client Credentials, write that as the confirmed finding and flag only the client-specific credential values as unknowns.\n  NEVER ACCEPTABLE: 'We need to ask the client what auth method they use' when the API docs confirm it.",
 
   # ── NO-COMBINE RULE ───────────────────────────────────────────────────
   "NO-COMBINE (mandatory, never override): each system INSTANCE = one separate flow.\n  Examples:\n    Shopify Store 1 Customer Sync ≠ Shopify Store 2 Customer Sync → two flows\n    PharmacyHub Utilization ≠ Pipeline Medical Utilization → two flows\n    Gravity Forms → Salesforce ≠ Gravity Forms → Mailchimp → two flows\n  When in doubt: split. Each instance = one entry in confirmedFlows[].",
@@ -54,7 +54,7 @@ principles = [
   "Flow inference — for each system pair, enumerate standard entity categories:\n  master (Accounts, Products, Employees), transactional (Orders, Invoices, Payments), operational (Cases, Tasks, Events), analytical (Reports, Dashboards).\n  Classify each entity:\n    A) confirmed flow — explicitly mentioned in scoping\n    B) explicitly excluded — client said they don't want it\n    C) not mentioned = POTENTIAL FLOW\n  Category C: select top 3 most likely gaps. Write to rex.json potentialFlows[]. Cap at 3.\n  Common pair gaps:\n    Salesforce ↔ NetSuite: Account sync, Contact sync, Credit Memo, Contract activation\n    Salesforce ↔ HubSpot: Contact dedup, Deal bi-directional, Company merge\n    NetSuite ↔ WMS: Inventory sync, Shipment confirmation\n    Any ERP ↔ commission tool: Revenue actuals, quota adjustment, rep hierarchy",
 
   # ── STUB CREATION — 7A: PLAYBOOK ─────────────────────────────────────
-  "Step 7A — Playbook stubs: for each detected system:\n  If no playbook exists at standards/playbooks/{slug}/{slug}_playbook.json: create stub JSON:\n    {\n      \"system\": \"{full name}\",\n      \"maturity\": \"stub\",\n      \"lastUpdated\": \"{today}\",\n      \"clients\": [\"{client}\"],\n      \"status\": \"Stub — enriched by Architect after design, completed by CO after delivery.\",\n      \"knownQuirks\": [\"{findings from web research this session}\"],\n      \"supportedObjects\": [],\n      \"maturityLog\": [\n        { \"date\": \"{today}\", \"clientCount\": 1, \"knowledgeAdded\": \"Initial stub from {client} engagement\", \"status\": \"stub\" }\n      ]\n    }\n  If playbook exists: increment clientCount, add log entry, append new quirks found.",
+  "Step 7A — Playbook stubs: for each detected system:\n  If no playbook exists at mulesoft/playbooks/{slug}/{slug}_playbook.json: create stub JSON:\n    {\n      \"system\": \"{full name}\",\n      \"maturity\": \"stub\",\n      \"lastUpdated\": \"{today}\",\n      \"clients\": [\"{client}\"],\n      \"status\": \"Stub — enriched by Architect after design, completed by CO after delivery.\",\n      \"knownQuirks\": [\"{findings from web research this session}\"],\n      \"supportedObjects\": [],\n      \"maturityLog\": [\n        { \"date\": \"{today}\", \"clientCount\": 1, \"knowledgeAdded\": \"Initial stub from {client} engagement\", \"status\": \"stub\" }\n      ]\n    }\n  If playbook exists: increment clientCount, add log entry, append new quirks found.",
 
   # ── STUB CREATION — 7B: CONNECTOR REGISTRY ───────────────────────────
   "Step 7B — Connector registry stubs: for each detected system with no entry in connector-registry.json:\n  Add stub: key: {slug}, displayName: {full name}, type: unknown, authType: unknown,\n    notes: 'stub — verify connector type and auth', lastVerified: {today}, lastVerifiedBy: rex-stub\n  Do NOT run build-connector-index.js — orchestrate.js runs it post-Rex.",
@@ -63,7 +63,7 @@ principles = [
   "Step 7C — intake-checklist.json autoWarnings: for each new system with no existing entry:\n  Add: { id: {slug}_new, trigger: {slug keyword}, severity: medium, warning: 'New system — verify connector type, auth, and sandbox availability.' }",
 
   # ── STUB CREATION — 7D: CANONICAL MODEL STUBS ────────────────────────
-  "Step 7D — Canonical model stubs: read vera.json company.businessObjects[] and company.industry.\n  For each business object not yet covered by an existing canonical YAML:\n    Read standards/canonical-models/registry.json for this vertical's standard/standardBody/standardRef/keyFieldAlignments.\n    Create standards/canonical-models/{vertical}/canonical-{record}.yaml:\n      title, version: '1.0.0-stub', standard (from registry), standardBody, standardRef, deviations, description\n      type, required[], properties{} — derive fields from registry keyFieldAlignments + playbook DWL files + web research\n    Mark: version: '1.0.0-stub — created from {client} engagement'\n  For stubs that already exist: note field gaps in rex.json internalFlags[].",
+  "Step 7D — Canonical model stubs: read vera.json company.businessObjects[] and company.industry.\n  For each business object not yet covered by an existing canonical YAML:\n    Read mulesoft/canonical-models/registry.json for this vertical's standard/standardBody/standardRef/keyFieldAlignments.\n    Create mulesoft/canonical-models/{vertical}/canonical-{record}.yaml:\n      title, version: '1.0.0-stub', standard (from registry), standardBody, standardRef, deviations, description\n      type, required[], properties{} — derive fields from registry keyFieldAlignments + playbook DWL files + web research\n    Mark: version: '1.0.0-stub — created from {client} engagement'\n  For stubs that already exist: note field gaps in rex.json internalFlags[].",
 
   # ── KNOWLEDGE WRITE-BACK — 8D: CONNECTOR REGISTRY ───────────────────
   "Step 8d — Connector registry write-back: for every system where research verified auth type, API style, or gotchas that differ from the registry stub: update connector-registry.json with verified values and lastVerified: {today}, lastVerifiedBy: rex. Do NOT run build-connector-index.js — orchestrate.js runs it post-Rex.",
@@ -88,7 +88,7 @@ Pass 1 — Explicit: every named system with inferenceType='explicit'. Cross-ref
 Pass 2 — Implicit: every system with inferenceType='inferred'. Generate a clarifying question for each — add to rex.json openQuestions[].
 For each system confirmed (explicit or high-confidence inferred): note connector key.
 
-After system keys known: run python3 standards/query-connector.py {key1} {key2} ... (one key per system).
+After system keys known: run python3 mulesoft/query-connector.py {key1} {key2} ... (one key per system).
 Load each system's full connector entry (auth type, authOptions, notes).
 
 ─────────────────────────────────────────────────────────────────────
@@ -169,7 +169,7 @@ Write projects/{client}/run/rex.json:
       "trigger": "event-driven | scheduled | manual | webhook",
       "triggerDetail": "{exact trigger}",
       "pattern": "event-driven | batch | scheduled-sync | file-drop",
-      "canonicalModel": "{standards/canonical-models/{vertical}/canonical-{record}.yaml or null}",
+      "canonicalModel": "{mulesoft/canonical-models/{vertical}/canonical-{record}.yaml or null}",
       "confirmed": true,
       "evidence": "{quote from sage.json}"
     }

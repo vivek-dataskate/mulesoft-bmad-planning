@@ -11,7 +11,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT      = path.resolve(__dirname, '..');
+const ROOT      = path.resolve(__dirname, '../..');
 const intakeOnly = process.argv.includes('--intake');
 
 function isIntakeLabel(label) {
@@ -39,7 +39,7 @@ function discoverTargets() {
     }
   }
 
-  const fbRoot = path.join(ROOT, 'firebase', 'public');
+  const fbRoot = path.join(ROOT, 'portal', 'public');
   if (fs.existsSync(fbRoot)) {
     const walk = (dir, prefix) => {
       for (const entry of fs.readdirSync(dir)) {
@@ -99,6 +99,6 @@ const config = {
   debugWindow: false,
 };
 
-const out = path.join(ROOT, 'backstop.json');
+const out = path.join(ROOT, 'tests', 'backstop', 'backstop.json');
 fs.writeFileSync(out, JSON.stringify(config, null, 2));
 console.log(`backstop.json written — ${scenarios.length} scenario(s)${intakeOnly ? ' [intake only]' : ''}`);

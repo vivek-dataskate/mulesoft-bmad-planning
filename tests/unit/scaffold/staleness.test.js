@@ -1,6 +1,6 @@
 'use strict';
 
-const { checkStaleness } = require('../../../scaffold/generate');
+const { checkStaleness } = require('../../../mulesoft/generate');
 
 function monthsAgo(months) {
   const d = new Date();

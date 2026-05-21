@@ -18,12 +18,12 @@ const AXE_SOURCE = fs.readFileSync(
   'utf8'
 );
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '../..');
 
 const DEFAULT_TARGETS = [
-  'firebase/public/index.html',
-  'firebase/public/resources/ds-pricing-model.html',
-  'firebase/public/resources/architect-guide.html',
+  'portal/public/index.html',
+  'portal/public/resources/ds-pricing-model.html',
+  'portal/public/resources/architect-guide.html',
 ];
 
 async function auditFile(browser, relPath) {

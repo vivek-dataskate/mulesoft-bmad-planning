@@ -28,16 +28,16 @@ function parseSimpleYaml(raw) {
   return result;
 }
 
-const ROOT = path.join(__dirname, '..');
-const OUT  = path.join(ROOT, 'firebase/public/resources/capabilities.html');
+const ROOT = path.join(__dirname, '../..');
+const OUT  = path.join(ROOT, 'portal/public/resources/capabilities.html');
 
 // ── 1. Load pipeline ──────────────────────────────────────────────────────────
 const pipeline = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'DSPipeline/scout/pipeline.json'), 'utf8')
+  fs.readFileSync(path.join(ROOT, 'pipeline/scout/pipeline.json'), 'utf8')
 );
 
 // ── 2. Load playbooks ─────────────────────────────────────────────────────────
-const playbooksDir = path.join(ROOT, 'standards/playbooks');
+const playbooksDir = path.join(ROOT, 'mulesoft/playbooks');
 const playbooks = [];
 for (const slug of fs.readdirSync(playbooksDir).sort()) {
   const dir = path.join(playbooksDir, slug);
@@ -71,7 +71,7 @@ playbooks.sort((a, b) => {
 });
 
 // ── 3. Load canonical models ──────────────────────────────────────────────────
-const canonicalDir = path.join(ROOT, 'standards/canonical-models');
+const canonicalDir = path.join(ROOT, 'mulesoft/canonical-models');
 const verticals = {};
 for (const vertical of fs.readdirSync(canonicalDir).sort()) {
   const vDir = path.join(canonicalDir, vertical);
@@ -198,7 +198,7 @@ function renderPipelineSection() {
 <p>Every engagement feeds back into the knowledge base:</p>
 <ul>
   <li><strong>Vera</strong> stages use-case findings → <code>run/vera.json → libraryContributions[]</code></li>
-  <li><strong>Sol</strong> promotes to <code>standards/usecases/{vertical}.json</code> (FOMO library)</li>
+  <li><strong>Sol</strong> promotes to <code>mulesoft/playbooks/usecases/{vertical}.json</code> (FOMO library)</li>
   <li>Field incidents → <strong>FK entries</strong> (this page, Field Knowledge section)</li>
   <li>System quirks → <strong>Playbook JSONs</strong> (this page, System Playbooks section)</li>
   <li>Canonical record types → <strong>YAML stubs</strong> (this page, Canonical Models section)</li>
@@ -369,7 +369,7 @@ function renderCanonicalSection() {
     }).join('');
     return `
 <h3 id="cm-${esc(v)}">${esc(label)}</h3>
-<p style="font-size:12px;color:var(--mid);margin-bottom:8px;">${models.length} record type${models.length === 1 ? '' : 's'} · path: <code>standards/canonical-models/${esc(v)}/</code></p>
+<p style="font-size:12px;color:var(--mid);margin-bottom:8px;">${models.length} record type${models.length === 1 ? '' : 's'} · path: <code>mulesoft/canonical-models/${esc(v)}/</code></p>
 <table class="md-table">
   <thead><tr><th>Record</th><th>Version</th><th>Standard</th><th style="text-align:center;">Fields</th><th>Description</th></tr></thead>
   <tbody>${rows}</tbody>
@@ -378,8 +378,8 @@ function renderCanonicalSection() {
 
   return `
 <h2 id="canonical">Canonical Models</h2>
-<p>Hub schemas organized by industry vertical — planning-time reference schemas. Agents read them during field mapping; the DWL transforms in <code>standards/playbooks/</code> implement them. Stubs are promoted to versioned schemas when confirmed fields from 2+ clients are accumulated.</p>
-<blockquote><p><strong>Registry:</strong> <code>standards/canonical-models/registry.json</code> maps vertical → industry standard → record → key field alignments. All agents must consult it before creating canonical stubs or validating field mappings.</p></blockquote>
+<p>Hub schemas organized by industry vertical — planning-time reference schemas. Agents read them during field mapping; the DWL transforms in <code>mulesoft/playbooks/</code> implement them. Stubs are promoted to versioned schemas when confirmed fields from 2+ clients are accumulated.</p>
+<blockquote><p><strong>Registry:</strong> <code>mulesoft/canonical-models/registry.json</code> maps vertical → industry standard → record → key field alignments. All agents must consult it before creating canonical stubs or validating field mappings.</p></blockquote>
 ${verticalBlocks}`;
 }
 

@@ -1,4 +1,4 @@
-// docs/eleventy/_data/clients.js
+// portal/_data/clients.js
 //
 // Scans projects/*/ and exposes a per-client array of metadata for every
 // Eleventy template that needs to paginate over clients (portal, integration-deck,
@@ -18,13 +18,13 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT   = path.resolve(__dirname, '..', '..', '..');
+const ROOT   = path.resolve(__dirname, '..', '..');
 const PORTAL = 'https://dataskateclients.web.app';
 
 function resolveClientLogoPath(slug) {
   if (!slug) return null;
   for (const ext of ['.svg', '.png']) {
-    if (fs.existsSync(path.join(ROOT, 'firebase', 'public', 'logos', slug + ext))) {
+    if (fs.existsSync(path.join(ROOT, 'portal', 'public', 'logos', slug + ext))) {
       return `${PORTAL}/logos/${slug}${ext}`;
     }
   }

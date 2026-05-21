@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 //
 // scripts/bump-template.js
-// Increments a template's `current` version in docs/eleventy/version-manifest.json.
+// Increments a template's `current` version in portal/version-manifest.json.
 // Run this after you've finished editing a working template and want to declare
 // a new shippable version. New clients created after the bump pin to the new
 // version automatically; existing frozen clients keep their pinned version.
@@ -16,8 +16,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT     = path.resolve(__dirname, '..');
-const MANIFEST = path.join(ROOT, 'docs', 'eleventy', 'version-manifest.json');
+const ROOT     = path.resolve(__dirname, '../..');
+const MANIFEST = path.join(ROOT, 'portal', 'version-manifest.json');
 
 const args = process.argv.slice(2);
 const tIdx = args.indexOf('--template');

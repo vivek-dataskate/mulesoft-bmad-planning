@@ -16,16 +16,16 @@ version = "1.0.0"
 
 reads = [
   "projects/{client}/scoping/*",
-  "standards/connector-names.json",   # system name → connector key resolution
-  "docs/PLANNING_CONTEXT.md",         # read before writing — avoid duplicate critical notes
-  "docs/FIELD_KNOWLEDGE.md",          # read before writing — avoid duplicate FK entries
+  "mulesoft/connector-names.json",   # system name → connector key resolution
+  "pipeline/PLANNING_CONTEXT.md",         # read before writing — avoid duplicate critical notes
+  "pipeline/FIELD_KNOWLEDGE.md",          # read before writing — avoid duplicate FK entries
 ]
 writes = [
   "projects/{client}/run/sage.json",
   "projects/{client}/run/sage-decisions.json",   # decision log for this agent's classifications
-  "standards/playbooks/{system}/{system}_playbook.json",    # architect knowledge write-backs
-  "docs/FIELD_KNOWLEDGE.md",                     # observation entries only
-  "docs/PLANNING_CONTEXT.md",                    # critical notes only
+  "mulesoft/playbooks/{system}/{system}_playbook.json",    # architect knowledge write-backs
+  "pipeline/FIELD_KNOWLEDGE.md",                     # observation entries only
+  "pipeline/PLANNING_CONTEXT.md",                    # critical notes only
 ]
 
 principles = [
@@ -36,10 +36,10 @@ principles = [
   "Before reading any text: check for MP4 files in projects/{client}/scoping/. Run: find projects/{client}/scoping -name '*.mp4' | head -5. If any MP4 files exist AND no matching .txt transcript exists alongside them: run node scripts/transcribe-recordings.js --dir projects/{client}/scoping. Wait for completion. It writes a .txt next to each .mp4. If all MP4s already have matching .txt files, skip silently. If no MP4s exist, skip silently.",
 
   # ── ARCHITECT KNOWLEDGE EXTRACTION ────────────────────────────────────
-  "Scan every transcript for contributions from DataSkate team members: Raghuram Potluri, Kailash Chanda. Trigger phrases: 'I was researching', 'I found out', 'this is a little bit different', 'this is a poor practice', 'there is one service called', 'I was thinking', 'one thing I noticed'. For each finding: classify as (a) system-specific quirk → write to standards/playbooks/{system}/{system}_playbook.json under Known Quirks; (b) verified cross-project fact → write to docs/FIELD_KNOWLEDGE.md as FK-NNN observation (status=observation); (c) critical cross-engagement note → write to docs/PLANNING_CONTEXT.md Critical Notes. Always cite: 'Source: {client} transcript, {date} — {architect name}'. Show 'Knowledge Extracted' block listing every write.",
+  "Scan every transcript for contributions from DataSkate team members: Raghuram Potluri, Kailash Chanda. Trigger phrases: 'I was researching', 'I found out', 'this is a little bit different', 'this is a poor practice', 'there is one service called', 'I was thinking', 'one thing I noticed'. For each finding: classify as (a) system-specific quirk → write to mulesoft/playbooks/{system}/{system}_playbook.json under Known Quirks; (b) verified cross-project fact → write to pipeline/FIELD_KNOWLEDGE.md as FK-NNN observation (status=observation); (c) critical cross-engagement note → write to pipeline/PLANNING_CONTEXT.md Critical Notes. Always cite: 'Source: {client} transcript, {date} — {architect name}'. Show 'Knowledge Extracted' block listing every write.",
 
   # ── QUESTION GAP ANALYSIS ─────────────────────────────────────────────
-  "Extract every question asked by DataSkate speakers across all transcripts. For each question: identify the priority order (what they ask first), the framing style, and the gap type (base / conditional signal / system gotcha / protocol). Write each gap as an FK-NNN entry in docs/FIELD_KNOWLEDGE.md (Promotes to: Scout toml section). Show 'Architect Mindset + Scout Self-Improvement Proposals' block — these are proposals for HUMAN REVIEW ONLY. Never auto-edit any agent toml.",
+  "Extract every question asked by DataSkate speakers across all transcripts. For each question: identify the priority order (what they ask first), the framing style, and the gap type (base / conditional signal / system gotcha / protocol). Write each gap as an FK-NNN entry in pipeline/FIELD_KNOWLEDGE.md (Promotes to: Scout toml section). Show 'Architect Mindset + Scout Self-Improvement Proposals' block — these are proposals for HUMAN REVIEW ONLY. Never auto-edit any agent toml.",
 
   # ── SIGNAL SCAN ───────────────────────────────────────────────────────
   "Scan all scoping text for conditional pipeline triggers. Capture the exact phrase from the text, not a paraphrase. Triggers to detect:\n  - migration / replace / legacy ESB\n  - real-time / immediate / synchronous / user-facing\n  - batch / nightly / scheduled / bulk / historical\n  - file / SFTP / FTP / S3 / CSV / Excel\n  - compliance / PII / HIPAA / GDPR / PCI / SOX\n  - Kafka / streaming / event stream / data lake\n  - AI / LLM / ChatGPT / OpenAI / Anthropic\n  - EDI / AS2 / X12 / EDIFACT / trading partner / B2B\n  - on-premise / on our server / on our VM / thick-client / legacy ERP\n  - sandbox / no sandbox / production-only\nWrite each detected signal with the exact triggering phrase to sage.json signals[].",
@@ -51,7 +51,7 @@ principles = [
   "Log every classification decision to projects/{client}/run/sage-decisions.json. A decision is any point where Sage chose one path: confirmed vs potential flow, explicit vs inferred system, P0 vs flag severity, FK entry written vs skipped. Structure: { decisions: [ { id: 'SD-001', step: '6a|6b|6c|6f|3|4', type: 'flow-classification|system-inference|p0-flag|knowledge-write', decision: 'one sentence', rationale: '1-2 sentences — what evidence drove it', evidence: '{exact quote or rule that triggered}' } ] }. Number SD-001, SD-002, ... Show count at end: 'sage-decisions.json — {N} decisions logged.'",
 
   # ── CONNECTOR KEY RESOLUTION ──────────────────────────────────────────
-  "After extracting all systems: cross-reference each system name against standards/connector-names.json (already loaded). For each system: find the best matching entry by display name or common alias. Write the matched key to sage.json systems[].connectorKey. If no match: set connectorKey to null and flag as 'unresolved — Vera to research'. This key is how Rex, Flo, and Quinn look up playbooks — if it is missing they cannot load the right data.",
+  "After extracting all systems: cross-reference each system name against mulesoft/connector-names.json (already loaded). For each system: find the best matching entry by display name or common alias. Write the matched key to sage.json systems[].connectorKey. If no match: set connectorKey to null and flag as 'unresolved — Vera to research'. This key is how Rex, Flo, and Quinn look up playbooks — if it is missing they cannot load the right data.",
 
   # ── P0 BLOCKER IDENTIFICATION ─────────────────────────────────────────
   "After the signal scan: apply Known System Gotchas to every system in sage.json systems[]. Gotcha rules:\n  NetSuite → REST API requires PS256 JWT via Java helper library — P0 if REST needed.\n  SAP → Requires separate SAP JCo connector license — P0 if license not confirmed.\n  ServiceNow → OAuth 2.0 breaks metadata resolution in Anypoint Studio — flag for architect.\n  Oracle DB → ojdbc11.jar cannot be declared in pom.xml — P0 if Oracle DB detected.\n  File/SFTP/S3 → CloudHub 2.0 local filesystem is ephemeral — P0 if local file storage assumed.\n  EDI/AS2/X12 → Requires B2B EDI connector, ACK/NACK, partner registry — flag if EDI detected.\n  Kafka → Replay/rewind requires Kafka not Anypoint MQ — flag if streaming replay mentioned.\n  Salesforce → SOQL OFFSET limit breaks silently above 2,000 rows; State/Country Picklists; multi-currency — flag for questionnaire.\n  ComputerEase/Deltek → CE Live Service relay; vendor support ticket required; sandbox has no API access — P0.\n  Any on-premise/VM → firewall rules, static vs ephemeral IP, DNS hostname — P0 if not confirmed.\n  For each matched gotcha: write to sage.json p0Flags[] with: system, gotcha, severity ('P0'|'flag'), clientAction (plain English what client must do), architectNote (technical detail). Flag everything the rules trigger — Flo confirms which are true P0s.",
@@ -113,7 +113,7 @@ STEP 6 — Document Extraction (parallel passes)
   Pass 2 — Implicit: every category reference ('our CRM', 'our ERP', 'the accounting system').
   For each: note the exact phrase and whether it is explicit or inferred.
   Pass 3 — Connector key resolution: cross-reference each extracted system name against
-    standards/connector-names.json. Match by display name or common alias. Write connectorKey
+    mulesoft/connector-names.json. Match by display name or common alias. Write connectorKey
     to systems[]. Set null and flag 'unresolved' if no match found.
 
 6b. FLOW EXTRACTION

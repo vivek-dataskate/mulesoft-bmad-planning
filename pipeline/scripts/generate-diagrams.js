@@ -12,7 +12,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '../..');
 const slug = process.argv[2];
 if (!slug) { console.error('Usage: node scripts/generate-diagrams.js <slug>'); process.exit(1); }
 

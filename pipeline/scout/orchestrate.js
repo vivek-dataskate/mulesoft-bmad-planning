@@ -8,13 +8,13 @@
  * Handles onboarding, state tracking, company_context.json assembly, and telemetry.
  *
  * Usage:
- *   node DSPipeline/scout/orchestrate.js                    # new client — Gemini infers name from _inbox/
- *   node DSPipeline/scout/orchestrate.js --pipeline         # fully headless — infers name, no prompts
- *   node DSPipeline/scout/orchestrate.js --client mrn       # resume specific client
- *   node DSPipeline/scout/orchestrate.js --client mrn --skip-onboarding
- *   node DSPipeline/scout/orchestrate.js --client mrn --pipeline  # resume headless
- *   node DSPipeline/scout/orchestrate.js --client mrn --mode delta --recording scoping/may-amendment.txt
- *   node DSPipeline/scout/orchestrate.js --client mrn --check-acceptance
+ *   node pipeline/scout/orchestrate.js                    # new client — Gemini infers name from _inbox/
+ *   node pipeline/scout/orchestrate.js --pipeline         # fully headless — infers name, no prompts
+ *   node pipeline/scout/orchestrate.js --client mrn       # resume specific client
+ *   node pipeline/scout/orchestrate.js --client mrn --skip-onboarding
+ *   node pipeline/scout/orchestrate.js --client mrn --pipeline  # resume headless
+ *   node pipeline/scout/orchestrate.js --client mrn --mode delta --recording scoping/may-amendment.txt
+ *   node pipeline/scout/orchestrate.js --client mrn --check-acceptance
  */
 
 const fs            = require('fs');
@@ -59,7 +59,7 @@ const ROOT          = path.resolve(__dirname, '../..');
 const INBOX_DIR     = path.join(ROOT, '_inbox');
 const PROJECTS_DIR  = path.join(ROOT, 'projects');
 const PIPELINE_JSON = path.join(__dirname, 'pipeline.json');
-const TELEMETRY_CSV   = path.join(ROOT, 'DSPipeline/telemetry/usage.csv');
+const TELEMETRY_CSV   = path.join(ROOT, 'pipeline/telemetry/usage.csv');
 const CLAUDE_SESSIONS = path.join(require('os').homedir(), '.claude/projects/-workspaces-mulesoft-bmad-planning');
 const ARCHITECTS    = {
   '1': { name: 'Kailash Chanda',    email: 'kailash@dataskate.ai' },
@@ -122,7 +122,7 @@ function preExtractInbox(dir) {
   if (!fs.existsSync(dir)) return;
   const result = spawnSync(
     process.execPath,
-    [path.join(ROOT, 'scaffold/extract-text.js'), dir, '--auto-skip'],
+    [path.join(ROOT, 'pipeline/tools/extract-text.js'), dir, '--auto-skip'],
     { cwd: ROOT, encoding: 'utf8' }
   );
   if (result.error) console.warn(dim(`  ⚠  Pre-extraction warning: ${result.error.message}`));
@@ -152,7 +152,7 @@ let _logSlug  = null;
 
 function setLogFile(slug) {
   _logSlug = slug;
-  const logDir = path.join(ROOT, 'logs', 'scout-pipeline');
+  const logDir = path.join(ROOT, 'pipeline/logs', 'scout-pipeline');
   fs.mkdirSync(logDir, { recursive: true });
   _logFile  = path.join(logDir, `${slug}.log`);
   _logJsonl = path.join(logDir, `${slug}.jsonl`);
@@ -442,7 +442,7 @@ async function onboard({ displayName: inferred, source: inferredSource } = {}) {
   if (!fs.existsSync(TELEMETRY_CSV)) {
     fs.writeFileSync(TELEMETRY_CSV, 'date,client,pipeline,agent,model,input_tokens,output_tokens,cost_usd,duration_ms,status\n');
     stepLog(`INIT telemetry/usage.csv (new file with header)`, 'DATA');
-    console.log(`  ${green('✓')} Initialized DSPipeline/telemetry/usage.csv`);
+    console.log(`  ${green('✓')} Initialized pipeline/telemetry/usage.csv`);
   }
 
   stepLog(`ONBOARD END — project files initialized`, 'END');
@@ -476,7 +476,7 @@ function markComplete(slug, agentSlug, durationMs, tokens = {}) {
 // ─── Telemetry ────────────────────────────────────────────────────────────────
 
 // Loaded from telemetry/model-pricing.json — edit that file when rates change
-const MODEL_PRICING = readJson(path.join(ROOT, 'DSPipeline/telemetry/model-pricing.json')) || {};
+const MODEL_PRICING = readJson(path.join(ROOT, 'pipeline/telemetry/model-pricing.json')) || {};
 
 function calcCost(model, inputTokens, outputTokens) {
   const p = MODEL_PRICING[model] || MODEL_PRICING.sonnet || { input: 3.00, output: 15.00 };
@@ -690,11 +690,11 @@ function aggregateDecisions(slug) {
 }
 
 // ─── Client Registry Write (post-Flo) ────────────────────────────────────────
-// Writes a complete entry to standards/client-registry.json once Flo has confirmed
+// Writes a complete entry to projects/client-registry.json once Flo has confirmed
 // the flow list (systems[]) and Vera has confirmed vertical + sizeSegment.
 
 function writeClientRegistry(slug) {
-  const registryPath = path.join(ROOT, 'standards', 'client-registry.json');
+  const registryPath = path.join(ROOT, 'projects/client-registry.json');
   const projectDir   = path.join(PROJECTS_DIR, slug);
   const project      = readJson(path.join(projectDir, 'project.json')) || {};
   const vera         = readJson(path.join(projectDir, 'run', 'vera.json')) || {};
@@ -893,7 +893,7 @@ function renderCorporateBrief(slug) {
   }
 
   // Copy from _build/ to the canonical project path.
-  const eleventySrc = path.join(ROOT, 'docs', 'eleventy', '_build', 'intake', `corporate-brief-${slug}.html`);
+  const eleventySrc = path.join(ROOT, 'portal', '_build', 'intake', `corporate-brief-${slug}.html`);
   const outPath     = path.join(projectDir, 'intake', `corporate-brief-${slug}.html`);
   if (!fs.existsSync(eleventySrc)) {
     stepLog(`renderCorporateBrief: Eleventy did not produce corporate-brief-${slug}.html`, 'WARN');
@@ -925,7 +925,7 @@ function renderIntake(slug) {
     stepLog(`renderIntake: Eleventy build failed — ${(result.stderr || '').slice(0, 300)}`, 'WARN');
     return null;
   }
-  const src = path.join(ROOT, 'docs', 'eleventy', '_build', 'intake', `intake-questionnaire-${slug}.html`);
+  const src = path.join(ROOT, 'portal', '_build', 'intake', `intake-questionnaire-${slug}.html`);
   const dst = path.join(projectDir, 'intake', `intake-questionnaire-${slug}.html`);
   if (!fs.existsSync(src)) {
     stepLog(`renderIntake: Eleventy did not produce intake-questionnaire-${slug}.html`, 'WARN');
@@ -971,7 +971,7 @@ function renderProposalAndDeck(slug) {
   ];
   const out = [];
   for (const [buildRel, dst] of copies) {
-    const src = path.join(ROOT, 'docs', 'eleventy', '_build', buildRel);
+    const src = path.join(ROOT, 'portal', '_build', buildRel);
     if (!fs.existsSync(src)) { stepLog(`renderProposalAndDeck: missing ${buildRel}`, 'WARN'); continue; }
     fs.copyFileSync(src, dst);
     logFileInfo(dst, path.basename(dst));
@@ -988,7 +988,7 @@ function applyMiraRewrites(slug) {
   const miraData   = readJson(path.join(projectDir, 'run', 'mira.json')) || {};
   const rewrites   = miraData.rewrittenContent || {};
   const intakeDir  = path.join(projectDir, 'intake');
-  const BUILD      = path.join(ROOT, 'docs', 'eleventy', '_build');
+  const BUILD      = path.join(ROOT, 'portal', '_build');
   const fileMap = {
     intake:          { content: 'intake-content.json',           buildSrc: path.join('intake',    `intake-questionnaire-${slug}.html`) },
     proposal:        { content: 'proposal-content.json',         buildSrc: path.join('intake',    `proposal-${slug}.html`) },
@@ -1045,11 +1045,11 @@ function deployFirebase(slug) {
   if (!hasFileKey && !hasEnvKey) {
     stepLog('deployFirebase: no credentials — deploy skipped', 'WARN');
     console.log(`  ${yellow('⚠')}  No Firebase credentials found — skipping deploy.`);
-    console.log(`  ${dim('Run manually: node scripts/update-firebase.js ' + slug)}`);
+    console.log(`  ${dim('Run manually: node pipeline/scripts/update-firebase.js ' + slug)}`);
     return { ok: false, reason: 'no-credentials' };
   }
 
-  const cmd = `node scripts/update-firebase.js ${slug}`;
+  const cmd = `node pipeline/scripts/update-firebase.js ${slug}`;
   stepLog(`deployFirebase: running: ${cmd}`, 'DATA');
 
   // stdio: pipe stdout+stderr so we capture the actual failure reason into the
@@ -1101,7 +1101,7 @@ function deployFirebase(slug) {
       tail.forEach(line => console.log(red('  | ') + line));
     }
     console.log(`  ${dim('Full output saved to: ' + (_logFile || 'logs/scout-pipeline/' + slug + '.log'))}`);
-    console.log(`  ${dim('Retry with: node scripts/update-firebase.js ' + slug)}`);
+    console.log(`  ${dim('Retry with: node pipeline/scripts/update-firebase.js ' + slug)}`);
     return { ok: false, exitCode, stdout, stderr, reason: 'exit-nonzero' };
   }
 }
@@ -1430,7 +1430,7 @@ async function runPipeline(slug) {
 
       stepLog('POST-VERA: writing client-registry entry', 'START');
       writeClientRegistry(slug);
-      console.log(`  ${green('✓')} standards/client-registry.json — initial entry written (status: scoping)`);
+      console.log(`  ${green('✓')} projects/client-registry.json — initial entry written (status: scoping)`);
       stepLog('POST-VERA: client-registry written', 'END');
 
       // Generate the pre-call corporate brief immediately so the architect can
@@ -1453,12 +1453,12 @@ async function runPipeline(slug) {
 
       stepLog('POST-VERA: running promote-library.js', 'START');
       try {
-        require('child_process').execSync(`node DSPipeline/promote-library.js --client ${slug}`, { cwd: ROOT, stdio: 'inherit' });
-        console.log(`  ${green('✓')} Library contributions promoted to standards/usecases/`);
+        require('child_process').execSync(`node pipeline/promote-library.js --client ${slug}`, { cwd: ROOT, stdio: 'inherit' });
+        console.log(`  ${green('✓')} Library contributions promoted to mulesoft/playbooks/usecases/`);
         stepLog('POST-VERA: promote-library done', 'END');
       } catch (e) {
         stepLog(`POST-VERA: promote-library FAILED — ${e.message}`, 'WARN');
-        console.log(`  ${yellow('⚠')}  promote-library.js failed — run manually: node DSPipeline/promote-library.js --client ${slug}`);
+        console.log(`  ${yellow('⚠')}  promote-library.js failed — run manually: node pipeline/promote-library.js --client ${slug}`);
       }
     }
 
@@ -1466,7 +1466,7 @@ async function runPipeline(slug) {
     if (agent.slug === 'rex') {
       stepLog('POST-REX: rebuilding connector index (build-connector-index.js)', 'START');
       try {
-        require('child_process').execSync('node standards/build-connector-index.js', { cwd: ROOT, stdio: 'inherit' });
+        require('child_process').execSync('node mulesoft/build-connector-index.js', { cwd: ROOT, stdio: 'inherit' });
         console.log(`  ${green('✓')} connector-names.json + connector-index.json rebuilt`);
         stepLog('POST-REX: connector index rebuilt', 'END');
       } catch (e) {
@@ -1499,7 +1499,7 @@ async function runPipeline(slug) {
 
       stepLog('POST-FLO: updating client-registry', 'START');
       writeClientRegistry(slug);
-      console.log(`  ${green('✓')} standards/client-registry.json updated`);
+      console.log(`  ${green('✓')} projects/client-registry.json updated`);
       stepLog('POST-FLO: client-registry updated', 'END');
     }
 
@@ -1512,7 +1512,7 @@ async function runPipeline(slug) {
         stepLog('POST-QUINN: intake render done', 'END');
       } catch (e) {
         stepLog(`POST-QUINN: renderIntake FAILED — ${e.message}`, 'WARN');
-        console.log(`  ${yellow('⚠')}  renderIntake failed — run manually: node -e "require('./DSPipeline/scout/orchestrate.js')" (or check logs)`);
+        console.log(`  ${yellow('⚠')}  renderIntake failed — run manually: node -e "require('./pipeline/scout/orchestrate.js')" (or check logs)`);
       }
     }
 
@@ -1632,7 +1632,7 @@ async function runPipeline(slug) {
     console.log(red(`  ⚠  Mira ran successfully, but Firebase deploy FAILED — client docs are NOT published.`));
     console.log(red(`     deployError: ${finalState.deployError || '(no captured stderr — see log)'}`));
     console.log(`  ${bold('Fix and retry:')}`);
-    console.log(`    ${green('node scripts/update-firebase.js ' + slug)}`);
+    console.log(`    ${green('node pipeline/scripts/update-firebase.js ' + slug)}`);
     console.log(`  ${dim('  …or re-run orchestrate.js --client ' + slug + ' to auto-retry deploy.')}`);
     console.log(`  ${dim('Log: ' + (_logFile || 'logs/scout-pipeline/' + slug + '.log'))}\n`);
     process.exit(1);
@@ -1677,11 +1677,11 @@ async function runDeltaPipeline(slug, recordingFile) {
   const relRecording = path.relative(ROOT, recordingDest);
 
   const deltaAgents = [
-    { slug: 'sage',  name: 'Sage',  role: 'Document Intelligence', toml: 'DSPipeline/agents/sage.toml',  outputFile: 'run/sage.json',  note: `Point Sage at: ${relRecording}` },
-    { slug: 'flo',   name: 'Flo',   role: 'Flow Analyst + Pricing', toml: 'DSPipeline/agents/flo.toml',   outputFile: 'run/flo.json',   note: 'Flo reads sage.json — will flag new flows vs existing' },
-    { slug: 'quinn', name: 'Quinn', role: 'Intake Questionnaire',   toml: 'DSPipeline/agents/quinn.toml', outputFile: 'run/quinn.json', note: 'Quinn preserves answered questions; new gaps get [NEW] badge' },
-    { slug: 'petra', name: 'Petra', role: 'Proposal Writer',        toml: 'DSPipeline/agents/petra.toml', outputFile: 'run/petra.json', note: 'Petra appends [NEW] flows — preserves pricing section' },
-    { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       toml: 'DSPipeline/agents/mira.toml',  outputFile: 'run/mira.json',  note: 'Final audit before re-deploy' },
+    { slug: 'sage',  name: 'Sage',  role: 'Document Intelligence', toml: 'pipeline/agents/sage.toml',  outputFile: 'run/sage.json',  note: `Point Sage at: ${relRecording}` },
+    { slug: 'flo',   name: 'Flo',   role: 'Flow Analyst + Pricing', toml: 'pipeline/agents/flo.toml',   outputFile: 'run/flo.json',   note: 'Flo reads sage.json — will flag new flows vs existing' },
+    { slug: 'quinn', name: 'Quinn', role: 'Intake Questionnaire',   toml: 'pipeline/agents/quinn.toml', outputFile: 'run/quinn.json', note: 'Quinn preserves answered questions; new gaps get [NEW] badge' },
+    { slug: 'petra', name: 'Petra', role: 'Proposal Writer',        toml: 'pipeline/agents/petra.toml', outputFile: 'run/petra.json', note: 'Petra appends [NEW] flows — preserves pricing section' },
+    { slug: 'mira',  name: 'Mira',  role: 'Proposal Auditor',       toml: 'pipeline/agents/mira.toml',  outputFile: 'run/mira.json',  note: 'Final audit before re-deploy' },
   ];
 
   for (const [di, agent] of deltaAgents.entries()) {
