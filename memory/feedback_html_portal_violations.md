@@ -9,10 +9,10 @@ metadata:
 
 Never apply a "dashboard exception" to HTML design standards. All HTML files — portals, intake forms, proposals, sales materials — must follow the same white-page standards.
 
-**Why:** Client engagement portals were built with dark headers, gray page backgrounds, circle section numbers, card-style sections, and off-palette CSS vars (`--blue`, `--gray`). Every one of these violates HTML_DESIGN_STANDARDS.md. The lint hook was only covering `commons/sales/` so portals escaped validation.
+**Why:** Client engagement portals were built with dark headers, gray page backgrounds, circle section numbers, card-style sections, and off-palette CSS vars (`--blue`, `--gray`). Every one of these violates HTML_DESIGN_STANDARDS.json. The lint hook was only covering `commons/sales/` so portals escaped validation.
 
 **How to apply:**
-- Before writing any HTML, read `commons/branding/HTML_DESIGN_STANDARDS.md`
+- Before writing any HTML, read `commons/branding/HTML_DESIGN_STANDARDS.json`
 - After writing any HTML, the lint hook will fire automatically — if it reports violations, fix them immediately
 - Specific patterns to avoid every time:
   - `.header { background: var(--dark) }` — dark header → must be white

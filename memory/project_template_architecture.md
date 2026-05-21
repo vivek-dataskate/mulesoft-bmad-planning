@@ -32,7 +32,7 @@ Vivek said "those agreement [versioning] I will handle later" — dynamic propos
 
 ## Template Registry
 
-Single source of truth: `commons/templates/template-registry.json`
+Single source of truth: `docs/eleventy/template-registry.json` (moved from `commons/templates/` 2026-05-21 — Eleventy migration complete)
 
 Fields per template: `id`, `name`, `audience` (internal/external), `loginRequired`, `loginDomain`, `category`, `purpose`, `templateFile`, `cssFile`, `outputPath`, `generatedBy`, `fillCommand`, `perClient`, `notes`
 
@@ -68,26 +68,21 @@ Fields per template: `id`, `name`, `audience` (internal/external), `loginRequire
 
 `commons/sales/pricing-model.md` is KEPT — still used by `fill-template.js` flyer generator and Scout agent for pricing calculations. Never delete it.
 
-## Template Files (commons/templates/)
+## Template Layouts (Eleventy — 2026-05-21)
 
-| Template | Base CSS | Type |
-|---|---|---|
-| flyer-template.html | flyer-base.css.html | DS Pricing Model |
-| intake-template.html | intake-base.css.html | Intake Questionnaire |
-| integration-deck-template.html | integration-deck-base.css.html | Integration Deck (formerly pitch-kit) |
-| portal-template.html | portal-base.css.html | Client Portal |
-| proposal-template.html | proposal-base.css.html | Proposal |
-| resource-template.html | resource-base.css.html | Architect Guide + any long-form resource |
+All 7 templates ported to Eleventy. Edit layouts at `docs/eleventy/_includes/layouts/{template}.njk`.
+Legacy `*-template.html` files in `commons/templates/` have been deleted.
+`commons/templates/shared-base.css.html` is kept — inlined by `base.njk` via the `|inline` filter.
+Version manifest: `docs/eleventy/version-manifest.json`.
 
-## fill-template.js Commands
+## fill-template.js Commands (unchanged interface, now delegates to Eleventy)
 
 ```
 --template intake          --client {slug}   → intake-questionnaire-{client}.html
 --template proposal        --client {slug}   → proposal-{client}.html
---template integration-deck --client {slug}  → integration-deck-{client}.html  (was pitch-kit)
---template portal          --client {slug}   → firebase/public/portal/{client}.html
---template flyer                             → firebase/public/resources/ds-pricing-model.html
---template resource        --name architect-guide → firebase/public/resources/architect-guide.html
+--template integration-deck --client {slug}  → integration-deck-{client}.html
+--template client-portal   --client {slug}   → firebase/public/portal/{client}.html
+--template corporate-brief --client {slug}   → corporate-brief-{client}.html
+--template ds-pricing-model                  → firebase/public/resources/ds-pricing-model.html
+--template architect-guide                   → firebase/public/resources/architect-guide.html
 ```
-
-Note: `--template pitch-kit` is gone — use `--template integration-deck`.

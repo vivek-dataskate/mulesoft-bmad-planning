@@ -16,4 +16,4 @@ Intake form primary action is **Submit to DataSkate** (saves to Firestore). No m
 - Bottom of form: large centered `[Submit to DataSkate]` button + `.submit-success` banner
 - `submitForm()`: validate required fields (warn, don't block) → Firestore save → show green success banner
 - No config strip (no To/CC email fields) in the sticky bar
-- Full spec in `commons/branding/HTML_DESIGN_STANDARDS.md` Sticky Action Bar section
+- Full spec in `commons/branding/HTML_DESIGN_STANDARDS.json` Sticky Action Bar section
