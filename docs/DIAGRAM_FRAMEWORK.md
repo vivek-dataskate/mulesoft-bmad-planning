@@ -25,7 +25,7 @@ No agent writes diagram files directly. The orchestrator assembles the data cont
 | `intake-content.json` | `diagram-content.json` |
 | Eleventy + `.njk` layouts | Mermaid CLI + `.mmd` templates |
 | `template-registry.json` | `diagram-registry.json` |
-| `npm run build:html` | `node scripts/generate-diagram.js {client}` |
+| `npm run build:html` | `node pipeline/scripts/generate-diagram.js {client}` |
 
 ---
 
@@ -34,7 +34,7 @@ No agent writes diagram files directly. The orchestrator assembles the data cont
 **Renderer:** `@mermaid-js/mermaid-cli` (`mmdc`)
 
 ```bash
-mmdc -i template.mmd -o output.svg -c standards/diagram-theme.json
+mmdc -i template.mmd -o output.svg -c mulesoft/diagram-theme.json
 ```
 
 **Why Mermaid CLI:**
@@ -65,7 +65,7 @@ mmdc -i template.mmd -o output.svg -c standards/diagram-theme.json
 ## 3. Directory Structure
 
 ```
-standards/
+mulesoft/
 ├── diagram-templates/              ← core blueprints — never recreated, only parameterized
 │   ├── scoping/
 │   │   ├── system-flow-dual-panel.mmd      current vs future state
@@ -107,8 +107,9 @@ standards/
 │
 ├── diagram-registry.json           ← links templates → scenarios → playbooks → tokens
 ├── diagram-theme.json              ← DataSkate brand tokens (single source of truth)
-└── scenarios/                      ← existing — scenarios reference their diagram template
-    └── webhook-ingestion.md        → diagramRef: sequence-happy-path.mmd
+└── playbooks/
+    └── scenarios/                  ← scenarios reference their diagram template
+        └── webhook-ingestion.md    → diagramRef: sequence-happy-path.mmd
 ```
 
 **Per-client output:**
@@ -127,7 +128,7 @@ projects/{client}/
 
 ## 4. DataSkate Brand Theme
 
-**File:** `standards/diagram-theme.json`
+**File:** `mulesoft/diagram-theme.json`
 
 ```json
 {
@@ -180,7 +181,7 @@ One file per client. Assembled by the orchestrator from agent JSON outputs.
       "id": "system-flow",
       "level": "scoping",
       "type": "flowchart",
-      "templateRef": "standards/diagram-templates/scoping/system-flow-dual-panel.mmd",
+      "templateRef": "mulesoft/diagram-templates/scoping/system-flow-dual-panel.mmd",
       "scenarioRef": null,
       "title": "System Integration Overview",
       "generatedBy": "rex+flo",
@@ -197,8 +198,8 @@ One file per client. Assembled by the orchestrator from agent JSON outputs.
       "id": "sequence-order-sync",
       "level": "prd",
       "type": "sequence",
-      "templateRef": "standards/diagram-templates/prd/sequence-happy-path.mmd",
-      "scenarioRef": "standards/scenarios/webhook-ingestion.md",
+      "templateRef": "mulesoft/diagram-templates/prd/sequence-happy-path.mmd",
+      "scenarioRef": "mulesoft/playbooks/scenarios/webhook-ingestion.md",
       "title": "Order Sync — Happy Path",
       "generatedBy": "flo+petra",
       "tokens": {
@@ -217,7 +218,7 @@ One file per client. Assembled by the orchestrator from agent JSON outputs.
 
 ## 6. Diagram Registry
 
-**File:** `standards/diagram-registry.json`
+**File:** `mulesoft/diagram-registry.json`
 
 Links every template to its scenario reference, which playbook systems it applies to, and which agent tokens it needs.
 
@@ -230,7 +231,7 @@ Links every template to its scenario reference, which playbook systems it applie
       "level": "scoping",
       "type": "flowchart",
       "title": "Current vs Future State",
-      "templateFile": "standards/diagram-templates/scoping/system-flow-dual-panel.mmd",
+      "templateFile": "mulesoft/diagram-templates/scoping/system-flow-dual-panel.mmd",
       "scenarioRef": null,
       "playbookSystems": ["*"],
       "tokens": ["__CURRENT_SYSTEMS__", "__DEPRECATED__", "__HUB__", "__TARGETS__", "__FLOW_COUNT__"],
@@ -243,8 +244,8 @@ Links every template to its scenario reference, which playbook systems it applie
       "level": "prd",
       "type": "sequence",
       "title": "Integration Happy Path",
-      "templateFile": "standards/diagram-templates/prd/sequence-happy-path.mmd",
-      "scenarioRef": "standards/scenarios/webhook-ingestion.md",
+      "templateFile": "mulesoft/diagram-templates/prd/sequence-happy-path.mmd",
+      "scenarioRef": "mulesoft/playbooks/scenarios/webhook-ingestion.md",
       "playbookSystems": ["shopify", "hubspot", "salesforce"],
       "tokens": ["__SOURCE_PLATFORM__", "__EVENT_TYPE__", "__HUB__", "__TARGET_SYSTEM__", "__LATENCY__"],
       "generatedBy": "flo",
@@ -256,7 +257,7 @@ Links every template to its scenario reference, which playbook systems it applie
       "level": "architecture",
       "type": "C4Container",
       "title": "API-Led Architecture",
-      "templateFile": "standards/diagram-templates/architecture/c4-container.mmd",
+      "templateFile": "mulesoft/diagram-templates/architecture/c4-container.mmd",
       "scenarioRef": null,
       "playbookSystems": ["*"],
       "tokens": ["__CLIENT_NAME__", "__EXP_APIS__", "__PROC_APIS__", "__SYS_APIS__"],
@@ -424,7 +425,7 @@ Templates at each level reuse tokens from earlier levels — `__SOURCE_PLATFORM_
 
 ## 9. Scenario Cross-Reference
 
-Each scenario file in `standards/scenarios/` references its diagram template. When Flo identifies the scenario pattern for a client, the orchestrator automatically selects the matching templates.
+Each scenario file in `mulesoft/playbooks/scenarios/` references its diagram template. When Flo identifies the scenario pattern for a client, the orchestrator automatically selects the matching templates.
 
 | Scenario | Diagram templates triggered |
 |---|---|
@@ -443,7 +444,7 @@ Each scenario file in `standards/scenarios/` references its diagram template. Wh
 
 Diagrams regenerate automatically on two triggers:
 
-**Trigger 1 — Template change** (any `.mmd` in `standards/diagram-templates/` modified):
+**Trigger 1 — Template change** (any `.mmd` in `mulesoft/diagram-templates/` modified):
 - GitHub Action recompiles all client instances using the updated template
 - Ensures no client has a stale diagram after a template fix
 
@@ -452,7 +453,7 @@ Diagrams regenerate automatically on two triggers:
 - SVGs written to `projects/{client}/intake/diagrams/`
 - Firebase deploy picks them up via `update-firebase.js`
 
-**File:** `.github/workflows/portal.yml` — extend existing workflow to watch `standards/diagram-templates/**/*.mmd`
+**File:** `.github/workflows/portal.yml` — extend existing workflow to watch `mulesoft/diagram-templates/**/*.mmd`
 
 ---
 
@@ -461,7 +462,7 @@ Diagrams regenerate automatically on two triggers:
 | Old | New | Reason |
 |---|---|---|
 | `buildDiagramSvg()` in `proposal.11tydata.js` | Removed — reads pre-generated SVG only | Two renderers writing to same file caused inconsistency |
-| `scripts/generate-diagrams.js` | Replaced by `scripts/generate-diagram.js` | Single renderer, all types, registry-driven |
+| `pipeline/scripts/generate-diagrams.js` | Replaced by `pipeline/scripts/generate-diagram.js` | Single renderer, all types, registry-driven |
 | `project.json.systemDiagram.mermaid` | `diagram-content.json` tokens | Structured data contract, not raw Mermaid strings |
 | Ad-hoc hex colors in Mermaid `style` directives | Node `type` field + `diagram-theme.json` | Consistent brand, agents never write hex codes |
 
@@ -469,10 +470,10 @@ Diagrams regenerate automatically on two triggers:
 
 ## 12. Implementation Order
 
-1. `standards/diagram-theme.json` — brand tokens
-2. `standards/diagram-registry.json` — template registry
-3. `standards/diagram-templates/scoping/system-flow-dual-panel.mmd` — first template (prove the pattern)
-4. `scripts/generate-diagram.js` — token engine + mmdc dispatcher
+1. `mulesoft/diagram-theme.json` — brand tokens
+2. `mulesoft/diagram-registry.json` — template registry
+3. `mulesoft/diagram-templates/scoping/system-flow-dual-panel.mmd` — first template (prove the pattern)
+4. `pipeline/scripts/generate-diagram.js` — token engine + mmdc dispatcher
 5. Post-Flo hook in `orchestrate.js` — assemble `diagram-content.json`, run renderer
 6. `template-registry.json` — add `system-diagram` entry
 7. Strip `buildDiagramSvg` from `proposal.11tydata.js`

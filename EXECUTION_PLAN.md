@@ -5,7 +5,7 @@
 
 **Branch:** `refactor/folder-structure`  
 **Started:** 2026-05-21  
-**Status:** Phase 9 is next (Phases 0–8 complete)
+**Status:** Phase 10 is next (Phases 0–9 complete)
 
 ---
 
@@ -329,15 +329,17 @@ For `agilemind/`, `homage/`, `sample/`:
 
 ---
 
-### Phase 9 — Update `DIAGRAM_FRAMEWORK.md`
-- [ ] Update all `standards/diagram-templates/` → `mulesoft/diagram-templates/`
-- [ ] Update `standards/diagram-registry.json` → `mulesoft/diagram-registry.json`
-- [ ] Update `standards/diagram-theme.json` → `mulesoft/diagram-theme.json`
-- [ ] Add `production/` level section (runtime topology, monitoring, incident response, api-dependency-map)
-- [ ] Confirm `hypercare/` level is complete (issue-triage, error-rate, scope-change, handoff-checklist)
-- [ ] Add `production/` and `hypercare/` diagram folders to `projects/_template/` diagrams
-- [ ] Update `projects/{client}/diagrams/` references throughout doc
-- 📌 **COMMIT: `docs: update DIAGRAM_FRAMEWORK.md — new paths + production + hypercare levels`**
+### Phase 9 — Update `DIAGRAM_FRAMEWORK.md` ✅
+- [x] Update all `standards/diagram-templates/` → `mulesoft/diagram-templates/`
+- [x] Update `standards/diagram-registry.json` → `mulesoft/diagram-registry.json`
+- [x] Update `standards/diagram-theme.json` → `mulesoft/diagram-theme.json`
+- [x] Update `scripts/generate-diagram.js` → `pipeline/scripts/generate-diagram.js` throughout
+- [x] Update `mulesoft/scenarios/` → `mulesoft/playbooks/scenarios/` throughout
+- [x] Update Section 3 directory tree: `scenarios/` → `playbooks/scenarios/`
+- [x] Confirm `production/` level section present (runtime topology, monitoring, incident response, api-dependency-map)
+- [x] Confirm `hypercare/` level complete (issue-triage, error-rate, scope-change, handoff-checklist)
+- [x] Add `hypercare/diagrams/.gitkeep` to `projects/_template/`
+- 📌 **COMMIT: `docs: update DIAGRAM_FRAMEWORK.md — new paths + production + hypercare levels (Phase 9)`**
 
 ---
 
