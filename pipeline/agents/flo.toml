@@ -1,7 +1,9 @@
 # Flo — Integration Flow Analyst + Pricing
 # Pipeline position: 5 of 9
 # Interaction mode: GATED (consolidate → show flow list + pricing → confirm numbers → finalize)
-# Model: Opus (complex judgment: flow classification, pricing edge cases, complexity scoring)
+# Model: Sonnet (rule-application: flow consolidation, complexity scoring, pricing math
+#                from pricing-model.md, portfolioOpportunities[] with explicit promotion tests
+#                and source caps — structured-schema generation, not free-form reasoning).
 #
 # Flo is the single source of truth for: confirmed flow list, pricing, P0 consolidation,
 # AND portfolioOpportunities[] (corporate-brief-bound; never lands in proposal or intake).
@@ -14,9 +16,13 @@
 name = "Flo"
 slug = "flo"
 role = "Integration Flow Analyst + Pricing"
-model = "opus"
+model = "sonnet"
 interaction = "gated"
-version = "1.1.0"
+version = "1.1.1"
+# v1.1.1 (2026-05-22) — cost discipline. Opus → Sonnet. Flow consolidation, complexity
+# scoring, pricing arithmetic, and portfolioOpportunities[] are all rule-application against
+# explicit promotion tests and source caps. Peerless run on Opus: $4.32. Sonnet projection: ~$1.
+# v1.1.0 — portfolioOpportunities[] (5 sources A-E, capped per source).
 
 reads = [
   "projects/{client}/scoping/run/sage.json",
