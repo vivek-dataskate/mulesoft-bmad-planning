@@ -1892,6 +1892,31 @@ async function runPipeline(slug) {
         stepLog(`POST-REX: build-connector-index FAILED — ${e.message}`, 'WARN');
         console.log(`  ${yellow('⚠')}  build-connector-index.js failed — run manually`);
       }
+
+      // Post-Rex: zero-LLM API schema probe — curls confirmed GET endpoints with any
+      // available credentials to discover real field names. Skips silently when
+      // projects/{client}/credentials.json doesn't exist yet (most common at scoping time).
+      // Run standalone any time after credentials arrive:
+      //   node pipeline/scripts/probe-api-schemas.js --client {slug}
+      stepLog('POST-REX: probing API schemas (zero-LLM)', 'START');
+      try {
+        const probeResult = spawnSync(
+          process.execPath,
+          [path.join(ROOT, 'pipeline/scripts/probe-api-schemas.js'), '--client', slug],
+          { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }
+        );
+        const probeOut = (probeResult.stdout || '').trim();
+        if (probeOut) probeOut.split('\n').forEach(l => stepLog(l, 'DATA'));
+        if (probeResult.status === 0) {
+          console.log(`  ${green('✓')} API schema probe complete — see scoping/run/api-schemas.json`);
+        } else {
+          console.log(`  ${dim('↳ API schema probe skipped — credentials.json not present yet')}`);
+        }
+        stepLog('POST-REX: API schema probe done', 'END');
+      } catch (e) {
+        stepLog(`POST-REX: API schema probe FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${dim('↳ API schema probe skipped — run manually when credentials arrive')}`);
+      }
     }
 
     // Post-Flo: write flowCount + pricingComputed to project.json, aggregate decisions, write registry

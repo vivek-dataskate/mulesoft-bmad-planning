@@ -147,6 +147,25 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .stage-card.stage2 ul li::before { color: var(--green); }
 .stage-card.stage3 ul li::before { color: #1C2B3A; }
 
+/* ── PORTFOLIO CONTEXT ── */
+.portfolio-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0; }
+.portfolio-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fff; }
+.portfolio-card-name { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+.portfolio-card-region { font-size: 11px; color: var(--mid); margin-bottom: 6px; }
+.portfolio-card-signal { font-size: 11px; color: var(--dark); line-height: 1.5; border-left: 3px solid var(--brand); padding-left: 8px; }
+.portfolio-sponsor { background: #F2F4F8; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 14px; }
+.portfolio-sponsor-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mid); margin-bottom: 3px; }
+.portfolio-sponsor-name { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.portfolio-sponsor-detail { font-size: 12px; color: var(--mid); line-height: 1.55; }
+.portfolio-template-angle { background: #FFF8F0; border-left: 4px solid #F59E0B; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 14px; font-size: 13px; color: var(--dark); line-height: 1.6; }
+/* ── HOW WE SEE YOU ── */
+.buyer-profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+.buyer-profile-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: #fff; }
+.buyer-profile-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand); margin-bottom: 6px; }
+.buyer-profile-value { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 8px; text-transform: capitalize; }
+.buyer-signal { font-size: 12px; color: #44546A; padding: 5px 0 5px 14px; position: relative; line-height: 1.5; border-bottom: 1px solid var(--border); }
+.buyer-signal:last-child { border-bottom: none; }
+.buyer-signal::before { content: '"'; position: absolute; left: 0; color: var(--brand); font-size: 14px; top: 3px; font-weight: 700; }
 /* ── FOMO CARDS ── */
 .fomo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
 .fomo-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: #fff; }
@@ -485,6 +504,36 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
 </details>
 
+{# HOW WE SEE YOU — conditional on buyerProfile existing #}
+{% if bp and bp.primary %}
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">How We Read This Engagement</div>
+      <div class="section-title">What we noticed about how you evaluate decisions</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="buyer-profile-grid">
+      <div class="buyer-profile-card">
+        <div class="buyer-profile-label">Your decision style</div>
+        <div class="buyer-profile-value">{{ bp.primary | replace('-', ' ') | esc }}</div>
+        <p style="font-size:12px;color:var(--mid);margin:0;line-height:1.6;">This proposal was shaped around what matters most to you — concrete outcomes, specific timelines, and what stops on go-live day. Abstract capability claims were left out.</p>
+      </div>
+      {% if bp.signals and bp.signals | length > 0 %}
+      <div class="buyer-profile-card">
+        <div class="buyer-profile-label">Signals that shaped this proposal</div>
+        {% for sig in bp.signals %}
+        <div class="buyer-signal">{{ sig | esc }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</details>
+{% endif %}
+
 {# HOW TO MOVE FORWARD #}
 <details class="section-block" open>
   <summary class="section-head">
@@ -609,6 +658,46 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       </div>
       {% endfor %}
     </div>
+  </div>
+</details>
+{% endif %}
+
+{# PORTFOLIO CONTEXT — conditional on portfolioContext existing #}
+{% set pc = proposal.portfolioContext %}
+{% if pc and pc.platformName %}
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Platform Opportunity</div>
+      <div class="section-title">This engagement is bigger than one brand</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    {% if pc.sponsorName %}
+    <div class="portfolio-sponsor">
+      <div>
+        <div class="portfolio-sponsor-label">Financial Sponsor</div>
+        <div class="portfolio-sponsor-name">{{ pc.sponsorName | esc }}</div>
+        <div class="portfolio-sponsor-detail">{{ pc.executiveAngle | esc }}</div>
+      </div>
+    </div>
+    {% endif %}
+    {% if pc.templateAngle %}
+    <div class="portfolio-template-angle">{{ pc.templateAngle | esc }}</div>
+    {% endif %}
+    {% if pc.siblings and pc.siblings | length > 0 %}
+    <p style="font-size:12px;color:var(--mid);margin-bottom:8px;">{{ pc.siblingCount }} sibling brands under {{ pc.platformName | esc }} — each a future engagement once the Peerless template is proven:</p>
+    <div class="portfolio-grid">
+      {% for sib in pc.siblings %}
+      <div class="portfolio-card">
+        <div class="portfolio-card-name">{{ sib.name | esc }}</div>
+        {% if sib.region %}<div class="portfolio-card-region">{{ sib.region | esc }}</div>{% endif %}
+        <div class="portfolio-card-signal">{{ (sib.integrationSignal or 'Integration signals TBD') | esc }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 </details>
 {% endif %}

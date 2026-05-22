@@ -8,7 +8,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..', '..', '..');
+const ROOT = path.resolve(__dirname, '..', '..');
 const PM_PATH = path.join(ROOT, 'commons', 'sales', 'pricing-model.md');
 const TM_PATH = path.join(ROOT, 'commons', 'sales', 'tm-rates.json');
 
