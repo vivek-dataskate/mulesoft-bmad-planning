@@ -7,6 +7,10 @@ name: Regenerate Client Portals
 #   FIREBASE_SA_KEY  — Firebase service account JSON (same as Codespaces secret)
 
 on:
+  push:
+    paths:
+      - 'commons/diagram-templates/**/*.mmd'
+      - 'commons/diagram-theme.json'
   workflow_dispatch:
     inputs:
       client:
@@ -21,7 +25,6 @@ jobs:
   deploy-portals:
     name: Generate & Deploy Portals
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     steps:
       - name: Checkout
@@ -38,42 +41,70 @@ jobs:
         run: |
           CLIENT="${{ github.event.inputs.client }}"
           if [ -n "$CLIENT" ]; then
-            node scaffold/generate-client-portal.js "$CLIENT"
+            node pipeline/tools/generate-client-portal.js "$CLIENT"
           else
-            node scaffold/generate-client-portal.js
+            node pipeline/tools/generate-client-portal.js
           fi
 
       - name: Generate knowledge base
-        run: node scaffold/generate-knowledge-base.js
+        run: node pipeline/tools/generate-knowledge-base.js
 
-      - name: Sync intake + proposal HTML into firebase/public
+      - name: Sync intake + proposal HTML into portal/public
         run: |
-          mkdir -p firebase/public/intake firebase/public/proposal
+          mkdir -p portal/public/intake portal/public/proposal
           for html in projects/*/intake/intake-questionnaire-*.html; do
             [ -f "$html" ] || continue
             slug=$(basename "$html" | sed 's/intake-questionnaire-//' | sed 's/\.html//')
-            cp "$html" "firebase/public/intake/${slug}.html"
+            cp "$html" "portal/public/intake/${slug}.html"
           done
           for html in projects/*/intake/proposal-*.html; do
             [ -f "$html" ] || continue
             slug=$(basename "$html" | sed 's/proposal-//' | sed 's/\.html//')
-            cp "$html" "firebase/public/proposal/${slug}.html"
+            cp "$html" "portal/public/proposal/${slug}.html"
           done
 
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Visual regression — intake parity gate
+      - name: Install Puppeteer browser
+        run: npx puppeteer browsers install chrome
+
+      - name: Intake structural tests — DOM & code checks (no browser)
+        run: npm run test:intake:structural
+
+      - name: Intake behavioral tests — Puppeteer interactions + regressions
+        run: npm run test:intake:behavioral
+
+      - name: Upload behavioral test failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intake-test-failure-${{ github.run_id }}
+          path: portal/tests/intake/
+          retention-days: 7
+
+      - name: HTML contract tests — shared + per-type contracts for all generated pages
+        run: npm run test:html
+
+      - name: Upload HTML contract failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-contract-failure-${{ github.run_id }}
+          path: portal/tests/html/
+          retention-days: 7
+
+      - name: Visual regression — intake pixel diff gate (BackstopJS)
         run: |
-          node scripts/generate-backstop-config.js --intake
-          npx backstop test
+          node pipeline/scripts/generate-backstop-config.js --intake
+          npx backstop test --config portal/tests/backstop/backstop.json
 
       - name: Upload VR diff artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: vr-diff-${{ github.run_id }}
-          path: backstop_data/html_report/
+          path: portal/tests/backstop/backstop_data/html_report/
           retention-days: 7
 
       - name: Authenticate to Google Cloud
@@ -83,6 +114,6 @@ jobs:
 
       - name: Deploy to Firebase Hosting
         run: |
-          cd firebase
+          cd portal
           npm install --prefix functions --silent
           npx firebase-tools deploy --only hosting --project dataskateclients --force

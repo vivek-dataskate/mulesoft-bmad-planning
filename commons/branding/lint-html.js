@@ -3,7 +3,7 @@
 // Color/hex enforcement  → stylelint (.stylelintrc.json)
 // Structure/tag rules    → htmlhint (.htmlhintrc)
 // Formatting             → prettier (.prettierrc.json)
-// Accessibility          → node scripts/lint-a11y.js
+// Accessibility          → node pipeline/scripts/lint-a11y.js
 //
 // Run automatically via PostToolUse hook on any .html file edit.
 // Also runnable manually:
@@ -15,18 +15,19 @@ const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const COMPETITORS = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'competitors.json'), 'utf8')
-);
+const ROOT = path.resolve(__dirname, '../..');
+
+const BRAND    = JSON.parse(fs.readFileSync(path.join(ROOT, 'commons/brand-standards.json'), 'utf8'));
+const COMPETITORS = JSON.parse(fs.readFileSync(path.join(__dirname, 'competitors.json'), 'utf8'));
 
 // Allowed CSS vars — derived from tokens.css, never hand-maintained.
 // Add new vars to tokens/*.json and run: npm run build:tokens
-const TOKENS_CSS  = fs.readFileSync(path.join(__dirname, 'generated/tokens.css'), 'utf8');
+const TOKENS_CSS  = fs.readFileSync(path.join(ROOT, BRAND.html.compiledCss), 'utf8');
 const ALLOWED_VARS = new Set(
   [...TOKENS_CSS.matchAll(/^\s*(--[a-zA-Z][a-zA-Z0-9-]*):/gm)].map(m => m[1])
 );
 
-const ROOT = path.resolve(__dirname, '../..');
+const LOGO_VIEWBOX = BRAND.html.logo.viewBox;
 
 function getAllHtmlTargets() {
   try {
@@ -43,7 +44,7 @@ function getAllHtmlTargets() {
 const EXCLUDE_PATTERNS = [
   /^commons\/branding\/templates\//,
   /^commons\/branding\/[^/]+-base\.css\.html$/,
-  /^commons\/templates\//,
+  /^portal\/_includes\/shared-base\.css\.html$/,
   /^docs\/eleventy\/_build\/shared-base\.css\.html$/,
 ];
 
@@ -54,8 +55,8 @@ function isExcluded(rel) {
 const CHECKS = [
   {
     name: 'SVG logo',
-    test: c => c.includes('viewBox="140 258 590 96"'),
-    message: 'Missing inline SVG logo (viewBox="140 258 590 96") — every HTML doc must include the DataSkate wordmark SVG',
+    test: c => c.includes(`viewBox="${LOGO_VIEWBOX}"`),
+    message: `Missing inline SVG logo (viewBox="${LOGO_VIEWBOX}") — every HTML doc must include the DataSkate wordmark SVG. Source: commons/brand-standards.json → html.logo.viewBox`,
   },
   {
     name: 'No off-palette CSS vars',

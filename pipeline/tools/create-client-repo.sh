@@ -1,0 +1,260 @@
+#!/usr/bin/env bash
+# pipeline/tools/create-client-repo.sh
+#
+# Creates a private GitHub repo for a client and pushes the generated Mule project.
+#
+# Usage:
+#   GITHUB_TOKEN=ghp_... GITHUB_ORG=my-org ./pipeline/tools/create-client-repo.sh projects/leolabs/decisions.json
+#
+# Required environment variables:
+#   GITHUB_TOKEN  — Personal access token with repo:write + codespace:write scope
+#   GITHUB_ORG    — GitHub organisation or user account to own the repo
+#
+# Optional environment variables:
+#   OUTPUT_DIR    — Override default output dir (/tmp/{client}-mule)
+#
+# What it does:
+#   1. Reads client name from decisions.json
+#   2. Runs mulesoft/generate.js → /tmp/{client}-mule/ (or OUTPUT_DIR)
+#   3. Creates {client}-mule repo on GitHub — fails fast if it already exists
+#   4. Pushes generated code as initial commit on main
+#   5. Prints repo URL and one-click Codespace URL for the developer
+
+set -euo pipefail
+
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+die()  { echo "ERROR: $*" >&2; exit 1; }
+info() { echo "→ $*"; }
+ok()   { echo "✓ $*"; }
+
+# ─── Prerequisites ────────────────────────────────────────────────────────────
+
+[[ -n "${GITHUB_TOKEN:-}" ]] || die "GITHUB_TOKEN is not set. Export a personal access token with 'repo' scope."
+[[ -n "${GITHUB_ORG:-}"   ]] || die "GITHUB_ORG is not set. Export your GitHub organisation or user name."
+
+command -v node >/dev/null 2>&1 || die "node is not installed. Required to run generate.js."
+command -v git  >/dev/null 2>&1 || die "git is not installed."
+command -v curl >/dev/null 2>&1 || die "curl is not installed."
+
+# ─── Input validation ─────────────────────────────────────────────────────────
+
+DECISIONS="${1:-}"
+[[ -n "$DECISIONS" ]] || die "Usage: $0 projects/{client}/decisions.json"
+
+# Resolve to absolute path so it works regardless of cwd
+DECISIONS="$(cd "$(dirname "$DECISIONS")" && pwd)/$(basename "$DECISIONS")"
+[[ -f "$DECISIONS" ]] || die "decisions.json not found: $DECISIONS"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# ─── Read values from decisions.json ──────────────────────────────────────────
+
+CLIENT="$(node -e "process.stdout.write(require('${DECISIONS}').project.client)")" \
+  || die "Could not parse project.client from decisions.json"
+[[ -n "$CLIENT" ]] || die "project.client is empty in decisions.json"
+
+# BUG-25: Validate client name against GitHub repo name constraints.
+# GitHub allows: letters, digits, hyphens, dots, underscores; max 100 characters.
+[[ "$CLIENT" =~ ^[a-zA-Z0-9._-]{1,100}$ ]] \
+  || die "project.client '${CLIENT}' is not a valid GitHub repo name. Use only: a-z A-Z 0-9 . - _  (max 100 chars)"
+
+PRIMARY_PATTERN="$(node -e "process.stdout.write(require('${DECISIONS}').integration.primaryPattern)")" \
+  || PRIMARY_PATTERN="see decisions.json"
+
+RUNTIME="$(node -e "process.stdout.write(require('${DECISIONS}').scaffold.runtime || '4.8.0')")" \
+  || RUNTIME="4.8.0"
+
+REPO_NAME="${CLIENT}-mule"
+OUTPUT_DIR="${OUTPUT_DIR:-/tmp/${REPO_NAME}}"
+
+info "Client:     $CLIENT"
+info "Pattern:    $PRIMARY_PATTERN"
+info "Repo:       ${GITHUB_ORG}/${REPO_NAME}"
+info "Output dir: $OUTPUT_DIR"
+echo ""
+
+# ─── Step 1 — Verify repo does not already exist ──────────────────────────────
+
+info "Checking if ${GITHUB_ORG}/${REPO_NAME} already exists on GitHub..."
+
+# BUG-26: Add --max-time and --connect-timeout to all curl calls.
+EXIST_STATUS="$(curl -s -o /dev/null -w "%{http_code}" \
+  --max-time 30 --connect-timeout 10 \
+  -H "Authorization: token ${GITHUB_TOKEN}" \
+  -H "Accept: application/vnd.github+json" \
+  "https://api.github.com/repos/${GITHUB_ORG}/${REPO_NAME}")"
+
+if [[ "$EXIST_STATUS" == "200" ]]; then
+  die "Repo ${GITHUB_ORG}/${REPO_NAME} already exists. Delete it first or choose a different client name. Aborting — no files were changed."
+fi
+
+ok "Repo does not exist — safe to proceed."
+echo ""
+
+# ─── Step 2 — Generate Mule project ───────────────────────────────────────────
+
+info "Running scaffold generator..."
+rm -rf "$OUTPUT_DIR"
+
+# Run from repo root so relative template paths inside generate.js resolve correctly
+(cd "$REPO_ROOT" && node mulesoft/generate.js "$DECISIONS" "$OUTPUT_DIR")
+
+ok "Project generated at $OUTPUT_DIR"
+echo ""
+
+# ─── Step 3 — Create GitHub repo via REST API ─────────────────────────────────
+
+info "Creating private repo ${GITHUB_ORG}/${REPO_NAME} on GitHub..."
+
+# BUG-22: Build JSON payload via Node.js JSON.stringify() — never via string interpolation.
+# Raw interpolation breaks if CLIENT or PRIMARY_PATTERN contain quotes, backslashes, etc.
+API_PAYLOAD="$(
+  REPO_NAME="$REPO_NAME" CLIENT="$CLIENT" PRIMARY_PATTERN="$PRIMARY_PATTERN" \
+  node -e '
+    process.stdout.write(JSON.stringify({
+      name:         process.env.REPO_NAME,
+      description:  process.env.CLIENT + " MuleSoft integration — generated by BMAD scaffold (pattern: " + process.env.PRIMARY_PATTERN + ")",
+      private:      true,
+      has_wiki:     false,
+      has_projects: false,
+      auto_init:    false,
+    }));
+  '
+)"
+
+# BUG-27: Replace head -n -1 (not portable on macOS/BSD) with sed '$d' (POSIX).
+# Try org endpoint first; fall back to user endpoint if GITHUB_ORG is a personal account.
+CREATE_RESPONSE="$(curl -s -w "\n%{http_code}" \
+  --max-time 30 --connect-timeout 10 \
+  -X POST \
+  -H "Authorization: token ${GITHUB_TOKEN}" \
+  -H "Accept: application/vnd.github+json" \
+  -H "Content-Type: application/json" \
+  "https://api.github.com/orgs/${GITHUB_ORG}/repos" \
+  -d "$API_PAYLOAD")"
+
+CREATE_BODY="$(printf '%s' "$CREATE_RESPONSE" | sed '$d')"
+CREATE_STATUS="$(printf '%s' "$CREATE_RESPONSE" | tail -n 1)"
+
+if [[ "$CREATE_STATUS" == "404" ]]; then
+  info "  Org API returned 404 — GITHUB_ORG is a personal account; retrying via /user/repos..."
+  CREATE_RESPONSE="$(curl -s -w "\n%{http_code}" \
+    --max-time 30 --connect-timeout 10 \
+    -X POST \
+    -H "Authorization: token ${GITHUB_TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "Content-Type: application/json" \
+    "https://api.github.com/user/repos" \
+    -d "$API_PAYLOAD")"
+  CREATE_BODY="$(printf '%s' "$CREATE_RESPONSE" | sed '$d')"
+  CREATE_STATUS="$(printf '%s' "$CREATE_RESPONSE" | tail -n 1)"
+fi
+
+if [[ "$CREATE_STATUS" != "201" ]]; then
+  echo "GitHub API response (HTTP $CREATE_STATUS):" >&2
+  echo "$CREATE_BODY" | node -e "
+    let b=''; process.stdin.on('data',d=>b+=d);
+    process.stdin.on('end',()=>{
+      try { const r=JSON.parse(b); console.error(r.message||b); }
+      catch { console.error(b); }
+    });" >&2
+  die "Failed to create repository (HTTP $CREATE_STATUS)."
+fi
+
+REPO_URL="$(printf '%s' "$CREATE_BODY" | node -e "
+  let b=''; process.stdin.on('data',d=>b+=d);
+  process.stdin.on('end',()=>{ process.stdout.write(JSON.parse(b).html_url); });")"
+
+CLONE_URL="$(printf '%s' "$CREATE_BODY" | node -e "
+  let b=''; process.stdin.on('data',d=>b+=d);
+  process.stdin.on('end',()=>{ process.stdout.write(JSON.parse(b).clone_url); });")"
+
+ok "Repo created: $REPO_URL"
+echo ""
+
+# BUG-24: Register a cleanup trap after repo creation so that if any subsequent step
+# fails (e.g. git push), the dangling GitHub repo is automatically deleted.
+# Without this the developer would have to manually delete the empty repo before retrying.
+REPO_CREATED=true
+cleanup_on_error() {
+  if [[ "${REPO_CREATED:-false}" == "true" ]]; then
+    echo "" >&2
+    echo "ERROR: A step failed after repo creation. Deleting ${GITHUB_ORG}/${REPO_NAME} to allow a clean retry..." >&2
+    curl -s -X DELETE \
+      --max-time 30 --connect-timeout 10 \
+      -H "Authorization: token ${GITHUB_TOKEN}" \
+      -H "Accept: application/vnd.github+json" \
+      "https://api.github.com/repos/${GITHUB_ORG}/${REPO_NAME}" || true
+    echo "Repo deleted. Fix the error above and re-run the script." >&2
+  fi
+}
+trap cleanup_on_error ERR
+
+# ─── Step 4 — Push generated code as initial commit ───────────────────────────
+
+info "Initialising git repo and pushing to ${REPO_URL}..."
+
+cd "$OUTPUT_DIR"
+
+git init -b main
+git config user.email "bmad-scaffold@noreply.github.com"
+git config user.name "BMAD Scaffold"
+
+git add -A
+
+# Commit message: informative for developers who open the repo cold
+git commit -m "Initial scaffold: ${REPO_NAME}
+
+Generated by BMAD scaffold generator from decisions.json.
+Pattern:  ${PRIMARY_PATTERN}
+Runtime:  Mule ${RUNTIME} / Java 17 / CloudHub 2.0
+Org:      ${GITHUB_ORG}
+
+Next steps for developers:
+1. Open in GitHub Codespace (URL below)
+2. Search for TODO — fill in connector configs and DataWeave transforms
+3. Run MUnit: mvn test
+4. Deploy: push to dev branch or run GitHub Actions workflow"
+
+# BUG-23: Do NOT embed the token in the remote URL — it leaks in git remote -v,
+# error messages, and process listings. Use http.extraHeader instead, which is
+# passed as an HTTP header and is not stored in the remote URL.
+git remote add origin "$CLONE_URL"
+git -c "http.extraHeader=Authorization: token ${GITHUB_TOKEN}" push -u origin main
+
+cd - > /dev/null
+
+# Disable the cleanup trap — push succeeded, repo is in a good state.
+trap - ERR
+REPO_CREATED=false
+
+ok "Code pushed to ${REPO_URL}/tree/main"
+echo ""
+
+# ─── Step 5 — Print developer handoff ─────────────────────────────────────────
+
+# GitHub's one-click new-codespace URL
+CODESPACE_URL="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=${GITHUB_ORG}%2F${REPO_NAME}"
+
+echo "════════════════════════════════════════════════════════════════"
+echo "  CLIENT REPO READY — ${REPO_NAME}"
+echo "════════════════════════════════════════════════════════════════"
+echo ""
+echo "  Repo URL:      ${REPO_URL}"
+echo "  Codespace URL: ${CODESPACE_URL}"
+echo ""
+echo "  Developer steps:"
+echo "  1. Click the Codespace URL — a pre-configured container starts"
+echo "     (Anypoint Code Builder + Node 18 — ~2 min cold start)"
+echo "  2. Open any flow file — the project compiles immediately"
+echo "  3. Search TODO in the workspace — fill in:"
+echo "     - Connector credentials (global-config.xml)"
+echo "     - DataWeave field mappings (src/main/resources/dwl/)"
+echo "     - Anypoint MQ queue names (properties/*.yaml)"
+echo "  4. Run MUnit tests: mvn test"
+echo "  5. Deploy: push to the dev branch (GitHub Actions) or:"
+echo "     mvn deploy -DmuleDeploy -Denvironment=dev"
+echo ""
+echo "════════════════════════════════════════════════════════════════"

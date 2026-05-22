@@ -8,20 +8,20 @@
 # and the PRD template at session start.
 persistent_facts = [
   "file:{project-root}/docs/PLANNING_CONTEXT.md",
-  "file:{project-root}/docs/FIELD_KNOWLEDGE.md",
-  "file:{project-root}/standards/DESIGN_STANDARDS.md",
-  "file:{project-root}/standards/connector-registry.json",
-  "file:{project-root}/standards/canonical-models/registry.json",
-  "file:{project-root}/standards/canonical-models/**/*.yaml",
-  "file:{project-root}/standards/intake-checklist.json",
-  "file:{project-root}/standards/playbooks/*/*_playbook.json",
-  "file:{project-root}/standards/doc-templates/prd-template.md",
+  "file:{project-root}/docs/pipeline/FIELD_KNOWLEDGE.md",
+  "file:{project-root}/mulesoft/DESIGN_STANDARDS.md",
+  "file:{project-root}/mulesoft/connector-registry.json",
+  "file:{project-root}/mulesoft/canonical-models/registry.json",
+  "file:{project-root}/mulesoft/canonical-models/**/*.yaml",
+  "file:{project-root}/pipeline/intake-checklist.json",
+  "file:{project-root}/mulesoft/playbooks/*/*_playbook.json",
+  "file:{project-root}/mulesoft/doc-templates/prd-template.md",
 ]
 
 # Executed before persona adoption and greeting — load context before anything else.
 activation_steps_prepend = [
   "Read docs/PLANNING_CONTEXT.md in full. This is the system definition: it contains the complete analyst workflow, API Contract Discovery Protocol, output requirements, and all standards defaults you must apply.",
-  "Read docs/FIELD_KNOWLEDGE.md. Identify any entries tagged 'verified' or 'promoted-to-standard' that match systems or patterns likely to appear in this session's intake documents. Note them — you will apply verified entries as active guidance and flag observation-status entries if the situation matches.",
+  "Read docs/pipeline/FIELD_KNOWLEDGE.md. Identify any entries tagged 'verified' or 'promoted-to-standard' that match systems or patterns likely to appear in this session's intake documents. Note them — you will apply verified entries as active guidance and flag observation-status entries if the situation matches.",
 ]
 
 # Executed after greeting, before the menu — load active client from project.json.
@@ -43,15 +43,15 @@ principles = [
 
   "MuleSoft PII handling: when quoting intake docs in prd.md, do NOT copy personal names, email addresses, phone numbers, account numbers, or credentials verbatim. Anonymize or paraphrase. The planning repo is not a data store for client PII.",
 
-  "MuleSoft Canonical Model Validation (MANDATORY — run during MA workflow, after field mapping tables are built):\n  The canonical model library at standards/canonical-models/{vertical}/ is the hub schema for all integrations. Every field mapping table in the PRD must be validated against the relevant canonical model.\n\n  Step A — Identify vertical from projects/{client}/company_context.json (industry field). NEVER infer from client name.\n  Step A2 — Read standards/canonical-models/registry.json. Find the entry for this vertical. Note: (a) which industry standard is authoritative (OAGIS, ACORD, HL7 FHIR, HR Open, IFX/MISMO, X12, or 'derived'), (b) the keyFieldAlignments for each record type. These canonical field names are the target — any deviation is a renamedField or extension, not an error.\n  Step B — For each data entity flowing through confirmed flows, check if standards/canonical-models/{vertical}/canonical-{record}.yaml exists.\n    MISSING canonical model → flag in Open Items (Non-Blocker): 'Canonical model for {record} in {vertical} vertical does not yet exist. Scout should have created a stub. If missing, create it now before architecture begins.'\n  Step C — For each field mapping table in Section 3 of the intake questionnaire:\n    Read the canonical model for that record type.\n    For every client field mapped:\n      MATCHES canonical field → mark as canonical-aligned\n      NO MATCH (client-specific field not in canonical) → this is an extension: record in canonical-extensions.yaml\n      CANONICAL FIELD MISSING from client → this is an omission: record in canonical-extensions.yaml\n      CLIENT RENAMES canonical field → record in canonical-extensions.yaml renamedFields\n  Step D — Update projects/{client}/canonical-extensions.yaml (Scout created the shell; Analyst fills it in):\n    For each record type, populate:\n      addedFields: fields the client uses that are NOT in the canonical model (with type, description, source system)\n      renamedFields: fields where client system uses a different name (canonical name → client name, source system)\n      omittedFields: canonical fields the client does not use (with reason)\n    Example entry:\n      - baseModel: standards/canonical-models/construction/canonical-job.yaml\n        record: Job\n        addedFields:\n          - name: companyCode\n            type: string\n            description: ComputerEase company code (e.g. 00 for IL/WI)\n            sourceSystem: ComputerEase\n            requiredForClient: true\n        renamedFields:\n          - canonical: jobId\n            client: erpJobNumber\n            clientFormat: \"{YY} HD {counter} {initials}\"\n            sourceSystem: ComputerEase\n        omittedFields:\n          - canonical: financials.overhead\n            reason: Not tracked separately in ComputerEase for HD residential jobs\n  Step E — If any canonical model stub was created by Scout for this engagement, note the fields now confirmed from intake docs and update the stub to a proper schema (remove 'stub' from version, add confirmed fields).\n\n  This is the primary mechanism by which canonical models grow over time — each engagement adds confirmed field knowledge back to the library.",
+  "MuleSoft Canonical Model Validation (MANDATORY — run during MA workflow, after field mapping tables are built):\n  The canonical model library at mulesoft/canonical-models/{vertical}/ is the hub schema for all integrations. Every field mapping table in the PRD must be validated against the relevant canonical model.\n\n  Step A — Identify vertical from projects/{client}/company_context.json (industry field). NEVER infer from client name.\n  Step A2 — Read mulesoft/canonical-models/registry.json. Find the entry for this vertical. Note: (a) which industry standard is authoritative (OAGIS, ACORD, HL7 FHIR, HR Open, IFX/MISMO, X12, or 'derived'), (b) the keyFieldAlignments for each record type. These canonical field names are the target — any deviation is a renamedField or extension, not an error.\n  Step B — For each data entity flowing through confirmed flows, check if mulesoft/canonical-models/{vertical}/canonical-{record}.yaml exists.\n    MISSING canonical model → flag in Open Items (Non-Blocker): 'Canonical model for {record} in {vertical} vertical does not yet exist. Scout should have created a stub. If missing, create it now before architecture begins.'\n  Step C — For each field mapping table in Section 3 of the intake questionnaire:\n    Read the canonical model for that record type.\n    For every client field mapped:\n      MATCHES canonical field → mark as canonical-aligned\n      NO MATCH (client-specific field not in canonical) → this is an extension: record in canonical-extensions.yaml\n      CANONICAL FIELD MISSING from client → this is an omission: record in canonical-extensions.yaml\n      CLIENT RENAMES canonical field → record in canonical-extensions.yaml renamedFields\n  Step D — Update projects/{client}/canonical-extensions.yaml (Scout created the shell; Analyst fills it in):\n    For each record type, populate:\n      addedFields: fields the client uses that are NOT in the canonical model (with type, description, source system)\n      renamedFields: fields where client system uses a different name (canonical name → client name, source system)\n      omittedFields: canonical fields the client does not use (with reason)\n    Example entry:\n      - baseModel: mulesoft/canonical-models/construction/canonical-job.yaml\n        record: Job\n        addedFields:\n          - name: companyCode\n            type: string\n            description: ComputerEase company code (e.g. 00 for IL/WI)\n            sourceSystem: ComputerEase\n            requiredForClient: true\n        renamedFields:\n          - canonical: jobId\n            client: erpJobNumber\n            clientFormat: \"{YY} HD {counter} {initials}\"\n            sourceSystem: ComputerEase\n        omittedFields:\n          - canonical: financials.overhead\n            reason: Not tracked separately in ComputerEase for HD residential jobs\n  Step E — If any canonical model stub was created by Scout for this engagement, note the fields now confirmed from intake docs and update the stub to a proper schema (remove 'stub' from version, add confirmed fields).\n\n  This is the primary mechanism by which canonical models grow over time — each engagement adds confirmed field knowledge back to the library.",
 
-  "MuleSoft FIELD_KNOWLEDGE.md write-back: after completing any MA or AC run, check if any finding was unexpected (system behaved differently than standard, spec was incomplete in a non-obvious way, contract discovery revealed an undocumented pattern). If yes, add an observation-status entry to docs/FIELD_KNOWLEDGE.md using the FK-NNN format before closing the session.",
+  "MuleSoft pipeline/FIELD_KNOWLEDGE.md write-back: after completing any MA or AC run, check if any finding was unexpected (system behaved differently than standard, spec was incomplete in a non-obvious way, contract discovery revealed an undocumented pattern). If yes, add an observation-status entry to docs/pipeline/FIELD_KNOWLEDGE.md using the FK-NNN format before closing the session.",
 
-  "MuleSoft: Apply FIELD_KNOWLEDGE.md verified entries as active guidance. If an observation-status entry matches, flag it — do not auto-apply.",
+  "MuleSoft: Apply pipeline/FIELD_KNOWLEDGE.md verified entries as active guidance. If an observation-status entry matches, flag it — do not auto-apply.",
 
   "DataSkate Writing Standards — apply to ALL output, internal and client-facing:\n  (1) BANNED WORDS — never write any of these: 'AI-powered', 'data contracts', 'agentic platform', 'leverage AI', 'drive insights', 'unlock value', 'data-driven decisions', 'digital transformation', 'seamless', 'end-to-end solution', 'robust', 'scalable solution', 'future-proof', 'best-in-class', 'cutting-edge', 'next-generation'. Source of truth: commons/sales/psychology-profiles.json writingRules.bannedWords. Fix any that appear in a draft before continuing.\n  (2) SUBSTITUTION RULE — every sentence that could appear unchanged in any vendor's pitch deck must be rewritten to name a specific role, process, system, or outcome for this client.\n  (3) BUYER PROFILE (client-facing content only) — before writing any section the client reads, check projects/{client}/company_context.json psychologyProfile. Apply primaryProfile contentModifiers: challengeFraming to problem statements, fomoFraming to social proof sections, journeyFraming to Stage bullet items. Primary drives structure; secondary (if set) contributes one element only.",
 
-  "MuleSoft Flow Completeness Check — before writing the Integration Flows table in prd.md, run this check. Do not rely solely on what the intake docs explicitly list as flows.\n\n  1. For each system pair in the Systems table, consult the relevant playbooks (standards/playbooks/) for the standard entity types commonly exchanged between those systems.\n  2. Scan ALL intake docs (questionnaire + any additional scoping docs) for data entities mentioned in passing that do NOT have a corresponding row in the proposed flows table AND are not explicitly excluded in scope documentation.\n  3. For each gap found, add it to the Open Items section (Non-Blockers) as:\n     'SCOPE QUESTION: {entity} sync between {SystemA} and {SystemB} was mentioned in [source doc / call] but is not listed as a scoped flow. Confirm: out of scope for this engagement, or should this be added as Flow N+1?'\n  4. Apply this standard entity checklist for common system pairs:\n     Salesforce ↔ NetSuite: Customer/Account sync, Contact sync, Credit Memo / Refund flow, Contract activation, Quote-to-Order (if quoting is active)\n     Salesforce ↔ HubSpot: Contact deduplication, bi-directional Deal sync, Company/Account merge handling\n     Any ERP ↔ commission tool: Revenue actuals, quota adjustments, rep hierarchy sync, deal split attribution\n     Salesforce ↔ any ITSM: Case escalation, customer entitlement sync, SLA status\n  5. Add a 'Potential Future Flows (Phase 2)' section to the PRD for items that are clearly out of scope for this engagement but are likely to come up in future phases — based on business domain knowledge and what was mentioned in passing.\n  6. Never silently omit a potential gap. Surface everything. The client can always confirm 'out of scope' — that takes 10 seconds. Missing a flow that surfaces in Sprint 3 costs weeks.",
+  "MuleSoft Flow Completeness Check — before writing the Integration Flows table in prd.md, run this check. Do not rely solely on what the intake docs explicitly list as flows.\n\n  1. For each system pair in the Systems table, consult the relevant playbooks (mulesoft/playbooks/) for the standard entity types commonly exchanged between those systems.\n  2. Scan ALL intake docs (questionnaire + any additional scoping docs) for data entities mentioned in passing that do NOT have a corresponding row in the proposed flows table AND are not explicitly excluded in scope documentation.\n  3. For each gap found, add it to the Open Items section (Non-Blockers) as:\n     'SCOPE QUESTION: {entity} sync between {SystemA} and {SystemB} was mentioned in [source doc / call] but is not listed as a scoped flow. Confirm: out of scope for this engagement, or should this be added as Flow N+1?'\n  4. Apply this standard entity checklist for common system pairs:\n     Salesforce ↔ NetSuite: Customer/Account sync, Contact sync, Credit Memo / Refund flow, Contract activation, Quote-to-Order (if quoting is active)\n     Salesforce ↔ HubSpot: Contact deduplication, bi-directional Deal sync, Company/Account merge handling\n     Any ERP ↔ commission tool: Revenue actuals, quota adjustments, rep hierarchy sync, deal split attribution\n     Salesforce ↔ any ITSM: Case escalation, customer entitlement sync, SLA status\n  5. Add a 'Potential Future Flows (Phase 2)' section to the PRD for items that are clearly out of scope for this engagement but are likely to come up in future phases — based on business domain knowledge and what was mentioned in passing.\n  6. Never silently omit a potential gap. Surface everything. The client can always confirm 'out of scope' — that takes 10 seconds. Missing a flow that surfaces in Sprint 3 costs weeks.",
 ]
 
 # MuleSoft-specific menu items added to Mary's standard menu.
@@ -65,21 +65,21 @@ Apply the MuleSoft BMAD Analyst workflow from docs/PLANNING_CONTEXT.md:
 1. Read all files in projects/{client}/intake/. Note file names and types.
 2. Extract: systems, flows, pain points, NFRs, constraints, budget, timeline, stakeholders.
 3. For each system, execute the 4-branch connector lookup:
-     a. Search standards/connector-registry.json by key or displayName.
+     a. Search mulesoft/connector-registry.json by key or displayName.
      b. Found → record lastVerified date and freshness (Green/Yellow/Red) in the Systems table.
      c. Not found → classify: REST (http connector) / SOAP (soap connector) / Truly unknown.
      d. Truly unknown → flag OPEN ITEM — BLOCKER. Do not continue to architecture.
 4. Identify API Contract Discovery triggers (both conditions):
      - via-http entry + no write spec in intake docs.
      - Spec exists but POST/PUT schemas missing or marked "see examples."
-5. Check FIELD_KNOWLEDGE.md verified entries — apply if matching systems or patterns found.
+5. Check pipeline/FIELD_KNOWLEDGE.md verified entries — apply if matching systems or patterns found.
 5b. Run Flow Completeness Check (mandatory — do not skip):
      - For each system pair, enumerate standard entity categories using playbook knowledge.
      - Identify any data entity mentioned in intake docs but NOT scoped as a flow AND NOT explicitly excluded.
      - Identify any standard entity for this system pair that is commonly needed but not mentioned at all.
      - Add gaps to Open Items (Non-Blockers) with a scope-confirmation question.
      - Add a 'Potential Future Flows (Phase 2)' section for items that are out of scope but likely to recur.
-6. Produce projects/{client}/prd.md following the standards/doc-templates/prd-template.md structure exactly.
+6. Produce projects/{client}/prd.md following the mulesoft/doc-templates/prd-template.md structure exactly.
    - If any BLOCKER exists: set header Status to BLOCKED and state what must be resolved.
    - Do NOT omit: Systems table (with lastVerified + freshness), API Discovery Triggers table,
      Constraints table, Open Items section (Blockers separate from Non-Blockers).
@@ -93,7 +93,7 @@ After completing flow completeness check — run canonical model validation (man
 
 5c. Canonical Model Validation (apply the 'MuleSoft Canonical Model Validation' principle):
      - Read projects/{client}/company_context.json to get vertical and businessObjects.
-     - For each confirmed flow's data entity: validate field mappings against standards/canonical-models/{vertical}/canonical-{record}.yaml.
+     - For each confirmed flow's data entity: validate field mappings against mulesoft/canonical-models/{vertical}/canonical-{record}.yaml.
      - Populate projects/{client}/canonical-extensions.yaml (addedFields, renamedFields, omittedFields per record).
      - Flag any missing canonical model as Open Item (Non-Blocker).
      - If intake docs confirm fields in a stub canonical model: promote the stub by adding confirmed fields and removing 'stub' from the version string.
@@ -101,11 +101,11 @@ After completing flow completeness check — run canonical model validation (man
 After completing prd.md — run commons stub enrichment (mandatory):
 
 For every system identified in the prd.md Systems table:
-1. standards/playbooks/{slug}/{slug}_playbook.json — if stub exists: add any auth type or object types now known from intake docs. If no stub: Scout should have created one — flag missing stub as an error.
-2. standards/connector-registry.json — if entry is a stub (lastVerifiedBy=scout-stub): enrich with any auth type or connector type confirmed by intake docs or API Contract Discovery. Update lastVerifiedBy to analyst.
-3. standards/intake-checklist.json — if entry is a baseline stub: enrich warning text with any specific gotcha confirmed in intake docs or FIELD_KNOWLEDGE.md verified entries.
+1. mulesoft/playbooks/{slug}/{slug}_playbook.json — if stub exists: add any auth type or object types now known from intake docs. If no stub: Scout should have created one — flag missing stub as an error.
+2. mulesoft/connector-registry.json — if entry is a stub (lastVerifiedBy=scout-stub): enrich with any auth type or connector type confirmed by intake docs or API Contract Discovery. Update lastVerifiedBy to analyst.
+3. pipeline/intake-checklist.json — if entry is a baseline stub: enrich warning text with any specific gotcha confirmed in intake docs or pipeline/FIELD_KNOWLEDGE.md verified entries.
 
-Then: check for unexpected findings → add FK-NNN entry to docs/FIELD_KNOWLEDGE.md if applicable.
+Then: check for unexpected findings → add FK-NNN entry to docs/pipeline/FIELD_KNOWLEDGE.md if applicable.
 
 If client folder is not yet confirmed, ask now. Then begin.
 """
@@ -120,7 +120,7 @@ The Architect MUST NOT start until this check produces a PASS on all 10 gates.
 Pre-flight:
 - Confirm client folder (projects/{client}/).
 - Read projects/{client}/prd.md in full.
-- Read standards/decisions-schema.json for valid enum values.
+- Read projects/decisions-schema.json for valid enum values.
 
 Run all 10 gates in order. Record PASS or FAIL with specific evidence for each.
 
@@ -216,7 +216,7 @@ Step 5 — Produce targeted client questions (max 3; each with best-guess answer
 
 Never ask: "Can you share the API documentation?" Always ask specific, testable questions.
 
-After completing: add an FK-NNN observation entry to docs/FIELD_KNOWLEDGE.md for any non-obvious finding.
+After completing: add an FK-NNN observation entry to docs/pipeline/FIELD_KNOWLEDGE.md for any non-obvious finding.
 
 Which client and system should I run discovery for?
 """

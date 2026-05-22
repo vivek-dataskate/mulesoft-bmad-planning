@@ -1,0 +1,49 @@
+{
+  "client": "homage",
+  "assembledAt": "2026-05-22T00:18:49.703Z",
+  "diagrams": [
+    {
+      "id": "system-flow",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/system-flow-dual-panel.mmd",
+      "title": "System Flow — Current State",
+      "generatedBy": "rex+flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Homage",
+        "__CURRENT_SYSTEMS__": "Shopify Plus, Orderful, ShipStation, Laravel + Vapor",
+        "__DEPRECATED__": "",
+        "__HUB__": "MuleSoft (DataSkate managed)",
+        "__TARGETS__": "NetSuite",
+        "__FLOW_COUNT__": "22"
+      }
+    },
+    {
+      "id": "scope-boundary-scoping",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/integration-scope-boundary.mmd",
+      "title": "Integration Scope Boundary",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Homage",
+        "__HUB__": "MuleSoft (DataSkate managed)",
+        "__CONFIRMED_FLOWS__": "Shopify Order → NetSuite Cash Sale, Shopify Order → NetSuite Sales Order, Shopify Refund → NetSuite Credit Memo / Customer Refund, NetSuite Return Authorization → Shopify Refund, NetSuite Item Fulfillment → Shopify Fulfillment Update, Shopify Fulfillment Event → NetSuite Order Status Update, Inventory Sync (Scheduled + CSWOS Logic), NetSuite Matrix Item → Shopify Product + Variants, NetSuite Price → Shopify Product Price, NetSuite Tax Code → Shopify Product Tax, Shopify Product Image URL → NetSuite Item, Shopify Customer Created → NetSuite Customer, Shopify Customer Updated → NetSuite Customer, NetSuite Customer → Shopify Customer, Shopify Payment → NetSuite Customer Deposit, NetSuite Sales Order → Invoice Trigger, Shopify Store Metadata → NetSuite Custom Records, Uncharacterized Custom Flow 1 (Celigo Custom Integration 1), Uncharacterized Custom Flow 2 (Celigo Custom Integration 1), Uncharacterized Custom Flow 3 (Celigo Custom Integration 2)",
+        "__OUT_OF_SCOPE__": "",
+        "__FLOW_COUNT__": "22"
+      }
+    },
+    {
+      "id": "scoping-gate",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/decision-scoping-gate.mmd",
+      "title": "Scoping Decision Gate",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Homage",
+        "__P0_BLOCKERS__": "Celigo Flow Inventory Spreadsheet, NetSuite TBA Credentials (via Sikich), Shopify Custom App — API Credentials, UC9 Architect Clarification — Invoice Generation Mechanism"
+      }
+    }
+  ]
+}

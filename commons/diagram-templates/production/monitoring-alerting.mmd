@@ -1,0 +1,14 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    monitor(["Anypoint Monitoring\n__HUB__ — __CLIENT_NAME__"]):::hub
+    monitor --> cpu{CPU > __CPU_THRESHOLD__%?}
+    monitor --> err{Error rate > __ERR_THRESHOLD__%?}
+    monitor --> dlq{DLQ depth > __DLQ_THRESHOLD__?}
+    cpu -->|"Yes"| scale["Auto-scale worker"]:::action
+    err -->|"Yes"| notify["Alert — __ALERT_CHANNEL__"]:::warn
+    dlq -->|"Yes"| page["Page on-call — __ONCALL__"]:::warn
+    notify --> review["Review logs\nAnypoint Runtime Manager"]:::action
+    page --> runbook["Execute runbook\n__RUNBOOK_URL__"]:::action
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef warn fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b

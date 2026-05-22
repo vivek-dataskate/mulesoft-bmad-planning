@@ -18,7 +18,7 @@ const fwdArgs   = ['--add-client', client, ...(statusIdx !== -1 ? ['--status', r
 
 const result = spawnSync(
   'node',
-  [path.join(__dirname, '../../scripts/update-firebase.js'), ...fwdArgs],
+  [path.join(__dirname, '../../pipeline/scripts/update-firebase.js'), ...fwdArgs],
   { stdio: 'inherit' }
 );
 process.exit(result.status ?? 1);

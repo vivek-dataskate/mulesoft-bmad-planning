@@ -587,29 +587,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 
   
   
-  <div class="model-card" data-model="tm">
-    
-    <div class="model-name">Model 3 — Time &amp; Materials</div>
-    <div class="model-impl">$15,200</div>
-    <div class="model-impl-label">Estimated total · 4 flows · billed on actual hours logged</div>
-    <hr class="model-divider">
-    <div class="best-for">Resource rates</div>
-    <table class="tm-rate-table">
-      <thead><tr><th>Role</th><th>Rate/hr</th><th>~hrs/flow</th></tr></thead>
-      <tbody>
-        
-        <tr><td>Offshore Architect</td><td>$45.00</td><td>~20h</td></tr>
-        
-        <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~40h</td></tr>
-        
-        <tr><td>Offshore Developer</td><td>$25.00</td><td>~60h</td></tr>
-        
-      </tbody>
-    </table>
-    <div class="model-vp">Scope can evolve mid-engagement. DataSkate logs hours in a shared sheet; you only pay for actual work done. Ideal when requirements are still forming.</div>
-    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('tm','Model 3 — Time &amp; Materials','$3,800/flow est.')">Select this Model →</button>
-  </div>
-  
 
 </div>
 
@@ -646,29 +623,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 </div>
 
 
-
-<div id="tm-rate-section" style="display:none">
-  <div class="managed-intro">
-    <h3>T&amp;M Resource Breakdown</h3>
-    <p>Estimates based on typical hours per flow. Actual hours may vary; scope increases require written approval before work begins.</p>
-  </div>
-  <table class="managed-table">
-    <thead>
-      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (4 flows)</th><th>Estimated cost</th></tr>
-    </thead>
-    <tbody>
-      
-      <tr><td>Offshore Architect</td><td>$45.00</td><td>~80h</td><td>$3,600</td></tr>
-      
-      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~160h</td><td>$5,600</td></tr>
-      
-      <tr><td>Offshore Developer</td><td>$25.00</td><td>~240h</td><td>$6,000</td></tr>
-      
-      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$15,200</strong></td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced bi-weekly based on actual hours logged. Minimum engagement: 80 hours. Time tracked via shared sheet provided at SOW signing.</p>
-</div>
 
 
 
@@ -797,36 +751,33 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     <p class="lead">DataSkate manages a MuleSoft runtime between Salesforce, QuickBooks Online, and Holly's inventory worksheet — handling event triggers, field transforms, error recovery, and OAuth token rotation automatically. Unlike native marketplace connectors, the DataSkate layer includes retry logic, dead letter queuing, and an operations layer that runs without internal IT resources. No code changes are required in Salesforce or QuickBooks.</p>
-    <div class="diagram-wrap"><svg viewBox="0 0 500 156" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg">
+    <div class="diagram-wrap"><svg viewBox="0 0 500 142" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
     <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
     <style>
       .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}
-      .sv-hub{fill:#E8F5EE;stroke:var(--green);stroke-width:2}
       .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}
       .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
-      .sv-lhub{font:700 12px system-ui,sans-serif;fill:var(--green)}
-      .sv-lsub{font:400 9px system-ui,sans-serif;fill:var(--green)}
     </style>
   </defs>
-  <rect class="sv-src" x="5" y="23" width="140" height="32" rx="6"/>
-    <text class="sv-lsrc" x="75" y="44" text-anchor="middle">Salesforce</text>
-    <line class="sv-line" x1="145" y1="39" x2="190" y2="78" marker-end="url(#arr)"/>
-  <rect class="sv-src" x="5" y="62" width="140" height="32" rx="6"/>
-    <text class="sv-lsrc" x="75" y="83" text-anchor="middle">QuickBooks Online</text>
-    <line class="sv-line" x1="145" y1="78" x2="190" y2="78" marker-end="url(#arr)"/>
-  <rect class="sv-src" x="5" y="101" width="140" height="32" rx="6"/>
-    <text class="sv-lsrc" x="75" y="122" text-anchor="middle">Google Sheets / Excel</text>
-    <line class="sv-line" x1="145" y1="117" x2="190" y2="78" marker-end="url(#arr)"/>
-  <rect class="sv-hub" x="190" y="52" width="120" height="52" rx="8"/>
-  <text class="sv-lhub" x="250" y="74" text-anchor="middle">MuleSoft</text>
-  <text class="sv-lsub" x="250" y="90" text-anchor="middle">DataSkate Managed</text>
-  <rect class="sv-tgt" x="355" y="36" width="140" height="32" rx="6"/>
-    <text class="sv-ltgt" x="425" y="57" text-anchor="middle">QuickBooks Online</text>
-    <line class="sv-line" x1="310" y1="78" x2="355" y2="52" marker-end="url(#arr)"/>
-  <rect class="sv-tgt" x="355" y="88" width="140" height="32" rx="6"/>
-    <text class="sv-ltgt" x="425" y="109" text-anchor="middle">Salesforce</text>
-    <line class="sv-line" x1="310" y1="78" x2="355" y2="104" marker-end="url(#arr)"/>
+  <rect class="sv-src" x="5" y="16.0" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="36.0" text-anchor="middle">Salesforce</text>
+    <line class="sv-line" x1="145" y1="32.0" x2="190" y2="71.0" marker-end="url(#arr)"/>
+  <rect class="sv-src" x="5" y="55.0" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="75.0" text-anchor="middle">QuickBooks Online</text>
+    <line class="sv-line" x1="145" y1="71.0" x2="190" y2="71.0" marker-end="url(#arr)"/>
+  <rect class="sv-src" x="5" y="94.0" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="114.0" text-anchor="middle">Google Sheets / Excel</text>
+    <line class="sv-line" x1="145" y1="110.0" x2="190" y2="71.0" marker-end="url(#arr)"/>
+  <rect x="190" y="35.0" width="120" height="72" rx="8" fill="#EBF7FD" stroke="#00a1df" stroke-width="2"/>
+  <image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" x="210.0" y="45.0" width="80" height="30"/>
+  <text x="250" y="99.0" text-anchor="middle" font="400 9px system-ui,sans-serif" style="font:400 9px system-ui,sans-serif;fill:#00a1df">DataSkate Managed</text>
+  <rect class="sv-tgt" x="355" y="35.5" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="55.5" text-anchor="middle">QuickBooks Online</text>
+    <line class="sv-line" x1="310" y1="71.0" x2="355" y2="51.5" marker-end="url(#arr)"/>
+  <rect class="sv-tgt" x="355" y="74.5" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="94.5" text-anchor="middle">Salesforce</text>
+    <line class="sv-line" x1="310" y1="71.0" x2="355" y2="90.5" marker-end="url(#arr)"/>
 </svg></div>
     <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Salesforce or QuickBooks. Salesforce and QuickBooks Online are both source and target: UC1 flows Salesforce → QB; UC2, UC4 flow QB → Salesforce; UC3 flows Google Sheets / Excel → Salesforce.</p>
   </div>
@@ -1247,42 +1198,56 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    <div class="about-hero">
-  <div class="about-stat">
-    <div class="about-stat-num">20</div>
-    <div class="about-stat-label">years, one discipline</div>
-  </div>
-  <div class="about-stat">
-    <div class="about-stat-num">1</div>
-    <div class="about-stat-label">service — nothing else</div>
-  </div>
-  <div class="about-stat">
-    <div class="about-stat-num">0</div>
-    <div class="about-stat-label">websites. consulting. mobile apps.</div>
-  </div>
-</div>
-
-<p class="about-lead">Data integration is not a service DataSkate added to a broader practice. It is the only thing the people behind DataSkate have ever done — across industries, at companies of every size, through every generation of middleware. We stayed narrow on purpose. The problem kept getting harder, and broad practices lose when things get complicated.</p>
-
-<div class="about-ai-callout">
-  <div class="about-ai-label">Why this matters now</div>
-  <p>AI does not create order from disorder. It amplifies what is already there. Every vendor is promising their model will fix the operational chaos underneath your business. It will not — not without connected, clean, trustworthy data to read. DataSkate builds that foundation. The MuleSoft flows we design in Year 1 are the exact pipelines AgentForce reads in Year 2. We are not adding complexity to your Salesforce investment. We are making it finally deliver what was promised.</p>
-</div>
-
-<div class="about-pillars">
-  <div class="about-pillar">
-    <div class="about-pillar-head">Narrow by design</div>
-    <p>We do not build websites. We do not do general IT consulting. When you have an integration problem, you reach people for whom this is the only question — and has been for years. That focus shows in the diagnosis. It shows in the build.</p>
-  </div>
-  <div class="about-pillar">
-    <div class="about-pillar-head">Not a template. A diagnosis.</div>
-    <p>The architecture in this proposal was assembled from patterns learned across twenty years and applied to your specific situation. Specific field schemas, event triggers, sync frequencies — built for this engagement, not the previous one.</p>
-  </div>
-  <div class="about-pillar">
-    <div class="about-pillar-head">Still there at 2am</div>
-    <p>We have watched point-to-point connections fail overnight. We have rebuilt pipelines another vendor called production-ready. When something breaks, you reach people who already know the three most likely reasons why.</p>
-  </div>
-</div>
+    
+    
+      
+      <div class="about-hero">
+        
+        <div class="about-stat">
+          <div class="about-stat-num">20</div>
+          <div class="about-stat-label">years, one discipline</div>
+        </div>
+        
+        <div class="about-stat">
+          <div class="about-stat-num">1</div>
+          <div class="about-stat-label">service — nothing else</div>
+        </div>
+        
+        <div class="about-stat">
+          <div class="about-stat-num">0</div>
+          <div class="about-stat-label">websites. consulting. mobile apps.</div>
+        </div>
+        
+      </div>
+      
+      <p class="about-lead">Data integration is not a service DataSkate added to a broader practice. It is the only thing the people behind DataSkate have ever done — across industries, at companies of every size, through every generation of middleware. We stayed narrow on purpose. The problem kept getting harder, and broad practices lose when things get complicated.</p>
+      
+      <div class="about-ai-callout">
+        <div class="about-ai-label">Why this matters now</div>
+        <p>AI does not create order from disorder. It amplifies what is already there. Every vendor is promising their model will fix the operational chaos underneath your business. It will not — not without connected, clean, trustworthy data to read. DataSkate builds that foundation. The MuleSoft flows we design in Year 1 are the exact pipelines AgentForce reads in Year 2. We are not adding complexity to your Salesforce investment. We are making it finally deliver what was promised.</p>
+      </div>
+      
+      
+      <div class="about-pillars">
+        
+        <div class="about-pillar">
+          <div class="about-pillar-head">Narrow by design</div>
+          <p>We do not build websites. We do not do general IT consulting. When you have an integration problem, you reach people for whom this is the only question — and has been for years. That focus shows in the diagnosis. It shows in the build.</p>
+        </div>
+        
+        <div class="about-pillar">
+          <div class="about-pillar-head">Not a template. A diagnosis.</div>
+          <p>The architecture in this proposal was assembled from patterns learned across twenty years and applied to your specific situation. Specific field schemas, event triggers, sync frequencies — built for this engagement, not the previous one.</p>
+        </div>
+        
+        <div class="about-pillar">
+          <div class="about-pillar-head">Still there at 2am</div>
+          <p>We have watched point-to-point connections fail overnight. We have rebuilt pipelines another vendor called production-ready. When something breaks, you reach people who already know the three most likely reasons why.</p>
+        </div>
+        
+      </div>
+      
+    
   </div>
 </details>
 
@@ -1325,6 +1290,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 </details>
 
 
+</div>
+
+
+<div style="border-top:1px solid var(--border);padding:8px 40px;font-size:11px;color:var(--mid);display:flex;align-items:center;gap:6px;" class="no-print">
+  <span>Prior versions:</span>
+  <a href="https://dataskateclients.web.app/proposal/agilemind/2026-05-14-v1.html" style="color:var(--mid);text-decoration:underline;" target="_blank" rel="noopener">v1 &middot; 2026-05-14</a>
 </div>
 
 <div class="footer">

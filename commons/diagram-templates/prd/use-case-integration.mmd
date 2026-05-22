@@ -1,0 +1,16 @@
+%%{init: {'theme': 'base'}}%%
+flowchart LR
+    subgraph actors["Actors"]
+        direction TB
+        __ACTORS__
+    end
+    hub["__HUB__"]:::hub
+    subgraph systems["Connected Systems"]
+        direction TB
+        __SYSTEMS__
+    end
+    __ACTOR_EDGES__
+    __SYSTEM_EDGES__
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2.5px,color:#276749,font-weight:bold
+    classDef actor fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef system fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A

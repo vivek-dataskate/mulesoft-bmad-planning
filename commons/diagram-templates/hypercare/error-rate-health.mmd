@@ -1,0 +1,15 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    monitor(["Error Rate Monitor\n__CLIENT_NAME__ / __HUB__"]):::hub
+    monitor --> health{Rate status?}
+    health -->|"< __ERR_THRESHOLD__% — green"| ok["Within SLA\ncontinue monitoring\n__MONITOR_URL__"]:::success
+    health -->|"__WARN_THRESHOLD__–__ERR_THRESHOLD__% — amber"| warn["Amber alert\nnotify __ONCALL__"]:::warn
+    health -->|"> __ERR_THRESHOLD__% — red"| page["Page on-call\n__ONCALL__"]:::error
+    warn --> check["Review DLQ depth\n+ retry trends"]:::action
+    page --> runbook["Execute runbook"]:::action
+    __HEALTH_NODES__
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef success fill:#F0FFF4,stroke:#2E9E6B,stroke-width:1px,color:#276749
+    classDef warn fill:#F8F8F8,stroke:#D4D4D8,stroke-width:1px,color:#1A1A1A
+    classDef error fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b

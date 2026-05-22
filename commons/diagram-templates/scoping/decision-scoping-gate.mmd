@@ -1,0 +1,10 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    start(["Scoping Gate — __CLIENT_NAME__"]):::hub
+    start --> decision{P0 Blockers\nUnresolved?}
+    __P0_BLOCKERS__
+    decision -->|"None / Resolved"| go(["✓ Go — Proceed to SOW"]):::hub
+    decision -->|"Blocked"| nogo(["✗ No-Go — Resolve before SOW"]):::deprecated
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749
+    classDef deprecated fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b
+    classDef blocker fill:#FFF5F5,stroke:#ed1c24,stroke-dasharray:4 4,color:#c0392b

@@ -1,0 +1,19 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    start(["Hypercare Exit Review\n__CLIENT_NAME__"]):::hub
+    start --> q1{Error rate\n< __ERR_THRESHOLD__%?}
+    q1 -->|"No"| fail1["Extend hypercare\nresolve errors"]:::warn
+    q1 -->|"Yes"| q2{DLQ cleared?}
+    q2 -->|"No"| fail2["Clear DLQ\nmanual review"]:::warn
+    q2 -->|"Yes"| q3{Docs + runbook\ndelivered?}
+    q3 -->|"No"| fail3["Complete documentation"]:::warn
+    q3 -->|"Yes"| q4{Client sign-off\nreceived?}
+    q4 -->|"No"| fail4["Schedule sign-off call\n__CLIENT_CONTACT__"]:::warn
+    q4 -->|"Yes"| exit(["Hypercare Complete\nTransition to support"]):::hub
+    fail1 -.-> start
+    fail2 -.-> start
+    fail3 -.-> start
+    fail4 -.-> start
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef warn fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b

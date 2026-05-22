@@ -1,4 +1,4 @@
-/* AUTO-GENERATED — edit tokens/*.json, not this file */
+/* AUTO-GENERATED — edit commons/tokens/*.json, not this file */
 module.exports = {
   "colors": {
     "brand": "#ed1c24",

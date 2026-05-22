@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'standards/connector-registry.json'
-      - 'standards/snippet-registry.json'
-      - 'playbooks/**'
+      - 'mulesoft/connector-registry.json'
+      - 'mulesoft/snippet-registry.json'
+      - 'mulesoft/playbooks/**'
       - 'projects/**/decisions.json'
-      - 'scaffold/generate-capabilities.js'
+      - 'pipeline/tools/generate-capabilities.js'
   workflow_dispatch:   # Allow manual trigger from GitHub Actions UI
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
           node-version: '24'
 
       - name: Generate capabilities portal
-        run: node scaffold/generate-capabilities.js
+        run: node pipeline/tools/generate-capabilities.js
 
       - name: Check if portal changed
         id: changed

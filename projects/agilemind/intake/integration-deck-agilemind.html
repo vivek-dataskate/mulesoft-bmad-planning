@@ -249,16 +249,7 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
 
 <section id="s-architecture" style="display:none">
   <h2>System Architecture</h2>
-  <div class="diagram-row">
-    <div class="diagram-panel diagram-current">
-      <div class="diagram-panel-head" id="dk-diag-current-title">Current State</div>
-      <div class="diagram-body" id="dk-diag-current"></div>
-    </div>
-    <div class="diagram-panel diagram-future">
-      <div class="diagram-panel-head" id="dk-diag-future-title">Future State</div>
-      <div class="diagram-body" id="dk-diag-future"></div>
-    </div>
-  </div>
+  <div class="diagram-body" id="dk-diag-wrap" style="justify-content:flex-start;overflow-x:auto;"></div>
 </section>
 
 <section>
@@ -506,30 +497,10 @@ section h2::before{content:'';display:inline-block;width:18px;height:2px;backgro
       }
     }
 
-    // Architecture diagrams
-    if (c.systemDiagram) {
+    // Architecture diagram — inline SVG from system-flow pipeline
+    if (c.systemDiagram && c.systemDiagram.svg) {
       document.getElementById('s-architecture').style.display = '';
-      mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: {
-        primaryColor: '#fff', primaryBorderColor: '#e2e8f0',
-        lineColor: '#718096', fontSize: '13px'
-      }});
-      const renderDiagram = async (def, titleId, bodyId, titleText) => {
-        if (!def) return;
-        txt(titleId, titleText);
-        const id = 'mmd-' + bodyId;
-        const { svg } = await mermaid.render(id, def);
-        document.getElementById(bodyId).innerHTML = svg;
-      };
-      renderDiagram(
-        c.systemDiagram.current && c.systemDiagram.current.mermaid,
-        'dk-diag-current-title', 'dk-diag-current',
-        (c.systemDiagram.current && c.systemDiagram.current.title) || 'Current State'
-      );
-      renderDiagram(
-        c.systemDiagram.future && c.systemDiagram.future.mermaid,
-        'dk-diag-future-title', 'dk-diag-future',
-        (c.systemDiagram.future && c.systemDiagram.future.title) || 'Future State'
-      );
+      document.getElementById('dk-diag-wrap').innerHTML = c.systemDiagram.svg;
     }
   }
 })();
