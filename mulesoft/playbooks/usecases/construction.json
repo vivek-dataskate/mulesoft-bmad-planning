@@ -1,5 +1,143 @@
 {
   "_vertical": "construction",
   "_schema": "See CLAUDE.md standards/usecases/ for field definitions",
-  "usecases": []
+  "usecases": [
+    {
+      "source": "DS",
+      "sizeSegment": "midmarket",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "useCase": "Home Depot Pro lead intake → Salesforce Lead creation (scheduled, 10-minute polling)",
+      "whatWasBuilt": "Scheduled poll of HD Portal API every 10 minutes; lead records (keyed by F-number) created in Salesforce as Lead objects with HD source attribution.",
+      "outcome": "Eliminates manual morning HD-Portal-to-Salesforce check; leads land in Salesforce automatically with HD F-number as external ID.",
+      "aiLayer": "Phase 1 prerequisite for AgentForce-driven HD lead triage / auto-acknowledgement (Phase 3).",
+      "sourceCompany": null,
+      "sourceUrl": null,
+      "addedDate": "2026-05-22",
+      "clients": [
+        {
+          "displayName": "Peerless Fence Group",
+          "projectContext": "UC1 — HD Portal lead → Salesforce Lead, scheduled polling pattern with 10-minute cadence, F-number as the lead identifier"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "source": "DS",
+      "sizeSegment": "midmarket",
+      "systems": [
+        "Salesforce",
+        "ComputerEase (Deltek)"
+      ],
+      "useCase": "Salesforce 'Save as Final' quote → ComputerEase Job + Customer + Budget Worksheet creation",
+      "whatWasBuilt": "Event-driven flow triggered by Salesforce quote 'Save as Final' status transition; creates ComputerEase Job (sequential numbering by company code + product line + initials), Customer, and Budget Worksheet via the Deltek-managed integration URL routed through CE Live Service.",
+      "outcome": "Replaces the ~1.5-hour-per-job manual rekey Ashley currently performs between Salesforce and ComputerEase.",
+      "aiLayer": "Phase 1 prerequisite for AgentForce job-margin watch and budget-worksheet draft suggestion (Phase 3).",
+      "sourceCompany": null,
+      "sourceUrl": null,
+      "addedDate": "2026-05-22",
+      "clients": [
+        {
+          "displayName": "Peerless Fence Group",
+          "projectContext": "UC2 — Salesforce Quote → ComputerEase Job via CE Live Service relay; company code 00 for IL/WI HD residential"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "source": "DS",
+      "sizeSegment": "midmarket",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "MuleSoft IDP",
+        "Salesforce"
+      ],
+      "useCase": "Signed contract PDFs (HS-105, 299A, 299B, HS-118) extracted via MuleSoft IDP and validated against Salesforce quote/contract data",
+      "whatWasBuilt": "Event-driven flow on Salesforce quote 'Save as Final' + signed-document upload; MuleSoft IDP extracts fields; deterministic rule engine validates (signature legibility, Friday-date, 299A=299B price match, single yes/no-box, permit flag, deposit threshold with Wisconsin 99% exception); discrepancies flagged for write-back.",
+      "outcome": "Replaces manual document-by-document contract review with exception-only review.",
+      "aiLayer": "MuleSoft IDP for extraction; deterministic rules layer for validation. Phase 1 prerequisite for AgentForce exception-triage agent.",
+      "sourceCompany": null,
+      "sourceUrl": null,
+      "addedDate": "2026-05-22",
+      "clients": [
+        {
+          "displayName": "Peerless Fence Group",
+          "projectContext": "UC3 — IDP validation of HS-105, 299A, 299B, HS-118 against Salesforce quote data; Wisconsin-specific 99% deposit rule encoded"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "source": "DS",
+      "sizeSegment": "midmarket",
+      "systems": [
+        "Salesforce",
+        "Home Depot Service Center (HD Portal)"
+      ],
+      "useCase": "Salesforce → HD Portal exception / comment write-back when contract validation fails",
+      "whatWasBuilt": "Event-driven flow triggered when UC3 validation fails; structured comment posted to the HD lead screen and/or email sent to the HD account-manager channel (Greg) instead of advancing the job.",
+      "outcome": "Replaces Peerless's current manual practice of writing a comment on the HD screen — automated, structured, traceable.",
+      "aiLayer": "Phase 1 prerequisite for AgentForce-generated exception narrative (replace structured comment with an AI-summarized exception explanation in Phase 3).",
+      "sourceCompany": null,
+      "sourceUrl": null,
+      "addedDate": "2026-05-22",
+      "clients": [
+        {
+          "displayName": "Peerless Fence Group",
+          "projectContext": "UC4 — Salesforce → HD Portal comment / email write-back on contract validation failure"
+        }
+      ],
+      "relevantTo": []
+    },
+    {
+      "source": "web",
+      "sizeSegment": "midmarket",
+      "systems": [
+        "Home Depot Service Center",
+        "ServiceTitan"
+      ],
+      "useCase": "Home Depot Pro lead → ServiceTitan CRM pre-population (eliminates manual rekey)",
+      "whatWasBuilt": "Installer contractors using ServiceTitan manage HD bookings, online requests, and call-center leads from a single intake — HD leads land pre-populated with customer info, job type, and campaign source.",
+      "outcome": "Eliminates hours of manual lead data entry; staff time redirected to conversion-and-scheduling.",
+      "aiLayer": "Foundation for AI scheduling agents on the CRM side (route density / availability / SLA).",
+      "sourceCompany": "ServiceTitan + The Home Depot (joint integration)",
+      "sourceUrl": "https://www.servicetitan.com/partners/thd-leads",
+      "addedDate": "2026-05-22",
+      "clients": [
+        {
+          "displayName": "ServiceTitan + The Home Depot (joint integration)"
+        }
+      ],
+      "relevantTo": [
+        "peerless"
+      ],
+      "discoveredDate": "2026-05-22"
+    },
+    {
+      "source": "web",
+      "sizeSegment": "midmarket",
+      "systems": [
+        "Construction contracts",
+        "AI document review"
+      ],
+      "useCase": "AI-driven construction contract review and risk-clause validation",
+      "whatWasBuilt": "Document Crunch reduces construction contract review from weeks to minutes; AI identifies ambiguities, validates clauses, flags risk language and missing required fields.",
+      "outcome": "Contract review time compressed from weeks to minutes; exception-only review replaces document-by-document review.",
+      "aiLayer": "AI extraction + rule-based validation + exception-routing.",
+      "sourceCompany": "Document Crunch",
+      "sourceUrl": "https://www.documentcrunch.com/",
+      "addedDate": "2026-05-22",
+      "clients": [
+        {
+          "displayName": "Document Crunch"
+        }
+      ],
+      "relevantTo": [
+        "peerless"
+      ],
+      "discoveredDate": "2026-05-22"
+    }
+  ]
 }

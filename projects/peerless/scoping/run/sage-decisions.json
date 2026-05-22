@@ -1,0 +1,207 @@
+{
+  "client": "peerless",
+  "agent": "sage",
+  "generatedAt": "2026-05-22T11:30:00Z",
+  "decisions": [
+    {
+      "id": "SD-001",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "Home Depot Service Center classified EXPLICIT system.",
+      "rationale": "Vendor name 'Home Depot' and product name 'Home Depot Service Center / HD Portal' stated directly across all four transcripts.",
+      "evidence": "Raghuram Potluri 2026-04-14: 'lead sitting in HTS which is being pulled into the sales force through our API call'; Ashley Salerno 2026-04-14: 'when we create a lead inside of Home Depot Service Center'."
+    },
+    {
+      "id": "SD-002",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "Salesforce classified EXPLICIT system, role=both.",
+      "rationale": "Named directly; functions as target for HD leads (UC1) AND source for ComputerEase jobs (UC2) AND validator for IDP outputs (UC3) AND source for HD write-backs (UC4).",
+      "evidence": "Multiple — e.g. 'we have to verify the information that's in Salesforce' (Ashley Salerno 2026-04-15); Quote Line Item standard object referenced as canonical material-type source."
+    },
+    {
+      "id": "SD-003",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "ComputerEase (Deltek) classified EXPLICIT system, connectorKey=computerease.",
+      "rationale": "Named directly; matched against mulesoft/connector-names.json entry 'computerease'.",
+      "evidence": "Brian Cook 2026-04-15: 'I'm logging into computeries now'; Ashley Salerno 2026-04-16: 'I'm going to go into Computer Ease... duplicate a job.'"
+    },
+    {
+      "id": "SD-004",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "GCP classified EXPLICIT but connectorKey=null (infrastructure host, not integration target).",
+      "rationale": "Acts as hosting layer for ComputerEase VM. Not an entity-bearing system in this engagement; Vera need only confirm if MuleSoft needs GCP IAM/Secrets Manager integration.",
+      "evidence": "Brian Cook 2026-04-15: 'It's hosted on an actual VM. And then here's the VM right here. This primary computer is VM.'"
+    },
+    {
+      "id": "SD-005",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "Cameo classified EXPLICIT but flagged out-of-integration-scope (UI access tool only).",
+      "rationale": "Cameo is a remote-desktop / virtual-app gateway, used for interactive UI access to ComputerEase. Not a data-plane integration channel. Per Brian Cook's preference statement, it is the recommended UI path but explicitly NOT the API path.",
+      "evidence": "Brian Cook 2026-04-16: 'I would use Cameo for computer use. Unless you need to like RDP to the server.'"
+    },
+    {
+      "id": "SD-006",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "DocHub classified EXPLICIT but flagged tentative-out-of-scope.",
+      "rationale": "Used by Peerless humans to generate and sign the HS-118 form. May be in scope only if write-back of the signed PDF is desired; current scope confines DocHub to the human-signing leg.",
+      "evidence": "Ashley Salerno 2026-04-16: 'And then I'm going to go into DocHub. Generate a new document. Create document. I'm going to sign in.'"
+    },
+    {
+      "id": "SD-007",
+      "step": "6a",
+      "type": "system-inference",
+      "decision": "MuleSoft IDP classified INFERRED system, role=target. inferencePhrase captured.",
+      "rationale": "Venkat B mentioned 'idp' as the document-extraction component for UC3 (299A/299B/118 validation). This is a DataSkate architectural decision, not a client statement, so it is inferred, not explicit. Vera to confirm whether MuleSoft IDP is the final choice vs. alternatives.",
+      "evidence": "Venkat B 2026-04-15: 'we would be giving that doc to the idp and we'll try to extract the content that is there'."
+    },
+    {
+      "id": "SD-008",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC1 (HD Portal → Salesforce, Lead) classified CONFIRMED flow.",
+      "rationale": "Existing legacy sync explicitly mentioned + acknowledged as broken; replacement is in-scope. Polling cadence (~10 min) is stated.",
+      "evidence": "Raghuram Potluri 2026-04-14 + Ashley Salerno 2026-04-14 + ten-minute update phrase."
+    },
+    {
+      "id": "SD-009",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC2 (Salesforce → ComputerEase, Job) classified CONFIRMED flow.",
+      "rationale": "Demonstrated end-to-end as a ~1.5h manual process by Ashley Salerno on 2026-04-16. Target trigger is the Salesforce 'Save as Final' state transition on quote.",
+      "evidence": "Ashley Salerno 2026-04-16 ComputerEase job-entry walkthrough including budget worksheet, sales commission, overhead GA, project linkage."
+    },
+    {
+      "id": "SD-010",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC3 (Documents → IDP → Salesforce validation) classified CONFIRMED flow.",
+      "rationale": "Validation rules elaborated by Ashley (legible signatures, Friday dates, contract-price match between 299A and 299B, yes/no exclusivity, permit-required value, 100%-vs-99%-deposit by state). Venkat confirmed IDP as the extractor.",
+      "evidence": "Venkat B 2026-04-15 IDP statement + Ashley Salerno 2026-04-15 + 2026-04-16 rules description."
+    },
+    {
+      "id": "SD-011",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC4 (Salesforce → HD Portal exception write-back) classified CONFIRMED flow.",
+      "rationale": "Ashley confirmed she currently writes comments back on the HD screen when there is an issue; Venkat proposed automating this with an HD endpoint or falling back to email.",
+      "evidence": "Ashley Salerno 2026-04-15: 'we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd.' Venkat B: 'depending upon the endpoint that we have with the HD, we can try to mail as well.'"
+    },
+    {
+      "id": "SD-012",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC5-potential (HD → SF, deposit-paid status) classified POTENTIAL flow.",
+      "rationale": "Ashley explicitly named the deposit-paid manual flag as a desired future automation; HD endpoint to write or read deposit status not yet confirmed. Within cap-of-3 potential-flows budget because client-stated aspiration.",
+      "evidence": "Ashley Salerno 2026-04-14 aspiration quote ('If that could integrate and flow back through an API, that was awesome')."
+    },
+    {
+      "id": "SD-013",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC6-potential (SF → CE, subcontract / commission worksheet) classified POTENTIAL flow.",
+      "rationale": "Demonstrated entries (subcontractor amount, sales commission, overhead GA, target price) are downstream of the UC2 job-header creation. Likely a follow-on rather than a single flow with UC2 — cap-of-3 budget used because financial detail.",
+      "evidence": "Ashley Salerno 2026-04-16 budget worksheet entry section."
+    },
+    {
+      "id": "SD-014",
+      "step": "6b",
+      "type": "flow-classification",
+      "decision": "UC7-potential (CE → SF, job status / close-loop) classified POTENTIAL flow.",
+      "rationale": "Operational close-the-loop pattern is the standard construction-vertical reverse-ETL gap. Not directly stated by the client, but a likely scope expansion. Final cap-of-3 slot.",
+      "evidence": "Implied by absence: Salesforce currently has no view of CE job status — Ashley logs into both systems to reconcile."
+    },
+    {
+      "id": "SD-015",
+      "step": "6c",
+      "type": "system-inference",
+      "decision": "12 named contacts extracted (3 DataSkate, 9 Peerless/HD).",
+      "rationale": "Each named participant with role + responsibilities captured; access-chain captured where transcript made it explicit (Jean = ComputerEase super-admin; Marius/Cora = creator of API users for HD/SF; Brian = GCP admin but not CE admin).",
+      "evidence": "Direct names across transcripts; Jean Jacobs's email JeanJ@peerlessfence.com confirmed; Venkat's email venkatb@dataskate.ai confirmed."
+    },
+    {
+      "id": "SD-016",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "P0 flag raised for ComputerEase (CE Live Service relay + sandbox no API + legacy SLA).",
+      "rationale": "Three composite gotchas from playbook + transcript map to a single P0 because they share the same blocker root cause: vendor-relay-only API exposure with production-only surface.",
+      "evidence": "Per Sage P0 Blocker Identification rule: 'ComputerEase/Deltek → CE Live Service relay; vendor support ticket required; sandbox has no API access — P0.'"
+    },
+    {
+      "id": "SD-017",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "P0 flag raised for GCP-hosted ComputerEase VM (on-premise/VM gotcha).",
+      "rationale": "Per Sage P0 Blocker Identification rule: 'Any on-premise/VM → firewall rules, static vs ephemeral IP, DNS hostname — P0 if not confirmed.' Static IP confirmed but specific IP cited inconsistently in transcripts (35.222.218.224 vs 135.226.22218) — must reconcile.",
+      "evidence": "Brian Cook 2026-04-15 + 2026-04-16 firewall debugging session; Raghuram security flag."
+    },
+    {
+      "id": "SD-018",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "Flag (not P0) raised for Salesforce gotchas (SOQL OFFSET, State/Country Picklists, multi-currency).",
+      "rationale": "Standard playbook flags from salesforce_playbook.json knownQuirks. Severity=flag because none is a true blocker — they are questionnaire items for Flo.",
+      "evidence": "salesforce_playbook.json verified maturity + LeoLabs/MRN-Healthcare prior observations."
+    },
+    {
+      "id": "SD-019",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "Flag (not P0) raised for HD Portal — write endpoints not confirmed + confidential-email credential delivery.",
+      "rationale": "Write-flow risk is reducible by API discovery; credential-delivery friction is operational not structural.",
+      "evidence": "hd-portal_playbook.json knownQuirks + FK-031."
+    },
+    {
+      "id": "SD-020",
+      "step": "6f",
+      "type": "p0-flag",
+      "decision": "Flag (not P0) raised for MuleSoft IDP — 50-page / 10MB limit + Anypoint Connected App scope-must-be-empty rules.",
+      "rationale": "These apply only if IDP is the chosen extractor; Vera to confirm.",
+      "evidence": "PLANNING_CONTEXT.md Critical Notes IDP entry + FK-019."
+    },
+    {
+      "id": "SD-021",
+      "step": "3",
+      "type": "knowledge-write",
+      "decision": "Wrote CE Live Service relay quirk to computerease_playbook.json + FK-030 + PLANNING_CONTEXT.md Critical Notes.",
+      "rationale": "Cross-engagement value: same legacy-relay pattern likely to appear with Deltek Vantagepoint / Costpoint and similar contractor-vertical ERPs.",
+      "evidence": "Raghuram Potluri 2026-04-17 research finding — verbatim quote captured."
+    },
+    {
+      "id": "SD-022",
+      "step": "3",
+      "type": "knowledge-write",
+      "decision": "Wrote on-prem-ERP-on-customer-cloud quirk to FK-029 + computerease_playbook.json.",
+      "rationale": "Inspecting ports/firewall/IP at scoping is a portable lesson — applies anywhere a customer self-hosts a vendor product on their own cloud VM.",
+      "evidence": "Raghuram Potluri 2026-04-15 'this is a really, really poor practice' + extended GCP firewall debugging on 2026-04-16."
+    },
+    {
+      "id": "SD-023",
+      "step": "3",
+      "type": "knowledge-write",
+      "decision": "Wrote AI-hallucination-on-passwords warning to FK-031 + hd-portal_playbook.json.",
+      "rationale": "Internal DataSkate hygiene rule; portable across engagements that use confidential email delivery.",
+      "evidence": "Raghuram Potluri 2026-04-15 verbatim quote."
+    },
+    {
+      "id": "SD-024",
+      "step": "3",
+      "type": "knowledge-write",
+      "decision": "Wrote sandbox-API-parity-gap to FK-032 + computerease_playbook.json p0Conditions + PLANNING_CONTEXT.md Critical Notes.",
+      "rationale": "Promoting this from observation toward verified-status candidate — likely repeats across other legacy ERPs (Sage MAS, Timberline, AS/400-era systems).",
+      "evidence": "Jean Jacobs 2026-04-17 verbatim + Brian Cook 'Can't access API from practice' screen error."
+    },
+    {
+      "id": "SD-025",
+      "step": "4",
+      "type": "knowledge-write",
+      "decision": "Captured 10 question gaps as Scout self-improvement proposals (NOT auto-applied — for human review).",
+      "rationale": "Each was a question DataSkate had to ask reactively during scoping that should appear earlier in the questionnaire: sandbox API parity, backup admin, vendor relay, static IP, listening ports, lead-ID format, credential delivery, vendor support classification, hosting model, sequential ID policy.",
+      "evidence": "Cross-transcript pattern of architects reactively probing for these answers after the call had started."
+    }
+  ]
+}

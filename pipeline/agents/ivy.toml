@@ -24,6 +24,7 @@ version = "2.0.0"
 
 reads = [
   "projects/{client}/scoping/run/sage.json",
+  "projects/{client}/scoping/run/vera.json",     # Vera Step 2c buyerMap.people[].angleForIvy hints + namedBuyers + corporateStack
   "projects/{client}/company_context.json",
   "commons/sales/psychology-profiles.json",
 ]
@@ -33,6 +34,9 @@ writes = [
 ]
 
 principles = [
+  # ── TOKEN BUDGET / READ DISCIPLINE ─────────────────────────────────────
+  "TOKEN BUDGET — Ivy reads sage.json (~35KB), vera.json (post-v1.1.0 can be 100-150KB), company_context.json (similar), psychology-profiles.json (~28KB). Static input ~70-100k tokens. No web research. Output ivy.json is ~10-20KB. Within budget.\n  When reading vera.json: Ivy primarily needs vera.json.buyerMap.people[] and vera.json.namedBuyers — these are ~10-20KB of the file. Read the full file (structured JSON Read is straightforward), but anchor analysis to those fields.",
+
   # ── CALLER ROLE DETECTION ────────────────────────────────────────────
   "Caller role detection — determine whether the person on the Sage transcript is the economic buyer (EB) or a champion (internal advocate).\n  1. Read company_context.json for the contact's title (e.g. CEO, CFO, VP → likely EB; ops manager, IT lead, dept head → likely champion).\n  2. Scan sage.json quotes for role-clarifying phrases:\n     CHAMPION signals: 'need to run this by', 'my boss', 'need approval from', 'my CFO/CEO/VP', 'I use it day to day', 'we'd have to get sign-off', 'make the case internally'\n     EB signals: 'I own the budget', 'I sign off on', 'I make the final call', 'my team uses it', 'I brought this to them'\n  3. Set callerRole = 'economic-buyer' | 'champion' | 'unknown'.\n  4. Record callerTitle from company_context.json (contactTitle field) or infer from transcript if absent.\n  5. If callerRole = 'unknown': flag for human confirmation in conversational review — do not guess.",
 
@@ -41,6 +45,9 @@ principles = [
 
   # ── PROFILE SCORING (CHAMPION) ────────────────────────────────────────
   "Profile scoring — scan every line of every transcript (via sage.json quotes + context) for signal phrases from each profile in psychology-profiles.json profiles[].\n  1. Count matches per profile ID. Record exact matched phrases (verbatim, max 3 per profile).\n  2. Profile with highest match count = primaryProfile. Apply tiebreakerPriority if tied.\n  3. If runner-up profile has 2+ matches: set as secondaryProfile. Primary drives structure; secondary contributes one element.\n  4. If no profile reaches minimumSignals (1 match): use fallback = 'operational-pragmatist'.\n  5. Show signalCounts for ALL profiles in ivy.json — not just the winner. This is the audit trail.",
+
+  # ── VERA BUYERMAP HINT INTEGRATION (Step 2c angleForIvy consumption) ──
+  "Vera buyerMap hint integration — Vera's Step 2c writes vera.json.buyerMap.people[].angleForIvy: a one-sentence psychology hint per person, based on title + tenure + prior role (web research). Ivy treats these as HINTS, never as authoritative — transcript signal scoring still has priority.\n\n  When ivy.json.callerRole is identified:\n    1. Find the matching person in vera.json.buyerMap.people[] (case-insensitive name match against callerTitle / sage.json contact).\n    2. Read their angleForIvy field and webEvidence (priorRole, tenureMonths, backgroundSummary).\n    3. If Ivy's transcript-derived primaryProfile is the SAME as the hint's profileId → confidence boost (raise to 'high' if currently 'medium'). Note in profileRationale: 'Transcript signals + Vera buyerMap web research converge on {profileId}.'\n    4. If Ivy's transcript-derived primaryProfile DISAGREES with the hint → keep transcript-derived primary (transcript wins), but note the conflict in profileRationale: 'Transcript scored {transcript profile} but Vera buyerMap hint suggests {hint profile} based on {webEvidence.priorRole} background — surfaced for human review in conversational step.'\n    5. If transcript signal scoring produced NO clear primary (all profiles at minimumSignals): fall back to the buyerMap hint INSTEAD of the default 'operational-pragmatist'. Note: 'Transcript inconclusive; assigned {hintProfile} from Vera buyerMap web research.'\n\n  When isSameAsCaller = false AND EB profileConfidence is unknown:\n    Look up the inferred EB in vera.json.buyerMap.people[] (Vera may have identified them through web research even if the transcript didn't).\n    If found AND their dealRole includes 'economicBuyer': use their angleForIvy as the EB profile assignment with confidence = 'medium'. Note in profileRationale: 'No transcript signal; assigned from Vera buyerMap web research of {webEvidence.priorRole}.'\n    If found but no transcript signal AND no web evidence beyond title: keep profileConfidence = 'low'.\n\n  When the EB exists in vera.json.namedBuyers.economicBuyer (compact mirror) but NOT in buyerMap.people[]:\n    Vera surfaced the role without resolving a person. Ivy keeps EB profile = null AND flags for human input in conversational review.\n\n  Always write the hint reconciliation to ivy.json.veraBuyerMapHintIntegration: { championHintProfileId, championHintMatch ('converged' | 'conflicted' | 'transcript-only' | 'hint-only'), ebHintProfileId, ebHintMatch, reconciliationNote }.",
 
   # ── KEY QUOTE EXTRACTION ──────────────────────────────────────────────
   "Key quote extraction — verbatim from transcript. Do NOT paraphrase.\n  primaryPainQuote: the single most vivid sentence where the caller describes their current pain. Must be their exact words.\n  aspirationQuote: the sentence where they describe what they want or where they want to be. null if not stated.\n  skepticismSignals: list of phrases expressing doubt, past failure, or caution (e.g. 'we've tried this before', 'I'm worried about').\n  excitementPhrases: list of phrases expressing enthusiasm or forward-looking energy.\n  ebAttributedQuotes: list of phrases the champion attributes to the EB or uses to describe the EB's concerns (e.g. 'my CFO keeps asking about payback'). Empty array if callerRole = economic-buyer.\n  If sage.json quotes field is populated: use those. If not: re-read conversation context from sage.json source file summaries.",
@@ -83,7 +90,17 @@ Scan sage.json quotes + all conversation context for signal phrases from all pro
 Count matches. Record matched phrases (verbatim, max 3 per profile).
 Assign primaryProfile (highest count, tiebreakerPriority if tied).
 Assign secondaryProfile if runner-up has 2+ matches.
-Fallback to 'operational-pragmatist' if no profile reaches minimumSignals.
+Fallback to 'operational-pragmatist' if no profile reaches minimumSignals (unless Vera buyerMap hint applies — see Step 2B).
+
+─────────────────────────────────────────────────────────────────────
+STEP 2B — Vera buyerMap Hint Integration
+─────────────────────────────────────────────────────────────────────
+Apply Vera buyerMap Hint Integration principle.
+Read vera.json.buyerMap.people[] — locate the caller and the inferred EB.
+For caller (champion): check if Vera's angleForIvy hint converges with the transcript-derived primaryProfile.
+  Converged → boost confidence; Conflicted → keep transcript primary, surface conflict; Transcript inconclusive → fall back to hint instead of default.
+For inferred EB: if profileConfidence = unknown AND Vera surfaced a matching person via web research, adopt the hint with confidence = 'medium'.
+Write veraBuyerMapHintIntegration block.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 3 — Key Quote Extraction
@@ -161,7 +178,15 @@ Write projects/{client}/scoping/run/ivy.json:
     "profile": "{profile-id or null}",
     "profileLabel": "{label or null}",
     "profileConfidence": "high | medium | low | unknown",
-    "profileRationale": "{why this EB profile was assigned}"
+    "profileRationale": "{why this EB profile was assigned — cites transcript signals AND/OR Vera buyerMap hint reconciliation}"
+  },
+
+  "veraBuyerMapHintIntegration": {
+    "championHintProfileId":  "{vera.json.buyerMap.people[caller].angleForIvy profileId, or null}",
+    "championHintMatch":      "converged | conflicted | transcript-only | hint-only",
+    "ebHintProfileId":        "{from buyerMap.people[EB].angleForIvy or null}",
+    "ebHintMatch":            "converged | conflicted | transcript-only | hint-only | not-applicable",
+    "reconciliationNote":     "1-2 sentences — what Ivy did with Vera's hints, surfaced for human review in conversational step"
   },
 
   "contentLayers": {

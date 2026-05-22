@@ -1,0 +1,109 @@
+title: Canonical Lead
+version: "1.0.0-stub — created from peerless engagement"
+vertical: construction
+standard: derived
+standardBody: null
+standardRef: null
+deviations: |
+  No dominant cross-vendor standard for construction lead records. Field naming derived from:
+    - HD Portal F-number convention (Home Depot Pro contractor channel)
+    - Salesforce Lead standard object
+    - ComputerEase customer-onboarding fields (downstream consumer)
+description: |
+  Canonical lead entity for construction / specialty-contractor integrations.
+  Maps from: contractor portals (HD Portal — F-number identifier, ServiceTitan, similar pro-channels).
+  Maps to:   CRM (Salesforce Lead), construction ERP customer intake (ComputerEase).
+  Common synonyms by system:
+    F-number      (HD Portal — Home Depot Pro)
+    Lead          (Salesforce, generic CRM)
+    Prospect      (some ERPs)
+    Inquiry       (some service-management tools)
+
+  Peerless-specific: HD F-number is the source-of-truth external identifier and must be
+  carried through every downstream record (Salesforce External ID + ComputerEase reference).
+
+type: object
+required:
+  - leadId
+  - source
+  - status
+  - customerName
+  - timestamps
+
+properties:
+  leadId:
+    type: string
+    description: Canonical lead identifier
+    example: "LEAD-2026-000565"
+
+  externalIds:
+    type: object
+    description: Source system identifiers
+    properties:
+      portalLeadId:       { type: string, description: "Lead ID in contractor portal (HD Portal: F-number, e.g. 'F1234567')" }
+      salesforceLeadId:   { type: string, description: "Salesforce Lead 18-char ID" }
+      crmContactId:       { type: string, description: "Downstream CRM contact ID if lead converts" }
+
+  source:
+    type: string
+    enum: [HD_PORTAL, SERVICETITAN, WEB_FORM, REFERRAL, WALK_IN, PHONE, OTHER]
+    description: Originating channel for the lead
+
+  sourceCampaign:
+    type: string
+    description: Campaign / program tag from the source (HD Portal: 'Pro contractor', etc.)
+
+  status:
+    type: string
+    enum: [NEW, CONTACTED, QUALIFIED, QUOTED, WON, LOST, DISQUALIFIED]
+
+  customerName:
+    type: string
+    description: Homeowner or business name
+
+  customerType:
+    type: string
+    enum: [RESIDENTIAL, COMMERCIAL, INDUSTRIAL]
+
+  contactInfo:
+    type: object
+    properties:
+      phone:        { type: string }
+      email:        { type: string, format: email }
+      preferredContact: { type: string, enum: [PHONE, EMAIL, TEXT] }
+
+  serviceAddress:
+    type: object
+    properties:
+      street:       { type: string }
+      city:         { type: string }
+      state:        { type: string }
+      postalCode:   { type: string }
+      country:      { type: string, default: "US" }
+
+  jobType:
+    type: string
+    description: Requested service type (e.g. 'aluminum fence', 'wood fence')
+
+  estimatedValue:
+    type: number
+    description: Estimated job value at lead creation (if portal provides it)
+
+  isTest:
+    type: boolean
+    default: false
+    description: Test-lead marker. HD Portal requires test leads to carry 'Peerless test' (or client-equivalent) labeling
+
+  timestamps:
+    type: object
+    required: [createdAt]
+    properties:
+      createdAt:    { type: string, format: date-time, description: "Lead creation time at source" }
+      receivedAt:   { type: string, format: date-time, description: "Time lead was received by canonical layer" }
+      updatedAt:    { type: string, format: date-time }
+
+stubNote: |
+  Created from peerless engagement 2026-05-22 by Rex. UC1 confirmed flow: HD Portal → Salesforce Lead,
+  scheduled 10-min polling, F-number as the external identifier. Fields to finalize during Analyst PRD:
+  HD-specific portal metadata (lead score, contractor assignment), Salesforce custom fields per Peerless
+  org configuration, ComputerEase customer-type code mapping (R05 = residential per transcript).

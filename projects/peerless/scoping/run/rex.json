@@ -1,0 +1,544 @@
+{
+  "status": "complete",
+  "client": "peerless",
+  "generatedAt": "2026-05-22T12:10:00Z",
+  "agent": "Rex v1.0.0",
+
+  "systems": [
+    {
+      "name": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "ApiKey",
+      "authDetail": "API key delivered through Home Depot 'confidential email' channel (clipboard copy-paste disabled — hand-transcribe; do NOT OCR via LLM per FK-031).",
+      "apiStyle": "REST",
+      "sandboxAvailable": false,
+      "rateLimits": "Not published — HD's downstream update cadence is ~10 minutes (was 30 min historically); design for at-least-10-min eventual consistency on lead propagation.",
+      "knownQuirks": [
+        "Lead identifier is the F-number (NOT SFIM vendor-number, NOT generic numeric ID) — confirmed by Venkat B / Ashley Salerno on 2026-04-17",
+        "GET endpoints confirmed working (HTTP 200 against HD API on 2026-04-17); WRITE endpoints (POST/PATCH for comment write-back, deposit-paid status, document download for 299A/299B PDFs) NOT yet validated",
+        "API support is brokered through the client's HD account manager (Greg) on a ticketing system — no direct dev contact by default",
+        "Test leads must carry a clear 'Peerless test' marker — Home Depot grades contractors on lead/job quality; unmarked test data risks Peerless's Pro standing",
+        "Credentials delivered via clipboard-disabled confidential email — plan 10–15 min transcription buffer per credential",
+        "Existing HD → Salesforce lead sync is partially broken per Ashley Salerno — new integration must verify per-lead via GET against HD Portal as source of truth",
+        "'Save as Final' on a Salesforce quote/contract is the downstream automation trigger — until that status is set, the record is not a real job"
+      ],
+      "prerequisites": [
+        "API key delivered by Marius (confirmed)",
+        "Lead identifier format documented: F-number",
+        "Write-back endpoints (comment / status / deposit-paid) validated through Greg before UC4 and UC5 can be promoted",
+        "Greg + Marius accessible as escalation path (Marius engaged 15 more days per Ashley 2026-04-16)",
+        "Developer-named HD Portal login provisioned for DataSkate (separate from API key) so the team can inspect HD-side data shape"
+      ],
+      "playbook": "mulesoft/playbooks/playbooks/hd-portal/hd-portal_playbook.json",
+      "confidence": "high"
+    },
+    {
+      "name": "Salesforce",
+      "connectorKey": "salesforce",
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "OAuth2",
+      "authDetail": "OAuth 2.0 JWT Bearer flow with dedicated integration user — per salesforce_playbook.json and FK conventions. Private key stored in Secrets Manager; consumer key in properties. Never username/password in production. Connected App scopes: api, refresh_token (add cdp_ingest_api if CDC trigger pattern is selected for UC1 evolution).",
+      "apiStyle": "REST",
+      "sandboxAvailable": true,
+      "rateLimits": "15,000 API calls/day on Enterprise (monitor Sforce-Limit-Info header; alert at 12,000 per salesforce.api.limit.warn.threshold).",
+      "knownQuirks": [
+        "API version pinning required — always /services/data/v59.0/, never /latest/",
+        "SOQL OFFSET silently breaks above 2,000 rows — use nextRecordsUrl cursor pagination",
+        "BillingCountryCode/ShippingCountryCode only exist when 'State and Country Picklists' is enabled in Setup — must confirm before mapping",
+        "CurrencyIsoCode on Account only writable/readable on multi-currency orgs — must confirm before mapping (canonical-to-sf-account.dwl accepts isMultiCurrency flag)",
+        "External IDs on Lead/Account/Quote must be marked as External ID field type to enable idempotent upsert — required for HD F-number and ComputerEase job number keying BEFORE go-live",
+        "PATCH semantics — only send fields being changed; sending null erases the field",
+        "Address is a compound field — query sub-fields explicitly (BillingStreet, BillingCity, etc.)",
+        "Bulk API 2.0 required for bulk loads — different endpoint and async pattern from REST",
+        "CDC (Change Data Capture) preferred over SOQL polling for near-real-time triggers — subscribe to ChangeEventHeader channel"
+      ],
+      "prerequisites": [
+        "Sandbox tenant provisioned by Cora Barahi for DataSkate user (per Marius 2026-04-14) — confirm access at start of build",
+        "Backup Salesforce admin identified (Cora Barahi cannot be SPOF for sandbox/prod credential refreshes)",
+        "Three org flags confirmed: multi-currency enabled? / State and Country Picklists enabled? / any Lead/Opportunity query window exceeds 2,000 rows?",
+        "External ID custom fields created on Lead/Account/Quote keyed to HD F-number and ComputerEase job number BEFORE go-live (required for idempotent upsert)",
+        "Standard objects in use and accessible: Lead, Account, Opportunity, Quote, Quote Line Item, Project, Sales Order"
+      ],
+      "playbook": "mulesoft/playbooks/playbooks/salesforce/salesforce_playbook.json",
+      "confidence": "high"
+    },
+    {
+      "name": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "inferenceType": "explicit",
+      "deploymentType": "on-premise",
+      "authType": "Basic",
+      "authDetail": "Basic auth (user + password) against Deltek-managed integration URL — NOT against the customer VM. CE Live Service relay handles routing back to the local CE instance. Auth-type confirmation pending on the open Deltek support ticket filed by Jean Jacobs on 2026-04-17.",
+      "apiStyle": "REST",
+      "sandboxAvailable": false,
+      "rateLimits": "Not published. Vendor support SLA tagged 'legacy' — 4-hour minimum response (Brian Cook 2026-04-17). Plan client-side coordination accordingly.",
+      "knownQuirks": [
+        "CE Live Service relay required for API access — ComputerEase API is NOT directly internet-accessible. External calls hit a Deltek-managed URL that routes through a CE Live Service Windows service installed on the same VM as ComputerEase, which then proxies to the local CE instance (FK-030)",
+        "Sandbox/practice tenant has NO API surface — API Management menu is production-only. Practice returns 'Can't access API from practice' (FK-032). All testing in production with GET-only locked-down access groups",
+        "User creation requires the PWMAINT system account — not a normal admin or super-admin session. Log in as PWMAINT (password 'mp' historically) from the login screen, NOT from inside any menu",
+        "Production VM observed listening on TCP/445 (SMB) only — NOT 443 or 8081. Firewall rules for 443/8081 surface nothing. This is consistent with the CE Live Service relay pattern (external integrations target the Deltek-managed URL, not the customer VM)",
+        "Deltek support classifies ComputerEase as a legacy product — 4-hour minimum SLA",
+        "Single super-admin is the norm — at Peerless Jean Jacobs is sole admin (SPOF demonstrated during her PTO blocked all access changes for 2 days)",
+        "Sequential job-number policy: company code + product line + initials (e.g. '26 HD 565 AS' = year 26, Home Depot, sequence 565, initials AS). Integration writes MUST consume the next-in-line ID — never allocate their own. Test writes must NOT take the next sequential number",
+        "Object-level API access group at Peerless entitles: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded as sensitive: Payroll, Departments, Inventory, Vendors",
+        "Cameo is the UI access path, NOT the integration channel. The integration channel is the CE Live Service relay URL — do not confuse the two"
+      ],
+      "prerequisites": [
+        "Deltek 'CE Live Service' Windows service installed on the ComputerEase production VM (open support ticket filed 2026-04-17 by Jean must be closed)",
+        "Deltek-managed integration URL provided by Deltek support (the API endpoint — NOT the customer VM IP)",
+        "API Management menu available in PRODUCTION (sandbox has no API — FK-032). GET-only production testing posture agreed in writing before development",
+        "Company code 00 (used for Illinois and Wisconsin Home Depot residential) plus any other in-scope company codes documented",
+        "Object-level API access group granted to: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders",
+        "Backup ComputerEase super-admin provisioned BEFORE kickoff — candidate: Laura. Confirm backup can use PWMAINT to create users",
+        "Deltek support SLA acknowledged: 4-hour minimum",
+        "Sequential job-number consumption rule documented — DataSkate consumes Deltek's next-in-line ID"
+      ],
+      "playbook": "mulesoft/playbooks/playbooks/computerease/computerease_playbook.json",
+      "confidence": "high"
+    },
+    {
+      "name": "MuleSoft IDP (Intelligent Document Processing)",
+      "connectorKey": "mulesoft-forge-idp",
+      "inferenceType": "inferred",
+      "deploymentType": "cloud",
+      "authType": "OAuth2",
+      "authDetail": "OAuth 2.0 Client Credentials via Anypoint Connected App. Scope: leave EMPTY (permissions controlled by Connected App scopes — NOT 'urn:anypoint:idp'). Token endpoint: https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token. Connected App permission required: 'Execute Published Actions'.",
+      "apiStyle": "REST",
+      "sandboxAvailable": true,
+      "rateLimits": "Min polling interval 10s per IDP quota docs. Per-submission limit: 10MB / 50 pages. P50 latency 7.6s, P99 13.4s for extraction.",
+      "knownQuirks": [
+        "Preferred connector is MuleSoft Forge IDP Connector (io.github.mulesoft-forge:mule-idp-connector v1.0.6) — available on Maven Central (NOT Anypoint Exchange — must add mavenCentral() repo to pom.xml). Requires Mule 4.6+",
+        "Fallback path is HTTP connector against IDP REST API directly — use only if Forge connector is not viable. Base URL: https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/",
+        "Async submit/poll pattern — POST submit returns execution ID, GET poll on /executions/{id}/v2 (note /v2 suffix). Status values: ACKNOWLEDGED | IN_PROGRESS | RESULTS_PENDING | SUCCEEDED | FAILED | PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED",
+        "Hard limits per submission: 10MB and 50 pages — must verify HS-105, 299A, 299B, HS-118 documents fit",
+        "Results returned in pages[].fields[] — DataWeave mapping must handle multi-page results",
+        "Manual-review queue is mandatory — all failed extractions (FAILED, MANUAL_VALIDATION_REQUIRED) must route to a human-review channel"
+      ],
+      "prerequisites": [
+        "Confirmation that IDP is the chosen extractor vs. an alternative (Venkat B 2026-04-15: 'I don't think we would be using an LLM, but I'll try to understand once we have a couple of samples')",
+        "Representative samples of HS-105, 299A, 299B, HS-118 provided by Peerless for IDP action training",
+        "Each contract document verified under 50 pages and 10MB",
+        "Anypoint Connected App provisioned with 'Execute Published Actions' permission and EMPTY scope (per FK-019)",
+        "IDP action published and trained on the four contract templates; action ID + action version ID captured",
+        "Validation rule library encoded as deterministic checks: signatures legible, dates are Fridays, 299A and 299B contract prices match, yes/no boxes not both ticked, permit-required flag is one value, 100% deposit except Wisconsin 99%",
+        "Anypoint org ID captured for configuration",
+        "MuleSoft Anypoint subscription confirmed to include IDP"
+      ],
+      "playbook": "stub-created (mulesoft/playbooks/playbooks/mulesoft-idp/mulesoft-idp_playbook.json)",
+      "confidence": "medium"
+    },
+    {
+      "name": "GCP (Google Cloud Platform)",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "n/a",
+      "authDetail": "Infrastructure host for ComputerEase VM — NOT a connector target. Brian Cook owns GCP admin. DataSkate role: editor/dev only for firewall debugging per principle of least privilege.",
+      "apiStyle": "n/a",
+      "sandboxAvailable": null,
+      "rateLimits": null,
+      "knownQuirks": [
+        "ComputerEase VM has a static external IP — transcripts cite 35.222.218.224 AND 135.226.22218 (must reconcile to a single canonical value)",
+        "Pre-engagement state: SSH and RDP open to the entire internet (no source filter), only ingress was enabled (no egress for return traffic) — partially remediated during 2026-04-16 firewall debugging session",
+        "Internal listening port is TCP/445 (SMB) — NOT 443 or 8081 (consistent with CE Live Service relay pattern)",
+        "GCP infrastructure cost ~$5K/month per Brian Cook — Peerless infrastructure line item, NOT DataSkate scope. Deltek cloud migration is a separate Peerless decision"
+      ],
+      "prerequisites": [
+        "External static IP reconciled to one canonical value before allowlisting",
+        "Ingress firewall locked to MuleSoft tenant IP allowlist only",
+        "Egress firewall permits CE Live Service outbound to Deltek-managed cloud URL",
+        "DataSkate GCP IAM scoped to editor/dev role (NOT super-admin)"
+      ],
+      "playbook": null,
+      "confidence": "high"
+    },
+    {
+      "name": "Cameo",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "n/a",
+      "authDetail": "Remote-desktop / virtual-app gateway. Peerless's UI path into ComputerEase. NOT a data-plane integration channel.",
+      "apiStyle": "n/a",
+      "sandboxAvailable": null,
+      "rateLimits": null,
+      "knownQuirks": [
+        "Cameo is the UI path Peerless prefers over raw RDP (Brian Cook: 'I would use Cameo for computer use. Unless you need to like RDP to the server to like go in and open something up on the Windows firewall')",
+        "Cameo is NOT the integration channel — that channel is the CE Live Service relay URL"
+      ],
+      "prerequisites": ["No DataSkate dependency — out of integration scope"],
+      "playbook": null,
+      "confidence": "high"
+    },
+    {
+      "name": "DocHub",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "deploymentType": "cloud",
+      "authType": "n/a",
+      "authDetail": "Human-signing tool for the HS-118 customer-approval form. Out of system-to-system data plane scope at this engagement stage.",
+      "apiStyle": "REST (DocHub does expose APIs — out of scope here)",
+      "sandboxAvailable": null,
+      "rateLimits": null,
+      "knownQuirks": [
+        "Used by Peerless to generate and sign the HS-118 form. IDP picks up the signed PDF artifact downstream",
+        "If write-back is added later: confirm DocHub API + Peerless tenant credentials. Currently deferred"
+      ],
+      "prerequisites": ["No DataSkate dependency at Phase 1 — out of integration scope"],
+      "playbook": null,
+      "confidence": "high"
+    }
+  ],
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "name": "HD Portal Lead → Salesforce Lead (scheduled, 10-min polling)",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce"],
+      "direction": "HD Portal → Salesforce",
+      "entity": "Lead",
+      "trigger": "scheduled",
+      "triggerDetail": "Polling cadence ~10 minutes — matches HD Portal's internal update cadence per A. Marcos; design for at-least-10-min eventual consistency, do not promise real-time. Was 30 minutes historically.",
+      "pattern": "scheduled-sync",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-lead.yaml (stub-created)",
+      "confirmed": true,
+      "evidence": "Raghuram Potluri 2026-04-14: 'there will be a lead sitting in HTS which is being pulled into the sales force through our API call.' Ashley Salerno: 'when we create a lead inside of Home Depot Service Center, it doesn't come through inside of Salesforce. So that part needs to be fixed.'"
+    },
+    {
+      "id": "UC2",
+      "name": "Salesforce 'Save as Final' Quote → ComputerEase Job + Customer + Budget Worksheet",
+      "systems": ["Salesforce", "ComputerEase (Deltek)"],
+      "direction": "Salesforce → ComputerEase",
+      "entity": "Job (header + customer + budget worksheet)",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce quote 'Save as Final' status transition — confirmed as the canonical downstream-automation trigger by Ashley Salerno. Currently manual (~1.5 hours per job by Ashley).",
+      "pattern": "event-driven",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-job.yaml",
+      "confirmed": true,
+      "evidence": "Ashley Salerno 2026-04-16 demo: 'I'm going to take the information inside the budget worksheet... I'm going to go to Computer Ease... duplicate a job... customer number is 180... Muckian test... 26 HD 565 AS.' Sequential job-number rule: company code + product line + initials."
+    },
+    {
+      "id": "UC3",
+      "name": "Contract PDF → MuleSoft IDP → Salesforce validation",
+      "systems": ["Home Depot Service Center (HD Portal)", "MuleSoft IDP", "Salesforce"],
+      "direction": "HD Portal (signed PDF) → IDP → Salesforce (validate)",
+      "entity": "Contract documents (HS-105, 299A, 299B, HS-118)",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce quote 'Save as Final' + signed-document upload triggers IDP extraction; deterministic rule engine validates extracted fields against Salesforce quote/contract data.",
+      "pattern": "idp-document-processing",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-contract.yaml",
+      "confirmed": true,
+      "evidence": "Venkat B 2026-04-15: 'we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce.' Specific rules: signatures legible, dates are Fridays, 299A and 299B prices match, yes/no boxes not both ticked, permit-required flag is one value, 100% deposit except Wisconsin (99%)."
+    },
+    {
+      "id": "UC4",
+      "name": "Salesforce → HD Portal exception comment / email write-back",
+      "systems": ["Salesforce", "Home Depot Service Center (HD Portal)"],
+      "direction": "Salesforce → HD Portal",
+      "entity": "Lead/Quote exception note (comment + optional email)",
+      "trigger": "event-driven",
+      "triggerDetail": "UC3 validation failure triggers structured comment write-back to HD lead screen and/or email to HD account manager (Greg). Replaces current manual practice of human-typing a comment on the HD screen.",
+      "pattern": "event-driven",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-contract.yaml (exception payload)",
+      "confirmed": true,
+      "evidence": "Venkat B 2026-04-15: 'depending upon the endpoint that we have with the HD, we can try to mail as well.' Ashley Salerno: 'we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead.'"
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce"],
+      "entity": "Deposit payment status",
+      "priority": "high",
+      "rationale": "Ashley Salerno explicitly named this as today-manual and a desired future automation (her aspiration quote). Direct client aspiration; pending HD write/read endpoint confirmation. Sits between transactional (payment) and operational (status flag)."
+    },
+    {
+      "id": "UC6-potential",
+      "systems": ["Salesforce", "ComputerEase (Deltek)"],
+      "entity": "Subcontract / commission worksheet (financial detail)",
+      "priority": "medium",
+      "rationale": "Ashley demonstrated entering subcontract amounts, sales commission, overhead GA, target price into the CE budget worksheet — these are downstream of UC2 Job creation but distinct transactional records. If UC2 scope is 'job header only', these become a follow-on flow."
+    },
+    {
+      "id": "UC7-potential",
+      "systems": ["ComputerEase (Deltek)", "Salesforce"],
+      "entity": "Job status / completion event (close loop)",
+      "priority": "medium",
+      "rationale": "Operational close-the-loop pattern — Peerless currently has no way to surface CE job status (in-progress, complete, paid) back in Salesforce. Standard construction-vertical reverse-ETL gap. Validate with Ashley if Salesforce users need to see job status without logging into Cameo + ComputerEase."
+    }
+  ],
+
+  "p0Blockers": [
+    {
+      "title": "ComputerEase CE Live Service Relay Installation",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Confirm that the Deltek support ticket Jean Jacobs filed on 2026-04-17 is actively in queue. Ensure Deltek support installs the CE Live Service Windows service on the production ComputerEase VM and provides the Deltek-managed integration URL (the API endpoint — NOT the VM external IP). Expect 4-hour minimum SLA per Deltek's legacy-product classification.",
+      "body": "Per FK-030 and the computerease playbook. ComputerEase APIs are NOT directly internet-accessible. Deltek exposes APIs via a CE Live Service Windows service on the same VM as CE; external callers hit a Deltek-managed URL that routes through CE Live Service to the local CE instance. Plan write-flows only after vendor confirms write endpoints exist in CE Live Service. Production VM listens on TCP/445 — direct VM hits on 443/8081 will surface nothing (expected).",
+      "bundledWith": [
+        "ComputerEase Production-Only API Testing Posture",
+        "ComputerEase Backup Super-Admin Provisioning"
+      ]
+    },
+    {
+      "title": "ComputerEase Production-Only API Testing Posture",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Agree in writing with Peerless leadership AND Deltek that integration testing will occur in PRODUCTION ComputerEase with strictly GET-only access groups until Deltek confirms a dev/sandbox API path. Bundle this confirmation request into the same Deltek support ticket as CE Live Service.",
+      "body": "Per FK-032. ComputerEase practice (P3) tenant returns 'Can't access API from practice' — API Management menu is production-only, confirmed by Jean Jacobs 2026-04-17. Object-level API access group must be limited to: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded: Payroll, Departments, Inventory, Vendors. Test writes must NOT consume the next-in-sequence job number — Ashley explicitly avoided pulling the next-in-line number during demo to avoid confusing live operators.",
+      "bundledWith": [
+        "ComputerEase CE Live Service Relay Installation",
+        "ComputerEase Backup Super-Admin Provisioning"
+      ]
+    },
+    {
+      "title": "ComputerEase Backup Super-Admin Provisioning (SPOF)",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Identify and provision a backup ComputerEase super-admin BEFORE kickoff. Candidate per Ashley Salerno: Laura ('has more access than all of us except for Jean'). Confirm in writing that the backup admin can log in as the PWMAINT system account to create users and grant API access groups. Bundle this with the same Deltek support ticket.",
+      "body": "Per the computerease playbook SPOF condition. Jean Jacobs is currently the sole super-admin; her PTO on 2026-04-15 to 2026-04-17 blocked all developer access changes for 2 days. User creation requires logging in as the PWMAINT system account (password 'mp' historically) from the login screen — NOT from inside any admin menu. Brian Cook on 2026-04-17: 'That's so weird that you have to log into a different account to create users.' Jean: 'It's a program that was DOS so who knows? Some of the stuff is still archaic.'",
+      "bundledWith": [
+        "ComputerEase CE Live Service Relay Installation",
+        "ComputerEase Production-Only API Testing Posture"
+      ]
+    },
+    {
+      "title": "GCP VM Firewall + Static IP Confirmation",
+      "system": "GCP (ComputerEase host)",
+      "clientAction": "(a) Reconcile the canonical static external IP of the ComputerEase production VM — transcripts cite 35.222.218.224 AND 135.226.22218; only one is correct. (b) Lock GCP ingress firewall to the MuleSoft tenant IP allowlist only (pre-engagement state was SSH/RDP open to the entire internet — partially remediated 2026-04-16). (c) Confirm egress firewall permits CE Live Service outbound to the Deltek-managed cloud URL.",
+      "body": "Per FK-029 and the PLANNING_CONTEXT.md Critical Notes. The 'allow SSH/RDP from anywhere' state was a pre-existing Peerless security flaw that the team began correcting during scoping. Production VM listens on TCP/445 only — NOT 443/8081 — which is expected per the CE Live Service relay pattern (external integrations target the Deltek-managed URL, not the customer VM directly). DataSkate's GCP role must be scoped editor/dev (NOT super-admin) per principle of least privilege.",
+      "bundledWith": []
+    },
+    {
+      "title": "HD Portal Write Endpoints + Developer Login",
+      "system": "Home Depot Service Center (HD Portal)",
+      "clientAction": "Through Greg (HD account manager), file a single HD ticket bundling: (a) confirm HD Portal exposes POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential); (b) request a developer-named HD Portal interactive login for DataSkate so the team can inspect HD-side data shape and field-level mappings; (c) confirm document-download endpoints for 299A/299B/HS-118 signed PDFs (UC3). Use Marius as the developer escalation (engaged 15 more days per Ashley 2026-04-16). If HD does not expose write endpoints, plan to fall back to the email channel (Venkat: 'depending upon the endpoint... we can try to mail as well').",
+      "body": "Per the hd-portal playbook. GET endpoints confirmed (HTTP 200 against HD API on 2026-04-17 by Venkat B). Write endpoints unconfirmed; F-number is the lead identifier (NOT SFIM vendor-number — confirmed exchange between Venkat B and Ashley 2026-04-17). Credentials arrive via clipboard-disabled confidential email — plan a 10–15 minute hand-transcription buffer; do NOT OCR via LLM (FK-031, AI hallucination risk per Raghuram 2026-04-15). Test leads must carry a 'Peerless test' marker to avoid HD contractor-quality scoring penalties.",
+      "bundledWith": []
+    }
+  ],
+
+  "systemFindings": [
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "API key delivered by Marius via 'confidential email' (clipboard copy disabled). GET against HD API returned HTTP 200 in testing on 2026-04-17.",
+      "source": "peerless transcript 2026-04-17 — Venkat B",
+      "confidence": "high"
+    },
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "Lead identifier = 'F number'. SFIM-vendor-number is a different field that has been confused for the lead ID.",
+      "source": "peerless transcript 2026-04-17 — Venkat B / Ashley Salerno exchange",
+      "confidence": "high"
+    },
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "Update cadence to downstream consumers = ~10 minutes (was 30). Plan at-least-10-min eventual consistency for UC1.",
+      "source": "peerless transcript 2026-04-14 — A. Marcos via Ashley Salerno",
+      "confidence": "high"
+    },
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "Write endpoints unconfirmed at engagement start — UC4 (exception comment) and UC5-potential (deposit-paid) depend on POST/PATCH endpoint availability. Email fallback via Greg/Marius is an acceptable degradation path.",
+      "source": "peerless transcript 2026-04-15 — Venkat B + hd-portal playbook knownQuirks",
+      "confidence": "high"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Sandbox provisioning by Cora Barahi (per Marius). Connector auth = OAuth 2.0 JWT bearer flow, REST + Bulk API 2.0 + CDC supported, version pin v59.0.",
+      "source": "peerless transcript 2026-04-14 — Raghuram + salesforce_playbook.json + connector-registry",
+      "confidence": "high"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Quote Line Item (standard object) is the canonical source for picket-type/material-type rules — no external Excel needed. Picket-type determination is data-driven from product bundle (e.g. material includes 'cedar' → wood).",
+      "source": "peerless transcript 2026-04-15 — Venkat B / Ashley Salerno",
+      "confidence": "high"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Three org flags must be confirmed before mapping: (1) multi-currency enabled? (2) State and Country Picklists enabled? (3) any Lead/Opportunity query window exceeds 2,000 rows (SOQL OFFSET silent-truncation pattern)?",
+      "source": "salesforce_playbook.json knownQuirks",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "API access requires Deltek 'CE Live Service' Windows service installed on the same VM as ComputerEase. External calls hit a Deltek-managed URL → routes through CE Live Service → local CE instance. Open Deltek support ticket filed 2026-04-17.",
+      "source": "peerless transcript 2026-04-17 — Raghuram Potluri + FK-030",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "API Management menu available in PRODUCTION ONLY. Practice (P3) tenant returns 'Can't access API from practice'. GET-only production testing posture required.",
+      "source": "peerless transcript 2026-04-17 — Jean Jacobs + FK-032",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "Production VM listens on TCP/445 (SMB) only — NOT 443 or 8081. Consistent with CE Live Service relay pattern.",
+      "source": "peerless transcript 2026-04-16 — Brian Cook (netstat finding)",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "User creation requires PWMAINT system account (login from screen, not from menu). Vendor support SLA tagged 'legacy' — 4-hour minimum response.",
+      "source": "peerless transcripts 2026-04-17 — Jean Jacobs + Brian Cook + computerease playbook",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "Single super-admin (Jean Jacobs); no backup. SPOF demonstrated by 2 days of blocked access during her PTO.",
+      "source": "peerless transcript 2026-04-16 — Ashley Salerno / Brian Cook",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "Sequential job-number format: company code + product line + initials (e.g. '26 HD 565 AS'). DataSkate must consume Deltek's next-in-line ID — never allocate its own. Test writes must NOT take next-in-sequence.",
+      "source": "peerless transcript 2026-04-16 — Ashley Salerno",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "API access group entitlement (Peerless): Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded as sensitive: Payroll, Departments, Inventory, Vendors.",
+      "source": "peerless transcript 2026-04-15 — Ashley Salerno",
+      "confidence": "medium"
+    },
+    {
+      "system": "MuleSoft IDP",
+      "connectorKey": "mulesoft-forge-idp",
+      "finding": "Preferred connector is MuleSoft Forge IDP Connector (io.github.mulesoft-forge:mule-idp-connector v1.0.6). Auth = OAuth 2.0 Client Credentials via Anypoint Connected App with 'Execute Published Actions' permission and EMPTY scope. Per-submission limit: 10MB / 50 pages. Async submit/poll pattern with /v2 suffix on poll endpoint.",
+      "source": "connector-registry.json (mulesoft-forge-idp + anypoint-idp entries, web-search-2026-05-11)",
+      "confidence": "high"
+    },
+    {
+      "system": "MuleSoft IDP",
+      "connectorKey": "mulesoft-forge-idp",
+      "finding": "Forge connector is hosted on Maven Central (NOT Anypoint Exchange) — mavenCentral() repo must be added to pom.xml. Requires Mule 4.6+.",
+      "source": "connector-registry.json — mulesoft-forge-idp notes",
+      "confidence": "high"
+    },
+    {
+      "system": "GCP",
+      "connectorKey": null,
+      "finding": "ComputerEase VM has a static external IP. Pre-engagement: SSH/RDP open to entire internet; only ingress enabled (no egress). Partially remediated during 2026-04-16 firewall debugging session.",
+      "source": "peerless transcripts 2026-04-15 + 2026-04-16 — Brian Cook",
+      "confidence": "high"
+    },
+    {
+      "system": "Cameo",
+      "connectorKey": null,
+      "finding": "Cameo is the recommended interactive UI path into ComputerEase. NOT an integration channel — integration channel is the CE Live Service relay URL.",
+      "source": "peerless transcript 2026-04-16 — Brian Cook",
+      "confidence": "high"
+    }
+  ],
+
+  "openQuestions": [
+    {
+      "question": "Is MuleSoft IDP the chosen document extractor for UC3 (HS-105, 299A, 299B, HS-118), or is an alternative under consideration (Azure Document Intelligence, AWS Textract, an LLM-based path)?",
+      "system": "MuleSoft IDP"
+    },
+    {
+      "question": "Of the two static-IP values cited in transcripts (35.222.218.224 and 135.226.22218), which is the canonical external IP of the ComputerEase production VM? The second value is malformed as an IPv4 — likely a transcript artefact, but must be confirmed before allowlisting.",
+      "system": "GCP / ComputerEase"
+    },
+    {
+      "question": "Does HD Portal expose POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential)? Greg/Marius to confirm with HD API team.",
+      "system": "Home Depot Service Center (HD Portal)"
+    },
+    {
+      "question": "Will DocHub write-back be in scope at a later phase, or does the engagement assume DocHub remains a UI-only signing tool?",
+      "system": "DocHub"
+    },
+    {
+      "question": "Multi-currency org flag, State and Country Picklists, and >2,000-row Lead/Opportunity query windows — three Salesforce org flags must be confirmed before DataWeave mapping is written.",
+      "system": "Salesforce"
+    },
+    {
+      "question": "Has Laura been confirmed as the backup ComputerEase super-admin, and can she create users via the PWMAINT account?",
+      "system": "ComputerEase (Deltek)"
+    }
+  ],
+
+  "stubsCreated": {
+    "playbooks": [
+      "mulesoft/playbooks/playbooks/mulesoft-idp/mulesoft-idp_playbook.json"
+    ],
+    "connectorRegistry": [],
+    "intakeChecklist": [],
+    "canonicalModels": [
+      "mulesoft/canonical-models/construction/canonical-lead.yaml",
+      "mulesoft/canonical-models/construction/canonical-customer.yaml",
+      "mulesoft/canonical-models/construction/canonical-quote.yaml",
+      "mulesoft/canonical-models/construction/canonical-budget-worksheet.yaml"
+    ]
+  },
+
+  "playbooksUpdated": [
+    {
+      "path": "mulesoft/playbooks/playbooks/hd-portal/hd-portal_playbook.json",
+      "change": "Appended Rex maturityLog entry 2026-05-22 — clientCount unchanged (still peerless), no new quirks beyond what Sage promoted"
+    },
+    {
+      "path": "mulesoft/playbooks/playbooks/computerease/computerease_playbook.json",
+      "change": "Appended Rex maturityLog entry 2026-05-22 — clientCount unchanged (still peerless), no new quirks beyond what Sage promoted"
+    },
+    {
+      "path": "mulesoft/playbooks/playbooks/salesforce/salesforce_playbook.json",
+      "change": "Appended Rex maturityLog entry 2026-05-22 — added peerless client; all known quirks already verified"
+    }
+  ],
+
+  "internalFlags": [
+    {
+      "flag": "Salesforce org flags unconfirmed (multi-currency / State and Country Picklists / >2K row windows) — these gate DataWeave mapping but are not P0 blockers. Capture in intake questionnaire.",
+      "system": "Salesforce",
+      "severity": "medium"
+    },
+    {
+      "flag": "IDP connector selection (Forge preferred, HTTP fallback) is a DataSkate-side technical decision. Surface in architecture review — Forge has lower ceremony but requires Mule 4.6+ and a non-Exchange Maven repository.",
+      "system": "MuleSoft IDP",
+      "severity": "low"
+    },
+    {
+      "flag": "Canonical-extensions for Peerless include record types not yet covered by construction canonical models (lead, customer, quote, budget-worksheet) — Rex created stubs marked '1.0.0-stub'. Mary (Analyst) must populate field-level extensions during PRD.",
+      "system": "(canonical models)",
+      "severity": "medium"
+    },
+    {
+      "flag": "Job number sequential-write policy — DataSkate must consume Deltek's next-in-line ID, NOT allocate its own. Test writes must NOT take next-in-sequence (Ashley explicitly avoided this during demo). Architect must design write-flow to call CE's next-id endpoint, not a local counter.",
+      "system": "ComputerEase (Deltek)",
+      "severity": "high"
+    },
+    {
+      "flag": "Single Salesforce admin SPOF (Cora Barahi) — comparable but lower-impact than the CE SPOF. Surface during access-chain confirmation.",
+      "system": "Salesforce",
+      "severity": "medium"
+    },
+    {
+      "flag": "Document size and page-count not yet verified for HS-105, 299A, 299B, HS-118 against IDP's 10MB / 50pg limit — must confirm before IDP action training.",
+      "system": "MuleSoft IDP",
+      "severity": "medium"
+    },
+    {
+      "flag": "Manual-review queue for IDP failures (FAILED, MANUAL_VALIDATION_REQUIRED) — required design element, not yet specified. Ashley + Mary to define routing destination during PRD.",
+      "system": "MuleSoft IDP",
+      "severity": "low"
+    }
+  ]
+}

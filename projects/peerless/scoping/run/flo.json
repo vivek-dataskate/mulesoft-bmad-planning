@@ -1,0 +1,221 @@
+{
+  "status": "complete",
+  "client": "peerless",
+  "generatedAt": "2026-05-22T12:30:00Z",
+  "agent": "Flo v1.0.0",
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "name": "HD Portal Lead → Salesforce Lead (scheduled, 10-min polling)",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce"],
+      "direction": "HD Portal → Salesforce",
+      "entity": "Lead",
+      "trigger": "scheduled",
+      "triggerDetail": "Polling cadence ~10 minutes — matches HD Portal's internal update cadence per A. Marcos; design for at-least-10-min eventual consistency, do not promise real-time. Was 30 minutes historically.",
+      "pattern": "scheduled-sync",
+      "complexity": "medium",
+      "complexityRationale": "Unidirectional, 2 systems, standard Lead entity, scheduled polling with watermark — standard scheduled-sync pattern. F-number keying + idempotent upsert add light transformation work but no relay/legacy plumbing.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-lead.yaml",
+      "confirmed": true,
+      "evidence": "Raghuram Potluri 2026-04-14: 'there will be a lead sitting in HTS which is being pulled into the sales force through our API call.' Ashley Salerno: 'when we create a lead inside of Home Depot Service Center, it doesn't come through inside of Salesforce. So that part needs to be fixed.'"
+    },
+    {
+      "id": "UC2",
+      "name": "Salesforce 'Save as Final' Quote → ComputerEase Job + Customer + Budget Worksheet",
+      "systems": ["Salesforce", "ComputerEase (Deltek)"],
+      "direction": "Salesforce → ComputerEase",
+      "entity": "Job (header + customer + budget worksheet)",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce quote 'Save as Final' status transition — confirmed as the canonical downstream-automation trigger by Ashley Salerno. Currently manual (~1.5 hours per job by Ashley).",
+      "pattern": "event-driven",
+      "complexity": "high",
+      "complexityRationale": "On-prem legacy ERP behind Deltek CE Live Service relay, sequential job-number consumption rule (must call CE's next-id endpoint, never allocate locally), production-only API surface (FK-032), composite write (Job + Customer + Budget Worksheet) on a single transition — multi-quirk write path on a legacy system.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-job.yaml",
+      "confirmed": true,
+      "evidence": "Ashley Salerno 2026-04-16 demo: 'I'm going to take the information inside the budget worksheet... I'm going to go to Computer Ease... duplicate a job... customer number is 180... Muckian test... 26 HD 565 AS.' Sequential job-number rule: company code + product line + initials."
+    },
+    {
+      "id": "UC3",
+      "name": "Contract PDF → MuleSoft IDP → Salesforce validation",
+      "systems": ["Home Depot Service Center (HD Portal)", "MuleSoft IDP", "Salesforce"],
+      "direction": "HD Portal (signed PDF) → IDP → Salesforce (validate)",
+      "entity": "Contract documents (HS-105, 299A, 299B, HS-118)",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce quote 'Save as Final' + signed-document upload triggers IDP extraction; deterministic rule engine validates extracted fields against Salesforce quote/contract data.",
+      "pattern": "idp-document-processing",
+      "complexity": "high",
+      "complexityRationale": "3 systems (HD + IDP + Salesforce), AI-augmented document extraction with async submit/poll, custom deterministic rule library (signatures legible, Friday-date, 299A=299B price match, both-yes/no-boxes, permit flag, Wisconsin 99% deposit), manual-review queue required, document-size/page validation gate.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-contract.yaml",
+      "confirmed": true,
+      "evidence": "Venkat B 2026-04-15: 'we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce.' Specific rules: signatures legible, dates are Fridays, 299A and 299B prices match, yes/no boxes not both ticked, permit-required flag is one value, 100% deposit except Wisconsin (99%)."
+    },
+    {
+      "id": "UC4",
+      "name": "Salesforce → HD Portal exception comment / email write-back",
+      "systems": ["Salesforce", "Home Depot Service Center (HD Portal)"],
+      "direction": "Salesforce → HD Portal",
+      "entity": "Lead/Quote exception note (comment + optional email)",
+      "trigger": "event-driven",
+      "triggerDetail": "UC3 validation failure triggers structured comment write-back to HD lead screen and/or email to HD account manager (Greg). Replaces current manual practice of human-typing a comment on the HD screen.",
+      "pattern": "event-driven",
+      "complexity": "medium",
+      "complexityRationale": "Unidirectional, 2 systems, structured comment/email payload — standard event-driven write-back. Medium (not low) because HD write endpoints are not yet validated and the flow needs an email fallback path if HD POST/PATCH isn't exposed.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-contract.yaml",
+      "confirmed": true,
+      "evidence": "Venkat B 2026-04-15: 'depending upon the endpoint that we have with the HD, we can try to mail as well.' Ashley Salerno: 'we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead.'"
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "name": "HD Portal ↔ Salesforce — Deposit-paid status sync",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce"],
+      "entity": "Deposit payment status",
+      "priority": "high",
+      "source": "explicit (Ashley aspiration quote 2026-04-14)",
+      "rationale": "Ashley Salerno explicitly named this as today-manual and her #1 desired future automation ('select the deposit paid box. If that could integrate and flow back through an API, that would work'). Direct client aspiration; promotion gated on HD write/read endpoint confirmation via Greg/Marius."
+    },
+    {
+      "id": "UC6-potential",
+      "name": "Salesforce → ComputerEase — Subcontract / commission worksheet write",
+      "systems": ["Salesforce", "ComputerEase (Deltek)"],
+      "entity": "Subcontract / commission worksheet (financial detail)",
+      "priority": "medium",
+      "source": "explicit (Ashley demo 2026-04-16 — subcontract + commission + overhead GA + target price entry)",
+      "rationale": "Ashley demonstrated entering subcontract amounts, sales commission, overhead GA, target price into the CE budget worksheet — these are downstream of UC2 Job creation but distinct transactional records. If UC2 scope is 'job header only', these become a follow-on flow."
+    },
+    {
+      "id": "UC7-potential",
+      "name": "ComputerEase → Salesforce — Job status / completion close-the-loop",
+      "systems": ["ComputerEase (Deltek)", "Salesforce"],
+      "entity": "Job status / completion event",
+      "priority": "medium",
+      "source": "inferred: reverse of UC2 (close-the-loop), surfaced in Vera Phase 2 AI journey",
+      "rationale": "Operational close-the-loop pattern — Peerless currently has no way to surface CE job status (in-progress, complete, paid) back in Salesforce. Standard construction-vertical reverse-ETL gap. Validate with Ashley if Salesforce users need to see job status without logging into Cameo + ComputerEase. Vera's Phase 2 narrative names this explicitly."
+    },
+    {
+      "id": "UC8-potential",
+      "name": "DocHub → Salesforce — Signed HS-118 write-back",
+      "systems": ["DocHub", "Salesforce"],
+      "entity": "Signed customer-approval form (HS-118)",
+      "priority": "low",
+      "source": "inferred: DocHub mentioned in sage.json as human-signing tool; write-back deferred",
+      "rationale": "DocHub is currently UI-only for HS-118 signature capture. If Peerless wants the signed PDF artefact attached directly to the Salesforce Quote/Contract record (rather than relying on the IDP path through UC3), a DocHub → Salesforce write-back becomes a follow-on flow. Promote only if Peerless wants UI signing tied to CRM record without going through HD."
+    }
+  ],
+
+  "p0Blockers": [
+    {
+      "title": "ComputerEase CE Live Service Relay Installation",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Confirm that the Deltek support ticket Jean Jacobs filed on 2026-04-17 is actively in queue. Ensure Deltek support installs the CE Live Service Windows service on the production ComputerEase VM and provides the Deltek-managed integration URL (the API endpoint — NOT the VM external IP). Expect 4-hour minimum SLA per Deltek's legacy-product classification.",
+      "body": "Per FK-030 and the computerease playbook. ComputerEase APIs are NOT directly internet-accessible. Deltek exposes APIs via a CE Live Service Windows service on the same VM as CE; external callers hit a Deltek-managed URL that routes through CE Live Service to the local CE instance. Plan write-flows only after vendor confirms write endpoints exist in CE Live Service. Production VM listens on TCP/445 — direct VM hits on 443/8081 will surface nothing (expected).",
+      "priority": "P0",
+      "bundledWith": [
+        "ComputerEase Production-Only API Testing Posture",
+        "ComputerEase Backup Super-Admin Provisioning (SPOF)"
+      ]
+    },
+    {
+      "title": "ComputerEase Production-Only API Testing Posture",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Agree in writing with Peerless leadership AND Deltek that integration testing will occur in PRODUCTION ComputerEase with strictly GET-only access groups until Deltek confirms a dev/sandbox API path. Bundle this confirmation request into the same Deltek support ticket as CE Live Service.",
+      "body": "Per FK-032. ComputerEase practice (P3) tenant returns 'Can't access API from practice' — API Management menu is production-only, confirmed by Jean Jacobs 2026-04-17. Object-level API access group must be limited to: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded: Payroll, Departments, Inventory, Vendors. Test writes must NOT consume the next-in-sequence job number — Ashley explicitly avoided pulling the next-in-line number during demo to avoid confusing live operators.",
+      "priority": "P0",
+      "bundledWith": [
+        "ComputerEase CE Live Service Relay Installation",
+        "ComputerEase Backup Super-Admin Provisioning (SPOF)"
+      ]
+    },
+    {
+      "title": "ComputerEase Backup Super-Admin Provisioning (SPOF)",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Identify and provision a backup ComputerEase super-admin BEFORE kickoff. Candidate per Ashley Salerno: Laura ('has more access than all of us except for Jean'). Confirm in writing that the backup admin can log in as the PWMAINT system account to create users and grant API access groups. Bundle this with the same Deltek support ticket.",
+      "body": "Per the computerease playbook SPOF condition. Jean Jacobs is currently the sole super-admin; her PTO on 2026-04-15 to 2026-04-17 blocked all developer access changes for 2 days. User creation requires logging in as the PWMAINT system account (password 'mp' historically) from the login screen — NOT from inside any admin menu. Brian Cook on 2026-04-17: 'That's so weird that you have to log into a different account to create users.' Jean: 'It's a program that was DOS so who knows? Some of the stuff is still archaic.'",
+      "priority": "P0",
+      "bundledWith": [
+        "ComputerEase CE Live Service Relay Installation",
+        "ComputerEase Production-Only API Testing Posture"
+      ]
+    },
+    {
+      "title": "GCP VM Firewall + Static IP Confirmation",
+      "system": "GCP (ComputerEase host)",
+      "clientAction": "(a) Reconcile the canonical static external IP of the ComputerEase production VM — transcripts cite 35.222.218.224 AND 135.226.22218; only one is correct. (b) Lock GCP ingress firewall to the MuleSoft tenant IP allowlist only (pre-engagement state was SSH/RDP open to the entire internet — partially remediated 2026-04-16). (c) Confirm egress firewall permits CE Live Service outbound to the Deltek-managed cloud URL.",
+      "body": "Per FK-029 and the PLANNING_CONTEXT.md Critical Notes. The 'allow SSH/RDP from anywhere' state was a pre-existing Peerless security flaw that the team began correcting during scoping. Production VM listens on TCP/445 only — NOT 443/8081 — which is expected per the CE Live Service relay pattern (external integrations target the Deltek-managed URL, not the customer VM directly). DataSkate's GCP role must be scoped editor/dev (NOT super-admin) per principle of least privilege.",
+      "priority": "P0",
+      "bundledWith": []
+    },
+    {
+      "title": "HD Portal Write Endpoints + Developer Login",
+      "system": "Home Depot Service Center (HD Portal)",
+      "clientAction": "Through Greg (HD account manager), file a single HD ticket bundling: (a) confirm HD Portal exposes POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential); (b) request a developer-named HD Portal interactive login for DataSkate so the team can inspect HD-side data shape and field-level mappings; (c) confirm document-download endpoints for 299A/299B/HS-118 signed PDFs (UC3). Use Marius as the developer escalation (engaged 15 more days per Ashley 2026-04-16). If HD does not expose write endpoints, plan to fall back to the email channel (Venkat: 'depending upon the endpoint... we can try to mail as well').",
+      "body": "Per the hd-portal playbook. GET endpoints confirmed (HTTP 200 against HD API on 2026-04-17 by Venkat B). Write endpoints unconfirmed; F-number is the lead identifier (NOT SFIM vendor-number — confirmed exchange between Venkat B and Ashley 2026-04-17). Credentials arrive via clipboard-disabled confidential email — plan a 10–15 minute hand-transcription buffer; do NOT OCR via LLM (FK-031, AI hallucination risk per Raghuram 2026-04-15). Test leads must carry a 'Peerless test' marker to avoid HD contractor-quality scoring penalties.",
+      "priority": "P1",
+      "bundledWith": []
+    }
+  ],
+
+  "pricing": {
+    "flowCount": 4,
+    "implementationFee": "0",
+    "implementationFeeNote": "IaaS model — implementation cost absorbed into the $300/flow/month rate. Kickoff retainer $2,500 (1–5 flow band) is non-refundable at SOW signing and fully credited against the first 6-month payment at go-live.",
+    "kickoffRetainer": "2500",
+    "timelineWeeks": 8,
+    "timelineBreakdown": "Requirements & Analysis 2 weeks + Development & Testing (4 flows × 1.5 weeks = 6 weeks) = 8 weeks total",
+    "period1RatePerFlow": "300",
+    "period2RatePerFlow": "315",
+    "period3RatePerFlow": "330.75",
+    "period4RatePerFlow": "347.29",
+    "period1Payment6mo": "7200",
+    "period2Payment6mo": "7560",
+    "period3Payment6mo": "7938",
+    "period4Payment6mo": "8335",
+    "oneYearManagedServiceTotal": "14760",
+    "twoYearManagedServiceTotal": "31033",
+    "implementationOnlyFee": "14000",
+    "implementationOnlyNote": "Standard rate: 4 flows × $3,500 = $14,000. Paid 50% at SOW signing + 50% at UAT sign-off. Code ownership transfers to Peerless at go-live; no ongoing DataSkate service.",
+    "recommendedModel": "IaaS",
+    "recommendedModelRationale": "IaaS is the recommended model for Peerless for five compounding reasons: (1) ComputerEase is Deltek-classified legacy with a 4-hour minimum support SLA and CE Live Service relay plumbing — ongoing monitoring and incident response have continuous operational value, not one-time build value. (2) MuleSoft IDP requires a manual-review queue and rule-library tuning as new contract templates appear or HD-side document formats shift — that is operational work, not implementation work. (3) Peerless has no in-house MuleSoft developer; Brian Cook is the platform IT director but has explicitly stated he is not the integration owner ('I'm in' to GCP only to debug, not to operate). (4) Akoya is a PE sponsor actively hunting another Home Services platform — a managed-service relationship gives DataSkate continuous touchpoints during the 18-month window President Roger Greenhagel uses to modernize IT, positioning DataSkate for the next Akoya platform play. (5) The Elevate Fence Partners national-rollout thesis means UC1–UC4 are the template for 5 additional sibling brands — that template needs ongoing maintenance as state-specific rules (Wisconsin 99% deposit becomes N exceptions) accumulate. Implementation Only would treat this as a one-time build and forfeit the recurring template-evolution role.",
+    "edgeCases": [
+      "Flow count is 4 — sits at the top of the 1–5 retainer band ($2,500). If Peerless promotes UC5 (deposit-paid) and UC6 (subcontract worksheet) to confirmed in a Phase 1b expansion, retainer would jump to $5,000 (6–10 band) and 2-year total scales linearly.",
+      "Implementation Only delta: at 4 flows, IaaS Year 1 ($14,760) is just under Implementation Only flat fee ($14,000) — but IaaS carries no Year 2 upside for Peerless if they self-maintain. Implementation Only is the right fit only if Peerless hires a MuleSoft developer before kickoff — they have not signaled this.",
+      "Anypoint license bundling: pricing-model.md row 'AE sells full $50K Anypoint license → $0 implementation' is not in play at Peerless — no Anypoint license sale discussed in scoping."
+    ]
+  },
+
+  "downstreamLoadList": {
+    "playbooks": [
+      "mulesoft/playbooks/playbooks/hd-portal/hd-portal_playbook.json",
+      "mulesoft/playbooks/playbooks/salesforce/salesforce_playbook.json",
+      "mulesoft/playbooks/playbooks/computerease/computerease_playbook.json",
+      "mulesoft/playbooks/playbooks/mulesoft-idp/mulesoft-idp_playbook.json"
+    ],
+    "canonicalModels": [
+      "mulesoft/canonical-models/construction/canonical-lead.yaml",
+      "mulesoft/canonical-models/construction/canonical-customer.yaml",
+      "mulesoft/canonical-models/construction/canonical-quote.yaml",
+      "mulesoft/canonical-models/construction/canonical-budget-worksheet.yaml",
+      "mulesoft/canonical-models/construction/canonical-job.yaml",
+      "mulesoft/canonical-models/construction/canonical-contract.yaml"
+    ],
+    "connectorKeys": [
+      "hd-portal",
+      "salesforce",
+      "computerease",
+      "mulesoft-forge-idp"
+    ]
+  },
+
+  "flags": {
+    "salesforceDetected": true,
+    "salesforceDetectedNote": "Salesforce appears in all 4 confirmed flows (UC1, UC2, UC3, UC4) — central CRM in the HD Portal → Salesforce → ComputerEase data path. AgentForce framing applies for downstream Petra/Quinn outputs (Vera Phase 3 already names AgentForce as the agentic layer that reads the Phase 1 data foundation).",
+    "legacyERPDetected": true,
+    "onPremDetected": true,
+    "idpInScope": true,
+    "ipaasMigration": false,
+    "spreadsheetMissing": false
+  }
+}

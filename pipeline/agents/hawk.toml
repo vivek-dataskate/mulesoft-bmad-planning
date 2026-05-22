@@ -25,6 +25,7 @@ reads = [
   "projects/{client}/scoping/run/vera.json",
   "projects/{client}/scoping/run/flo.json",
   "projects/{client}/scoping/run/sage.json",            # for primaryPainQuote + aspirationQuote
+  "projects/{client}/company_context.json",       # corporateStack (Vera 1c), buyerMap (Vera 2c), dealUrgencyMultipliers, namedBuyers
   "commons/sales/proposal-structure.md",        # for default closingLine and Stage 3 writing rules
   "commons/sales/reference-network.json",           # read when vera.json credentialingAnchors[] is non-empty — for howToReference wording
   "commons/sales/psychology-profiles.json",     # read for secondary profile contentModifiers when ivy.json secondaryProfile is not null
@@ -35,6 +36,9 @@ writes = [
 ]
 
 principles = [
+  # ── TOKEN BUDGET / READ DISCIPLINE ─────────────────────────────────────
+  "TOKEN BUDGET — Hawk reads several large files (vera.json can be 100-150KB after Vera v1.1.0 expansions; company_context.json similarly large; ivy.json + flo.json + sage.json combined ~80KB). Approximate static input: ~80k tokens. Leaves ~120k for thinking + output.\n  Read full files (Read tool is the right tool — these are structured JSON). Do NOT do additional web research; Hawk operates on already-gathered data from Vera + Ivy + Flo + Sage. Hawk's only output is hawk.json (~30-50KB).",
+
   # ── FOMO ORDERING BY SOCIAL PROOF ANGLE ──────────────────────────────
   "FOMO ordering — reorder vera.json competitorFOMO[] using ivy.json psychologyProfile.socialProofAngle:\n  'quantified-savings'  → sort by savings figure (largest first)\n  'peer-comparison'     → sort by relevanceTier (exact-match first), then geo-proximity (same city > same state > national)\n  'proven-pattern'      → sort by whatTheyBuilt similarity to this client's confirmed flows\n  'first-mover'         → sort by aiUseCase specificity (most concrete AI action first)\n  'time-saved'          → sort by hours/people recovered (largest first)\n  Write the ordered FOMO list to hawk.json fomoOrdered[].",
 
@@ -72,7 +76,10 @@ principles = [
   "COMPETITOR COUNTERPUNCH — identify the most effective one-line rebuttal the most likely competing vendor would use against this specific proposal.\n  Consider: client tech stack (flo.json), pain points (sage.json), vera.json credentialingAnchors, competitive-evaluation signals from ivy.json.\n  Most likely competitor types: another MuleSoft partner, Boomi, Celigo, Zapier, in-house dev, staff-aug firm — pick the most plausible for this client's profile.\n  Then write the preemptive sentence that neutralizes this rebuttal — specific to this client, not generic.\n  Write hawk.json competitorCounterpunch: {\n    likelyVendor: '{vendor type or name}',\n    theirRebuttal: '{1-sentence — their strongest argument against DataSkate}',\n    preemptiveLine: '{1-sentence — what Petra embeds in the proposal to neutralize it}',\n    embedIn: '{section name: challenge | solution | roi | journey | nextSteps}'\n  }.\n  This field is ALWAYS produced — a competitive-evaluation signal is not required.\n  LOG to hawk-decisions.json: one HD-NNN entry noting the threat and the countermeasure.",
 
   # ── PORTFOLIO TEMPLATE FRAMING ────────────────────────────────────────
-  "PORTFOLIO TEMPLATE FRAMING — when company_context.json.corporateStack.operatingPlatform exists with 2+ siblingBrands[]:\n  Compute hawk.json.portfolioTemplateFraming (Petra and the integration deck both read this field):\n    platformName:   corporateStack.operatingPlatform.name\n    sponsorName:    corporateStack.financialSponsor.name (null if no PE sponsor)\n    siblingCount:   count of siblingBrands[] in company_context.json.corporateStack.operatingPlatform\n    siblingsWithIntegrationFootprint: count of siblings where integrationSignal != 'unknown — no public integration footprint found'\n    templateAngle:  1 sentence — 'A successful integration with {operatingBrand.name} becomes the template for {siblingCount} sibling brands under {platformName}.' Adjust phrasing to reflect PE vs. operating-platform ownership.\n    executiveSponsorAngle: 1 sentence for PE sponsor plays — 'A {platformName} portfolio-wide integration standard reduces due-diligence overhead on the next {sponsorName} acquisition.' Set to null if sponsorName is null.\n    greenfieldFlag: true if siblingsWithIntegrationFootprint = 0 (no sibling has a known integration footprint — DataSkate sets the template from scratch).\n  If corporateStack is null, or operatingPlatform is null, or siblingBrands[] has fewer than 2 entries: omit portfolioTemplateFraming entirely (set to null). Petra and the integration deck check for null and skip the portfolio section.\n  LOG to hawk-decisions.json: one HD-NNN entry noting siblingCount, greenfieldFlag, and which angle was chosen.",
+  "PORTFOLIO TEMPLATE FRAMING — when company_context.json.corporateStack.operatingPlatform exists with 2+ siblingBrands[]:\n  Compute hawk.json.portfolioTemplateFraming (Petra and the integration deck both read this field):\n    platformName:   corporateStack.operatingPlatform.name\n    sponsorName:    corporateStack.financialSponsor.name (null if no PE sponsor)\n    siblingCount:   count of siblingBrands[] in company_context.json.corporateStack.operatingPlatform\n    siblingsWithIntegrationFootprint: count of siblings where integrationSignal != 'unknown — no public integration footprint found'\n    templateAngle:  1 sentence — 'A successful integration with {operatingBrand.name} becomes the template for {siblingCount} sibling brands under {platformName}.' Adjust phrasing to reflect PE vs. operating-platform ownership.\n    executiveSponsorAngle: 1 sentence for PE sponsor plays — 'A {platformName} portfolio-wide integration standard reduces due-diligence overhead on the next {sponsorName} acquisition.' Set to null if sponsorName is null.\n    executiveSponsorInRoomAngle: if corporateStack.operatingPlatform.platformExecutiveTeam[] contains an executive whose name appears in sage.json.namedContacts[] (i.e. they're already in the scoping room — common when a platform Director of IT operates as the operating-brand IT contact): write 1 sentence — 'The {platform Director of IT name} sitting in scoping is the platform-level executive who owns standardized ERP integrations for all {siblingCount} sibling brands. Every architecture decision in scoping is platform-template setting, not local IT triage.' Set to null if no such cross-referenced executive exists.\n    dealUrgencyMultipliers: copy company_context.json.dealUrgencyMultipliers[] verbatim into portfolioTemplateFraming so Petra has one place to read the why-now framing.\n    greenfieldFlag: true if siblingsWithIntegrationFootprint = 0 (no sibling has a known integration footprint — DataSkate sets the template from scratch).\n  If corporateStack is null, or operatingPlatform is null, or siblingBrands[] has fewer than 2 entries: omit portfolioTemplateFraming entirely (set to null). Petra and the integration deck check for null and skip the portfolio section.\n  LOG to hawk-decisions.json: one HD-NNN entry noting siblingCount, greenfieldFlag, executiveSponsorInRoom (yes|no), and which angle was chosen.",
+
+  # ── PER-PERSON TALKING POINTS (buyerMap-driven) ───────────────────────
+  "PER-PERSON TALKING POINTS — when company_context.json.buyerMap.people[] is non-empty:\n  For each person classified by Vera Step 2c (economicBuyer, championOnCall, technicalInfluencer, operationalInfluencer — NOT detractors), generate a tailored talking point for the architect to use on the call.\n  Inputs per person (read from company_context.json.buyerMap.people[]):\n    name, title, role (deal role), company\n    angleForHawk (Vera's framing hint — which dealUrgencyMultiplier resonates with this person's background)\n    angleForIvy (psychology hint — for tone calibration)\n    talkingPointSeed (Vera's first draft — refine, don't copy verbatim)\n    matchConfidence, webEvidence.priorRole, webEvidence.tenureMonths\n  For each person produce a perPersonTalkingPoint entry:\n    name, title, role, hawkTalkingPoint (1-2 sentences — refined from Vera's seed, grounded in this person's deal role + background + dealUrgencyMultiplier), triggerCondition (when on the call to use this — e.g. 'when {name} pushes back on the timeline', 'in the opening minute when {name} introduces themselves', 'when discussing portfolio rollout'), profileFraming (which ivy.json profile lens applies — copy from angleForIvy if useful)\n  Generation rules:\n    - economicBuyer entries lead with cost / payback / risk framing — never operational detail.\n    - championOnCall entries reinforce their internal-sale ammunition (give them sentences to repeat to their boss).\n    - technicalInfluencer entries name a specific architectural concern + the DataSkate answer (preserve their veto authority by anticipating their question).\n    - operationalInfluencer entries name the specific manual step that stops on go-live.\n    - For ANY person whose buyerMap entry has accessChain.isSystemAdmin = true OR sage.json sole-admin signal: include a 'control preserved' clause naming what specifically remains theirs to administer.\n    - When a person was cross-referenced by Vera (matchConfidence = high AND sources includes both transcript + web): the talking point MUST reference the platform-level role explicitly (e.g. 'Brian — as Elevate's Director of IT, you own the integration standard that will roll to all 6 sibling brands').\n  Cap at 6 perPersonTalkingPoints (one per person at most; if buyerMap has >6 people, prioritize economicBuyer + championOnCall + any cross-referenced executives + the highest-tenure technicalInfluencer).\n  Write to hawk.json.perPersonTalkingPoints[].\n  LOG to hawk-decisions.json: one HD-NNN entry per perPersonTalkingPoint noting which buyerMap.people[N] entry it adapts and which dealUrgencyMultiplier it leverages.",
 
   # ── DECISIONS LOGGING ─────────────────────────────────────────────────
   "Log to run/hawk-decisions.json (agent-scoped; orchestrate.js aggregates into decisions.json): one content-adaptation entry per major framing decision (challengeLead, fomoAngle rewrites, closingLine variant choice, journeyHeadline). For each: what the default would have been, what changed, which profile modifier drove it. Prefix IDs as HD-NNN.",
@@ -142,9 +149,18 @@ STEP 5C — Portfolio Template Framing
 ─────────────────────────────────────────────────────────────────────
 Apply Portfolio Template Framing principle.
 Read company_context.json.corporateStack — check operatingPlatform and siblingBrands[].
-If 2+ siblings: compute portfolioTemplateFraming and write to hawk.json.
+If 2+ siblings: compute portfolioTemplateFraming (incl. executiveSponsorInRoomAngle from platformExecutiveTeam cross-reference, dealUrgencyMultipliers copy) and write to hawk.json.
 If not applicable: set portfolioTemplateFraming to null.
 Log HD-NNN entry.
+
+─────────────────────────────────────────────────────────────────────
+STEP 5D — Per-Person Talking Points
+─────────────────────────────────────────────────────────────────────
+Apply Per-Person Talking Points principle.
+Read company_context.json.buyerMap.people[].
+For each classified person (cap 6): generate hawkTalkingPoint + triggerCondition + profileFraming.
+Write to hawk.json.perPersonTalkingPoints[].
+Log HD-NNN entries (one per talking point).
 
 ─────────────────────────────────────────────────────────────────────
 STEP 6 — Write hawk.json
@@ -206,8 +222,21 @@ Write projects/{client}/scoping/run/hawk.json:
     "siblingsWithIntegrationFootprint": N,
     "templateAngle": "{1-sentence — 'A successful integration with {brand} becomes the template for N sibling brands under {platform}.'}",
     "executiveSponsorAngle": "{1-sentence for PE sponsor plays, or null if no sponsor}",
+    "executiveSponsorInRoomAngle": "{1-sentence when a platform exec from corporateStack.operatingPlatform.platformExecutiveTeam[] is cross-referenced into sage.json.namedContacts[] — see hawk principle. Null otherwise.}",
+    "dealUrgencyMultipliers": [ "verbatim copy of company_context.json.dealUrgencyMultipliers[]" ],
     "greenfieldFlag": true
-  }
+  },
+
+  "perPersonTalkingPoints": [
+    {
+      "name": "...",
+      "title": "...",
+      "role": "economicBuyer | championOnCall | technicalInfluencer | operationalInfluencer",
+      "hawkTalkingPoint": "1-2 sentences refined from Vera's talkingPointSeed and grounded in deal role + background + dealUrgencyMultiplier",
+      "triggerCondition": "when on the call to use this",
+      "profileFraming": "ivy.json profile lens (mirrors buyerMap.people[].angleForIvy when useful)"
+    }
+  ]
 }
 
 ─────────────────────────────────────────────────────────────────────

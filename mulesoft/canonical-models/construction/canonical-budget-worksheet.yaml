@@ -1,0 +1,113 @@
+title: Canonical Budget Worksheet
+version: "1.0.0-stub — created from peerless engagement"
+vertical: construction
+standard: derived
+standardBody: null
+standardRef: null
+deviations: |
+  No dominant cross-vendor standard for construction budget-worksheet records. Field naming derived from:
+    - ComputerEase budget worksheet entity (target system)
+    - Construction industry job-cost-accounting norms (cost types, target price, GA%)
+description: |
+  Canonical budget-worksheet entity for construction / specialty-contractor integrations.
+  Maps from: CRM (Salesforce Quote totals + line items).
+  Maps to:   construction ERP (ComputerEase budget worksheet attached to a Job).
+  Common synonyms: Budget Worksheet (ComputerEase), Job Budget (generic), Cost Plan (Procore), Cost Sheet (estimating).
+
+  Peerless-specific: ComputerEase budget worksheet sits under a Job (canonical-job.yaml) and contains
+  line items by cost type (materials, labor, subcontract, overhead GA). Sales commission and target
+  price are part of the worksheet payload. Currently entered manually by Ashley (~1.5h per job) — UC2
+  automates this on quote 'Save as Final'.
+
+type: object
+required:
+  - worksheetId
+  - jobId
+  - costLines
+  - targetPrice
+  - timestamps
+
+properties:
+  worksheetId:
+    type: string
+    description: Canonical budget worksheet identifier
+    example: "BW-2026-000565"
+
+  externalIds:
+    type: object
+    properties:
+      erpWorksheetId:    { type: string, description: "ComputerEase worksheet ID (attached to a Job)" }
+      salesforceQuoteId: { type: string, description: "Originating Salesforce Quote 18-char ID" }
+
+  jobId:
+    type: string
+    description: Links to canonical-job (the parent job)
+
+  quoteId:
+    type: string
+    description: Links to canonical-quote (the originating quote)
+
+  status:
+    type: string
+    enum: [DRAFT, APPROVED, LOCKED, CLOSED]
+
+  costLines:
+    type: array
+    description: Cost lines by cost type (ComputerEase API access entitles Cost Types object)
+    items:
+      type: object
+      required: [costType, budgetAmount]
+      properties:
+        costType:       { type: string, description: "ComputerEase cost type code (e.g. MAT, LAB, SUB, OH)" }
+        costTypeName:   { type: string, description: "Human-readable cost type name" }
+        budgetAmount:   { type: number, description: "Budgeted dollars for this cost type" }
+        actualAmount:   { type: number, description: "Actuals to date (closed-loop reporting — UC7-potential)" }
+        committedAmount: { type: number, description: "Committed subcontracts + POs against this cost type" }
+
+  subcontracts:
+    type: array
+    description: Subcontract line items (ComputerEase Subcontracts object — UC6-potential)
+    items:
+      type: object
+      properties:
+        subcontractRef:   { type: string }
+        vendorName:       { type: string }
+        scopeDescription: { type: string }
+        amount:           { type: number }
+
+  salesCommission:
+    type: object
+    properties:
+      commissionRate:   { type: number, description: "Commission percentage" }
+      commissionAmount: { type: number }
+      salesRepInitials: { type: string }
+
+  overheadGA:
+    type: object
+    properties:
+      gaRate:    { type: number, description: "Overhead / G&A rate %" }
+      gaAmount:  { type: number }
+
+  targetPrice:
+    type: number
+    description: Total target sell price for the job — what Salesforce quote total maps to
+
+  marginThreshold:
+    type: number
+    description: 'Margin watch threshold for AgentForce burn-rate alert (Phase 3 prerequisite)'
+
+  timestamps:
+    type: object
+    required: [createdAt]
+    properties:
+      createdAt:  { type: string, format: date-time }
+      updatedAt:  { type: string, format: date-time }
+      lockedAt:   { type: string, format: date-time }
+
+stubNote: |
+  Created from peerless engagement 2026-05-22 by Rex. UC2 confirmed flow: Salesforce Quote → CE Budget
+  Worksheet attached to a Job. UC6-potential covers subcontract/commission worksheet payload if UC2
+  scope is 'header only'. UC7-potential (closed-loop) writes actualAmount + committedAmount back to
+  Salesforce for the AgentForce margin watcher in Phase 3. Fields to finalize during Analyst PRD:
+  ComputerEase cost-type codes (Peerless-specific list), GA rate per company code, commission tier
+  schedule per sales rep, marginThreshold default + per-job override mechanism.

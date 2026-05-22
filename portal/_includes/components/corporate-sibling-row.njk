@@ -1,43 +1,124 @@
 {#
   components/corporate-sibling-row.njk
   ────────────────────────────────────
-  One row in the Sibling Brands list. Mirrors the inline sibling-row builder
-  inside buildCorporateBrief().
+  One row in the Sibling Brands list. Renders compact (Tier-B) or deep (Tier-A) per Vera Step 2b.
 
   Inputs (current loop item is exposed as `sibling`):
-    sibling = { name, website?, integrationSignal?, sourceUrl? }
-                — or a bare string (legacy shape)
-
-  A bare string has no `.name`, so `sibling.name is defined` cleanly
-  distinguishes the two shapes (don't use `== sibling` — JS `==` coerces an
-  object to "[object Object]" and mis-classifies it as a string).
+    sibling = {
+      name, website?, integrationSignal?, sourceUrl?,
+      region?, footprint?,                        // Step 1c lattice fields
+      tierAResearched?,                            // Step 2b — gates the deep card
+      itLeader?: { name, title, linkedIn, tenureMonths, sourceUrl },
+      valueProp?: string,
+      itStack?: { knownSystems[], stackHints, sourceUrl },
+      namedCustomers?: [string],
+      applicableUseCases?: [{ ucId, applicable, transferNote }],
+      futureEngagementNote?,
+      isCurrentClient?
+    }
+    — or a bare string (legacy shape)
 #}
 {%- if sibling.name is defined -%}
-  {%- set _name   = sibling.name -%}
+  {%- set _name    = sibling.name -%}
   {%- set _website = sibling.website or '' -%}
-  {%- set _signal = sibling.integrationSignal or 'unknown — no public integration footprint found' -%}
-  {%- set _src    = sibling.sourceUrl or '' -%}
+  {%- set _signal  = sibling.integrationSignal or 'unknown — no public integration footprint found' -%}
+  {%- set _src     = sibling.sourceUrl or '' -%}
+  {%- set _region   = sibling.region or '' -%}
+  {%- set _footprint = sibling.footprint or '' -%}
+  {%- set _isClient  = (sibling.isCurrentClient == true) -%}
+  {%- set _tierA     = (sibling.tierAResearched == true) -%}
 {%- else -%}
-  {%- set _name   = sibling -%}
+  {%- set _name    = sibling -%}
   {%- set _website = '' -%}
-  {%- set _signal = 'unknown — no public integration footprint found' -%}
-  {%- set _src    = '' -%}
+  {%- set _signal  = 'unknown — no public integration footprint found' -%}
+  {%- set _src     = '' -%}
+  {%- set _region  = '' -%}
+  {%- set _footprint = '' -%}
+  {%- set _isClient  = false -%}
+  {%- set _tierA     = false -%}
 {%- endif -%}
 {%- if _name -%}
 {%- set _sigClass = 'sibling-signal unknown' if (_signal | iStartsWith('unknown')) else 'sibling-signal' -%}
+
+{%- if _tierA -%}
+{# ── Tier-A deep card ───────────────────────────────────────────── #}
+<div class="sibling-row" style="grid-template-columns:1fr;padding:14px 16px;{% if _isClient %}border-left:3px solid var(--brand);background:#FAFEFC{% endif %}">
+  <div style="display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap">
+    <div>
+      <div class="sibling-name">
+        {%- if _website -%}<a href="{{ _website | esc }}" target="_blank" rel="noopener">{{ _name | esc }}</a>{%- else -%}{{ _name | esc }}{%- endif -%}
+        {%- if _isClient %} <span style="font-size:9px;background:var(--brand);color:#fff;padding:2px 6px;border-radius:3px;margin-left:6px">CURRENT CLIENT</span>{%- endif -%}
+      </div>
+      <div class="sibling-meta">{% if _region %}{{ _region | esc }}{% endif %}{% if _region and _footprint %} · {% endif %}{% if _footprint %}{{ _footprint | esc }}{% endif %}</div>
+    </div>
+    {%- if _website %}<div class="sibling-meta" style="text-align:right">{{ _website | domainOnly | esc }}</div>{%- endif -%}
+  </div>
+
+  {%- if sibling.valueProp %}
+  <div style="font-size:12px;color:var(--dark);line-height:1.55;margin-top:10px">{{ sibling.valueProp | esc }}</div>
+  {%- endif %}
+
+  {%- if sibling.itLeader and sibling.itLeader.name %}
+  <div style="font-size:12px;color:var(--dark);margin-top:10px;padding:8px 10px;background:var(--light);border-radius:5px">
+    <strong style="color:var(--brand-dk)">IT leader:</strong> {{ sibling.itLeader.name | esc }}{% if sibling.itLeader.title %} · {{ sibling.itLeader.title | esc }}{% endif %}{% if sibling.itLeader.tenureMonths %} · {{ sibling.itLeader.tenureMonths }} mo tenure{% endif %}
+    {%- if sibling.itLeader.linkedIn %} · <a href="{{ sibling.itLeader.linkedIn | esc }}" target="_blank" rel="noopener" style="font-size:11px">LinkedIn</a>{%- endif -%}
+    {%- if sibling.itLeader.sourceUrl %} <a href="{{ sibling.itLeader.sourceUrl | esc }}" target="_blank" rel="noopener" style="font-size:11px;color:var(--mid)">[source]</a>{%- endif -%}
+  </div>
+  {%- endif %}
+
+  {%- if sibling.itStack and sibling.itStack.knownSystems and (sibling.itStack.knownSystems | length > 0) %}
+  <div style="font-size:12px;color:var(--dark);margin-top:8px">
+    <strong style="color:var(--brand-dk)">Known IT stack:</strong> {{ sibling.itStack.knownSystems | join(', ') | esc }}
+    {%- if sibling.itStack.stackHints %}<div style="font-size:11px;color:var(--mid);margin-top:4px;font-style:italic">{{ sibling.itStack.stackHints | esc }}</div>{%- endif -%}
+    {%- if sibling.itStack.sourceUrl %} <a href="{{ sibling.itStack.sourceUrl | esc }}" target="_blank" rel="noopener" style="font-size:11px;color:var(--mid)">[source]</a>{%- endif -%}
+  </div>
+  {%- endif %}
+
+  {%- if sibling.namedCustomers and (sibling.namedCustomers | length > 0) %}
+  <div style="font-size:12px;color:var(--dark);margin-top:8px">
+    <strong style="color:var(--brand-dk)">Named customers:</strong> {{ sibling.namedCustomers | join(', ') | esc }}
+  </div>
+  {%- endif %}
+
+  {%- if sibling.applicableUseCases and (sibling.applicableUseCases | length > 0) %}
+  <div style="font-size:12px;color:var(--dark);margin-top:10px">
+    <strong style="color:var(--brand-dk)">Use cases that transfer from current engagement:</strong>
+    <ul style="margin:4px 0 0 18px;padding:0">
+      {%- for uc in sibling.applicableUseCases %}
+      <li style="margin-bottom:3px">
+        <strong>{{ uc.ucId | esc }}</strong>
+        {%- if uc.applicable == true %} <span style="color:var(--green)">(applies)</span>
+        {%- elif uc.applicable == false %} <span style="color:var(--mid)">(does not apply)</span>
+        {%- else %} <span style="color:var(--amber)">(unknown)</span>
+        {%- endif -%}: {{ (uc.transferNote or '') | esc }}
+      </li>
+      {%- endfor %}
+    </ul>
+  </div>
+  {%- endif %}
+
+  <div class="{{ _sigClass }}" style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)">
+    <strong style="color:var(--brand-dk)">Integration signal:</strong> {{ _signal | esc }}{% if _src %} <a href="{{ _src | esc }}" target="_blank" rel="noopener" style="font-size:11px;color:var(--mid)">[source]</a>{% endif %}
+  </div>
+
+  {%- if sibling.futureEngagementNote %}
+  <div style="font-size:12px;color:var(--brand-dk);margin-top:8px;padding:8px 10px;background:var(--amber-bg);border-radius:5px;border-left:3px solid var(--amber)">
+    <strong>Future engagement:</strong> {{ sibling.futureEngagementNote | esc }}
+  </div>
+  {%- endif %}
+</div>
+
+{%- else -%}
+{# ── Tier-B compact row (legacy + non-deep-researched siblings) ── #}
 <div class="sibling-row">
   <div>
     <div class="sibling-name">
-      {%- if _website -%}
-      <a href="{{ _website | esc }}" target="_blank" rel="noopener">{{ _name | esc }}</a>
-      {%- else -%}
-      {{ _name | esc }}
-      {%- endif -%}
+      {%- if _website -%}<a href="{{ _website | esc }}" target="_blank" rel="noopener">{{ _name | esc }}</a>{%- else -%}{{ _name | esc }}{%- endif -%}
+      {%- if _isClient %} <span style="font-size:9px;background:var(--brand);color:#fff;padding:2px 6px;border-radius:3px;margin-left:6px">CURRENT CLIENT</span>{%- endif -%}
     </div>
-    {%- if _website -%}
-    <div class="sibling-meta">{{ _website | domainOnly | esc }}</div>
-    {%- endif -%}
+    <div class="sibling-meta">{% if _region %}{{ _region | esc }}{% endif %}{% if _region and _footprint %} · {% endif %}{% if _footprint %}{{ _footprint | esc }}{% elif _website %}{{ _website | domainOnly | esc }}{% endif %}</div>
   </div>
   <div class="{{ _sigClass }}">{{ _signal | esc }}{% if _src %} <a href="{{ _src | esc }}" target="_blank" rel="noopener" style="font-size:11px;color:var(--mid)">[source]</a>{% endif %}</div>
 </div>
+{%- endif -%}
 {%- endif -%}

@@ -3,8 +3,11 @@
 # Interaction mode: GATED (consolidate → show flow list + pricing → confirm numbers → finalize)
 # Model: Opus (complex judgment: flow classification, pricing edge cases, complexity scoring)
 #
-# Flo is the single source of truth for: confirmed flow list, pricing, and P0 consolidation.
+# Flo is the single source of truth for: confirmed flow list, pricing, P0 consolidation,
+# AND portfolioOpportunities[] (corporate-brief-bound; never lands in proposal or intake).
 # Petra, Quinn, and Sol read flo.json — they never calculate or modify these values.
+# orchestrate.js post-Flo re-renders corporate-brief-content.json to include the
+# Portfolio Integration Opportunities section.
 # ONE change to Flo updates every downstream document automatically.
 
 [agent]
@@ -13,12 +16,12 @@ slug = "flo"
 role = "Integration Flow Analyst + Pricing"
 model = "opus"
 interaction = "gated"
-version = "1.0.0"
+version = "1.1.0"
 
 reads = [
   "projects/{client}/scoping/run/sage.json",
-  "projects/{client}/scoping/run/vera.json",
-  "projects/{client}/scoping/run/rex.json",
+  "projects/{client}/scoping/run/vera.json",   # corporateStack + corporateStackEnrichment for portfolioOpportunities[]
+  "projects/{client}/scoping/run/rex.json",    # full system inventory for rex-uncovered-system portfolio entries
   "commons/sales/pricing-model.md",             # single source of truth for all pricing
 ]
 writes = [
@@ -49,8 +52,11 @@ principles = [
   # ── NAME EVERY FLOW YOU CAN BEFORE PRICING ───────────────────────────
   "If you can name a flow, it must appear in confirmedFlows — not remain implicit inside a category.\n  Briefing categories (e.g. 'Customer sync') are not flows — they are groups. Apply platform knowledge to decompose every category into individual flows before writing the flow list:\n    - Bidirectional categories = minimum 2 flows (one per direction)\n    - Celigo/iPaaS CRUD patterns often split create and update into separate flows\n    - 'Price and tax sync' = 2 flows\n    - 'Fulfillment writeback' in a migration context includes the reverse status update\n  For any flow you cannot name (e.g. undocumented custom integrations): add a placeholder entry with id=UC-CUSTOM-N, name='Uncharacterized Custom Flow N', complexity='medium', and a clear inferenceNote explaining what group it belongs to and what would replace it.\n  The rule: pricing N must equal the count of entries in confirmedFlows. If confirmedFlows has 10 entries but you priced at 23, that is a contradiction that must be resolved before the output is written.",
 
-  # ── ADJACENT FLOW DETECTION ───────────────────────────────────────────
-  "Adjacent flow detection — after consolidating confirmed and potential flows, scan for flows that are adjacent but not explicitly mentioned in the briefing:\n  1. BIDIRECTIONAL GAPS: for every confirmed or potential flow that is unidirectional, ask whether the reverse direction is also needed. If a confirmed flow sends data from A → B, check whether B → A (e.g. confirmation, acknowledgment, status writeback) is also required and not already covered.\n  2. MULTI-TRANSACTION POTENTIALS: if a potential flow covers a protocol or gateway that handles multiple transaction types (e.g. EDI 810/856/997, or a platform that fires multiple event types), split into individual flows — each transaction type is typically a separate MuleSoft flow.\n  3. IMPLICIT SYSTEM MENTIONS: scan all agent outputs for systems mentioned in passing (AI journey body, architect notes, out-of-scope notes) that may have an implied integration need. A system described as 'receiving data via native integration' may still require ERP reconciliation.\n  4. Add all detected adjacent flows to potentialFlows[] with source field indicating how they were inferred (e.g. 'inferred: reverse of UC12', 'inferred: EDI transaction split from UC11', 'inferred: system mentioned in vera.json AI journey').\n  5. All potential flows — both explicit and adjacent — must appear in the proposal. The proposal is the client's first view of expanded scope; surface adjacents as Phase 1b or Phase 2 options, not surprises.",
+  # ── ADJACENT FLOW DETECTION (PROPOSAL-BOUND ONLY) ────────────────────
+  "Adjacent flow detection — populates potentialFlows[], which lands in the PROPOSAL as Phase 1b / Phase 2. This bucket is STRICTLY SCOPE-ADJACENT: every entry must read to the buyer as 'same project, just more of it', not 'sales overreach into a different project'.\n\n  Scope-adjacency promotion test — an entry qualifies for potentialFlows[] ONLY when it satisfies at least one:\n  1. BIDIRECTIONAL REVERSE: a confirmed flow sends data A → B, and the reverse B → A (confirmation, acknowledgment, status writeback, error surface) belongs to the SAME engagement to be operationally complete. Source tag: 'inferred: reverse of UC{N}'.\n  2. MULTI-TRANSACTION SPLIT: a confirmed in-scope protocol or gateway handles multiple transaction types (e.g. EDI 810 confirmed → 856/997 implied; a webhook platform confirmed → other event types in the same subscription). Each transaction type is a separate MuleSoft flow. Source tag: 'inferred: transaction split from UC{N}'.\n  3. IN-SCOPE OPERATING-BRAND SYSTEM, NEAR MISS: a system was mentioned in the SAGE TRANSCRIPT for THIS engagement (operating brand only, not sibling/platform) but did not survive into confirmedFlows[]. Promote ONLY if it shares an entity or trigger with a confirmed flow (e.g. confirmed flow touches Customer entity in Salesforce; transcript also mentioned HubSpot for Marketing Contact sync — same Customer entity, different system; potential Phase 2). Source tag: 'inferred: scope-adjacent system from sage transcript'.\n\n  DO NOT promote into potentialFlows[] (these are PORTFOLIO opportunities — see the Portfolio Opportunities principle below):\n    - Systems Rex catalogued at the operating brand that no confirmed flow touches AND that share no entity/trigger with a confirmed flow.\n    - Any flow involving a sibling brand, sub-rollup bolt-on, sponsor portco, or strategic-partnership entity (different legal entity = different engagement).\n    - 'Template deployment' of confirmed flows to other brands in the corporate stack.\n    - Aspirational AI / agentic flows that are vera.json.aiJourney.phase3 — those live in the proposal's AI journey section, not potentialFlows.\n\n  4. Add scope-adjacent entries to potentialFlows[] with the source tag above. Every entry MUST also set scopeBoundary = 'operating-brand' (defense-in-depth — Petra filters on this).\n  5. potentialFlows[] entries are surfaced in the proposal as Phase 1b / Phase 2 options. The proposal is the client's first view of expanded scope; the buyer's reaction must be 'yes, this is the same project, just more of it' — never 'wait, we didn't ask for any of that'.",
+
+  # ── PORTFOLIO OPPORTUNITIES (CORPORATE-BRIEF-BOUND, NOT PROPOSAL-BOUND) ──
+  "Portfolio opportunities — populates a SEPARATE bucket portfolioOpportunities[] in flo.json. These entries land in the CORPORATE BRIEF only. They are NEVER surfaced in the proposal (proposal-content.json) or the intake (intake-content.json). The orchestrator's renderCorporateBrief() reads this bucket post-Flo and appends it as a 'Portfolio Integration Opportunities' section.\n\n  WHY THIS BUCKET EXISTS: Vera surfaces the overall corporate structure (operating brand → siblings → platform → sponsor → strategic partnerships) and Rex enumerates EVERY system at the operating brand. The combined view contains integration opportunities that are NOT part of the current engagement's scope but ARE the natural next-engagement / next-sibling / next-portco template deployments. Putting these in the proposal makes the deal feel like sales overreach (buyer asked for X, got 3X). Putting them in the intake confuses the operational team. The corporate brief — read by the architect + AE + future deal team — is the right home.\n\n  HARD ROUTING RULE: every portfolioOpportunities[] entry MUST carry proposalExclusion: true and intakeExclusion: true. Petra and Quinn filter on these flags as defense-in-depth — a misplaced entry can never leak into the proposal or intake by construction.\n\n  SOURCES — generate entries from these signals (every entry MUST tag source):\n  A. REX-UNCOVERED OPERATING-BRAND SYSTEMS (source: 'rex-uncovered-system'):\n     Read rex.json system inventory. For each system at the operating brand that (a) no confirmed flow touches AND (b) does NOT qualify as scope-adjacent under the Adjacent Flow Detection principle, generate a portfolio entry. These are future engagements at the SAME client — not extensions of THIS one.\n     Example: confirmed flows touch SFDC + HD Portal + ComputerEase. Rex catalogues Acumatica + ADP + Slack at the operating brand. None of those share entities with the confirmed flows → portfolio entries for 'Acumatica → SFDC finance sync (future engagement)', 'ADP → ComputerEase HR sync (future engagement)'.\n  B. SIBLING-TEMPLATE DEPLOYMENT (source: 'sibling-template'):\n     Read vera.json.corporateStackEnrichment.operatingPlatform.siblingBrands[]. For each Tier-A sibling with applicableUseCases[] entries marked applicable=true, generate ONE portfolio entry per applicable UC restated as a sibling-template flow. Pull the regional adaptation directly from siblingBrands[N].applicableUseCases[M].transferNote. Reference both the source UC id and the sibling slug. Skip siblings flagged isCurrentClient=true.\n     Example: 'Imperial Fence — UC1 HD Portal → Salesforce Lead (template deployment): same 10-min polling pattern as Peerless; regional adaptation: separate ComputerEase company code for IL state-line.'\n  C. LEGACY SUB-ROLLUP BOLT-ON (source: 'legacy-boltOn'):\n     Read vera.json.corporateStack.operatingBrand.legacyBoltOns[]. For each bolt-on whose note indicates it 'operates as separate brand' (NOT 'absorbed'), generate one portfolio entry: 'template the current engagement to {boltOn.name}'.\n     Skip bolt-ons noted as fully absorbed.\n  D. SPONSOR PORTFOLIO CROSS-DEPLOYMENT (source: 'sponsor-portco'):\n     Read vera.json.corporateStackEnrichment.financialSponsor.portfolioCompanies[]. For each portco in an adjacent industry (sector overlap with the operating brand's sector), generate ONE portfolio entry: 'template the current engagement to {portco.name} ({portco.category})'.\n  E. STRATEGIC-PARTNERSHIP INTEGRATION (source: 'strategic-partnership'):\n     Read vera.json.corporateStack.strategicPartnerships[]. For each partnership whose integrationImpact field names a system or channel NOT in confirmedFlows[] (e.g. 'Adds a B2B EDI channel', 'Multi-state ComputerEase company codes'), generate one portfolio entry restating the partnership-driven integration.\n\n  ENTRY SCHEMA (each portfolioOpportunities[] entry):\n    {\n      id:               'PO-{NNN}',                              // sequential, scoped to flo.json\n      source:           'rex-uncovered-system' | 'sibling-template' | 'legacy-boltOn' | 'sponsor-portco' | 'strategic-partnership',\n      title:            '{short name — what would be integrated}',\n      systems:          ['{source}', '{target}'],                // 1+ entries; sibling-template entries restate current UC systems\n      entity:           '{primary entity}',                       // Customer | Lead | PO | Invoice | etc.\n      atEntity:         '{operating brand | sibling name | portco name | partnership name}',\n      atEntitySlug:     '{kebab-case slug for the receiving entity}',\n      referenceUcId:    '{UC{N} when source is sibling-template; null otherwise}',\n      rationale:        '1-2 sentences — what makes this a portfolio opportunity, not a scope-adjacent flow',\n      regionalAdaptation: '1 sentence' | null,                    // sibling-template only\n      whenToEngage:     '1 sentence — what signal to wait for before pursuing',\n      sourceUrl:        '{evidence URL from vera.json / rex.json}' | null,\n      proposalExclusion: true,                                    // ALWAYS true — defense-in-depth\n      intakeExclusion:   true                                     // ALWAYS true — defense-in-depth\n    }\n\n  PROMOTION TESTS (apply per entry — drop entries that fail):\n    - Buyer-reading-proposal test: would the buyer reading the proposal say 'we didn't ask for any of that'? If YES → portfolio (correct), if NO → potentialFlows (correct bucket is Adjacent Flow Detection).\n    - Different-legal-entity test: does the flow involve a different legal entity from the engagement entity (vera.json.corporateStack.engagementEntity)? If YES → portfolio (sibling / portco / partnership). If NO and no confirmed flow touches the system → portfolio (future-engagement at same entity).\n    - Single-source test: every entry MUST cite at least one upstream source — vera.json corporate stack path OR rex.json system inventory path. No source = drop the entry.\n\n  CAPS — keep the bucket curated, not exhaustive:\n    - rex-uncovered-system:  up to 6 entries (the most operationally relevant; prefer systems that share a buyer with confirmed flows).\n    - sibling-template:      up to 4 siblings × up to 2 UCs each = 8 max (rank by sibling tier + applicableUseCases length).\n    - legacy-boltOn:         up to 4 entries (only bolt-ons operating as separate brands).\n    - sponsor-portco:        up to 4 entries (only adjacent-industry portcos).\n    - strategic-partnership: up to 3 entries.\n    Total cap: 25 portfolio opportunities. If the natural list exceeds this, write the count to portfolioOpportunitiesTruncatedNote with what was excluded.\n\n  EMPTY-OK: if Vera flagged ownership='independent' AND Rex's full system inventory is contained within confirmedFlows[], it is correct to write portfolioOpportunities: [] with a note 'No portfolio opportunities — operating brand is independent and full system inventory is in scope.' Do NOT invent entries to fill the bucket.",
 
   # ── FLOW COUNT INFERENCE WHEN SPREADSHEET IS MISSING ─────────────────
   "When a migration engagement states a total flow count (e.g. '~23 flows') but the flow inventory spreadsheet has not been received, do NOT default to pricing on the number of categories extractable from the briefing text. Instead:\n  1. Take the client's stated flow count as the primary number.\n  2. Reason through each category using platform domain knowledge to enumerate individual flows:\n     - For Celigo migrations: apply Celigo's standard flow-splitting conventions — bidirectional syncs become 2+ flows, CRUD operations often split into create/update flows, Standard Integration Apps have known flow patterns.\n     - For other iPaaS migrations: apply equivalent platform knowledge.\n  3. Produce an inferred flow list (labeled 'inferred — pending spreadsheet') that gets as close to the stated count as the briefing + domain knowledge allows.\n  4. Price at the client's stated count. Add proposalCaveat to pricing: once the spreadsheet is received, review the individual flow list and issue a revised proposal with confirmed scope and locked pricing before SOW signing.\n  5. Log the inference reasoning in flo-decisions.json so it can be validated against the spreadsheet when it arrives.",
@@ -73,6 +79,20 @@ STEP 1 — Flow Consolidation
 Apply Flow Consolidation principle.
 Merge rex.json + sage.json flows. Apply NO-COMBINE. Assign complexity scores.
 De-duplicate potentialFlows[].
+
+─────────────────────────────────────────────────────────────────────
+STEP 1b — Portfolio Opportunities (corporate-brief-bound)
+─────────────────────────────────────────────────────────────────────
+Apply Portfolio Opportunities principle.
+Generate portfolioOpportunities[] from FIVE upstream sources:
+  A. rex.json system inventory          → rex-uncovered-system entries (≤ 6)
+  B. vera.json.corporateStackEnrichment → sibling-template entries (≤ 8)
+  C. vera.json.corporateStack.operatingBrand.legacyBoltOns[] → legacy-boltOn entries (≤ 4)
+  D. vera.json.corporateStackEnrichment.financialSponsor.portfolioCompanies[] → sponsor-portco entries (≤ 4)
+  E. vera.json.corporateStack.strategicPartnerships[] → strategic-partnership entries (≤ 3)
+Every entry: proposalExclusion=true, intakeExclusion=true (hard-coded for defense-in-depth).
+Total cap: 25 entries. Write count + exclusion note to portfolioOpportunitiesTruncatedNote when exceeded.
+If ownership='independent' and Rex inventory ⊆ confirmedFlows: write portfolioOpportunities: [] with note.
 
 ─────────────────────────────────────────────────────────────────────
 STEP 2 — P0 Consolidation
@@ -124,8 +144,28 @@ Write projects/{client}/scoping/run/flo.json:
   ],
 
   "potentialFlows": [
-    { "id": "UC{N}-potential", "systems": ["{A}", "{B}"], "entity": "...", "priority": "high | medium | low", "rationale": "..." }
+    { "id": "UC{N}-potential", "systems": ["{A}", "{B}"], "entity": "...", "priority": "high | medium | low", "rationale": "...", "scopeBoundary": "operating-brand", "source": "inferred: reverse of UC{N} | inferred: transaction split from UC{N} | inferred: scope-adjacent system from sage transcript" }
   ],
+
+  "portfolioOpportunities": [
+    {
+      "id": "PO-{NNN}",
+      "source": "rex-uncovered-system | sibling-template | legacy-boltOn | sponsor-portco | strategic-partnership",
+      "title": "{short name}",
+      "systems": ["{source}", "{target}"],
+      "entity": "{primary entity}",
+      "atEntity": "{operating brand | sibling name | portco name | partnership name}",
+      "atEntitySlug": "{kebab-case slug}",
+      "referenceUcId": "UC{N} | null",
+      "rationale": "1-2 sentences",
+      "regionalAdaptation": "1 sentence | null",
+      "whenToEngage": "1 sentence",
+      "sourceUrl": "{url} | null",
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    }
+  ],
+  "portfolioOpportunitiesTruncatedNote": "...optional, only when total exceeded 25" | null,
 
   "p0Blockers": [
     {
@@ -172,7 +212,9 @@ Show summary:
 === FLO COMPLETE — REVIEW BEFORE PROCEEDING ===
 Confirmed flows: {N}
   {list each flow: UC{N}: {name} ({complexity})}
-Potential flows (not scoped): {N}
+Potential flows (scope-adjacent, proposal-bound): {N}
+Portfolio opportunities (corporate-brief-bound, NOT in proposal/intake): {N}
+  by source: {N rex-uncovered} | {N sibling-template} | {N legacy-boltOn} | {N sponsor-portco} | {N strategic-partnership}
 P0 Blockers: {N} — {list titles with priority}
 
 Pricing ({N} flows):

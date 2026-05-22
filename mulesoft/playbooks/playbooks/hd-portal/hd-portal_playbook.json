@@ -1,13 +1,36 @@
 {
   "system": "hd-portal",
-  "displayName": "Home Depot Service Center (HD Portal) \u2014 Home Depot's proprietary lead management and contract system for Pro contractor partners",
+  "displayName": "Home Depot Service Center (HD Portal) — Home Depot's proprietary lead management and contract system for Pro contractor partners",
   "maturity": "stub",
-  "lastUpdated": "2026-05-11",
+  "lastUpdated": "2026-05-22",
   "clients": [
     "peerless"
   ],
-  "knownQuirks": [],
-  "p0Conditions": [],
+  "knownQuirks": [
+    "**Lead identifier is the F-number, NOT a UUID or numeric ID:** Lead lookups in HD Portal use the 'F number' (lead number). When asking the client to share a test lead ID, ask explicitly for the 'F number' — generic 'lead ID' will produce confusion (e.g. SFIM vendor number was offered instead). (Source: peerless transcript, 2026-04-17 — Venkat B / Ashley Salerno exchange.)",
+    "**Polling lag is documented at 10 minutes (was 30):** HD Portal-to-Salesforce sync updates happen on a ~10-minute cadence per Home Depot ('Marcos told that update every ten minutes' — was 30 minutes historically). Design integrations for at-least-10-minute eventual consistency; do not assume real-time on lead → CRM propagation. (Source: peerless transcript, 2026-04-14.)",
+    "**Existing HD → Salesforce lead sync is partially broken:** Ashley Salerno: 'when we create a lead inside of Home Depot Service Center, it doesn't come through inside of Salesforce. So that part needs to be fixed.' Any new integration must NOT rely on the legacy sync being correct — verify per-lead via GET against HD Portal as the source of truth. (Source: peerless transcript, 2026-04-14.)",
+    "**Credentials are delivered through 'confidential email' that blocks copy-paste:** HD Portal API credentials are sent via secure email that disables clipboard copy. Recipients must transcribe by hand or screenshot+OCR. Beware: 'AI can hallucinate, so you may get a wrong password — don't lock yourself out' (Raghuram Potluri). Plan an extra 10–15 minute buffer in onboarding for credential entry. (Source: peerless transcript, 2026-04-15.)",
+    "**Test leads must be flagged 'Peerless test' (or client-equivalent):** Home Depot grades contractors on lead/job quality metrics. Test data must carry a clear test marker so Home Depot does not penalise the contractor. Coordinate with the client's HD account manager (Greg at Peerless) on the exact label and close-out procedure for test leads. (Source: peerless transcript, 2026-04-14.)",
+    "**API support is via Home Depot ticketing — no direct dev contact by default:** Ashley: 'It's like a ticketing system where you create a support ticket and then they come in to call.' Home Depot's API team must be reached through the contractor's HD account manager (e.g. Greg). Plan ahead — they 'pick and choose' which tickets to engage. (Source: peerless transcript, 2026-04-14.)",
+    "**Deposit-paid flag is currently set manually by client staff:** Ashley: 'I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box. If that could integrate and flow back through an API, that was awesome.' This is a candidate write-back flow (HD → Salesforce, or Salesforce → HD) — confirm if HD exposes a deposit-status endpoint as part of API discovery. (Source: peerless transcript, 2026-04-14.)",
+    "**'Final' status on a quote/contract = trigger for downstream automation:** Ashley demonstrated that until a sales rep clicks 'save as final' on a quote, it is not a real job. The Final state transition should be the trigger event for any downstream automation (job creation in ERP, commission worksheet, etc.). (Source: peerless transcript, 2026-04-15.)",
+    "**Discrepancy/exception reporting needs a write-back channel:** When validation fails (signatures missing, math errors, missing boxes checked), Peerless currently has a human reviewer reject the contract. Discussion confirmed the desired pattern is: detect exception → write a comment/status back to HD via API → email/notify the human reviewer. Confirm HD endpoint for comment write-back during API discovery."
+  ],
+  "p0Conditions": [
+    {
+      "condition": "HD API endpoint for write-back (comments, status, deposit-paid) is unconfirmed",
+      "blocks": "Exception-handling and deposit-status flows cannot be designed without confirmed write endpoints.",
+      "clientAction": "During API discovery, validate POST/PUT endpoints exist for comments and status fields. If they don't, design email/IDP-extraction fallback.",
+      "evidence": "peerless transcript 2026-04-14 + 2026-04-15"
+    },
+    {
+      "condition": "HD Portal interactive login (separate from API key) is still pending",
+      "blocks": "Developer cannot inspect HD-side data shape or confirm field-level mappings.",
+      "clientAction": "HD account manager (Greg at Peerless) must create a developer-named portal login. Peerless/Marius is following up.",
+      "evidence": "peerless transcript 2026-04-14 to 2026-04-17"
+    }
+  ],
   "maturityLog": [
     {
       "date": "2026-05-11",
@@ -18,7 +41,19 @@
     {
       "date": "2026-05-12",
       "client": "1",
-      "finding": "Scout transcript analysis. Added: API key from Marius received Apr 15; portal login pending (Ashley \u2192 HD); 'Final' status = trigger for downstream automation; ~10-min polling lag; current lead sync to SF broken; HD contact for API support = Greg (ticketing); test leads must be labeled 'Peerless test'.",
+      "finding": "Scout transcript analysis. Added: API key from Marius received Apr 15; portal login pending (Ashley → HD); 'Final' status = trigger for downstream automation; ~10-min polling lag; current lead sync to SF broken; HD contact for API support = Greg (ticketing); test leads must be labeled 'Peerless test'.",
+      "status": "stub"
+    },
+    {
+      "date": "2026-05-22",
+      "client": "peerless",
+      "finding": "Sage architect-knowledge extraction. Promoted findings from transcripts into knownQuirks + p0Conditions: F-number lead identifier, confidential-email credential delivery (copy-paste disabled, AI-hallucination risk), test-lead labeling SLA with HD, support via account-manager ticketing, deposit-paid manual flag as candidate flow, Final-status trigger semantics, discrepancy write-back pattern.",
+      "status": "stub"
+    },
+    {
+      "date": "2026-05-22",
+      "client": "peerless",
+      "finding": "Rex systems analysis. Confirmed connector key + auth type (API key via clipboard-disabled confidential email), confirmed GET endpoints work (HTTP 200), wrote P0 'HD Portal Write Endpoints + Developer Login' covering UC4/UC5 write-back validation through Greg + Marius. No new quirks beyond Sage promotions.",
       "status": "stub"
     }
   ],
