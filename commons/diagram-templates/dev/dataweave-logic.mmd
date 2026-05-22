@@ -1,0 +1,14 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    input(["Inbound Payload\n__SOURCE__"]):::hub
+    input --> validate{Valid schema?}
+    validate -->|"No"| reject["Reject — 400\nlog error"]:::warn
+    validate -->|"Yes"| map["Map canonical fields\n__TRANSFORM_NAME__"]:::action
+    map --> enrich{Enrichment needed?}
+    enrich -->|"Yes"| lookup["Lookup __LOOKUP_SYSTEM__\n__LOOKUP_FIELD__"]:::action
+    lookup --> merge["Merge enriched data"]:::action
+    merge --> output
+    enrich -->|"No"| output(["Outbound Payload\n__TARGET__"]):::hub
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef warn fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b

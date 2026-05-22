@@ -1,0 +1,23 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    subgraph original["Original Scope"]
+        direction TB
+        __ORIGINAL_SCOPE__
+    end
+    subgraph delta["Requested Change"]
+        direction TB
+        __CHANGE_REQUEST__
+    end
+    assess["Assess delta"]:::hub
+    original --> assess
+    delta --> assess
+    assess --> impact{Impact level?}
+    impact -->|"In scope / low risk"| approve["Approve\ninclude in sprint"]:::action
+    impact -->|"Out of scope"| co["Raise change order\n__CO_OWNER__"]:::warn
+    impact -->|"High risk"| defer["Defer to roadmap\n__ROADMAP_DATE__"]:::action
+    __IMPACT_NODES__
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef warn fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b
+    classDef inscope fill:#F0FFF4,stroke:#2E9E6B,stroke-width:1.5px,color:#276749
+    classDef outscope fill:#F8F8F8,stroke:#D4D4D8,stroke-dasharray:4 4,color:#888

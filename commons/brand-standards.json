@@ -1,0 +1,162 @@
+{
+  "version": "1.1",
+  "updated": "2026-05-22",
+
+  "partnerAssets": {
+    "mulesoft": {
+      "logo":    "commons/branding/logos/mulesoft-logo.svg",
+      "hubBox":  "commons/branding/logos/mulesoft-hub-box.svg",
+      "color":   "#00a1df",
+      "bgColor": "#EBF7FD",
+      "note":    "Hub box used in system-flow diagram. Hardcoded MuleSoft official blue — not a DataSkate token. Static/fixed by design."
+    }
+  },
+
+  "html": {
+    "tokenSource": "commons/tokens/color.json",
+    "compiledCss": "commons/branding/generated/tokens.css",
+    "logo": {
+      "viewBox": "140 258 590 96",
+      "svgSource": "commons/branding/Final Logo/SVG/DataSkate-logo-Final-01.svg",
+      "heights": {
+        "intake":   "28px",
+        "proposal": "32px",
+        "guide":    "32px",
+        "portal":   "28px",
+        "deck":     "28px"
+      }
+    },
+    "font": {
+      "family": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "sizeBase":  "15px",
+      "sizeSmall": "13px",
+      "sizeMicro": "11px"
+    },
+    "breakpoints": {
+      "mobile":  "480px",
+      "tablet":  "768px",
+      "desktop": "1024px",
+      "wide":    "1280px"
+    },
+    "diagramEmbed": {
+      "wrapperOverflowX": "auto",
+      "maxWidths": {
+        "proposal":  "1010px",
+        "prd":       "800px",
+        "architecture": "800px",
+        "deck":      "100%"
+      }
+    },
+    "rules": {
+      "requireInlineSvgLogo":      true,
+      "requireFooter":             true,
+      "forbidHardcodedHex":        true,
+      "forbidHardcodedHexExcept":  ["pre-generated SVG files in projects/*/intake/diagrams/ — partner colors like #00a1df are allowed in those assets"],
+      "forbidCompetitorHref":      true,
+      "forbidMailtoSubmit":        true,
+      "forbidOffPaletteCssVars":   true
+    }
+  },
+
+  "diagram": {
+    "themeFile":    "commons/diagram-theme.json",
+    "registryFile": "commons/diagram-registry.json",
+    "requiredInitFlowchart":  "%%{init: {'theme': 'base'}}%%",
+    "requiredUseMaxWidth":    true,
+
+    "palette": {
+      "hub":        { "fill": "#F0FFF4", "stroke": "#2E9E6B", "text": "#276749", "strokeWidth": "2.5px", "fontWeight": "bold", "exception": "system-flow diagram uses MuleSoft official blue — see partnerAssets.mulesoft" },
+      "inscope":    { "fill": "#F0FFF4", "stroke": "#2E9E6B", "text": "#276749", "strokeWidth": "1.5px" },
+      "exp":        { "fill": "#F0FFF4", "stroke": "#2E9E6B", "text": "#276749", "strokeWidth": "1.5px" },
+      "env":        { "fill": "#F0FFF4", "stroke": "#2E9E6B", "text": "#276749", "strokeWidth": "1.5px" },
+      "infra":      { "fill": "#F0FFF4", "stroke": "#2E9E6B", "text": "#276749", "strokeWidth": "2px" },
+      "success":    { "fill": "#F0FFF4", "stroke": "#2E9E6B", "text": "#276749", "strokeWidth": "1.5px" },
+      "auto":       { "fill": "#F0FFF4", "stroke": "#2E9E6B", "text": "#276749", "strokeDasharray": "4 4" },
+      "source":     { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "target":     { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "actor":      { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "system":     { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "action":     { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "field":      { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1px"   },
+      "sys":        { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "external":   { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "ok":         { "fill": "#fff",    "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "outscope":   { "fill": "#F8F8F8", "stroke": "#D4D4D8", "text": "#888",    "strokeDasharray": "4 4" },
+      "proc":       { "fill": "#F8F8F8", "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1.5px" },
+      "worker":     { "fill": "#F8F8F8", "stroke": "#2E9E6B", "text": "#276749", "strokeWidth": "1px"   },
+      "step":       { "fill": "#F8F8F8", "stroke": "#D4D4D8", "text": "#555",    "strokeDasharray": "3 3" },
+      "computed":   { "fill": "#F8F8F8", "stroke": "#D4D4D8", "text": "#555",    "strokeDasharray": "3 3" },
+      "decision":   { "fill": "#F8F8F8", "stroke": "#D4D4D8", "text": "#1A1A1A", "strokeWidth": "1px"   },
+      "warn":       { "fill": "#FFF5F5", "stroke": "#ed1c24", "text": "#c0392b", "strokeWidth": "1.5px" },
+      "deprecated": { "fill": "#FFF5F5", "stroke": "#ed1c24", "text": "#c0392b", "strokeWidth": "1.5px" },
+      "blocker":    { "fill": "#FFF5F5", "stroke": "#ed1c24", "text": "#c0392b", "strokeDasharray": "4 4" },
+      "error":      { "fill": "#FFF5F5", "stroke": "#ed1c24", "text": "#c0392b", "strokeWidth": "1.5px" },
+      "fail":       { "fill": "#FFF5F5", "stroke": "#ed1c24", "text": "#c0392b", "strokeWidth": "1.5px" }
+    },
+
+    "forbiddenFills":   ["#EFF6FF", "#F0F6FF", "#FFFBEB", "#FFF9DB", "#D1FAE5", "#A7F3D0"],
+    "forbiddenStrokes": ["#3B82F6", "#D97706", "#D69E2E", "#065F46"],
+    "forbiddenTexts":   ["#1E40AF", "#92400E", "#7C5E10"],
+
+    "maxNodes": {
+      "flowchart LR":    12,
+      "flowchart TD":    16,
+      "sequenceDiagram":  6,
+      "stateDiagram-v2": 10,
+      "erDiagram":        6,
+      "gantt":           20,
+      "C4Context":        8,
+      "C4Container":      8,
+      "C4Component":      8
+    },
+
+    "templateOverrides": {
+      "system-flow": {
+        "renderer": "custom-svg",
+        "rendererFn": "renderSystemFlowSvg() in pipeline/scripts/generate-diagram.js",
+        "note": "Does NOT use Mermaid. Custom pixel-coordinate SVG renderer — bypasses mmdc entirely.",
+
+        "hub": {
+          "fill":        "#EBF7FD",
+          "stroke":      "#00a1df",
+          "text":        "#00a1df",
+          "strokeWidth": "2px",
+          "rx":          "8",
+          "logo":        "commons/branding/logos/mulesoft-logo.svg",
+          "hubBox":      "commons/branding/logos/mulesoft-hub-box.svg",
+          "logoW":       80,
+          "logoH":       30,
+          "subLabel":    "DataSkate Managed",
+          "note":        "Static/hardcoded — never token-driven. MuleSoft official blue always. Logo always embedded as base64 data URI."
+        },
+
+        "layout": {
+          "viewBoxWidth":  500,
+          "srcX": 5,   "srcWidth": 140, "srcCx": 75,
+          "hubX": 190, "hubWidth": 120, "hubCx": 250,
+          "tgtX": 355, "tgtWidth": 140, "tgtCx": 425,
+          "boxH": 32,  "boxRx": 6,     "rowGap": 7,
+          "padY": 16
+        },
+
+        "systemNameRules": {
+          "canonicalSource":    "flow.systems[] positional array — index 0 = source, last = target",
+          "fallback":           "flow.direction string split on → only if flow.systems[] is absent",
+          "cleanParens":        true,
+          "orAlternatives":     "A (or B ...) → A / B",
+          "excludeHub":         "filter out any name matching /^mulesoft$/i",
+          "bidirectional":      "a system appearing as both source and target MUST appear on BOTH sides of the diagram — same name, two nodes"
+        },
+
+        "cssClasses": {
+          "sv-src":  "fill:#fff;stroke:var(--border);stroke-width:1.5",
+          "sv-tgt":  "fill:#fff;stroke:var(--border);stroke-width:1.5",
+          "sv-line": "stroke:var(--border);stroke-width:1.5;fill:none",
+          "sv-lsrc": "font:600 11px system-ui,sans-serif;fill:var(--dark)",
+          "sv-ltgt": "font:600 11px system-ui,sans-serif;fill:var(--dark)",
+          "note":    "Hub uses inline styles only — no CSS classes. Hub color must NOT inherit DataSkate green tokens."
+        }
+      }
+    }
+  }
+}

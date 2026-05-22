@@ -1,0 +1,19 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    subgraph exp["Experience APIs"]
+        direction LR
+        __EXP_APIS__
+    end
+    subgraph proc["Process APIs"]
+        direction LR
+        __PROC_APIS__
+    end
+    subgraph sys["System APIs"]
+        direction LR
+        __SYS_APIS__
+    end
+    exp --> proc
+    proc --> sys
+    classDef exp fill:#F0FFF4,stroke:#2E9E6B,stroke-width:1.5px,color:#276749
+    classDef proc fill:#F8F8F8,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef sys fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A

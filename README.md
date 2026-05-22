@@ -75,7 +75,7 @@ or
 Talk to Winston (the architect). Read projects/{client}/prd.md. Walk the 6-level decision tree. Produce projects/{client}/architecture.md and projects/{client}/decisions.json
 ```
 
-The Architect reads `pipeline/FIELD_KNOWLEDGE.md` and all existing `mulesoft/playbooks/playbooks/*/*_playbook.json` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
+The Architect reads `commons/docs/FIELD_KNOWLEDGE.md` and all existing `mulesoft/playbooks/playbooks/*/*_playbook.json` files before the decision tree. Verified field knowledge entries take precedence over scenario file defaults. For any system with an existing playbook, the Architect references its auth pattern and DWL files rather than redesigning from scratch.
 
 **Validate before proceeding:**
 ```bash
@@ -139,7 +139,7 @@ Then select `CO` and specify the client.
 
 The close-out reads every internal flag from the intake questionnaire, every open item from architecture.md, every story that was built, and every system involved. It interviews the architect question by question — per system (auth, connector behaviour, field mapping surprises), per internal flag (was it resolved? how?), per architecture open item, and per cross-cutting pattern. Based on the answers it automatically updates:
 
-- `pipeline/FIELD_KNOWLEDGE.md` — new FK entries for any non-obvious finding
+- `commons/docs/FIELD_KNOWLEDGE.md` — new FK entries for any non-obvious finding
 - `mulesoft/playbooks/playbooks/{system}/` — implementation learnings, confirmed DWL mappings, maturity update
 - `pipeline/intake-checklist.json` — new or updated autoWarnings so the next project sees these issues at intake time
 - `mulesoft/connector-registry.json` — confirmed auth types, versions, and any new connectors used
@@ -180,7 +180,7 @@ After close-out, every project also contributes to the commons:
 
 | Commons artifact | Updated by | What grows |
 |-----------------|-----------|-----------|
-| `pipeline/FIELD_KNOWLEDGE.md` | Architect (DK / CO) | FK entries — lessons from every project |
+| `commons/docs/FIELD_KNOWLEDGE.md` | Architect (DK / CO) | FK entries — lessons from every project |
 | `mulesoft/playbooks/playbooks/{system}/` | Scout (stub) → Architect (design) → CO (implementation) | Auth, DWL mappings, known quirks per system |
 | `pipeline/intake-checklist.json` | Scout (stub) → Architect Debrief Q6 / CO | autoWarnings — every system ever seen gets an entry |
 | `mulesoft/connector-registry.json` | Scout (stub) → Analyst → Architect → CO | Confirmed auth, versions, staleness |
@@ -217,7 +217,7 @@ Internal and shared resources are regenerated from their Markdown source files w
 |---|---|---|---|---|
 | Architect Guide | Internal | @dataskate.ai login | `commons/sales/architect-guide.md` | `portal/public/resources/architect-guide.html` |
 | DS Pricing Model | External | Public | `commons/sales/pricing-model.md` (rates parsed) | `portal/public/resources/ds-pricing-model.html` |
-| Knowledge Base | Internal | @dataskate.ai login | Live-read from `pipeline/scout/pipeline.json`, `mulesoft/playbooks/*`, `pipeline/FIELD_KNOWLEDGE.md` | `portal/public/resources/capabilities.html` |
+| Knowledge Base | Internal | @dataskate.ai login | Live-read from `pipeline/scout/pipeline.json`, `mulesoft/playbooks/*`, `commons/docs/FIELD_KNOWLEDGE.md` | `portal/public/resources/capabilities.html` |
 
 ### The Architect Guide — single internal reference
 
@@ -283,7 +283,7 @@ Three specific problems it solves:
 
 2. **Speed** — the Analyst, Architect, and PM agents each take minutes. Code generation takes seconds. The bottleneck becomes client response time, not internal setup time.
 
-3. **Accumulation** — every new project teaches the system something. Lessons go into `pipeline/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `mulesoft/playbooks/playbooks/` grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.
+3. **Accumulation** — every new project teaches the system something. Lessons go into `commons/docs/FIELD_KNOWLEDGE.md`, agents apply them on future projects automatically, and the playbooks in `mulesoft/playbooks/playbooks/` grow with each system touched. The close-out (Step 7) is the mechanism that makes this happen systematically.
 
 ---
 
@@ -310,10 +310,10 @@ mulesoft-bmad-planning/
 │   ├── telemetry/                  Pipeline run logs and metrics
 │   ├── tests/                      Pipeline-level test suites
 │   ├── intake-checklist.json       Mandatory checks + autoWarnings per system (grows with every project)
-│   ├── FIELD_KNOWLEDGE.md          Lessons from real projects; agents apply verified entries
-│   ├── PLANNING_CONTEXT.md         Master system context — read before every session
-│   ├── ARCHITECTURE.md             Pipeline internal architecture notes
-│   └── AGENT-BOUNDARY-POLICY.md    Strict boundary rules: each agent writes only to its own JSON
+│   ├── commons/docs/FIELD_KNOWLEDGE.md          Lessons from real projects; agents apply verified entries
+│   ├── commons/docs/PLANNING_CONTEXT.md         Master system context — read before every session
+│   ├── commons/docs/ARCHITECTURE.md             Pipeline internal architecture notes
+│   └── commons/docs/AGENT-BOUNDARY-POLICY.md    Strict boundary rules: each agent writes only to its own JSON
 │
 ├── mulesoft/                       MuleSoft code generation + knowledge base
 │   ├── generate.js                 Code generator: decisions.json → complete Mule project
@@ -337,7 +337,7 @@ mulesoft-bmad-planning/
 │   │   └── usecases/               Use-case reference files
 │   ├── canonical-models/           Hub schemas — the canonical interchange format
 │   ├── doc-templates/              PRD, architecture, and story templates
-│   ├── DESIGN_STANDARDS.md         The constitution — all pattern decisions flow from here
+│   ├── commons/docs/DESIGN_STANDARDS.md         The constitution — all pattern decisions flow from here
 │   ├── connector-registry.json     All known connectors: versions, Maven coords, auth types
 │   ├── snippet-registry.json       Three-tier registry of all reusable code assets
 │   ├── pom.xml                     Commons library pom (mule-plugin, deployed to Exchange)
@@ -522,9 +522,9 @@ No new code needed. The full field mapping, null handling, and status enum trans
 
 ## How Field Knowledge Accumulates
 
-`pipeline/FIELD_KNOWLEDGE.md` is the architect's lesson log. When any engagement surfaces something not covered by existing standards — during analysis, architecture, UAT, or production — it goes here.
+`commons/docs/FIELD_KNOWLEDGE.md` is the architect's lesson log. When any engagement surfaces something not covered by existing standards — during analysis, architecture, UAT, or production — it goes here.
 
-All agents read `pipeline/FIELD_KNOWLEDGE.md` at the start of every session and apply `verified` entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.
+All agents read `commons/docs/FIELD_KNOWLEDGE.md` at the start of every session and apply `verified` entries automatically. You do not need to re-educate developers — the knowledge travels with the agent.
 
 **How a finding travels from a project to a system improvement:**
 
@@ -545,7 +545,7 @@ Second engagement hits the same system → CO again → status promoted to verif
         Agents now apply it automatically on future projects
         ↓
 Architect decides it's universal → PK command → agent drafts the target file change
-        Promoted to mulesoft/playbooks/scenarios/, mulesoft/DESIGN_STANDARDS.md, or mulesoft/src/
+        Promoted to mulesoft/playbooks/scenarios/, commons/docs/DESIGN_STANDARDS.md, or mulesoft/src/
 ```
 
 No client names are stored — counts only.
@@ -561,7 +561,7 @@ A generated HTML portal at `portal/public/resources/capabilities.html` (the **Kn
 - **System Playbooks** — all objects per system, maturity status, client count
 - **Scout Agents** — all pipeline agents from `pipeline/scout/pipeline.json`, their roles and capabilities
 - **Intake Warnings** — all autoWarnings in `pipeline/intake-checklist.json` with trigger keywords and severity
-- **Field Knowledge** — FK entries from `pipeline/FIELD_KNOWLEDGE.md`
+- **Field Knowledge** — FK entries from `commons/docs/FIELD_KNOWLEDGE.md`
 
 GitHub Actions auto-regenerates this on every push that touches a registry file or decisions.json. To regenerate manually:
 
@@ -634,7 +634,7 @@ When a `verified` finding is clearly universal — bake it into the target file:
 /bmad-agent-architect-debrief → PK
 ```
 
-The agent lists verified entries, you pick one, it drafts the exact change to the target file (`mulesoft/playbooks/scenarios/`, `mulesoft/DESIGN_STANDARDS.md`, `mulesoft/playbooks/playbooks/{system}/`, or `mulesoft/src/main/resources/dwl/`), applies it, and updates the FK status to `promoted-to-standard`.
+The agent lists verified entries, you pick one, it drafts the exact change to the target file (`mulesoft/playbooks/scenarios/`, `commons/docs/DESIGN_STANDARDS.md`, `mulesoft/playbooks/playbooks/{system}/`, or `mulesoft/src/main/resources/dwl/`), applies it, and updates the FK status to `promoted-to-standard`.
 
 ### Add a new connector (NC)
 
@@ -650,7 +650,7 @@ The agent asks for the connector name, Exchange coordinates, auth type, and requ
 /bmad-agent-architect-debrief → NP
 ```
 
-The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `mulesoft/playbooks/scenarios/`, adds the enum value to `mulesoft/decisions-schema.json`, and adds the catalog row to `mulesoft/DESIGN_STANDARDS.md`.
+The agent asks for the pattern letter, integration style, compensation strategy, EDA fit, and decision guide entry. It creates the scenario file in `mulesoft/playbooks/scenarios/`, adds the enum value to `mulesoft/decisions-schema.json`, and adds the catalog row to `commons/docs/DESIGN_STANDARDS.md`.
 
 ### Add a new system playbook (NB)
 

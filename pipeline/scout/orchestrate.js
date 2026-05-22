@@ -701,6 +701,147 @@ function aggregateDecisions(slug) {
   logFileInfo(decisionsPath, 'decisions.json (after aggregate)');
 }
 
+// ─── Diagram Content Assembly + Renderer (post-Flo / post-Petra) ─────────────
+// Assembles diagram-content.json from agent outputs, then runs generate-diagram.js
+// to produce SVGs. Only the Scout pipeline levels are assembled here (scoping + sow).
+// Future pipelines (PRD → Hypercare) assemble their own diagram-content entries.
+
+// Strips parentheticals and collapses "(or X ...)" alternatives into "A / B" labels.
+// "Google Sheets (or Excel Online — conditional...)" → "Google Sheets / Excel"
+function cleanSystemName(raw) {
+  const orMatch = raw.match(/^(.+?)\s*\(or\s+([^)—,]+)/i);
+  if (orMatch) {
+    const part1 = orMatch[1].trim();
+    const part2 = orMatch[2].trim().replace(/\s+online\b/i, '').trim();
+    return `${part1} / ${part2}`;
+  }
+  return raw.replace(/\s*\([^)]*\)/g, '').trim();
+}
+
+// Bidirectional: a system appearing as source in ANY flow goes left; target in ANY flow goes right.
+// Uses flow.systems[] for canonical display names (not the short direction strings).
+// Systems can appear on both sides — matching the old system-diagram SVG behaviour.
+function extractSystemLists(confirmedFlows) {
+  const sources = new Map(); // normalized-key → display name
+  const targets = new Map();
+
+  for (const flow of confirmedFlows) {
+    const dir = (flow.direction || '').trim();
+    const flowSystems = (flow.systems || []).map(s => s.trim()).filter(Boolean);
+
+    let srcDisplay, tgtDisplay;
+
+    if (flowSystems.length >= 2) {
+      // flow.systems[] is position-ordered: [0] is source side, [-1] is target side.
+      // Use these for canonical display names; direction only confirms ordering.
+      srcDisplay = cleanSystemName(flowSystems[0]);
+      tgtDisplay = cleanSystemName(flowSystems[flowSystems.length - 1]);
+    } else if (dir) {
+      const parts = dir.split(/\s*[→>]\s*/);
+      if (parts.length >= 2) {
+        srcDisplay = cleanSystemName(parts[0]);
+        tgtDisplay = cleanSystemName(parts[parts.length - 1]);
+      }
+    }
+
+    if (srcDisplay && !/^mulesoft$/i.test(srcDisplay))
+      sources.set(srcDisplay.toLowerCase(), srcDisplay);
+    if (tgtDisplay && !/^mulesoft$/i.test(tgtDisplay))
+      targets.set(tgtDisplay.toLowerCase(), tgtDisplay);
+  }
+
+  return { sources: [...sources.values()], targets: [...targets.values()] };
+}
+
+function assembleDiagramContent(slug, levels) {
+  const projectDir  = path.join(PROJECTS_DIR, slug);
+  const project     = readJson(path.join(projectDir, 'project.json')) || {};
+  const flo         = readJson(path.join(projectDir, 'scoping', 'run', 'flo.json')) || {};
+  const rex         = readJson(path.join(projectDir, 'scoping', 'run', 'rex.json')) || {};
+  const petra       = readJson(path.join(projectDir, 'scoping', 'run', 'petra.json')) || {};
+  const registry    = readJson(path.join(ROOT, 'commons', 'diagram-registry.json')) || { templates: [] };
+
+  const contentPath = path.join(projectDir, 'intake', 'diagrams', 'diagram-content.json');
+  const existing    = readJson(contentPath) || { client: slug, assembledAt: isoNow(), diagrams: [] };
+
+  const confirmedFlows = flo.confirmedFlows || [];
+  const { sources, targets } = extractSystemLists(confirmedFlows);
+
+  const flowNames   = confirmedFlows.map(f => f.name).filter(Boolean);
+  const flowCount   = confirmedFlows.length;
+
+  const scopingTokens = {
+    '__CLIENT_NAME__':      project.displayName || slug,
+    '__CURRENT_SYSTEMS__':  sources.join(', '),
+    '__DEPRECATED__':       '',
+    '__HUB__':              'MuleSoft (DataSkate managed)',
+    '__TARGETS__':          targets.join(', '),
+    '__FLOW_COUNT__':       String(flowCount),
+    '__CONFIRMED_FLOWS__':  flowNames.slice(0, 20).join(', '),
+    '__OUT_OF_SCOPE__':     '',
+    '__P0_BLOCKERS__':      (flo.p0Blockers || []).map(b => b.title || b.blocker || b.description).filter(Boolean).join(', '),
+  };
+
+  // SOW tokens: Petra provides proposal phasing — use basic timeline if not available
+  const sowTokens = {
+    ...scopingTokens,
+    '__TIMELINE_BODY__': (petra.proposalContent?.timeline?.mermaidBody) || [
+      '    section Discovery',
+      '    Requirements & Architecture :disc, 2026-06-01, 2w',
+      '    section Implementation',
+      '    Integration Build           :build, after disc, 6w',
+      '    section Validation',
+      '    UAT & Go-Live               :uat, after build, 2w',
+    ].join('\n'),
+    '__IN_SCOPE__':      flowNames.slice(0, 20).join(', '),
+    '__OUT_OF_SCOPE__':  '',
+    '__ASSUMPTIONS_BODY__': '',
+  };
+
+  for (const template of registry.templates) {
+    if (!levels.includes(template.level)) continue;
+    const tokens = template.level === 'sow' ? sowTokens : scopingTokens;
+
+    const entry = {
+      id:          template.outputId,
+      level:       template.level,
+      type:        template.type,
+      templateRef: template.templateFile,
+      title:       template.title,
+      generatedBy: template.generatedBy,
+      tokens:      Object.fromEntries(
+        (template.tokens || []).map(t => [t, tokens[t] ?? ''])
+      ),
+    };
+
+    const existingIdx = existing.diagrams.findIndex(d => d.id === template.outputId);
+    if (existingIdx >= 0) existing.diagrams[existingIdx] = entry;
+    else existing.diagrams.push(entry);
+  }
+
+  existing.assembledAt = isoNow();
+  fs.mkdirSync(path.dirname(contentPath), { recursive: true });
+  writeJson(contentPath, existing);
+  logFileInfo(contentPath, `intake/diagrams/diagram-content.json (levels: ${levels.join(',')})`);
+}
+
+function runDiagramRenderer(slug) {
+  const result = spawnSync(
+    process.execPath,
+    [path.join(ROOT, 'pipeline/scripts/generate-diagram.js'), slug],
+    { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }
+  );
+  const out = (result.stdout || '').trim();
+  const err = (result.stderr || '').trim();
+  if (out) out.split('\n').forEach(l => stepLog(l, 'DATA'));
+  if (err) err.split('\n').forEach(l => stepLog(l, 'WARN'));
+  if (result.error) {
+    stepLog(`generate-diagram.js error: ${result.error.message}`, 'ERROR');
+    return false;
+  }
+  return result.status === 0;
+}
+
 // ─── Client Registry Write (post-Flo) ────────────────────────────────────────
 // Writes a complete entry to projects/client-registry.json once Flo has confirmed
 // the flow list (systems[]) and Vera has confirmed vertical + sizeSegment.
@@ -1513,6 +1654,30 @@ async function runPipeline(slug) {
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} projects/client-registry.json updated`);
       stepLog('POST-FLO: client-registry updated', 'END');
+
+      stepLog('POST-FLO: assembling diagram-content.json (scoping)', 'START');
+      try {
+        assembleDiagramContent(slug, ['scoping']);
+        const ok = runDiagramRenderer(slug);
+        if (ok) {
+          console.log(`  ${green('✓')} Scoping diagrams rendered → projects/${slug}/intake/diagrams/`);
+          // Write system-flow.svg into company_context.json so integration-deck can inline it
+          const svgPath = path.join(ROOT, 'projects', slug, 'intake', 'diagrams', 'system-flow.svg');
+          if (fs.existsSync(svgPath)) {
+            const ctxPath = path.join(ROOT, 'projects', slug, 'company_context.json');
+            const ctx = readJson(ctxPath) || {};
+            ctx.systemDiagram = { svg: fs.readFileSync(svgPath, 'utf8') };
+            writeJson(ctxPath, ctx);
+            stepLog('POST-FLO: systemDiagram.svg written to company_context.json', 'DATA');
+          }
+        } else {
+          console.log(`  ${yellow('⚠')}  Diagram render failed — mmdc may not be installed (npm install --save-dev @mermaid-js/mermaid-cli)`);
+        }
+        stepLog('POST-FLO: diagram assembly done', 'END');
+      } catch (e) {
+        stepLog(`POST-FLO: diagram assembly FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  Diagram assembly failed — run manually: node pipeline/scripts/generate-diagram.js ${slug}`);
+      }
     }
 
     // Post-Quinn: extract intakeContent → write intake-content.json → build → copy HTML
@@ -1538,6 +1703,18 @@ async function runPipeline(slug) {
       } catch (e) {
         stepLog(`POST-PETRA: renderProposalAndDeck FAILED — ${e.message}`, 'WARN');
         console.log(`  ${yellow('⚠')}  renderProposalAndDeck failed — check logs`);
+      }
+
+      stepLog('POST-PETRA: assembling diagram-content.json (scoping + sow)', 'START');
+      try {
+        assembleDiagramContent(slug, ['scoping', 'sow']);
+        const ok = runDiagramRenderer(slug);
+        if (ok) console.log(`  ${green('✓')} SOW diagrams rendered → projects/${slug}/intake/diagrams/`);
+        else     console.log(`  ${yellow('⚠')}  SOW diagram render failed — mmdc may not be installed`);
+        stepLog('POST-PETRA: SOW diagram assembly done', 'END');
+      } catch (e) {
+        stepLog(`POST-PETRA: SOW diagram assembly FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  SOW diagram assembly failed — run manually: node pipeline/scripts/generate-diagram.js ${slug}`);
       }
     }
 

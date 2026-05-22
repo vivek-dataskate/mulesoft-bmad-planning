@@ -1,0 +1,19 @@
+sequenceDiagram
+    autonumber
+    participant src as __SOURCE_PLATFORM__
+    participant hub as __HUB__
+    participant tgt as __TARGET_SYSTEM__
+    participant dlq as __DLQ__
+
+    src->>hub: __EVENT_TYPE__
+    Note over hub: Validate payload
+    hub->>tgt: POST /sync (attempt 1)
+    tgt-->>hub: 503 Service Unavailable
+    Note over hub: Retry up to __MAX_RETRIES__x — exponential backoff __RETRY_DELAY__s
+    loop Retry
+        hub->>tgt: POST /sync (retry)
+        tgt-->>hub: 5xx Error
+    end
+    hub->>dlq: Route to dead-letter queue
+    Note over dlq: Alert ops — manual review required
+    hub-->>src: __ERROR_RESPONSE__

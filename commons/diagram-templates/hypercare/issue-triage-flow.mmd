@@ -1,0 +1,19 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    issue(["Issue Reported\n__CLIENT_NAME__ Hypercare"]):::hub
+    issue --> classify{Category?}
+    classify -->|"Integration failure"| int["Assign: DataSkate\n__DS_CONTACT__"]:::action
+    classify -->|"Source system bug"| src_bug["Assign: __SOURCE_OWNER__\nNotify DataSkate"]:::action
+    classify -->|"Target system bug"| tgt_bug["Assign: __TARGET_OWNER__\nNotify DataSkate"]:::action
+    classify -->|"Data quality"| data["Assign: __DATA_OWNER__\nDataSkate support"]:::action
+    classify -->|"Scope change"| scope["Assess impact → change order"]:::warn
+    int --> sla{P-level?}
+    src_bug --> sla
+    tgt_bug --> sla
+    data --> sla
+    sla -->|"P1"| p1["SLA: __P1_SLA__\nPage on-call"]:::warn
+    sla -->|"P2"| p2["SLA: __P2_SLA__\nSlack alert"]:::action
+    sla -->|"P3"| p3["SLA: __P3_SLA__\nTicket queue"]:::action
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef warn fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b

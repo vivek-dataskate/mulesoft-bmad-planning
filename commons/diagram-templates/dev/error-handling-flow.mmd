@@ -1,0 +1,17 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    trigger(["Error Caught — __HUB__"]):::hub
+    trigger --> classify{Error type?}
+    classify -->|"4xx Client Error"| client["Log + return error\non-error-continue"]:::action
+    classify -->|"5xx Server Error"| retry{Retry < __MAX_RETRIES__?}
+    classify -->|"Timeout"| timeout["Timeout handler\n__TIMEOUT_MS__ms"]:::action
+    retry -->|"Yes"| backoff["Wait + retry\nexponential backoff"]:::action
+    backoff --> retry
+    retry -->|"No"| dlq["Route to DLQ\n__DLQ_QUEUE__"]:::warn
+    timeout --> retry
+    dlq --> alert["Alert ops\n__ALERT_CHANNEL__"]:::warn
+    client --> done(["Response returned"]):::hub
+    alert --> done
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef warn fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b

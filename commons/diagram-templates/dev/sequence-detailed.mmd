@@ -1,0 +1,26 @@
+sequenceDiagram
+    autonumber
+    participant src as __SOURCE__
+    participant auth as Auth Provider
+    participant hub as __HUB__
+    participant dw as DataWeave
+    participant tgt as __TARGET__
+    participant dlq as DLQ / Ops
+
+    src->>hub: __EVENT__ (webhook / poll)
+    hub->>auth: OAuth 2.0 token request
+    auth-->>hub: Bearer token
+    hub->>dw: Transform payload
+    dw-->>hub: Canonical form
+    hub->>tgt: POST /api/v1/__RESOURCE__
+    alt Success
+        tgt-->>hub: 200 OK — __RESPONSE_ID__
+        hub-->>src: Acknowledged
+    else Retry (up to __MAX_RETRIES__x)
+        tgt-->>hub: 5xx Error
+        hub->>hub: Wait + retry (exponential backoff)
+        hub->>tgt: Retry POST
+        tgt-->>hub: 5xx persistent
+        hub->>dlq: Dead-letter + alert
+        hub-->>src: Error response
+    end

@@ -1,0 +1,12 @@
+sequenceDiagram
+    autonumber
+    participant src as __SOURCE_PLATFORM__
+    participant hub as __HUB__
+    participant tgt as __TARGET_SYSTEM__
+
+    src->>hub: __EVENT_TYPE__ (webhook)
+    Note over hub: Validate + transform
+    hub->>tgt: Sync record
+    tgt-->>hub: 200 OK
+    Note right of hub: Latency: __LATENCY__
+    hub-->>src: Acknowledged

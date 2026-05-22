@@ -1,0 +1,17 @@
+%%{init: {'theme': 'base'}}%%
+flowchart LR
+    subgraph src["__SOURCE__ Payload"]
+        direction TB
+        __SOURCE_FIELDS__
+    end
+    dw["DataWeave\n__TRANSFORM_NAME__"]:::hub
+    subgraph tgt["__TARGET__ Payload"]
+        direction TB
+        __TARGET_FIELDS__
+    end
+    src --> dw
+    dw --> tgt
+    __FIELD_MAPPING_EDGES__
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef field fill:#fff,stroke:#D4D4D8,stroke-width:1px,color:#1A1A1A
+    classDef computed fill:#F8F8F8,stroke:#D4D4D8,stroke-dasharray:3 3,color:#555

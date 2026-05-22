@@ -1,0 +1,18 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TB
+    subgraph vpc["Dedicated VPC — CloudHub 2.0 Production"]
+        lb["Load Balancer"]:::infra
+        subgraph workers["__HUB__ — __WORKER_COUNT__ vCores"]
+            direction LR
+            __WORKER_NODES__
+        end
+        lb --> workers
+    end
+    subgraph external["External Systems — __CLIENT_NAME__"]
+        direction LR
+        __EXTERNAL_SYSTEMS__
+    end
+    workers <-->|"HTTPS"| external
+    classDef infra fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749
+    classDef worker fill:#F8F8F8,stroke:#2E9E6B,stroke-width:1px,color:#276749
+    classDef external fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A

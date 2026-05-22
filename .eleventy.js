@@ -37,7 +37,7 @@ module.exports = function(eleventyConfig) {
 
   // Make the shared base CSS partial directly includable
   eleventyConfig.addPassthroughCopy({
-    'commons/templates/shared-base.css.html': 'shared-base.css.html'
+    'portal/_includes/shared-base.css.html': 'shared-base.css.html'
   });
 
   // Inline-include filter — read another file into the current template.

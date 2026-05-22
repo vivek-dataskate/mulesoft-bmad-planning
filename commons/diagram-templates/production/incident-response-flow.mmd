@@ -1,0 +1,17 @@
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    alert(["Incident Triggered\n__CLIENT_NAME__ / __HUB__"]):::hub
+    alert --> sev{Severity?}
+    sev -->|"P1 — Outage"| p1["Page __ONCALL_P1__\nSLA: __P1_SLA__"]:::warn
+    sev -->|"P2 — Degraded"| p2["Notify __ONCALL_P2__\nSLA: __P2_SLA__"]:::action
+    sev -->|"P3 — Info"| p3["Log ticket\nSLA: __P3_SLA__"]:::action
+    p1 --> diagnose["Check Runtime Manager\n+ Anypoint Monitoring"]:::action
+    p2 --> diagnose
+    diagnose --> root{Root cause?}
+    root -->|"Auth failure"| auth["Rotate credentials\n__AUTH_STEPS__"]:::action
+    root -->|"Target system down"| hold["DLQ — hold + retry\nNotify __CLIENT_CONTACT__"]:::action
+    root -->|"Worker crash"| restart["Restart deployment\n__RESTART_CMD__"]:::action
+    root -->|"Unknown"| escalate["Escalate to __ESCALATION__"]:::warn
+    classDef hub fill:#F0FFF4,stroke:#2E9E6B,stroke-width:2px,color:#276749,font-weight:bold
+    classDef action fill:#fff,stroke:#D4D4D8,stroke-width:1.5px,color:#1A1A1A
+    classDef warn fill:#FFF5F5,stroke:#ed1c24,stroke-width:1.5px,color:#c0392b

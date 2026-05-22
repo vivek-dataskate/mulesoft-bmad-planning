@@ -7,6 +7,10 @@ name: Regenerate Client Portals
 #   FIREBASE_SA_KEY  — Firebase service account JSON (same as Codespaces secret)
 
 on:
+  push:
+    paths:
+      - 'commons/diagram-templates/**/*.mmd'
+      - 'commons/diagram-theme.json'
   workflow_dispatch:
     inputs:
       client:
