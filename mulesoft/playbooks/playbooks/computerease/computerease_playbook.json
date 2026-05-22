@@ -1,13 +1,42 @@
 {
   "system": "computerease",
-  "displayName": "ComputerEase by Deltek \u2014 job costing and accounting system for specialty/residential contractors",
+  "displayName": "ComputerEase by Deltek — job costing and accounting system for specialty/residential contractors",
   "maturity": "stub",
-  "lastUpdated": "2026-05-11",
+  "lastUpdated": "2026-05-22",
   "clients": [
     "peerless"
   ],
-  "knownQuirks": [],
-  "p0Conditions": [],
+  "knownQuirks": [
+    "**CE Live Service relay required for API access:** ComputerEase APIs are NOT directly internet-accessible. Deltek/ComputerEase exposes APIs via a 'CE Live Service' Windows service installed on the same VM as ComputerEase itself. External callers must hit a Deltek-managed URL, which routes the call back to the client's CE Live Service, which then proxies to the local ComputerEase instance. This is described by Deltek architects as a legacy relay pattern — 'a little bit different setup than how the modern APIs work'. Plan extra time for Deltek support tickets to configure this on the client VM. (Source: peerless transcript, 2026-04-17 — Raghuram Potluri.)",
+    "**Sandbox/practice environment has NO API access:** ComputerEase API Management menu is only available in the production environment. The practice (sandbox) environment does NOT expose API configuration. Attempts to access return 'Can't access API from practice'. Confirmed by Jean Jacobs (Peerless super-admin) on 2026-04-17. Implication: all API integration testing must occur in production with carefully scoped GET-only access groups until a separate Deltek-supported test path is negotiated. (Source: peerless transcript, 2026-04-17.)",
+    "**User creation requires PWMAINT system account:** New ComputerEase users cannot be created from a normal admin's session, even a super-admin. To create users you must log in as the PWMAINT account (password 'mp' historically) from the login screen, NOT from inside any menu. Jean Jacobs explicitly demonstrated this. Brian Cook: 'That's so weird that you have to log into a different account to create users.' Jean: 'It's a program that was DOS so who knows? Some of the stuff is still archaic.' (Source: peerless transcript, 2026-04-17.)",
+    "**Listening on port 445 (SMB), not 443 or 8081:** A `netstat`/listening-port check on a production ComputerEase VM showed it serving on TCP/445 only. Firewall rules for 443 and 8081 will not surface the ComputerEase service. The API exposure relies on the CE Live Service relay (see relay quirk above), so external integrations should target the Deltek-managed URL, NOT the customer VM directly on a standard HTTPS port. (Source: peerless transcript, 2026-04-16 — Brian Cook / Raghuram Potluri debugging.)",
+    "**Vendor support SLA tagged 'legacy' — 4-hour minimum response:** Deltek support categorises ComputerEase as a legacy product. Brian Cook: 'We're considered legacy. So, 4 hours, it won't be 2.' Plan client-side coordination accordingly — do not rely on same-hour Deltek support to unblock testing. (Source: peerless transcript, 2026-04-17.)",
+    "**Single super-admin is the norm — surface SPOF risk early:** ComputerEase deployments commonly have only ONE super-admin (the controller/accounting lead). At Peerless this person (Jean Jacobs) was on PTO and blocked all developer access for two days. Surface backup-admin question during scoping — do not assume IT has parity access. (Source: peerless transcript, 2026-04-15/16/17.)",
+    "**Sequential job-number policy:** Job numbers follow a sequential pattern by company code + product line + initials (e.g. '26 HD 565 AS' = year 26, Home Depot, sequence 565, initials AS). Test/dev work must NOT take the next sequential number — it will confuse live operators. Ashley Salerno explicitly avoided pulling the next-in-sequence number during demo to 'not confuse Mike while he's in here'. Integration writes must respect this gating. (Source: peerless transcript, 2026-04-16.)",
+    "**Standard objects to expose via API access group:** Confirmed Peerless API access group entitles: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded as PII/financial-sensitive: Payroll, Departments, Inventory items, Vendors. Default to GET-only on this object set during early integration; add write access per object only when business case is approved.",
+    "**Cameo is the UI access path, NOT the integration path:** Cameo (remote gateway product) is the recommended way to interactively log into ComputerEase — RDP guardrails are unknown. Cameo is NOT the integration channel for system-to-system flows; that channel is the CE Live Service relay URL. Do not confuse the two. (Source: peerless transcript, 2026-04-16 — Brian Cook.)"
+  ],
+  "p0Conditions": [
+    {
+      "condition": "CE Live Service not yet installed/configured on the customer VM",
+      "blocks": "All API integration — calls from MuleSoft cannot reach ComputerEase without the relay.",
+      "clientAction": "Open Deltek support ticket to provision CE Live Service. Allow 4+ hour SLA; product is classified legacy.",
+      "evidence": "peerless transcript 2026-04-17 — Raghuram Potluri research finding"
+    },
+    {
+      "condition": "Sandbox/practice ComputerEase environment selected for integration testing",
+      "blocks": "API Management menu is not available in practice. Testing must occur in production with locked-down GET-only access groups or via a vendor-provided dev tenant.",
+      "clientAction": "Confirm with Deltek if a dedicated dev tenant with full API surface can be provisioned. If not, agree GET-only production testing approach in writing before development starts.",
+      "evidence": "peerless transcript 2026-04-17 — Jean Jacobs ('the API is not available in practice')"
+    },
+    {
+      "condition": "Single super-admin owns all ComputerEase access",
+      "blocks": "Project is one PTO day away from being blocked for access changes. Demonstrated at Peerless 2026-04-15 to 2026-04-17.",
+      "clientAction": "Identify a backup super-admin BEFORE integration kickoff. Confirm in writing that backup can create users and grant access groups.",
+      "evidence": "peerless transcript 2026-04-16 — Brian Cook ('it's not a good practice to only have one admin')"
+    }
+  ],
   "maturityLog": [
     {
       "date": "2026-05-11",
@@ -18,7 +47,19 @@
     {
       "date": "2026-05-12",
       "client": "1",
-      "finding": "Scout deep transcript analysis (Apr 14\u201317 daily sync calls). Added: port discovery finding (NOT 443/8081), GCP security flag (SSH/RDP open), API access group objects confirmed, customer type R05, date business rules (Fridays), DocHub for 118 form (out of scope), budget worksheet fields, Deltek support ticket filed Apr 17 by Jean Jacobs.",
+      "finding": "Scout deep transcript analysis (Apr 14–17 daily sync calls). Added: port discovery finding (NOT 443/8081), GCP security flag (SSH/RDP open), API access group objects confirmed, customer type R05, date business rules (Fridays), DocHub for 118 form (out of scope), budget worksheet fields, Deltek support ticket filed Apr 17 by Jean Jacobs.",
+      "status": "stub"
+    },
+    {
+      "date": "2026-05-22",
+      "client": "peerless",
+      "finding": "Sage architect-knowledge extraction. Promoted findings from transcripts into knownQuirks + p0Conditions: CE Live Service relay (Raghuram), sandbox no API (Jean), PWMAINT user-creation account (Jean), port 445 listening (Brian), 4-hour vendor SLA (Brian), single super-admin SPOF (Brian + Raghuram), sequential job number policy (Ashley), GET-only access group object set, Cameo UI path vs API path distinction.",
+      "status": "stub"
+    },
+    {
+      "date": "2026-05-22",
+      "client": "peerless",
+      "finding": "Rex systems analysis. Bundled three P0 blockers into a single Deltek support ticket: CE Live Service Relay Installation + Production-Only API Testing Posture + Backup Super-Admin Provisioning. Also raised a GCP-side P0 (firewall + static IP reconciliation between 35.222.218.224 / 135.226.22218). Flagged sequential job-number write-policy as high-severity internal flag — architect must call CE's next-id endpoint, never allocate locally.",
       "status": "stub"
     }
   ],

@@ -53,6 +53,10 @@
 | [FK-024](#fk-024) | Always confirm QuickBooks product type at scoping — Online vs Desktop/Enterprise are incompatible integration paths; never proceed to architecture without version confirmation | QuickBooks / scoping question gap | observation | 2026-05-14 | 2026-05-14 | 1 |
 | [FK-025](#fk-025) | When Excel or Google Sheets is detected as a data source, confirm file storage location before designing the flow — local files are inaccessible from CloudHub 2.0; must be on SharePoint, OneDrive, or Google Drive | Excel / Google Sheets / CloudHub 2.0 file access | observation | 2026-05-14 | 2026-05-14 | 1 |
 | [FK-026](#fk-026) | Time-varying config (API pricing, rate limits, external identifiers) must never be hardcoded in source files — always externalize to a config file in the relevant folder | DSPipeline / tooling conventions | observation | 2026-05-15 | 2026-05-15 | 1 |
+| [FK-029](#fk-029) | Legacy on-prem ERP on customer-managed cloud VM — always inspect listening ports, firewall rules, and static-vs-ephemeral IP before scoping integration | ComputerEase / on-prem legacy ERP on customer cloud | observation | 2026-05-22 | 2026-05-22 | 1 |
+| [FK-030](#fk-030) | Vendor relay services (CE Live Service-style) — some legacy ERPs only expose APIs via a vendor-managed URL that routes back through a service on the customer VM. Treat as P0 question at scoping. | ComputerEase / vendor relay API exposure | observation | 2026-05-22 | 2026-05-22 | 1 |
+| [FK-031](#fk-031) | Confidential credential email blocks copy-paste — recipients must hand-type or screenshot-OCR. Architect-warning: do NOT rely on LLM OCR for passwords (hallucination risk → account lockout) | HD Portal / any confidential credential delivery | observation | 2026-05-22 | 2026-05-22 | 1 |
+| [FK-032](#fk-032) | Sandbox-environment API parity gap — some legacy ERPs (ComputerEase confirmed) expose APIs ONLY in production. Sandbox testing is not possible; agree GET-only production testing posture in writing before development. | ComputerEase / sandbox parity | observation | 2026-05-22 | 2026-05-22 | 1 |
 
 ---
 
@@ -1255,3 +1259,147 @@ Client question used:
 Promotes to: standards/playbooks/clio/clio_playbook.json (once playbook exists and fix is confirmed)
 
 *Added: 2026-05-20 — Source: Pinder Plotkin engagement, Sage document extraction — status: observation*
+
+---
+
+## FK-029 — Legacy on-prem ERP on customer-managed cloud VM — inspect ports/firewall/IP at scoping
+Date: 2026-05-22
+Project: peerless
+Trigger: Client states the ERP is "on our GCP" / "on a VM we manage" rather than on the vendor's cloud.
+
+Scenario:
+  Peerless runs ComputerEase (Deltek) on a self-managed GCP VM. During scoping the integration team
+  discovered: external IP was static but SSH and RDP were open to the entire internet (no source
+  filter); ingress was enabled but egress was not; the ComputerEase service listened on TCP/445
+  (SMB) rather than 443 or 8081; firewall rule changes alone did not open the API because the
+  service was not listening on a standard HTTPS port. Two architects spent ~45 minutes diagnosing
+  with the client's IT before the actual exposure path (CE Live Service relay — see FK-030) became
+  the answer.
+
+What failed:
+  Assuming the ERP would be reachable over standard HTTPS once a firewall rule was added.
+  Asking the client "what is the API URL" — they pointed to the VM's external IP, which is correct
+  for UI access but irrelevant for the actual API exposure.
+
+What worked:
+  1. Always inspect: listening ports (netstat / Get-NetTCPConnection), firewall rules (both ingress
+     AND egress), and whether the external IP is static or ephemeral. These three questions reveal
+     more than any documentation page.
+  2. Raghuram Potluri: "this is a really, really poor practice right here for security" — the act
+     of inspecting also surfaces client security debt that becomes a separate workstream.
+  3. When a legacy ERP doesn't listen on 443/8081, suspect a vendor relay service (see FK-030)
+     rather than a misconfigured firewall.
+
+Client question used:
+  "Can you screen-share your VM console — we want to see (a) listening ports, (b) ingress and
+   egress firewall rules, and (c) whether the external IP is static. We will not change anything;
+   we just need to confirm the exposure path."
+
+Promotes to: mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (knownQuirks) — written 2026-05-22
+
+*Added: 2026-05-22 — Source: peerless transcripts 2026-04-15/16/17 — Raghuram Potluri / Brian Cook — status: observation*
+
+---
+
+## FK-030 — Vendor relay services — legacy ERPs that expose APIs only via a vendor-managed URL
+Date: 2026-05-22
+Project: peerless
+Trigger: Client says "the ERP has an API" but inspection shows nothing standard listening on the VM.
+         Common with: Deltek ComputerEase (CE Live Service); historically similar to old Sage/Timberline
+         and other contractor-vertical ERPs.
+
+Scenario:
+  Peerless's ComputerEase API access required a service called "CE Live Service" installed on the
+  same VM as ComputerEase. External integrators do NOT hit the customer's VM directly. They hit a
+  Deltek-managed URL, which routes the call back through CE Live Service to the local ComputerEase
+  instance. Raghuram Potluri: "This is a little bit different setup than how the modern APIs work."
+  Standard firewall rules on the customer VM are irrelevant — the relay does the work.
+
+What failed:
+  Spending an hour configuring GCP firewall rules and checking listening ports on the customer VM
+  before realising the API path was vendor-mediated.
+  Assuming "Deltek is on the cloud" meant the API was cloud-native — the API path is hybrid.
+
+What worked:
+  1. Ask the client to open a vendor support ticket on day 1 to provision/verify the relay service.
+  2. Expect a 4+ hour SLA — vendor categorises product as 'legacy'.
+  3. Treat the vendor URL (not the customer VM IP) as the integration endpoint. Firewall rules on
+     the customer VM only matter for OUTBOUND egress from CE Live Service to the Deltek cloud,
+     not for inbound from MuleSoft.
+
+Client question used:
+  "Is your ERP API exposed directly from your VM, or through a vendor-managed relay/proxy URL?
+   Please open a support ticket with the vendor to confirm the exact URL and any required service
+   on your VM."
+
+Promotes to: mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (knownQuirks) — written 2026-05-22
+
+*Added: 2026-05-22 — Source: peerless transcript 2026-04-17 — Raghuram Potluri research finding — status: observation*
+
+---
+
+## FK-031 — Confidential credential email blocks copy-paste — and never OCR a password with an LLM
+Date: 2026-05-22
+Project: peerless
+Trigger: Client delivers API credentials via 'confidential email' / secure email tool that disables
+         clipboard copy. Developer cannot paste the password into their tool.
+
+Scenario:
+  Marius (Home Depot) shared HD Portal API credentials with Peerless via a confidential email tool.
+  Venkat B (DataSkate) tried to paste into the login but the secure tool had blocked clipboard
+  access. Venkat: "I am able to see it, but I couldn't be able to copy it." A teammate suggested
+  screenshotting and feeding the screenshot to an AI tool to extract the password. Raghuram Potluri
+  intercepted: "Careful though, AI can hallucinate, so you may get a wrong password. Don't lock
+  yourself out."
+
+What failed:
+  Assuming any password can be retrieved by an OCR-capable LLM. Even one transposed character
+  triggers account lockout and adds 4–24 hours to delivery.
+
+What worked:
+  1. Hand-type credentials from the secure email. Slower but deterministic.
+  2. If OCR is unavoidable (long random strings), use a dedicated OCR tool (not an LLM) and confirm
+     character-by-character against the source.
+  3. Plan a 10–15 minute onboarding buffer per credential delivered this way.
+
+Client question used:
+  (Internal team guidance — no client question. This is a DataSkate practice rule.)
+
+Promotes to: commons/docs/PLANNING_CONTEXT.md (Critical Notes — internal hygiene) — pending 2nd occurrence before promotion
+
+*Added: 2026-05-22 — Source: peerless transcript 2026-04-15 — Raghuram Potluri — status: observation*
+
+---
+
+## FK-032 — Sandbox-environment API parity gap — some legacy ERPs expose APIs ONLY in production
+Date: 2026-05-22
+Project: peerless
+Trigger: Client confirms a sandbox/practice environment exists but cannot show the API Management
+         menu in it.
+
+Scenario:
+  Peerless's ComputerEase has both a 'practice' (sandbox) tenant and a production tenant. The API
+  Management menu only appears in production. Jean Jacobs (Peerless super-admin) confirmed:
+  "since the API is not available in practice, does it make sense to even create a practice ID for
+   you or no?" The error 'Can't access API from practice' was observed first-hand.
+
+What failed:
+  Assuming sandbox parity. Spending two days trying to grant the integration team practice-tenant
+  permissions before realising the API surface itself was missing.
+
+What worked:
+  1. Day-1 question: "Does the sandbox tenant expose the full API surface, or only the UI?"
+  2. If sandbox has no API: agree GET-only production testing in writing with a clearly scoped
+     access group BEFORE development starts. Tag every test call with a correlation ID that flags
+     it as DataSkate-test traffic.
+  3. Consider vendor-provisioned dedicated dev tenant as a parallel ask — even legacy vendors will
+     sometimes provide one if pushed.
+
+Client question used:
+  "We confirmed your production tenant exposes the API. Does the sandbox tenant also expose the
+   API (or only the UI)? If only UI, can we agree on a scoped GET-only access group in production
+   for our integration testing?"
+
+Promotes to: mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (p0Conditions) — written 2026-05-22
+
+*Added: 2026-05-22 — Source: peerless transcript 2026-04-17 — Jean Jacobs / Brian Cook — status: observation*

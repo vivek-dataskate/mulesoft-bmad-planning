@@ -6,7 +6,8 @@
   "clients": [
     "leolabs",
     "mrn-healthcare",
-    "cherish-care"
+    "cherish-care",
+    "peerless"
   ],
   "knownQuirks": [
     "**API version pinning:** Always pin (`/services/data/v59.0/`). Never use `/latest/`.",
@@ -40,6 +41,12 @@
       "date": "2026-05-11",
       "client": "mrn-healthcare (Scout)",
       "finding": "10-flow engagement: Gravity Forms + Shopify x2 + Mailchimp + SFTP vendors all targeting Salesforce. Dual-target flow (UC1 \u2192 SF + Mailchimp). Utilization custom objects required. External ID fields not yet created. State/Country Picklists and multi-currency flags open.",
+      "status": "observation"
+    },
+    {
+      "date": "2026-05-22",
+      "client": "peerless (Rex)",
+      "finding": "Construction vertical engagement. SF is HD Portal target (UC1) and ComputerEase source (UC2) and IDP validation target (UC3) and HD write-back source (UC4). Quote Line Item confirmed canonical source for picket/material rules \u2014 no Excel needed. Three org flags open: multi-currency, State/Country Picklists, >2K row windows. External IDs SF_HD_FNumber__c / SF_CE_JobNumber__c required on Lead/Account/Quote before go-live.",
       "status": "observation"
     }
   ],

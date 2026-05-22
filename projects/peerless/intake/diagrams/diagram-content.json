@@ -1,0 +1,49 @@
+{
+  "client": "peerless",
+  "assembledAt": "2026-05-22T12:16:01.403Z",
+  "diagrams": [
+    {
+      "id": "system-flow",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/system-flow-dual-panel.mmd",
+      "title": "System Flow — Current State",
+      "generatedBy": "rex+flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless",
+        "__CURRENT_SYSTEMS__": "Home Depot Service Center, Salesforce",
+        "__DEPRECATED__": "",
+        "__HUB__": "MuleSoft (DataSkate managed)",
+        "__TARGETS__": "Salesforce, ComputerEase, Home Depot Service Center",
+        "__FLOW_COUNT__": "4"
+      }
+    },
+    {
+      "id": "scope-boundary-scoping",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/integration-scope-boundary.mmd",
+      "title": "Integration Scope Boundary",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless",
+        "__HUB__": "MuleSoft (DataSkate managed)",
+        "__CONFIRMED_FLOWS__": "HD Portal Lead → Salesforce Lead (scheduled, 10-min polling), Salesforce 'Save as Final' Quote → ComputerEase Job + Customer + Budget Worksheet, Contract PDF → MuleSoft IDP → Salesforce validation, Salesforce → HD Portal exception comment / email write-back",
+        "__OUT_OF_SCOPE__": "",
+        "__FLOW_COUNT__": "4"
+      }
+    },
+    {
+      "id": "scoping-gate",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/decision-scoping-gate.mmd",
+      "title": "Scoping Decision Gate",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless",
+        "__P0_BLOCKERS__": "ComputerEase CE Live Service Relay Installation, ComputerEase Production-Only API Testing Posture, ComputerEase Backup Super-Admin Provisioning (SPOF), GCP VM Firewall + Static IP Confirmation, HD Portal Write Endpoints + Developer Login"
+      }
+    }
+  ]
+}

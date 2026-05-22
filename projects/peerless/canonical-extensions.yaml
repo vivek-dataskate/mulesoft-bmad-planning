@@ -1,0 +1,75 @@
+# Peerless Fence Group — Canonical Field Extensions
+# Created: 2026-05-22 by Rex v1.0.0
+# Purpose: Per-client field deviations from construction canonical models.
+# Status: Shell — Analyst (Mary) populates addedFields/renamedFields/omittedFields during PRD.
+# Standard: derived (no dominant cross-vendor construction standard — see mulesoft/canonical-models/registry.json)
+
+Lead:
+  canonicalRef: mulesoft/canonical-models/construction/canonical-lead.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC1 — HD Portal F-number is the source-of-truth external ID. Map HD lead payload → SF Lead with SF_HD_FNumber__c as External ID. Test leads must carry 'Peerless test' marker per HD scoring rules. To be confirmed during Analyst PRD: HD-specific portal metadata (lead score, contractor assignment) and Salesforce custom Lead fields per Peerless org."
+
+Customer:
+  canonicalRef: mulesoft/canonical-models/construction/canonical-customer.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC2 — Salesforce Account → ComputerEase customer. ComputerEase customer-number is ERP-assigned sequentially — flow MUST consume next-in-line ID, never allocate locally. R05 = residential customer type at Peerless (company code 00 = IL/WI residential). Wisconsin 99% deposit rule encoded as paymentTerms business rule and validated during UC3."
+
+Quote:
+  canonicalRef: mulesoft/canonical-models/construction/canonical-quote.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC2 trigger — Salesforce Quote status 'Save as Final' is canonical downstream-automation trigger. Quote Line Item is canonical source for picket-type / material-type rules (no Excel). UC3 validation rules encoded against this canonical (Friday signed date, permit flag single-value, Wisconsin 99%). Sales rep initials feed ComputerEase sequential job-number format (e.g. '26 HD 565 AS')."
+
+BudgetWorksheet:
+  canonicalRef: mulesoft/canonical-models/construction/canonical-budget-worksheet.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC2 — Salesforce Quote → ComputerEase budget worksheet attached to Job. UC6-potential extends to subcontracts/commission. UC7-potential (closed-loop) writes actuals + committed back to SF for AgentForce margin watch (Phase 3). To be confirmed during Analyst PRD: CE cost-type codes (Peerless-specific list), GA rate per company code, commission tier per sales rep."
+
+Job:
+  canonicalRef: mulesoft/canonical-models/construction/canonical-job.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC2 — Salesforce Quote → ComputerEase Job. Job number format = '{YY} HD {sequential-counter} {sales-rep-initials}' (per canonical-job.yaml). Counter is ERP-assigned by ComputerEase — DataSkate must NOT allocate locally; test writes must NOT take next-in-sequence. Company code 00 = IL/WI Home Depot residential."
+
+Contract:
+  canonicalRef: mulesoft/canonical-models/construction/canonical-contract.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC3 — Contract types HS-105 / 299A / 299B / HS-118 per HD Portal residential program. Validation rules: signatures legible, dates are Fridays, 299A and 299B contract prices match, yes/no boxes not both ticked, permit-required flag is one value, 100% deposit except Wisconsin 99%. UC4 — exception write-back payload uses this canonical's exception sub-schema (to be added by Analyst)."
+
+Subcontract:
+  canonicalRef: mulesoft/canonical-models/construction/canonical-subcontract.yaml
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC6-potential — Salesforce subcontract line items in Quote Line Item or related list → ComputerEase Subcontracts object. Populate only if UC6 is promoted (depends on whether UC2 scope is 'job header only' or 'full budget worksheet')."
+
+ServiceWorkOrder:
+  canonicalRef: null
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "Not currently in a confirmed flow but covered by Peerless ComputerEase API access entitlement. No canonical model exists yet — flag for future stub if UC7-potential (job-status close-loop) is promoted and service work order status is a needed signal."
+
+Deposit:
+  canonicalRef: null
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "UC5-potential — HD Portal deposit-paid status ↔ Salesforce. Ashley's aspirational quote: 'select the deposit paid box. If that could integrate and flow back through an API, that would work.' No canonical model exists yet — create stub if HD exposes deposit-status endpoint (Greg/Marius to confirm)."
+
+Permit:
+  canonicalRef: null
+  addedFields: []
+  renamedFields: []
+  omittedFields: []
+  notes: "Listed in vera.json businessObjects[] but not in a confirmed flow at this engagement stage. Permit-required boolean is a contract-validation field (UC3), not a separate flow. No standalone canonical needed unless a permit-system integration is added later."

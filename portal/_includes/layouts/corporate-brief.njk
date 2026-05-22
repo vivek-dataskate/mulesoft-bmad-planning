@@ -6,21 +6,34 @@
 
     brief = {
       meta: { clientName, clientSlug, date, architect, architectEmail, subtitle? },
-      intro: string | null,                  // null → default "Before our deep-dive call:" copy
-      operatingBrand:    { name, website, linkedIn, industry, hqLocation, founded, scale, evidence } | null,
-      operatingPlatform: { name, website, linkedIn, evidence, greenfieldFlag, siblingBrands[] } | null,
-      financialSponsor:  { name, website, linkedIn, evidence } | null,
-      forwardLookingTalkingPoints: [{ horizon: '6mo'|'18mo'|'5yr', insight, sourceUrl }],
+      intro: string | null,
+      operatingBrand:    { name, website, linkedIn, industry, hqLocation, founded, scale, evidence, legacyBoltOns[] } | null,
+      operatingPlatform: { name, website, linkedIn, evidence, greenfieldFlag, regionalStrategy, siblingBrands[], platformExecutiveTeam[] } | null,
+      financialSponsor:  { name, website, linkedIn, evidence, thesisForClient } | null,
+      leadership:        { founders[], executiveChairman, ceo, president, leadershipTransitionNote } | null,
+      engagementEntity:  { name, sameAsOperatingBrand, note } | null,
+      strategicPartnerships: [{ name, partnerType, description, integrationImpact, sourceUrl }],
+      collaborators:         [{ name, relationshipType, why, sourceUrl }],
+      dealUrgencyMultipliers: [string]      // top-level "Why Now" framing
+      publicStakeholders:    [{ name, title, role, company, systemsOwned[], transcriptEvidence }]    // transcript-sourced only — buyer can see
+      internalCallPrep:      [{ name, title, role, matchConfidence, angleForHawk, angleForIvy, talkToBefore, talkToBeforeRationale, talkingPointSeed, webEvidence }]    // gated by ?internal=1
+      futureBusinessChampions: [{ name, title, organization, why, sourceUrl }]
+      preCallOutreach:         [{ name, what, why }]
+      portfolioOpportunities:  [{ id, source, title, systems[], entity, atEntity, atEntitySlug, referenceUcId, rationale, regionalAdaptation, whenToEngage, sourceUrl, proposalExclusion, intakeExclusion }]    // Flo v1.1.0 — corporate-brief-bound only; internal-only section
+      portfolioOpportunitiesTruncatedNote: string | null
+      corporateProfileHtml: string | null,      // markdown→HTML (handled by orchestrate.js via simple MD converter)
+      corporateProfileMeta: { wordCount, sectionCount, sourceUrlCount, namedContactCount, confidence } | null,
+      forwardLookingTalkingPoints: [{ horizon, insight, sourceUrl }],
       intelTheBuyerLacks:          [{ insight, sourceUrl, whyTheyLackIt }],
       citations: [{ label, url }],
       closing:   string | null
     }
 
-  Source of truth: company_context.json.corporateStack — populated by Scout's
-  grounded inference and enriched by Vera.
+  Source of truth: company_context.json.corporateStack + .buyerMap + .corporateProfile
+  populated by Vera Steps 1c, 2b, 2c, 2d and merged by orchestrate.js.
 
-  Defaulting policy mirrors buildCorporateBrief() in fill-template.js — see
-  the inline notes below for each fallback.
+  INTERNAL MODE: when the page is loaded with ?internal=1 in the URL, the
+  Call-Prep section becomes visible. The public link (no query param) hides it.
 #}
 {% extends "layouts/base.njk" %}
 
@@ -105,10 +118,82 @@ section.brief-section h2::before { content:''; display:inline-block; width:18px;
 .brief-footer { border-top:1px solid var(--border); padding:14px 56px; font-size:11px; color:var(--mid); display:flex; justify-content:space-between; align-items:center; max-width:960px; margin:0 auto; }
 .brief-footer a { color:var(--mid); text-decoration:none; }
 
+/* ── Why Now (deal urgency multipliers) ── */
+.why-now-list { display:flex; flex-direction:column; gap:10px; }
+.why-now-item { font-size:13px; color:var(--dark); line-height:1.55; padding:10px 14px; border-left:3px solid var(--brand); background:var(--light); border-radius:0 6px 6px 0; }
+.why-now-item:first-child { background:var(--amber-bg); border-left-color:var(--amber); }
+
+/* ── Stakeholders (public) ── */
+.stakeholder-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stakeholder-card { border:1px solid var(--border); border-radius:6px; padding:12px 14px; background:#fff; }
+.stakeholder-name { font-size:13px; font-weight:700; color:var(--dark); }
+.stakeholder-title { font-size:12px; color:var(--mid); margin-top:2px; }
+.stakeholder-role { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--brand); margin-top:6px; }
+.stakeholder-systems { font-size:11px; color:var(--mid); margin-top:6px; font-style:italic; }
+
+/* ── Internal Call-Prep (gated by ?internal=1) ── */
+.internal-only { display:none; }
+.internal-active .internal-only { display:block; }
+.internal-banner { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; background:var(--amber); color:#fff; padding:6px 12px; border-radius:4px; display:inline-block; margin-bottom:10px; }
+.call-prep-card { border:1px solid var(--border); border-radius:6px; padding:14px 16px; background:#FFFEF8; margin-bottom:10px; }
+.call-prep-header { display:flex; justify-content:space-between; align-items:start; margin-bottom:8px; }
+.call-prep-name { font-size:13px; font-weight:700; color:var(--dark); }
+.call-prep-meta { font-size:11px; color:var(--mid); margin-top:2px; }
+.call-prep-role-pill { font-size:9px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; padding:3px 8px; border-radius:3px; background:var(--brand); color:#fff; }
+.call-prep-role-pill.role-eb { background:var(--amber); }
+.call-prep-role-pill.role-champion { background:var(--green); }
+.call-prep-angle { font-size:12px; color:var(--dark); line-height:1.55; margin-top:6px; }
+.call-prep-angle-label { font-weight:700; color:var(--brand-dk); display:inline-block; min-width:84px; }
+.call-prep-talkpoint { font-size:12px; color:var(--dark); line-height:1.55; padding-top:6px; margin-top:6px; border-top:1px dashed var(--border); font-style:italic; }
+.call-prep-flag { font-size:11px; color:var(--amber); margin-top:4px; }
+
+/* ── Future-business champions ── */
+.future-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.future-card { border:1px solid var(--border); border-radius:6px; padding:10px 12px; background:#fff; }
+.future-name { font-size:12px; font-weight:700; color:var(--dark); }
+.future-org { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--brand); margin-top:2px; }
+.future-why { font-size:12px; color:var(--mid); line-height:1.5; margin-top:6px; }
+
+/* ── Portfolio Integration Opportunities (Flo v1.1.0 — internal only) ── */
+.portfolio-source-group { margin-bottom:18px; }
+.portfolio-source-group:last-child { margin-bottom:0; }
+.portfolio-source-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--brand-dk); margin-bottom:8px; padding-bottom:4px; border-bottom:1px dashed var(--border); }
+.portfolio-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.portfolio-card { border:1px solid var(--border); border-left:3px solid var(--green); border-radius:6px; padding:12px 14px; background:#FAFCFA; }
+.portfolio-card.source-rex-uncovered { border-left-color:var(--brand); }
+.portfolio-card.source-sibling-template { border-left-color:var(--green); }
+.portfolio-card.source-legacy-boltOn { border-left-color:var(--amber); }
+.portfolio-card.source-sponsor-portco { border-left-color:var(--amber); background:var(--amber-bg); }
+.portfolio-card.source-strategic-partnership { border-left-color:var(--brand); }
+.portfolio-title { font-size:13px; font-weight:700; color:var(--dark); line-height:1.35; }
+.portfolio-at { font-size:11px; color:var(--mid); margin-top:2px; }
+.portfolio-systems { font-size:11px; color:var(--brand); margin-top:6px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+.portfolio-rationale { font-size:12px; color:var(--dark); line-height:1.5; margin-top:6px; }
+.portfolio-adapt { font-size:11px; color:var(--mid); line-height:1.5; margin-top:4px; font-style:italic; }
+.portfolio-when { font-size:11px; color:var(--brand-dk); line-height:1.5; margin-top:6px; padding-top:6px; border-top:1px dashed var(--border); }
+.portfolio-when-label { font-weight:700; color:var(--brand-dk); }
+.portfolio-ref { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--brand); margin-top:4px; }
+.portfolio-truncated { font-size:11px; color:var(--mid); font-style:italic; margin-top:8px; padding:8px 10px; background:var(--light); border-radius:4px; }
+
+/* ── Corporate Profile narrative ── */
+.profile-narrative { font-size:13px; color:var(--dark); line-height:1.65; }
+.profile-narrative h2 { font-size:13px; font-weight:800; color:var(--brand-dk); margin:18px 0 8px; padding:0; text-transform:none; letter-spacing:0; }
+.profile-narrative h2::before { display:none; }
+.profile-narrative h3 { font-size:12px; font-weight:700; color:var(--dark); margin:12px 0 6px; }
+.profile-narrative p { margin-bottom:10px; }
+.profile-narrative ul, .profile-narrative ol { margin:8px 0 12px 18px; }
+.profile-narrative li { margin-bottom:4px; }
+.profile-narrative a { color:var(--brand); }
+.profile-narrative a:hover { text-decoration:underline; }
+.profile-narrative strong { color:var(--dark); font-weight:700; }
+.profile-narrative em { color:var(--mid); }
+.profile-meta { font-size:11px; color:var(--mid); padding-top:8px; border-top:1px dashed var(--border); margin-top:12px; }
+
 /* ── Print ── */
 @media print {
   .brief-header, .page { padding:16px 32px; }
-  .stack-grid, .intel-grid { gap:10px; }
+  .stack-grid, .intel-grid, .stakeholder-grid, .future-grid { gap:10px; }
+  .internal-only { display:none !important; }   /* never print call-prep */
 }
 
 /* ── Responsive ── */
@@ -117,8 +202,21 @@ section.brief-section h2::before { content:''; display:inline-block; width:18px;
   .stack-grid { grid-template-columns:1fr; }
   .intel-grid { grid-template-columns:1fr; }
   .sibling-row { grid-template-columns:1fr; }
+  .stakeholder-grid, .future-grid { grid-template-columns:1fr; }
 }
 </style>
+<script>
+  // ?internal=1 in the URL reveals Call-Prep + future-business sections.
+  // Public link (no query param) keeps them hidden — buyer cannot see angles/seeds.
+  (function () {
+    try {
+      var params = new URLSearchParams(window.location.search || '');
+      if (params.get('internal') === '1') {
+        document.documentElement.classList.add('internal-active');
+      }
+    } catch (e) { /* no-op — internal mode just stays off */ }
+  })();
+</script>
 {% endblock %}
 
 {% block body %}
@@ -128,11 +226,23 @@ section.brief-section h2::before { content:''; display:inline-block; width:18px;
 {% set archEmail = meta.architectEmail or 'kailash@dataskate.ai' %}
 {% set platform  = brief.operatingPlatform or {} %}
 {% set siblings  = platform.siblingBrands or [] %}
+{% set platformExecs = platform.platformExecutiveTeam or [] %}
 {% set greenfield = (platform.greenfieldFlag == true) and (siblings | length > 0) %}
 {% set fwd       = brief.forwardLookingTalkingPoints or [] %}
 {% set gap       = brief.intelTheBuyerLacks or [] %}
 {% set intelCount = (fwd | length) + (gap | length) %}
 {% set cites     = brief.citations or [] %}
+{% set urgency        = brief.dealUrgencyMultipliers or [] %}
+{% set stakeholders   = brief.publicStakeholders or [] %}
+{% set callPrep       = brief.internalCallPrep or [] %}
+{% set futureBusiness = brief.futureBusinessChampions or [] %}
+{% set preCallList    = brief.preCallOutreach or [] %}
+{% set partnerships   = brief.strategicPartnerships or [] %}
+{% set profileHtml    = brief.corporateProfileHtml %}
+{% set profileMeta    = brief.corporateProfileMeta or {} %}
+{% set portfolioOpps    = brief.portfolioOpportunities or [] %}
+{% set portfolioGroups  = brief.portfolioOpportunitiesGrouped or [] %}
+{% set portfolioTrunc   = brief.portfolioOpportunitiesTruncatedNote %}
 
 <div class="brief-header">
   <div class="brief-header-top">
@@ -168,8 +278,20 @@ section.brief-section h2::before { content:''; display:inline-block; width:18px;
     </div>
   </section>
 
+  {% if urgency | length > 0 %}
+  <section class="brief-section">
+    <h2>Why Now — {{ urgency | length }} deal-urgency signal{% if (urgency | length) != 1 %}s{% endif %}</h2>
+    <div class="why-now-list">
+      {% for line in urgency %}<div class="why-now-item">{{ line | esc }}</div>{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
   <section class="brief-section">
     <h2>Sibling Brands{% if siblings | length > 0 %} — {{ siblings | length }} under {{ (platform.name or 'platform') | esc }}{% endif %}</h2>
+    {% if platform.regionalStrategy %}
+    <p style="font-size:12px;color:var(--mid);margin-bottom:12px;font-style:italic">{{ platform.regionalStrategy | esc }}</p>
+    {% endif %}
     {% if greenfield %}
     <div class="sibling-greenfield-banner"><strong>Greenfield opportunity:</strong> none of the {{ siblings | length }} sibling brands shows a public integration footprint yet. The first sibling to invest sets the playbook for the rest.</div>
     {% endif %}
@@ -181,6 +303,163 @@ section.brief-section h2::before { content:''; display:inline-block; width:18px;
       {% endif %}
     </div>
   </section>
+
+  {% if platformExecs | length > 0 %}
+  <section class="brief-section">
+    <h2>Platform Executive Team — {{ platformExecs | length }} at {{ (platform.name or 'platform') | esc }}</h2>
+    <div class="stakeholder-grid">
+      {% for exec in platformExecs %}
+      <div class="stakeholder-card"{% if exec.isExecutiveSponsorCandidate %} style="border-left:3px solid var(--amber)"{% endif %}>
+        <div class="stakeholder-name">{{ exec.name | esc }}{% if exec.isExecutiveSponsorCandidate %} <span style="font-size:9px;background:var(--amber);color:#fff;padding:2px 6px;border-radius:3px;margin-left:6px">EXEC-SPONSOR CANDIDATE</span>{% endif %}</div>
+        <div class="stakeholder-title">{{ exec.title | esc }}</div>
+        {% if exec.scope %}<div class="stakeholder-systems" style="font-style:normal">{{ exec.scope | esc }}</div>{% endif %}
+        {% if exec.sourceUrl %}<div class="intel-source"><a href="{{ exec.sourceUrl | esc }}" target="_blank" rel="noopener">Source</a></div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if stakeholders | length > 0 %}
+  <section class="brief-section">
+    <h2>Stakeholders Engaged — From the Scoping Conversations</h2>
+    <div class="stakeholder-grid">
+      {% for p in stakeholders %}
+      <div class="stakeholder-card">
+        <div class="stakeholder-name">{{ p.name | esc }}</div>
+        <div class="stakeholder-title">{{ (p.title or '') | esc }}{% if p.company %} · {{ p.company | esc }}{% endif %}</div>
+        {% if p.role %}<div class="stakeholder-role">{{ p.role | esc }}</div>{% endif %}
+        {% if p.systemsOwned and (p.systemsOwned | length > 0) %}
+        <div class="stakeholder-systems">Systems: {{ p.systemsOwned | join(', ') | esc }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if callPrep | length > 0 %}
+  <section class="brief-section internal-only">
+    <h2>Call-Prep — Per-Person Angles (Internal)</h2>
+    <div class="internal-banner">Internal Only — Hidden from buyer link</div>
+    {% for p in callPrep %}
+    {% set roleClass = '' %}
+    {% if p.role == 'economicBuyer' %}{% set roleClass = 'role-eb' %}{% endif %}
+    {% if p.role == 'championOnCall' %}{% set roleClass = 'role-champion' %}{% endif %}
+    <div class="call-prep-card">
+      <div class="call-prep-header">
+        <div>
+          <div class="call-prep-name">{{ p.name | esc }}</div>
+          <div class="call-prep-meta">{{ (p.title or '') | esc }}{% if p.company %} · {{ p.company | esc }}{% endif %}{% if p.matchConfidence %} · confidence: {{ p.matchConfidence | esc }}{% endif %}</div>
+        </div>
+        {% if p.role %}<span class="call-prep-role-pill {{ roleClass }}">{{ p.role | esc }}</span>{% endif %}
+      </div>
+      {% if p.angleForHawk %}<div class="call-prep-angle"><span class="call-prep-angle-label">Hawk angle:</span> {{ p.angleForHawk | esc }}</div>{% endif %}
+      {% if p.angleForIvy %}<div class="call-prep-angle"><span class="call-prep-angle-label">Psychology:</span> {{ p.angleForIvy | esc }}</div>{% endif %}
+      {% if p.talkingPointSeed %}<div class="call-prep-talkpoint">"{{ p.talkingPointSeed | esc }}"</div>{% endif %}
+      {% if p.talkToBefore %}<div class="call-prep-flag"><strong>Engage before the call:</strong> {{ (p.talkToBeforeRationale or 'reason not stated') | esc }}</div>{% endif %}
+      {% if p.detractorWarning %}<div class="call-prep-flag" style="color:#C53030">{{ p.detractorWarning | esc }}</div>{% endif %}
+    </div>
+    {% endfor %}
+    {% if preCallList | length > 0 %}
+    <div style="font-size:12px;color:var(--dark);margin-top:14px;padding:10px 14px;background:var(--light);border-radius:6px">
+      <strong style="color:var(--brand-dk)">Pre-call outreach checklist:</strong>
+      <ul style="margin:6px 0 0 18px">
+        {% for o in preCallList %}<li>{{ o.name | esc }} — {{ (o.what or '') | esc }}: {{ (o.why or '') | esc }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if futureBusiness | length > 0 %}
+  <section class="brief-section internal-only">
+    <h2>Future Business — Champions to Cultivate</h2>
+    <div class="future-grid">
+      {% for f in futureBusiness %}
+      <div class="future-card">
+        <div class="future-name">{{ f.name | esc }}{% if f.title %} · {{ f.title | esc }}{% endif %}</div>
+        {% if f.organization %}<div class="future-org">{{ f.organization | esc }}</div>{% endif %}
+        {% if f.why %}<div class="future-why">{{ f.why | esc }}</div>{% endif %}
+        {% if f.sourceUrl %}<div class="intel-source"><a href="{{ f.sourceUrl | esc }}" target="_blank" rel="noopener">Source</a></div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {#
+    Portfolio Integration Opportunities (Flo v1.1.0)
+    ────────────────────────────────────────────────
+    Flow-level integration opportunities that sit OUTSIDE the current proposal scope
+    and inside the corporate lattice. Source-grouped so the architect can scan by
+    next-deal type: rex-uncovered (same client, future engagement), sibling-template
+    (next sibling rollout), legacy-boltOn (sub-rollup deployment), sponsor-portco
+    (cross-portfolio template), strategic-partnership (alliance-driven integration).
+    Internal-only — same gating as Call-Prep and Future-Business sections.
+  #}
+  {% if portfolioOpps | length > 0 %}
+  <section class="brief-section internal-only">
+    <h2>Portfolio Integration Opportunities — {{ portfolioOpps | length }} flow{% if (portfolioOpps | length) != 1 %}s{% endif %} outside current scope</h2>
+    <p style="font-size:11px;color:var(--mid);margin-bottom:14px;font-style:italic">Flo-derived from Vera's corporate stack + Rex's system inventory. These are NEVER in the proposal or intake — they live here so the next-deal conversation has a concrete list.</p>
+
+    {#
+      portfolioOpportunitiesGrouped is pre-computed in orchestrate.js (Nunjucks
+      doesn't ship with selectattr/groupby). Each entry: { source, label, items[] }.
+      Order is deterministic — see PORTFOLIO_SOURCE_ORDER in orchestrate.js.
+    #}
+    {% for group in portfolioGroups %}
+    <div class="portfolio-source-group">
+      <div class="portfolio-source-label">{{ group.label | esc }} — {{ group.items | length }}</div>
+      <div class="portfolio-grid">
+        {% for po in group.items %}
+        <div class="portfolio-card source-{{ po.source | esc }}">
+          <div class="portfolio-title">{{ po.title | esc }}</div>
+          {% if po.atEntity %}<div class="portfolio-at">at <strong>{{ po.atEntity | esc }}</strong>{% if po.entity %} · entity: {{ po.entity | esc }}{% endif %}</div>{% endif %}
+          {% if po.systems and (po.systems | length > 0) %}<div class="portfolio-systems">{{ po.systems | join(' → ') | esc }}</div>{% endif %}
+          {% if po.referenceUcId %}<div class="portfolio-ref">Reference: {{ po.referenceUcId | esc }}</div>{% endif %}
+          {% if po.rationale %}<div class="portfolio-rationale">{{ po.rationale | esc }}</div>{% endif %}
+          {% if po.regionalAdaptation %}<div class="portfolio-adapt">Regional adaptation: {{ po.regionalAdaptation | esc }}</div>{% endif %}
+          {% if po.whenToEngage %}<div class="portfolio-when"><span class="portfolio-when-label">When to engage:</span> {{ po.whenToEngage | esc }}</div>{% endif %}
+          {% if po.sourceUrl %}<div class="intel-source"><a href="{{ po.sourceUrl | esc }}" target="_blank" rel="noopener">Source</a></div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if portfolioTrunc %}<div class="portfolio-truncated">{{ portfolioTrunc | esc }}</div>{% endif %}
+  </section>
+  {% endif %}
+
+  {% if partnerships | length > 0 %}
+  <section class="brief-section">
+    <h2>Strategic Partnerships</h2>
+    <div class="future-grid">
+      {% for sp in partnerships %}
+      <div class="future-card" style="border-left:3px solid var(--green)">
+        <div class="future-name">{{ sp.name | esc }}</div>
+        {% if sp.partnerType %}<div class="future-org">{{ sp.partnerType | esc }}</div>{% endif %}
+        {% if sp.description %}<div class="future-why">{{ sp.description | esc }}</div>{% endif %}
+        {% if sp.integrationImpact %}<div class="future-why" style="margin-top:6px;color:var(--brand-dk)"><strong>Integration impact:</strong> {{ sp.integrationImpact | esc }}</div>{% endif %}
+        {% if sp.sourceUrl %}<div class="intel-source"><a href="{{ sp.sourceUrl | esc }}" target="_blank" rel="noopener">Source</a></div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if profileHtml %}
+  <section class="brief-section">
+    <h2>Corporate Profile — Deep Research</h2>
+    <div class="profile-narrative">{{ profileHtml | safe }}</div>
+    {% if profileMeta.wordCount %}
+    <div class="profile-meta">
+      {{ profileMeta.wordCount }} words · {{ (profileMeta.sectionCount or 0) }} sections · {{ (profileMeta.sourceUrlCount or 0) }} sourced claims · {{ (profileMeta.namedContactCount or 0) }} named contacts · confidence: {{ (profileMeta.confidence or 'unknown') | esc }}
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
 
   <section class="brief-section">
     <h2>What We Noticed{% if intelCount > 0 %} — {{ intelCount }} signal{% if intelCount != 1 %}s{% endif %}{% endif %}</h2>

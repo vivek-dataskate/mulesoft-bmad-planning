@@ -1,0 +1,137 @@
+{
+  "agent": "Flo v1.0.0",
+  "client": "peerless",
+  "generatedAt": "2026-05-22T12:30:00Z",
+  "decisions": [
+    {
+      "id": "FD-001",
+      "type": "flow-classification",
+      "flowId": "UC1",
+      "classification": "confirmed",
+      "complexity": "medium",
+      "rationale": "Rex marked confirmed=true with high-confidence evidence (Raghuram + Ashley transcripts 2026-04-14). Sage independently surfaced same flow. NO-COMBINE: HD Portal → Salesforce is one system pair → one flow. Complexity medium: unidirectional, 2 systems, scheduled poll with watermark, standard Lead entity. Not low because of F-number keying + idempotent-upsert requirement + existing-sync-partially-broken cleanup.",
+      "evidence": "rex.json confirmedFlows[0] + sage.json confirmedFlows[UC1]"
+    },
+    {
+      "id": "FD-002",
+      "type": "flow-classification",
+      "flowId": "UC2",
+      "classification": "confirmed",
+      "complexity": "high",
+      "rationale": "Rex marked confirmed=true. Composite write (Job + Customer + Budget Worksheet) on a single Salesforce 'Save as Final' transition. Complexity HIGH because: (a) on-prem legacy ERP behind Deltek CE Live Service relay (FK-030), (b) production-only API surface — practice has none (FK-032), (c) sequential job-number consumption rule — must call CE's next-id endpoint, never local counter, (d) TCP/445 listening port, not 443, (e) 4-hour vendor SLA. Multi-quirk write path on a DOS-era core qualifies as high.",
+      "evidence": "rex.json confirmedFlows[1] + sage.json confirmedFlows[UC2] + Ashley demo 2026-04-16"
+    },
+    {
+      "id": "FD-003",
+      "type": "flow-classification",
+      "flowId": "UC3",
+      "classification": "confirmed",
+      "complexity": "high",
+      "rationale": "Rex marked confirmed=true. Complexity HIGH because: (a) 3 systems in the chain (HD + IDP + Salesforce), (b) AI-augmented IDP extraction with async submit/poll pattern + /v2 suffix, (c) custom deterministic rule library (signatures legible, Friday-date, 299A=299B price match, both-yes/no-boxes, permit flag, Wisconsin 99% deposit exception), (d) mandatory manual-review queue for FAILED/MANUAL_VALIDATION_REQUIRED outcomes, (e) document-size + page-count gate (10MB / 50 pages per submission).",
+      "evidence": "rex.json confirmedFlows[2] + sage.json confirmedFlows[UC3] + Venkat 2026-04-15"
+    },
+    {
+      "id": "FD-004",
+      "type": "flow-classification",
+      "flowId": "UC4",
+      "classification": "confirmed",
+      "complexity": "medium",
+      "rationale": "Rex marked confirmed=true. Unidirectional, 2 systems, event-driven on UC3 validation failure. Complexity MEDIUM (not low) because HD write endpoints are not yet validated and the design must include an email fallback channel via Greg if HD POST/PATCH endpoints don't exist. Standard structured-comment payload otherwise.",
+      "evidence": "rex.json confirmedFlows[3] + sage.json confirmedFlows[UC4]"
+    },
+    {
+      "id": "FD-005",
+      "type": "flow-classification",
+      "flowId": "UC5-potential",
+      "classification": "potential",
+      "rationale": "Ashley's #1 aspiration quote ('select the deposit paid box. If that could integrate and flow back through an API, that would work'). Not promoted to confirmed because HD write/read endpoint for deposit-paid status is unvalidated. Promotion gate: Greg/Marius confirm POST/PATCH endpoint exposure during P1 HD-write-endpoints discovery (bundled into the same HD ticket).",
+      "evidence": "rex.json potentialFlows[0] + sage.json potentialFlows[UC5-potential] + Ashley aspiration quote 2026-04-14"
+    },
+    {
+      "id": "FD-006",
+      "type": "flow-classification",
+      "flowId": "UC6-potential",
+      "classification": "potential",
+      "rationale": "Ashley demoed subcontract + commission + overhead GA + target price entry into the CE budget worksheet — these are distinct transactional records downstream of UC2 Job creation. Promotion gate: confirm with Ashley whether UC2 scope covers the full budget-worksheet payload or just the job header. If just header, UC6 promotes.",
+      "evidence": "rex.json potentialFlows[1] + Ashley demo 2026-04-16"
+    },
+    {
+      "id": "FD-007",
+      "type": "flow-classification",
+      "flowId": "UC7-potential",
+      "classification": "potential",
+      "rationale": "Standard construction-vertical close-the-loop pattern (ComputerEase job status back to Salesforce). Vera Phase 2 AI journey names this explicitly. Promotion gate: confirm with Ashley whether Salesforce users need to see CE job status (in-progress/complete/paid) without logging into Cameo. Adjacent-flow detection: reverse direction of UC2.",
+      "evidence": "rex.json potentialFlows[2] + vera.json aiJourney.phase2.body"
+    },
+    {
+      "id": "FD-008",
+      "type": "flow-classification",
+      "flowId": "UC8-potential",
+      "classification": "potential",
+      "source": "adjacent-flow-detection",
+      "rationale": "Adjacent flow inferred from Sage system list — DocHub is mentioned as the HS-118 signing tool but only as a UI-only step today. Adjacent-flow rule (implicit system mentions): DocHub → Salesforce signed-PDF write-back is a plausible Phase 1b follow-on if Peerless wants the signed artefact attached directly to the Salesforce Quote/Contract record rather than relying on IDP path through UC3. Surfaced as potential (not adjacent-only) per principle: 'All potential flows — both explicit and adjacent — must appear in the proposal.'",
+      "evidence": "sage.json systems[DocHub] + vera.json systemPrerequisites[DocHub] (explicitly out-of-scope at Phase 1)"
+    },
+    {
+      "id": "FD-009",
+      "type": "p0-consolidation",
+      "rationale": "5 P0 blockers consolidated from rex.json. Three ComputerEase items (CE Live Service Relay, Production-Only API Testing, Backup Super-Admin) are bundled per Rex — all three resolve in the same Deltek support ticket Jean filed 2026-04-17. GCP Firewall is independent (Brian Cook + GCP IAM). HD Write Endpoints is independent (Greg + HD ticket). All five have title + clientAction + body. Priority: P0 = CE×3 + GCP (gates the entire engagement); P1 = HD Write Endpoints (UC1–UC3 can proceed; UC4 + UC5-potential depend on confirmation).",
+      "p0Count": 4,
+      "p1Count": 1,
+      "p2Count": 0,
+      "bundleGroups": [
+        ["ComputerEase CE Live Service Relay Installation", "ComputerEase Production-Only API Testing Posture", "ComputerEase Backup Super-Admin Provisioning (SPOF)"]
+      ]
+    },
+    {
+      "id": "FD-010",
+      "type": "pricing",
+      "flowCount": 4,
+      "rationale": "Pricing computed from commons/sales/pricing-model.md (v1.2 May 2026). Confirmed-flow count N=4 from flo.json confirmedFlows[]. All four flows confirmed=true; potential flows excluded from pricing per principle.",
+      "computed": {
+        "implementationFee": "0 (IaaS — absorbed into monthly rate)",
+        "implementationOnlyFee": "$14,000 (4 × $3,500 standard rate)",
+        "kickoffRetainer": "$2,500 (1–5 flow band)",
+        "timelineWeeks": "8 weeks (2 + 4 × 1.5)",
+        "period1RatePerFlow": "$300",
+        "period2RatePerFlow": "$315 (5% escalation)",
+        "period3RatePerFlow": "$330.75 (5% escalation compounded)",
+        "period4RatePerFlow": "$347.29 (5% escalation compounded)",
+        "period1Payment6mo": "$7,200 ($300 × 4 × 6)",
+        "period2Payment6mo": "$7,560 ($315 × 4 × 6)",
+        "period3Payment6mo": "$7,938 ($330.75 × 4 × 6)",
+        "period4Payment6mo": "$8,335 ($347.29 × 4 × 6, rounded)",
+        "oneYearManagedServiceTotal": "$14,760 (Period 1 + Period 2)",
+        "twoYearManagedServiceTotal": "$31,033 (P1+P2+P3+P4)"
+      },
+      "recommendedModel": "IaaS",
+      "recommendedModelRationale": "Five-factor IaaS recommendation: (1) Legacy ComputerEase with 4-hr vendor SLA needs continuous monitoring, not one-time build. (2) MuleSoft IDP rule-library tuning is operational work. (3) Peerless has no in-house MuleSoft dev — Brian Cook is platform-IT, not integration owner. (4) Akoya PE-sponsor + Roger Greenhagel 'first 18 months' window = managed-service relationship positions DataSkate for next Akoya platform play. (5) Elevate Fence Partners national rollout = UC1–UC4 is the template for 5 sibling brands; template needs ongoing maintenance as state-specific rules accumulate.",
+      "edgeCases": [
+        "4 flows sits at top of 1–5 retainer band ($2,500). Promotion of UC5+UC6 would jump retainer to $5,000 (6–10 band).",
+        "At 4 flows, IaaS Year 1 ($14,760) ≈ Implementation Only flat fee ($14,000) — IaaS only wins on Year 2+. Implementation Only is right ONLY if Peerless hires a MuleSoft developer before kickoff (not signaled).",
+        "Anypoint $50K license bundle ($0 implementation) not in play — no Anypoint license sale discussed."
+      ]
+    },
+    {
+      "id": "FD-011",
+      "type": "downstream-load-list",
+      "rationale": "Downstream load list computed from flo.json confirmedFlows[] systems. 4 playbooks (hd-portal, salesforce, computerease, mulesoft-idp), 6 canonical models (lead, customer, quote, budget-worksheet, job, contract — all in construction vertical), 4 connector keys. mulesoft-idp playbook is stub-created per Rex; others are pre-existing.",
+      "playbookCount": 4,
+      "canonicalModelCount": 6,
+      "connectorKeyCount": 4
+    },
+    {
+      "id": "FD-012",
+      "type": "flags",
+      "salesforceDetected": true,
+      "rationale": "Salesforce appears in all 4 confirmed flows (UC1, UC2, UC3, UC4) — it is the central CRM in the data path. Downstream agents (Petra, Quinn, Sol) should apply AgentForce-specific framing without re-checking the system list. Vera Phase 3 already establishes AgentForce as the layer that reads the Phase 1 data foundation.",
+      "additionalFlags": {
+        "legacyERPDetected": true,
+        "onPremDetected": true,
+        "idpInScope": true,
+        "ipaasMigration": false,
+        "spreadsheetMissing": false
+      }
+    }
+  ]
+}

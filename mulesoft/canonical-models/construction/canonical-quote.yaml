@@ -1,0 +1,123 @@
+title: Canonical Quote
+version: "1.0.0-stub — created from peerless engagement"
+vertical: construction
+standard: derived
+standardBody: null
+standardRef: null
+deviations: |
+  No dominant cross-vendor standard for construction quote / estimate records. Field naming derived from:
+    - Salesforce Quote + Quote Line Item standard objects
+    - ComputerEase budget worksheet entity (downstream consumer)
+    - Construction industry estimating norms (line-item-by-material)
+description: |
+  Canonical quote entity for construction / specialty-contractor integrations.
+  Maps from: CRM (Salesforce Quote + Quote Line Item), estimating tools (PlanSwift, On-Screen Takeoff).
+  Maps to:   construction ERP (ComputerEase budget worksheet), contract documents (299A, 299B, HS-118).
+  Common synonyms: Quote (Salesforce, generic), Estimate (estimating tools), Proposal (informal).
+
+  Peerless-specific: 'Save as Final' status transition is the canonical downstream-automation trigger
+  (UC2). Quote Line Item product bundle is the canonical source for picket-type / material-type rules
+  (Venkat B 2026-04-15: 'this data is all available within the Salesforce... only these things should
+  come with respect to the woods'). No Excel sheets needed.
+
+type: object
+required:
+  - quoteId
+  - customerId
+  - status
+  - lines
+  - totals
+  - timestamps
+
+properties:
+  quoteId:
+    type: string
+    description: Canonical quote identifier
+    example: "QTE-2026-000565"
+
+  externalIds:
+    type: object
+    properties:
+      salesforceQuoteId:   { type: string, description: "Salesforce Quote 18-char ID" }
+      portalQuoteId:       { type: string, description: "Quote/estimate ID at originating portal" }
+
+  customerId:
+    type: string
+    description: Links to canonical-customer
+
+  leadId:
+    type: string
+    description: Links to canonical-lead (the originating lead)
+
+  status:
+    type: string
+    enum: [DRAFT, SENT, ACCEPTED, FINAL, REJECTED, EXPIRED, CONVERTED]
+    description: 'FINAL state ("Save as Final" in Salesforce) is the trigger for downstream automation'
+
+  finalizedAt:
+    type: string
+    format: date-time
+    description: Timestamp when quote transitioned to FINAL — triggers UC2 + UC3
+
+  lines:
+    type: array
+    description: Line items — picket-type / material / labor / subcontract
+    items:
+      type: object
+      required: [lineNumber, sku, materialType, quantity, unitPrice]
+      properties:
+        lineNumber:     { type: integer }
+        sku:            { type: string, description: "Product / material SKU" }
+        description:    { type: string }
+        materialType:   { type: string, description: "Picket / material category derived from product bundle (e.g. 'cedar' → wood)" }
+        quantity:       { type: number }
+        unit:           { type: string, description: "ft, sqft, each, etc." }
+        unitPrice:      { type: number }
+        lineTotal:      { type: number }
+        category:       { type: string, enum: [MATERIAL, LABOR, SUBCONTRACT, PERMIT, OTHER] }
+
+  totals:
+    type: object
+    required: [subtotal, total]
+    properties:
+      subtotal:       { type: number }
+      tax:            { type: number }
+      discount:       { type: number }
+      total:          { type: number }
+      depositRequired: { type: number, description: "Wisconsin: 99% of total; everywhere else: 100%" }
+
+  serviceAddress:
+    type: object
+    properties:
+      street:       { type: string }
+      city:         { type: string }
+      state:        { type: string }
+      postalCode:   { type: string }
+      country:      { type: string, default: "US" }
+
+  salesRepInitials:
+    type: string
+    description: Used in ComputerEase sequential job-number format (e.g. 'AS' for Ashley Salerno)
+
+  signedDate:
+    type: string
+    format: date
+    description: 'Must be a Friday per Peerless contract rule (validated during UC3 IDP extraction)'
+
+  permitRequired:
+    type: boolean
+    description: 'Yes/no flag — must be a single value (cannot be both ticked) per UC3 validation rule'
+
+  timestamps:
+    type: object
+    required: [createdAt]
+    properties:
+      createdAt:  { type: string, format: date-time }
+      updatedAt:  { type: string, format: date-time }
+
+stubNote: |
+  Created from peerless engagement 2026-05-22 by Rex. UC2 trigger = quote status FINAL. UC3 validates
+  picket-type / material rules from lines[].materialType + serviceAddress.state (Wisconsin 99% deposit
+  rule) + signedDate (Friday rule) + permitRequired (single-value rule). Fields to finalize during
+  Analyst PRD: Salesforce Quote Line Item product-bundle to materialType mapping rules, line.category
+  thresholds for subcontract-write decisions (UC6-potential), commission worksheet field mapping.

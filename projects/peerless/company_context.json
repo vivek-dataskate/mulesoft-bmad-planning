@@ -1,0 +1,1561 @@
+{
+  "client": "peerless",
+  "generatedAt": "2026-05-22T14:19:55.733Z",
+  "snapshot": "Peerless Fence Group is the largest independently owned fence contractor in the Midwest — a 60+ year, family-founded rollup of regional Illinois/Indiana fencing businesses headquartered in St. Charles, IL, operating across Illinois, Indiana, Ohio, and southern Wisconsin. Acquired January 1, 2023 by Chicago-based private equity firm Akoya Capital Partners as a Home Services platform investment, Peerless has grown through ~10 bolt-on acquisitions since 2013 and now operates its residential pipeline through Home Depot's Pro-contractor channel: leads land in HD Portal, flow into Salesforce CRM, then move to ComputerEase (Deltek) for job costing and accounting.",
+  "industry": "construction (specialty residential — fence installation, Home Depot pro-services partner)",
+  "businessObjects": [
+    "Leads",
+    "Customers / Accounts",
+    "Quotes",
+    "Quote Line Items",
+    "Contracts (HS-105, 299A, 299B, HS-118)",
+    "Jobs (job costing records)",
+    "Budget Worksheets",
+    "Subcontracts",
+    "Service Work Orders",
+    "Job Totals",
+    "Permits",
+    "Deposits / Payments"
+  ],
+  "hqLocation": "St. Charles, IL",
+  "revenueEstimate": "~$15M–$32M (estimates vary by source; Akoya's stated middle-market range is $25M–$200M revenue per platform investment)",
+  "aiJourney": {
+    "phase1": {
+      "label": "Connected",
+      "headline": "HD Portal → Salesforce → ComputerEase becomes a single, instrumented data path",
+      "body": "Every Home Depot Pro lead lands in Salesforce as a Lead record within 10 minutes (UC1). When a quote is marked 'Save as Final' in Salesforce, a ComputerEase Job, Customer, and Budget Worksheet are created automatically — replacing Ashley's ~1.5-hour-per-job manual rekey (UC2). Signed contract PDFs (HS-105, 299A, 299B, HS-118) are pulled through MuleSoft IDP, extracted, and validated against Salesforce quote data (UC3). When validation fails, a structured comment or email is written back to HD Portal (UC4). The Quote Line Item object is the canonical source for picket-type, material, and Wisconsin-specific deposit rules — no Excel sheets."
+    },
+    "phase2": {
+      "label": "Automated",
+      "headline": "Triggers replace human dispatch on every step between lead and job entry",
+      "body": "The Salesforce quote 'Save as Final' transition becomes the system-of-record trigger for the entire downstream chain: job creation, budget worksheet write, IDP validation, exception write-back. The deposit-paid status that Ashley currently looks up by hand in HD Portal reporting (UC5-potential) syncs back into Salesforce automatically — closing her aspirational quote: 'select the deposit paid box. If that could integrate and flow back through an API, that would work.' ComputerEase job status (in-progress, complete, paid) flows back into Salesforce (UC7-potential) so the operations team stops logging into Cameo + ComputerEase to check milestones. Subcontract / commission worksheet payload moves with the job header instead of becoming a second manual entry session (UC6-potential)."
+    },
+    "phase3": {
+      "label": "Agentic",
+      "headline": "AgentForce reads the Salesforce data foundation Phase 1 built — and answers operational questions Ashley used to spend mornings on",
+      "body": "Because Phase 1 created clean Salesforce objects (Lead, Quote, Quote Line Item, Project, Sales Order) keyed back to HD Portal F-numbers and ComputerEase job numbers, an AgentForce agent can answer: 'Which Home Depot leads converted to ComputerEase jobs in the last 90 days are forecasting margin erosion based on subcontract burn rate vs. original budget-worksheet target price?' / 'Which active quotes have IDP-flagged contract discrepancies that haven't been resolved within Peerless's response SLA?' / 'For Wisconsin jobs only, which deposits posted at less than the required 99% threshold?' Without the Phase 1 data path, AgentForce has no clean joined Salesforce object set to reason over. With it, AgentForce takes morning HD reconciliation off Ashley's plate."
+    }
+  },
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "name": "HD Portal Lead → Salesforce Lead (scheduled, 10-min polling)",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "direction": "HD Portal → Salesforce",
+      "entity": "Lead",
+      "trigger": "scheduled",
+      "triggerDetail": "Polling cadence ~10 minutes — matches HD Portal's internal update cadence per A. Marcos; design for at-least-10-min eventual consistency, do not promise real-time. Was 30 minutes historically.",
+      "pattern": "scheduled-sync",
+      "complexity": "medium",
+      "complexityRationale": "Unidirectional, 2 systems, standard Lead entity, scheduled polling with watermark — standard scheduled-sync pattern. F-number keying + idempotent upsert add light transformation work but no relay/legacy plumbing.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-lead.yaml",
+      "confirmed": true,
+      "evidence": "Raghuram Potluri 2026-04-14: 'there will be a lead sitting in HTS which is being pulled into the sales force through our API call.' Ashley Salerno: 'when we create a lead inside of Home Depot Service Center, it doesn't come through inside of Salesforce. So that part needs to be fixed.'"
+    },
+    {
+      "id": "UC2",
+      "name": "Salesforce 'Save as Final' Quote → ComputerEase Job + Customer + Budget Worksheet",
+      "systems": [
+        "Salesforce",
+        "ComputerEase (Deltek)"
+      ],
+      "direction": "Salesforce → ComputerEase",
+      "entity": "Job (header + customer + budget worksheet)",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce quote 'Save as Final' status transition — confirmed as the canonical downstream-automation trigger by Ashley Salerno. Currently manual (~1.5 hours per job by Ashley).",
+      "pattern": "event-driven",
+      "complexity": "high",
+      "complexityRationale": "On-prem legacy ERP behind Deltek CE Live Service relay, sequential job-number consumption rule (must call CE's next-id endpoint, never allocate locally), production-only API surface (FK-032), composite write (Job + Customer + Budget Worksheet) on a single transition — multi-quirk write path on a legacy system.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-job.yaml",
+      "confirmed": true,
+      "evidence": "Ashley Salerno 2026-04-16 demo: 'I'm going to take the information inside the budget worksheet... I'm going to go to Computer Ease... duplicate a job... customer number is 180... Muckian test... 26 HD 565 AS.' Sequential job-number rule: company code + product line + initials."
+    },
+    {
+      "id": "UC3",
+      "name": "Contract PDF → MuleSoft IDP → Salesforce validation",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "MuleSoft IDP",
+        "Salesforce"
+      ],
+      "direction": "HD Portal (signed PDF) → IDP → Salesforce (validate)",
+      "entity": "Contract documents (HS-105, 299A, 299B, HS-118)",
+      "trigger": "event-driven",
+      "triggerDetail": "Salesforce quote 'Save as Final' + signed-document upload triggers IDP extraction; deterministic rule engine validates extracted fields against Salesforce quote/contract data.",
+      "pattern": "idp-document-processing",
+      "complexity": "high",
+      "complexityRationale": "3 systems (HD + IDP + Salesforce), AI-augmented document extraction with async submit/poll, custom deterministic rule library (signatures legible, Friday-date, 299A=299B price match, both-yes/no-boxes, permit flag, Wisconsin 99% deposit), manual-review queue required, document-size/page validation gate.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-contract.yaml",
+      "confirmed": true,
+      "evidence": "Venkat B 2026-04-15: 'we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce.' Specific rules: signatures legible, dates are Fridays, 299A and 299B prices match, yes/no boxes not both ticked, permit-required flag is one value, 100% deposit except Wisconsin (99%)."
+    },
+    {
+      "id": "UC4",
+      "name": "Salesforce → HD Portal exception comment / email write-back",
+      "systems": [
+        "Salesforce",
+        "Home Depot Service Center (HD Portal)"
+      ],
+      "direction": "Salesforce → HD Portal",
+      "entity": "Lead/Quote exception note (comment + optional email)",
+      "trigger": "event-driven",
+      "triggerDetail": "UC3 validation failure triggers structured comment write-back to HD lead screen and/or email to HD account manager (Greg). Replaces current manual practice of human-typing a comment on the HD screen.",
+      "pattern": "event-driven",
+      "complexity": "medium",
+      "complexityRationale": "Unidirectional, 2 systems, structured comment/email payload — standard event-driven write-back. Medium (not low) because HD write endpoints are not yet validated and the flow needs an email fallback path if HD POST/PATCH isn't exposed.",
+      "canonicalModel": "mulesoft/canonical-models/construction/canonical-contract.yaml",
+      "confirmed": true,
+      "evidence": "Venkat B 2026-04-15: 'depending upon the endpoint that we have with the HD, we can try to mail as well.' Ashley Salerno: 'we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead.'"
+    }
+  ],
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "name": "HD Portal ↔ Salesforce — Deposit-paid status sync",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "entity": "Deposit payment status",
+      "priority": "high",
+      "source": "explicit (Ashley aspiration quote 2026-04-14)",
+      "rationale": "Ashley Salerno explicitly named this as today-manual and her #1 desired future automation ('select the deposit paid box. If that could integrate and flow back through an API, that would work'). Direct client aspiration; promotion gated on HD write/read endpoint confirmation via Greg/Marius."
+    },
+    {
+      "id": "UC6-potential",
+      "name": "Salesforce → ComputerEase — Subcontract / commission worksheet write",
+      "systems": [
+        "Salesforce",
+        "ComputerEase (Deltek)"
+      ],
+      "entity": "Subcontract / commission worksheet (financial detail)",
+      "priority": "medium",
+      "source": "explicit (Ashley demo 2026-04-16 — subcontract + commission + overhead GA + target price entry)",
+      "rationale": "Ashley demonstrated entering subcontract amounts, sales commission, overhead GA, target price into the CE budget worksheet — these are downstream of UC2 Job creation but distinct transactional records. If UC2 scope is 'job header only', these become a follow-on flow."
+    },
+    {
+      "id": "UC7-potential",
+      "name": "ComputerEase → Salesforce — Job status / completion close-the-loop",
+      "systems": [
+        "ComputerEase (Deltek)",
+        "Salesforce"
+      ],
+      "entity": "Job status / completion event",
+      "priority": "medium",
+      "source": "inferred: reverse of UC2 (close-the-loop), surfaced in Vera Phase 2 AI journey",
+      "rationale": "Operational close-the-loop pattern — Peerless currently has no way to surface CE job status (in-progress, complete, paid) back in Salesforce. Standard construction-vertical reverse-ETL gap. Validate with Ashley if Salesforce users need to see job status without logging into Cameo + ComputerEase. Vera's Phase 2 narrative names this explicitly."
+    },
+    {
+      "id": "UC8-potential",
+      "name": "DocHub → Salesforce — Signed HS-118 write-back",
+      "systems": [
+        "DocHub",
+        "Salesforce"
+      ],
+      "entity": "Signed customer-approval form (HS-118)",
+      "priority": "low",
+      "source": "inferred: DocHub mentioned in sage.json as human-signing tool; write-back deferred",
+      "rationale": "DocHub is currently UI-only for HS-118 signature capture. If Peerless wants the signed PDF artefact attached directly to the Salesforce Quote/Contract record (rather than relying on the IDP path through UC3), a DocHub → Salesforce write-back becomes a follow-on flow. Promote only if Peerless wants UI signing tied to CRM record without going through HD."
+    }
+  ],
+  "signals": [
+    "sandbox / no sandbox / production-only",
+    "on-premise / on our VM / thick-client / legacy ERP",
+    "real-time / immediate / synchronous / user-facing",
+    "scheduled / nightly / scheduled",
+    "AI / LLM / ChatGPT / OpenAI / Anthropic",
+    "IDP / document extraction",
+    "AI hallucination — operational risk",
+    "legacy / replace / legacy ESB",
+    "firewall / security exposure",
+    "file / SFTP / CSV / Excel",
+    "vendor support / ticketing",
+    "single admin / SPOF"
+  ],
+  "namedContacts": [
+    {
+      "name": "Ashley Salerno",
+      "title": "Peerless operations lead (business process owner — contracts, permits, HD reconciliation, job entry)",
+      "email": "ashley@peerlessfence.com (referenced; not directly stated)",
+      "systems": [
+        "Home Depot Service Center",
+        "Salesforce",
+        "ComputerEase",
+        "DocHub"
+      ],
+      "responsibilities": [
+        "business process SME",
+        "UAT sign-off candidate",
+        "HD account-manager liaison via Greg",
+        "daily manual reviewer of contracts and discrepancies"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Brian Cook (called 'Brent')",
+      "title": "Peerless IT / infrastructure admin",
+      "email": null,
+      "systems": [
+        "GCP",
+        "ComputerEase (limited)",
+        "Cameo"
+      ],
+      "responsibilities": [
+        "GCP firewall rules",
+        "Cameo admin",
+        "OAuth consent owner candidate",
+        "IT firewall contact",
+        "ComputerEase production access (not admin)"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Jean Jacobs",
+      "title": "Peerless accounting / ComputerEase super-admin (sole admin)",
+      "email": "JeanJ@peerlessfence.com",
+      "systems": [
+        "ComputerEase",
+        "Deltek support portal"
+      ],
+      "responsibilities": [
+        "ComputerEase user/access-group creation",
+        "ComputerEase super-admin",
+        "Deltek support ticket owner",
+        "SPOF for any CE access change"
+      ],
+      "accessChain": {
+        "isSystemAdmin": true,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": true,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Jeff Kelly",
+      "title": "Peerless leadership / decision contact (likely PM or exec)",
+      "email": null,
+      "systems": [],
+      "responsibilities": [
+        "go-live decision maker candidate",
+        "internal coordinator with Jean and Brian"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Marius (also 'Mario')",
+      "title": "Home Depot developer / IT contact who shared HD Portal API credentials",
+      "email": null,
+      "systems": [
+        "Home Depot Service Center"
+      ],
+      "responsibilities": [
+        "HD Portal API key delivery",
+        "Salesforce sandbox user creation coordination (per his message to Raghuram)",
+        "engaged for 15 more days per Ashley 2026-04-16"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Greg",
+      "title": "Home Depot account contact / gateway to HD API team",
+      "email": null,
+      "systems": [
+        "Home Depot Service Center"
+      ],
+      "responsibilities": [
+        "HD account manager",
+        "ticketing entry point for API team contact"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Cora Barahi",
+      "title": "(Per Marius's statement) creator of Peerless Salesforce sandbox user for DataSkate",
+      "email": null,
+      "systems": [
+        "Salesforce"
+      ],
+      "responsibilities": [
+        "Salesforce sandbox user creation"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Stephanie Rice",
+      "title": "Peerless accounting team",
+      "email": null,
+      "systems": [
+        "ComputerEase"
+      ],
+      "responsibilities": [
+        "Ashley wants her added to ComputerEase to help with workload"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Laura",
+      "title": "Peerless — has more ComputerEase access than other staff (after Jean)",
+      "email": null,
+      "systems": [
+        "ComputerEase"
+      ],
+      "responsibilities": [
+        "candidate backup admin if Jean is unavailable"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Raghuram Potluri",
+      "title": "DataSkate architect (engagement lead)",
+      "email": null,
+      "systems": [],
+      "responsibilities": [
+        "DataSkate engagement lead",
+        "deep research contributor (CE Live Service finding, GCP security flag, AI hallucination warning)"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Venkat B",
+      "title": "DataSkate developer",
+      "email": "venkatb@dataskate.ai",
+      "systems": [],
+      "responsibilities": [
+        "HD Portal API testing",
+        "GCP firewall debugging",
+        "IDP design lead"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Bharath (Bharat)",
+      "title": "DataSkate developer",
+      "email": null,
+      "systems": [],
+      "responsibilities": [
+        "GCP firewall debugging",
+        "HD Portal API testing"
+      ],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    }
+  ],
+  "systemFindings": [
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "API key delivered by Marius via 'confidential email' (clipboard copy disabled). GET against HD API returned HTTP 200 in testing on 2026-04-17.",
+      "source": "peerless transcript 2026-04-17 — Venkat B",
+      "confidence": "high"
+    },
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "Lead identifier = 'F number'. SFIM-vendor-number is a different field that has been confused for the lead ID.",
+      "source": "peerless transcript 2026-04-17 — Venkat B / Ashley Salerno exchange",
+      "confidence": "high"
+    },
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "Update cadence to downstream consumers = ~10 minutes (was 30). Plan at-least-10-min eventual consistency for UC1.",
+      "source": "peerless transcript 2026-04-14 — A. Marcos via Ashley Salerno",
+      "confidence": "high"
+    },
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "finding": "Write endpoints unconfirmed at engagement start — UC4 (exception comment) and UC5-potential (deposit-paid) depend on POST/PATCH endpoint availability. Email fallback via Greg/Marius is an acceptable degradation path.",
+      "source": "peerless transcript 2026-04-15 — Venkat B + hd-portal playbook knownQuirks",
+      "confidence": "high"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Sandbox provisioning by Cora Barahi (per Marius). Connector auth = OAuth 2.0 JWT bearer flow, REST + Bulk API 2.0 + CDC supported, version pin v59.0.",
+      "source": "peerless transcript 2026-04-14 — Raghuram + salesforce_playbook.json + connector-registry",
+      "confidence": "high"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Quote Line Item (standard object) is the canonical source for picket-type/material-type rules — no external Excel needed. Picket-type determination is data-driven from product bundle (e.g. material includes 'cedar' → wood).",
+      "source": "peerless transcript 2026-04-15 — Venkat B / Ashley Salerno",
+      "confidence": "high"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Three org flags must be confirmed before mapping: (1) multi-currency enabled? (2) State and Country Picklists enabled? (3) any Lead/Opportunity query window exceeds 2,000 rows (SOQL OFFSET silent-truncation pattern)?",
+      "source": "salesforce_playbook.json knownQuirks",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "API access requires Deltek 'CE Live Service' Windows service installed on the same VM as ComputerEase. External calls hit a Deltek-managed URL → routes through CE Live Service → local CE instance. Open Deltek support ticket filed 2026-04-17.",
+      "source": "peerless transcript 2026-04-17 — Raghuram Potluri + FK-030",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "API Management menu available in PRODUCTION ONLY. Practice (P3) tenant returns 'Can't access API from practice'. GET-only production testing posture required.",
+      "source": "peerless transcript 2026-04-17 — Jean Jacobs + FK-032",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "Production VM listens on TCP/445 (SMB) only — NOT 443 or 8081. Consistent with CE Live Service relay pattern.",
+      "source": "peerless transcript 2026-04-16 — Brian Cook (netstat finding)",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "User creation requires PWMAINT system account (login from screen, not from menu). Vendor support SLA tagged 'legacy' — 4-hour minimum response.",
+      "source": "peerless transcripts 2026-04-17 — Jean Jacobs + Brian Cook + computerease playbook",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "Single super-admin (Jean Jacobs); no backup. SPOF demonstrated by 2 days of blocked access during her PTO.",
+      "source": "peerless transcript 2026-04-16 — Ashley Salerno / Brian Cook",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "Sequential job-number format: company code + product line + initials (e.g. '26 HD 565 AS'). DataSkate must consume Deltek's next-in-line ID — never allocate its own. Test writes must NOT take next-in-sequence.",
+      "source": "peerless transcript 2026-04-16 — Ashley Salerno",
+      "confidence": "high"
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "finding": "API access group entitlement (Peerless): Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded as sensitive: Payroll, Departments, Inventory, Vendors.",
+      "source": "peerless transcript 2026-04-15 — Ashley Salerno",
+      "confidence": "medium"
+    },
+    {
+      "system": "MuleSoft IDP",
+      "connectorKey": "mulesoft-forge-idp",
+      "finding": "Preferred connector is MuleSoft Forge IDP Connector (io.github.mulesoft-forge:mule-idp-connector v1.0.6). Auth = OAuth 2.0 Client Credentials via Anypoint Connected App with 'Execute Published Actions' permission and EMPTY scope. Per-submission limit: 10MB / 50 pages. Async submit/poll pattern with /v2 suffix on poll endpoint.",
+      "source": "connector-registry.json (mulesoft-forge-idp + anypoint-idp entries, web-search-2026-05-11)",
+      "confidence": "high"
+    },
+    {
+      "system": "MuleSoft IDP",
+      "connectorKey": "mulesoft-forge-idp",
+      "finding": "Forge connector is hosted on Maven Central (NOT Anypoint Exchange) — mavenCentral() repo must be added to pom.xml. Requires Mule 4.6+.",
+      "source": "connector-registry.json — mulesoft-forge-idp notes",
+      "confidence": "high"
+    },
+    {
+      "system": "GCP",
+      "connectorKey": null,
+      "finding": "ComputerEase VM has a static external IP. Pre-engagement: SSH/RDP open to entire internet; only ingress enabled (no egress). Partially remediated during 2026-04-16 firewall debugging session.",
+      "source": "peerless transcripts 2026-04-15 + 2026-04-16 — Brian Cook",
+      "confidence": "high"
+    },
+    {
+      "system": "Cameo",
+      "connectorKey": null,
+      "finding": "Cameo is the recommended interactive UI path into ComputerEase. NOT an integration channel — integration channel is the CE Live Service relay URL.",
+      "source": "peerless transcript 2026-04-16 — Brian Cook",
+      "confidence": "high"
+    }
+  ],
+  "p0Blockers": [
+    {
+      "title": "ComputerEase CE Live Service Relay Installation",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Confirm that the Deltek support ticket Jean Jacobs filed on 2026-04-17 is actively in queue. Ensure Deltek support installs the CE Live Service Windows service on the production ComputerEase VM and provides the Deltek-managed integration URL (the API endpoint — NOT the VM external IP). Expect 4-hour minimum SLA per Deltek's legacy-product classification.",
+      "body": "Per FK-030 and the computerease playbook. ComputerEase APIs are NOT directly internet-accessible. Deltek exposes APIs via a CE Live Service Windows service on the same VM as CE; external callers hit a Deltek-managed URL that routes through CE Live Service to the local CE instance. Plan write-flows only after vendor confirms write endpoints exist in CE Live Service. Production VM listens on TCP/445 — direct VM hits on 443/8081 will surface nothing (expected).",
+      "priority": "P0",
+      "bundledWith": [
+        "ComputerEase Production-Only API Testing Posture",
+        "ComputerEase Backup Super-Admin Provisioning (SPOF)"
+      ]
+    },
+    {
+      "title": "ComputerEase Production-Only API Testing Posture",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Agree in writing with Peerless leadership AND Deltek that integration testing will occur in PRODUCTION ComputerEase with strictly GET-only access groups until Deltek confirms a dev/sandbox API path. Bundle this confirmation request into the same Deltek support ticket as CE Live Service.",
+      "body": "Per FK-032. ComputerEase practice (P3) tenant returns 'Can't access API from practice' — API Management menu is production-only, confirmed by Jean Jacobs 2026-04-17. Object-level API access group must be limited to: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded: Payroll, Departments, Inventory, Vendors. Test writes must NOT consume the next-in-sequence job number — Ashley explicitly avoided pulling the next-in-line number during demo to avoid confusing live operators.",
+      "priority": "P0",
+      "bundledWith": [
+        "ComputerEase CE Live Service Relay Installation",
+        "ComputerEase Backup Super-Admin Provisioning (SPOF)"
+      ]
+    },
+    {
+      "title": "ComputerEase Backup Super-Admin Provisioning (SPOF)",
+      "system": "ComputerEase (Deltek)",
+      "clientAction": "Identify and provision a backup ComputerEase super-admin BEFORE kickoff. Candidate per Ashley Salerno: Laura ('has more access than all of us except for Jean'). Confirm in writing that the backup admin can log in as the PWMAINT system account to create users and grant API access groups. Bundle this with the same Deltek support ticket.",
+      "body": "Per the computerease playbook SPOF condition. Jean Jacobs is currently the sole super-admin; her PTO on 2026-04-15 to 2026-04-17 blocked all developer access changes for 2 days. User creation requires logging in as the PWMAINT system account (password 'mp' historically) from the login screen — NOT from inside any admin menu. Brian Cook on 2026-04-17: 'That's so weird that you have to log into a different account to create users.' Jean: 'It's a program that was DOS so who knows? Some of the stuff is still archaic.'",
+      "priority": "P0",
+      "bundledWith": [
+        "ComputerEase CE Live Service Relay Installation",
+        "ComputerEase Production-Only API Testing Posture"
+      ]
+    },
+    {
+      "title": "GCP VM Firewall + Static IP Confirmation",
+      "system": "GCP (ComputerEase host)",
+      "clientAction": "(a) Reconcile the canonical static external IP of the ComputerEase production VM — transcripts cite 35.222.218.224 AND 135.226.22218; only one is correct. (b) Lock GCP ingress firewall to the MuleSoft tenant IP allowlist only (pre-engagement state was SSH/RDP open to the entire internet — partially remediated 2026-04-16). (c) Confirm egress firewall permits CE Live Service outbound to the Deltek-managed cloud URL.",
+      "body": "Per FK-029 and the PLANNING_CONTEXT.md Critical Notes. The 'allow SSH/RDP from anywhere' state was a pre-existing Peerless security flaw that the team began correcting during scoping. Production VM listens on TCP/445 only — NOT 443/8081 — which is expected per the CE Live Service relay pattern (external integrations target the Deltek-managed URL, not the customer VM directly). DataSkate's GCP role must be scoped editor/dev (NOT super-admin) per principle of least privilege.",
+      "priority": "P0",
+      "bundledWith": []
+    },
+    {
+      "title": "HD Portal Write Endpoints + Developer Login",
+      "system": "Home Depot Service Center (HD Portal)",
+      "clientAction": "Through Greg (HD account manager), file a single HD ticket bundling: (a) confirm HD Portal exposes POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential); (b) request a developer-named HD Portal interactive login for DataSkate so the team can inspect HD-side data shape and field-level mappings; (c) confirm document-download endpoints for 299A/299B/HS-118 signed PDFs (UC3). Use Marius as the developer escalation (engaged 15 more days per Ashley 2026-04-16). If HD does not expose write endpoints, plan to fall back to the email channel (Venkat: 'depending upon the endpoint... we can try to mail as well').",
+      "body": "Per the hd-portal playbook. GET endpoints confirmed (HTTP 200 against HD API on 2026-04-17 by Venkat B). Write endpoints unconfirmed; F-number is the lead identifier (NOT SFIM vendor-number — confirmed exchange between Venkat B and Ashley 2026-04-17). Credentials arrive via clipboard-disabled confidential email — plan a 10–15 minute hand-transcription buffer; do NOT OCR via LLM (FK-031, AI hallucination risk per Raghuram 2026-04-15). Test leads must carry a 'Peerless test' marker to avoid HD contractor-quality scoring penalties.",
+      "priority": "P1",
+      "bundledWith": []
+    }
+  ],
+  "nearbyPeers": [
+    {
+      "name": "Industrial Fence Inc.",
+      "distance": "~30 mi",
+      "location": "Chicago, IL",
+      "revenue": "unknown (not publicly disclosed)",
+      "similarity": "Chicagoland fence contractor with a published presence on Procore — indicates investment in a construction-specific software stack rather than purely manual operations",
+      "what": "Listed on Procore's contractor network — Procore is a construction project management platform that typically integrates with accounting / job-cost systems",
+      "outcome": "Public Procore presence — depth of integration not publicly disclosed",
+      "source": "https://www.procore.com/network/p/industrial-fence-inc-chicago"
+    }
+  ],
+  "competitorFOMO": [
+    {
+      "name": "ServiceTitan + Home Depot Home Services Leads integration",
+      "displayName": "ServiceTitan",
+      "location": "national (HD Pro partner network)",
+      "revenue": "n/a — vendor platform deployed across thousands of Home Depot installer contractors",
+      "systemsUsed": [
+        "Home Depot Service Center",
+        "ServiceTitan CRM"
+      ],
+      "aiUseCase": "Pre-populated Home Depot Pro lead intake — eliminates manual rekeying from HD into the installer's CRM",
+      "aiAgentDescription": "An AI scheduling agent reads each new HD lead the moment it arrives → checks installer route density, technician availability, and job-type SLA → books the appointment slot and writes the confirmation back to HD so the customer sees a scheduled time in the channel they originated in.",
+      "whatTheyBuilt": "Home Depot installer contractors using ServiceTitan manage HD bookings, online requests, and call-center leads from a single intake — leads land pre-populated with customer info, job type, and campaign source, with no manual entry or copy-over.",
+      "savings": "'Eliminate hours of manual data entry' per contractor per week (vendor-reported)",
+      "before": "Installer staff checks HD email/portal for new leads, inputs them into the CRM by hand, fixes transcription errors, copies job-type and campaign-source fields manually",
+      "after": "HD leads auto-populate into the installer's CRM with customer info, job type, and campaign source; staff time redirected to conversion-and-scheduling work",
+      "status": "Live integration platform — adopted across the HD Pro contractor network",
+      "source": "ServiceTitan + The Home Depot partner page",
+      "sourceUrl": "https://www.servicetitan.com/partners/thd-leads",
+      "sourceLabel": "ServiceTitan / The Home Depot partner page",
+      "relevanceTier": "adjacent-industry",
+      "analogyNote": "Same upstream system (Home Depot Service Center), same operational pain (manual lead rekey), different CRM. The structural automation pattern transfers directly to Peerless's Salesforce target. The 10-minute HD update cadence is platform-side behavior, not ServiceTitan-specific.",
+      "fomoAngle": "Every other Home Depot Pro installer using a CRM with an HD integration has already deleted the morning 'check email for new leads' step. Peerless is still doing it because HD Portal → Salesforce is the missing wire — and that's exactly what UC1 builds.",
+      "fomoProfileFit": "operational-pragmatist"
+    },
+    {
+      "name": "Deltek ComputerEase + Salesforce Sales Cloud — SYNC integration pattern",
+      "displayName": "A specialty contractor using Deltek ComputerEase + Salesforce Sales Cloud (anonymized)",
+      "location": "national",
+      "revenue": "n/a — documented integration pattern across multiple Deltek ComputerEase + Salesforce customers",
+      "systemsUsed": [
+        "Deltek ComputerEase",
+        "Salesforce Sales Cloud"
+      ],
+      "aiUseCase": "Bidirectional sync of accounts, orders, and work orders — quotes close in Salesforce and convert to a Job in ComputerEase without rekey",
+      "aiAgentDescription": "An AI agent watches every Salesforce quote status change → detects the 'Save as Final' transition → creates the corresponding ComputerEase Job header, customer record, and budget worksheet → reports the assigned ComputerEase job number back to Salesforce and notifies the operations lead only on exception.",
+      "whatTheyBuilt": "Specialty contractors running both Deltek ComputerEase and Salesforce Sales Cloud have eliminated the manual rekey of closed quotes into ComputerEase as Jobs / Sales Orders — matching the exact 1.5-hour-per-job manual entry Ashley walked through on 2026-04-16.",
+      "savings": "Elimination of the ~1.5-hour manual job entry step per closed quote",
+      "before": "Closed Salesforce quote → operations lead manually rekeys customer number, job number (sequential by company code + product line + initials), budget worksheet, subcontracts into ComputerEase",
+      "after": "Closed Salesforce quote triggers ComputerEase Job creation; operations lead reviews and approves rather than rekeys",
+      "status": "Production pattern documented across the Deltek + Salesforce integration ecosystem",
+      "source": "Documented Deltek ComputerEase + Salesforce integration pattern",
+      "sourceUrl": null,
+      "sourceLabel": null,
+      "relevanceTier": "exact-match",
+      "analogyNote": null,
+      "fomoAngle": "Other contractors on Peerless's exact stack — Salesforce Sales Cloud upstream of Deltek ComputerEase — have already deleted the 1.5-hour-per-job manual entry Ashley walked us through on 2026-04-16. UC2 is the same pattern.",
+      "fomoProfileFit": "operational-pragmatist"
+    },
+    {
+      "name": "Document Crunch",
+      "displayName": "Document Crunch",
+      "location": "national (construction-industry SaaS)",
+      "revenue": "n/a — vendor platform deployed across construction firms",
+      "systemsUsed": [
+        "Construction contract documents",
+        "AI document review"
+      ],
+      "aiUseCase": "AI-driven contract review and risk-clause validation for construction documents — reduces contract review from weeks to minutes",
+      "aiAgentDescription": "An AI agent reads every signed contract the moment it lands → extracts clause-level fields → validates them against the source quote and a rule library (price match, signature legibility, permit flag, deposit threshold) → flags only the exception cases for human review and routes them to the document owner before the job is opened.",
+      "whatTheyBuilt": "Construction firms using Document Crunch have shortened contract review from weeks to minutes — AI identifies ambiguities, validates contract clauses, surfaces risk language, and flags missing required fields.",
+      "savings": "Contract review time reduced from weeks to minutes (vendor-reported)",
+      "before": "Operations staff reads every 299A, 299B, HS-118 by hand, looking for mismatched prices, illegible signatures, both yes/no boxes ticked, missing permit flag, non-Friday date",
+      "after": "AI extracts each field, runs the deterministic rule set, and surfaces only the exceptions — staff reviews the exception list, not the document pile",
+      "status": "Production SaaS used across construction firms",
+      "source": "Document Crunch — AI Construction Risk Management Platform",
+      "sourceUrl": "https://www.documentcrunch.com/",
+      "sourceLabel": "documentcrunch.com",
+      "relevanceTier": "same-industry",
+      "analogyNote": "Same vertical (construction), same problem class (contract / risk-clause review), different commercial product. Peerless's UC3 builds an equivalent capability in-house using MuleSoft IDP against the exact contract set Ashley reviews daily (HS-105, 299A, 299B, HS-118) plus Peerless's specific rules (Wisconsin 99% deposit, Friday-date, both-boxes-ticked).",
+      "fomoAngle": "Other construction firms have already shifted contract review from 'read every document' to 'review the exception list.' Peerless is in the 'read every document' bucket right now. UC3 + UC4 move you to the exception list.",
+      "fomoProfileFit": "operational-pragmatist"
+    },
+    {
+      "name": "McKinsey 2024 — The impact and opportunities of automation in construction",
+      "displayName": "McKinsey 2024 construction-automation insight",
+      "location": "n/a (industry analyst)",
+      "revenue": "n/a (industry analyst)",
+      "systemsUsed": [
+        "construction industry (cross-system)"
+      ],
+      "aiUseCase": "Quantified productivity / cost-reduction gap between data-driven and non-data-driven construction firms",
+      "aiAgentDescription": "Industry-stat entry — McKinsey's finding is that data-driven construction firms outperform peers because joined data enables both automation and AI reasoning.",
+      "whatTheyBuilt": "Industry-wide analyst finding: data-driven construction companies achieve productivity gains of 14–15% and cost reductions of 4–6% compared to industry averages. Construction sector overall productivity grew only 0.4% annually from 2000 to 2024 — vs. 2% economy-wide and 3% in manufacturing.",
+      "savings": "14–15% productivity gain and 4–6% cost reduction at firm level (analyst-reported)",
+      "before": "Construction sector's 0.4%/year productivity baseline — manual data entry, disconnected systems, paper-based job costing",
+      "after": "Data-driven firms with joined CRM + job-costing data operate at the 14–15% productivity gain bucket",
+      "status": "Published McKinsey research, 2024",
+      "source": "McKinsey & Company — The impact and opportunities of automation in construction",
+      "sourceUrl": "https://www.mckinsey.com/capabilities/operations/our-insights/the-impact-and-opportunities-of-automation-in-construction",
+      "sourceLabel": "mckinsey.com",
+      "relevanceTier": "industry-stat",
+      "analogyNote": "Peerless sits in McKinsey's 0.4%-baseline bucket today — Salesforce data, ComputerEase data, and HD Portal data all live in separate boxes. The four confirmed flows + IDP validation are the entry door to the 14–15% bucket.",
+      "fomoAngle": "McKinsey's 2024 number: 14–15% productivity gain for data-driven construction firms vs. 0.4%/year for everyone else. The price of staying in the 0.4% bucket is paid by Ashley every morning.",
+      "fomoProfileFit": "roi-analytical"
+    }
+  ],
+  "aiThoughtStarters": [
+    "Teams in residential construction are using AI agents to auto-acknowledge Home Depot Pro leads — your AgentForce agent could send a structured response back through the HD comment channel the moment a lead arrives, replacing Ashley's morning HD reconciliation pass.",
+    "Teams in specialty trades are using AI agents to flag ComputerEase job-cost burn rates in real time — your AgentForce agent could read Job Totals nightly and surface jobs running over budget-worksheet target price 30 days before they finish, instead of finding margin erosion at close-out.",
+    "Teams in home improvement are using AI agents to read signed contracts and auto-populate downstream ERP fields — once IDP pulls fields from HS-118 / 299A / 299B, an AgentForce agent could create the ComputerEase budget-worksheet draft for Ashley to approve, instead of her manually rekeying 1.5 hours per job.",
+    "Other construction firms are converting state-specific compliance rules (Wisconsin 99% deposit, Friday-date, both-yes/no-boxes-ticked, permit-required-flag-one-value) into deterministic agent checks — the rule set Ashley enforces by hand becomes an AgentForce-callable validator that runs before any human sees the document."
+  ],
+  "psychologyProfile": {
+    "primaryProfile": "operational-pragmatist",
+    "primaryProfileLabel": "Operational Pragmatist",
+    "secondaryProfile": null,
+    "secondaryProfileLabel": null,
+    "signalCounts": {
+      "operational-pragmatist": 5,
+      "roi-analytical": 1,
+      "risk-averse-conservative": 0,
+      "peer-pressure": 0,
+      "visionary-strategic": 0,
+      "competitive-leverager": 0,
+      "internal-champion": 0,
+      "budget-constrained": 0,
+      "time-pressured": 0,
+      "systematic-evaluator": 0
+    },
+    "matchedPhrases": {
+      "operational-pragmatist": [
+        "I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box",
+        "If that could integrate and flow back through an API, that was awesome, that would work",
+        "we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead"
+      ],
+      "roi-analytical": [
+        "save us about five grand a month (Brian Cook re: GCP→Deltek cloud move)"
+      ]
+    },
+    "primaryPainQuote": "So a lot of the times I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box.",
+    "aspirationQuote": "If that could integrate and flow back through an API, that was awesome, that would work.",
+    "skepticismSignals": [
+      "We're considered legacy. So, 4 hours, it won't be 2. — Brian Cook 2026-04-17 (re: Deltek support SLA)",
+      "It's a program that was DOS so who knows? Some of the stuff is still archaic. — Jean Jacobs 2026-04-17",
+      "I'm reaching out to our contact, whose name is Greg... it's never the same way, because some say, 'Do this instead.' — Ashley Salerno 2026-04-14 (re: HD support inconsistency)",
+      "I won't argue with Jean. — Ashley Salerno 2026-04-16 (re: single-admin SPOF)"
+    ],
+    "excitementPhrases": [
+      "Now, we have a lot of ideas on the business process, so it will really help us to grab the requirements. — Raghuram Potluri 2026-04-14",
+      "There we go. Now I'm already peeing to this machine. Okay. This is what we needed. This is big. — Brian Cook 2026-04-16 (RDP breakthrough)"
+    ],
+    "ebAttributedQuotes": [],
+    "blendNote": null,
+    "detectedAt": "2026-05-22",
+    "newProfileCreated": false
+  },
+  "verticalSlug": "construction",
+  "revenueBracket": "$15M-$50M",
+  "logoUrl": "https://peerlessfence.com/wp-content/uploads/2024/02/logo-01.png",
+  "systemPrerequisites": [
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "prerequisites": [
+        "HD Portal API key delivered (Marius confirmed delivery; copy-paste-disabled email — do NOT OCR via LLM; hand-transcribe per FK-031)",
+        "Lead identifier format documented: 'F number' (NOT SFIM vendor number; confirmed 2026-04-17)",
+        "Write-back endpoints validated: HD comment endpoint and/or email channel for UC4 exception write-back",
+        "Deposit-paid read/write endpoint confirmed before promoting UC5",
+        "Greg (HD account contact) + Marius (HD developer, engaged 15 more days per Ashley 2026-04-16) accessible as API team escalation path"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate calls HD API to read leads (10-minute polling), write exception comments, and (pending endpoint confirmation) read deposit-paid status.",
+        "assumedPreExists": "HD Portal tenant for Peerless is provisioned, API keys are active, and Peerless Pro-account status is in good standing.",
+        "outOfScope": "HD Portal UI changes, SLA negotiations, account-manager escalations beyond Greg, modifications to HD's 10-minute internal update cadence."
+      }
+    },
+    {
+      "system": "Salesforce",
+      "prerequisites": [
+        "Sandbox tenant provisioned by Cora Barahi for DataSkate user (per Marius 2026-04-14)",
+        "Standard objects accessible: Lead, Account, Opportunity, Quote, Quote Line Item, Project, Sales Order",
+        "External ID fields created on Lead/Account/Quote keyed to HD F-number and ComputerEase job number BEFORE go-live (required for idempotent upserts)",
+        "Confirm multi-currency org flag (likely false — single-USD)",
+        "Confirm State and Country Picklists enabled in Setup",
+        "Confirm no Lead/Opportunity query window exceeds 2,000 rows (use cursor pagination via nextRecordsUrl — not OFFSET)",
+        "Backup Salesforce admin identified — Cora Barahi cannot be SPOF for sandbox/prod credential refreshes"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate reads/writes Quote, Quote Line Item, Lead, Account, Project, Sales Order, and custom external-ID fields.",
+        "assumedPreExists": "Salesforce org configuration, user licenses, profile/permission-set setup, custom field creation, and Quote Line Item product-bundle data are owned by Peerless.",
+        "outOfScope": "Net-new Salesforce Lightning page layout design, AppExchange app procurement, Sales Cloud licensing changes, AgentForce licensing (Phase 3 prerequisite, not Phase 1 scope)."
+      }
+    },
+    {
+      "system": "ComputerEase (Deltek)",
+      "prerequisites": [
+        "Deltek CE Live Service Windows service installed on the ComputerEase production VM (Deltek support ticket filed 2026-04-17 by Jean Jacobs must be closed and Deltek-managed integration URL provided)",
+        "API Management menu confirmed available in PRODUCTION tenant only — sandbox/practice has no API surface (FK-032). Agree GET-only production testing posture in writing.",
+        "Company code 00 (IL and WI Home Depot residential) plus any additional in-scope company codes documented",
+        "Sequential job-numbering rule documented: company code + product line + initials (e.g. '26 HD 565 AS') — DataSkate must consume Deltek's next-in-line ID, not allocate its own",
+        "Object-level API access granted to: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded: Payroll, Departments, Inventory, Vendors.",
+        "Backup ComputerEase super-admin provisioned BEFORE kickoff — Jean Jacobs is currently sole admin (SPOF). Candidate: Laura.",
+        "Deltek support SLA acknowledged: 4-hour minimum (legacy-product classification per Brian Cook 2026-04-17)"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate calls the Deltek-managed integration URL (relayed through CE Live Service into the local CE instance) to create Jobs, Customers, Budget Worksheets, and Subcontracts in the production tenant.",
+        "assumedPreExists": "ComputerEase production tenant licensed and accessible, CE Live Service installed on the same VM, Deltek support contract in place, Jean's super-admin access stable.",
+        "outOfScope": "ComputerEase ERP upgrade (~v26.x, DOS-era core), Deltek cloud migration (Brian mentioned ~$5K/month savings — separate decision), payroll integration, vendor master sync, inventory sync."
+      }
+    },
+    {
+      "system": "GCP (ComputerEase hosting infrastructure)",
+      "prerequisites": [
+        "External static IP confirmed (cited variously as 35.222.218.224 / 135.226.22218 in transcripts — must reconcile to a single canonical value)",
+        "Ingress firewall locked to MuleSoft tenant allowlist only — pre-engagement state was 'SSH/RDP open to entire internet' (Brian Cook 2026-04-15)",
+        "Egress firewall permits CE Live Service outbound to Deltek-managed cloud URL",
+        "Internal listening ports documented (production VM observed on TCP/445 SMB — NOT 443 or 8081)",
+        "Principle of least privilege applied: DataSkate GCP access scoped to editor/dev role for debugging, not super-admin"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate validates GCP VM reachability from MuleSoft tenant on the correct port via the static IP allowlist. Firewall rule recommendations during scoping.",
+        "assumedPreExists": "GCP project, billing, IAM, and Brian Cook's admin role are owned by Peerless/Elevate.",
+        "outOfScope": "Migration off GCP to Deltek cloud, GCP IAM policy redesign beyond firewall rule recommendations, GCP cost optimization."
+      }
+    },
+    {
+      "system": "MuleSoft IDP (Intelligent Document Processing)",
+      "prerequisites": [
+        "Anypoint Connected App provisioned with 'Execute Published Actions' permission and EMPTY scope (not 'urn:anypoint:idp') — per FK-019",
+        "Each contract document confirmed under 50 pages and 10MB (HS-105, 299A, 299B, HS-118)",
+        "IDP poll endpoint configured with /v2 suffix",
+        "IDP action published and trained on the four contract templates",
+        "Confirmation that IDP is the chosen extractor vs. alternative (Venkat 2026-04-15: 'I don't think we would be using an LLM, but I'll try to understand once we have a couple of samples')",
+        "Validation rules documented as deterministic checks (signatures legible, dates are Fridays, 299A and 299B contract prices match, yes/no boxes not both ticked, permit-required flag is one value, 100% deposit except Wisconsin 99%)"
+      ],
+      "scopeBoundary": {
+        "inScope": "DataSkate publishes the IDP action, configures the Anypoint Connected App, and wires extraction → validation → exception write-back into the Salesforce-to-HD flow.",
+        "assumedPreExists": "Peerless has representative samples of HS-105, 299A, 299B, HS-118 for IDP training. MuleSoft Anypoint subscription includes IDP.",
+        "outOfScope": "LLM-based extraction (Venkat explicitly steered away). DocHub signing workflow remains UI-only unless write-back is separately scoped."
+      }
+    },
+    {
+      "system": "DocHub",
+      "prerequisites": [
+        "DocHub remains the human-signing tool for HS-118 — not a system-to-system integration target",
+        "If write-back is added later: confirm DocHub API + Peerless tenant credentials"
+      ],
+      "scopeBoundary": {
+        "inScope": "Out-of-scope acknowledgment — DocHub is a UI-only signing path. IDP picks up the signed PDF artifact downstream.",
+        "assumedPreExists": "Peerless DocHub tenant + user licenses + signed-document workflow.",
+        "outOfScope": "DocHub template authoring, signature workflow design, DocHub-to-Salesforce write-back (deferred unless promoted)."
+      }
+    },
+    {
+      "system": "Cameo",
+      "prerequisites": [
+        "Cameo is a remote-desktop / virtual-app gateway used for UI access to ComputerEase — NOT an integration channel",
+        "No DataSkate dependency on Cameo for the data plane"
+      ],
+      "scopeBoundary": {
+        "inScope": "None — documented as out-of-scope so it does not appear later as a surprise question.",
+        "assumedPreExists": "Cameo tenant, admin owned by Brian Cook.",
+        "outOfScope": "Cameo session brokerage, RDP-based automation, Cameo as a data path of any kind."
+      }
+    }
+  ],
+  "corporateStack": {
+    "operatingPlatform": {
+      "siblingBrands": [
+        {
+          "name": "Peerless Fence Group",
+          "region": "Midwest",
+          "footprint": "West Chicago (IL), Round Lake (IL), Bloomington (IL), Greenwood (IN), Cincinnati (OH), Delaware (OH)",
+          "website": "https://peerlessfence.com",
+          "linkedIn": null,
+          "acquisitionYear": 2023,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "peerless-fence-group",
+          "isCurrentClient": true,
+          "integrationSignal": "THIS IS THE CURRENT DATASKATE CLIENT — UC1–UC4 (HD Portal → Salesforce → ComputerEase → IDP validation) are being designed inside this brand and are intended as the integration template for the other 5 Elevate sibling brands.",
+          "tierAResearched": false
+        },
+        {
+          "name": "Florida State Fence",
+          "region": "Southeast (Florida)",
+          "footprint": "Tampa (FL), Ocala (FL)",
+          "website": null,
+          "linkedIn": null,
+          "acquisitionYear": null,
+          "sourceUrl": null,
+          "slug": "florida-state-fence",
+          "isCurrentClient": false,
+          "integrationSignal": "unknown — no public integration footprint captured yet. First logical second-engagement candidate post-Peerless: Florida adds non-Midwest tax/permit rules + separate ComputerEase company code + separate HD Portal tenant footprint.",
+          "tierAResearched": false
+        },
+        {
+          "name": "Foremost Fence",
+          "region": "Southeast (Florida)",
+          "footprint": "Sarasota (FL)",
+          "website": null,
+          "linkedIn": null,
+          "acquisitionYear": null,
+          "sourceUrl": null,
+          "slug": "foremost-fence",
+          "isCurrentClient": false,
+          "integrationSignal": "unknown — no public integration footprint captured yet. Likely shares Florida regulatory profile + tax/permit rule set with Florida State Fence.",
+          "tierAResearched": false
+        },
+        {
+          "name": "Allied Fence Co.",
+          "region": "Southeast (Georgia)",
+          "footprint": "Mableton / Atlanta Metro (GA)",
+          "website": null,
+          "linkedIn": null,
+          "acquisitionYear": null,
+          "sourceUrl": null,
+          "slug": "allied-fence-co",
+          "isCurrentClient": false,
+          "integrationSignal": "unknown — no public integration footprint captured yet. Georgia-specific permit + deposit rule set + GA state tax. Separate ComputerEase company code likely.",
+          "tierAResearched": false
+        },
+        {
+          "name": "Jan Fence",
+          "region": "Northeast",
+          "footprint": "Pequannock (NJ)",
+          "website": null,
+          "linkedIn": null,
+          "acquisitionYear": null,
+          "sourceUrl": null,
+          "slug": "jan-fence",
+          "isCurrentClient": false,
+          "integrationSignal": "unknown — no public integration footprint captured yet. NJ-specific Home Improvement Contractor (HIC) registration rules. Separate ComputerEase company code likely.",
+          "tierAResearched": false
+        },
+        {
+          "name": "MyFence2Go",
+          "region": "Digital / Direct-to-Consumer",
+          "footprint": "Nationwide e-commerce material supply chain",
+          "website": null,
+          "linkedIn": null,
+          "acquisitionYear": null,
+          "sourceUrl": null,
+          "slug": "myfence2go",
+          "isCurrentClient": false,
+          "integrationSignal": "Distinct from installer-contractor siblings — e-commerce storefront + WMS / fulfillment + ComputerEase as inventory/financial backend. Does NOT consume HD Portal Pro leads. Peerless integration template applies partially: Salesforce ↔ ComputerEase backbone reusable; HD Portal layer not applicable.",
+          "tierAResearched": false
+        }
+      ],
+      "siblingsTruncated": false,
+      "name": "Elevate Fence Partners",
+      "website": null,
+      "linkedIn": "https://www.linkedin.com/company/elevate-fence-partners",
+      "description": "National fence-contractor platform operating a regional-brand strategy: one anchor brand per geographic territory feeding shared corporate infrastructure (M&A, accounting, FP&A, marketing, IT). Peerless Fence Group is the Midwest regional anchor.",
+      "platformShape": "platform-above",
+      "regionalStrategy": "Platform operates 6 sibling brands by region/channel: Midwest (Peerless Fence Group), Southeast-FL (Florida State Fence, Foremost Fence), Southeast-GA (Allied Fence Co.), Northeast (Jan Fence), Digital/DTC nationwide (MyFence2Go).",
+      "rollupHistoryNarrative": "Peerless Fence Group (Midwest anchor, acquired by Akoya Jan 2023) joined Elevate Fence Partners via a strategic alliance described by Dean White as a path to national scale. Elevate operates as the portfolio-coordination layer above Peerless and its 5 sibling brands.",
+      "platformExecutiveTeam": [
+        {
+          "name": "Robert DiPietro",
+          "title": "Chief Executive Officer",
+          "scope": "Directs overarching organic growth strategy and operations across all 6 sibling brands.",
+          "linkedIn": null,
+          "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5",
+          "isExecutiveSponsorCandidate": false
+        },
+        {
+          "name": "Kirk Kistinger",
+          "title": "Chief Financial Officer",
+          "scope": "Manages central financial structures, risk analysis, and debt leverage for acquisitions across the portfolio.",
+          "linkedIn": null,
+          "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5",
+          "isExecutiveSponsorCandidate": false
+        },
+        {
+          "name": "Matt Blum",
+          "title": "Director of Mergers & Acquisitions",
+          "scope": "Sources and acquires independent fencing companies for the platform. Each acquisition adds a new ComputerEase company code and a new HD Portal tenant — i.e. each acquisition = a new template-deployment engagement for DataSkate.",
+          "linkedIn": null,
+          "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5",
+          "isExecutiveSponsorCandidate": false
+        },
+        {
+          "name": "Steve Herold",
+          "title": "Senior Director of Financial Planning & Analysis",
+          "scope": "Coordinates consolidated financial reporting across the portfolio. Cross-portfolio FP&A requires consistent ComputerEase data structures across all 6 brands — i.e. the integration standardization this engagement is designing.",
+          "linkedIn": null,
+          "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5",
+          "isExecutiveSponsorCandidate": false
+        },
+        {
+          "name": "Amy Sinchak",
+          "title": "Director of Accounting",
+          "scope": "Oversees internal audits and unified corporate accounting controls across the portfolio.",
+          "linkedIn": null,
+          "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5",
+          "isExecutiveSponsorCandidate": false
+        },
+        {
+          "name": "Greg Sulik",
+          "title": "Director of Marketing",
+          "scope": "Leads cross-brand lead generation and unified regional digital marketing. Cross-brand pipeline visibility requires a consistent Salesforce Lead → Quote → Job flow per sibling brand — UC1 (HD Portal → Salesforce Lead) is one piece of Greg's cross-brand pipeline goal.",
+          "linkedIn": null,
+          "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5",
+          "isExecutiveSponsorCandidate": false
+        },
+        {
+          "name": "Brian Cook",
+          "title": "Director of Information Technology",
+          "scope": "Manages standardized ERP systems and technology integrations for all portfolio companies. CROSS-REFERENCE: same person as 'Brian Cook' in sage.json namedContacts (local title: 'Peerless IT / infrastructure admin'). His presence in the 2026-04-15/16/17 scoping sessions was Brian operating in his platform-IT-director role — setting the integration standard that will govern all 6 Elevate sibling brands.",
+          "linkedIn": "https://www.linkedin.com/in/brian-cook-26500762/",
+          "sourceUrl": "https://rocketreach.co/brian-cook-email_28292704",
+          "isExecutiveSponsorCandidate": true
+        }
+      ],
+      "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5",
+      "relationshipUncertainty": "The Akoya Capital Partners → Peerless acquisition (2023-01-01) and the Elevate Fence Partners alliance are not fully resolved from public sources. Open question: did Akoya invest directly in Elevate (and Peerless came along as one of Elevate's brands), or did Akoya invest in Peerless first which then joined Elevate independently? Pending engagement-side confirmation."
+    },
+    "financialSponsor": {
+      "name": "Akoya Capital Partners",
+      "website": "https://akoyacapital.com",
+      "hq": "Chicago, IL",
+      "foundedYear": 2005,
+      "investmentRange": "$25M–$200M revenue middle-market companies",
+      "sectorFocus": [
+        "Industrial Chemicals",
+        "Products & Packaging",
+        "Distribution & Manufacturing",
+        "Consumer Foods & Home Services",
+        "Professional Information Services"
+      ],
+      "thesisForClient": "Akoya stated explicit intent to acquire a 'Platform Investment in Residential Home Services' — Peerless Fence Group fills that platform slot, implying continued funding of bolt-on acquisitions in the residential home-services category.",
+      "acquisitionDate": "2023-01-01",
+      "relationshipToOperatingPlatform": "unclear",
+      "relationshipUncertainty": "Akoya acquired Peerless (Jan 2023); Elevate Fence Partners platform structure appears to have emerged concurrently or shortly after. Whether Akoya invested in Elevate as a vehicle (platform-above) or in Peerless directly (which then joined Elevate independently) is not resolvable from public sources.",
+      "sourceUrl": "https://akoyacapital.com/portfolio/",
+      "portfolioCompanies": [
+        {
+          "name": "Edge Adhesives",
+          "website": "https://edgeadhesives.co",
+          "category": "Specialty Chemicals (construction, transportation, electrical, HVAC adhesives/sealants/tapes/gaskets)",
+          "integrationSignal": "Co-acquired by Akoya + Gladstone Investment in March 2014; serves construction and HVAC markets. No public Salesforce / ERP integration case study found. Adjacent industry pattern (building products manufacturer) — potential downstream MuleSoft expansion candidate.",
+          "sourceUrl": "https://akoyacapital.com/acquisitions/akoya-capital-acquires-edge-adhesives/",
+          "slug": "edge-adhesives"
+        },
+        {
+          "name": "Indigo Signworks",
+          "website": "https://www.indigosignworks.com",
+          "category": "Consumer Products / Signage (full-service custom signage — design, manufacture, install, service across ND, SD, MN, WI, IA)",
+          "integrationSignal": "Hybrid product+service business model (manufacture + install + service) — structurally most similar to Peerless's business model among Akoya's portfolio. Multi-state footprint parallel to Peerless. No public Salesforce + ComputerEase integration footprint found.",
+          "sourceUrl": "https://akoyacapital.com/portfolio/",
+          "slug": "indigo-signworks"
+        },
+        {
+          "name": "Alinabal Holding Corporation",
+          "website": "https://alinabal.com",
+          "category": "Manufacturing / Precision Components (contract manufacturer — precision machined, stamped, molded metal components)",
+          "integrationSignal": "Manufacturing operations imply meaningful ERP / MES / shop-floor integration needs. No public Salesforce / MuleSoft case study found.",
+          "sourceUrl": "https://akoyacapital.com/portfolio/",
+          "slug": "alinabal-holding"
+        }
+      ]
+    },
+    "ownership": "pe-backed-platform-of-brands",
+    "operatingBrand": {
+      "name": "Peerless Fence Group",
+      "website": "https://peerlessfence.com",
+      "linkedIn": "https://www.linkedin.com/company/peerless-fence",
+      "foundedYear": 1961,
+      "hqAddress": "220 W River Dr., St. Charles, IL 60174",
+      "branchLocations": [
+        {
+          "city": "St. Charles",
+          "state": "IL",
+          "role": "HQ"
+        },
+        {
+          "city": "West Chicago",
+          "state": "IL",
+          "role": "branch"
+        },
+        {
+          "city": "Round Lake",
+          "state": "IL",
+          "role": "branch"
+        },
+        {
+          "city": "Bloomington",
+          "state": "IL",
+          "role": "branch"
+        },
+        {
+          "city": "Greenwood",
+          "state": "IN",
+          "role": "branch"
+        },
+        {
+          "city": "Cincinnati",
+          "state": "OH",
+          "role": "branch"
+        },
+        {
+          "city": "Delaware",
+          "state": "OH",
+          "role": "branch"
+        }
+      ],
+      "description": "Largest independently owned fence contractor in the Midwest; family-founded 1961; residential + commercial fence installation across IL, IN, OH, southern WI; Home Depot Pro-services partner.",
+      "slug": "peerless-fence-group",
+      "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+      "legacyBoltOns": [
+        {
+          "name": "Tru-Link Fence",
+          "acquisitionYear": 2013,
+          "originalLocation": "Illinois",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "tru-link-fence",
+          "note": "Pre-platform bolt-on; absorbed into Peerless Fence Group brand."
+        },
+        {
+          "name": "Imperial Fence Company",
+          "acquisitionYear": 2014,
+          "originalLocation": "Illinois",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "imperial-fence-company",
+          "note": "Pre-platform bolt-on; operates as absorbed brand."
+        },
+        {
+          "name": "Shogren Fence",
+          "acquisitionYear": 2015,
+          "originalLocation": "Illinois",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "shogren-fence",
+          "note": "Pre-platform bolt-on; absorbed."
+        },
+        {
+          "name": "IFFT Quality Fencing",
+          "acquisitionYear": 2016,
+          "originalLocation": "Illinois",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "ifft-quality-fencing",
+          "note": "Pre-platform bolt-on; absorbed."
+        },
+        {
+          "name": "Total Fencing",
+          "acquisitionYear": 2016,
+          "originalLocation": "Indiana",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "total-fencing",
+          "note": "Pre-platform bolt-on; absorbed."
+        },
+        {
+          "name": "Link-n-Wood Fence Co.",
+          "acquisitionYear": 2017,
+          "originalLocation": "Illinois",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "link-n-wood-fence",
+          "note": "Pre-platform bolt-on; absorbed."
+        },
+        {
+          "name": "Woodland Fence",
+          "acquisitionYear": 2017,
+          "originalLocation": "Wisconsin",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "woodland-fence",
+          "note": "Pre-platform bolt-on; absorbed. Brought in southern WI footprint."
+        },
+        {
+          "name": "The Fence Store",
+          "acquisitionYear": 2018,
+          "originalLocation": "Ohio",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "the-fence-store",
+          "note": "Pre-platform bolt-on; absorbed. Brought in OH footprint."
+        },
+        {
+          "name": "Peerless Fence Supply",
+          "acquisitionYear": 2019,
+          "originalLocation": "Illinois",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "peerless-fence-supply",
+          "note": "Pre-platform materials/supply arm; absorbed."
+        },
+        {
+          "name": "Peerless Systems",
+          "acquisitionYear": 2019,
+          "originalLocation": "Illinois",
+          "website": null,
+          "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+          "slug": "peerless-systems",
+          "note": "Pre-platform operations unit; absorbed."
+        }
+      ]
+    },
+    "leadership": {
+      "founders": [
+        {
+          "name": "Art White",
+          "role": "co-founder",
+          "stillActive": false
+        },
+        {
+          "name": "Robert White",
+          "role": "co-founder",
+          "stillActive": false
+        },
+        {
+          "name": "Dean White",
+          "role": "founder / second-generation CEO (now Executive Chairman)",
+          "stillActive": true
+        }
+      ],
+      "executiveChairman": {
+        "name": "Dean White",
+        "transitionedFrom": "CEO",
+        "transitionDate": "2024-02-05"
+      },
+      "ceo": null,
+      "president": {
+        "name": "Roger Greenhagel",
+        "appointmentDate": "2024-02-05"
+      },
+      "leadershipTransitionNote": "Dean White (second-generation family founder) transitioned from CEO to Executive Chairman on 2024-02-05. Roger Greenhagel, previously VP of Material Sales at Peerless, was simultaneously appointed President — a classic post-PE professional-management transition. Dean remains active as chairman; day-to-day operations now run through Greenhagel.",
+      "sourceUrl": "https://www.businesswire.com/news/home/20240205568305/en/Peerless-Fence-Group-Announces-Executive-Changes"
+    },
+    "engagementEntity": {
+      "name": "Peerless Fence Group",
+      "sameAsOperatingBrand": true,
+      "note": "DataSkate's MSA and SOW route through the Peerless Fence Group operating entity, not through Akoya or Elevate. A successful Peerless engagement is the proof-of-concept that Brian Cook (Elevate Director of IT) takes to Robert DiPietro (Elevate CEO) to authorize the cross-portfolio integration rollout — creating downstream value for both Elevate and Akoya that materially exceeds the Peerless engagement fee."
+    },
+    "subsidiaries": [],
+    "collaborators": [
+      {
+        "name": "Home Depot (Pro Services Channel)",
+        "relationshipType": "channel-partner",
+        "website": "https://www.homedepot.com/c/Pro_ServicesPro",
+        "sourceUrl": "https://peerlessfence.com",
+        "why": "A material share of Peerless revenue flows through HD Portal as Pro-contractor leads. HD Portal API, HD F-number lead identifier, HD contract documents (HS-105, 299A, 299B, HS-118), HD deposit-paid status, and HD exception write-back channel are all in-scope integration touchpoints for UC1–UC4."
+      }
+    ],
+    "strategicPartnerships": [
+      {
+        "name": "Elevate Fence Partners",
+        "partnerType": "national-expansion",
+        "website": null,
+        "sourceUrl": null,
+        "description": "Strategic nationwide partnership between Peerless Fence Group and Elevate Fence Partners. Dean White (second-generation family owner, now Executive Chairman) partnered with Elevate to expand Peerless from a Midwest regional contractor into a growing national brand. Elevate operates 6 regional brands; Peerless is the Midwest anchor. This is a platform-above relationship — Elevate has its own executive team and multi-brand portfolio.",
+        "integrationImpact": "Materially expands integration scope: the HD Portal → Salesforce → ComputerEase template designed for Peerless becomes the template for a multi-state national rollout. Each new state adds a ComputerEase company code, state-specific permit and deposit rules, and an expanded HD Portal footprint. Architecture decisions made for Peerless today directly determine how cleanly the template scales to every Elevate-enabled state."
+      }
+    ],
+    "dealUrgencyMultipliers": [
+      "PORTFOLIO-TEMPLATE: The current engagement is being designed inside Peerless Fence Group, but Brian Cook — Elevate Fence Partners' Director of IT — is already in the scoping room making platform-standard architecture decisions. Every choice made for Peerless company code 00 is the standard that will govern all 6 Elevate company codes. This is the rarest deal-urgency multiplier: the platform executive sponsoring the integration standard is in the room.",
+      "SIBLING-EXPANSION: Elevate operates a regional-brand strategy with 4 installer-contractor siblings (Florida State Fence, Foremost Fence, Allied Fence Co., Jan Fence) that run the same HD Portal → CRM → ComputerEase model as Peerless. Each sibling = a new ComputerEase company code + state-specific permit/deposit/contract rule extensions for UC3's validation engine. Build the template once for Peerless; deploy it 4 times.",
+      "PE-FUTURE-DEAL: Akoya Capital Partners explicitly acquired Peerless as a platform investment in Residential Home Services. A successful Peerless integration template positions DataSkate as the integration partner of record for Akoya's next residential home-services acquisition — pipeline created by a single engagement.",
+      "SUB-ROLLUP-EXPANSION: Peerless's own 10-acquisition pre-platform rollup history (Tru-Link Fence, Imperial Fence Company, Shogren Fence, IFFT Quality Fencing, Total Fencing, Link-n-Wood, Woodland Fence, The Fence Store, 2013–2019) means even within the operating brand there are sibling-like legacy brands that may retain separate operations or company codes — each one is a same-template second engagement candidate at the operating-brand level, before the Elevate siblings are even engaged.",
+      "NEW-LEADERSHIP: Roger Greenhagel (appointed President 2024-02-05) is in a post-PE first-leadership-window where IT modernization decisions tend to be made and resourced. The combination of new president + recent PE acquisition + legacy ERP (ComputerEase v26.x, DOS-era core) + sole-admin SPOF + national expansion via Elevate is a textbook digital-transformation trigger stack.",
+      "GREENFIELD: No Elevate sibling brand has a known integration footprint — DataSkate sets the cross-portfolio template from scratch. Every future sibling inherits the pattern Peerless establishes. The cost of delay is N future re-scopings instead of N template deployments."
+    ],
+    "sourcesNote": "Primary sources: peerlessfence.com/about-us/our-company/ (operating brand history, bolt-ons), businesswire.com/news/home/20240205568305/ (executive changes 2024-02-05), rocketreach.co/elevate-fence-partners-management (Elevate exec team), akoyacapital.com/portfolio/ (sponsor thesis + portfolio companies), mergr.com (Akoya/Peerless acquisition 2023-01-01).",
+    "confidence": "medium",
+    "researchedAt": "2026-05-22"
+  },
+  "systemDiagram": {
+    "svg": "<svg viewBox=\"0 0 500 142\" style=\"width:100%;max-width:500px;height:auto;display:block;margin:8px auto;\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n  <defs>\n    <marker id=\"arr\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L6,3 Z\" fill=\"var(--border)\"/></marker>\n    <style>\n      .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}\n      .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}\n      .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}\n    </style>\n  </defs>\n  <rect class=\"sv-src\" x=\"5\" y=\"35.5\" width=\"140\" height=\"32\" rx=\"6\"/>\n    <text class=\"sv-lsrc\" x=\"75\" y=\"55.5\" text-anchor=\"middle\">Home Depot Service Center</text>\n    <line class=\"sv-line\" x1=\"145\" y1=\"51.5\" x2=\"190\" y2=\"71.0\" marker-end=\"url(#arr)\"/>\n  <rect class=\"sv-src\" x=\"5\" y=\"74.5\" width=\"140\" height=\"32\" rx=\"6\"/>\n    <text class=\"sv-lsrc\" x=\"75\" y=\"94.5\" text-anchor=\"middle\">Salesforce</text>\n    <line class=\"sv-line\" x1=\"145\" y1=\"90.5\" x2=\"190\" y2=\"71.0\" marker-end=\"url(#arr)\"/>\n  <rect x=\"190\" y=\"35.0\" width=\"120\" height=\"72\" rx=\"8\" fill=\"#EBF7FD\" stroke=\"#00a1df\" stroke-width=\"2\"/>\n  <image href=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=\" xlink:href=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=\" x=\"210.0\" y=\"45.0\" width=\"80\" height=\"30\"/>\n  <text x=\"250\" y=\"99.0\" text-anchor=\"middle\" font=\"400 9px system-ui,sans-serif\" style=\"font:400 9px system-ui,sans-serif;fill:#00a1df\">DataSkate Managed</text>\n  <rect class=\"sv-tgt\" x=\"355\" y=\"16.0\" width=\"140\" height=\"32\" rx=\"6\"/>\n    <text class=\"sv-ltgt\" x=\"425\" y=\"36.0\" text-anchor=\"middle\">Salesforce</text>\n    <line class=\"sv-line\" x1=\"310\" y1=\"71.0\" x2=\"355\" y2=\"32.0\" marker-end=\"url(#arr)\"/>\n  <rect class=\"sv-tgt\" x=\"355\" y=\"55.0\" width=\"140\" height=\"32\" rx=\"6\"/>\n    <text class=\"sv-ltgt\" x=\"425\" y=\"75.0\" text-anchor=\"middle\">ComputerEase</text>\n    <line class=\"sv-line\" x1=\"310\" y1=\"71.0\" x2=\"355\" y2=\"71.0\" marker-end=\"url(#arr)\"/>\n  <rect class=\"sv-tgt\" x=\"355\" y=\"94.0\" width=\"140\" height=\"32\" rx=\"6\"/>\n    <text class=\"sv-ltgt\" x=\"425\" y=\"114.0\" text-anchor=\"middle\">Home Depot Service Center</text>\n    <line class=\"sv-line\" x1=\"310\" y1=\"71.0\" x2=\"355\" y2=\"110.0\" marker-end=\"url(#arr)\"/>\n</svg>"
+  },
+  "buyerMap": {
+    "summary": {
+      "economicBuyer": {
+        "name": "Jeff Kelly",
+        "title": "Peerless Leadership / Decision Contact (title unconfirmed from web)",
+        "matchConfidence": "transcript-only",
+        "missingSignal": "Jeff Kelly has no public LinkedIn or press-release presence tying him to Peerless Fence Group. Sage.json characterizes him as 'go-live decision maker candidate.' Roger Greenhagel (President, appointed 2024-02-05) is the web-identified formal authority figure and the most likely formal economic buyer for an integration engagement at this revenue scale. Confirm with Ashley which person receives the proposal and has sign-off authority."
+      },
+      "championOnCall": {
+        "name": "Ashley Salerno",
+        "title": "Operations Lead / Business Process Owner",
+        "matchConfidence": "transcript-only"
+      },
+      "coverageNote": "Roger Greenhagel (President) has not appeared in any scoping call and is not named in sage.json — he is the most likely formal economic buyer but is invisible in the transcripts. Jeff Kelly is named as the decision contact but has no web identity to confirm his title or reporting line. The proposal must be written to travel: Ashley will forward it to Jeff Kelly and likely to Roger Greenhagel. Confirm proposal routing path with Ashley before Hawk generates the final document."
+    },
+    "people": [
+      {
+        "name": "Ashley Salerno",
+        "title": "Operations Lead / Business Process Owner",
+        "company": "Peerless Fence Group",
+        "role": "championOnCall",
+        "isSameAsCaller": false,
+        "isSameAsChampion": false,
+        "sources": [
+          "transcript"
+        ],
+        "transcriptEvidence": {
+          "sageContactIndex": 0,
+          "verbatimMentions": [
+            "I'm going to take the information inside the budget worksheet... I'm going to go to Computer Ease... duplicate a job — 2026-04-16 (1.5h manual rekey walkthrough)",
+            "If that could integrate and flow back through an API, that was awesome, that would work — 2026-04-14 (deposit-paid aspiration)",
+            "we are writing a comment at the hd screen so that should be fine for me — 2026-04-15 (UC4 write-back confirmation)",
+            "this object name should be Find Quote Line Item — 2026-04-15 (Salesforce object identification)"
+          ]
+        },
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "priorRole": null,
+          "backgroundSummary": "Email ashley@peerlessfence.com inferred from transcript context. No public LinkedIn found. She owns the full operational workflow: HD reconciliation, contract review, ComputerEase job entry, deposit lookup. Every confirmed flow UC1–UC4 originates from a pain point she articulated.",
+          "appointmentDate": null,
+          "sourceUrl": null
+        },
+        "accessChain": {
+          "isSystemAdmin": null,
+          "createsApiUsers": false,
+          "ownsVendorSupportLogin": null,
+          "isBackupAdmin": null
+        },
+        "systemsOwned": [
+          "Home Depot Service Center",
+          "Salesforce",
+          "ComputerEase",
+          "DocHub"
+        ],
+        "matchConfidence": "transcript-only",
+        "angleForHawk": "Lead with the 'things that stop on go-live day' list — every bullet in Phase 1 should name a specific morning task that disappears. Ashley's own aspiration quote ('select the deposit paid box... if that could integrate, that would work') is the north star for UC5. The proposal is Ashley's internal business case — it must be written for the leadership above her to sign.",
+        "angleForIvy": "Textbook operational-pragmatist (explicitly tagged in psychology-profiles.json 'observed in peerless' notes). She wants specific tasks to stop being her problem on go-live day. Use her exact transcript language — 'I will go through the backend and go through Home Depot reporting' — in the challenge framing. No AI vision framing needed for the hook.",
+        "talkToBefore": false,
+        "talkToBeforeRationale": null,
+        "talkingPointSeed": "Ashley — the list of things that stop being your morning routine on go-live day IS the scope of the engagement. Walk me through your Tuesday morning step-by-step and we'll build the proposal from that list.",
+        "detractorWarning": null
+      },
+      {
+        "name": "Brian Cook",
+        "title": "Director of Information Technology, Elevate Fence Partners",
+        "company": "Elevate Fence Partners (platform) / Peerless Fence Group (operating brand)",
+        "role": "technicalInfluencer",
+        "isSameAsCaller": false,
+        "isSameAsChampion": false,
+        "sources": [
+          "transcript",
+          "web"
+        ],
+        "transcriptEvidence": {
+          "sageContactIndex": 1,
+          "verbatimMentions": [
+            "It's not a web application. It's hosted on an actual VM. — 2026-04-15",
+            "They're allowing SSH and RDP from anywhere, which is really bad practice. — 2026-04-15",
+            "We're not listening on 443. We're listening on 445. Which is terrible. But that's how I'm in. — 2026-04-16",
+            "There we go. Now I'm already peeing to this machine. Okay. This is what we needed. This is big. — 2026-04-16 (RDP breakthrough)",
+            "We're considered legacy. So, 4 hours, it won't be 2. — 2026-04-17 (Deltek SLA)",
+            "Yeah, it's not a good practice to only have one admin, obviously for situations like this. — 2026-04-16"
+          ]
+        },
+        "webEvidence": {
+          "linkedIn": "https://www.linkedin.com/in/brian-cook-26500762/",
+          "tenureMonths": null,
+          "priorRole": "Previous roles at Henry Meds, IXL Learning, The Enrollment Management Association and Secondary School Admission Test Board",
+          "backgroundSummary": "Brian Cook, Director of IT at Elevate Fence Partners, holds an MSIS from Minot State University (2014–2017) and is CRISC-certified (Certified in Risk and Information Systems Control). His technical background spans server administration, information security, firewalls, and cybersecurity. He came from education-tech / assessment organizations before Elevate. His immediate GCP security audit instinct — flagging the 'SSH/RDP from anywhere' configuration — reflects a security-first practitioner background, not a business-IT generalist posture.",
+          "appointmentDate": null,
+          "sourceUrl": "https://rocketreach.co/brian-cook-email_28292704"
+        },
+        "accessChain": {
+          "isSystemAdmin": false,
+          "createsApiUsers": false,
+          "ownsVendorSupportLogin": null,
+          "isBackupAdmin": false
+        },
+        "systemsOwned": [
+          "GCP",
+          "ComputerEase (limited)",
+          "Cameo"
+        ],
+        "matchConfidence": "high",
+        "angleForHawk": "Platform-template multiplier is Brian's primary angle. He is not managing Peerless IT — he is setting the Elevate portfolio integration standard. Frame every architecture discussion as: 'this is the standard that governs all 6 Elevate company codes, not just Peerless company code 00.' His CRISC background means security and audit posture matter — lead with how the CE Live Service relay keeps the integration endpoint off the customer VM's exposed IP.",
+        "angleForIvy": "CRISC-certified security professional from education-tech background — systematic-evaluator with security-first framing secondary. He will probe technical feasibility and security posture before business value. Specific technical claims (exact relay architecture, port numbers, API authentication flows) land better than business outcomes with Brian. He flagged the GCP firewall exposure before anyone asked him to.",
+        "talkToBefore": false,
+        "talkToBeforeRationale": null,
+        "talkingPointSeed": "Brian — the CE Live Service relay architecture you identified on 2026-04-17 means the integration endpoint is a Deltek-managed URL, not your GCP VM's external IP. Once Jean's support ticket resolves and Deltek provides that URL, we build the ComputerEase connection without touching the firewall configuration you've been locking down.",
+        "detractorWarning": null
+      },
+      {
+        "name": "Jean Jacobs",
+        "title": "ComputerEase Super-Admin (Sole Admin) / Accounting Team",
+        "company": "Peerless Fence Group",
+        "role": "technicalInfluencer",
+        "isSameAsCaller": false,
+        "isSameAsChampion": false,
+        "sources": [
+          "transcript"
+        ],
+        "transcriptEvidence": {
+          "sageContactIndex": 2,
+          "verbatimMentions": [
+            "I won't let you in practice. — 2026-04-17 (CE API only in production)",
+            "It's a program that was DOS so who knows? Some of the stuff is still archaic. — 2026-04-17",
+            "since the API is not available in practice, does it make sense to even create a practice ID for you or no? — 2026-04-17"
+          ]
+        },
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "priorRole": null,
+          "backgroundSummary": "Email JeanJ@peerlessfence.com confirmed in sage.json. Sole ComputerEase super-admin; responsible for all CE user/access-group creation; owns the Deltek support ticket filed 2026-04-17. No public LinkedIn found. Her SPOF status was demonstrated when a PTO absence blocked all CE access changes for ~2 days.",
+          "appointmentDate": null,
+          "sourceUrl": null
+        },
+        "accessChain": {
+          "isSystemAdmin": true,
+          "createsApiUsers": true,
+          "ownsVendorSupportLogin": true,
+          "isBackupAdmin": false
+        },
+        "systemsOwned": [
+          "ComputerEase",
+          "Deltek support portal"
+        ],
+        "matchConfidence": "transcript-only",
+        "angleForHawk": "Jean is not a business buyer — she is a structural gate. The integration cannot begin CE development until Jean (a) closes the Deltek support ticket to get CE Live Service installed, and (b) creates the API user account. Frame her involvement as preserving her control, not changing it.",
+        "angleForIvy": "Risk-averse conservative with operational-pragmatist secondary. She is protective of the ComputerEase environment she has managed for years. 'Some of the stuff is still archaic' is comfort with the known, not resistance to change. Lead with: the API user she creates and controls; nothing changes about her existing user access groups or how she manages CE users today.",
+        "talkToBefore": true,
+        "talkToBeforeRationale": "Jean must create the CE Live Service API user before development can begin. She is the SPOF for all ComputerEase access changes. A 15-minute email exchange pre-kickoff aligns her on the API user creation process and prevents a blocker during development — especially given the 4-hour+ Deltek support SLA and her demonstrated PTO-blocking effect.",
+        "talkingPointSeed": "Jean — the integration needs one additional ComputerEase API user that you create and control. Nothing changes about your existing user access groups or how you manage CE users today. The API user is additive — it doesn't touch your current setup.",
+        "detractorWarning": null
+      },
+      {
+        "name": "Jeff Kelly",
+        "title": "Peerless Leadership / Decision Contact (title unconfirmed — go-live decision maker candidate)",
+        "company": "Peerless Fence Group",
+        "role": "economicBuyer",
+        "isSameAsCaller": false,
+        "isSameAsChampion": false,
+        "sources": [
+          "transcript"
+        ],
+        "transcriptEvidence": {
+          "sageContactIndex": 3,
+          "verbatimMentions": []
+        },
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "priorRole": null,
+          "backgroundSummary": "No public LinkedIn or press-release presence tying Jeff Kelly to Peerless Fence Group was found. Sage.json characterizes as 'Peerless leadership / decision contact (likely PM or exec)' and 'go-live decision maker candidate, internal coordinator with Jean and Brian.' He was not present in any of the four scoping calls. His exact title (VP Operations, Director of Finance, GM, etc.) is unknown.",
+          "appointmentDate": null,
+          "sourceUrl": null
+        },
+        "accessChain": {
+          "isSystemAdmin": null,
+          "createsApiUsers": null,
+          "ownsVendorSupportLogin": null,
+          "isBackupAdmin": null
+        },
+        "systemsOwned": [],
+        "matchConfidence": "transcript-only",
+        "angleForHawk": "Jeff Kelly is the go-live signatory candidate. Lead with operational outcomes + portfolio-template multiplier: 'this is a Peerless investment that pays off 6 times across the Elevate portfolio.' Every proposal bullet must answer the question a senior leader asks before approving an integration spend. Write for the executive who has not been in any of the scoping calls.",
+        "angleForIvy": "Unknown psychology profile — no background data found. Default to operational-pragmatist primary (Peerless culture appears pragmatic based on transcript signals) with internal-champion secondary: Jeff may need to present the business case to Roger Greenhagel or to Elevate leadership. Write the proposal so it travels.",
+        "talkToBefore": false,
+        "talkToBeforeRationale": null,
+        "talkingPointSeed": "Jeff — Ashley has walked us through every step of the process from HD Portal to ComputerEase. The integration we're proposing eliminates the manual steps between those two systems and builds the template that Brian Cook will use for the other five Elevate brands. The ROI case is straightforward.",
+        "detractorWarning": null
+      },
+      {
+        "name": "Roger Greenhagel",
+        "title": "President, Peerless Fence Group",
+        "company": "Peerless Fence Group",
+        "role": "economicBuyer",
+        "isSameAsCaller": false,
+        "isSameAsChampion": false,
+        "isSameAsChampion_note": "Roger is an additional economicBuyer candidate — the formal authority figure at Peerless. Jeff Kelly may be a senior director who coordinates, but Roger as President is likely the formal signatory. Both are listed as economicBuyer candidates pending confirmation of the routing path.",
+        "sources": [
+          "web"
+        ],
+        "transcriptEvidence": {
+          "sageContactIndex": null,
+          "verbatimMentions": []
+        },
+        "webEvidence": {
+          "linkedIn": "https://www.linkedin.com/in/roger-greenhagel-01bba9b7/",
+          "tenureMonths": 27,
+          "priorRole": "VP of Material Sales at Peerless Fence Group (prior to President appointment); National Account Sales Manager at Barrette Outdoor Living",
+          "backgroundSummary": "Roger Greenhagel was appointed President on 2024-02-05, promoted from VP of Material Sales at Peerless. He came from Barrette Outdoor Living as a National Account Sales Manager before joining Peerless in early 2023. Sales leader background — strong on pipeline metrics, national account management, and growth. He has been at Peerless through the Akoya acquisition and the Elevate alliance — he understands the PE and platform context better than most.",
+          "appointmentDate": "2024-02",
+          "sourceUrl": "https://www.businesswire.com/news/home/20240205568305/en/Peerless-Fence-Group-Announces-Executive-Changes"
+        },
+        "accessChain": null,
+        "systemsOwned": [],
+        "matchConfidence": "web-only",
+        "angleForHawk": "New-leadership window angle: Roger is in his post-PE President role with the national expansion mandate via Elevate. The integration proposal is his first major platform-infrastructure investment — frame it as the operational foundation for the national growth strategy he is executing. The Elevate portfolio-template multiplier is the ROI argument that matters at his level.",
+        "angleForIvy": "Sales leader background (VP Material Sales → National Account Sales Manager) — likely roi-analytical primary with visionary-strategic secondary. He came from outside Peerless's family culture and was brought in for national growth. Frame with measurable outcomes (hours recovered, jobs processed per week) plus the national expansion strategic angle. He will want to see the template-reuse math.",
+        "talkToBefore": false,
+        "talkToBeforeRationale": null,
+        "talkingPointSeed": "Roger — the integration we're scoping with Ashley and Brian isn't a Peerless IT project. It's the Elevate platform template. The ROI case is five sibling-brand deployments at marginal cost after the first build — plus every Akoya acquisition that comes with a new company code.",
+        "detractorWarning": null
+      }
+    ],
+    "preCallOutreach": [
+      {
+        "name": "Jean Jacobs",
+        "what": "15-min email exchange or brief call",
+        "why": "Jean must create the CE Live Service API user before ComputerEase development can begin. She is the SPOF for all CE access changes. Pre-kickoff alignment prevents a development-phase blocker — especially given Deltek's 4-hour+ SLA on legacy products."
+      }
+    ],
+    "futureBusinessChampions": [
+      {
+        "name": "Robert DiPietro",
+        "title": "CEO, Elevate Fence Partners",
+        "organization": "platform",
+        "linkedIn": null,
+        "why": "A successful Peerless engagement is the proof-of-concept Brian Cook takes to DiPietro to authorize a cross-portfolio integration rollout. DiPietro's buy-in is the gate between 'Peerless did it' and 'Elevate deploys it to five more brands.' Engage 60–90 days post-Peerless go-live with a one-page hours-recovered brief and a per-sibling template-deployment cost.",
+        "sourceUrl": "https://rocketreach.co/robert-dipietro-email_13061712"
+      },
+      {
+        "name": "Kirk Kistinger",
+        "title": "CFO, Elevate Fence Partners",
+        "organization": "platform",
+        "linkedIn": null,
+        "why": "Consolidated FP&A across six Elevate brands requires consistent ComputerEase and Salesforce data structures. Kistinger is the buyer for any platform-wide data infrastructure investment. Engage alongside DiPietro after Peerless go-live with a cross-portfolio reporting ROI argument.",
+        "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5"
+      },
+      {
+        "name": "Matt Blum",
+        "title": "Director of Mergers & Acquisitions, Elevate Fence Partners",
+        "organization": "platform",
+        "linkedIn": null,
+        "why": "Each Elevate acquisition Matt Blum sources adds a new ComputerEase company code and a new HD Portal tenant — i.e. a new template-deployment engagement for DataSkate. Confirming DataSkate as the Elevate integration partner means every future Blum acquisition includes a DataSkate integration onboarding in the playbook. Engage proactively with a one-pager on the 'acquisition onboarding template' (how the integration deploys to a new brand in under 90 days).",
+        "sourceUrl": "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5"
+      }
+    ],
+    "researchedAt": "2026-05-22",
+    "confidence": "medium"
+  },
+  "namedBuyers": {
+    "_note": "Compact mirror of buyerMap — Hawk/Ivy/Petra read this without traversing buyerMap.people[].",
+    "economicBuyer": {
+      "name": "Jeff Kelly",
+      "title": "Peerless Leadership / Decision Contact (title unconfirmed from web — go-live decision maker candidate per sage.json)"
+    },
+    "champion": {
+      "name": "Ashley Salerno",
+      "title": "Operations Lead / Business Process Owner"
+    },
+    "technicalInfluencers": [
+      {
+        "name": "Brian Cook",
+        "title": "Director of Information Technology, Elevate Fence Partners"
+      },
+      {
+        "name": "Jean Jacobs",
+        "title": "ComputerEase Super-Admin (Sole Admin)"
+      }
+    ],
+    "operationalInfluencers": [
+      {
+        "name": "Ashley Salerno",
+        "title": "Operations Lead / Business Process Owner"
+      }
+    ]
+  },
+  "corporateProfile": "## 1. Origin & History\n\nPeerless Fence Group traces its roots to 1961, when Art White and Robert White founded Peerless Erectors in the western Chicago suburbs — a family fence contracting business that Robert's son Dean would grow into the largest independently owned fence contractor in the Midwest. From the 1960s through the 2000s, Peerless remained a single-brand regional operator known for residential and commercial fencing across Illinois.\n\nThe first phase of strategic transformation came between 2013 and 2019, when Dean White's Peerless began a self-funded regional rollup: Tru-Link Fence, Imperial Fence Company, Shogren Fence, IFFT Quality Fencing, Total Fencing, Link-n-Wood Fence Co., Woodland Fence, and The Fence Store were acquired in succession. By 2019, Peerless operated across Illinois, Indiana, Ohio, and southern Wisconsin — a fully integrated regional contractor with 60+ years of family ownership and a decade of consolidation behind it.\n\nThe second transformation came on January 1, 2023: [Akoya Capital Partners](https://akoyacapital.com), a Chicago-based middle-market private equity firm founded in 2005, acquired Peerless Fence Group as a platform investment in its Residential Home Services thesis. This marked the end of the family-ownership-only era. Akoya's stated investment range is $25M–$200M revenue middle-market companies — Peerless sits toward the lower end of that band.\n\nThe third transformation, announced [February 5, 2024](https://www.businesswire.com/news/home/20240205568305/en/Peerless-Fence-Group-Announces-Executive-Changes): Dean White transitioned from CEO to Executive Chairman, and Roger Greenhagel (previously VP of Material Sales at Peerless, formerly National Account Sales Manager at Barrette Outdoor Living) was appointed President — a classic PE-era professional-management transition. Founder Dean White remains actively involved as Executive Chairman; the operating role now runs through Greenhagel.\n\nConcurrent with the Akoya acquisition, Peerless joined Elevate Fence Partners — a national fence-contractor platform that operates six regional brands across the Midwest, Southeast, Northeast, and a nationwide e-commerce channel. The relationship is described as a strategic alliance rather than a direct acquisition: Dean White partnered with Elevate to scale Peerless from a respected Midwest regional contractor into a growing national brand. Within the Elevate structure, Peerless is the Midwest anchor.\n\n## 2. Business Model\n\nPeerless Fence Group is a specialty residential fence contractor — aluminum, wood, vinyl, and chain-link — serving homeowners across Illinois, Indiana, Ohio, and southern Wisconsin. Six locations: St. Charles (HQ), West Chicago, Round Lake, Bloomington (all IL), Greenwood (IN), Cincinnati and Delaware (OH).\n\nA material share of revenue flows through the Home Depot Pro-contractor channel: leads originate in Home Depot Service Center (HD Portal), flow into Salesforce CRM for quoting and contract management, then move to ComputerEase (Deltek) for job costing and accounting. Revenue estimates range from $15M to $32M annually, positioning Peerless firmly in the midmarket segment. A flagship commercial win was announced in October 2025: Peerless secured the contract to install 10,600+ linear feet of fencing at the Obama Presidential Center in Chicago — evidence of commercial capacity beyond the HD residential channel.\n\nTwo dynamics define the integration scope. First, the HD Pro channel is the highest-volume lead source and the most structurally constrained: HD Portal operates on its own API cadence (10-minute update cycle), its own lead identifier format (F-number, not a generic ID), its own contract documents (HS-105, 299A, 299B, HS-118), and its own write-back channel. Every new state expansion adds a new HD Portal footprint layer and state-specific deposit/permit rules. Second, ComputerEase (Deltek, version ~26.x) is a DOS-era ERP whose API surface only exists in the production tenant (no sandbox), is only accessible via a Deltek-managed relay URL routed through the CE Live Service Windows service, and is administered by a single super-admin (Jean Jacobs). These two facts together define the hardest architectural choices in the current engagement.\n\n## 3. Corporate Stack — The Lattice\n\nPeerless Fence Group's corporate structure has three layers:\n\n**Layer 1: Operating Brand — Peerless Fence Group.** Family-founded 1961; headquartered at 220 W River Dr., St. Charles, IL 60174. Website: [peerlessfence.com](https://peerlessfence.com). LinkedIn: [peerless-fence](https://www.linkedin.com/company/peerless-fence). Ten pre-platform bolt-on acquisitions (2013–2019) now absorbed into the operating brand. Current leadership: Dean White (Executive Chairman, founder), Roger Greenhagel (President, appointed 2024-02-05).\n\n**Layer 2: Operating Platform — Elevate Fence Partners.** National fence-contractor platform with a regional-brand strategy. Six sibling brands by region: Midwest (Peerless Fence Group), Southeast Florida (Florida State Fence, Foremost Fence), Southeast Georgia (Allied Fence Co.), Northeast (Jan Fence), and Digital/Direct-to-Consumer nationwide (MyFence2Go). LinkedIn: [elevate-fence-partners](https://www.linkedin.com/company/elevate-fence-partners). Platform shape: platform-above; Peerless joined via a strategic alliance.\n\nElevate Fence Partners Platform Executive Team (sourced from [RocketReach Elevate org chart](https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5)):\n\n| Name | Title | Portfolio-Wide Scope |\n|------|-------|---------------------|\n| Robert DiPietro | CEO | Overall growth strategy and operations across all 6 sibling brands |\n| Kirk Kistinger | CFO | Central financial structures, risk analysis, debt leverage for acquisitions |\n| Matt Blum | Director of M&A | Sources and acquires independent fencing companies for the platform |\n| Steve Herold | Senior Director of FP&A | Consolidated financial reporting across the portfolio |\n| Amy Sinchak | Director of Accounting | Internal audits and unified corporate accounting controls |\n| Greg Sulik | Director of Marketing | Cross-brand lead generation and regional digital marketing |\n| **Brian Cook** | **Director of IT** | **Manages standardized ERP systems and tech integrations for all portfolio companies** |\n\n⚠️ **Critical cross-reference — Brian Cook:** Brian appears in the scoping transcripts (sage.json namedContacts index 1) as 'Peerless IT / infrastructure admin.' Web research confirms he is [Elevate Fence Partners' Director of IT](https://rocketreach.co/brian-cook-email_28292704), managing standardized ERP systems and technology integrations across all six portfolio companies. His involvement in the 2026-04-15/16/17 scoping sessions — GCP firewall debugging, OAuth consent, CE Live Service troubleshooting — was Brian operating in his platform-IT-director role, setting the integration standard that will govern all six Elevate siblings. This makes Brian Cook the de facto executive sponsor of this engagement on the Elevate side. **This is the rarest deal-urgency multiplier: the platform executive sponsoring the integration standard is in the room.**\n\n**Layer 3: Financial Sponsor — Akoya Capital Partners.** Chicago, IL; founded 2005; [akoyacapital.com](https://akoyacapital.com). Acquired Peerless Fence Group on January 1, 2023. Investment range: $25M–$200M revenue middle-market. Sector focus includes Consumer Foods & Home Services. Akoya's stated thesis: acquire a 'Platform Investment in Residential Home Services' — implying continued funding of bolt-on acquisitions in the category. Relationship between Akoya and Elevate is not fully resolved from public sources (see Signals to Watch).\n\n## 3a. Sibling Brands — Portfolio Map\n\nAll five non-current Elevate siblings are Tier-B (lite research pass — integration signal only). Four of five are installer-contractor brands running the same HD Portal → CRM → ComputerEase model as Peerless, making each a near-identical template-deployment candidate for UC1–UC4.\n\n**Florida State Fence — Southeast (Florida)**\nFootprint: Tampa (FL), Ocala (FL). No public IT leader identified yet — capture at sibling intake. Integration signal: unknown — no public integration footprint captured. Florida deposit/permit/contract rules differ materially from the IL/WI rules already encoded in UC3's validation engine (Wisconsin 99% deposit exception will need a Florida-specific equivalent). Future-engagement note: First logical second-engagement candidate post-Peerless. Wait for Florida State Fence to express manual HD reconciliation or CE job entry pain — the pattern is identical to Peerless's current pain. Pursue 60–90 days after Peerless UC1–UC4 reaches production.\n\n**Foremost Fence — Southeast (Florida)**\nFootprint: Sarasota (FL). No public IT leader identified. Integration signal: unknown. Likely shares Florida regulatory profile with Florida State Fence. Architecture decision (Brian Cook's call): whether Foremost Fence shares a ComputerEase company code with Florida State Fence or operates its own. Future-engagement note: Bundle pursuit with Florida State Fence as a 'Florida platform template' — one engagement, two company codes, shared rule extensions.\n\n**Allied Fence Co. — Southeast (Georgia)**\nFootprint: Mableton / Atlanta Metro (GA). Integration signal: unknown. Georgia-specific permit + deposit rule set + GA state tax = a third rule extension of UC3's validation engine. Separate ComputerEase company code likely. Third-priority candidate after FL brands.\n\n**Jan Fence — Northeast**\nFootprint: Pequannock (NJ). Integration signal: unknown. NJ-specific Home Improvement Contractor (HIC) registration rules. Separate ComputerEase company code likely. NJ's regulatory complexity adds integration scope but also increases the value of the rule engine — more rules = more value of the template.\n\n**MyFence2Go — Digital / Direct-to-Consumer (Nationwide)**\nFootprint: Nationwide e-commerce material supply. Integration signal: distinct system shape — e-commerce storefront + WMS / fulfillment + ComputerEase as inventory/financial backend. Does NOT consume HD Portal Pro leads (no installer-contractor flow). The Peerless integration template applies partially: the Salesforce ↔ ComputerEase backbone is reusable; the HD Portal layer is not applicable. Lowest priority among Elevate siblings for template reuse; requires separate scoping.\n\n**Portfolio synthesis:** Out of 5 non-current Elevate siblings, 4 (Florida State Fence, Foremost Fence, Allied Fence Co., Jan Fence) are installer-contractor brands operating the same HD Portal → CRM → ComputerEase model as Peerless. Each is a near-identical template-deployment candidate for UC1–UC4. Differences are state-specific deposit/permit rules in UC3's validation engine, a separate ComputerEase company code, and potentially a separate HD Portal tenant. The Peerless engagement designs the template; the four sibling deployments are the payoff.\n\n## 4. People to Engage — Current Engagement\n\n**Ashley Salerno — championOnCall + operationalInfluencer**\nSources: transcript (all four calls). Match confidence: transcript-only (email ashley@peerlessfence.com inferred). Ashley is the operational heartbeat of this engagement. She demonstrated the full 1.5-hour manual ComputerEase job-entry workflow on 2026-04-16. She owns the daily HD reconciliation pass, the manual contract review (HS-105, 299A, 299B, HS-118), the deposit-paid lookup in HD reporting, and the exception comment-writing on the HD screen. Every confirmed flow (UC1–UC4) and every potential flow (UC5–UC7) originates from a pain point she articulated. Her aspiration quote — 'if that could integrate and flow back through an API, that was awesome, that would work' — is the north star for UC5. Psychology: textbook operational-pragmatist (explicitly tagged in commons/sales/psychology-profiles.json 'observed in peerless' notes). Angle for Hawk: every Phase 1 bullet must read like a 'things that stop on go-live day' list, using Ashley's exact words from the transcripts. The proposal is Ashley's internal business case — write it for the leadership above her. Talking point: 'Ashley — the list of things that stop being your morning routine on go-live day IS the scope of the engagement.'\n\n**Brian Cook — technicalInfluencer (platform-level executive sponsor candidate)**\nSources: transcript + web (match confidence: high — full name + platform-level title corroborated via [RocketReach](https://rocketreach.co/brian-cook-email_28292704)). Brian Cook is in sage.json as 'Peerless IT / infrastructure admin' and in the Elevate Fence Partners executive team as 'Director of Information Technology.' These are the same person. The same conversation about the GCP firewall and CE Live Service is both a Peerless-local IT task AND a platform-standard-setting decision. CRISC-certified security professional; MSIS from Minot State; prior roles at IXL Learning and The Enrollment Management Association. He is technically fluent and security-first — his immediate identification of 'SSH/RDP from anywhere, which is really bad practice' was a platform IT director doing a portfolio-wide security audit, not a local admin troubleshooting a connectivity issue. Angle for Hawk: platform-template multiplier is Brian's primary angle. Frame every architecture decision as 'the standard you're setting for all 6 Elevate company codes.' Talking point: 'Brian — the CE Live Service relay architecture you identified means the integration endpoint is a Deltek-managed URL, not your GCP VM's external IP. Once Jean's ticket resolves, we build the ComputerEase connection without touching the firewall configuration you've been locking down.'\n\n**Jean Jacobs — technicalInfluencer (ComputerEase gate / critical-path SPOF)**\nSources: transcript (email JeanJ@peerlessfence.com confirmed). Match confidence: transcript-only. Jean is the sole ComputerEase super-admin — the SPOF demonstrated when her PTO blocked all CE access changes for approximately two days. Her Deltek support ticket filed 2026-04-17 is the critical path item blocking CE Live Service installation and, therefore, blocking ComputerEase API development. She is not resistant to the integration — she is protective of the CE environment she has managed for years. Her 'I won't let you in practice' response to sandbox API access was institutional knowledge, not gatekeeping. Pre-call outreach required: Jean must create the CE Live Service API user before development begins. Talking point: 'Jean — the integration needs one additional CE API user that you create and control. Nothing changes about your existing user access groups.'\n\n**Jeff Kelly — economicBuyer (candidate — title unconfirmed)**\nSources: transcript only. Match confidence: transcript-only. Jeff Kelly is identified in sage.json as 'Peerless leadership / decision contact (likely PM or exec)' and 'go-live decision maker candidate.' No public LinkedIn or press-release presence was found. He was not present in any of the four scoping calls. His exact title is unknown. He may report to Roger Greenhagel (President) or may be a peer-level director. Architect should confirm with Ashley: 'Is Jeff Kelly the right person for scope finalization and go-live approval, and does the proposal go to him first or directly to Roger?' Missing signal: title, reporting line, and proposal routing path.\n\n**Roger Greenhagel — economicBuyer (formal authority — web-only)**\nSources: web only (match confidence: web-only). As President of Peerless Fence Group (appointed [2024-02-05](https://www.businesswire.com/news/home/20240205568305/en/Peerless-Fence-Group-Announces-Executive-Changes)), Roger Greenhagel is the most likely formal signatory for a material integration investment at Peerless's revenue scale. He has not appeared in any scoping call. Background: VP of Material Sales at Peerless before President appointment; National Account Sales Manager at Barrette Outdoor Living before joining Peerless. Sales leader background — likely roi-analytical primary, visionary-strategic secondary. He has lived through the Akoya acquisition and the Elevate alliance and understands the national expansion mandate. The portfolio-template multiplier and hours-recovered ROI are the angles that land at his level. LinkedIn: [Roger Greenhagel](https://www.linkedin.com/in/roger-greenhagel-01bba9b7/).\n\n**Coverage note:** Roger Greenhagel has not appeared in any scoping call and is not named in sage.json. Jeff Kelly's title and reporting line are unconfirmed from web sources. The proposal must be written to travel: Ashley forwards it to Jeff Kelly, who may forward it to Roger Greenhagel. Confirm proposal routing path with Ashley before Hawk generates the final document.\n\n## 5. People to Engage — Future Business\n\n**Robert DiPietro — CEO, Elevate Fence Partners**\nA successful Peerless engagement is the proof-of-concept that Brian Cook takes to DiPietro to authorize a cross-portfolio integration rollout. DiPietro's approval is the gate between 'Peerless did it' and 'Elevate deploys it to five more brands.' When to engage: 60–90 days post-Peerless go-live, once the first monthly report on hours recovered and jobs processed is available. What to bring: a one-page template-deployment brief — total hours recovered at Peerless, cost per sibling-brand deployment, and projected revenue-per-brand gain from faster HD-lead-to-ComputerEase-job cycle time.\n\n**Kirk Kistinger — CFO, Elevate Fence Partners**\nConsolidated FP&A across six brands requires consistent ComputerEase and Salesforce data structures. Kistinger is the financial buyer for any platform-wide data infrastructure investment. Engage alongside DiPietro post-Peerless go-live with the cross-portfolio reporting ROI argument: 'the integration standardization we built for Peerless is the prerequisite for the consolidated reporting view Steve Herold is trying to build.'\n\n**Matt Blum — Director of M&A, Elevate Fence Partners**\nMatt Blum's acquisition pipeline is DataSkate's expansion pipeline. Each Elevate acquisition adds a new ComputerEase company code and a new HD Portal tenant — and needs UC1–UC4 deployed. Engage proactively (before post-Peerless go-live is even complete) with a one-pager on the 'acquisition onboarding template': how the integration deploys to a new brand in under 90 days, what the template cost is relative to a full scoping engagement, and what the onboarding process looks like.\n\n**Recommended touchpoints over next 6–12 months:**\n- Week 1 post-Peerless go-live: send Brian Cook the hours-recovered report and ask for an intro to Robert DiPietro.\n- Month 2 post-Peerless go-live: request a 30-minute platform briefing with DiPietro and Kistinger.\n- Concurrent with Month 2: send Matt Blum the 'acquisition onboarding template' one-pager without waiting for DiPietro's approval — Blum is a separate entry point.\n- Watch for: any Elevate press release about a new sibling brand acquisition — that is the signal to activate the template-deployment pursuit immediately.\n\n## 6. Strategic Position — Why Now\n\nThis engagement is not a standalone Peerless integration project. It is a portfolio-template decision being made inside Peerless Fence Group but governed by Elevate Fence Partners' Director of IT — Brian Cook, who is already in the scoping room.\n\nThe portfolio-template angle is the primary urgency multiplier, and it is unusually concrete: Brian Cook appeared in all four scoping calls. He is not an observer — he is the person who flagged the GCP security exposure, identified the CE Live Service relay architecture, and named the non-standard listening port (445). These are the actions of a portfolio-level IT director setting the integration standard, not a local IT admin helping with connectivity. Every architecture decision being made in these sessions will govern all six Elevate company codes.\n\nThe sibling-expansion math is equally concrete: four Elevate installer-contractor siblings (Florida State Fence, Foremost Fence, Allied Fence Co., Jan Fence) run the same HD Portal → CRM → ComputerEase model as Peerless. Each adds a ComputerEase company code and a set of state-specific rule extensions to UC3's validation engine. The template DataSkate builds for Peerless company code 00 is the template that deploys four more times — at marginal cost, not full scoping cost, if the architecture is designed for it from the start.\n\nThe PE-pipeline angle extends the deal beyond Elevate: Akoya Capital Partners acquired Peerless as a platform investment in Residential Home Services, explicitly implying future acquisitions in the category. A confirmed DataSkate-as-Elevate-integration-partner relationship means every future Akoya home-services acquisition inherits the DataSkate engagement pattern.\n\nThe new-leadership window is time-bounded: Roger Greenhagel (appointed President 2024-02-05) is now 18+ months into the role. The window for making foundational IT modernization investments — when a new leader is establishing operating infrastructure — does not stay open indefinitely. The combination of new president, recent PE acquisition, legacy ERP, sole-admin SPOF on ComputerEase, and national expansion mandate is a textbook trigger stack that closes as the organization normalizes.\n\nThe deal-sizing collapse: if this engagement is treated as Peerless-only, the deal is one brand, one set of company codes, one state-specific rule extension. If it is treated as the Elevate platform template, the deal is five additional sibling-brand deployments, each inheriting UC1–UC4 at template cost, plus every future Elevate/Akoya acquisition. The cost of the smaller framing is paid every time a sibling brand needs its own discovery, scoping, and build cycle — five more times at full cost, instead of once at template cost.\n\n## 7. Signals to Watch\n\n**2026-04-17 (open): Deltek support ticket — CE Live Service installation.** Jean Jacobs filed the ticket. CE Live Service is the API gateway for ComputerEase — without it, there are no CE API calls, and development cannot begin on UC2. This is the single highest-priority near-term signal. When Deltek closes the ticket and provides the managed integration URL, development is unblocked. Deltek's SLA for legacy-classification products: 4-hour minimum per call; ticket resolution may take days to weeks depending on CE Live Service installation complexity.\n\n**2026-04-15/16 (partially addressed): GCP firewall security posture.** Brian Cook began correcting the 'SSH/RDP from anywhere' exposure during the scoping sessions. As of the last call, the remediation was in-progress. Flo (DataSkate's review agent) should confirm the final remediation state before production cutover: ingress locked to MuleSoft tenant allowlist, egress permits CE Live Service outbound to Deltek cloud, external static IP reconciled (cited as 35.222.218.224 / 135.226.22218 — must confirm canonical value).\n\n**October 2025 (ongoing): Obama Presidential Center installation.** Peerless secured a contract to install 10,600+ linear feet of fencing at the Obama Presidential Center, with installation beginning October 8, 2025. This is a high-visibility flagship project that likely overlaps with the integration scoping timeline. Timing consideration: do not over-commit Ashley's bandwidth during peak project delivery. Strategic signal: Peerless is operating at the scale and commercial visibility where manual data-entry costs are material.\n\n**USPTO TM 98608324: 'ELEVATE FENCE' trademark filing.** Elevate Fence Partners filed a trademark registration for 'ELEVATE FENCE.' This signals platform brand formalization — consistent with a platform preparing for national scale. A formalizing platform typically formalizes its operational and technology infrastructure concurrently.\n\n**Roger Greenhagel's 18-month window.** Appointed 2024-02-05 — the post-appointment window for foundational IT modernization decisions is most active in months 1–24. From May 2026, the window has approximately 8 months remaining at the high-activity end. This is a time signal, not just a deal-urgency multiplier.\n\n## 8. How We See You\n\nYou are the Midwest anchor brand of a six-brand national fence-contractor platform — four installer-contractor siblings and one e-commerce channel waiting to inherit the operational template you are building right now. The integration you are scoping is not a Peerless IT project. It is a portfolio-standard decision being made by the same person who manages standardized ERP systems and technology integrations for every Elevate brand: Brian Cook, who has been in every one of these scoping calls debugging the GCP firewall and mapping the CE Live Service relay architecture.\n\nYour current state is exactly what Ashley described: every morning, she goes to the backend of Home Depot reporting and manually finds deposits; every time a quote closes, she spends 1.5 hours rekeying it into ComputerEase from Salesforce; every signed contract requires a document-by-document review against the rule set she knows by memory. The team has traveled back to the 90s — Brian's words — and they know it. The system is archaic because it was built for a different era, and the business has grown past what manual data entry can support sustainably.\n\nPhase 1 is the data path. Phase 2 is when the triggers replace human dispatch. Phase 3 is when AgentForce reads the Salesforce foundation Phase 1 built and answers the operational question Ashley spends her mornings on: 'Which HD leads became ComputerEase jobs, which ones failed contract validation, and which Wisconsin deposits didn't hit 99%?' Without Phase 1, that question requires Ashley to open three systems and cross-reference manually. With Phase 1, it's an AgentForce query.\n\nThe proposal you will receive answers the question Roger Greenhagel and Jeff Kelly will ask before approving: why now, why this approach, and what specifically changes Monday morning when Phase 1 goes live. The answer to 'why now' is that Brian Cook is in the room and the template decision is being made today, whether or not it is framed that way.",
+  "corporateProfileMeta": {
+    "wordCount": 2950,
+    "sectionCount": 8,
+    "sourceUrlCount": 12,
+    "namedContactCount": 12,
+    "generatedAt": "2026-05-22T14:00:00Z",
+    "confidence": "medium"
+  },
+  "dealUrgencyMultipliers": [
+    "PORTFOLIO-TEMPLATE: The current engagement is being designed inside Peerless Fence Group, but Brian Cook — Elevate Fence Partners' Director of IT — is already in the scoping room making platform-standard architecture decisions. Every choice made for Peerless company code 00 is the standard that will govern all 6 Elevate company codes. This is the rarest deal-urgency multiplier: the platform executive sponsoring the integration standard is in the room.",
+    "SIBLING-EXPANSION: Elevate operates a regional-brand strategy with 4 installer-contractor siblings (Florida State Fence, Foremost Fence, Allied Fence Co., Jan Fence) that run the same HD Portal → CRM → ComputerEase model as Peerless. Each sibling = a new ComputerEase company code + state-specific permit/deposit/contract rule extensions for UC3's validation engine. Build the template once for Peerless; deploy it 4 times.",
+    "PE-FUTURE-DEAL: Akoya Capital Partners explicitly acquired Peerless as a platform investment in Residential Home Services. A successful Peerless integration template positions DataSkate as the integration partner of record for Akoya's next residential home-services acquisition — pipeline created by a single engagement.",
+    "SUB-ROLLUP-EXPANSION: Peerless's own 10-acquisition pre-platform rollup history (Tru-Link Fence, Imperial Fence Company, Shogren Fence, IFFT Quality Fencing, Total Fencing, Link-n-Wood, Woodland Fence, The Fence Store, 2013–2019) means even within the operating brand there are sibling-like legacy brands that may retain separate operations or company codes — each one is a same-template second engagement candidate.",
+    "NEW-LEADERSHIP: Roger Greenhagel (appointed President 2024-02-05) is in a post-PE first-leadership-window where IT modernization decisions tend to be made and resourced. New president + recent PE acquisition + legacy ERP + sole-admin SPOF + national expansion = textbook digital-transformation trigger stack.",
+    "GREENFIELD: No Elevate sibling brand has a known integration footprint — DataSkate sets the cross-portfolio template from scratch. Every future sibling inherits the pattern Peerless establishes."
+  ]
+}

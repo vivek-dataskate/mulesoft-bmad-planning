@@ -630,6 +630,18 @@ function assembleContext(slug, agentSlug) {
       if (Array.isArray(data.p0Blockers))     { ctx.p0Blockers    = data.p0Blockers;    updated.push(`p0Blockers[${data.p0Blockers.length}]`); }
       if (Array.isArray(data.confirmedFlows)) { ctx.confirmedFlows = data.confirmedFlows; updated.push(`confirmedFlows[${data.confirmedFlows.length}]`); }
       if (Array.isArray(data.potentialFlows)) { ctx.potentialFlows = data.potentialFlows; updated.push(`potentialFlows[${data.potentialFlows.length}]`); }
+      // portfolioOpportunities[] — corporate-brief-bound only. Carried through company_context.json
+      // so downstream verification (Mira) can cross-check against flo.json without re-reading both.
+      // Per Flo v1.1.0: every entry has proposalExclusion=true + intakeExclusion=true; Petra and
+      // Quinn must NEVER surface this bucket in their content JSON.
+      if (Array.isArray(data.portfolioOpportunities)) {
+        ctx.portfolioOpportunities = data.portfolioOpportunities;
+        updated.push(`portfolioOpportunities[${data.portfolioOpportunities.length}]`);
+      }
+      if (data.portfolioOpportunitiesTruncatedNote) {
+        ctx.portfolioOpportunitiesTruncatedNote = data.portfolioOpportunitiesTruncatedNote;
+        updated.push('portfolioOpportunitiesTruncatedNote');
+      }
       break;
     }
 
@@ -889,21 +901,40 @@ function writeClientRegistry(slug) {
   logFileInfo(registryPath, 'client-registry.json (after write)');
 }
 
-// ─── Vera Corporate-Stack Enrichment Merge (post-Vera, pre-brief) ───────────
-// Per the agent-boundary rule, Vera writes her sibling + sponsor-portfolio
-// research into vera.json.corporateStackEnrichment instead of writing back
-// into company_context.json directly. The orchestrator is the only writer
-// allowed to mutate company_context.json, so the merge happens here.
+// ─── Vera Corporate-Stack Merge (post-Vera, pre-brief) ──────────────────────
+// Per the agent-boundary rule, Vera writes EVERYTHING to vera.json — never to
+// company_context.json. The orchestrator is the only writer allowed to mutate
+// company_context.json, so the merge happens here.
 //
-// Runs immediately after Vera and BEFORE renderCorporateBrief() / Petra /
-// Mira read the stack — so by the time any downstream consumer touches
-// company_context.json.corporateStack, the enriched data is already there.
+// Vera produces three layers of corporate intel:
+//   1. corporateStack       — the SEED (Step 1c): operating brand, legacy bolt-ons,
+//                             leadership, operating platform + platformExecutiveTeam,
+//                             financial sponsor, engagement entity, subsidiaries,
+//                             collaborators, strategicPartnerships, dealUrgencyMultipliers.
+//   2. corporateStackEnrichment — DEEP RESEARCH (Step 2b): per-sibling integration signals,
+//                             sponsor portfolioCompanies.
+//   3. buyerMap + corporateProfile + contactCrossReferences — Steps 2c + 2d.
 //
-// Merge rules (per-list keyed by case-insensitive name):
-//   - siblingBrands[]:           Vera's entries WIN over Scout's seeded ones.
-//                                Scout-only siblings are preserved.
-//   - portfolioCompanies[]:      Vera-only (Scout's seed doesn't populate this).
-//   - siblingsTruncated:         Carried through verbatim.
+// All three layers merge into company_context.json here so renderCorporateBrief()
+// and every downstream agent (Hawk, Petra, Mira, Ivy) reads a single source of truth.
+//
+// Runs immediately after Vera and BEFORE renderCorporateBrief() / Petra / Mira.
+//
+// Merge rules:
+//   corporateStack seed → REPLACE company_context.json.corporateStack scalar fields
+//                         (operatingBrand, leadership, financialSponsor, etc.). For arrays,
+//                         Vera's seed wins entirely (she's the originator).
+//   siblingBrands[]     → merged by case-insensitive name. Step 2b enrichment fields
+//                         (integrationSignal, sourceUrl) overlay onto Step 1c seed fields
+//                         (region, footprint, acquisitionYear). Both layers preserved.
+//   portfolioCompanies[]→ Vera-only (Step 2b output).
+//   buyerMap            → REPLACE company_context.json.buyerMap entirely (Vera owns it end-to-end).
+//   namedBuyers         → REPLACE — compact top-level mirror.
+//   corporateProfile    → REPLACE company_context.json.corporateProfile (markdown string).
+//   corporateProfileMeta→ REPLACE.
+//   dealUrgencyMultipliers → REPLACE (top-level mirror).
+//   contactCrossReferences → applied to company_context.json.namedContacts[].platformRole.
+//                            sage.json is NEVER modified.
 function mergeVeraCorporateStackEnrichment(slug) {
   const projectDir = path.join(PROJECTS_DIR, slug);
   const veraPath   = path.join(projectDir, 'scoping', 'run', 'vera.json');
@@ -912,8 +943,8 @@ function mergeVeraCorporateStackEnrichment(slug) {
   const vera = readJson(veraPath);
   const ctx  = readJson(ctxPath);
 
-  if (!vera || !vera.corporateStackEnrichment) {
-    stepLog('mergeVeraCorporateStackEnrichment: vera.json has no corporateStackEnrichment — skipping', 'DATA');
+  if (!vera) {
+    stepLog('mergeVeraCorporateStackEnrichment: vera.json missing — skipping', 'WARN');
     return;
   }
   if (!ctx) {
@@ -922,36 +953,108 @@ function mergeVeraCorporateStackEnrichment(slug) {
   }
 
   ctx.corporateStack = ctx.corporateStack || {};
-  const enrich = vera.corporateStackEnrichment;
 
-  // Operating platform siblings — merge by name (Vera's research overrides Scout's seed)
-  if (enrich.operatingPlatform && Array.isArray(enrich.operatingPlatform.siblingBrands)) {
-    ctx.corporateStack.operatingPlatform = ctx.corporateStack.operatingPlatform || {};
-    const seedSiblings   = Array.isArray(ctx.corporateStack.operatingPlatform.siblingBrands)
-      ? ctx.corporateStack.operatingPlatform.siblingBrands : [];
-    const veraSiblings   = enrich.operatingPlatform.siblingBrands;
-    const nameKey = (s) => String(s && s.name || '').trim().toLowerCase();
-    const byName  = new Map();
-    for (const s of seedSiblings) if (nameKey(s)) byName.set(nameKey(s), s);
-    for (const s of veraSiblings) if (nameKey(s)) byName.set(nameKey(s), { ...byName.get(nameKey(s)), ...s });
-    ctx.corporateStack.operatingPlatform.siblingBrands = Array.from(byName.values());
-    if (typeof enrich.operatingPlatform.siblingsTruncated === 'boolean') {
-      ctx.corporateStack.operatingPlatform.siblingsTruncated = enrich.operatingPlatform.siblingsTruncated;
+  // ── Step 1c seed merge ─────────────────────────────────────────────────
+  // Vera's corporateStack is the originator. For scalar fields and most arrays,
+  // Vera's seed REPLACES whatever was there (Scout's pre-Vera inference, if any).
+  if (vera.corporateStack && typeof vera.corporateStack === 'object') {
+    const seed = vera.corporateStack;
+
+    // Top-level scalars + objects
+    for (const key of ['ownership', 'operatingBrand', 'leadership', 'financialSponsor', 'engagementEntity', 'subsidiaries', 'collaborators', 'strategicPartnerships', 'dealUrgencyMultipliers', 'sourcesNote', 'confidence', 'researchedAt']) {
+      if (seed[key] !== undefined) ctx.corporateStack[key] = seed[key];
     }
-    stepLog(`mergeVeraCorporateStackEnrichment: merged ${veraSiblings.length} sibling enrichment(s) into ${byName.size} total`, 'DATA');
+
+    // operatingPlatform — preserve seed structure, but siblingBrands[] will be enriched below
+    if (seed.operatingPlatform) {
+      ctx.corporateStack.operatingPlatform = ctx.corporateStack.operatingPlatform || {};
+      for (const key of ['name', 'website', 'linkedIn', 'description', 'platformShape', 'regionalStrategy', 'rollupHistoryNarrative', 'platformExecutiveTeam', 'sourceUrl', 'relationshipUncertainty']) {
+        if (seed.operatingPlatform[key] !== undefined) ctx.corporateStack.operatingPlatform[key] = seed.operatingPlatform[key];
+      }
+      // Seed sibling brands — Step 2b enrichment will overlay below
+      if (Array.isArray(seed.operatingPlatform.siblingBrands)) {
+        ctx.corporateStack.operatingPlatform.siblingBrands = seed.operatingPlatform.siblingBrands;
+      }
+    }
+    stepLog(`mergeVeraCorporateStackEnrichment: corporateStack seed merged (ownership: ${seed.ownership || 'unknown'})`, 'DATA');
   }
 
-  // Financial sponsor portfolio companies — Vera-only field
-  if (enrich.financialSponsor && Array.isArray(enrich.financialSponsor.portfolioCompanies)) {
-    ctx.corporateStack.financialSponsor = ctx.corporateStack.financialSponsor || {};
-    ctx.corporateStack.financialSponsor.portfolioCompanies = enrich.financialSponsor.portfolioCompanies;
-    stepLog(`mergeVeraCorporateStackEnrichment: wrote ${enrich.financialSponsor.portfolioCompanies.length} sponsor portfolio company(ies)`, 'DATA');
+  // ── Step 2b enrichment merge — overlay onto seed siblings ──────────────
+  const enrich = vera.corporateStackEnrichment;
+  if (enrich) {
+    if (enrich.operatingPlatform && Array.isArray(enrich.operatingPlatform.siblingBrands)) {
+      ctx.corporateStack.operatingPlatform = ctx.corporateStack.operatingPlatform || {};
+      const seedSiblings   = Array.isArray(ctx.corporateStack.operatingPlatform.siblingBrands)
+        ? ctx.corporateStack.operatingPlatform.siblingBrands : [];
+      const veraSiblings   = enrich.operatingPlatform.siblingBrands;
+      const nameKey = (s) => String(s && s.name || '').trim().toLowerCase();
+      const byName  = new Map();
+      for (const s of seedSiblings) if (nameKey(s)) byName.set(nameKey(s), s);
+      // Step 2b enrichment overlays Step 1c seed — preserve all seed fields, add enrichment fields
+      for (const s of veraSiblings) if (nameKey(s)) byName.set(nameKey(s), { ...byName.get(nameKey(s)), ...s });
+      ctx.corporateStack.operatingPlatform.siblingBrands = Array.from(byName.values());
+      if (typeof enrich.operatingPlatform.siblingsTruncated === 'boolean') {
+        ctx.corporateStack.operatingPlatform.siblingsTruncated = enrich.operatingPlatform.siblingsTruncated;
+      }
+      stepLog(`mergeVeraCorporateStackEnrichment: merged ${veraSiblings.length} sibling enrichment(s) into ${byName.size} total`, 'DATA');
+    }
+
+    if (enrich.financialSponsor && Array.isArray(enrich.financialSponsor.portfolioCompanies)) {
+      ctx.corporateStack.financialSponsor = ctx.corporateStack.financialSponsor || {};
+      ctx.corporateStack.financialSponsor.portfolioCompanies = enrich.financialSponsor.portfolioCompanies;
+      stepLog(`mergeVeraCorporateStackEnrichment: wrote ${enrich.financialSponsor.portfolioCompanies.length} sponsor portfolio company(ies)`, 'DATA');
+    }
   }
 
-  // Forward-looking talking points + intel-they-lack arrays (vera.toml Step 2c/2d)
-  // The brief reads these from company_context.json — copy them across so the
-  // post-Vera renderCorporateBrief() call picks them up without a separate read
-  // of vera.json. Replace, don't merge: Vera owns these arrays end-to-end.
+  // ── Step 2c buyer map merge ────────────────────────────────────────────
+  if (vera.buyerMap && typeof vera.buyerMap === 'object') {
+    ctx.buyerMap = vera.buyerMap;
+    const peopleCount = Array.isArray(vera.buyerMap.people) ? vera.buyerMap.people.length : 0;
+    const futCount    = Array.isArray(vera.buyerMap.futureBusinessChampions) ? vera.buyerMap.futureBusinessChampions.length : 0;
+    stepLog(`mergeVeraCorporateStackEnrichment: buyerMap carried (${peopleCount} people, ${futCount} future-business champions)`, 'DATA');
+  }
+  if (vera.namedBuyers && typeof vera.namedBuyers === 'object') {
+    ctx.namedBuyers = vera.namedBuyers;
+  }
+
+  // ── Contact cross-references — apply platformRole to namedContacts[] ───
+  // sage.json is sacred per agent-boundary rule. We mutate the COPY in
+  // company_context.json.namedContacts[] instead, adding a platformRole field.
+  if (Array.isArray(vera.contactCrossReferences) && Array.isArray(ctx.namedContacts)) {
+    let applied = 0;
+    for (const xref of vera.contactCrossReferences) {
+      if (!xref || !xref.name) continue;
+      const xrefKey = String(xref.name).trim().toLowerCase();
+      const contact = ctx.namedContacts.find(c => c && c.name && c.name.trim().toLowerCase() === xrefKey);
+      if (contact) {
+        contact.platformRole = {
+          title:         xref.platformTitle || null,
+          scope:         xref.platformScope || null,
+          implication:   xref.reclassificationImplication || null,
+          isExecutiveSponsorCandidate: !!xref.isExecutiveSponsorCandidate,
+        };
+        applied++;
+      }
+    }
+    if (applied > 0) {
+      stepLog(`mergeVeraCorporateStackEnrichment: applied ${applied} platformRole reclassification(s) to namedContacts[]`, 'DATA');
+    }
+  }
+
+  // ── Step 2d corporate profile (narrative brief) ────────────────────────
+  if (typeof vera.corporateProfile === 'string' && vera.corporateProfile.length > 0) {
+    ctx.corporateProfile = vera.corporateProfile;
+    if (vera.corporateProfileMeta) ctx.corporateProfileMeta = vera.corporateProfileMeta;
+    const wc = vera.corporateProfileMeta && vera.corporateProfileMeta.wordCount;
+    stepLog(`mergeVeraCorporateStackEnrichment: corporateProfile carried (${wc || '?'} words)`, 'DATA');
+  }
+
+  // ── Top-level dealUrgencyMultipliers mirror ────────────────────────────
+  if (Array.isArray(vera.dealUrgencyMultipliers)) {
+    ctx.dealUrgencyMultipliers = vera.dealUrgencyMultipliers;
+  }
+
+  // ── Legacy fields preserved ────────────────────────────────────────────
   if (Array.isArray(vera.forwardLookingTalkingPoints)) {
     ctx.forwardLookingTalkingPoints = vera.forwardLookingTalkingPoints;
     stepLog(`mergeVeraCorporateStackEnrichment: carried ${vera.forwardLookingTalkingPoints.length} forwardLookingTalkingPoint(s) to company_context`, 'DATA');
@@ -962,8 +1065,85 @@ function mergeVeraCorporateStackEnrichment(slug) {
   }
 
   writeJson(ctxPath, ctx);
-  logFileInfo(ctxPath, 'company_context.json (after Vera enrichment merge)');
-  console.log(`  ${green('✓')} company_context.json — corporateStack enriched from vera.json`);
+  logFileInfo(ctxPath, 'company_context.json (after Vera merge)');
+  console.log(`  ${green('✓')} company_context.json — corporateStack + buyerMap + corporateProfile merged from vera.json`);
+}
+
+// ─── Markdown → HTML (minimal, dependency-free) ─────────────────────────────
+// Vera's Step 2d Corporate Profile is a markdown string. The corporate-brief
+// template renders {{ profileHtml | safe }} — meaning orchestrate.js converts
+// MD → HTML here before composing corporate-brief-content.json.
+//
+// Supported markdown subset (everything Vera's Step 2d emits):
+//   ## H2 / ### H3 headings
+//   blank-line-separated paragraphs
+//   inline [text](url) links
+//   **bold** and *italic*
+//   - or * unordered lists
+//   1. ordered lists
+// Anything more exotic (tables, code fences) is rare in a corporate brief and
+// can be added later; the lock-in here is the simplest viable transform.
+function mdToHtml(md) {
+  if (typeof md !== 'string' || !md.length) return '';
+  // Escape HTML special chars before transforming markdown.
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  // Split into blocks separated by blank lines.
+  const blocks = md.replace(/\r\n/g, '\n').split(/\n{2,}/);
+  const out = [];
+
+  for (const rawBlock of blocks) {
+    const block = rawBlock.trim();
+    if (!block) continue;
+
+    // Headings
+    let m = block.match(/^(#{2,3})\s+(.*)$/);
+    if (m && !block.includes('\n')) {
+      const level = m[1].length;
+      out.push(`<h${level}>${inline(m[2])}</h${level}>`);
+      continue;
+    }
+
+    // Unordered list (every line starts with - or *)
+    const lines = block.split('\n');
+    if (lines.every(l => /^\s*[-*]\s+/.test(l))) {
+      const items = lines.map(l => `<li>${inline(l.replace(/^\s*[-*]\s+/, ''))}</li>`).join('');
+      out.push(`<ul>${items}</ul>`);
+      continue;
+    }
+    // Ordered list (every line starts with N.)
+    if (lines.every(l => /^\s*\d+\.\s+/.test(l))) {
+      const items = lines.map(l => `<li>${inline(l.replace(/^\s*\d+\.\s+/, ''))}</li>`).join('');
+      out.push(`<ol>${items}</ol>`);
+      continue;
+    }
+
+    // Default: paragraph (newlines within block become <br/>)
+    out.push(`<p>${lines.map(inline).join('<br/>')}</p>`);
+  }
+
+  function inline(text) {
+    // Inline links [text](url) — must escape the surrounding text but preserve href
+    let s = String(text);
+    // Pull links out, escape the rest, then put links back.
+    const linkPlaceholders = [];
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
+      linkPlaceholders.push({ label, url });
+      return ` LINK${linkPlaceholders.length - 1} `;
+    });
+    s = esc(s);
+    // Bold + italic (after escape so ** doesn't collide with escaped html)
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    // Restore links
+    s = s.replace(/ LINK(\d+) /g, (_, idx) => {
+      const { label, url } = linkPlaceholders[Number(idx)];
+      return `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a>`;
+    });
+    return s;
+  }
+
+  return out.join('\n');
 }
 
 // ─── Corporate Brief (post-Vera) ─────────────────────────────────────────────
@@ -984,6 +1164,35 @@ function renderCorporateBrief(slug) {
   const project      = readJson(path.join(projectDir, 'project.json')) || {};
   const ctx          = readJson(path.join(projectDir, 'company_context.json')) || {};
   const stack        = ctx.corporateStack || {};
+  // Flo populates portfolioOpportunities[] in flo.json AFTER Vera runs. Brief is
+  // rendered twice — once post-Vera (Flo absent → empty bucket) and once post-Flo
+  // (bucket populated). Read flo.json defensively so the post-Vera render is a
+  // no-op for the portfolio section.
+  const flo          = readJson(path.join(projectDir, 'scoping', 'run', 'flo.json')) || {};
+  const portfolioOpportunities = Array.isArray(flo.portfolioOpportunities)
+    ? flo.portfolioOpportunities
+    : (Array.isArray(ctx.portfolioOpportunities) ? ctx.portfolioOpportunities : []);
+  const portfolioOpportunitiesTruncatedNote = flo.portfolioOpportunitiesTruncatedNote
+    || ctx.portfolioOpportunitiesTruncatedNote
+    || null;
+
+  // Pre-group portfolioOpportunities[] by source. Nunjucks doesn't support
+  // selectattr/groupby, so we do the grouping here and emit a deterministic
+  // ordered list of { source, label, items } for the template to iterate.
+  const PORTFOLIO_SOURCE_ORDER = [
+    { key: 'rex-uncovered-system',   label: 'Same client, future engagement — systems Rex catalogued at the operating brand that no confirmed flow touches' },
+    { key: 'sibling-template',       label: 'Sibling-template deployment — current UCs re-applied to platform siblings' },
+    { key: 'legacy-boltOn',          label: 'Legacy sub-rollup — pre-platform bolt-ons still operating as separate brands' },
+    { key: 'sponsor-portco',         label: 'Sponsor portfolio cross-deployment — sister portcos in adjacent industries' },
+    { key: 'strategic-partnership',  label: 'Strategic-partnership integration — alliance-driven flows' },
+  ];
+  const portfolioOpportunitiesGrouped = PORTFOLIO_SOURCE_ORDER
+    .map(({ key, label }) => ({
+      source: key,
+      label,
+      items: portfolioOpportunities.filter(po => po && po.source === key),
+    }))
+    .filter(group => group.items.length > 0);
 
   // Bail if Scout's inference produced nothing — no point rendering an empty brief.
   if (!stack.operatingBrand || !stack.operatingBrand.name) {
@@ -1010,7 +1219,38 @@ function renderCorporateBrief(slug) {
   // Promote any per-sibling sourceUrl into the citation list too.
   (stack.operatingPlatform?.siblingBrands || []).forEach(s => {
     if (typeof s === 'object' && s.sourceUrl) addCite(`${s.name} — source`, s.sourceUrl);
+    if (typeof s === 'object' && s.itLeader && s.itLeader.sourceUrl) addCite(`${s.name} IT leader`, s.itLeader.sourceUrl);
+    if (typeof s === 'object' && s.itStack && s.itStack.sourceUrl) addCite(`${s.name} IT stack`, s.itStack.sourceUrl);
   });
+  // Promote platform executive team sourceUrls.
+  (stack.operatingPlatform?.platformExecutiveTeam || []).forEach(e => {
+    if (typeof e === 'object' && e.sourceUrl) addCite(`${e.name} (${e.title || 'platform exec'})`, e.sourceUrl);
+  });
+
+  // Buyer map split — public stakeholders vs internal call-prep
+  // Public Stakeholders: people who appeared in transcripts (the buyer knows we know them)
+  // Internal Call-Prep: web-only contacts + per-person angles (gated by ?internal=1 in the template)
+  const buyerMap = ctx.buyerMap || {};
+  const peopleAll = Array.isArray(buyerMap.people) ? buyerMap.people : [];
+  const publicStakeholders = peopleAll
+    .filter(p => Array.isArray(p.sources) && p.sources.includes('transcript'))
+    .map(p => ({
+      name: p.name, title: p.title, role: p.role, company: p.company,
+      systemsOwned: p.systemsOwned || [],
+      transcriptEvidence: p.transcriptEvidence || null,
+    }));
+  const internalCallPrep = peopleAll.map(p => ({
+    name: p.name, title: p.title, role: p.role, company: p.company,
+    matchConfidence: p.matchConfidence,
+    sources: p.sources || [],
+    angleForHawk:          p.angleForHawk || null,
+    angleForIvy:           p.angleForIvy  || null,
+    talkToBefore:          !!p.talkToBefore,
+    talkToBeforeRationale: p.talkToBeforeRationale || null,
+    talkingPointSeed:      p.talkingPointSeed || null,
+    webEvidence:           p.webEvidence || null,
+    detractorWarning:      p.detractorWarning || null,
+  }));
 
   // Inherit fields Vera enriches if present; otherwise leave the brief lean and
   // let the template render a "no signals yet" placeholder.
@@ -1027,8 +1267,31 @@ function renderCorporateBrief(slug) {
     operatingBrand:    stack.operatingBrand    || null,
     operatingPlatform: stack.operatingPlatform || null,
     financialSponsor:  stack.financialSponsor  || null,
+    strategicPartnerships: stack.strategicPartnerships || [],
+    collaborators:         stack.collaborators         || [],
+    leadership:            stack.leadership            || null,
+    engagementEntity:      stack.engagementEntity      || null,
+    // Step 1c Pass 10 — deal urgency multipliers
+    dealUrgencyMultipliers: ctx.dealUrgencyMultipliers || stack.dealUrgencyMultipliers || [],
+    // Step 2c — buyer map split
+    buyerMapSummary:   buyerMap.summary || null,
+    publicStakeholders,
+    internalCallPrep,
+    futureBusinessChampions: buyerMap.futureBusinessChampions || [],
+    preCallOutreach:         buyerMap.preCallOutreach         || [],
+    // Step 2d — narrative brief: keep raw markdown for export use; emit pre-rendered HTML for the template
+    corporateProfileMarkdown:  ctx.corporateProfile     || null,
+    corporateProfileHtml:      ctx.corporateProfile ? mdToHtml(ctx.corporateProfile) : null,
+    corporateProfileMeta:      ctx.corporateProfileMeta || null,
+    // Legacy fields (still consumed by current template)
     forwardLookingTalkingPoints: ctx.forwardLookingTalkingPoints || [],
     intelTheBuyerLacks:          ctx.intelTheBuyerLacks          || [],
+    // Flo v1.1.0 — corporate-brief-bound portfolio integration opportunities.
+    // Routing rule: these MUST NOT appear in proposal-content.json or intake-content.json.
+    // Every entry carries proposalExclusion=true + intakeExclusion=true as defense-in-depth.
+    portfolioOpportunities,
+    portfolioOpportunitiesGrouped,
+    portfolioOpportunitiesTruncatedNote,
     citations,
     closing: null, // template substitutes default sign-off when null
   };
@@ -1423,16 +1686,19 @@ async function runPipeline(slug) {
       // --dangerously-skip-permissions auto-approves all tool calls (file I/O, web search)
       // so the agent runs without stopping for approval. spawnSync blocks until the user
       // types /exit, then the orchestrator checks for the output file and continues.
+      // --model honors the agent toml's [agent] model = "sonnet" | "opus" | "haiku" setting
+      // so cheap extraction agents (Sage on Haiku) run at 1/20th the cost of judgment agents
+      // (Vera/Hawk/Petra/Mira on Opus). When unset, defaults to Claude Code's configured model.
       const tomlContent = fs.readFileSync(path.join(ROOT, resolvedToml), 'utf8');
       console.log(`\n  ${cyan('▶')} Running ${bold(agent.name)} — type ${bold('/exit')} when done\n`);
-      stepLog(`Running ${agent.name} interactively`, 'START');
+      stepLog(`Running ${agent.name} interactively (model: ${agent.model || 'default'})`, 'START');
 
-      const result = spawnSync(
-        CLAUDE_BIN,
-        ['--dangerously-skip-permissions', '--system-prompt', tomlContent,
-         'Execute your complete workflow now. Follow every step in the workflow section, then type /exit when finished.'],
-        { stdio: 'inherit', cwd: ROOT }
-      );
+      const claudeArgs = ['--dangerously-skip-permissions'];
+      if (agent.model) claudeArgs.push('--model', agent.model);
+      claudeArgs.push('--system-prompt', tomlContent,
+        'Execute your complete workflow now. Follow every step in the workflow section, then type /exit when finished.');
+
+      const result = spawnSync(CLAUDE_BIN, claudeArgs, { stdio: 'inherit', cwd: ROOT });
 
       if (result.error) {
         stepLog(`${agent.name} error: ${result.error.message}`, 'ERROR');
@@ -1654,6 +1920,25 @@ async function runPipeline(slug) {
       writeClientRegistry(slug);
       console.log(`  ${green('✓')} projects/client-registry.json updated`);
       stepLog('POST-FLO: client-registry updated', 'END');
+
+      // Per Flo v1.1.0, the portfolioOpportunities[] bucket lands in the corporate
+      // brief (NOT in proposal or intake). Re-render the brief now that Flo's
+      // bucket exists — the post-Vera render emitted a brief without it. Skips
+      // silently when no corporate stack was surfaced (independent clients).
+      stepLog('POST-FLO: re-rendering corporate-brief with portfolioOpportunities', 'START');
+      try {
+        const briefHtml = renderCorporateBrief(slug);
+        if (briefHtml) {
+          const poCount = Array.isArray(floData.portfolioOpportunities) ? floData.portfolioOpportunities.length : 0;
+          console.log(`  ${green('✓')} corporate-brief re-rendered with ${poCount} portfolio opportunit${poCount === 1 ? 'y' : 'ies'}`);
+        } else {
+          console.log(`  ${dim('↳ corporate brief skipped — no corporate stack in company_context.json')}`);
+        }
+        stepLog('POST-FLO: corporate-brief re-render done', 'END');
+      } catch (e) {
+        stepLog(`POST-FLO: corporate-brief re-render FAILED — ${e.message}`, 'WARN');
+        console.log(`  ${yellow('⚠')}  Corporate brief re-render failed — re-run manually: npm run build:html (then copy _build/intake/corporate-brief-${slug}.html → projects/${slug}/intake/client/)`);
+      }
 
       stepLog('POST-FLO: assembling diagram-content.json (scoping)', 'START');
       try {
@@ -1877,7 +2162,8 @@ async function runDeltaPipeline(slug, recordingFile) {
     const stepLabel = `DELTA STEP ${di + 1}/${deltaAgents.length}: ${agent.name}`;
     stepLog(`${stepLabel} (${agent.slug}) — STARTED`, 'START');
     const resolvedToml = resolvedAgentToml(agent, slug);
-    const cmd = `claude --dangerously-skip-permissions --system-prompt "$(cat ${resolvedToml})" 'Execute your complete workflow now. Follow every step in the workflow section, then type /exit when finished.'`;
+    const modelFlag = agent.model ? `--model ${agent.model} ` : '';
+    const cmd = `claude --dangerously-skip-permissions ${modelFlag}--system-prompt "$(cat ${resolvedToml})" 'Execute your complete workflow now. Follow every step in the workflow section, then type /exit when finished.'`;
     console.log('\n' + bold('─'.repeat(60)));
     console.log(bold(`  DELTA: ${agent.name} — ${agent.role}`));
     if (agent.note) console.log(`  ${dim(agent.note)}`);

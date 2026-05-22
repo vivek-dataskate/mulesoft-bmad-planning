@@ -198,12 +198,10 @@ async function autoAddHandler(ext, fullPath, filename) {
     /const KNOWN_BINARY_EXTS = new Set\(\[([^\]]+)\]\);/,
     (match, inner) => `const KNOWN_BINARY_EXTS = new Set([${inner.trimEnd()}, '${ext}']);`
   );
-  src = src.replace("  if (ext === '.svg') {
-    const raw = fs.readFileSync(fullPath, 'utf8');
-    return raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || null;
-  }
-
-  return 'UNKNOWN_TYPE';", `${entry.handlerCode}\n\n  return 'UNKNOWN_TYPE';`);
+  src = src.replace(
+    "  return 'UNKNOWN_TYPE';",
+    `${entry.handlerCode}\n\n  return 'UNKNOWN_TYPE';`
+  );
   fs.writeFileSync(__filename, src, 'utf8');
   console.log(`   ✓ Handler for "${ext}" added to extract-text.js (permanent)`);
 

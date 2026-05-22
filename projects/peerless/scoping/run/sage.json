@@ -1,0 +1,605 @@
+{
+  "status": "complete",
+  "client": "peerless",
+  "generatedAt": "2026-05-22T11:30:00Z",
+
+  "sourceFiles": [
+    { "filename": "peerless-dailysync_transcript_krisp_4_14.txt", "type": "transcript", "wordCount": 3075 },
+    { "filename": "Peerless-DailySync Transcript_readai_4-15.txt", "type": "transcript", "wordCount": 8977 },
+    { "filename": "Peerless-DailySync Transcript_readai_4-16.txt", "type": "transcript", "wordCount": 10859 },
+    { "filename": "Peerless-DailySync Transcript_readai_4_17.txt", "type": "transcript", "wordCount": 5355 }
+  ],
+
+  "businessContext": {
+    "companyDescription": "Peerless Fence is a residential fencing contractor that installs aluminum, wood, and other fence types for homeowners, operating in Illinois, Indiana, Ohio and Wisconsin. A meaningful share of work comes through Home Depot's Pro contractor channel — leads flow from Home Depot Service Center (HD Portal) into Peerless's Salesforce CRM, then to ComputerEase (Deltek) for job costing.",
+    "industry": "construction (specialty residential — fence installation, Home Depot pro-services partner)",
+    "engagementType": "new-integration",
+    "goLiveUrgency": "soft target",
+    "goLiveDate": null,
+    "budgetSignals": "Brian Cook noted that moving ComputerEase off self-hosted GCP to Deltek's cloud would 'save us about five grand a month' — implies current GCP hosting cost is ~$5K/month; not a project budget envelope."
+  },
+
+  "systems": [
+    {
+      "name": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "source",
+      "instanceNote": "Pro-contractor portal; Peerless tenant"
+    },
+    {
+      "name": "Salesforce",
+      "connectorKey": "salesforce",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "both",
+      "instanceNote": "Sandbox provisioned by Cora Barahi; standard Quote / Quote Line Item / Opportunity / Account / Project / Sales Order objects in use"
+    },
+    {
+      "name": "ComputerEase (Deltek)",
+      "connectorKey": "computerease",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Production + 'practice' (P3) tenant; company code 00 used for Illinois and Wisconsin Home Depot residential; archaic DOS-era core; version ~26.x"
+    },
+    {
+      "name": "GCP (Google Cloud Platform)",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "unknown",
+      "instanceNote": "Infrastructure host for ComputerEase VM — not a connector target. Static external IP (cited variously as 35.222.218.224 / 135.226.22218 in transcripts — confirm). Ingress/egress firewall configured during 2026-04-16 session. unresolved — Vera to research only if MuleSoft itself needs GCP-side IAM/Secrets Manager."
+    },
+    {
+      "name": "Cameo",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "unknown",
+      "instanceNote": "Remote-desktop / virtual-app gateway product used by Peerless for UI access to ComputerEase. NOT an integration target — UI-only access path. unresolved — out of integration scope."
+    },
+    {
+      "name": "DocHub",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "unknown",
+      "instanceNote": "Used by Peerless to generate and sign the HS-118 customer-approval form. Human-signing tool; not part of system-to-system data plane unless write-back is in scope later. unresolved — Vera to confirm if write-back is desired."
+    },
+    {
+      "name": "MuleSoft IDP (Intelligent Document Processing)",
+      "connectorKey": null,
+      "inferenceType": "inferred",
+      "inferencePhrase": "we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce",
+      "role": "target",
+      "instanceNote": "Implied for 299A/299B/118 contract validation. DataSkate side decision, not client-stated. Vera to confirm IDP vs. alternative document AI."
+    }
+  ],
+
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "systems": ["Home Depot Service Center", "Salesforce"],
+      "direction": "HD Portal → Salesforce",
+      "entity": "Lead",
+      "trigger": "scheduled",
+      "triggerDetail": "Polling at ~10-minute intervals — 'A Marcos told that update every ten minutes' (was 30 minutes historically)",
+      "evidence": "Raghuram Potluri 2026-04-14: 'there will be a lead sitting in HTS which is being pulled into the sales force through our API call'. Ashley Salerno: 'when we create a lead inside of Home Depot Service Center, it doesn't come through inside of Salesforce. So that part needs to be fixed.'"
+    },
+    {
+      "id": "UC2",
+      "systems": ["Salesforce", "ComputerEase"],
+      "direction": "Salesforce → ComputerEase",
+      "entity": "Job (job costing record + customer + budget worksheet)",
+      "trigger": "event-driven",
+      "triggerDetail": "Currently manual; target trigger = Salesforce quote 'Save as Final' status transition",
+      "evidence": "Ashley Salerno 2026-04-16 walked through ~1.5h manual job entry into ComputerEase from a Salesforce quote: 'I'm going to take the information inside the budget worksheet... I'm going to go to Computer Ease... duplicate a job... customer number is 180... Muckian test... 26 HD 565 AS.' Job number is sequential by company code + product line + initials."
+    },
+    {
+      "id": "UC3",
+      "systems": ["Home Depot Service Center", "MuleSoft IDP", "Salesforce"],
+      "direction": "HD Portal (signed PDF) → IDP → Salesforce (validate)",
+      "entity": "Contract documents (HS-105, 299A, 299B, HS-118)",
+      "trigger": "event-driven",
+      "triggerDetail": "Triggered by quote 'Save as Final' + signed-document upload; validates extracted fields against Salesforce quote/contract data and flags discrepancies",
+      "evidence": "Venkat B 2026-04-15: 'we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce.' Specific rules: signatures must be legible; dates must be Fridays; 299A and 299B contract prices must match; yes/no boxes cannot both be ticked; permit-required flag must be one value; 100% deposit except Wisconsin (99%)."
+    },
+    {
+      "id": "UC4",
+      "systems": ["Salesforce", "Home Depot Service Center"],
+      "direction": "Salesforce → HD Portal (exception/comment write-back)",
+      "entity": "Lead/Quote exception note",
+      "trigger": "event-driven",
+      "triggerDetail": "Triggered when UC3 validation fails; pushes a structured comment or email back to HD instead of processing the job",
+      "evidence": "Venkat B 2026-04-15: 'depending upon the endpoint that we have with the HD, we can try to mail as well.' Ashley confirmed Peerless currently writes a comment on the HD screen when there is an issue: 'we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead.'"
+    }
+  ],
+
+  "potentialFlows": [
+    {
+      "id": "UC5-potential",
+      "systems": ["Home Depot Service Center", "Salesforce"],
+      "entity": "Deposit payment status",
+      "rationale": "Ashley Salerno explicitly named this as today-manual and a desired future automation. Sits between transactional (payment) and operational (status flag) entity categories. Cap-of-3 selection rule met by direct client aspiration.",
+      "promotionEvidence": "Confirmed HD endpoint exposing deposit-status reads or accepting deposit-paid writes — to be validated during API discovery."
+    },
+    {
+      "id": "UC6-potential",
+      "systems": ["Salesforce", "ComputerEase"],
+      "entity": "Subcontract / commission worksheet (financial detail)",
+      "rationale": "Ashley demonstrated entering subcontract amounts, sales commission, overhead GA, target price into ComputerEase budget worksheet — these are downstream of the Job creation but are distinct transactional records. If UC2 scope is 'job header only', these become a follow-on flow.",
+      "promotionEvidence": "Confirm whether UC2 includes the full budget-worksheet payload or just the job header — clarify with Ashley on the next call."
+    },
+    {
+      "id": "UC7-potential",
+      "systems": ["ComputerEase", "Salesforce"],
+      "entity": "Job status / completion event (close loop)",
+      "rationale": "Operational close-the-loop pattern — Peerless currently has no way to surface ComputerEase job status back in Salesforce, so any production / installation / payment milestones live only in ComputerEase. Standard construction-vertical reverse-ETL gap.",
+      "promotionEvidence": "Ask Ashley if Salesforce users need to see job status (in-progress, complete, paid) without logging into Cameo + ComputerEase. If yes, promote."
+    }
+  ],
+
+  "signals": [
+    {
+      "signal": "sandbox / no sandbox / production-only",
+      "triggerPhrase": "since the API is not available in practice, does it make sense to even create a practice ID for you or no? — Jean Jacobs 2026-04-17",
+      "questionSet": "system-gotcha (ComputerEase sandbox API parity gap — FK-032)"
+    },
+    {
+      "signal": "on-premise / on our VM / thick-client / legacy ERP",
+      "triggerPhrase": "It's not a web application. It's hosted on an actual VM. And then here's the VM right here. This primary computer is VM. — Brian Cook 2026-04-15",
+      "questionSet": "system-gotcha (on-prem ERP on customer cloud — FK-029, GCP firewall/IP/port questions)"
+    },
+    {
+      "signal": "real-time / immediate / synchronous / user-facing",
+      "triggerPhrase": "every ten minutes — A Marcos told that update every ten minutes",
+      "questionSet": "conditional-signal (polling vs CDC selection; 10-min eventual consistency on lead sync)"
+    },
+    {
+      "signal": "scheduled / nightly / scheduled",
+      "triggerPhrase": "It used to be 30 minutes, so it's nice to know that it's gotten to 10 minutes now — Ashley Salerno 2026-04-14",
+      "questionSet": "conditional-signal (scheduled-sync pattern D with watermark; messageTtl tuning)"
+    },
+    {
+      "signal": "AI / LLM / ChatGPT / OpenAI / Anthropic",
+      "triggerPhrase": "I don't think we would be using an LLM, but I'll try to understand once we have a couple of samples — Venkat B 2026-04-15",
+      "questionSet": "conditional-signal (AI-augmented-flow P explicitly NOT chosen for picket-type matching; IDP-document-processing V chosen for 299A/299B/118 extraction)"
+    },
+    {
+      "signal": "IDP / document extraction",
+      "triggerPhrase": "we would be giving that doc to the idp and we'll try to extract the content that is there — Venkat B 2026-04-15",
+      "questionSet": "conditional-signal (idp-document-processing pattern V; 299A/299B/118 docs; Anypoint IDP connector)"
+    },
+    {
+      "signal": "AI hallucination — operational risk",
+      "triggerPhrase": "Careful though, AI can hallucinate, so you may get a wrong password. Don't lock yourself out — Raghuram Potluri 2026-04-15",
+      "questionSet": "protocol (credential-hygiene FK-031)"
+    },
+    {
+      "signal": "legacy / replace / legacy ESB",
+      "triggerPhrase": "Yeah, I think this is a kind of a legacy application, right, Brian? — Raghuram Potluri 2026-04-17. Brian: 'We're considered legacy.'",
+      "questionSet": "system-gotcha (Deltek legacy-product SLA; CE Live Service relay)"
+    },
+    {
+      "signal": "firewall / security exposure",
+      "triggerPhrase": "Yeah, there's no firewall. They could put in a username and password and keep trying and trying and trying until they get in. That's scary. — Brian Cook 2026-04-15",
+      "questionSet": "system-gotcha (on-prem VM security questions; static-IP allow-list to MuleSoft tenant)"
+    },
+    {
+      "signal": "file / SFTP / CSV / Excel",
+      "triggerPhrase": "we would need an Excel sheet — Venkat B 2026-04-15 (proposed; Ashley deflected because data already in Salesforce as Quote Line Item)",
+      "questionSet": "conditional-signal (Salesforce as canonical store, not flat-file — FK-025 awareness applies in reverse)"
+    },
+    {
+      "signal": "vendor support / ticketing",
+      "triggerPhrase": "It's like a ticketing system where you create a support ticket and then they come in to call — Ashley Salerno 2026-04-14",
+      "questionSet": "protocol (HD support access via Greg/account-manager; Deltek support 4hr SLA)"
+    },
+    {
+      "signal": "single admin / SPOF",
+      "triggerPhrase": "The only person that does is Jean — Ashley Salerno 2026-04-16. Brian: 'it's not a good practice to only have one admin.'",
+      "questionSet": "base (access-chain — backup admin must be identified before kickoff)"
+    }
+  ],
+
+  "namedContacts": [
+    {
+      "name": "Ashley Salerno",
+      "title": "Peerless operations lead (business process owner — contracts, permits, HD reconciliation, job entry)",
+      "email": "ashley@peerlessfence.com (referenced; not directly stated)",
+      "systems": ["Home Depot Service Center", "Salesforce", "ComputerEase", "DocHub"],
+      "responsibilities": ["business process SME", "UAT sign-off candidate", "HD account-manager liaison via Greg", "daily manual reviewer of contracts and discrepancies"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Brian Cook (called 'Brent')",
+      "title": "Peerless IT / infrastructure admin",
+      "email": null,
+      "systems": ["GCP", "ComputerEase (limited)", "Cameo"],
+      "responsibilities": ["GCP firewall rules", "Cameo admin", "OAuth consent owner candidate", "IT firewall contact", "ComputerEase production access (not admin)"],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Jean Jacobs",
+      "title": "Peerless accounting / ComputerEase super-admin (sole admin)",
+      "email": "JeanJ@peerlessfence.com",
+      "systems": ["ComputerEase", "Deltek support portal"],
+      "responsibilities": ["ComputerEase user/access-group creation", "ComputerEase super-admin", "Deltek support ticket owner", "SPOF for any CE access change"],
+      "accessChain": {
+        "isSystemAdmin": true,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": true,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Jeff Kelly",
+      "title": "Peerless leadership / decision contact (likely PM or exec)",
+      "email": null,
+      "systems": [],
+      "responsibilities": ["go-live decision maker candidate", "internal coordinator with Jean and Brian"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Marius (also 'Mario')",
+      "title": "Home Depot developer / IT contact who shared HD Portal API credentials",
+      "email": null,
+      "systems": ["Home Depot Service Center"],
+      "responsibilities": ["HD Portal API key delivery", "Salesforce sandbox user creation coordination (per his message to Raghuram)", "engaged for 15 more days per Ashley 2026-04-16"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Greg",
+      "title": "Home Depot account contact / gateway to HD API team",
+      "email": null,
+      "systems": ["Home Depot Service Center"],
+      "responsibilities": ["HD account manager", "ticketing entry point for API team contact"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Cora Barahi",
+      "title": "(Per Marius's statement) creator of Peerless Salesforce sandbox user for DataSkate",
+      "email": null,
+      "systems": ["Salesforce"],
+      "responsibilities": ["Salesforce sandbox user creation"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Stephanie Rice",
+      "title": "Peerless accounting team",
+      "email": null,
+      "systems": ["ComputerEase"],
+      "responsibilities": ["Ashley wants her added to ComputerEase to help with workload"],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Laura",
+      "title": "Peerless — has more ComputerEase access than other staff (after Jean)",
+      "email": null,
+      "systems": ["ComputerEase"],
+      "responsibilities": ["candidate backup admin if Jean is unavailable"],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Raghuram Potluri",
+      "title": "DataSkate architect (engagement lead)",
+      "email": null,
+      "systems": [],
+      "responsibilities": ["DataSkate engagement lead", "deep research contributor (CE Live Service finding, GCP security flag, AI hallucination warning)"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Venkat B",
+      "title": "DataSkate developer",
+      "email": "venkatb@dataskate.ai",
+      "systems": [],
+      "responsibilities": ["HD Portal API testing", "GCP firewall debugging", "IDP design lead"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    },
+    {
+      "name": "Bharath (Bharat)",
+      "title": "DataSkate developer",
+      "email": null,
+      "systems": [],
+      "responsibilities": ["GCP firewall debugging", "HD Portal API testing"],
+      "accessChain": {
+        "isSystemAdmin": null,
+        "createsApiUsers": null,
+        "ownsVendorSupportLogin": null,
+        "isBackupAdmin": null
+      }
+    }
+  ],
+
+  "systemFindings": [
+    {
+      "system": "Home Depot Service Center",
+      "connectorKey": "hd-portal",
+      "finding": "API key delivered by Marius via confidential email; copy-paste disabled; GET against HD API returned HTTP 200 during testing but specific lead-record retrieval needed a lead F-number from Ashley.",
+      "confidence": "high",
+      "sourceQuote": "Venkat B 2026-04-17: 'I was able to get the 200 response, but I couldn't be able to get any one specific ID. So I would require any one lead ID from your end so that I test it now and see that I am able to get the data.'"
+    },
+    {
+      "system": "Home Depot Service Center",
+      "connectorKey": "hd-portal",
+      "finding": "Lead identifier is an 'F number' — not a generic numeric ID. SFIM-vendor-number is a different field that may be confused for the lead ID.",
+      "confidence": "high",
+      "sourceQuote": "Ashley Salerno 2026-04-17: 'It says SFIM vendor. Number?' / Venkat B: 'I thought you need the lead number which is the F number.'"
+    },
+    {
+      "system": "Home Depot Service Center",
+      "connectorKey": "hd-portal",
+      "finding": "Update cadence to downstream consumers is ~10 minutes (was 30 min historically).",
+      "confidence": "high",
+      "sourceQuote": "venkatb@dataskate.ai 2026-04-14: 'It takes ten minutes to update. Actually, on the peerless side...' / Ashley: 'A Marcos told that update every ten minutes.'"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Sandbox tenant is being provisioned by Cora Barahi (per Marius). DataSkate access pending at time of transcripts.",
+      "confidence": "high",
+      "sourceQuote": "Raghuram Potluri 2026-04-14: 'Marius told that he will share it with us, he will create a user. He told me that Cora Barahi is going to create a user with our email and is going to share it with us for the sandbox.'"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Quote Line Item (standard object) is the canonical source for picket-type / material-type rules — no external Excel sheet needed. Picket-type determination is data-driven from product bundle (e.g. material name includes 'cedar' → wood).",
+      "confidence": "high",
+      "sourceQuote": "Venkat B 2026-04-15: 'this data is all available within the Salesforce. Like when you said it's a wood and correspondingly only these things should come with respect to the woods.' / Ashley: 'this object name should be Find Quote Line Item.'"
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "API Management menu is ONLY available in the production tenant; practice/sandbox returns 'Can't access API from practice'. Confirmed by Peerless super-admin Jean Jacobs.",
+      "confidence": "high",
+      "sourceQuote": "Brian Cook 2026-04-17: 'wait, what did that say? Can't access API from practice.' / Jean Jacobs: 'I won't let you in practice.' / 'since the API is not available in practice, does it make sense to even create a practice ID for you or no?'"
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "API access requires Deltek 'CE Live Service' Windows service installed on the same VM as ComputerEase. External calls go to a Deltek-managed URL which routes back through CE Live Service to the local CE instance. Pending Deltek support ticket (filed 2026-04-17 by Jean).",
+      "confidence": "high",
+      "sourceQuote": "Raghuram Potluri 2026-04-17: 'these Dell tech, especially computer is APIs work in a little bit different way where like they have this CE live service installed on the same VM where we have computer is. And we have to make a call to the Dell tech URL so that they will route to our computer is instance through the CE live service.'"
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "ComputerEase production VM observed listening on TCP/445 (SMB) — NOT 443 or 8081. Firewall rules added for 443/8081 did not surface any service.",
+      "confidence": "high",
+      "sourceQuote": "Brian Cook 2026-04-16: 'We're not listening on 443. We're listening on 445. Which is terrible. But that's how I'm in.'"
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "Single super-admin (Jean Jacobs); no backup admin. Demonstrated SPOF blocked all access changes for ~2 days during PTO.",
+      "confidence": "high",
+      "sourceQuote": "Ashley Salerno 2026-04-16: 'The only person that does is Jean, but Laura has more access than all of us except for Jean.' / Brian Cook: 'Yeah, it's not a good practice to only have one admin, obviously for situations like this.'"
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "Vendor support categorises ComputerEase as legacy; minimum response SLA is 4 hours.",
+      "confidence": "high",
+      "sourceQuote": "Brian Cook 2026-04-17: 'We're considered legacy. So, 4 hours, it won't be 2.'"
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "Confirmed object-set entitled to API access group at Peerless: Jobs, Subcontracts, Cost Types, Job Totals, Service Work Orders. Excluded as sensitive: Payroll, Departments, Inventory, Vendors.",
+      "confidence": "medium",
+      "sourceQuote": "Ashley Salerno 2026-04-15: 'I don't think we need payroll data... apart from payroll, if there is any confidential and classified information, let's not use that, Bharat. I think jobs is the one we needed, so you can put jobs, subcontracts.' / 'Job totals make sense.'"
+    },
+    {
+      "system": "GCP",
+      "connectorKey": null,
+      "finding": "ComputerEase VM has a static external IP. Pre-engagement state: SSH and RDP were open to the entire internet (no source filter); only ingress was enabled (no egress for return traffic).",
+      "confidence": "high",
+      "sourceQuote": "Brian Cook 2026-04-15: 'They're allowing SSH and RDP from anywhere, which is really bad practice.' / 2026-04-16: 'I'm pretty sure it is static, but it wouldn't matter right now... they're all static.'"
+    },
+    {
+      "system": "Cameo",
+      "connectorKey": null,
+      "finding": "Cameo is the recommended interactive UI path to ComputerEase — Brian Cook explicitly preferred it over RDP because 'I don't know what guardrails are in place in Cameo or an RDP.' Cameo is NOT an integration channel.",
+      "confidence": "high",
+      "sourceQuote": "Brian Cook 2026-04-16: 'I would use Cameo for computer use. Unless you need to like RDP to the server to like go in and open something up on the Windows firewall, you know, of the server.'"
+    }
+  ],
+
+  "quotes": {
+    "primaryPainQuote": "This is an ancient system. It is. I feel like I've traveled back to the 90s. You definitely have. — Brian Cook + Ashley Salerno + DataSkate, 2026-04-15, about ComputerEase",
+    "aspirationQuote": "So a lot of the times I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box. If that could integrate and flow back through an API, that was awesome, that would work. — Ashley Salerno 2026-04-14",
+    "skepticismSignals": [
+      "Careful though, AI can hallucinate, so you may get a wrong password. Don't lock yourself out. — Raghuram Potluri 2026-04-15",
+      "We're considered legacy. So, 4 hours, it won't be 2. — Brian Cook 2026-04-17 (re: Deltek support SLA)",
+      "It's a program that was DOS so who knows? Some of the stuff is still archaic. — Jean Jacobs 2026-04-17",
+      "I'm reaching out to our contact, whose name is Greg... it's never the same way, because some say, 'Do this instead.' — Ashley Salerno 2026-04-14 (re: HD support inconsistency)",
+      "I won't argue with Jean. — Ashley Salerno 2026-04-16 (re: single-admin SPOF)"
+    ],
+    "excitementPhrases": [
+      "I think by next early next week, I think we should be able to figure out all the access connectivity and extracting data. So we should be good after that. — Raghuram Potluri 2026-04-16",
+      "There we go. Now I'm already peeing to this machine. Okay. This is what we needed. This is big. — Brian Cook 2026-04-16 (RDP breakthrough)",
+      "Now, we have a lot of ideas on the business process, so it will really help us to grab the requirements. — Raghuram Potluri 2026-04-14"
+    ]
+  },
+
+  "architectKnowledge": [
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "ComputerEase APIs are exposed via a CE Live Service Windows service on the customer VM. External callers hit a Deltek-managed URL which routes back through CE Live Service to the local CE instance. This is a legacy relay pattern, not modern REST exposure.",
+      "system": "ComputerEase",
+      "writtenTo": "mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (knownQuirks + p0Conditions) + commons/docs/FIELD_KNOWLEDGE.md (FK-030) + commons/docs/PLANNING_CONTEXT.md (Critical Notes)",
+      "fkId": "FK-030"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "Customer-managed cloud VMs hosting legacy ERPs are typically misconfigured for security (SSH/RDP open to internet, no egress rules, non-standard listening ports). Always inspect ports, firewall rules, and IP type at scoping rather than assuming standard HTTPS exposure.",
+      "system": "ComputerEase / general on-prem legacy ERP on customer cloud",
+      "writtenTo": "commons/docs/FIELD_KNOWLEDGE.md (FK-029) + mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (knownQuirks)",
+      "fkId": "FK-029"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "Confidential / secure email tools that disable clipboard copy force credential transcription. Do NOT use an LLM to OCR a password — hallucination on a single character causes account lockout. Use a deterministic OCR tool or hand-type.",
+      "system": null,
+      "writtenTo": "commons/docs/FIELD_KNOWLEDGE.md (FK-031) + mulesoft/playbooks/playbooks/hd-portal/hd-portal_playbook.json (knownQuirks)",
+      "fkId": "FK-031"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "Some legacy ERPs (ComputerEase confirmed) expose API ONLY in production — practice/sandbox tenants have no API surface at all. Agree GET-only production testing posture in writing before development.",
+      "system": "ComputerEase",
+      "writtenTo": "commons/docs/FIELD_KNOWLEDGE.md (FK-032) + mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (p0Conditions) + commons/docs/PLANNING_CONTEXT.md (Critical Notes)",
+      "fkId": "FK-032"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "Principle of least privilege when given GCP access for debugging — request editor/dev role, not full admin. Demonstrated by explicitly asking Brian for editor-level GCP IAM, not super-admin, while debugging firewall rules.",
+      "system": "GCP",
+      "writtenTo": "(not promoted — single-occurrence observation, captured here only)",
+      "fkId": null
+    }
+  ],
+
+  "questionGaps": [
+    {
+      "question": "Does the sandbox/practice environment expose the FULL API surface, or only the UI?",
+      "type": "base",
+      "fkId": "FK-032"
+    },
+    {
+      "question": "Is there a designated BACKUP super-admin for this system? If not, who can we add before kickoff?",
+      "type": "base",
+      "fkId": null
+    },
+    {
+      "question": "Is the API exposed directly from your VM, or through a vendor-managed relay/proxy URL?",
+      "type": "system-gotcha",
+      "fkId": "FK-030"
+    },
+    {
+      "question": "What is the external IP of the host VM, and is it static or ephemeral?",
+      "type": "protocol",
+      "fkId": "FK-029"
+    },
+    {
+      "question": "Which TCP ports does the application listen on internally (run netstat / Get-NetTCPConnection during scoping)?",
+      "type": "protocol",
+      "fkId": "FK-029"
+    },
+    {
+      "question": "What is the lead/record identifier format and field name (e.g. F-number, GUID, integer)?",
+      "type": "base",
+      "fkId": null
+    },
+    {
+      "question": "How are API credentials delivered? Confidential email with clipboard disabled? If so, plan transcription buffer and do NOT OCR passwords via LLM.",
+      "type": "protocol",
+      "fkId": "FK-031"
+    },
+    {
+      "question": "What is the vendor's support SLA, and is the product classified 'legacy' (= slower SLA)?",
+      "type": "system-gotcha",
+      "fkId": "FK-030"
+    },
+    {
+      "question": "Is the ERP on the vendor's cloud, or on a customer-managed cloud VM? If customer-managed: who owns firewall rules, IAM, and uptime?",
+      "type": "conditional-signal",
+      "fkId": "FK-029"
+    },
+    {
+      "question": "Are there sequential identifier policies (job number, invoice number) that prevent test writes from taking the next-in-line ID?",
+      "type": "system-gotcha",
+      "fkId": null
+    }
+  ],
+
+  "p0Flags": [
+    {
+      "system": "ComputerEase (Deltek)",
+      "gotcha": "CE Live Service relay required for API access; sandbox has no API; vendor support 4hr+ SLA (legacy classification)",
+      "severity": "P0",
+      "clientAction": "(a) Confirm Deltek support ticket filed 2026-04-17 is actively in queue; (b) get CE Live Service installed and confirm the Deltek-managed integration URL; (c) provision a backup ComputerEase super-admin (candidate: Laura); (d) agree GET-only production testing posture in writing.",
+      "architectNote": "Per FK-030 + FK-032 + computerease playbook knownQuirks. Integration endpoint is NOT the customer VM IP — it is a Deltek-managed URL. Listening port on VM is 445 (SMB), not 443. Plan write-flows only after vendor confirms write endpoints in CE Live Service."
+    },
+    {
+      "system": "GCP-hosted ComputerEase VM",
+      "gotcha": "On-premise/VM — firewall rules, static vs ephemeral IP, exposure path not confirmed at start of engagement",
+      "severity": "P0",
+      "clientAction": "(a) Confirm static external IP (in transcripts cited variously as 35.222.218.224 and 135.226.22218 — must reconcile); (b) lock ingress to MuleSoft tenant IP allowlist only — currently open SSH/RDP to internet; (c) confirm egress rules permit CE Live Service outbound to Deltek cloud.",
+      "architectNote": "Per FK-029 + PLANNING_CONTEXT.md Critical Notes. The 'allow SSH/RDP from anywhere' state was a pre-existing security flaw the team began correcting during scoping. Flo to confirm remediation status before production cutover."
+    },
+    {
+      "system": "Salesforce",
+      "gotcha": "SOQL OFFSET silently breaks above 2,000 rows; State/Country Picklists; multi-currency org flag",
+      "severity": "flag",
+      "clientAction": "Confirm in questionnaire: (a) is multi-currency enabled? (b) is 'State and Country Picklists' enabled in Setup? (c) do queries against Lead/Opportunity backlogs ever exceed 2K rows in one window?",
+      "architectNote": "Per salesforce_playbook.json knownQuirks. Use cursor pagination via nextRecordsUrl, never OFFSET. canonical-to-sf-account.dwl uses useCountryCode and isMultiCurrency flags."
+    },
+    {
+      "system": "Home Depot Service Center (HD Portal)",
+      "gotcha": "Write endpoints (comment/status/deposit-paid write-back) not yet confirmed; credentials delivered via clipboard-disabled email",
+      "severity": "flag",
+      "clientAction": "(a) During API discovery, validate POST/PUT endpoints for the discrepancy-comment and deposit-paid flows (UC4 + UC5-potential); (b) plan 10-min credential entry buffer; do NOT OCR passwords via LLM.",
+      "architectNote": "Per hd-portal_playbook.json knownQuirks + FK-031. If HD does not expose write endpoints for these flows, fall back to email/IDP/manual review channel."
+    },
+    {
+      "system": "MuleSoft IDP (implied for UC3)",
+      "gotcha": "If MuleSoft IDP is selected: 50-page / 10MB per submission limit; Anypoint Connected App with EMPTY scope (not 'urn:anypoint:idp'); poll endpoint requires /v2 suffix",
+      "severity": "flag",
+      "clientAction": "(a) Confirm contract documents (HS-105, 299A, 299B, HS-118) are each under 50 pages and 10MB; (b) provision Anypoint Connected App with 'Execute Published Actions' permission.",
+      "architectNote": "Per PLANNING_CONTEXT.md Critical Notes (Anypoint IDP entry) + FK-019. Vera should confirm whether IDP is the chosen extractor vs. an alternative (Azure Document Intelligence, etc.); Venkat said 'I don't think we would be using an LLM' but did mention IDP for doc extraction."
+    }
+  ]
+}

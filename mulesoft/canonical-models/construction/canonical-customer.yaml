@@ -1,0 +1,104 @@
+title: Canonical Customer
+version: "1.0.0-stub — created from peerless engagement"
+vertical: construction
+standard: derived
+standardBody: null
+standardRef: null
+deviations: |
+  No dominant cross-vendor standard for construction customer records. Field naming derived from:
+    - ComputerEase customer entity (customer_number, customer_type, billing/shipping segregation)
+    - Salesforce Account standard object
+description: |
+  Canonical customer entity for construction / specialty-contractor integrations.
+  Maps from: CRM (Salesforce Account), contractor portal lead conversion (HD Portal).
+  Maps to:   construction ERP (ComputerEase customer record, Procore client, Sage 300 CRE customer).
+  Common synonyms: Customer (ComputerEase), Account (Salesforce), Client (Procore), Party (OAGIS).
+
+  Peerless-specific: ComputerEase customer-number is sequential and assigned by CE — DataSkate must
+  consume the next-in-line ID, not allocate locally. R05 (residential) is the default customer type
+  for Home Depot Pro residential leads.
+
+type: object
+required:
+  - customerId
+  - customerName
+  - customerType
+  - billingAddress
+  - timestamps
+
+properties:
+  customerId:
+    type: string
+    description: Canonical customer identifier
+    example: "CUST-2026-000180"
+
+  externalIds:
+    type: object
+    properties:
+      erpCustomerNumber:    { type: string, description: "ComputerEase customer_number (sequential, ERP-assigned)" }
+      salesforceAccountId:  { type: string, description: "Salesforce Account 18-char ID" }
+      portalCustomerId:     { type: string, description: "Customer ID at originating portal (HD Portal etc.)" }
+
+  customerName:
+    type: string
+    description: Primary customer / account name
+
+  customerType:
+    type: string
+    enum: [RESIDENTIAL, COMMERCIAL, INDUSTRIAL, MUNICIPAL]
+    description: ComputerEase customer-type code mapping (R05 = residential at Peerless)
+
+  status:
+    type: string
+    enum: [ACTIVE, INACTIVE, PROSPECT, HOLD]
+
+  contacts:
+    type: array
+    items:
+      type: object
+      properties:
+        contactName:  { type: string }
+        phone:        { type: string }
+        email:        { type: string, format: email }
+        role:         { type: string, enum: [PRIMARY, BILLING, TECHNICAL, OTHER] }
+
+  billingAddress:
+    type: object
+    required: [street, city, state, postalCode]
+    properties:
+      street:       { type: string }
+      city:         { type: string }
+      state:        { type: string }
+      postalCode:   { type: string }
+      country:      { type: string, default: "US" }
+
+  shippingAddress:
+    type: object
+    properties:
+      street:       { type: string }
+      city:         { type: string }
+      state:        { type: string }
+      postalCode:   { type: string }
+      country:      { type: string, default: "US" }
+      sameAsBilling: { type: boolean }
+
+  paymentTerms:
+    type: string
+    description: e.g. "Net 30", "Due on receipt", "100% Deposit" (Wisconsin: 99% per Peerless rule)
+
+  creditLimit:
+    type: number
+
+  timestamps:
+    type: object
+    required: [createdAt]
+    properties:
+      createdAt:  { type: string, format: date-time }
+      updatedAt:  { type: string, format: date-time }
+
+stubNote: |
+  Created from peerless engagement 2026-05-22 by Rex. UC2 confirmed flow: Salesforce Account → ComputerEase
+  customer. Customer-number is ERP-assigned sequentially — flow must NOT allocate locally. Wisconsin
+  deposit rule (99% vs 100% standard) is a paymentTerms business rule encoded as a deterministic check
+  during UC3 contract validation. Fields to finalize during Analyst PRD: Salesforce custom fields,
+  ComputerEase customer_number format, R05 / commercial type code mapping per company code 00.

@@ -1,0 +1,51 @@
+{
+  "system": "mulesoft-idp",
+  "displayName": "MuleSoft IDP (Intelligent Document Processing) — Anypoint platform document AI",
+  "maturity": "stub",
+  "lastUpdated": "2026-05-22",
+  "clients": [
+    "peerless"
+  ],
+  "status": "Stub — enriched by Architect after design, completed by CO after delivery.",
+  "knownQuirks": [
+    "**Preferred connector is MuleSoft Forge IDP Connector:** io.github.mulesoft-forge:mule-idp-connector v1.0.6. Universal IDP connector that works across all action versions without connector sprawl. Requires Mule 4.6+ AND requires adding mavenCentral() repo to pom.xml because Forge connectors are hosted on Maven Central, NOT Anypoint Exchange. Operations: 'Service IDP - Execution - Submit' and 'Service IDP - Execution Result - Retrieve'. (Source: connector-registry.json — web-search-2026-05-11.)",
+    "**Fallback path is HTTP connector against IDP REST API:** Use only if Forge connector is not viable. Base URL: https://idp-rt.{region}.anypoint.mulesoft.com/api/v1/ (regions: us-east-1, eu-central-1). POST submit: body = { file: <base64>, fileName: <name.pdf> }. GET poll: /executions/{id}/v2 (note the /v2 suffix). Token URL: https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token. (Source: connector-registry.json — anypoint-idp entry.)",
+    "**Async submit/poll pattern — not request-reply:** POST submit returns an execution ID. Caller must poll GET /executions/{id}/v2 until terminal status. Status values: ACKNOWLEDGED | IN_PROGRESS | RESULTS_PENDING | SUCCEEDED | FAILED | PARTIAL_SUCCESS | MANUAL_VALIDATION_REQUIRED. Default polling: 10 attempts × 3s = 30s timeout. Min polling interval enforced by IDP quota: 10s.",
+    "**Per-submission limits: 10MB and 50 pages:** Hard limits per IDP submission. For Peerless, this means HS-105, 299A, 299B, HS-118 must each be verified under both limits before IDP action training. Larger documents must be split client-side or moved to a different extraction path.",
+    "**Connected App scope must be EMPTY (not 'urn:anypoint:idp'):** Anypoint Connected App for IDP needs the 'Execute Published Actions' permission and the OAuth scope field must be left EMPTY. Per FK-019 — populating scope causes auth failures. Permissions are controlled by Connected App permissions, NOT OAuth scope.",
+    "**Results returned in pages[].fields[]:** Extraction output structure — DataWeave mapping must handle multi-page results. Each page has a fields[] array with name/value/confidence per extracted field.",
+    "**Manual-review queue is mandatory:** All FAILED and MANUAL_VALIDATION_REQUIRED extractions must route to a human-review channel. PARTIAL_SUCCESS may also require review depending on confidence threshold. Architect must specify routing destination (typically a Salesforce custom object or a notification channel).",
+    "**Latency profile: P50 7.6s, P99 13.4s:** Per IDP documentation. Plan downstream timeouts accordingly. Polling sub-flow should default to 10-attempt × 3-second interval (30s ceiling) but tune per document type."
+  ],
+  "supportedObjects": [],
+  "p0Conditions": [
+    {
+      "condition": "Anypoint subscription does not include IDP",
+      "blocks": "All IDP-based document flows are unavailable.",
+      "clientAction": "Confirm Anypoint subscription tier includes IDP entitlement before architecture begins. If not — negotiate add-on or select alternative extractor (Azure Document Intelligence, AWS Textract, deterministic OCR).",
+      "evidence": "IDP is a separately licensed Anypoint component."
+    },
+    {
+      "condition": "Document samples not available for IDP action training",
+      "blocks": "IDP action cannot be published; extraction accuracy unknown.",
+      "clientAction": "Client provides representative samples of every document type to be processed (for Peerless: HS-105, 299A, 299B, HS-118).",
+      "evidence": "Standard IDP workflow requires training samples before action publication."
+    },
+    {
+      "condition": "Connected App not provisioned with 'Execute Published Actions' permission and empty scope",
+      "blocks": "OAuth client-credentials auth will fail at submit-time.",
+      "clientAction": "Anypoint org admin provisions Connected App with the correct permission and confirms scope is empty.",
+      "evidence": "Per FK-019 + connector-registry.json notes."
+    }
+  ],
+  "maturityLog": [
+    {
+      "date": "2026-05-22",
+      "clientCount": 1,
+      "client": "peerless",
+      "knowledgeAdded": "Initial stub from Peerless engagement — UC3 contract validation (HS-105, 299A, 299B, HS-118) implied IDP usage per Venkat B 2026-04-15. Quirks compiled from mulesoft-forge-idp + anypoint-idp connector registry entries (web-search-2026-05-11).",
+      "status": "stub"
+    }
+  ],
+  "connectorKey": "mulesoft-forge-idp"
+}
