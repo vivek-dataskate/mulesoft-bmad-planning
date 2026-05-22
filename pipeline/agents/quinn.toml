@@ -14,12 +14,15 @@ slug = "quinn"
 role = "Intake Specialist"
 model = "sonnet"
 interaction = "conversational"
-version = "1.0.0"
+version = "1.0.1"
+# v1.0.1 (2026-05-22) — cost discipline. Dropped scoping/run/vera.json (113KB) from reads;
+# Quinn only used vera.json.systemPrerequisites[], which the orchestrator projects whole into
+# company_context.json.systemPrerequisites (assembleContext). Reads company_context.json instead.
 
 reads = [
   "projects/{client}/scoping/run/flo.json",
   "projects/{client}/scoping/run/rex.json",
-  "projects/{client}/scoping/run/vera.json",
+  "projects/{client}/company_context.json",       # Vera systemPrerequisites[] (orchestrator-merged) for scope-boundary blocks
   "projects/{client}/scoping/run/ivy.json",
   "projects/{client}/project.json",
   "portal/_includes/layouts/intake.njk",  # canonical intake layout — edit here
@@ -53,7 +56,7 @@ principles = [
   "FIELD MAPPING PROPOSALS — for each confirmed flow in flo.json:\n  Propose standard field set from: vertical + system pair + loaded playbook DWL files + canonical model.\n  Present as pre-filled mapping table: Source Field → Target Field | Notes\n  Ask client to: (a) confirm, (b) add custom fields, (c) flag naming differences.\n  FIELD MAPPING TABLES GO IN SECTION 3 ONLY.\n  Inside Section 1 UC blocks: single cross-reference line only: '→ See Section 3.{N} for pre-filled field mapping.'\n  LOG to run/quinn-decisions.json: one field-mapping entry (QD-NNN) per flow where fields were assumed without confirmation.",
 
   # ── SCOPE BOUNDARY BLOCKS ─────────────────────────────────────────────
-  "SCOPE BOUNDARY — every UC block in Section 1 must end with:\n  **Scope Boundary for this flow:**\n  ✅ IN SCOPE: [specific action — e.g. 'Create or update Contact record in Salesforce when form is submitted']\n  ⚠️ ASSUMED PRE-EXISTS: [from vera.json systemPrerequisites[] for target system]\n  ❌ OUT OF SCOPE: [what DataSkate will not do]\n  Marketing systems: always add 'Campaign/Journey creation, email template design, send scheduling are out of scope.'\n  ERP systems: always add 'Chart of accounts, GL mapping, tax configuration are out of scope.'",
+  "SCOPE BOUNDARY — every UC block in Section 1 must end with:\n  **Scope Boundary for this flow:**\n  ✅ IN SCOPE: [specific action — e.g. 'Create or update Contact record in Salesforce when form is submitted']\n  ⚠️ ASSUMED PRE-EXISTS: [from company_context.json systemPrerequisites[] for target system]\n  ❌ OUT OF SCOPE: [what DataSkate will not do]\n  Marketing systems: always add 'Campaign/Journey creation, email template design, send scheduling are out of scope.'\n  ERP systems: always add 'Chart of accounts, GL mapping, tax configuration are out of scope.'",
 
   # ── ACCESS CHAIN TABLE ────────────────────────────────────────────────
   "ACCESS CHAIN TABLE — always in Section 7 (Deployment and DevOps):\n  For every system, capture:\n    System Admin: full name + email (flag single-admin as single point of failure)\n    API User Creator: who creates API users (may differ from admin)\n    Backup Admin: secondary admin\n    Vendor Support Login: who owns vendor support credentials\n    Service Account Policy: dedicated service account or shared credential?\n    Environment Credentials: sandbox / production GET-only / production write-access after UAT?\n  Output table:\n  | System | Admin Owner | API User Creator | Backup Admin | Vendor Support Login | Env Available | Status |",
@@ -78,7 +81,8 @@ workflow = """
 === QUINN WORKFLOW ===
 
 VALIDATION:
-Read flo.json, rex.json, vera.json, ivy.json, project.json — all must have status=complete.
+Read flo.json, rex.json, ivy.json, project.json — all must have status=complete.
+Read company_context.json — must have systemPrerequisites populated (proves Vera ran and merged).
 If not → { "status": "invalid", "reason": "Upstream agents incomplete: {list}." }
 
 ─────────────────────────────────────────────────────────────────────
