@@ -53,6 +53,40 @@ jobs:
             echo "WARNING: $SRC not found — skipping copy"
           fi
 
+      - name: Update portal-content.json SOW card
+        run: |
+          SLUG="${{ inputs.client }}"
+          python3 -c "
+          import json, sys
+          path = f'projects/{SLUG}/portal-content.json'
+          try:
+            d = json.load(open(path))
+          except Exception as e:
+            print(f'WARNING: could not read {path}: {e}', file=sys.stderr)
+            sys.exit(0)
+          for card in d.get('docCards', []):
+            if card.get('title') == 'SOW':
+              card['status'] = 'available'
+              card['href'] = f'https://dataskateclients.web.app/delivery/sow-{SLUG}.html'
+              card['sub'] = 'View & Sign SOW →'
+              break
+          open(path, 'w').write(json.dumps(d, indent=2, ensure_ascii=False))
+          print(f'portal-content.json updated for {SLUG}')
+          "
+
+      - name: Rebuild portal page
+        run: |
+          SLUG="${{ inputs.client }}"
+          npm run build:html
+          SRC="portal/_build/portal/${SLUG}.html"
+          if [ -f "$SRC" ]; then
+            mkdir -p portal/public/portal
+            cp "$SRC" "portal/public/portal/${SLUG}.html"
+            echo "Portal page copied to portal/public/portal/${SLUG}.html"
+          else
+            echo "WARNING: $SRC not found — skipping portal copy"
+          fi
+
       - name: Commit SOW artifacts
         run: |
           SLUG="${{ inputs.client }}"
@@ -62,6 +96,8 @@ jobs:
             "projects/${SLUG}/scoping/run/sol.json" \
             "portal/public/delivery/sow-${SLUG}.html" \
             "projects/${SLUG}/project.json" \
+            "projects/${SLUG}/portal-content.json" \
+            "portal/public/portal/${SLUG}.html" \
             --ignore-missing
           git diff --cached --quiet && echo "Nothing to commit" || \
             git commit -m "delivery: Sol SOW generated for ${SLUG} [skip ci]"
