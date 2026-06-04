@@ -299,28 +299,6 @@ async function uploadHtmlToStorage(slug, templateFilter = null) {
 }
 
 
-// ── 1c. Generate + sync system diagram SVG → portal/public/diagrams/ ─────────
-function syncDiagram(slug) {
-  const projPath = path.join(ROOT, 'projects', slug, 'project.json');
-  if (!fs.existsSync(projPath)) return;
-  const proj = JSON.parse(fs.readFileSync(projPath, 'utf8'));
-  if (!proj.systemDiagram || !proj.systemDiagram.current) return;
-
-  try {
-    execSync(`node ${path.join(ROOT, 'pipeline', 'scripts', 'generate-diagrams.js')} ${slug}`, { cwd: ROOT, stdio: 'pipe' });
-  } catch (e) {
-    log(`[${slug}] diagram generation failed: ${e.message}`);
-    return;
-  }
-
-  const svgSrc = path.join(ROOT, 'projects', slug, 'intake', 'diagrams', 'system-diagram.svg');
-  if (!fs.existsSync(svgSrc)) return;
-
-  const diagramsDir = path.join(PUBLIC, 'diagrams');
-  fs.mkdirSync(diagramsDir, { recursive: true });
-  fs.copyFileSync(svgSrc, path.join(diagramsDir, `${slug}.svg`));
-  log(`[${slug}] diagram synced → portal/public/diagrams/${slug}.svg`);
-}
 
 // ── 3. Seed pitchKits/{slug} in Firestore (Admin SDK — rules say write:false) ──
 async function seedPitchKit(slug) {
@@ -704,7 +682,7 @@ async function main() {
   } else {
     try { await archiveScoping(slug); } catch (e) { log(`  scoping archive skipped: ${e.message}`); }
     try { syncLogo(slug); } catch (e) { log(`  logo sync skipped: ${e.message}`); }
-    try { syncDiagram(slug); } catch (e) { log(`  diagram sync skipped: ${e.message}`); }
+
     try { await uploadHtmlToStorage(slug); } catch (e) { log(`  html upload skipped: ${e.message}`); }
     try { await seedPitchKit(slug); } catch (e) { log(`  pitchKit seed skipped: ${e.message}`); }
   }

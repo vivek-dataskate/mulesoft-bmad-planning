@@ -37,7 +37,8 @@ function getAllHtmlTargets() {
       " ! -path '*/.git/*'" +
       " ! -path '*/.claude/worktrees/*'" +    // stale git worktrees
       " ! -path '*/portal/tests/*'" +          // BackstopJS reports
-      " ! -path '*/portal/_build/*'",          // intermediate Eleventy build dir
+      " ! -path '*/portal/_build/*'" +         // intermediate Eleventy build dir
+      " ! -path '*/portal/_site/*'",           // stale legacy Eleventy output dir
       { cwd: ROOT, encoding: 'utf8' }
     );
     return out.trim().split('\n').filter(Boolean).map(f => f.replace(/^\.\//, ''));

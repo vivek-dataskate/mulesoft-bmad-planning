@@ -287,14 +287,6 @@ function wrapSystemHomesInSec10(sections) {
   });
 }
 
-// Read the per-client system diagram SVG inline so the template can embed it.
-function readSystemDiagramSvg(slug) {
-  if (!slug) return '';
-  const svgPath = path.join(ROOT, 'projects', slug, 'intake', 'system-diagram.svg');
-  if (!fs.existsSync(svgPath)) return '';
-  try { return fs.readFileSync(svgPath, 'utf8'); } catch { return ''; }
-}
-
 // ─── JSON PATH ────────────────────────────────────────────────────────────────
 
 function buildFromJson(c, slug) {
@@ -336,8 +328,6 @@ function buildFromJson(c, slug) {
   const buildSections  = systemNodes.length > 0
     ? wrapSystemHomesInSec10(lifted.sections)
     : lifted.sections;
-  const systemDiagramSvg = readSystemDiagramSvg(slug || m.clientSlug || '');
-
   const secMeta        = [];
   const secEntries     = buildSections.map(sec => {
     const rawId     = String(sec.id || '');
@@ -397,7 +387,6 @@ function buildFromJson(c, slug) {
     pricingSummaryHtml,
     systemNodes,
     systemNodesJson: JSON.stringify(systemNodes),
-    systemDiagramSvg,
   };
 }
 
