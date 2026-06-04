@@ -7,10 +7,10 @@ No agent writes HTML, calls `npm run build:html`, or writes any other project fi
 
 ## Rationale
 
-Agents run in any IDE (Cursor, VS Code, Claude Code, etc.) and have no guaranteed
-access to the repo's build toolchain. The orchestrator (`orchestrate.js`) owns the
-build pipeline — it runs after each agent completes and is the single place where
-Eleventy is invoked and HTML files are copied into place. This makes the pipeline
+Agents run via the LangGraph orchestrator (`pipeline/langgraph/orchestrator.mjs`) and
+have no guaranteed access to the repo's build toolchain. The orchestrator owns the
+build pipeline — it runs post-hooks after each agent completes and is the single place
+where Eleventy is invoked and HTML files are copied into place. This makes the pipeline
 tool-agnostic and keeps agent sessions short and focused.
 
 ## Agent output contract
@@ -51,8 +51,8 @@ Orchestrator writes any non-null entries, then calls Eleventy once, then copies 
 
 ## Enforcement
 
-- Agent TOML `writes = [...]` lists only the agent's own `run/{agent}.json`.
+- Each agent has a dedicated runner in `pipeline/langgraph/agents/*-runner.mjs` that defines its own boundary.
 - Any principle or workflow step that says "run `npm run build:html`" or "copy from `_build/`"
-  is a policy violation — remove it and move the work to `orchestrate.js`.
+  is a policy violation — remove it and move the work to `pipeline/langgraph/post-hooks.mjs`.
 - The `.md` intermediate format is retired. All intake content flows through
   `intake-content.json` (JSON-only pipeline).

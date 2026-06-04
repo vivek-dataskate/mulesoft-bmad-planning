@@ -19,7 +19,6 @@ import fs from 'fs';
 import { spawnSync } from 'child_process';
 
 import { PipelineState } from './state.mjs';
-import { runAgent } from './agent-runner.mjs';
 import { runSage } from './agents/sage-runner.mjs';
 import { runVera } from './agents/vera-runner.mjs';
 import { runDrew } from './agents/drew-runner.mjs';
@@ -100,27 +99,14 @@ function makeAgentNode(agentDef, mcpClient) {
     const ceilingLabel = splitLabels[agentDef.slug] || `ceiling $${ceiling}`;
     console.log(`  ▶ ${agentDef.name} (${agentDef.model || 'sonnet'}, ${ceilingLabel})`);
 
-    // Route split agents to their dedicated runners
-    const result = agentDef.slug === 'sage'  ? await runSage({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'vera'  ? await runVera({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'drew'  ? await runDrew({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'rex'   ? await runRex({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'ivy'   ? await runIvy({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'flo'   ? await runFlo({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'hawk'  ? await runHawk({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'petra' ? await runPetra({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'quinn' ? await runQuinn({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'sol'   ? await runSol({ agentDef, clientSlug: state.client, mcpClient })
-                 : agentDef.slug === 'mira'  ? await runMira({ agentDef, clientSlug: state.client, mcpClient })
-                 : (() => {
-                     const tomlPath = path.resolve(ROOT, agentDef.toml);
-                     if (!fs.existsSync(tomlPath)) {
-                       console.error(`  ✗ ${agentDef.name} — TOML not found: ${agentDef.toml}`);
-                       return Promise.resolve({ cost: 0, killed: true, output: null, errors: [`${agentDef.slug}: TOML missing`] });
-                     }
-                     const systemPrompt = fs.readFileSync(tomlPath, 'utf8');
-                     return runAgent({ agentDef, clientSlug: state.client, systemPrompt, outputPath, ceiling, mcpClient });
-                   })();
+    const dispatchMap = {
+      sage:  runSage,  vera:  runVera,  drew: runDrew,  rex:   runRex,
+      ivy:   runIvy,   flo:   runFlo,   hawk: runHawk,  petra: runPetra,
+      quinn: runQuinn, sol:   runSol,   mira: runMira,
+    };
+    const runner = dispatchMap[agentDef.slug];
+    if (!runner) throw new Error(`No dedicated runner for agent: ${agentDef.slug}. Add a runner in pipeline/langgraph/agents/.`);
+    const result = await runner({ agentDef, clientSlug: state.client, mcpClient });
 
     const succeeded = !result.killed && hasRealContent(result.output);
     console.log(`  ${succeeded ? '✓' : '✗'} ${agentDef.name} — $${result.cost.toFixed(4)} — ${result.killed ? 'KILLED' : succeeded ? 'ok' : 'empty output'}`);

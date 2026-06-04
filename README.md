@@ -287,6 +287,38 @@ Three specific problems it solves:
 
 ---
 
+## Technology Stack
+
+| Layer | Framework | What it solves |
+|-------|-----------|---------------|
+| Portal rendering | **Eleventy (11ty) + Nunjucks** | Generates static HTML deliverables (proposals, intake forms, guides) from JSON content + Nunjucks templates. No runtime server needed — Firebase Hosting serves files directly. |
+| Agent orchestration | **LangGraph (`@langchain/langgraph`)** | Runs the Scout sub-agent pipeline as a typed `StateGraph`. Each agent is a node; state accumulates across nodes. Orchestrator owns all file writes — agents return JSON via a `write_output` tool rather than calling Write directly, eliminating the "silent exit without writing" failure mode of the previous subprocess approach. Supports resume-from-checkpoint across sessions. |
+| LLM routing | **OpenRouter** | OpenAI-API-compatible proxy in front of Anthropic/Google/other models. All model-tier decisions live in one file (`pipeline/langgraph/openrouter.mjs`). Swapping an agent from Claude Sonnet to Gemini Pro requires changing one string — no new SDK, no new auth. |
+| Backend | **Firebase** (Hosting + Firestore + Cloud Functions) | Hosts the Eleventy static output, stores per-client data, and runs async serverless functions. Only `pipeline/scripts/update-firebase.js` may require `firebase-admin` directly (single-window pattern). |
+| Low-cost inference | **Google Gemini 2.5 Flash** | Used for two utility tasks: audio transcription and client-name inference from file paths. ~10× cheaper than Claude Haiku for these tasks; isolated to two files so it has no coupling to the main agent pipeline. |
+| Design tokens | **Style Dictionary** | Converts W3C DTCG token files into CSS custom properties, SCSS variables, and a Tailwind config in one build step. One token change updates all output formats atomically. |
+| Document ingestion | **Mammoth + pdf-parse** | Extracts plain text from Word docs and PDFs for agent context. Local extraction — no API call, no per-document cost. |
+| Diagram generation | **Mermaid CLI** | Converts Mermaid-syntax diagram definitions (version-controlled as text) into PNG/SVG for inclusion in HTML proposals. No manual export step. |
+| Testing | **Jest** | Unit and integration tests for agent prompt logic, template helpers, and Firebase write functions. |
+| Visual regression | **BackstopJS + Puppeteer** | Pixel-diff screenshots catch layout regressions in portal templates that unit tests can't see. Puppeteer also drives PDF export (`commons/sales/generate-pdf.js`) and accessibility audits (`pipeline/scripts/lint-a11y.js` via axe-core). |
+
+### Agent pipeline — LangGraph + OpenRouter (production)
+
+The Scout pipeline runs on `pipeline/langgraph/orchestrator.mjs`. The legacy Claude CLI subprocess orchestrator has been archived to `archive/monolithic-v1/`.
+
+| | LangGraph Orchestrator |
+|-|------------------------|
+| Entry point | `node pipeline/langgraph/orchestrator.mjs --client <slug> --pipeline` |
+| LLM calls | OpenRouter API (vendor-independent, model-swappable via `openrouter.mjs`) |
+| State management | LangGraph `StateGraph` with checkpoint at `.langgraph-checkpoint.json` |
+| Output writes | Orchestrator writes on `write_output` tool return — no silent failures |
+| Resume | Checkpoint-aware: nodes skip if already in `completedAgents` |
+| Adding an agent | Add runner in `pipeline/langgraph/agents/`, `addNode + addEdge` in `graph.mjs` |
+
+Next phases: Phase 2 (agents as versioned npm packages), Phase 3 (conditional edges, parallel nodes, branching).
+
+---
+
 ## Folder Structure
 
 ```
@@ -301,10 +333,12 @@ mulesoft-bmad-planning/
 │           (bmad-agent-dev.toml is NOT used — developers use Anypoint Studio directly)
 │
 ├── pipeline/                       Agent orchestration engine
-│   ├── agents/                     Scout sub-agents (Sage, Vera, Rex, Ivy, Flo, Hawk, Quinn, Petra, Sol, Mira)
+│   ├── langgraph/                  Production orchestrator (LangGraph + OpenRouter)
+│   │   ├── orchestrator.mjs        Entry point: --client <slug> --pipeline
+│   │   ├── graph.mjs               StateGraph builder — one node per agent
+│   │   └── agents/                 Per-agent dedicated runners (*-runner.mjs)
 │   ├── scout/
-│   │   ├── orchestrate.js          Scout pipeline runner — provisions new clients from projects/_template/
-│   │   └── pipeline.json           Agent config: roles, prompts, output schema for all 10 sub-agents
+│   │   └── pipeline.json           Agent registry: slugs, models, output paths, gate config
 │   ├── scripts/                    Automation scripts (build-tokens, bump-template, lint-a11y, etc.)
 │   ├── tools/                      One-off tools (generate-capabilities, create-client-repo, check-registry-freshness)
 │   ├── telemetry/                  Pipeline run logs and metrics

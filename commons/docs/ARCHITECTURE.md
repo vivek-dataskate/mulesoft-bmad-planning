@@ -25,13 +25,12 @@ DSPipeline/
     ivy.toml
     flo.toml
     hawk.toml
-    quinn.toml
-    petra.toml
-    sol.toml
-    mira.toml
+  langgraph/
+    orchestrator.mjs   ← CLI entry point (production): LangGraph + OpenRouter
+    graph.mjs          ← StateGraph builder — one node per agent
+    agents/            ← per-agent dedicated runners (*-runner.mjs)
   scout/
-    orchestrate.js     ← CLI entry point: reads _inbox/, infers client, one onboarding prompt, then headless
-    pipeline.json      ← DAG definition with depends_on
+    pipeline.json      ← DAG definition: agent slugs, models, output paths, gate config
   telemetry/
     usage.csv          ← append-only: date,client,pipeline,agent,model,input_tokens,output_tokens,cost_usd,duration_ms,status
 ```
@@ -167,7 +166,7 @@ The script deduplicates by `(systems + useCase)` for DS entries and `(sourceComp
 | Purpose | Dev workflow | Sales workflow |
 | Agents | Mary, Winston, John, Dev | Sage, Vera, Rex, Ivy, Flo, Hawk, Quinn, Petra, Sol, Mira |
 | Human involvement | Always present | Onboarding only |
-| Entry point | "talk to Scout/Mary/Winston" | `node DSPipeline/scout/orchestrate.js` |
+| Entry point | "talk to Scout/Mary/Winston" | `node pipeline/langgraph/orchestrator.mjs --client <slug> --pipeline` |
 | Bridge | reads `company_context.json` | writes `company_context.json` |
 
 ---
@@ -175,14 +174,15 @@ The script deduplicates by `(systems + useCase)` for DS entries and `(sourceComp
 ## Entry Point
 
 ```
-node DSPipeline/scout/orchestrate.js
-  → reads _inbox/, infers client name from filenames
-  → onboarding block (company name + city, architect, go-live)
-  → runs agents sequentially: Sage → Vera → Rex → Ivy → Flo → Hawk → Quinn → Petra → Mira
-  → orchestrate.js is an event loop: after each agent completes, present output/questions,
-    wait for user input (gated: confirm; conversational: Q&A loop), then trigger next agent
+OPENROUTER_API_KEY=sk-or-... node pipeline/langgraph/orchestrator.mjs --client <slug> --pipeline
+  → loads pipeline/scout/pipeline.json for agent roster and config
+  → builds LangGraph StateGraph: Sage → Vera → Drew → Rex → Ivy → Flo → Hawk → Quinn → Petra → Sol → Mira
+  → each node is a dedicated runner in pipeline/langgraph/agents/*-runner.mjs
+  → checkpoints state to projects/<slug>/scoping/run/.langgraph-checkpoint.json after each agent
+  → resume after interruption: re-run the same command, already-completed agents are skipped
 
-Advanced: --client mrn --skip-onboarding
+Single agent: --agent hawk
+Status check: --status
 ```
 
 ---
