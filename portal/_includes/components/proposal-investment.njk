@@ -119,27 +119,62 @@
 </div>
 {% endif %}
 
-{# ── Negotiate / selection panel — hidden until model selected ── #}
-<div class="negotiate-panel no-print" id="negotiate-panel" style="display:none">
-  <div class="negotiate-header">
-    <div class="negotiate-label">Your Selection</div>
-    <h3 id="selected-model-name">—</h3>
-    <p>Listed: <strong id="selected-rate">—</strong>. Leave the field blank to accept as listed, or enter a proposed figure to discuss.</p>
-  </div>
-  <div class="negotiate-grid">
+{# ── Negotiation thread — visible once thread exists (populated by JS) ── #}
+<div id="neg-thread-wrap" style="display:none;margin-top:20px">
+  {# Current offer banner #}
+  <div id="neg-current-offer" style="display:none;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
     <div>
-      <label class="negotiate-field-label">Your name <span class="negotiate-required">*</span></label>
-      <input class="cta-input" type="text" id="negotiate-name" placeholder="Your full name" autocomplete="name" />
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#3b82f6;margin-bottom:2px">Current DataSkate Offer</div>
+      <div style="font-size:22px;font-weight:900;color:#1e40af" id="neg-offer-amount">—</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:1px" id="neg-offer-model"></div>
     </div>
-    <div>
-      <label class="negotiate-field-label" id="negotiate-rate-label">Proposed rate (optional)</label>
-      <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $275/flow/month" oninput="onRateInput(this.value)" />
+    <button class="btn btn-primary" onclick="showAcceptPanel()" style="background:var(--green);flex-shrink:0">Accept This Offer ✓</button>
+  </div>
+
+  {# Thread timeline #}
+  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-bottom:10px">Negotiation Thread</div>
+  <div id="neg-thread-list" style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:#fafafa;max-height:340px;overflow-y:auto"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:11px;color:#9ca3af;line-height:1.5">
+      DataSkate responds within 1 business day. You can counter again at any time.
     </div>
+    <button class="btn btn-outline no-print" onclick="showNegotiatePanel()" style="font-size:12px;padding:6px 14px">
+      Make Another Counter-Offer
+    </button>
   </div>
-  <div style="margin-bottom:20px">
-    <label class="negotiate-field-label">Notes <span class="negotiate-optional">(optional)</span></label>
-    <textarea class="cta-input" id="negotiate-notes" placeholder="Any context or questions?" oninput="onNotesInput(this)"></textarea>
+</div>
+
+{# ── Negotiate modal — centered overlay, opens on model select or counter-offer ── #}
+<div class="neg-backdrop no-print" id="neg-backdrop" onclick="closeNegotiatePanel(event)">
+  <div class="negotiate-panel" id="negotiate-panel">
+    <button class="neg-close" onclick="closeNegotiatePanel()" title="Close">✕</button>
+
+    <div class="negotiate-header">
+      <div class="negotiate-label">Your Selection</div>
+      <h3 id="selected-model-name" style="margin:4px 0 6px;font-size:16px;color:var(--dark)">—</h3>
+      <p style="margin:0;font-size:13px;color:var(--mid)">Listed: <strong id="selected-rate">—</strong>. Leave the price field blank to accept the listed rate, or enter a counter-offer below.</p>
+    </div>
+
+    <div class="negotiate-grid">
+      <div>
+        <label class="negotiate-field-label">Your name <span class="negotiate-required">*</span></label>
+        <input class="cta-input" type="text" id="negotiate-name" placeholder="Your full name" autocomplete="name" />
+      </div>
+      <div>
+        <label class="negotiate-field-label" id="negotiate-rate-label">Counter-offer <span class="negotiate-optional">(optional)</span></label>
+        <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $25,000 total" oninput="onRateInput(this.value)" />
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <label class="negotiate-field-label">Notes <span class="negotiate-optional">(optional)</span></label>
+      <textarea class="cta-input" id="negotiate-notes" rows="3" placeholder="Any context or questions for DataSkate?" oninput="onNotesInput(this)" style="resize:vertical"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary btn-submit" id="negotiate-btn" onclick="submitSelection()" style="flex:1">Confirm Selection →</button>
+      <button class="btn btn-outline" onclick="closeNegotiatePanel()" style="flex-shrink:0">Cancel</button>
+    </div>
+    <div class="accept-success" id="selection-success" style="margin-top:12px">✓ Sent to DataSkate. We'll respond within 1 business day.</div>
   </div>
-  <button class="btn btn-primary btn-submit" id="negotiate-btn" onclick="submitSelection()">Confirm Selection →</button>
-  <div class="accept-success" id="selection-success">&#10003; Your email app should open. We'll follow up within one business day.</div>
 </div>

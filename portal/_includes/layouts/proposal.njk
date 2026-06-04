@@ -228,9 +228,14 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .managed-table th { text-align: left; padding: 8px 10px; background: var(--light); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); border-bottom: 2px solid var(--border); }
 .managed-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 .managed-table tr:last-child td { border-bottom: none; }
-.negotiate-panel { margin-top: 20px; border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-.negotiate-header { margin-bottom: 16px; }
-.negotiate-label { font-size: 10px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+/* ── Negotiate modal (centered overlay) ── */
+.neg-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center; padding:20px; }
+.neg-backdrop.open { display:flex; }
+.negotiate-panel { background:#fff; border-radius:12px; padding:28px 28px 24px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; }
+.neg-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--mid); cursor:pointer; line-height:1; padding:4px 8px; border-radius:4px; }
+.neg-close:hover { background:var(--light); color:var(--dark); }
+.negotiate-header { margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+.negotiate-label { font-size:10px; font-weight:600; color:var(--mid); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
 .negotiate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
 .negotiate-field-label { display: block; font-size: 11px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
 .negotiate-required { color: var(--brand); }
@@ -945,6 +950,8 @@ function selectModel(type, name, rate) {
 
   if (el('selected-model-name')) el('selected-model-name').textContent = name;
   if (el('selected-rate'))       el('selected-rate').textContent       = rate;
+  _selectedModel = name;
+  _selectedListedRate = rate;
 
   const rateLabel = el('negotiate-rate-label');
   const rateInput = el('negotiate-rate');
@@ -959,58 +966,181 @@ function selectModel(type, name, rate) {
     if (rateInput) rateInput.placeholder = 'e.g. $275/flow/month';
   }
 
-  const panel = el('negotiate-panel');
-  if (panel) { panel.style.display = 'block'; panel.scrollIntoView({ behavior: 'smooth' }); }
+  openNegotiateModal();
 }
 
-function submitSelection() {
+// ── NEGOTIATION THREAD ────────────────────────────────────────────────────────
+// Thread lives in Firestore: negotiations/{clientId}
+// Structure: { thread: [{seq, by, authorName, model, amount, note, ts}], status }
+//
+// DataSkate responds via Firebase Console (add to thread[] array with by:'dataskate').
+// Client submits counter-offers via this form.
+
+const NEG_LS_KEY = 'neg_thread_' + CLIENT_SLUG;
+let _negThread = [];   // in-memory cache of the thread
+let _selectedModel = '', _selectedListedRate = '';
+
+function saveNegThreadLocally(thread) {
+  try { localStorage.setItem(NEG_LS_KEY, JSON.stringify(thread)); } catch(e) {}
+}
+function loadNegThreadLocally() {
+  try { const r = localStorage.getItem(NEG_LS_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+}
+
+function loadNegotiationThread(attempt) {
+  // 1. Render from localStorage immediately
+  const local = loadNegThreadLocally();
+  if (local && local.length) { _negThread = local; renderNegThread(); }
+
+  // 2. Sync from Firestore
+  attempt = attempt || 0;
+  const db = getDb();
+  if (!db) { if (attempt < 10) setTimeout(() => loadNegotiationThread(attempt + 1), 400); return; }
+  db.collection('negotiations').doc(CLIENT_SLUG).get().then(snap => {
+    if (!snap.exists) return;
+    const thread = snap.data().thread || [];
+    _negThread = thread;
+    saveNegThreadLocally(thread);
+    renderNegThread();
+  }).catch(() => {});
+}
+
+function renderNegThread() {
+  const wrap = document.getElementById('neg-thread-wrap');
+  const list  = document.getElementById('neg-thread-list');
+  if (!wrap || !list || !_negThread.length) return;
+  wrap.style.display = '';
+  list.innerHTML = _negThread.map(entry => {
+    const isDS   = entry.by === 'dataskate';
+    const align  = isDS ? 'right' : 'left';
+    const bg     = isDS ? '#EBF4FF' : '#F9FAFB';
+    const border = isDS ? '#BFDBFE' : '#E5E7EB';
+    const label  = isDS ? (entry.authorName || 'DataSkate') : (entry.authorName || 'You');
+    const date   = entry.ts ? new Date(entry.ts).toLocaleDateString('en-US', {month:'short',day:'numeric'}) : '';
+    return `<div style="display:flex;flex-direction:column;align-items:${isDS?'flex-end':'flex-start'};margin-bottom:10px">
+      <div style="font-size:10px;color:#9ca3af;margin-bottom:3px;text-align:${align}">${label} · ${date}</div>
+      <div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:10px 14px;max-width:80%">
+        ${entry.amount ? `<div style="font-size:16px;font-weight:800;color:#111827;margin-bottom:2px">${entry.amount}</div>` : ''}
+        ${entry.model  ? `<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:4px">${entry.model}</div>` : ''}
+        ${entry.note   ? `<div style="font-size:12px;color:#374151;line-height:1.5">${entry.note}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Show the last DataSkate offer as the "current offer" banner
+  const lastDS = [..._negThread].reverse().find(e => e.by === 'dataskate');
+  const banner = document.getElementById('neg-current-offer');
+  if (banner && lastDS && lastDS.amount) {
+    banner.style.display = '';
+    const el = id => document.getElementById(id);
+    if (el('neg-offer-amount')) el('neg-offer-amount').textContent = lastDS.amount;
+    if (el('neg-offer-model'))  el('neg-offer-model').textContent  = lastDS.model || '';
+  }
+}
+
+async function submitCounterOffer() {
   const el = id => document.getElementById(id);
   const name  = (el('negotiate-name')  || {}).value || '';
   const rate  = (el('negotiate-rate')  || {}).value || '';
   const notes = (el('negotiate-notes') || {}).value || '';
-  const model = (el('selected-model-name') || {}).textContent || '';
-  const listed= (el('selected-rate')       || {}).textContent || '';
-  if (!name.trim()) { if (el('negotiate-name')) el('negotiate-name').focus(); return; }
-  let bodyText = 'Name: ' + name + '\nSelected: ' + model + '\nListed rate: ' + listed;
-  if (rate.trim())  bodyText += '\nProposed rate: ' + rate;
-  if (notes.trim()) bodyText += '\nNotes: ' + notes;
-  window.location.href = 'mailto:' + ARCHITECT_EMAIL +
-    '?subject=' + encodeURIComponent('Proposal Selection — ' + CLIENT_NAME + ' — ' + model) +
-    '&body='    + encodeURIComponent(bodyText);
-  if (el('selection-success')) el('selection-success').style.display = 'block';
-  logDiscount({ model, listed, proposed: rate, contactName: name, notes });
+  if (!name.trim()) { el('negotiate-name') && el('negotiate-name').focus(); return; }
+
+  const btn = el('negotiate-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+  const entry = {
+    seq:        _negThread.length + 1,
+    by:         'client',
+    authorName: name.trim(),
+    model:      _selectedModel,
+    amount:     rate.trim() || null,
+    note:       notes.trim() || (_selectedModel ? 'Selected ' + _selectedModel + ' at listed rate.' : null),
+    ts:         new Date().toISOString(),
+  };
+
+  // Also keep the legacy discountLog write for reporting
+  const db = getDb();
+  if (db) {
+    try {
+      await Promise.all([
+        db.collection('negotiations').doc(CLIENT_SLUG).set({
+          client:      CLIENT_SLUG,
+          status:      'open',
+          thread:      firebase.firestore.FieldValue.arrayUnion(entry),
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true }),
+        db.collection('discountLog').doc(CLIENT_SLUG).set({
+          project:     CLIENT_SLUG,
+          client:      CLIENT_NAME,
+          entries:     firebase.firestore.FieldValue.arrayUnion({
+            ts: entry.ts, project: CLIENT_SLUG, client: CLIENT_NAME, architect: ARCHITECT_EMAIL,
+            model: entry.model, listedRate: _selectedListedRate, proposedRate: rate || '', hasDiscount: !!rate.trim(), contactName: name.trim(), notes: notes || '',
+          }),
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true }),
+      ]);
+
+      // Update local thread + re-render
+      _negThread.push(entry);
+      saveNegThreadLocally(_negThread);
+      renderNegThread();
+
+      // Reset form for the next round — clear rate + notes, keep name
+      if (el('negotiate-rate'))  el('negotiate-rate').value  = '';
+      if (el('negotiate-notes')) el('negotiate-notes').value = '';
+      if (el('negotiate-notes')) el('negotiate-notes').style.height = 'auto';
+
+      // Flash confirmation inside the panel, then hide it so the thread is front-and-center
+      const successEl = el('selection-success');
+      if (successEl) {
+        successEl.style.display = 'block';
+        setTimeout(() => {
+          successEl.style.display = 'none';
+          closeNegotiatePanel();
+        }, 2500);
+      }
+    } catch(e) {
+      console.warn('negotiation write failed:', e.message);
+    }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = rate.trim() ? 'Send Counter-Offer →' : 'Confirm Selection →'; }
 }
 
-async function logDiscount({ model, listed, proposed, contactName, notes }) {
-  const db = getDb();
-  if (!db || !CLIENT_SLUG) return;
-  const entry = {
-    ts:           new Date().toISOString(),
-    project:      CLIENT_SLUG,
-    client:       CLIENT_NAME,
-    architect:    ARCHITECT_EMAIL,
-    model,
-    listedRate:   listed,
-    proposedRate: proposed || '',
-    hasDiscount:  !!(proposed && proposed.trim()),
-    contactName,
-    notes:        notes || ''
-  };
-  try {
-    await db.collection('discountLog').doc(CLIENT_SLUG).set({
-      project:     CLIENT_SLUG,
-      client:      CLIENT_NAME,
-      entries:     firebase.firestore.FieldValue.arrayUnion(entry),
-      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch (e) {
-    console.warn('discount log failed:', e.message);
+// Keep legacy name for onclick handler in the template
+function submitSelection() { submitCounterOffer(); }
+
+function openNegotiateModal() {
+  const backdrop = document.getElementById('neg-backdrop');
+  if (!backdrop) return;
+  backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNegotiatePanel(e) {
+  // Close only when clicking the backdrop itself (not the modal content)
+  if (e && e.target !== document.getElementById('neg-backdrop')) return;
+  const backdrop = document.getElementById('neg-backdrop');
+  if (backdrop) backdrop.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Called by "Make Another Counter-Offer" button in the thread — pre-fills from last DS offer
+function showNegotiatePanel() {
+  const lastDSOffer = [..._negThread].reverse().find(e => e.by === 'dataskate');
+  if (lastDSOffer && !_selectedModel) {
+    _selectedModel      = lastDSOffer.model  || '';
+    _selectedListedRate = lastDSOffer.amount || '';
+    const nameEl = document.getElementById('selected-model-name');
+    const rateEl = document.getElementById('selected-rate');
+    if (nameEl) nameEl.textContent = _selectedModel || 'Previously selected model';
+    if (rateEl) rateEl.textContent = lastDSOffer.amount || 'as previously quoted';
   }
+  openNegotiateModal();
 }
 
 function onRateInput(val) {
   const btn = document.getElementById('negotiate-btn');
-  if (btn) btn.textContent = val.trim() ? 'Propose This Rate →' : 'Confirm Selection →';
+  if (btn) btn.textContent = val.trim() ? 'Send Counter-Offer →' : 'Confirm Selection →';
 }
 
 function onNotesInput(el) {
@@ -1047,10 +1177,18 @@ async function submitAcceptance() {
     const snap     = await ref.get();
     const existing = snap.exists ? snap.data() : {};
 
+    // Find the agreed price — last DataSkate offer in thread, or listed rate if no negotiation
+    const lastDSOffer = [...(_negThread || [])].reverse().find(e => e.by === 'dataskate');
+    const agreedPrice  = lastDSOffer ? lastDSOffer.amount  : (_selectedListedRate || null);
+    const agreedModel  = lastDSOffer ? lastDSOffer.model   : (_selectedModel || PROPOSAL_MODEL || null);
+
     const payload = {
-      acceptedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      acceptedBy: { name: name.trim(), email: email.trim() },
-      client:     CLIENT_SLUG,
+      acceptedAt:        firebase.firestore.FieldValue.serverTimestamp(),
+      acceptedBy:        { name: name.trim(), email: email.trim() },
+      client:            CLIENT_SLUG,
+      acceptedPrice:     agreedPrice,
+      acceptedModel:     agreedModel,
+      negotiationThread: _negThread.length ? _negThread : null,
     };
     if (!existing.ratePerFlow) {
       payload.ratePerFlow = PROPOSAL_RATE;
@@ -1059,20 +1197,63 @@ async function submitAcceptance() {
     }
     await ref.set(payload, { merge: true });
 
-    const success = document.getElementById('accept-success');
-    if (success) success.style.display = 'block';
-    if (btn) btn.style.display = 'none';
-    if (nameEl)  nameEl.disabled = true;
-    if (emailEl) emailEl.disabled = true;
+    // Persist to localStorage so the accepted state survives page reloads
+    try {
+      localStorage.setItem('proposal_accepted_' + CLIENT_SLUG, JSON.stringify({
+        name: name.trim(), email: email.trim(), acceptedAt: new Date().toISOString()
+      }));
+    } catch(e) {}
+
+    showAcceptedState(name.trim(), email.trim());
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = 'Confirm Acceptance →'; }
     alert('Could not save acceptance. Please try again or email ' + ARCHITECT_EMAIL);
   }
 }
 
+function showAcceptedState(name, email) {
+  const success = document.getElementById('accept-success');
+  const panel   = document.getElementById('accept-panel');
+  const acceptBtn = document.getElementById('accept-btn');
+  const nameEl  = document.getElementById('accept-name');
+  const emailEl = document.getElementById('accept-email');
+  if (success) success.style.display = 'block';
+  if (panel)   panel.style.display = 'block';
+  const btn = document.querySelector('#accept-panel .btn-primary');
+  if (btn) btn.style.display = 'none';
+  if (nameEl)  { nameEl.value = name || ''; nameEl.disabled = true; }
+  if (emailEl) { emailEl.value = email || ''; emailEl.disabled = true; }
+  if (acceptBtn) { acceptBtn.textContent = '✓ Proposal Accepted'; acceptBtn.style.background = 'var(--green)'; acceptBtn.onclick = null; acceptBtn.style.cursor = 'default'; }
+}
+
+function restoreAcceptedState() {
+  // 1. Check localStorage first (instant)
+  try {
+    const raw = localStorage.getItem('proposal_accepted_' + CLIENT_SLUG);
+    if (raw) { const d = JSON.parse(raw); showAcceptedState(d.name, d.email); return; }
+  } catch(e) {}
+
+  // 2. Fall back to Firestore (handles different browsers / cleared cache)
+  function tryFirestore(attempt) {
+    const db = getDb();
+    if (!db) { if (attempt < 10) setTimeout(() => tryFirestore(attempt + 1), 400); return; }
+    db.collection('proposals').doc(CLIENT_SLUG).get().then(snap => {
+      if (!snap.exists || !snap.data().acceptedAt) return;
+      const d = snap.data();
+      const name  = (d.acceptedBy || {}).name  || '';
+      const email = (d.acceptedBy || {}).email || '';
+      try { localStorage.setItem('proposal_accepted_' + CLIENT_SLUG, JSON.stringify({ name, email, acceptedAt: d.acceptedAt })); } catch(e) {}
+      showAcceptedState(name, email);
+    }).catch(() => {});
+  }
+  tryFirestore(0);
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(trackView, 800);
+  restoreAcceptedState();
+  loadNegotiationThread();
 });
 </script>{% endraw %}
 {% endblock %}
