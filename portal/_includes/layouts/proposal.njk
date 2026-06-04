@@ -1036,6 +1036,10 @@ function renderNegThread() {
     if (el('neg-offer-amount')) el('neg-offer-amount').textContent = lastDS.amount;
     if (el('neg-offer-model'))  el('neg-offer-model').textContent  = lastDS.model || '';
   }
+
+  const alreadyAccepted = !!localStorage.getItem('proposal_accepted_' + CLIENT_SLUG);
+  const counterBtnEl = document.getElementById('neg-counter-btn');
+  if (counterBtnEl) counterBtnEl.style.display = alreadyAccepted ? 'none' : '';
 }
 
 async function submitCounterOffer() {
