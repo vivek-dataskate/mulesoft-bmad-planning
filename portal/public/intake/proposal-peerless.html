@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DataSkate × Peerless Fence — Integration Roadmap</title>
+<title>DataSkate × Peerless Fence Group — Integration Roadmap</title>
 <link rel="stylesheet" href="/tokens.css">
 <style>
 /* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
@@ -366,14 +366,14 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="eyebrow">Integration Roadmap — Confidential</span>
   </div>
   <div class="header-title-block">
-    <h1>The Connected Peerless Fence: Your AI Integration Roadmap</h1>
-    <div class="subtitle">From manual lead-to-job handoffs to an automated, audit-ready workflow across HD Portal, Salesforce, and ComputerEase</div>
+    <h1>The Connected Peerless Fence Group: Your AI Integration Roadmap</h1>
+    <div class="subtitle">From the manual steps in Ashley's morning to an AgentForce-ready data foundation — the path that starts on go-live day.</div>
   </div>
   <div class="header-meta">
-    <span><strong>Prepared for</strong>Peerless Fence</span>
+    <span><strong>Prepared for</strong>Peerless Fence Group</span>
     <span><strong>Architect</strong>Raghuram Potluri · DataSkate</span>
-    <span><strong>Date</strong>2026-06-03</span>
-    <span><strong>Scope</strong>12 integration flows</span>
+    <span><strong>Date</strong>2026-05-22</span>
+    <span><strong>Scope</strong>4 integration flows</span>
   </div>
 </div>
 
@@ -419,29 +419,24 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     
-    <p class="pull-quote">Every manual handoff between HD Portal, Salesforce, and ComputerEase is a silent failure waiting to happen — and the security exposure underneath it makes it worse. 'There's no firewall. They could put in a username and password and keep trying and trying and trying until they get in.' The goal of Stage 1 is simple: close the exposure, stabilize the data flow, and make sure nothing breaks quietly.</p>
+    <p class="pull-quote">'This is an ancient system. I feel like I've traveled back to the 90s.' That's the current state at Peerless — and it's also the daily routine: Ashley manually checks Home Depot reporting to find deposit status by hand, then spends 1.5 hours rekeying every closed Salesforce quote into ComputerEase, then reviews each contract document one by one against the rule set she has memorized. That stops on go-live day.</p>
     
     
     <div class="challenge-grid">
       
       <div class="challenge-card">
-        <div class="card-label">Ashley's Morning Queue</div>
-        <p>Ashley manually checks the HD Portal backend every morning to find new leads, then re-enters them into Salesforce — a process that delays consultation scheduling and introduces transcription errors on every lead that comes through the Home Depot channel.</p>
+        <div class="card-label">The 1.5-hour rekey</div>
+        <p>Every time a Salesforce quote is marked 'Save as Final,' Ashley opens ComputerEase and rebuilds the job by hand — customer number, the sequential job number (company code + product line + initials, e.g. '26 HD 565 AS'), and the full budget worksheet. She walked us through it on 2026-04-16: roughly 1.5 hours per closed quote, every closed quote.</p>
       </div>
       
       <div class="challenge-card">
-        <div class="card-label">Job Entry Is a Hand-Off Chain</div>
-        <p>When a Salesforce opportunity closes, Ashley manually creates the customer record in ComputerEase, enters deposit amounts and payment terms from the HD Portal contract, and then uploads signed contract documents (299A, 299B, 118) into the ComputerEase job record — each step a separate manual touch with no automated validation.</p>
+        <div class="card-label">Reading every document by hand</div>
+        <p>Ashley reviews each signed HS-105, 299A, 299B, and HS-118 one at a time against a rule set she has memorized — prices on the 299A and 299B must match, signatures must be legible, dates must fall on a Friday, the yes/no boxes can't both be ticked, and Wisconsin deposits must hit 99% where everywhere else is 100%.</p>
       </div>
       
       <div class="challenge-card">
-        <div class="card-label">Security Exposure on the ComputerEase VM</div>
-        <p>'There's no firewall. They could put in a username and password and keep trying and trying and trying until they get in' — the GCP instance hosting ComputerEase currently allows SSH and RDP from any IP address, meaning the job-costing system is reachable by anyone on the internet.</p>
-      </div>
-      
-      <div class="challenge-card">
-        <div class="card-label">ComputerEase API Is Not Yet Active</div>
-        <p>'It's an ancient system... I feel like I've traveled back to the 90s' — ComputerEase API access has not been enabled with Deltek, the CE Live Service relay is not configured, and API version compatibility (v26+) has not been confirmed, blocking every automated flow in this proposal until a support ticket is resolved.</p>
+        <div class="card-label">Why this isn't a Salesforce-native build</div>
+        <p>The ComputerEase connection isn't a REST API call — it's a Deltek-managed relay URL routed through CE Live Service, running on port 445, accessible only in production, with a sequential job-number consumption rule that requires calling Deltek's next-id endpoint before every write. A Salesforce-native Flows/Apex approach hits an architectural wall at the ComputerEase layer. DataSkate named this before the engagement started.</p>
       </div>
       
     </div>
@@ -460,23 +455,23 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    <p>Peerless Fence runs 6+ systems — HD Portal, Salesforce, ComputerEase, DocHub, GCP, and Deltek — with no automated handoffs between them. Ashley manually checks HD Portal every morning, re-keys lead data into Salesforce, then re-enters job details into ComputerEase by hand. Every closed deal that touches all three systems is a manual relay race with no error detection until something breaks downstream.</p>
+    <p>Ashley spends about 1.5 hours rekeying every closed Salesforce quote into ComputerEase by hand. At a conservative five Home Depot jobs per week, that is 195+ hours of operations time over six months in the rekey step alone — before counting the daily HD reconciliation pass or the document-by-document contract review. McKinsey's 2024 construction analysis puts construction firms that connect their data at a 14–15% productivity gain against a sector baseline of 0.4% per year; every week Peerless stays manual is a week paid out of that gap.</p>
     
     <div style="display:flex;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;">
       
       <div style="flex:1;min-width:120px;">
-        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
-        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">1.5 hrs</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">manual ComputerEase rekey eliminated per closed quote (UC2)</div>
       </div>
       
       <div style="flex:1;min-width:120px;">
-        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
-        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">195+ hrs</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">operations time recovered over 6 months at 5 jobs/week — rekey step alone</div>
       </div>
       
       <div style="flex:1;min-width:120px;">
-        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
-        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">14–15%</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">productivity gain for construction firms that connect their data vs. 0.4%/yr baseline (McKinsey 2024)</div>
       </div>
       
     </div>
@@ -499,32 +494,32 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>12 Integration Flows — Built &amp; Maintained</strong><span>All 12 confirmed flows (UC1–UC12) across HD Portal, Salesforce, ComputerEase, DocHub, GCP, and Deltek — designed, built, tested, and maintained by DataSkate for the duration of the engagement.</span></div>
+        <div><strong>4 integration flows</strong><span>UC1–UC4: HD Portal → Salesforce lead sync, Salesforce → ComputerEase job creation, contract IDP validation, and Salesforce → HD Portal exception write-back, built and managed end to end.</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>MuleSoft Hosting &amp; Runtime Management</strong><span>DataSkate manages the MuleSoft CloudHub runtime environment — provisioning, patching, uptime monitoring, and capacity management are included. Peerless Fence does not own or operate the middleware layer.</span></div>
+        <div><strong>MuleSoft hosting &amp; monitoring</strong><span>DataSkate-managed Anypoint runtime — including the CE Live Service relay path to ComputerEase — with proactive monitoring of the legacy Deltek connection against its 4-hour vendor SLA.</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>Field Mapping &amp; Data Transformation</strong><span>All field-level mapping between HD Portal, Salesforce, ComputerEase, and DocHub — including HD F-number external ID keying, contract type routing (299A, 299B, 118), and budget worksheet field alignment.</span></div>
+        <div><strong>Field mapping &amp; canonical models</strong><span>Mapping of Salesforce Quote / Quote Line Item, HD F-number lead identifier, and ComputerEase job/customer/budget-worksheet fields to canonical construction data models.</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>Error Handling &amp; Retry Logic</strong><span>Every flow includes structured error handling with retry logic and alerting. When a sync fails, the system retries automatically and notifies the team — failures surface loudly rather than silently dropping records.</span></div>
+        <div><strong>Error handling &amp; exception routing</strong><span>Retry logic, dead-letter queue, and the manual-review queue for IDP-flagged contract exceptions, so a failed write or a low-confidence extraction never silently drops.</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>UAT Support &amp; Integration Testing</strong><span>DataSkate supports Peerless Fence through two weeks of user acceptance testing — including sandbox-to-production validation for ComputerEase, Salesforce, and HD Portal flows.</span></div>
+        <div><strong>UAT support</strong><span>Joint user-acceptance testing with Ashley as business-process owner, using HD test leads marked to avoid contractor-quality scoring penalties and GET-only ComputerEase production access.</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>30-Day Hypercare Post Go-Live</strong><span>Dedicated support for 30 days after go-live — priority response to any flow failures, field mapping corrections, or credential rotation issues that arise in the production environment.</span></div>
+        <div><strong>30-day hypercare</strong><span>Post-go-live monitoring and rapid-response support across all four flows, with special attention to the ComputerEase relay and HD Portal write-back paths.</span></div>
       </div>
       
     </div>
@@ -544,18 +539,18 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="outcomes-grid">
       
       <div class="outcome-card">
-        <div class="outcome-icon">🔄</div>
-        <div class="outcome-card-text"><h4>Ashley's Manual Queue — Cleared</h4><p>Lead verification, customer record creation, contract uploads, deposit entry, and task assignment were all manual steps owned by one person. On go-live day, the scheduled and event-driven flows handle each of these automatically — Ashley's queue shrinks to exception handling only.</p></div>
+        <div class="outcome-icon">clock</div>
+        <div class="outcome-card-text"><h4>Ashley's morning back</h4><p>The HD Portal lead check, the 1.5-hour ComputerEase rekey, the document-by-document contract review, and the manual exception comment all stop on go-live day. Her time goes to the work only she can do.</p></div>
       </div>
       
       <div class="outcome-card">
-        <div class="outcome-icon">🔒</div>
-        <div class="outcome-card-text"><h4>Secure, Auditable API Access</h4><p>GCP firewall rules are hardened to restrict SSH/RDP access to authorized sources. ComputerEase API access is enabled through Deltek with sandbox/production parity. Every integration call is logged — the open exposure identified during scoping is closed before the first flow goes live.</p></div>
+        <div class="outcome-icon">shield</div>
+        <div class="outcome-card-text"><h4>Legacy ERP, safely connected</h4><p>The ComputerEase connection runs through the Deltek-managed CE Live Service relay — identified in week one of scoping — so the integration never touches the GCP VM's external IP. The only firewall change is the MuleSoft tenant allowlist Brian already started.</p></div>
       </div>
       
       <div class="outcome-card">
-        <div class="outcome-icon">🏗️</div>
-        <div class="outcome-card-text"><h4>AI-Ready Foundation</h4><p>Clean, connected, well-maintained data infrastructure is what AI agents need to operate. Every flow we build is a pipeline an AI agent will eventually use — built right from the start.</p></div>
+        <div class="outcome-icon">sparkles</div>
+        <div class="outcome-card-text"><h4>The data foundation Year 2 reads</h4><p>The Salesforce Quote, the HD F-number, and the ComputerEase job number that UC1–UC4 connect are the exact records a Year-2 AgentForce agent reads to answer 'which Wisconsin deposits missed 99% this week' or 'which jobs are trending over budget-worksheet target price' — questions Ashley answers today by opening three systems. The architecture is decided once, in Year 1.</p></div>
       </div>
       
     </div>
@@ -585,11 +580,11 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="model-card recommended" data-model="iaas">
     <div class="rec-badge">Recommended for you</div>
     <div class="model-name">Model 1 — IaaS (Managed Service)</div>
-    <div class="model-impl">$44,280</div>
+    <div class="model-impl">$14,760</div>
     <div class="model-impl-label">1-year total · two 6-month payments · billing starts at go-live</div>
     <div class="model-service">$300.00/flow/month</div>
-    <div class="model-service-label">Period 1 rate · 12 flows · DataSkate owns support all year</div>
-    <div class="model-retainer">$5,000 kickoff retainer — credited at go-live</div>
+    <div class="model-service-label">Period 1 rate · 4 flows · DataSkate owns support all year</div>
+    <div class="model-retainer">$2,500 kickoff retainer — credited at go-live</div>
     <hr class="model-divider">
     <div class="best-for">What's covered</div>
     <div class="model-vp">Design, build, deployment, monitoring, and all support for 12 months. At month 12: renew at the same rate, or take full code ownership — your choice.</div>
@@ -604,12 +599,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="model-card" data-model="impl">
     
     <div class="model-name">Model 2 — Implementation Only</div>
-    <div class="model-impl">$42,000</div>
-    <div class="model-impl-label">One-time fee · 12 flows × $3,500/flow · 20-week delivery</div>
+    <div class="model-impl">$14,000</div>
+    <div class="model-impl-label">One-time fee · 4 flows × $3,500/flow · 8-week delivery</div>
     <hr class="model-divider">
     <div class="best-for">What's covered</div>
     <div class="model-vp">Design, build, and deployment. Code ownership transfers at go-live. Your team handles support after handoff.</div>
-    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$42,000 one-time fee')">Select this Model →</button>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$14,000 one-time fee')">Select this Model →</button>
   </div>
 
   
@@ -617,8 +612,8 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="model-card" data-model="tm">
     
     <div class="model-name">Model 3 — Time &amp; Materials</div>
-    <div class="model-impl">$45,600</div>
-    <div class="model-impl-label">Estimated total · 12 flows · billed on actual hours logged</div>
+    <div class="model-impl">$15,200</div>
+    <div class="model-impl-label">Estimated total · 4 flows · billed on actual hours logged</div>
     <hr class="model-divider">
     <div class="best-for">Resource rates</div>
     <table class="tm-rate-table">
@@ -648,22 +643,22 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
   <table class="managed-table">
     <thead>
-      <tr><th>Period</th><th>Duration</th><th>Rate / flow / month</th><th>6-month payment (12 flows)</th></tr>
+      <tr><th>Period</th><th>Duration</th><th>Rate / flow / month</th><th>6-month payment (4 flows)</th></tr>
     </thead>
     <tbody>
-      <tr><td>Period 1</td><td>Month 1–6</td><td>$300.00</td><td>$21,600</td></tr>
-      <tr><td>Period 2</td><td>Month 7–12</td><td>$315.00</td><td>$22,680</td></tr>
-      <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>$44,280</strong></td></tr>
+      <tr><td>Period 1</td><td>Month 1–6</td><td>$300.00</td><td>$7,200</td></tr>
+      <tr><td>Period 2</td><td>Month 7–12</td><td>$315.00</td><td>$7,560</td></tr>
+      <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>$14,760</strong></td></tr>
     </tbody>
   </table>
-  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ($5,000) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ($2,500) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
 </div>
 
 
 <div id="impl-persuasion" style="display:none">
   <div class="impl-pitch">
     <div class="impl-pitch-head">Here's how the three models compare at the 12-month mark</div>
-    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only $42,000 · IaaS $44,280 — a difference of $2,280. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only $14,000 · IaaS $14,760 — a difference of $760. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Support:</strong> IaaS — DataSkate owns all monitoring, incident response, and fixes for 12 months. Implementation Only — your team owns support from go-live.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>At month 12:</strong> IaaS clients choose to renew at the current rate or take code ownership. Either way, they've had 12 months of DataSkate-managed uptime.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>MuleSoft expertise:</strong> Implementation Only requires someone on your team who can administer Anypoint Platform after handoff. IaaS does not.</span></div>
@@ -681,17 +676,17 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
   <table class="managed-table">
     <thead>
-      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (12 flows)</th><th>Estimated cost</th></tr>
+      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (4 flows)</th><th>Estimated cost</th></tr>
     </thead>
     <tbody>
       
-      <tr><td>Offshore Architect</td><td>$45.00</td><td>~240h</td><td>$10,800</td></tr>
+      <tr><td>Offshore Architect</td><td>$45.00</td><td>~80h</td><td>$3,600</td></tr>
       
-      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~480h</td><td>$16,800</td></tr>
+      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~160h</td><td>$5,600</td></tr>
       
-      <tr><td>Offshore Developer</td><td>$25.00</td><td>~720h</td><td>$18,000</td></tr>
+      <tr><td>Offshore Developer</td><td>$25.00</td><td>~240h</td><td>$6,000</td></tr>
       
-      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$45,600</strong></td></tr>
+      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$15,200</strong></td></tr>
     </tbody>
   </table>
   <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced bi-weekly based on actual hours logged. Minimum engagement: 80 hours. Time tracked via shared sheet provided at SOW signing.</p>
@@ -776,37 +771,32 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>ComputerEase CE Live Service Enablement (Deltek Vendor Action)</strong><span>Submitting and managing the Deltek support ticket to enable API access and configure the CE Live Service relay is a client and vendor action. DataSkate will validate connectivity once access is confirmed, but cannot initiate or expedite the Deltek support process.</span></div>
+        <div><strong>ComputerEase upgrade or Deltek cloud migration</strong><span>Upgrading the ~v26.x DOS-era ERP, or migrating ComputerEase off the self-hosted GCP VM to Deltek's cloud (the ~$5K/month move Brian raised), is a separate Peerless decision — not part of this engagement.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>GCP Firewall Hardening (Client IT Action)</strong><span>Restricting SSH/RDP access on the ComputerEase VM and configuring network isolation within GCP is the responsibility of Peerless Fence's IT team or GCP administrator. DataSkate will specify the required IP allowlist but does not administer the client's GCP environment.</span></div>
+        <div><strong>Salesforce configuration &amp; AgentForce licensing</strong><span>Salesforce object/layout design, permission-set setup, Quote Line Item product-bundle data, and AgentForce licensing (a Year 2 / Phase 3 prerequisite) are owned by Peerless.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>HD Portal API Credential Procurement (Home Depot Vendor Action)</strong><span>Obtaining API credentials from the Home Depot Portal team (Marius) is a client-to-vendor coordination task. DataSkate cannot access or request HD Portal credentials on behalf of Peerless Fence.</span></div>
+        <div><strong>Home Depot Portal account &amp; test-lead management</strong><span>HD Portal UI changes, SLA negotiations, account-manager escalations beyond Greg, and managing 'Peerless test' lead markers to avoid contractor-quality scoring penalties remain with Peerless/HD.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>DocHub Account Configuration &amp; Signature Template Setup</strong><span>Configuring DocHub to capture digital signatures for contract types 299A, 299B, and 118 — including template design and document storage settings — is a client action. DataSkate integrates with a configured DocHub instance; it does not administer the DocHub account.</span></div>
+        <div><strong>DocHub signing workflow</strong><span>DocHub remains the UI-only human-signing tool for HS-118; a DocHub → Salesforce write-back is deferred unless separately scoped. IDP picks up the signed PDF downstream.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>Salesforce Object Design &amp; Custom Field Configuration</strong><span>Any changes to Salesforce object schema, custom field creation, page layout updates, or permission set design are outside this engagement. DataSkate maps to existing Salesforce fields; structural Salesforce configuration is a client or Salesforce admin responsibility.</span></div>
+        <div><strong>Historical data migration</strong><span>This engagement handles net-new data from go-live forward. Back-loading historical leads, quotes, or jobs is not in scope.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>Historical Data Migration</strong><span>This engagement covers net-new data from go-live forward. Migration of historical job records, customer records, or contract documents from HD Portal or ComputerEase into Salesforce is not included.</span></div>
-      </div>
-      
-      <div class="oos-card">
-        <div class="oos-x">&#215;</div>
-        <div><strong>HD Portal Test Lead Management</strong><span>Creating, managing, or cleaning up test leads in the HD Portal sandbox environment for UAT purposes is a Peerless Fence responsibility. DataSkate will specify the test data requirements but does not operate within the HD Portal backend.</span></div>
+        <div><strong>IDP training-sample preparation</strong><span>Peerless provides representative samples of HS-105, 299A, 299B, and HS-118 for IDP training; LLM-based extraction was explicitly steered away from during scoping.</span></div>
       </div>
       
     </div>
@@ -827,26 +817,18 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="buyer-profile-grid">
       <div class="buyer-profile-card">
         <div class="buyer-profile-label">Your decision style</div>
-        <div class="buyer-profile-value">risk averse conservative</div>
+        <div class="buyer-profile-value">operational pragmatist</div>
         <p style="font-size:12px;color:var(--mid);margin:0;line-height:1.6;">This proposal was shaped around what matters most to you — concrete outcomes, specific timelines, and what stops on go-live day. Abstract capability claims were left out.</p>
       </div>
       
       <div class="buyer-profile-card">
         <div class="buyer-profile-label">Signals that shaped this proposal</div>
         
-        <div class="buyer-signal">&quot;This is a really, really poor practice right here for security.&quot;</div>
+        <div class="buyer-signal">I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box</div>
         
-        <div class="buyer-signal">&quot;That's scary.&quot;</div>
+        <div class="buyer-signal">If that could integrate and flow back through an API, that was awesome, that would work</div>
         
-        <div class="buyer-signal">&quot;I thought we fixed this.&quot;</div>
-        
-        <div class="buyer-signal">&quot;It's an ancient system.&quot;</div>
-        
-        <div class="buyer-signal">&quot;I feel like I've traveled back to the 90s.&quot;</div>
-        
-        <div class="buyer-signal">&quot;They're allowing SSH and RDP from anywhere, which is really bad practice.&quot;</div>
-        
-        <div class="buyer-signal">&quot;I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow.&quot;</div>
+        <div class="buyer-signal">we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead</div>
         
       </div>
       
@@ -870,25 +852,25 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="ns-item">
         <div class="ns-num">1</div>
         <h4>Fill Out Intake Form</h4>
-        <p>Complete the intake form so DataSkate can confirm system access, API credentials, and environment details before the technical deep dive. This is the fastest way to unblock the five P0 items identified in discovery — ComputerEase API enablement, GCP firewall hardening, Salesforce permissions, HD Portal credentials from Marius, and DocHub configuration.</p>
+        <p>Complete the DataSkate intake form so we lock the system credentials, contacts, and the four flow specifications before kickoff.</p>
       </div>
       
       <div class="ns-item">
         <div class="ns-num">2</div>
         <h4>Schedule Technical Deep Dive</h4>
-        <p>Book a working session with Raghuram Potluri to walk through the ComputerEase CE Live Service relay configuration, GCP firewall rule changes, and Salesforce sandbox parity. This session resolves the connectivity blockers so API testing can begin the following week.</p>
+        <p>Book the technical deep dive with Raghuram Potluri to confirm the CE Live Service relay URL, the reconciled GCP static IP, and HD Portal write-endpoint availability.</p>
       </div>
       
       <div class="ns-item">
         <div class="ns-num">3</div>
         <h4>Review Integration Deck</h4>
-        <p>The integration deck maps all 12 confirmed flows across HD Portal, Salesforce, ComputerEase, DocHub, and GCP — with complexity ratings and sequencing. Review it before the SOW call so the scope conversation starts from a shared picture of what gets built in each stage.</p>
+        <p>Walk through the architect integration deck together — the four flows, the ComputerEase relay finding, and the Elevate portfolio-template angle.</p>
       </div>
       
       <div class="ns-item">
         <div class="ns-num">4</div>
         <h4>Align on Scope and SOW</h4>
-        <p>Once the intake form is complete and the integration deck is reviewed, DataSkate will issue a Statement of Work covering Stage 1 flows, IaaS managed connector configuration, field mapping, error handling, UAT support, and 30-day hypercare. No surprises — every line item is traceable to a confirmed flow from the discovery session.</p>
+        <p>Confirm the four-flow scope, the managed-service model, and the Year 2 AgentForce roadmap, then move to SOW signing and kickoff retainer.</p>
       </div>
       
     </div>
@@ -910,8 +892,8 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    <p class="lead">DataSkate places a MuleSoft managed layer between HD Portal, Salesforce, ComputerEase, and DocHub — handling retry logic, dead-letter queuing, and operational monitoring that native point-to-point connections do not provide. The comparison is not cost — it's what you own after the project closes. The lower quote transfers ownership back to you on day 31.</p>
-    <div class="diagram-wrap"><svg viewBox="0 0 500 104" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <p class="lead">MuleSoft sits in the middle as a DataSkate-managed layer between Home Depot Service Center, Salesforce, and ComputerEase — no code changes inside any of those systems. This is the part a native marketplace connector or a Salesforce Flow does not cover: retry logic when ComputerEase's relay is slow, a dead-letter queue when a write fails, and an operations layer that watches the legacy Deltek stack so a 4-hour vendor SLA never becomes a silent data gap.</p>
+    <div class="diagram-wrap"><svg viewBox="0 0 500 142" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
     <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
     <style>
@@ -920,11 +902,26 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
     </style>
   </defs>
-  <rect x="190" y="16.0" width="120" height="72" rx="8" fill="#EBF7FD" stroke="#00a1df" stroke-width="2"/>
-  <image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" x="210.0" y="26.0" width="80" height="30"/>
-  <text x="250" y="80.0" text-anchor="middle" font="400 9px system-ui,sans-serif" style="font:400 9px system-ui,sans-serif;fill:#00a1df">DataSkate Managed</text>
+  <rect class="sv-src" x="5" y="35.5" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="55.5" text-anchor="middle">Home Depot Service Center</text>
+    <line class="sv-line" x1="145" y1="51.5" x2="190" y2="71.0" marker-end="url(#arr)"/>
+  <rect class="sv-src" x="5" y="74.5" width="140" height="32" rx="6"/>
+    <text class="sv-lsrc" x="75" y="94.5" text-anchor="middle">Salesforce</text>
+    <line class="sv-line" x1="145" y1="90.5" x2="190" y2="71.0" marker-end="url(#arr)"/>
+  <rect x="190" y="35.0" width="120" height="72" rx="8" fill="#EBF7FD" stroke="#00a1df" stroke-width="2"/>
+  <image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" x="210.0" y="45.0" width="80" height="30"/>
+  <text x="250" y="99.0" text-anchor="middle" font="400 9px system-ui,sans-serif" style="font:400 9px system-ui,sans-serif;fill:#00a1df">DataSkate Managed</text>
+  <rect class="sv-tgt" x="355" y="16.0" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="36.0" text-anchor="middle">Salesforce</text>
+    <line class="sv-line" x1="310" y1="71.0" x2="355" y2="32.0" marker-end="url(#arr)"/>
+  <rect class="sv-tgt" x="355" y="55.0" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="75.0" text-anchor="middle">ComputerEase</text>
+    <line class="sv-line" x1="310" y1="71.0" x2="355" y2="71.0" marker-end="url(#arr)"/>
+  <rect class="sv-tgt" x="355" y="94.0" width="140" height="32" rx="6"/>
+    <text class="sv-ltgt" x="425" y="114.0" text-anchor="middle">Home Depot Service Center</text>
+    <line class="sv-line" x1="310" y1="71.0" x2="355" y2="110.0" marker-end="url(#arr)"/>
 </svg></div>
-    <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Salesforce or ComputerEase. Bidirectional flows (UC1, UC6) noted: ComputerEase job status syncs back to Salesforce sales orders in addition to outbound job creation.</p>
+    <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Home Depot Service Center, Salesforce, or ComputerEase. The ComputerEase connection routes through the Deltek-managed CE Live Service relay, not the GCP VM's external IP.</p>
   </div>
 </details>
 
@@ -933,7 +930,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <summary class="section-head">
     <div class="section-summary">
       <div class="section-eyebrow">Proposed Integrations</div>
-      <div class="section-title">12 Proposed Integration Flows</div>
+      <div class="section-title">4 Proposed Integration Flows</div>
     </div>
     <span class="section-chevron">&#9660;</span>
   </summary>
@@ -942,121 +939,41 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC1</div>
+  <div class="flow-num">Flow 1</div>
   
-  <div class="flow-name">Lead Sync: HD Portal → Salesforce</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
-  <div class="flow-value">New leads from the HD Portal land in Salesforce automatically every 10 minutes — keyed by HD F-number as external ID. Ashley's manual morning check stops on go-live day.</div>
+  <div class="flow-name">Home Depot Pro lead → Salesforce Lead</div>
+  <div class="flow-route">Home Depot Service Center → MuleSoft → Salesforce</div>
+  <div class="flow-value">Every Home Depot Pro lead lands in Salesforce as a Lead record within 10 minutes — no morning portal check, no hand-rekey of customer and job-type fields.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC2</div>
+  <div class="flow-num">Flow 2</div>
   
-  <div class="flow-name">Job Entry with Budget Data: Salesforce → ComputerEase</div>
+  <div class="flow-name">Salesforce 'Save as Final' quote → ComputerEase job</div>
   <div class="flow-route">Salesforce → MuleSoft → ComputerEase</div>
-  <div class="flow-value">When a sales rep closes an opportunity, job and budget worksheet data flows into ComputerEase automatically. Manual re-keying of job details by Ashley is eliminated.</div>
+  <div class="flow-value">When a quote is marked 'Save as Final,' the ComputerEase job header, customer record, and budget worksheet are created automatically — replacing the ~1.5-hour manual entry per closed quote.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC3</div>
+  <div class="flow-num">Flow 3</div>
   
-  <div class="flow-name">Customer Record Creation: HD Portal → ComputerEase</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Customer records are created in ComputerEase directly from HD Portal lead data — no manual transcription by Ashley between systems.</div>
+  <div class="flow-name">Signed contract PDF → IDP → Salesforce validation</div>
+  <div class="flow-route">Home Depot Service Center → MuleSoft IDP → Salesforce</div>
+  <div class="flow-value">Each signed HS-105, 299A, 299B, and HS-118 is read, extracted, and checked against the Salesforce quote and Peerless's rule set — Ashley reviews the exception list instead of every document.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC4</div>
+  <div class="flow-num">Flow 4</div>
   
-  <div class="flow-name">Contract Generation &amp; Digital Signature: Salesforce → DocHub</div>
-  <div class="flow-route">Salesforce → MuleSoft → DocHub</div>
-  <div class="flow-value">Contract documents (types 299A, 299B, 118) are generated from Salesforce opportunity data and routed to DocHub for digital signature capture — replacing the manual document prep and routing step.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC5</div>
-  
-  <div class="flow-name">Quote Entry: HD Portal → Salesforce</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
-  <div class="flow-value">Quote details created in HD Portal flow into Salesforce opportunities automatically. Ashley's manual verification and re-entry step is removed from the process.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC6</div>
-  
-  <div class="flow-name">Job Status Attachment: ComputerEase → Salesforce</div>
-  <div class="flow-route">ComputerEase → MuleSoft → Salesforce</div>
-  <div class="flow-value">ComputerEase project and work order records are linked to Salesforce sales orders automatically after job entry — eliminating Ashley's manual attachment step.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC7</div>
-  
-  <div class="flow-name">Contract Document Upload: HD Portal → ComputerEase</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Signed contract documents (299A, 299B, 118) from HD Portal are uploaded to the corresponding ComputerEase job record automatically — no manual upload by Ashley required.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC8</div>
-  
-  <div class="flow-name">Task Creation for Material &amp; Labor: Salesforce → ComputerEase</div>
-  <div class="flow-route">Salesforce → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Material purchase and labor tasks are created in ComputerEase from Salesforce project data automatically — replacing Ashley's manual task assignment process.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC9</div>
-  
-  <div class="flow-name">Appointment Scheduling Sync: HD Portal → Salesforce</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
-  <div class="flow-value">Consultation appointments scheduled in HD Portal sync to the Salesforce calendar automatically — sales reps see their schedule without a separate manual entry step.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC10</div>
-  
-  <div class="flow-name">GCP Infrastructure Configuration: GCP → ComputerEase</div>
-  <div class="flow-route">Google Cloud Platform → MuleSoft → ComputerEase</div>
-  <div class="flow-value">GCP firewall rules are configured to restrict API access to the ComputerEase VM to authorized sources only — closing the open SSH/RDP exposure identified during scoping and enabling secure integration traffic.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC11</div>
-  
-  <div class="flow-name">API Configuration via Deltek Support: Deltek → ComputerEase</div>
-  <div class="flow-route">Deltek Support Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">ComputerEase API access and CE Live Service relay are enabled and validated through Deltek support — establishing the foundation for all ComputerEase integration flows.</div>
-</div>
-
-      
-      
-<div class="flow-card">
-  <div class="flow-num">Flow UC12</div>
-  
-  <div class="flow-name">Deposit &amp; Payment Terms Entry: HD Portal → ComputerEase</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Deposit amounts and payment terms from HD Portal contracts are written into ComputerEase job records automatically — removing Ashley's manual entry step for each new job.</div>
+  <div class="flow-name">Salesforce exception → Home Depot Portal write-back</div>
+  <div class="flow-route">Salesforce → MuleSoft → Home Depot Service Center</div>
+  <div class="flow-value">When a contract fails validation, a structured comment is written back to the HD lead screen — or emailed to the HD account manager — automatically, instead of Ashley typing it by hand.</div>
 </div>
 
       
@@ -1083,65 +1000,41 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
         
         
         <tr>
-          <td><span class="p0-flag">P0</span>Deltek support ticket is submitted to enable ComputerEase API access and configure the CE Live Service relay. API version v26 or higher must be confirmed before build begins. Sandbox and production environments must be at parity.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 1 (blocks all ComputerEase flows)</td>
+          <td><span class="p0-flag">P0</span>ComputerEase CE Live Service Relay Installation — Confirm that the Deltek support ticket Jean Jacobs filed on 2026-04-17 is actively in queue. Ensure Deltek support installs the CE Live Service Windows service on the production ComputerEase VM and provides the Deltek-managed integration URL (the API endpoint — NOT the VM external IP). Expect 4-hour minimum SLA per Deltek's legacy-product classification.</td>
+          <td><span class="owner-badge owner-ds">owner-vendor</span></td>
+          <td>Before development begins (Week 1)</td>
         </tr>
         
         
         
         <tr>
-          <td><span class="p0-flag">P0</span>GCP firewall rules for the ComputerEase VM are hardened to restrict SSH/RDP access to authorized IP addresses only. Network isolation is configured before integration testing begins.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 3 (blocks ComputerEase API connectivity testing)</td>
+          <td><span class="p0-flag">P0</span>ComputerEase Production-Only API Testing Posture — Agree in writing with Peerless leadership AND Deltek that integration testing will occur in PRODUCTION ComputerEase with strictly GET-only access groups until Deltek confirms a dev/sandbox API path. Bundle this confirmation request into the same Deltek support ticket as CE Live Service.</td>
+          <td><span class="owner-badge owner-ds">owner-vendor</span></td>
+          <td>Before development begins (Week 1)</td>
         </tr>
         
         
         
         <tr>
-          <td><span class="p0-flag">P0</span>Salesforce API user credentials are confirmed with appropriate integration permissions. A Salesforce administrator with full access is available to configure API integrations. Sandbox environment is at parity with production.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 1 (blocks all Salesforce flows)</td>
+          <td><span class="p0-flag">P0</span>ComputerEase Backup Super-Admin Provisioning (SPOF) — Identify and provision a backup ComputerEase super-admin BEFORE kickoff. Candidate per Ashley Salerno: Laura ('has more access than all of us except for Jean'). Confirm in writing that the backup admin can log in as the PWMAINT system account to create users and grant API access groups. Bundle this with the same Deltek support ticket.</td>
+          <td><span class="owner-badge owner-ds">owner-vendor</span></td>
+          <td>Before development begins (Week 1)</td>
         </tr>
         
         
         
         <tr>
-          <td><span class="p0-flag">P0</span>HD Portal API credentials are obtained from the Home Depot Portal team (Marius). Polling mechanism (10-minute frequency) or webhook endpoint is confirmed and accessible from DataSkate's MuleSoft environment.</td>
-          <td><span class="owner-badge owner-ds">vendor</span></td>
-          <td>Before Week 1 (blocks UC1, UC3, UC5, UC7, UC9, UC12)</td>
+          <td><span class="p0-flag">P0</span>GCP VM Firewall + Static IP Confirmation — (a) Reconcile the canonical static external IP of the ComputerEase production VM — transcripts cite 35.222.218.224 AND 135.226.22218; only one is correct. (b) Lock GCP ingress firewall to the MuleSoft tenant IP allowlist only (pre-engagement state was SSH/RDP open to the entire internet — partially remediated 2026-04-16). (c) Confirm egress firewall permits CE Live Service outbound to the Deltek-managed cloud URL.</td>
+          <td><span class="owner-badge owner-ds">owner-client</span></td>
+          <td>Before development begins (Week 1)</td>
         </tr>
         
         
         
         <tr>
-          <td><span class="p0-flag">P0</span>DocHub is configured to capture digital signatures for contract types 299A, 299B, and 118. A document storage and retrieval API endpoint is available for Salesforce integration.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 3 (blocks UC4)</td>
-        </tr>
-        
-        
-        
-        <tr>
-          <td>A dedicated DataSkate integration user is provisioned in Salesforce with API-only access and a non-expiring credential. A read-only API user is established in ComputerEase for status sync flows.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 1</td>
-        </tr>
-        
-        
-        
-        <tr>
-          <td>Jean Jacobs (ComputerEase Administrator) and Brian Cook (Infrastructure/Systems Administrator) are available for technical coordination during Discovery and UAT phases.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Weeks 1–2 and Weeks 10–11</td>
-        </tr>
-        
-        
-        
-        <tr>
-          <td>Ashley Salerno is available to validate flow outputs during UAT — confirming that lead records, job entries, customer records, and contract documents match expected results.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Weeks 10–11 (UAT phase)</td>
+          <td>HD Portal Write Endpoints + Developer Login — Through Greg (HD account manager), file a single HD ticket bundling: (a) confirm HD Portal exposes POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential); (b) request a developer-named HD Portal interactive login for DataSkate so the team can inspect HD-side data shape and field-level mappings; (c) confirm document-download endpoints for 299A/299B/HS-118 signed PDFs (UC3). Use Marius as the developer escalation (engaged 15 more days per Ashley 2026-04-16). If HD does not expose write endpoints, plan to fall back to the email channel (Venkat: 'depending upon the endpoint... we can try to mail as well').</td>
+          <td><span class="owner-badge owner-ds">owner-both</span></td>
+          <td>Before UC4 build / API discovery</td>
         </tr>
         
       </tbody>
@@ -1171,7 +1064,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
           <h4>Discovery &amp; Field Mapping</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm HD Portal API endpoint structure, polling frequency, and F-number external ID schema</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Map Salesforce Lead, Opportunity, and Quote objects to HD Portal and ComputerEase field equivalents</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Document ComputerEase job maintenance fields: customer, deposit, payment terms, budget worksheet</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate DocHub API for contract types 299A, 299B, 118 — signature capture and document retrieval</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm GCP firewall allowlist and ComputerEase CE Live Service relay configuration</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Establish sandbox environments for Salesforce and ComputerEase with production parity</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Finalize flow trigger logic: scheduled (UC1 — 10-min poll) vs. event-driven (UC2–UC12)</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm CE Live Service relay URL once Jean's Deltek ticket resolves</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Map Salesforce Quote / Quote Line Item, HD F-number, and ComputerEase job/customer/budget-worksheet fields</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Reconcile the canonical ComputerEase VM static IP and lock the GCP ingress allowlist to the MuleSoft tenant</li>
           </ul>
           
         </div>
@@ -1183,11 +1076,11 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="tl-item">
         <div class="tl-dot phase2">2</div>
         <div class="tl-content">
-          <div class="tl-weeks">Weeks 3–9</div>
+          <div class="tl-weeks">Weeks 3–8</div>
           <h4>Build &amp; Unit Test</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC1: HD Portal → MuleSoft → Salesforce lead sync (10-min scheduled poll, F-number keying)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC5 &amp; UC9: HD Portal → Salesforce quote entry and appointment scheduling sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC3 &amp; UC12: HD Portal → ComputerEase customer record creation and deposit/payment terms entry</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC7: HD Portal → ComputerEase signed contract document upload (299A, 299B, 118)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC2: Salesforce → ComputerEase job entry with budget worksheet data on opportunity close</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC4: Salesforce → DocHub contract generation and digital signature routing</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC8: Salesforce → ComputerEase task creation for material purchases and labor assignment</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC6: ComputerEase → Salesforce job status and work order attachment sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC10 &amp; UC11: GCP firewall configuration validation and Deltek CE Live Service relay connectivity</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Unit test all flows in sandbox — validate error handling, retry logic, and field mapping accuracy</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC1 HD Portal → Salesforce lead sync (10-minute polling, idempotent upsert on F-number)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC2 Salesforce → ComputerEase job creation using the sequential next-id endpoint</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC3 contract IDP extraction + deterministic rule validation (incl. Wisconsin 99% deposit)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC4 Salesforce → HD Portal exception write-back with email fallback path</li>
           </ul>
           
         </div>
@@ -1199,11 +1092,11 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="tl-item">
         <div class="tl-dot phase3">3</div>
         <div class="tl-content">
-          <div class="tl-weeks">Weeks 10–11</div>
+          <div class="tl-weeks">Weeks 9–10</div>
           <h4>UAT &amp; Integration Testing</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Ashley Salerno validates lead records in Salesforce against HD Portal source data (UC1, UC5)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate end-to-end job creation: HD Portal lead → Salesforce opportunity → ComputerEase job (UC2, UC3)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Test contract document flow: Salesforce → DocHub signature capture → ComputerEase upload (UC4, UC7)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate deposit and payment terms entry in ComputerEase job records (UC12)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm appointment sync to Salesforce calendar (UC9)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Jean Jacobs and Brian Cook validate ComputerEase API connectivity and GCP firewall rules (UC10, UC11)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Regression test all 12 flows in staging before production promotion</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Joint UAT with Ashley using HD 'Peerless test' leads and GET-only ComputerEase production access</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate IDP exception queue and HD write-back / email fallback end to end</li>
           </ul>
           
         </div>
@@ -1215,11 +1108,11 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="tl-item">
         <div class="tl-dot phase3">4</div>
         <div class="tl-content">
-          <div class="tl-weeks">Week 12</div>
+          <div class="tl-weeks">Week 11</div>
           <h4>Go Live &amp; Handoff</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Promote all 12 flows from sandbox to production</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm HD Portal 10-minute lead sync is running in production (UC1)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate first live job creation end-to-end: HD Portal → Salesforce → ComputerEase</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Activate 30-day hypercare monitoring — error alerting and priority response in place</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Deliver flow documentation and runbook to Jean Jacobs and Brian Cook</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Schedule Year 2 automation roadmap review with Kirk and the DataSkate team</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Production cutover across UC1–UC4</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Begin 30-day hypercare; hand off code ownership to Peerless GitHub repo</li>
           </ul>
           
         </div>
@@ -1246,12 +1139,49 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="portfolio-sponsor">
       <div>
         <div class="portfolio-sponsor-label">Financial Sponsor</div>
-        <div class="portfolio-sponsor-name">Akoya Capital</div>
-        <div class="portfolio-sponsor-detail"></div>
+        <div class="portfolio-sponsor-name">Akoya Capital Partners</div>
+        <div class="portfolio-sponsor-detail">An Elevate Fence Partners portfolio-wide integration standard reduces due-diligence overhead on Akoya Capital Partners' next residential Home Services acquisition — pipeline created by a single Peerless engagement.</div>
       </div>
     </div>
     
     
+    <div class="portfolio-template-angle">A successful integration with Peerless Fence Group becomes the template for 5 sibling brands under Elevate Fence Partners — each adding a ComputerEase company code and state-specific rule extensions to UC3's validation engine, not a new build cycle.</div>
+    
+    
+    <p style="font-size:12px;color:var(--mid);margin-bottom:8px;">5 sibling brands under Elevate Fence Partners — each a future engagement once the Peerless template is proven:</p>
+    <div class="portfolio-grid">
+      
+      <div class="portfolio-card">
+        <div class="portfolio-card-name">Florida State Fence</div>
+        
+        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. First logical second-engagement candidate post-Peerless: Florida adds non-Midwest tax/permit rules + separate ComputerEase company code + separate HD Portal tenant footprint.</div>
+      </div>
+      
+      <div class="portfolio-card">
+        <div class="portfolio-card-name">Foremost Fence</div>
+        
+        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. Likely shares Florida regulatory profile + tax/permit rule set with Florida State Fence.</div>
+      </div>
+      
+      <div class="portfolio-card">
+        <div class="portfolio-card-name">Allied Fence Co.</div>
+        
+        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. Georgia-specific permit + deposit rule set + GA state tax. Separate ComputerEase company code likely.</div>
+      </div>
+      
+      <div class="portfolio-card">
+        <div class="portfolio-card-name">Jan Fence</div>
+        
+        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. NJ-specific Home Improvement Contractor (HIC) registration rules. Separate ComputerEase company code likely.</div>
+      </div>
+      
+      <div class="portfolio-card">
+        <div class="portfolio-card-name">MyFence2Go</div>
+        
+        <div class="portfolio-card-signal">Distinct from installer-contractor siblings — e-commerce storefront + WMS / fulfillment + ComputerEase as inventory/financial backend. Does NOT consume HD Portal Pro leads. Peerless integration template applies partially: Salesforce ↔ ComputerEase backbone reusable; HD Portal layer not applicable.</div>
+      </div>
+      
+    </div>
     
   </div>
 </details>
@@ -1267,7 +1197,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <summary class="section-head">
     <div class="section-summary">
       <div class="section-eyebrow">Your AI Journey</div>
-      <div class="section-title">The path to: 'I think by next early next week, I think we should be able to figure out all the access connectivity and extracting data. So we should be good after that.'</div>
+      <div class="section-title">the path to 'select the deposit paid box — and have it sync back automatically' — the API integration Ashley named on day one of scoping</div>
     </div>
     <span class="section-chevron">&#9660;</span>
   </summary>
@@ -1278,15 +1208,14 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="stage-card stage1">
-  <div class="stage-label">Stage 1</div>
+  <div class="stage-label">Connected</div>
   <div class="stage-year">Year 1</div>
-  <h4>Lead Ingestion &amp; Qualification via HD Portal → Salesforce</h4>
+  <h4>The manual steps in Ashley's morning stop happening</h4>
   <ul>
-    <li>HD Portal leads land in Salesforce automatically every 10 minutes — no more manual morning check by Ashley; the HD F-number becomes the external ID that prevents duplicates</li>
-    <li>Appointment scheduling syncs from HD Portal to Salesforce calendar without manual re-entry</li>
-    <li>Quote details verified and entered into Salesforce opportunity automatically when a sales rep closes in HD Portal — Ashley's manual verification step stops on go-live day</li>
-    <li>GCP firewall rules hardened to restrict SSH/RDP access before any integration goes live — the security exposure flagged in discovery is closed first</li>
-    <li>Salesforce API user permissions confirmed and sandbox environment validated to match production — no surprises during UAT</li>
+    <li>Ashley's morning Home Depot Portal check for new leads stops — HD Pro leads land in Salesforce as Lead records within 10 minutes, no manual rekey (UC1).</li>
+    <li>The ~1.5-hour manual rebuild of every closed Salesforce quote in ComputerEase — customer number, sequential job number, budget worksheet — disappears on go-live day (UC2).</li>
+    <li>Document-by-document contract review of HS-105, 299A, 299B, and HS-118 is replaced by an exception list — MuleSoft IDP extracts and validates each signed contract against the Salesforce quote (UC3).</li>
+    <li>The exception comment Ashley types on the HD screen by hand is written back automatically the moment validation fails (UC4).</li>
     
   </ul>
 </div>
@@ -1296,15 +1225,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="stage-card stage2">
-  <div class="stage-label">Stage 2</div>
-  <div class="stage-year">Year 2</div>
-  <h4>Quote-to-Job Workflow: Salesforce → ComputerEase with Contract Validation</h4>
+  <div class="stage-label">Automated</div>
+  <div class="stage-year">Year 1–2</div>
+  <h4>Triggers replace the lookups Ashley still does by hand</h4>
   <ul>
-    <li>When a Salesforce opportunity is saved as final, a new job, customer record, and budget worksheet are created in ComputerEase automatically — manual data entry by Ashley is eliminated</li>
-    <li>Customer record creation in ComputerEase is triggered by HD Portal lead data — no more manual re-keying from lead to job</li>
-    <li>Contract documents (299A, 299B, 118) routed through DocHub for digital signature capture; signed documents attached to the ComputerEase job record without manual upload</li>
-    <li>Deposit amount and payment terms from HD Portal contract entered into ComputerEase job maintenance automatically — Ashley's manual deposit entry step is removed</li>
-    <li>ComputerEase job status attached to Salesforce sales order automatically after job creation — no manual linking step required</li>
+    <li>The deposit-paid box Ashley checks by going through Home Depot reporting syncs back into Salesforce automatically — the exact API flow she named on day one of scoping (UC5). The 'Save as Final' transition becomes the system-of-record trigger for the whole downstream chain.</li>
+    <li>ComputerEase job status — in-progress, complete, paid — flows back into Salesforce so the operations team stops logging into Cameo and ComputerEase to check milestones (UC7).</li>
     
   </ul>
 </div>
@@ -1314,15 +1240,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="stage-card stage3">
-  <div class="stage-label">Stage 3</div>
-  <div class="stage-year">Year 3</div>
-  <h4>Project Execution &amp; Compliance Automation via ComputerEase API &amp; IDP</h4>
+  <div class="stage-label">Agentic</div>
+  <div class="stage-year">Year 2+</div>
+  <h4>AgentForce — Activated</h4>
   <ul>
-    <li>ComputerEase API (CE Live Service relay, v26+) enabled — task creation, material ordering, and labor scheduling triggered automatically from Salesforce project data; Barb's manual material ordering step in Salesforce is replaced</li>
-    <li>Intelligent Document Processing extracts contract data from 299A, 299B, and 118 documents and validates against business rules — permit dates, deposit amounts, and signature legibility checked automatically; exceptions flagged for Ashley's review rather than full manual review of every document</li>
-    <li>Read-only Salesforce sync from ComputerEase provides project status visibility to sales reps and coordinators — Clayton and Jeff see job progress in Salesforce without logging into ComputerEase</li>
-    <li>Automated deposit verification from HD Portal backend triggers job entry in ComputerEase without Ashley manually checking backend reporting — when the deposit clears, the job moves forward</li>
-    <li>Quote line items from Salesforce validated against ComputerEase master data (material type, picket type, post caps, gates) before job creation — discrepancies flagged before they become field errors</li>
+    <li>"Which Wisconsin jobs posted a deposit below the required 99% threshold this week?" — an AgentForce agent answers it by reading the Salesforce Quote and the contract fields UC3's IDP validation captured, instead of Ashley cross-referencing Home Depot reporting and the signed PDF by hand.</li>
+    <li>"Which ComputerEase jobs are trending over their budget-worksheet target price before close-out?" — an AgentForce agent reads ComputerEase Job Totals against the budget worksheet UC2 wrote and surfaces margin erosion 30 days early, instead of it being found at close-out. No new vendor and no new procurement cycle — AgentForce runs inside the Salesforce relationship Peerless already owns, reading the exact objects these Year 1 flows create.</li>
     
   </ul>
 </div>
@@ -1330,7 +1253,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
     </div>
     
-    <p class="pull-quote">The managed service model means DataSkate absorbs the operational risk — you get the outcomes without owning the infrastructure that delivers them.</p>
+    <p class="pull-quote">The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once.</p>
     
   </div>
 </details>
@@ -1356,17 +1279,18 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-card-head">
     <div>
       <div class="fomo-co">
-        Peerless Fence Group
+        <a href="https://www.documentcrunch.com/" target="_blank" rel="noopener" class="fomo-co-link">Document Crunch ↗</a>
+        
       </div>
-      
+      <div class="fomo-meta">n/a — vendor platform deployed across construction firms</div>
     </div>
-    <span class="fomo-tier-badge tier-stat">1</span>
+    <span class="fomo-tier-badge tier-adjacent">Same industry</span>
   </div>
-  <div class="fomo-analogy">This is the same workflow Peerless Fence Group runs — same HD Portal, same Salesforce, same manual morning check that gets eliminated on day one.</div>
-  <div class="fomo-savings-val">Eliminates the manual morning HD Portal check; leads land in Salesforce automatically with the HD F-number as the deduplication key.</div>
-  <div class="fomo-built">Automated lead capture from HD Portal into Salesforce on a 10-minute polling cycle, with HD F-number as the deduplication key and automatic routing to sales reps.</div>
-  <div class="fomo-agent">An AI agent monitors HD Portal for new leads → creates Salesforce Lead records → routes to sales reps.</div>
-  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Eliminates manual morning HD-Portal-to-Salesforce check; leads land in Salesforce automatically with HD F-number as external ID.</div>
+  <div class="fomo-analogy">Same vertical (construction), same problem class (contract / risk-clause review), different commercial product. Peerless's UC3 builds an equivalent capability in-house using MuleSoft IDP against the exact contract set Ashley reviews daily (HS-105, 299A, 299B, HS-118) plus Peerless's specific rules (Wisconsin 99% deposit, Friday-date, both-boxes-ticked).</div>
+  <div class="fomo-savings-val">Contract review time reduced from weeks to minutes (vendor-reported)</div>
+  <div class="fomo-built">Construction firms using Document Crunch have shortened contract review from weeks to minutes — AI identifies ambiguities, validates contract clauses, surfaces risk language, and flags missing required fields.</div>
+  <div class="fomo-agent">An AI agent reads every signed contract the moment it lands → extracts clause-level fields → validates them against the source quote and a rule library (price match, signature legibility, permit flag, deposit threshold) → flags only the exception cases for human review.</div>
+  <div class="fomo-angle">The time Ashley spends reading every HS-105, 299A, 299B, and HS-118 by hand disappears on go-live day — construction firms that moved to exception-list review got that time back permanently. UC3 + UC4 build the same shift for Peerless's exact contract set.</div>
   
 </div>
 
@@ -1379,17 +1303,17 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-card-head">
     <div>
       <div class="fomo-co">
-        Peerless Fence Group
+        A specialty contractor using Deltek ComputerEase + Salesforce Sales Cloud (anonymized)
       </div>
-      
+      <div class="fomo-meta">n/a — documented integration pattern across multiple Deltek ComputerEase + Salesforce customers</div>
     </div>
-    <span class="fomo-tier-badge tier-stat">1</span>
+    <span class="fomo-tier-badge tier-exact">Exact match</span>
   </div>
-  <div class="fomo-analogy">Same ComputerEase (Deltek) stack, same Salesforce opportunity-to-job handoff — this is a proven pattern in the fence installation vertical.</div>
-  <div class="fomo-savings-val">Automates job creation in ComputerEase from a closed Salesforce opportunity, eliminating manual re-keying and ensuring field-level consistency between the two systems.</div>
-  <div class="fomo-built">Event-driven job creation in ComputerEase triggered by a 'Save as Final' quote in Salesforce — new job, customer record, and budget worksheet created without manual re-entry.</div>
-  <div class="fomo-agent">An AI agent detects a &quot;Save as Final&quot; quote in Salesforce → creates a new job, customer, and budget worksheet in ComputerEase.</div>
-  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Automates job creation in ComputerEase, eliminating manual data entry and ensuring data consistency between Salesforce and ComputerEase.</div>
+  
+  <div class="fomo-savings-val">Elimination of the ~1.5-hour manual job entry step per closed quote</div>
+  <div class="fomo-built">Specialty contractors running both Deltek ComputerEase and Salesforce Sales Cloud have eliminated the manual rekey of closed quotes into ComputerEase as Jobs / Sales Orders — matching the exact 1.5-hour-per-job manual entry Ashley walked through on 2026-04-16.</div>
+  <div class="fomo-agent">An AI agent watches every Salesforce quote status change → detects the 'Save as Final' transition → creates the corresponding ComputerEase Job header, customer record, and budget worksheet → reports the assigned ComputerEase job number back to Salesforce and notifies the operations lead only on exception.</div>
+  <div class="fomo-angle">1.5 hours recovered per closed quote — the manual rekey of customer number, job number, budget worksheet, and subcontracts from Salesforce into ComputerEase stops on go-live day. Contractors on Peerless's exact stack — Salesforce upstream of Deltek ComputerEase — already have this automated. UC2 is the same pattern.</div>
   
 </div>
 
@@ -1402,17 +1326,44 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-card-head">
     <div>
       <div class="fomo-co">
-        AgileMind
+        <a href="https://www.servicetitan.com/partners/thd-leads" target="_blank" rel="noopener" class="fomo-co-link">ServiceTitan ↗</a>
+        
       </div>
-      
+      <div class="fomo-meta">n/a — vendor platform deployed across thousands of Home Depot installer contractors</div>
     </div>
-    <span class="fomo-tier-badge tier-stat">4</span>
+    <span class="fomo-tier-badge tier-adjacent">Adjacent industry</span>
   </div>
-  <div class="fomo-analogy">Different vertical, same pattern: one person manually re-keying data between two systems, every transaction, every time — until go-live day.</div>
-  <div class="fomo-savings-val">Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated</div>
-  <div class="fomo-built">Automated invoice creation in QuickBooks triggered by a new agreement in Salesforce — Crystal's manual billing workflow was fully replaced.</div>
-  <div class="fomo-agent">An AI agent detects a new agreement in Salesforce → creates an invoice in QuickBooks.</div>
-  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated</div>
+  <div class="fomo-analogy">Same upstream system (Home Depot Service Center), same operational pain (manual lead rekey), different CRM. The structural automation pattern transfers directly to Peerless's Salesforce target. The 10-minute HD update cadence is platform-side behavior, not ServiceTitan-specific.</div>
+  <div class="fomo-savings-val">'Eliminate hours of manual data entry' per contractor per week (vendor-reported)</div>
+  <div class="fomo-built">Home Depot installer contractors using ServiceTitan manage HD bookings, online requests, and call-center leads from a single intake — leads land pre-populated with customer info, job type, and campaign source, with no manual entry or copy-over.</div>
+  <div class="fomo-agent">An AI scheduling agent reads each new HD lead the moment it arrives → checks installer route density, technician availability, and job-type SLA → books the appointment slot and writes the confirmation back to HD so the customer sees a scheduled time in the channel they originated in.</div>
+  <div class="fomo-angle">The morning HD Portal check-and-rekey step — gone on go-live day. Every HD Pro installer with a CRM integration has already removed this from their morning routine. Peerless is still running it manually because HD Portal → Salesforce is the missing wire. UC1 puts Peerless in the same group.</div>
+  
+</div>
+
+      
+      
+
+  
+
+<div class="fomo-card">
+  <div class="fomo-card-head">
+    <div>
+      <div class="fomo-co">
+        <a href="https://www.mckinsey.com/capabilities/operations/our-insights/the-impact-and-opportunities-of-automation-in-construction" target="_blank" rel="noopener" class="fomo-co-link">McKinsey 2024 construction-automation insight ↗</a>
+        
+      </div>
+      <div class="fomo-meta">n/a (industry analyst)</div>
+    </div>
+    <span class="fomo-tier-badge tier-stat">Industry data</span>
+  </div>
+  <div class="fomo-analogy">Peerless sits in McKinsey's 0.4%-baseline bucket today — Salesforce data, ComputerEase data, and HD Portal data all live in separate boxes. The four confirmed flows + IDP validation are the entry door to the 14–15% bucket.</div>
+  <div class="fomo-savings-val">14–15% productivity gain and 4–6% cost reduction at firm level (analyst-reported)</div>
+  <div class="fomo-built">Industry-wide analyst finding: construction companies that connect their data achieve productivity gains of 14–15% and cost reductions of 4–6% compared to industry averages. Construction sector overall productivity grew only 0.4% annually from 2000 to 2024 — vs. 2% economy-wide and 3% in manufacturing.</div>
+  <div class="fomo-agent">Industry-stat entry — McKinsey's finding is that construction firms that connect their data outperform peers because joined data enables both automation and AI reasoning.</div>
+  <div class="fomo-angle">Every morning Ashley spends on manual HD reconciliation, ComputerEase rekey, and document-by-document contract review is the operating cost of staying in construction's 0.4%/year productivity baseline. Contractors that connect their data reach 14–15% productivity gains. That gap closes in Year 1.</div>
+  
+  <div class="fomo-source"><a href="https://www.mckinsey.com/capabilities/operations/our-insights/the-impact-and-opportunities-of-automation-in-construction" target="_blank" rel="noopener">mckinsey.com</a></div>
   
 </div>
 
@@ -1423,6 +1374,13 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 
 
 
+
+<div class="ai-starters">
+  <div class="ai-starters-eyebrow">What else teams like yours are exploring</div>
+  <ul class="ai-starters-list">
+    <li>Teams in residential construction are using AI agents to auto-acknowledge Home Depot Pro leads — your AgentForce agent could send a structured response back through the HD comment channel the moment a lead arrives, replacing Ashley's morning HD reconciliation pass.</li><li>Teams in specialty trades are using AI agents to flag ComputerEase job-cost burn rates in real time — your AgentForce agent could read Job Totals nightly and surface jobs running over budget-worksheet target price 30 days before they finish, instead of finding margin erosion at close-out.</li><li>Teams in home improvement are using AI agents to read signed contracts and auto-populate downstream ERP fields — once IDP pulls fields from HS-118 / 299A / 299B, an AgentForce agent could create the ComputerEase budget-worksheet draft for Ashley to approve, instead of her manually rekeying 1.5 hours per job.</li><li>Other construction firms are converting state-specific compliance rules (Wisconsin 99% deposit, Friday-date, both-yes/no-boxes-ticked, permit-required-flag-one-value) into deterministic agent checks — the rule set Ashley enforces by hand becomes an AgentForce-callable validator that runs before any human sees the document.</li>
+  </ul>
+</div>
 
 
 </div>
@@ -1542,12 +1500,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 
 
 <script>
-window.__PROP_SLUG  = "peerless2";
-window.__PROP_NAME  = "Peerless Fence";
+window.__PROP_SLUG  = "peerless";
+window.__PROP_NAME  = "Peerless Fence Group";
 window.__PROP_EMAIL = "raghuram@dataskate.ai";
 window.__PROP_ARCH  = "Raghuram Potluri";
 window.__PROP_RATE  = 300;
-window.__PROP_FLOWS = 12;
+window.__PROP_FLOWS = 4;
 window.__PROP_MODEL = "iaas";
 </script>
 <script>

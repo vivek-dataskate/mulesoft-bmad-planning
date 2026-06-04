@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DataSkate × Peerless Fence — Integration Roadmap</title>
+<title>DataSkate × Homage — Integration Roadmap</title>
 <link rel="stylesheet" href="/tokens.css">
 <style>
 /* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
@@ -362,18 +362,20 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 <path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
 </svg></span>
       
+      <div class="client-logo-block"><div class="client-logo-sep"></div><img src="https://dataskateclients.web.app/logos/homage.svg" alt="Homage" class="client-logo-img" onerror="this.parentNode.style.display='none'"></div>
+      
     </div>
     <span class="eyebrow">Integration Roadmap — Confidential</span>
   </div>
   <div class="header-title-block">
-    <h1>The Connected Peerless Fence: Your AI Integration Roadmap</h1>
-    <div class="subtitle">From manual lead-to-job handoffs to an automated, audit-ready workflow across HD Portal, Salesforce, and ComputerEase</div>
+    <h1>The Connected Homage: Your AI Integration Roadmap</h1>
+    <div class="subtitle">From Celigo to a platform your team owns — and an inventory intelligence layer that watches for you</div>
   </div>
   <div class="header-meta">
-    <span><strong>Prepared for</strong>Peerless Fence</span>
-    <span><strong>Architect</strong>Raghuram Potluri · DataSkate</span>
-    <span><strong>Date</strong>2026-06-03</span>
-    <span><strong>Scope</strong>12 integration flows</span>
+    <span><strong>Prepared for</strong>Homage</span>
+    <span><strong>Architect</strong>Kailash Chanda · DataSkate</span>
+    <span><strong>Date</strong>2026-05-19</span>
+    <span><strong>Scope</strong>22 integration flows</span>
   </div>
 </div>
 
@@ -419,29 +421,24 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </summary>
   <div class="section-body">
     
-    <p class="pull-quote">Every manual handoff between HD Portal, Salesforce, and ComputerEase is a silent failure waiting to happen — and the security exposure underneath it makes it worse. 'There's no firewall. They could put in a username and password and keep trying and trying and trying until they get in.' The goal of Stage 1 is simple: close the exposure, stabilize the data flow, and make sure nothing breaks quietly.</p>
+    <p class="pull-quote">You're evaluating three or four vendors, and the right question is not 'who builds MuleSoft flows' — everyone does. The right question is: who already knows how Celigo is built on the inside, before you show them anything? Celigo's Standard Integration App doesn't create one flow per category — it creates separate flows per direction and per CRUD operation. That's why your 10 briefing categories are actually 23 flows. We named 18 of them from your document before this call. That's not preparation — that's the pattern knowledge that determines whether your migration lands in 35 weeks or drags to 50.</p>
     
     
     <div class="challenge-grid">
       
       <div class="challenge-card">
-        <div class="card-label">Ashley's Morning Queue</div>
-        <p>Ashley manually checks the HD Portal backend every morning to find new leads, then re-enters them into Salesforce — a process that delays consultation scheduling and introduces transcription errors on every lead that comes through the Home Depot channel.</p>
+        <div class="card-label">Your Integration Layer Is Third-Party Owned</div>
+        <p>Sikich manages your Celigo day-to-day — monitoring, changes, fixes. Every integration incident, every custom JavaScript update, every ad-hoc mapping correction runs through your NetSuite partner. That operational dependency ends on go-live day.</p>
       </div>
       
       <div class="challenge-card">
-        <div class="card-label">Job Entry Is a Hand-Off Chain</div>
-        <p>When a Salesforce opportunity closes, Ashley manually creates the customer record in ComputerEase, enters deposit amounts and payment terms from the HD Portal contract, and then uploads signed contract documents (299A, 299B, 118) into the ComputerEase job record — each step a separate manual touch with no automated validation.</p>
+        <div class="card-label">23 Flows, Custom JS, No Single Owner</div>
+        <p>Your Celigo footprint runs one Standard Integration App plus three custom integrations — ~23 flows, many with pre-map, post-response, and post-submit JavaScript hooks that only Sikich fully understands. When that institutional knowledge is unavailable, the logic is at risk.</p>
       </div>
       
       <div class="challenge-card">
-        <div class="card-label">Security Exposure on the ComputerEase VM</div>
-        <p>'There's no firewall. They could put in a username and password and keep trying and trying and trying until they get in' — the GCP instance hosting ComputerEase currently allows SSH and RDP from any IP address, meaning the job-costing system is reachable by anyone on the internet.</p>
-      </div>
-      
-      <div class="challenge-card">
-        <div class="card-label">ComputerEase API Is Not Yet Active</div>
-        <p>'It's an ancient system... I feel like I've traveled back to the 90s' — ComputerEase API access has not been enabled with Deltek, the CE Live Service relay is not configured, and API version compatibility (v26+) has not been confirmed, blocking every automated flow in this proposal until a support ticket is resolved.</p>
+        <div class="card-label">Two Integration Tracks Running Outside Celigo</div>
+        <p>Your Orderful EDI track (810/856/997 with Fanatics, DSG, and Rallyhouse) and your ShipStation connection via Turbine both run outside Celigo today. Two critical operational tracks with no unified integration owner — and no single monitoring surface.</p>
       </div>
       
     </div>
@@ -460,23 +457,23 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    <p>Peerless Fence runs 6+ systems — HD Portal, Salesforce, ComputerEase, DocHub, GCP, and Deltek — with no automated handoffs between them. Ashley manually checks HD Portal every morning, re-keys lead data into Salesforce, then re-enters job details into ComputerEase by hand. Every closed deal that touches all three systems is a manual relay race with no error detection until something breaks downstream.</p>
+    <p>Homage's 22 confirmed Celigo flows represent the primary migration scope — 17 individually named, 5 awaiting the Celigo flow inventory spreadsheet. The custom JavaScript transforms embedded across those flows are the #1 source of migration cost overruns industry-wide: each one is a business rule that lives in Sikich's memory and in the code. Topo Designs — the same Shopify + NetSuite stack, mid-market apparel — eliminated two admin roles and compressed month-end close to 5 days after their migration. A Fortune 500 retailer using MuleSoft went from 7–10 days of manual inventory coordination to under 1 hour and recovered $3.8M per quarter in markdown losses.</p>
     
     <div style="display:flex;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;">
       
       <div style="flex:1;min-width:120px;">
-        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
-        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">2 FTE</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">eliminated at a comparable Shopify + NetSuite migration (Topo Designs)</div>
       </div>
       
       <div style="flex:1;min-width:120px;">
-        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
-        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">7 days → 1 hr</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">inventory coordination time — Fortune 500 retailer post-MuleSoft integration</div>
       </div>
       
       <div style="flex:1;min-width:120px;">
-        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
-        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;">87%</span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;">of mid-market retailers say connected data reduced operating costs (EComposer 2025)</div>
       </div>
       
     </div>
@@ -499,32 +496,32 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>12 Integration Flows — Built &amp; Maintained</strong><span>All 12 confirmed flows (UC1–UC12) across HD Portal, Salesforce, ComputerEase, DocHub, GCP, and Deltek — designed, built, tested, and maintained by DataSkate for the duration of the engagement.</span></div>
+        <div><strong>22 integration flows</strong><span>All flows in this proposal — built, tested, and deployed on MuleSoft CloudHub 2.0</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>MuleSoft Hosting &amp; Runtime Management</strong><span>DataSkate manages the MuleSoft CloudHub runtime environment — provisioning, patching, uptime monitoring, and capacity management are included. Peerless Fence does not own or operate the middleware layer.</span></div>
+        <div><strong>MuleSoft hosting &amp; infrastructure</strong><span>CloudHub 2.0 managed by DataSkate — no infrastructure management required from your team</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>Field Mapping &amp; Data Transformation</strong><span>All field-level mapping between HD Portal, Salesforce, ComputerEase, and DocHub — including HD F-number external ID keying, contract type routing (299A, 299B, 118), and budget worksheet field alignment.</span></div>
+        <div><strong>Field mapping &amp; DataWeave transforms</strong><span>All Celigo custom JavaScript hooks ported to documented DataWeave transforms — business logic owned by DataSkate</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>Error Handling &amp; Retry Logic</strong><span>Every flow includes structured error handling with retry logic and alerting. When a sync fails, the system retries automatically and notifies the team — failures surface loudly rather than silently dropping records.</span></div>
+        <div><strong>Error handling &amp; retry logic</strong><span>Dead letter queues, retry frameworks, and error envelopes on every flow — no silent failures, no manual reprocessing queue</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>UAT Support &amp; Integration Testing</strong><span>DataSkate supports Peerless Fence through two weeks of user acceptance testing — including sandbox-to-production validation for ComputerEase, Salesforce, and HD Portal flows.</span></div>
+        <div><strong>UAT support</strong><span>DataSkate runs UAT alongside your team — test scenarios scoped and documented in the requirements phase</span></div>
       </div>
       
       <div class="inc-card">
         <div class="inc-check">&#10003;</div>
-        <div><strong>30-Day Hypercare Post Go-Live</strong><span>Dedicated support for 30 days after go-live — priority response to any flow failures, field mapping corrections, or credential rotation issues that arise in the production environment.</span></div>
+        <div><strong>30-day hypercare</strong><span>Post-go-live monitoring and rapid response — DataSkate on-call for the first 30 days after production deployment</span></div>
       </div>
       
     </div>
@@ -544,17 +541,17 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="outcomes-grid">
       
       <div class="outcome-card">
-        <div class="outcome-icon">🔄</div>
-        <div class="outcome-card-text"><h4>Ashley's Manual Queue — Cleared</h4><p>Lead verification, customer record creation, contract uploads, deposit entry, and task assignment were all manual steps owned by one person. On go-live day, the scheduled and event-driven flows handle each of these automatically — Ashley's queue shrinks to exception handling only.</p></div>
+        <div class="outcome-icon">⚡</div>
+        <div class="outcome-card-text"><h4>Operational Independence</h4><p>Your integration layer moves from Sikich-managed to DataSkate-owned. Monitoring, incident response, and day-to-day changes no longer route through your NetSuite partner.</p></div>
       </div>
       
       <div class="outcome-card">
-        <div class="outcome-icon">🔒</div>
-        <div class="outcome-card-text"><h4>Secure, Auditable API Access</h4><p>GCP firewall rules are hardened to restrict SSH/RDP access to authorized sources. ComputerEase API access is enabled through Deltek with sandbox/production parity. Every integration call is logged — the open exposure identified during scoping is closed before the first flow goes live.</p></div>
+        <div class="outcome-icon">📦</div>
+        <div class="outcome-card-text"><h4>Inventory on Autopilot</h4><p>NetSuite inventory levels, CSWOS thresholds, matrix item pricing, and EDI demand signals sync automatically — no manual SKU-level toggles, no spreadsheet-based inventory reviews.</p></div>
       </div>
       
       <div class="outcome-card">
-        <div class="outcome-icon">🏗️</div>
+        <div class="outcome-icon">🤖</div>
         <div class="outcome-card-text"><h4>AI-Ready Foundation</h4><p>Clean, connected, well-maintained data infrastructure is what AI agents need to operate. Every flow we build is a pipeline an AI agent will eventually use — built right from the start.</p></div>
       </div>
       
@@ -585,10 +582,10 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="model-card recommended" data-model="iaas">
     <div class="rec-badge">Recommended for you</div>
     <div class="model-name">Model 1 — IaaS (Managed Service)</div>
-    <div class="model-impl">$44,280</div>
+    <div class="model-impl">$81,180</div>
     <div class="model-impl-label">1-year total · two 6-month payments · billing starts at go-live</div>
     <div class="model-service">$300.00/flow/month</div>
-    <div class="model-service-label">Period 1 rate · 12 flows · DataSkate owns support all year</div>
+    <div class="model-service-label">Period 1 rate · 22 flows · DataSkate owns support all year</div>
     <div class="model-retainer">$5,000 kickoff retainer — credited at go-live</div>
     <hr class="model-divider">
     <div class="best-for">What's covered</div>
@@ -604,12 +601,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="model-card" data-model="impl">
     
     <div class="model-name">Model 2 — Implementation Only</div>
-    <div class="model-impl">$42,000</div>
-    <div class="model-impl-label">One-time fee · 12 flows × $3,500/flow · 20-week delivery</div>
+    <div class="model-impl">$77,000</div>
+    <div class="model-impl-label">One-time fee · 22 flows × $3,500/flow · 35-week delivery</div>
     <hr class="model-divider">
     <div class="best-for">What's covered</div>
     <div class="model-vp">Design, build, and deployment. Code ownership transfers at go-live. Your team handles support after handoff.</div>
-    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$42,000 one-time fee')">Select this Model →</button>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$77,000 one-time fee')">Select this Model →</button>
   </div>
 
   
@@ -617,8 +614,8 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="model-card" data-model="tm">
     
     <div class="model-name">Model 3 — Time &amp; Materials</div>
-    <div class="model-impl">$45,600</div>
-    <div class="model-impl-label">Estimated total · 12 flows · billed on actual hours logged</div>
+    <div class="model-impl">$83,600</div>
+    <div class="model-impl-label">Estimated total · 22 flows · billed on actual hours logged</div>
     <hr class="model-divider">
     <div class="best-for">Resource rates</div>
     <table class="tm-rate-table">
@@ -648,12 +645,12 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
   <table class="managed-table">
     <thead>
-      <tr><th>Period</th><th>Duration</th><th>Rate / flow / month</th><th>6-month payment (12 flows)</th></tr>
+      <tr><th>Period</th><th>Duration</th><th>Rate / flow / month</th><th>6-month payment (22 flows)</th></tr>
     </thead>
     <tbody>
-      <tr><td>Period 1</td><td>Month 1–6</td><td>$300.00</td><td>$21,600</td></tr>
-      <tr><td>Period 2</td><td>Month 7–12</td><td>$315.00</td><td>$22,680</td></tr>
-      <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>$44,280</strong></td></tr>
+      <tr><td>Period 1</td><td>Month 1–6</td><td>$300.00</td><td>$39,600</td></tr>
+      <tr><td>Period 2</td><td>Month 7–12</td><td>$315.00</td><td>$41,580</td></tr>
+      <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>$81,180</strong></td></tr>
     </tbody>
   </table>
   <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ($5,000) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
@@ -663,7 +660,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 <div id="impl-persuasion" style="display:none">
   <div class="impl-pitch">
     <div class="impl-pitch-head">Here's how the three models compare at the 12-month mark</div>
-    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only $42,000 · IaaS $44,280 — a difference of $2,280. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only $77,000 · IaaS $81,180 — a difference of $4,180. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Support:</strong> IaaS — DataSkate owns all monitoring, incident response, and fixes for 12 months. Implementation Only — your team owns support from go-live.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>At month 12:</strong> IaaS clients choose to renew at the current rate or take code ownership. Either way, they've had 12 months of DataSkate-managed uptime.</span></div>
     <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>MuleSoft expertise:</strong> Implementation Only requires someone on your team who can administer Anypoint Platform after handoff. IaaS does not.</span></div>
@@ -681,17 +678,17 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   </div>
   <table class="managed-table">
     <thead>
-      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (12 flows)</th><th>Estimated cost</th></tr>
+      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (22 flows)</th><th>Estimated cost</th></tr>
     </thead>
     <tbody>
       
-      <tr><td>Offshore Architect</td><td>$45.00</td><td>~240h</td><td>$10,800</td></tr>
+      <tr><td>Offshore Architect</td><td>$45.00</td><td>~440h</td><td>$19,800</td></tr>
       
-      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~480h</td><td>$16,800</td></tr>
+      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~880h</td><td>$30,800</td></tr>
       
-      <tr><td>Offshore Developer</td><td>$25.00</td><td>~720h</td><td>$18,000</td></tr>
+      <tr><td>Offshore Developer</td><td>$25.00</td><td>~1320h</td><td>$33,000</td></tr>
       
-      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$45,600</strong></td></tr>
+      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$83,600</strong></td></tr>
     </tbody>
   </table>
   <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced bi-weekly based on actual hours logged. Minimum engagement: 80 hours. Time tracked via shared sheet provided at SOW signing.</p>
@@ -776,37 +773,32 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>ComputerEase CE Live Service Enablement (Deltek Vendor Action)</strong><span>Submitting and managing the Deltek support ticket to enable API access and configure the CE Live Service relay is a client and vendor action. DataSkate will validate connectivity once access is confirmed, but cannot initiate or expedite the Deltek support process.</span></div>
+        <div><strong>NetSuite configuration &amp; SuiteScript</strong><span>Custom record type creation, chart of accounts changes, SuiteScript development, and all Sikich-managed NetSuite administration are out of scope.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>GCP Firewall Hardening (Client IT Action)</strong><span>Restricting SSH/RDP access on the ComputerEase VM and configuring network isolation within GCP is the responsibility of Peerless Fence's IT team or GCP administrator. DataSkate will specify the required IP allowlist but does not administer the client's GCP environment.</span></div>
+        <div><strong>Shopify theme &amp; storefront development</strong><span>Storefront customization, Shopify app development, Shopify Payments configuration, and theme changes are out of scope.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>HD Portal API Credential Procurement (Home Depot Vendor Action)</strong><span>Obtaining API credentials from the Home Depot Portal team (Marius) is a client-to-vendor coordination task. DataSkate cannot access or request HD Portal credentials on behalf of Peerless Fence.</span></div>
+        <div><strong>Historical data migration</strong><span>This engagement covers net-new data flowing from go-live forward. Historical Celigo flow records and legacy transactional data are not migrated.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>DocHub Account Configuration &amp; Signature Template Setup</strong><span>Configuring DocHub to capture digital signatures for contract types 299A, 299B, and 118 — including template design and document storage settings — is a client action. DataSkate integrates with a configured DocHub instance; it does not administer the DocHub account.</span></div>
+        <div><strong>Celigo decommission</strong><span>Celigo account termination, credential revocation, and Sikich handoff coordination are client responsibilities.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>Salesforce Object Design &amp; Custom Field Configuration</strong><span>Any changes to Salesforce object schema, custom field creation, page layout updates, or permission set design are outside this engagement. DataSkate maps to existing Salesforce fields; structural Salesforce configuration is a client or Salesforce admin responsibility.</span></div>
+        <div><strong>Orderful &amp; ShipStation account setup</strong><span>Trading partner EDI mapping, Orderful portal configuration, carrier setup, and Turbine logic documentation are client and partner responsibilities before DataSkate build begins.</span></div>
       </div>
       
       <div class="oos-card">
         <div class="oos-x">&#215;</div>
-        <div><strong>Historical Data Migration</strong><span>This engagement covers net-new data from go-live forward. Migration of historical job records, customer records, or contract documents from HD Portal or ComputerEase into Salesforce is not included.</span></div>
-      </div>
-      
-      <div class="oos-card">
-        <div class="oos-x">&#215;</div>
-        <div><strong>HD Portal Test Lead Management</strong><span>Creating, managing, or cleaning up test leads in the HD Portal sandbox environment for UAT purposes is a Peerless Fence responsibility. DataSkate will specify the test data requirements but does not operate within the HD Portal backend.</span></div>
+        <div><strong>Adjacent expansion flows (UC14–UC18)</strong><span>ShipStation tracking writeback, Loop Returns reconciliation, and three Orderful EDI flows (inbound PO, outbound ASN, outbound Invoice) are identified but not priced in this proposal. Ready to scope on request.</span></div>
       </div>
       
     </div>
@@ -827,26 +819,18 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <div class="buyer-profile-grid">
       <div class="buyer-profile-card">
         <div class="buyer-profile-label">Your decision style</div>
-        <div class="buyer-profile-value">risk averse conservative</div>
+        <div class="buyer-profile-value">operational pragmatist</div>
         <p style="font-size:12px;color:var(--mid);margin:0;line-height:1.6;">This proposal was shaped around what matters most to you — concrete outcomes, specific timelines, and what stops on go-live day. Abstract capability claims were left out.</p>
       </div>
       
       <div class="buyer-profile-card">
         <div class="buyer-profile-label">Signals that shaped this proposal</div>
         
-        <div class="buyer-signal">&quot;This is a really, really poor practice right here for security.&quot;</div>
+        <div class="buyer-signal">make the conversation efficient for both sides</div>
         
-        <div class="buyer-signal">&quot;That's scary.&quot;</div>
+        <div class="buyer-signal">A clear picture of platform fit for our stack</div>
         
-        <div class="buyer-signal">&quot;I thought we fixed this.&quot;</div>
-        
-        <div class="buyer-signal">&quot;It's an ancient system.&quot;</div>
-        
-        <div class="buyer-signal">&quot;I feel like I've traveled back to the 90s.&quot;</div>
-        
-        <div class="buyer-signal">&quot;They're allowing SSH and RDP from anywhere, which is really bad practice.&quot;</div>
-        
-        <div class="buyer-signal">&quot;I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow.&quot;</div>
+        <div class="buyer-signal">directional pricing posture</div>
         
       </div>
       
@@ -870,25 +854,25 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="ns-item">
         <div class="ns-num">1</div>
         <h4>Fill Out Intake Form</h4>
-        <p>Complete the intake form so DataSkate can confirm system access, API credentials, and environment details before the technical deep dive. This is the fastest way to unblock the five P0 items identified in discovery — ComputerEase API enablement, GCP firewall hardening, Salesforce permissions, HD Portal credentials from Marius, and DocHub configuration.</p>
+        <p>Complete the intake questionnaire we send after this call — it captures system-specific details and confirms field mapping priorities before we finalize scope.</p>
       </div>
       
       <div class="ns-item">
         <div class="ns-num">2</div>
         <h4>Schedule Technical Deep Dive</h4>
-        <p>Book a working session with Raghuram Potluri to walk through the ComputerEase CE Live Service relay configuration, GCP firewall rule changes, and Salesforce sandbox parity. This session resolves the connectivity blockers so API testing can begin the following week.</p>
+        <p>We'll set up a 90-minute session with Kailash Chanda, your architect, to review the Celigo flow inventory spreadsheet and confirm field mapping priorities for the 22 flows.</p>
       </div>
       
       <div class="ns-item">
         <div class="ns-num">3</div>
         <h4>Review Integration Deck</h4>
-        <p>The integration deck maps all 12 confirmed flows across HD Portal, Salesforce, ComputerEase, DocHub, and GCP — with complexity ratings and sequencing. Review it before the SOW call so the scope conversation starts from a shared picture of what gets built in each stage.</p>
+        <p>Kailash walks you through the integration architecture, answers technical questions on the flows, and addresses any Celigo → MuleSoft migration concerns from your engineering team.</p>
       </div>
       
       <div class="ns-item">
         <div class="ns-num">4</div>
         <h4>Align on Scope and SOW</h4>
-        <p>Once the intake form is complete and the integration deck is reviewed, DataSkate will issue a Statement of Work covering Stage 1 flows, IaaS managed connector configuration, field mapping, error handling, UAT support, and 30-day hypercare. No surprises — every line item is traceable to a confirmed flow from the discovery session.</p>
+        <p>Once we've received the Celigo flow inventory spreadsheet and confirmed field mapping, we issue the final SOW with locked scope and pricing before any build begins.</p>
       </div>
       
     </div>
@@ -910,21 +894,9 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     <span class="section-chevron">&#9660;</span>
   </summary>
   <div class="section-body">
-    <p class="lead">DataSkate places a MuleSoft managed layer between HD Portal, Salesforce, ComputerEase, and DocHub — handling retry logic, dead-letter queuing, and operational monitoring that native point-to-point connections do not provide. The comparison is not cost — it's what you own after the project closes. The lower quote transfers ownership back to you on day 31.</p>
-    <div class="diagram-wrap"><svg viewBox="0 0 500 104" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs>
-    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
-    <style>
-      .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}
-      .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}
-      .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
-    </style>
-  </defs>
-  <rect x="190" y="16.0" width="120" height="72" rx="8" fill="#EBF7FD" stroke="#00a1df" stroke-width="2"/>
-  <image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" x="210.0" y="26.0" width="80" height="30"/>
-  <text x="250" y="80.0" text-anchor="middle" font="400 9px system-ui,sans-serif" style="font:400 9px system-ui,sans-serif;fill:#00a1df">DataSkate Managed</text>
-</svg></div>
-    <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Salesforce or ComputerEase. Bidirectional flows (UC1, UC6) noted: ComputerEase job status syncs back to Salesforce sales orders in addition to outbound job creation.</p>
+    <p class="lead">MuleSoft replaces the Celigo + Turbine + custom JavaScript layer with a single DataSkate-managed integration platform. Unlike native marketplace connectors, MuleSoft adds retry logic, dead letter queues, idempotency checks, and a live operations layer — so when Shopify fires a webhook at 2am on Cyber Monday, the order lands in NetSuite and someone is watching.</p>
+    <div class="diagram-wrap"><svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 668.75px; background-color: transparent;" viewBox="0 0 668.75 370" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#my-svg{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;fill:#276749;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#F8F8F8;}#my-svg .error-text{fill:#1A1A1A;stroke:#1A1A1A;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#C0C5CC;stroke:#C0C5CC;}#my-svg .marker.cross{stroke:#C0C5CC;}#my-svg svg{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;}#my-svg p{margin:0;}#my-svg .label{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#276749;}#my-svg .cluster-label text{fill:#1A1A1A;}#my-svg .cluster-label span{color:#1A1A1A;}#my-svg .cluster-label span p{background-color:transparent;}#my-svg .label text,#my-svg span{fill:#276749;color:#276749;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#F0FFF4;stroke:#2E9E6B;stroke-width:1px;}#my-svg .rough-node .label text,#my-svg .node .label text,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-anchor:middle;}#my-svg .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#my-svg .rough-node .label,#my-svg .node .label,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .root .anchor path{fill:#C0C5CC!important;stroke-width:0;stroke:#C0C5CC;}#my-svg .arrowheadPath{fill:#0b0b0b;}#my-svg .edgePath .path{stroke:#C0C5CC;stroke-width:1px;}#my-svg .flowchart-link{stroke:#C0C5CC;fill:none;}#my-svg .edgeLabel{background-color:#FFF5F5;text-align:center;}#my-svg .edgeLabel p{background-color:#FFF5F5;}#my-svg .edgeLabel rect{opacity:0.5;background-color:#FFF5F5;fill:#FFF5F5;}#my-svg .labelBkg{background-color:rgba(255, 245, 245, 0.5);}#my-svg .cluster rect{fill:#F8F8F8;stroke:#D4D4D8;stroke-width:1px;}#my-svg .cluster text{fill:#1A1A1A;}#my-svg .cluster span{color:#1A1A1A;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12px;background:#F8F8F8;border:1px solid #D4D4D8;border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#276749;}#my-svg rect.text{fill:none;stroke-width:0;}#my-svg .icon-shape,#my-svg .image-shape{background-color:#FFF5F5;text-align:center;}#my-svg .icon-shape p,#my-svg .image-shape p{background-color:#FFF5F5;padding:2px;}#my-svg .icon-shape .label rect,#my-svg .image-shape .label rect{opacity:0.5;background-color:#FFF5F5;fill:#FFF5F5;}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#2E9E6B;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node path{stroke:url(#my-svg-gradient);stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#2E9E6B;filter:none;}#my-svg [data-look="neo"].node circle{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}#my-svg .source&gt;*{fill:rgb(255, 255, 255)!important;stroke:rgb(212, 212, 216)!important;stroke-width:1.5px!important;color:rgb(26, 26, 26)!important;}#my-svg .source span{fill:rgb(255, 255, 255)!important;stroke:rgb(212, 212, 216)!important;stroke-width:1.5px!important;color:rgb(26, 26, 26)!important;}#my-svg .source tspan{fill:rgb(26, 26, 26)!important;}#my-svg .deprecated&gt;*{fill:rgb(255, 245, 245)!important;stroke:rgb(237, 28, 36)!important;stroke-width:1.5px!important;color:rgb(192, 57, 43)!important;}#my-svg .deprecated span{fill:rgb(255, 245, 245)!important;stroke:rgb(237, 28, 36)!important;stroke-width:1.5px!important;color:rgb(192, 57, 43)!important;}#my-svg .deprecated tspan{fill:rgb(192, 57, 43)!important;}#my-svg .hub&gt;*{fill:rgb(240, 255, 244)!important;stroke:rgb(46, 158, 107)!important;stroke-width:2.5px!important;color:rgb(39, 103, 73)!important;font-weight:bold!important;}#my-svg .hub span{fill:rgb(240, 255, 244)!important;stroke:rgb(46, 158, 107)!important;stroke-width:2.5px!important;color:rgb(39, 103, 73)!important;font-weight:bold!important;}#my-svg .hub tspan{fill:rgb(39, 103, 73)!important;}#my-svg .target&gt;*{fill:rgb(255, 255, 255)!important;stroke:rgb(212, 212, 216)!important;stroke-width:1.5px!important;color:rgb(26, 26, 26)!important;}#my-svg .target span{fill:rgb(255, 255, 255)!important;stroke:rgb(212, 212, 216)!important;stroke-width:1.5px!important;color:rgb(26, 26, 26)!important;}#my-svg .target tspan{fill:rgb(26, 26, 26)!important;}</style><g><marker id="my-svg_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"/></marker><marker id="my-svg_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"/></marker><g class="root"><g class="clusters"/><g class="edgePaths"><path d="M166.727,33.5L173.176,33.5C179.625,33.5,192.523,33.5,218.191,52.284C243.858,71.068,282.294,108.636,301.512,127.42L320.73,146.204" id="my-svg-L_shopify_plus_mulesoft_dataskate_managed_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_shopify_plus_mulesoft_dataskate_managed_0" data-points="W3sieCI6MTY2LjcyNjU2MjUsInkiOjMzLjV9LHsieCI6MjA1LjQyMTg3NSwieSI6MzMuNX0seyJ4IjozMjMuNTkwMTkxODMxNjgzMTcsInkiOjE0OX1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M152.953,134.5L161.698,134.5C170.443,134.5,187.932,134.5,203.461,136.71C218.989,138.92,232.556,143.341,239.34,145.551L246.124,147.761" id="my-svg-L_orderful_mulesoft_dataskate_managed_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_orderful_mulesoft_dataskate_managed_0" data-points="W3sieCI6MTUyLjk1MzEyNSwieSI6MTM0LjV9LHsieCI6MjA1LjQyMTg3NSwieSI6MTM0LjV9LHsieCI6MjQ5LjkyNjgyNTQ5NTA0OTUsInkiOjE0OX1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M164.367,235.5L171.21,235.5C178.052,235.5,191.737,235.5,205.363,233.29C218.989,231.08,232.556,226.659,239.34,224.449L246.124,222.239" id="my-svg-L_shipstation_mulesoft_dataskate_managed_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_shipstation_mulesoft_dataskate_managed_0" data-points="W3sieCI6MTY0LjM2NzE4NzUsInkiOjIzNS41fSx7IngiOjIwNS40MjE4NzUsInkiOjIzNS41fSx7IngiOjI0OS45MjY4MjU0OTUwNDk1LCJ5IjoyMjF9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M180.422,336.5L184.589,336.5C188.755,336.5,197.089,336.5,220.473,317.716C243.858,298.932,282.294,261.364,301.512,242.58L320.73,223.796" id="my-svg-L_laravel_vapor_mulesoft_dataskate_managed_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_laravel_vapor_mulesoft_dataskate_managed_0" data-points="W3sieCI6MTgwLjQyMTg3NSwieSI6MzM2LjV9LHsieCI6MjA1LjQyMTg3NSwieSI6MzM2LjV9LHsieCI6MzIzLjU5MDE5MTgzMTY4MzE3LCJ5IjoyMjF9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M490.422,185L494.589,185C498.755,185,507.089,185,514.755,185C522.422,185,529.422,185,532.922,185L536.422,185" id="my-svg-L_mulesoft_dataskate_managed_netsuite_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_mulesoft_dataskate_managed_netsuite_0" data-points="W3sieCI6NDkwLjQyMTg3NSwieSI6MTg1fSx7IngiOjUxNS40MjE4NzUsInkiOjE4NX0seyJ4Ijo1NDAuNDIxODc1LCJ5IjoxODV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_shopify_plus_mulesoft_dataskate_managed_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_orderful_mulesoft_dataskate_managed_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_shipstation_mulesoft_dataskate_managed_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_laravel_vapor_mulesoft_dataskate_managed_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_mulesoft_dataskate_managed_netsuite_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default source" id="my-svg-flowchart-shopify_plus-0" data-look="classic" transform="translate(94.2109375, 33.5)"><rect class="basic label-container" style="fill:#fff !important;stroke:#D4D4D8 !important;stroke-width:1.5px !important" x="-72.515625" y="-25.5" width="145.03125" height="51"/><g class="label" style="color:#1A1A1A !important" transform="translate(-42.515625, -10.5)"><rect/><foreignObject width="85.03125" height="21"><div style="color: rgb(26, 26, 26) !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1A1A1A !important" class="nodeLabel"><p>Shopify Plus</p></span></div></foreignObject></g></g><g class="node default source" id="my-svg-flowchart-orderful-1" data-look="classic" transform="translate(94.2109375, 134.5)"><rect class="basic label-container" style="fill:#fff !important;stroke:#D4D4D8 !important;stroke-width:1.5px !important" x="-58.7421875" y="-25.5" width="117.484375" height="51"/><g class="label" style="color:#1A1A1A !important" transform="translate(-28.7421875, -10.5)"><rect/><foreignObject width="57.484375" height="21"><div style="color: rgb(26, 26, 26) !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1A1A1A !important" class="nodeLabel"><p>Orderful</p></span></div></foreignObject></g></g><g class="node default source" id="my-svg-flowchart-shipstation-2" data-look="classic" transform="translate(94.2109375, 235.5)"><rect class="basic label-container" style="fill:#fff !important;stroke:#D4D4D8 !important;stroke-width:1.5px !important" x="-70.15625" y="-25.5" width="140.3125" height="51"/><g class="label" style="color:#1A1A1A !important" transform="translate(-40.15625, -10.5)"><rect/><foreignObject width="80.3125" height="21"><div style="color: rgb(26, 26, 26) !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1A1A1A !important" class="nodeLabel"><p>ShipStation</p></span></div></foreignObject></g></g><g class="node default source" id="my-svg-flowchart-laravel_vapor-3" data-look="classic" transform="translate(94.2109375, 336.5)"><rect class="basic label-container" style="fill:#fff !important;stroke:#D4D4D8 !important;stroke-width:1.5px !important" x="-86.2109375" y="-25.5" width="172.421875" height="51"/><g class="label" style="color:#1A1A1A !important" transform="translate(-56.2109375, -10.5)"><rect/><foreignObject width="112.421875" height="21"><div style="color: rgb(26, 26, 26) !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1A1A1A !important" class="nodeLabel"><p>Laravel + Vapor</p></span></div></foreignObject></g></g><g class="node default hub" id="my-svg-flowchart-mulesoft_dataskate_managed-4" data-look="classic" transform="translate(360.421875, 185)"><rect class="basic label-container" style="fill:#F0FFF4 !important;stroke:#2E9E6B !important;stroke-width:2.5px !important" x="-130" y="-36" width="260" height="72"/><g class="label" style="color:#276749 !important;font-weight:bold !important" transform="translate(-100, -21)"><rect/><foreignObject width="200" height="42"><div style="color: rgb(39, 103, 73) !important; font-weight: bold !important; display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#276749 !important;font-weight:bold !important" class="nodeLabel"><p>MuleSoft DataSkate managed</p></span></div></foreignObject></g></g><g class="node default target" id="my-svg-flowchart-netsuite-5" data-look="classic" transform="translate(600.5859375, 185)"><rect class="basic label-container" style="fill:#fff !important;stroke:#D4D4D8 !important;stroke-width:1.5px !important" x="-60.1640625" y="-25.5" width="120.328125" height="51"/><g class="label" style="color:#1A1A1A !important" transform="translate(-30.1640625, -10.5)"><rect/><foreignObject width="60.328125" height="21"><div style="color: rgb(26, 26, 26) !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1A1A1A !important" class="nodeLabel"><p>NetSuite</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="my-svg-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs><defs><filter id="my-svg-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs><linearGradient id="my-svg-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2E9E6B" stop-opacity="1"/><stop offset="100%" stop-color="#ed1c24" stop-opacity="1"/></linearGradient></svg></div>
+    <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Shopify Plus or NetSuite</p>
   </div>
 </details>
 
@@ -933,7 +905,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <summary class="section-head">
     <div class="section-summary">
       <div class="section-eyebrow">Proposed Integrations</div>
-      <div class="section-title">12 Proposed Integration Flows</div>
+      <div class="section-title">22 Proposed Integration Flows</div>
     </div>
     <span class="section-chevron">&#9660;</span>
   </summary>
@@ -942,121 +914,221 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC1</div>
+  <div class="flow-num">Flow 1</div>
   
-  <div class="flow-name">Lead Sync: HD Portal → Salesforce</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
-  <div class="flow-value">New leads from the HD Portal land in Salesforce automatically every 10 minutes — keyed by HD F-number as external ID. Ashley's manual morning check stops on go-live day.</div>
+  <div class="flow-name">Shopify Order → NetSuite Cash Sale</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">Every DTC order on homage.com creates a cash sale in NetSuite on payment — no manual entry, no lag between storefront and ERP.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC2</div>
+  <div class="flow-num">Flow 2</div>
   
-  <div class="flow-name">Job Entry with Budget Data: Salesforce → ComputerEase</div>
-  <div class="flow-route">Salesforce → MuleSoft → ComputerEase</div>
-  <div class="flow-value">When a sales rep closes an opportunity, job and budget worksheet data flows into ComputerEase automatically. Manual re-keying of job details by Ashley is eliminated.</div>
+  <div class="flow-name">Shopify Order → NetSuite Sales Order</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">B2B and net-terms orders route to NetSuite as sales orders, not cash sales — classification logic applied automatically, no manual routing decision.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC3</div>
+  <div class="flow-num">Flow 3</div>
   
-  <div class="flow-name">Customer Record Creation: HD Portal → ComputerEase</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Customer records are created in ComputerEase directly from HD Portal lead data — no manual transcription by Ashley between systems.</div>
+  <div class="flow-name">Shopify Refund → NetSuite Credit Memo / Customer Refund</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">Shopify refunds create the correct NetSuite record automatically — credit memo or customer refund — without a reconciliation queue or manual match.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC4</div>
+  <div class="flow-num">Flow 4</div>
   
-  <div class="flow-name">Contract Generation &amp; Digital Signature: Salesforce → DocHub</div>
-  <div class="flow-route">Salesforce → MuleSoft → DocHub</div>
-  <div class="flow-value">Contract documents (types 299A, 299B, 118) are generated from Salesforce opportunity data and routed to DocHub for digital signature capture — replacing the manual document prep and routing step.</div>
+  <div class="flow-name">NetSuite Return Authorization → Shopify Refund</div>
+  <div class="flow-route">NetSuite → MuleSoft → Shopify Plus</div>
+  <div class="flow-value">Return authorizations created in NetSuite trigger the corresponding Shopify refund automatically — both systems stay in sync without manual matching.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC5</div>
+  <div class="flow-num">Flow 5</div>
   
-  <div class="flow-name">Quote Entry: HD Portal → Salesforce</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
-  <div class="flow-value">Quote details created in HD Portal flow into Salesforce opportunities automatically. Ashley's manual verification and re-entry step is removed from the process.</div>
+  <div class="flow-name">NetSuite Item Fulfillment → Shopify Fulfillment Update</div>
+  <div class="flow-route">NetSuite → MuleSoft → Shopify Plus</div>
+  <div class="flow-value">When a fulfillment ships in NetSuite, tracking numbers write back to Shopify instantly — customers receive accurate shipping status without a manual update.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC6</div>
+  <div class="flow-num">Flow 6</div>
   
-  <div class="flow-name">Job Status Attachment: ComputerEase → Salesforce</div>
-  <div class="flow-route">ComputerEase → MuleSoft → Salesforce</div>
-  <div class="flow-value">ComputerEase project and work order records are linked to Salesforce sales orders automatically after job entry — eliminating Ashley's manual attachment step.</div>
+  <div class="flow-name">Shopify Fulfillment Event → NetSuite Order Status</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">Shopify fulfillment events update NetSuite sales order status automatically — ops knows what shipped without checking two systems.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC7</div>
+  <div class="flow-num">Flow 7</div>
   
-  <div class="flow-name">Contract Document Upload: HD Portal → ComputerEase</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Signed contract documents (299A, 299B, 118) from HD Portal are uploaded to the corresponding ComputerEase job record automatically — no manual upload by Ashley required.</div>
+  <div class="flow-name">Inventory Sync (Scheduled + CSWOS Logic)</div>
+  <div class="flow-route">NetSuite → MuleSoft → Shopify Plus</div>
+  <div class="flow-value">NetSuite inventory levels sync to Shopify on schedule, including CSWOS tiered thresholds per SKU — no manual toggle required when stock drops below a threshold.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC8</div>
+  <div class="flow-num">Flow 8</div>
   
-  <div class="flow-name">Task Creation for Material &amp; Labor: Salesforce → ComputerEase</div>
-  <div class="flow-route">Salesforce → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Material purchase and labor tasks are created in ComputerEase from Salesforce project data automatically — replacing Ashley's manual task assignment process.</div>
+  <div class="flow-name">NetSuite Matrix Item → Shopify Product + Variants</div>
+  <div class="flow-route">NetSuite → MuleSoft → Shopify Plus</div>
+  <div class="flow-value">Matrix item updates in NetSuite propagate to Shopify products and variants automatically — the product catalog stays current without re-entry in Shopify.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC9</div>
+  <div class="flow-num">Flow 9</div>
   
-  <div class="flow-name">Appointment Scheduling Sync: HD Portal → Salesforce</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
-  <div class="flow-value">Consultation appointments scheduled in HD Portal sync to the Salesforce calendar automatically — sales reps see their schedule without a separate manual entry step.</div>
+  <div class="flow-name">NetSuite Price → Shopify Product Price</div>
+  <div class="flow-route">NetSuite → MuleSoft → Shopify Plus</div>
+  <div class="flow-value">Price changes in NetSuite push to Shopify variant pricing — no spreadsheet, no delay, no price discrepancy between ERP and storefront.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC10</div>
+  <div class="flow-num">Flow 10</div>
   
-  <div class="flow-name">GCP Infrastructure Configuration: GCP → ComputerEase</div>
-  <div class="flow-route">Google Cloud Platform → MuleSoft → ComputerEase</div>
-  <div class="flow-value">GCP firewall rules are configured to restrict API access to the ComputerEase VM to authorized sources only — closing the open SSH/RDP exposure identified during scoping and enabling secure integration traffic.</div>
+  <div class="flow-name">NetSuite Tax Code → Shopify Product Tax</div>
+  <div class="flow-route">NetSuite → MuleSoft → Shopify Plus</div>
+  <div class="flow-value">Tax schedule changes in NetSuite update Shopify taxable settings automatically — compliance is handled without a manual configuration step.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC11</div>
+  <div class="flow-num">Flow 11</div>
   
-  <div class="flow-name">API Configuration via Deltek Support: Deltek → ComputerEase</div>
-  <div class="flow-route">Deltek Support Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">ComputerEase API access and CE Live Service relay are enabled and validated through Deltek support — establishing the foundation for all ComputerEase integration flows.</div>
+  <div class="flow-name">Shopify Product Image URL → NetSuite Item</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">Product images updated in Shopify write back to NetSuite item records — catalog data stays synchronized across both platforms.</div>
 </div>
 
       
       
 <div class="flow-card">
-  <div class="flow-num">Flow UC12</div>
+  <div class="flow-num">Flow 12</div>
   
-  <div class="flow-name">Deposit &amp; Payment Terms Entry: HD Portal → ComputerEase</div>
-  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
-  <div class="flow-value">Deposit amounts and payment terms from HD Portal contracts are written into ComputerEase job records automatically — removing Ashley's manual entry step for each new job.</div>
+  <div class="flow-name">Shopify Customer Created → NetSuite Customer</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">New Shopify customers create NetSuite customer records with deduplication logic — no duplicate records, no manual lookup required.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 13</div>
+  
+  <div class="flow-name">Shopify Customer Updated → NetSuite Customer</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">Customer updates in Shopify propagate to NetSuite — contact and billing data stays current in the ERP without manual data entry.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 14</div>
+  
+  <div class="flow-name">NetSuite Customer → Shopify Customer</div>
+  <div class="flow-route">NetSuite → MuleSoft → Shopify Plus</div>
+  <div class="flow-value">Customer updates in NetSuite write back to Shopify — with loop-prevention logic to avoid circular sync between the two systems.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 15</div>
+  
+  <div class="flow-name">Shopify Payment → NetSuite Customer Deposit</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">Shopify payment settlement creates NetSuite customer deposit records automatically — billing reconciliation runs itself without a manual step.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 16</div>
+  
+  <div class="flow-name">NetSuite Sales Order → Invoice Trigger</div>
+  <div class="flow-route">NetSuite → MuleSoft → NetSuite</div>
+  <div class="flow-value">Sales orders reaching billing-eligible status trigger the NetSuite invoice workflow — internal automation with no external dependency.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 17</div>
+  
+  <div class="flow-name">Shopify Store Metadata → NetSuite Custom Records</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">Shopify store metadata changes update the corresponding NetSuite custom records automatically — operational data stays synchronized.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 18</div>
+  
+  <div class="flow-name">Custom Flow 18 (Celigo Custom Integration 1)</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">To be named and scoped when the Celigo flow inventory spreadsheet arrives — part of the three custom integrations beyond the Standard Integration App.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 19</div>
+  
+  <div class="flow-name">Custom Flow 19 (Celigo Custom Integration 1)</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">To be named and scoped when the Celigo flow inventory spreadsheet arrives.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 20</div>
+  
+  <div class="flow-name">Custom Flow 20 (Celigo Custom Integration 2)</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">To be named and scoped when the Celigo flow inventory spreadsheet arrives.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 21</div>
+  
+  <div class="flow-name">Custom Flow 21 (Celigo Custom Integration 2)</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">To be named and scoped when the Celigo flow inventory spreadsheet arrives.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow 22</div>
+  
+  <div class="flow-name">Custom Flow 22 (Celigo Custom Integration 3)</div>
+  <div class="flow-route">Shopify Plus → MuleSoft → NetSuite</div>
+  <div class="flow-value">To be named and scoped when the Celigo flow inventory spreadsheet arrives.</div>
 </div>
 
       
@@ -1082,66 +1154,56 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
         
         
         
+        
         <tr>
-          <td><span class="p0-flag">P0</span>Deltek support ticket is submitted to enable ComputerEase API access and configure the CE Live Service relay. API version v26 or higher must be confirmed before build begins. Sandbox and production environments must be at parity.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 1 (blocks all ComputerEase flows)</td>
+          <td><span class="p0-flag">P0</span>P0 — Celigo flow inventory spreadsheet received before SOW is signed</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before SOW signing</td>
         </tr>
         
         
         
+        
         <tr>
-          <td><span class="p0-flag">P0</span>GCP firewall rules for the ComputerEase VM are hardened to restrict SSH/RDP access to authorized IP addresses only. Network isolation is configured before integration testing begins.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 3 (blocks ComputerEase API connectivity testing)</td>
+          <td><span class="p0-flag">P0</span>P0 — NetSuite TBA credentials provisioned by Sikich: Consumer Key, Consumer Secret, Token ID, Token Secret, Account ID</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before build phase begins</td>
         </tr>
         
         
         
+        
         <tr>
-          <td><span class="p0-flag">P0</span>Salesforce API user credentials are confirmed with appropriate integration permissions. A Salesforce administrator with full access is available to configure API integrations. Sandbox environment is at parity with production.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 1 (blocks all Salesforce flows)</td>
+          <td><span class="p0-flag">P0</span>P0 — Shopify Custom App created with required API scopes (orders, inventory, products, customers, fulfillments — read/write)</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before build phase begins</td>
         </tr>
         
         
         
+        
         <tr>
-          <td><span class="p0-flag">P0</span>HD Portal API credentials are obtained from the Home Depot Portal team (Marius). Polling mechanism (10-minute frequency) or webhook endpoint is confirmed and accessible from DataSkate's MuleSoft environment.</td>
-          <td><span class="owner-badge owner-ds">vendor</span></td>
-          <td>Before Week 1 (blocks UC1, UC3, UC5, UC7, UC9, UC12)</td>
+          <td>Shopify metafield namespace and key structure defined before UC8 (product sync) development begins</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Start of build phase</td>
         </tr>
         
         
         
+        
         <tr>
-          <td><span class="p0-flag">P0</span>DocHub is configured to capture digital signatures for contract types 299A, 299B, and 118. A document storage and retrieval API endpoint is available for Salesforce integration.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 3 (blocks UC4)</td>
+          <td>Turbine field mapping and business rules documented by client before Turbine replacement begins (if ShipStation scope is confirmed)</td>
+          <td><span class="owner-badge owner-client">Client</span></td>
+          <td>Before ShipStation flow build</td>
         </tr>
         
         
         
-        <tr>
-          <td>A dedicated DataSkate integration user is provisioned in Salesforce with API-only access and a non-expiring credential. A read-only API user is established in ComputerEase for status sync flows.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Before Week 1</td>
-        </tr>
-        
-        
         
         <tr>
-          <td>Jean Jacobs (ComputerEase Administrator) and Brian Cook (Infrastructure/Systems Administrator) are available for technical coordination during Discovery and UAT phases.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Weeks 1–2 and Weeks 10–11</td>
-        </tr>
-        
-        
-        
-        <tr>
-          <td>Ashley Salerno is available to validate flow outputs during UAT — confirming that lead records, job entries, customer records, and contract documents match expected results.</td>
-          <td><span class="owner-badge owner-ds">client</span></td>
-          <td>Weeks 10–11 (UAT phase)</td>
+          <td>UC9 (NetSuite SO → Invoice) mechanism confirmed with Sikich — may descope if it is a pure NetSuite SuiteScript workflow with no MuleSoft involvement</td>
+          <td><span class="owner-badge owner-both">Both</span></td>
+          <td>Requirements phase</td>
         </tr>
         
       </tbody>
@@ -1171,7 +1233,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
           <h4>Discovery &amp; Field Mapping</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm HD Portal API endpoint structure, polling frequency, and F-number external ID schema</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Map Salesforce Lead, Opportunity, and Quote objects to HD Portal and ComputerEase field equivalents</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Document ComputerEase job maintenance fields: customer, deposit, payment terms, budget worksheet</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate DocHub API for contract types 299A, 299B, 118 — signature capture and document retrieval</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm GCP firewall allowlist and ComputerEase CE Live Service relay configuration</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Establish sandbox environments for Salesforce and ComputerEase with production parity</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Finalize flow trigger logic: scheduled (UC1 — 10-min poll) vs. event-driven (UC2–UC12)</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Celigo flow inventory review with Sikich — confirm all 22+ flows</li><li style="font-size:12px;color:#44546A;line-height:1.5;">DataWeave mapping design for all confirmed flows</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Custom JS hook analysis and DataWeave port plan (per-hook complexity estimate)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">NetSuite TBA credentials validated; Shopify Custom App confirmed</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Shopify variant ↔ NetSuite item ID cross-reference table established</li>
           </ul>
           
         </div>
@@ -1183,11 +1245,11 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="tl-item">
         <div class="tl-dot phase2">2</div>
         <div class="tl-content">
-          <div class="tl-weeks">Weeks 3–9</div>
+          <div class="tl-weeks">Weeks 3–35</div>
           <h4>Build &amp; Unit Test</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC1: HD Portal → MuleSoft → Salesforce lead sync (10-min scheduled poll, F-number keying)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC5 &amp; UC9: HD Portal → Salesforce quote entry and appointment scheduling sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC3 &amp; UC12: HD Portal → ComputerEase customer record creation and deposit/payment terms entry</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC7: HD Portal → ComputerEase signed contract document upload (299A, 299B, 118)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC2: Salesforce → ComputerEase job entry with budget worksheet data on opportunity close</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC4: Salesforce → DocHub contract generation and digital signature routing</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC8: Salesforce → ComputerEase task creation for material purchases and labor assignment</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC6: ComputerEase → Salesforce job status and work order attachment sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC10 &amp; UC11: GCP firewall configuration validation and Deltek CE Live Service relay connectivity</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Unit test all flows in sandbox — validate error handling, retry logic, and field mapping accuracy</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Shopify ↔ NetSuite order flows — UC1a, UC1b (cash sale / sales order routing)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Inventory sync + CSWOS tiered delivery logic — UC4</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Product + price + tax sync — UC5a, UC5b, UC5c (matrix items + metafields)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Customer bidirectional sync — UC7a, UC7b, UC7c (create, update, reverse)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Fulfillment writeback and status update — UC3a, UC3b</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Returns, billing, metadata flows — UC2a, UC2b, UC6, UC8, UC9, UC10</li><li style="font-size:12px;color:#44546A;line-height:1.5;">5 custom flows from Celigo inventory spreadsheet — scoped in Week 1</li>
           </ul>
           
         </div>
@@ -1199,11 +1261,11 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="tl-item">
         <div class="tl-dot phase3">3</div>
         <div class="tl-content">
-          <div class="tl-weeks">Weeks 10–11</div>
+          <div class="tl-weeks">Weeks 36–37</div>
           <h4>UAT &amp; Integration Testing</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Ashley Salerno validates lead records in Salesforce against HD Portal source data (UC1, UC5)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate end-to-end job creation: HD Portal lead → Salesforce opportunity → ComputerEase job (UC2, UC3)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Test contract document flow: Salesforce → DocHub signature capture → ComputerEase upload (UC4, UC7)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate deposit and payment terms entry in ComputerEase job records (UC12)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm appointment sync to Salesforce calendar (UC9)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Jean Jacobs and Brian Cook validate ComputerEase API connectivity and GCP firewall rules (UC10, UC11)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Regression test all 12 flows in staging before production promotion</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">End-to-end testing with Homage ops team across all 22 flows</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Celigo parallel run (if required by client) — DataSkate coordinates</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Sikich sign-off on NetSuite record accuracy for order and inventory flows</li>
           </ul>
           
         </div>
@@ -1215,11 +1277,11 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       <div class="tl-item">
         <div class="tl-dot phase3">4</div>
         <div class="tl-content">
-          <div class="tl-weeks">Week 12</div>
-          <h4>Go Live &amp; Handoff</h4>
+          <div class="tl-weeks">Week 38</div>
+          <h4>Go Live &amp; Hypercare</h4>
           
           <ul style="margin:4px 0 0;padding-left:16px;">
-            <li style="font-size:12px;color:#44546A;line-height:1.5;">Promote all 12 flows from sandbox to production</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm HD Portal 10-minute lead sync is running in production (UC1)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate first live job creation end-to-end: HD Portal → Salesforce → ComputerEase</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Activate 30-day hypercare monitoring — error alerting and priority response in place</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Deliver flow documentation and runbook to Jean Jacobs and Brian Cook</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Schedule Year 2 automation roadmap review with Kirk and the DataSkate team</li>
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">MuleSoft production deployment to CloudHub 2.0</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Celigo decommission (client-managed with Sikich)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">30-day hypercare window begins — DataSkate monitors and responds to all production issues</li>
           </ul>
           
         </div>
@@ -1232,29 +1294,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 
 
 
-
-<details class="section-block">
-  <summary class="section-head">
-    <div class="section-summary">
-      <div class="section-eyebrow">Platform Opportunity</div>
-      <div class="section-title">This engagement is bigger than one brand</div>
-    </div>
-    <span class="section-chevron">&#9660;</span>
-  </summary>
-  <div class="section-body">
-    
-    <div class="portfolio-sponsor">
-      <div>
-        <div class="portfolio-sponsor-label">Financial Sponsor</div>
-        <div class="portfolio-sponsor-name">Akoya Capital</div>
-        <div class="portfolio-sponsor-detail"></div>
-      </div>
-    </div>
-    
-    
-    
-  </div>
-</details>
 
 
 </div>
@@ -1267,7 +1306,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <summary class="section-head">
     <div class="section-summary">
       <div class="section-eyebrow">Your AI Journey</div>
-      <div class="section-title">The path to: 'I think by next early next week, I think we should be able to figure out all the access connectivity and extracting data. So we should be good after that.'</div>
+      <div class="section-title">the path to a clear picture of platform fit for your stack — NetSuite, Shopify, and EDI all connected, reliable, and owned by you</div>
     </div>
     <span class="section-chevron">&#9660;</span>
   </summary>
@@ -1278,15 +1317,16 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="stage-card stage1">
-  <div class="stage-label">Stage 1</div>
-  <div class="stage-year">Year 1</div>
-  <h4>Lead Ingestion &amp; Qualification via HD Portal → Salesforce</h4>
+  <div class="stage-label">Connected</div>
+  <div class="stage-year">Year 1 · This proposal</div>
+  <h4>All 22 Celigo flows live on MuleSoft — DataSkate-owned, monitored, and under one operational surface</h4>
   <ul>
-    <li>HD Portal leads land in Salesforce automatically every 10 minutes — no more manual morning check by Ashley; the HD F-number becomes the external ID that prevents duplicates</li>
-    <li>Appointment scheduling syncs from HD Portal to Salesforce calendar without manual re-entry</li>
-    <li>Quote details verified and entered into Salesforce opportunity automatically when a sales rep closes in HD Portal — Ashley's manual verification step stops on go-live day</li>
-    <li>GCP firewall rules hardened to restrict SSH/RDP access before any integration goes live — the security exposure flagged in discovery is closed first</li>
-    <li>Salesforce API user permissions confirmed and sandbox environment validated to match production — no surprises during UAT</li>
+    <li>Sikich's Celigo monitoring call stops on go-live day — DataSkate owns the integration layer</li>
+    <li>Every order placed on homage.com creates a cash sale or sales order in NetSuite immediately, routing logic applied automatically</li>
+    <li>Inventory levels — including CSWOS tiered thresholds — sync from NetSuite to Shopify in near-real-time, no manual toggle per SKU</li>
+    <li>Matrix item price and tax changes in NetSuite propagate to Shopify within minutes — no spreadsheet, no delay</li>
+    <li>Fulfillments write back automatically; returns from Shopify reconcile to NetSuite without a manual correction cycle</li>
+    <li>Custom JS hooks replaced by documented DataWeave transforms — the logic is ours to maintain, not Sikich's to patch</li>
     
   </ul>
 </div>
@@ -1296,15 +1336,14 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="stage-card stage2">
-  <div class="stage-label">Stage 2</div>
-  <div class="stage-year">Year 2</div>
-  <h4>Quote-to-Job Workflow: Salesforce → ComputerEase with Contract Validation</h4>
+  <div class="stage-label">Automated</div>
+  <div class="stage-year">Year 1–2 · Built on Stage 1</div>
+  <h4>NetSuite inventory and EDI demand signals drive Shopify merchandising automatically</h4>
   <ul>
-    <li>When a Salesforce opportunity is saved as final, a new job, customer record, and budget worksheet are created in ComputerEase automatically — manual data entry by Ashley is eliminated</li>
-    <li>Customer record creation in ComputerEase is triggered by HD Portal lead data — no more manual re-keying from lead to job</li>
-    <li>Contract documents (299A, 299B, 118) routed through DocHub for digital signature capture; signed documents attached to the ComputerEase job record without manual upload</li>
-    <li>Deposit amount and payment terms from HD Portal contract entered into ComputerEase job maintenance automatically — Ashley's manual deposit entry step is removed</li>
-    <li>ComputerEase job status attached to Salesforce sales order automatically after job creation — no manual linking step required</li>
+    <li>NetSuite inventory drops below a threshold → Shopify applies CSWOS rules for that SKU automatically — no human toggle</li>
+    <li>EDI purchase order from Fanatics or DSG arrives → NetSuite checks available inventory and flags fulfillment risk before the acknowledgment is sent</li>
+    <li>Matrix item price changes in NetSuite propagate to Shopify within minutes — no manual step between ERP and storefront</li>
+    <li>Month-end financial close shrinks: billing transactions, customer deposits, and invoice transformations run without human touch</li>
     
   </ul>
 </div>
@@ -1314,15 +1353,13 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="stage-card stage3">
-  <div class="stage-label">Stage 3</div>
-  <div class="stage-year">Year 3</div>
-  <h4>Project Execution &amp; Compliance Automation via ComputerEase API &amp; IDP</h4>
+  <div class="stage-label">Agentic</div>
+  <div class="stage-year">Year 2+</div>
+  <h4>An AI agent monitors every SKU's velocity, EDI demand, and restock lead time — surfacing margin risk before the fulfillment window closes</h4>
   <ul>
-    <li>ComputerEase API (CE Live Service relay, v26+) enabled — task creation, material ordering, and labor scheduling triggered automatically from Salesforce project data; Barb's manual material ordering step in Salesforce is replaced</li>
-    <li>Intelligent Document Processing extracts contract data from 299A, 299B, and 118 documents and validates against business rules — permit dates, deposit amounts, and signature legibility checked automatically; exceptions flagged for Ashley's review rather than full manual review of every document</li>
-    <li>Read-only Salesforce sync from ComputerEase provides project status visibility to sales reps and coordinators — Clayton and Jeff see job progress in Salesforce without logging into ComputerEase</li>
-    <li>Automated deposit verification from HD Portal backend triggers job entry in ComputerEase without Ashley manually checking backend reporting — when the deposit clears, the job moves forward</li>
-    <li>Quote line items from Salesforce validated against ComputerEase master data (material type, picket type, post caps, gates) before job creation — discrepancies flagged before they become field errors</li>
+    <li>Which SKUs are at risk of missing a Fanatics or DSG fulfillment window in the next 72 hours — and what specifically should we do about it?</li>
+    <li>When sales velocity plus open EDI demand plus restock lead time signal a stockout risk, the agent surfaces the specific action: apply CSWOS, restrict EDI allocation, request emergency restock, or initiate a markdown</li>
+    <li>No spreadsheet. No Monday morning surprise. The data it reads — order intake, inventory levels, fulfillment events, EDI demand from Orderful — is built in Stage 1. Without Stage 1, this question is unanswerable.</li>
     
   </ul>
 </div>
@@ -1330,7 +1367,7 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
     </div>
     
-    <p class="pull-quote">The managed service model means DataSkate absorbs the operational risk — you get the outcomes without owning the infrastructure that delivers them.</p>
+    <p class="pull-quote">Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.</p>
     
   </div>
 </details>
@@ -1356,17 +1393,18 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-card-head">
     <div>
       <div class="fomo-co">
-        Peerless Fence Group
+        <a href="https://www.accelirate.com/mulesoft-case-studies/" target="_blank" rel="noopener" class="fomo-co-link">A Fortune 500 retailer (anonymized) ↗</a>
+        
       </div>
-      
+      <div class="fomo-meta">Fortune 500</div>
     </div>
-    <span class="fomo-tier-badge tier-stat">1</span>
+    <span class="fomo-tier-badge tier-adjacent">Adjacent industry</span>
   </div>
-  <div class="fomo-analogy">This is the same workflow Peerless Fence Group runs — same HD Portal, same Salesforce, same manual morning check that gets eliminated on day one.</div>
-  <div class="fomo-savings-val">Eliminates the manual morning HD Portal check; leads land in Salesforce automatically with the HD F-number as the deduplication key.</div>
-  <div class="fomo-built">Automated lead capture from HD Portal into Salesforce on a 10-minute polling cycle, with HD F-number as the deduplication key and automatic routing to sales reps.</div>
-  <div class="fomo-agent">An AI agent monitors HD Portal for new leads → creates Salesforce Lead records → routes to sales reps.</div>
-  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Eliminates manual morning HD-Portal-to-Salesforce check; leads land in Salesforce automatically with HD F-number as external ID.</div>
+  <div class="fomo-analogy">This retailer runs Shopify as their commerce front end, just like Homage. The AI agent layer is only possible because their ERP, CRM, and e-commerce data are all connected through MuleSoft. The data connection is the prerequisite — the AI is the payoff.</div>
+  <div class="fomo-savings-val">Inventory redistribution 7-10 days → under 1 hour. Markdown losses $5.4M → $1.6M per quarter ($3.8M saved). Sell-through revenue +23%.</div>
+  <div class="fomo-built">MuleSoft API-led integration connecting Shopify, SAP, and Salesforce with experience APIs purpose-built for AI agents — autonomous inventory monitoring, anomaly detection, and fulfillment triggering.</div>
+  <div class="fomo-agent">An AI agent monitors inventory levels and sales velocity across all channels → detects redistribution opportunities and anomalies autonomously → triggers inventory moves within 1 hour → alerts merchandising team to time-sensitive markdown decisions before margin loss accumulates.</div>
+  <div class="fomo-angle">7-10 days of manual inventory coordination → under 1 hour — gone on go-live. That's a Fortune 500 retailer after connecting their ERP and commerce data through MuleSoft. The AI layer in their environment only works because the systems were connected first. That Phase 1 connection is exactly what the 22 flows in this proposal deliver for Homage.</div>
   
 </div>
 
@@ -1379,17 +1417,17 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-card-head">
     <div>
       <div class="fomo-co">
-        Peerless Fence Group
+        Topo Designs
       </div>
-      
+      <div class="fomo-meta">~$20M–30M (outdoor apparel)</div>
     </div>
-    <span class="fomo-tier-badge tier-stat">1</span>
+    <span class="fomo-tier-badge tier-exact">Exact match</span>
   </div>
-  <div class="fomo-analogy">Same ComputerEase (Deltek) stack, same Salesforce opportunity-to-job handoff — this is a proven pattern in the fence installation vertical.</div>
-  <div class="fomo-savings-val">Automates job creation in ComputerEase from a closed Salesforce opportunity, eliminating manual re-keying and ensuring field-level consistency between the two systems.</div>
-  <div class="fomo-built">Event-driven job creation in ComputerEase triggered by a 'Save as Final' quote in Salesforce — new job, customer record, and budget worksheet created without manual re-entry.</div>
-  <div class="fomo-agent">An AI agent detects a &quot;Save as Final&quot; quote in Salesforce → creates a new job, customer, and budget worksheet in ComputerEase.</div>
-  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Automates job creation in ComputerEase, eliminating manual data entry and ensuring data consistency between Salesforce and ComputerEase.</div>
+  
+  <div class="fomo-savings-val">30% reduction in operating expenses; month-end close reduced to 5 days; 2 admin FTE eliminated.</div>
+  <div class="fomo-built">End-to-end Shopify ↔ NetSuite integration — automated order processing, bidirectional inventory sync, and real-time financial reconciliation across all product lines.</div>
+  <div class="fomo-agent">An AI agent monitors inventory velocity across Shopify and NetSuite → flags items trending toward stockout before the next reorder window → surfaces restock recommendation with lead-time context to the ops team — no manual spreadsheet check required.</div>
+  <div class="fomo-angle">Two admin FTE eliminated on go-live day — the manual order reconciliation, data entry corrections, and integration monitoring previously maintained by their ERP partner stopped automatically. Topo Designs runs the exact same stack as Homage: Shopify + NetSuite. Their outcome is available to you as soon as the platform switch is done.</div>
   
 </div>
 
@@ -1402,17 +1440,20 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   <div class="fomo-card-head">
     <div>
       <div class="fomo-co">
-        AgileMind
+        <a href="https://ecomposer.io/blogs/ecommerce/ai-in-ecommerce-statistics" target="_blank" rel="noopener" class="fomo-co-link">Gartner / EComposer 2025 Retail AI Report ↗</a>
+        
       </div>
       
     </div>
-    <span class="fomo-tier-badge tier-stat">4</span>
+    <span class="fomo-tier-badge tier-stat">Industry data</span>
   </div>
-  <div class="fomo-analogy">Different vertical, same pattern: one person manually re-keying data between two systems, every transaction, every time — until go-live day.</div>
-  <div class="fomo-savings-val">Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated</div>
-  <div class="fomo-built">Automated invoice creation in QuickBooks triggered by a new agreement in Salesforce — Crystal's manual billing workflow was fully replaced.</div>
-  <div class="fomo-agent">An AI agent detects a new agreement in Salesforce → creates an invoice in QuickBooks.</div>
-  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated</div>
+  <div class="fomo-analogy">Homage sits squarely in the mid-market segment ($25M–$50M) that is driving the fastest AI adoption growth in 2025.</div>
+  <div class="fomo-savings-val">87% of retailers say AI has had a positive impact on revenue. 94% say it has reduced operating costs. Mid-market retailers ($10M–$100M) are the fastest-growing AI adoption segment in 2025.</div>
+  <div class="fomo-built"></div>
+  
+  <div class="fomo-angle">Nine in ten retailers say AI is already cutting their operating costs — and Homage is squarely in the mid-market segment ($25M–$50M) that is moving fastest in 2025. The brands recovering costs ahead of you are not doing it by adopting AI last. They connected their data first. That connection is what we're building.</div>
+  
+  <div class="fomo-source"><a href="https://ecomposer.io/blogs/ecommerce/ai-in-ecommerce-statistics" target="_blank" rel="noopener">AI in eCommerce Statistics 2025 — 80+ Adoption, ROI &amp; Market Trends</a></div>
   
 </div>
 
@@ -1423,6 +1464,13 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 
 
 
+
+<div class="ai-starters">
+  <div class="ai-starters-eyebrow">What else teams like yours are exploring</div>
+  <ul class="ai-starters-list">
+    <li>Retailers with NetSuite + Shopify data connected are using AI to optimize markdown timing — identifying which licensed SKUs to discount before they hit dead stock, protecting margin automatically before a Fanatics or DSG reorder window closes.</li><li>Other apparel brands are using connected EDI + ERP data to build an AI agent that monitors partner fulfillment risk — flagging when a Fanatics PO can't be filled 48 hours in advance, so the team can reallocate or negotiate rather than take a chargeback.</li><li>A mid-market ecommerce brand with the same Shopify + NetSuite + ShipStation stack used integrated order data to build an AI agent that selects carrier in real time based on margin, speed, and inventory location — reducing cost per shipped order by 18%.</li><li>Ecommerce brands running Shopify + NetSuite are using AI to predict which new licensed products (new franchise launches, NCAA seasons) will spike demand — automatically staging inventory reorders before sell-out events occur.</li>
+  </ul>
+</div>
 
 
 </div>
@@ -1506,23 +1554,23 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       
       
 <div class="cs-card">
+  <div class="cs-co">Cole Schotz</div>
+  <div class="cs-meta">Top 100 US law firm · 500+ attorneys &middot; NetSuite, Salesforce, iManage</div>
+  <div class="cs-headline">Matter open to invoiced in 30 minutes — closed the billing blind spot between Salesforce and NetSuite</div>
+  <div class="cs-built">MuleSoft connecting Salesforce matter records to NetSuite billing — invoice creation triggered automatically on matter open. Payment status and billing health syncs back to Salesforce so relationship partners see the full picture without running NetSuite reports.</div>
+  <div class="cs-outcome">&#10003; Invoice lag dropped from 3 days to under 30 minutes. Finance ops recovered 15 hours per week. Zero manual reconciliations at month-end.</div>
+  <div class="cs-ai">AI in Year 2: In Year 2, a weekly agent cross-references open matters against NetSuite billing records — flags any matter with no invoice after 45 days, before partners notice. Finance reviews the exception list, not the spreadsheet.</div>
+</div>
+
+      
+      
+<div class="cs-card">
   <div class="cs-co">The Clorox Company</div>
   <div class="cs-meta">Fortune 500 · $7B+ revenue &middot; SAP, Salesforce, ServiceNow</div>
   <div class="cs-headline">From 6-week manual order cycles to real-time retail partner sync</div>
   <div class="cs-built">MuleSoft integration layer between SAP ERP and Salesforce — automated purchase order and inventory sync across 200+ retail partners. Eliminated manual EDI workarounds and cross-system reconciliation that required four people and a shared spreadsheet.</div>
   <div class="cs-outcome">&#10003; 74% reduction in order processing time. Finance ops recovered 12+ hours per week. New partners onboarded in days, not weeks.</div>
   <div class="cs-ai">AI in Year 2: In Year 2, an AI agent monitors retail partner portals for demand signals and auto-flags reorder thresholds — surfaced every morning before the supply chain team opens their queue. The integration data layer built in Year 1 is exactly what the model reads.</div>
-</div>
-
-      
-      
-<div class="cs-card">
-  <div class="cs-co">R&amp;L Carriers</div>
-  <div class="cs-meta">$2B+ revenue · 10,000+ employees &middot; Oracle, Salesforce, TMS</div>
-  <div class="cs-headline">Freight billing automated — the 48-hour dispatch-to-invoice relay eliminated</div>
-  <div class="cs-built">MuleSoft orchestration between Oracle ERP and Salesforce CRM — billing triggers automated from dispatch close events, real-time shipment status pushed to the customer portal. No manual handoffs between operations and finance.</div>
-  <div class="cs-outcome">&#10003; 48-hour billing lag reduced to under 2 hours. Customer support tickets dropped 31%. Finance team stopped running daily reconciliation reports.</div>
-  <div class="cs-ai">AI in Year 2: In Year 2, an agent surfaces at-risk shipments — delay flagged with no outbound customer contact in 24 hours — every morning. The operations team responds to a short exception list, not a monitoring dashboard.</div>
 </div>
 
       
@@ -1534,20 +1582,25 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 </div>
 
 
+<div style="border-top:1px solid var(--border);padding:8px 40px;font-size:11px;color:var(--mid);display:flex;align-items:center;gap:6px;" class="no-print">
+  <span>Prior versions:</span>
+  <a href="https://dataskateclients.web.app/proposal/homage/2026-05-19-v1.html" style="color:var(--mid);text-decoration:underline;" target="_blank" rel="noopener">v1 &middot; 2026-05-19</a>
+</div>
+
 <div class="footer">
-  <span>Raghuram Potluri &#183; <a href="mailto:raghuram@dataskate.ai">raghuram@dataskate.ai</a> &#183; DataSkate &#183; dataskate.ai</span>
+  <span>Kailash Chanda &#183; <a href="mailto:kailash@dataskate.ai">kailash@dataskate.ai</a> &#183; DataSkate &#183; dataskate.ai</span>
   <strong>Confidential</strong>
 </div>
 
 
 
 <script>
-window.__PROP_SLUG  = "peerless2";
-window.__PROP_NAME  = "Peerless Fence";
-window.__PROP_EMAIL = "raghuram@dataskate.ai";
-window.__PROP_ARCH  = "Raghuram Potluri";
+window.__PROP_SLUG  = "homage";
+window.__PROP_NAME  = "Homage";
+window.__PROP_EMAIL = "kailash@dataskate.ai";
+window.__PROP_ARCH  = "Kailash Chanda";
 window.__PROP_RATE  = 300;
-window.__PROP_FLOWS = 12;
+window.__PROP_FLOWS = 22;
 window.__PROP_MODEL = "iaas";
 </script>
 <script>

@@ -32,7 +32,12 @@ const LOGO_VIEWBOX = BRAND.html.logo.viewBox;
 function getAllHtmlTargets() {
   try {
     const out = execSync(
-      "find . -name '*.html' ! -path '*/node_modules/*' ! -path '*/.git/*'",
+      "find . -name '*.html'" +
+      " ! -path '*/node_modules/*'" +
+      " ! -path '*/.git/*'" +
+      " ! -path '*/.claude/worktrees/*'" +    // stale git worktrees
+      " ! -path '*/portal/tests/*'" +          // BackstopJS reports
+      " ! -path '*/portal/_build/*'",          // intermediate Eleventy build dir
       { cwd: ROOT, encoding: 'utf8' }
     );
     return out.trim().split('\n').filter(Boolean).map(f => f.replace(/^\.\//, ''));
@@ -45,11 +50,17 @@ const EXCLUDE_PATTERNS = [
   /^commons\/branding\/templates\//,
   /^commons\/branding\/[^/]+-base\.css\.html$/,
   /^portal\/_includes\/shared-base\.css\.html$/,
+  /^portal\/public\/shared-base\.css\.html$/,   // passthrough copy — CSS partial, not a page
   /^docs\/eleventy\/_build\/shared-base\.css\.html$/,
 ];
 
 function isExcluded(rel) {
   return EXCLUDE_PATTERNS.some(p => p.test(rel));
+}
+
+// Redirect stubs (http-equiv=refresh with no real content) don't carry a logo.
+function isRedirectStub(content) {
+  return /http-equiv=["']refresh["']/i.test(content) && content.length < 2000;
 }
 
 const CHECKS = [
@@ -64,7 +75,8 @@ const CHECKS = [
       const styleBlocks = [...c.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]);
       const css = styleBlocks.join('\n');
       const defined = [...css.matchAll(/--([a-zA-Z][a-zA-Z0-9-]*)(?=\s*:)/g)].map(m => `--${m[1]}`);
-      const offPalette = defined.filter(v => !ALLOWED_VARS.has(v));
+      // Exclude --mermaid-* vars: injected by Mermaid CLI into SVG <style> blocks, not DS design tokens.
+      const offPalette = defined.filter(v => !ALLOWED_VARS.has(v) && !v.startsWith('--mermaid-'));
       return offPalette.length === 0;
     },
     message: 'Off-palette CSS custom variables defined — only vars from tokens/*.json are permitted. Run: npm run build:tokens',
@@ -124,8 +136,10 @@ for (const rel of targets) {
   if (!fs.existsSync(file)) continue;
 
   const content  = fs.readFileSync(file, 'utf8');
+  const redirect = isRedirectStub(content);
   const failures = CHECKS.filter(c => {
     if (c.onlyPaths && !c.onlyPaths.test(rel)) return false;
+    if (redirect && c.name === 'SVG logo') return false; // redirect stubs have no visible content
     return !c.test(content);
   });
 
