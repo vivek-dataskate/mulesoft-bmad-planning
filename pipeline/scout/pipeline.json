@@ -1,7 +1,7 @@
 {
   "pipeline": "scout",
-  "description": "DataSkate pre-sales pipeline — Sage→Vera→Rex→Ivy→Flo→Hawk→Petra→Quinn→Sol→Mira",
-  "version": "1.0.0",
+  "description": "DataSkate pre-sales pipeline — Sage→Vera→Drew→Rex→Ivy→Flo→Hawk→Petra→Quinn→Sol→Mira",
+  "version": "1.1.0",
   "agents": [
     {
       "position": 1,
@@ -23,10 +23,22 @@
       "mode": "conversational",
       "toml": "pipeline/agents/vera.toml",
       "outputFile": "scoping/run/vera.json",
-      "gatePrompt": "Vera research confirmed — proceed to Rex (systems analysis)?"
+      "gatePrompt": "Vera research confirmed — proceed to Drew (portfolio map)?"
     },
     {
       "position": 3,
+      "slug": "drew",
+      "name": "Drew",
+      "role": "Portfolio Map Analyst",
+      "model": "sonnet",
+      "mode": "gated",
+      "toml": "pipeline/agents/drew.toml",
+      "outputFile": "scoping/run/drew.json",
+      "skipIf": "no_siblings",
+      "gatePrompt": "Drew portfolio map complete — correct any sibling cards before Rex starts systems analysis?"
+    },
+    {
+      "position": 4,
       "slug": "rex",
       "name": "Rex",
       "role": "Systems Analyst",
@@ -37,7 +49,7 @@
       "gatePrompt": "Rex systems confirmed — proceed to Ivy (buyer psychology)?"
     },
     {
-      "position": 4,
+      "position": 5,
       "slug": "ivy",
       "name": "Ivy",
       "role": "Buyer Intelligence Analyst",
@@ -48,7 +60,7 @@
       "gatePrompt": "Ivy profile confirmed — proceed to Flo (flow count + pricing)?"
     },
     {
-      "position": 5,
+      "position": 6,
       "slug": "flo",
       "name": "Flo",
       "role": "Integration Flow Analyst + Pricing",
@@ -59,7 +71,7 @@
       "gatePrompt": "Flo flow count and pricing confirmed — proceed to Hawk (deal framing)?"
     },
     {
-      "position": 6,
+      "position": 7,
       "slug": "hawk",
       "name": "Hawk",
       "role": "Deal Urgency Strategist",
@@ -70,7 +82,7 @@
       "gatePrompt": "Hawk framing confirmed — proceed to Petra (proposal + integration deck)?"
     },
     {
-      "position": 7,
+      "position": 8,
       "slug": "petra",
       "name": "Petra",
       "role": "Proposal Writer",
@@ -81,7 +93,7 @@
       "gatePrompt": "Petra proposal and integration deck confirmed — proceed to Quinn (intake questionnaire)?"
     },
     {
-      "position": 8,
+      "position": 9,
       "slug": "quinn",
       "name": "Quinn",
       "role": "Intake Specialist",
@@ -89,26 +101,23 @@
       "mode": "conversational",
       "toml": "pipeline/agents/quinn.toml",
       "outputFile": "scoping/run/quinn.json",
-      "additionalOutputs": [
-        "intake/intake-content.json"
-      ],
       "gatePrompt": "Quinn intake questionnaire confirmed — proceed to Mira (final audit)?"
     },
     {
-      "position": 9,
+      "position": 10,
       "slug": "sol",
       "name": "Sol",
-      "role": "Delivery Analyst",
+      "role": "SOW & Delivery Analyst",
       "model": "sonnet",
-      "mode": "conversational",
-      "status": "parked",
+      "mode": "gated",
+      "phase": "delivery",
       "toml": "pipeline/agents/sol.toml",
       "outputFile": "scoping/run/sol.json",
-      "gatePrompt": null,
-      "note": "Parked — writes SOW and scopes delivery. Net-new capability with no Scout precedent. Design separately."
+      "gatePrompt": "Sol SOW draft complete — review before sending to client?",
+      "note": "Delivery phase — runs ONLY after project.json.status is set to 'accepted'. Trigger: node orchestrator.mjs --client <slug> --agent sol"
     },
     {
-      "position": 10,
+      "position": 11,
       "slug": "mira",
       "name": "Mira",
       "role": "Buyer Advocate",

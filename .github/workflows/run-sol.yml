@@ -1,0 +1,74 @@
+name: Run Sol — SOW Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug (e.g. peerless)'
+        required: true
+        type: string
+
+jobs:
+  run-sol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Sol (SOW agent)
+        run: node pipeline/langgraph/orchestrator.mjs --client "${{ inputs.client }}" --agent sol
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+      - name: Build SOW HTML
+        run: npm run build:html
+
+      - name: Copy SOW to public
+        run: |
+          SLUG="${{ inputs.client }}"
+          mkdir -p portal/public/delivery
+          SRC="portal/_build/delivery/sow-${SLUG}.html"
+          if [ -f "$SRC" ]; then
+            cp "$SRC" "portal/public/delivery/sow-${SLUG}.html"
+            echo "SOW copied to portal/public/delivery/sow-${SLUG}.html"
+          else
+            echo "WARNING: $SRC not found — skipping copy"
+          fi
+
+      - name: Commit SOW artifacts
+        run: |
+          SLUG="${{ inputs.client }}"
+          git config user.name  "DataSkate Bot"
+          git config user.email "bot@dataskate.ai"
+          git add \
+            "projects/${SLUG}/scoping/run/sol.json" \
+            "portal/public/delivery/sow-${SLUG}.html" \
+            "projects/${SLUG}/project.json" \
+            --ignore-missing
+          git diff --cached --quiet && echo "Nothing to commit" || \
+            git commit -m "delivery: Sol SOW generated for ${SLUG} [skip ci]"
+          git push
+
+      - name: Deploy SOW to Firebase Hosting
+        env:
+          FIREBASE_SA_KEY: ${{ secrets.FIREBASE_SA_KEY }}
+        run: |
+          if [ -n "$FIREBASE_SA_KEY" ]; then
+            ./portal/deploy.sh "${{ inputs.client }}" sow
+          else
+            echo "FIREBASE_SA_KEY not set — skipping Firebase deploy"
+          fi
