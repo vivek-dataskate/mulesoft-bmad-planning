@@ -312,7 +312,7 @@ exports.onProposalAccepted = onDocumentWritten(
             'Content-Type': 'application/json',
             'User-Agent': 'dataskate-portal'
           },
-          body: JSON.stringify({ ref: GITHUB_BRANCH, inputs: { client: clientId } })
+          body: JSON.stringify({ ref: GITHUB_BRANCH, inputs: { client: clientId, triggered_by: 'acceptance' } })
         }
       );
       if (dispatchRes.status === 204) {

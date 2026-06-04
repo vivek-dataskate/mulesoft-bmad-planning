@@ -7,6 +7,9 @@ on:
         description: 'Client slug (e.g. peerless)'
         required: true
         type: string
+      triggered_by:
+        description: 'acceptance (skip guard) or manual (check project.json)'
+        default: 'manual'
 
 jobs:
   run-sol:
@@ -33,6 +36,7 @@ jobs:
         run: node pipeline/langgraph/orchestrator.mjs --client "${{ inputs.client }}" --agent sol
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SOL_TRIGGERED_BY_ACCEPTANCE: ${{ inputs.triggered_by == 'acceptance' && 'true' || 'false' }}
 
       - name: Build SOW HTML
         run: npm run build:html

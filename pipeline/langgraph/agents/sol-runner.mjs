@@ -274,13 +274,17 @@ const STATIC_TERMS = {
 
 export async function runSol({ agentDef, clientSlug, mcpClient }) {
   // Guard: Sol only runs after the proposal is accepted.
+  // When triggered by CI (onProposalAccepted Cloud Function dispatch), the commit that
+  // sets status="accepted" may not yet be visible to the runner — bypass the file check.
+  const triggeredByCI = process.env.SOL_TRIGGERED_BY_ACCEPTANCE === 'true';
+
   const projPath = path.join(ROOT, 'projects', clientSlug, 'project.json');
   let projData = {};
   try {
     if (fs.existsSync(projPath)) projData = JSON.parse(fs.readFileSync(projPath, 'utf8'));
   } catch (_) {}
 
-  if (projData.status !== 'accepted') {
+  if (!triggeredByCI && projData.status !== 'accepted') {
     throw new Error(
       `Sol (SOW agent) requires project.json.status === 'accepted'. ` +
       `Current status: '${projData.status || 'not set'}'. ` +
