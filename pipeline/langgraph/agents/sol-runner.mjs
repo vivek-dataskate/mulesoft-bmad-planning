@@ -1,5 +1,5 @@
 /**
- * Sol multi-step runner — 3 focused sub-agents + deterministic merge.
+ * Sol multi-step runner — 5 focused sub-agents + deterministic merge.
  *
  * Architecture:
  *   - Orchestrator reads sol-stage.json ONCE and injects it

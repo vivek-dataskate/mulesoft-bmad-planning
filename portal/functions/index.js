@@ -141,7 +141,7 @@ exports.onClientCounterOffer = onDocumentWritten(
 
     try {
       await commitToGitHub(token,
-        `projects/${clientId}/delivery/negotiation-${Date.now()}.json`,
+        `projects/${clientId}/delivery/negotiation-log.json`,
         notifContent,
         `negotiation: counter-offer ${ latest.amount ? latest.amount + ' ' : ''}from ${latest.authorName || 'client'} for ${clientId}`
       );
@@ -208,7 +208,11 @@ exports.onSowSigned = onDocumentWritten(
         if (getRes.ok) { const j = await getRes.json(); sha = j.sha; existing = JSON.parse(Buffer.from(j.content, 'base64').toString('utf8')); }
       } catch (e) {}
 
-      const patched = { ...existing, status: 'sow_signed', sowSignedAt: new Date().toISOString(), sowSignedBy: { name: signedBy, title, email } };
+      const signedTs = after.clientSignedAt;
+      const sowSignedAt = signedTs?.toMillis ? new Date(signedTs.toMillis()).toISOString()
+                        : signedTs?.seconds   ? new Date(signedTs.seconds * 1000).toISOString()
+                        : new Date().toISOString();
+      const patched = { ...existing, status: 'sow_signed', sowSignedAt, sowSignedBy: { name: signedBy, title, email } };
       await fetch(apiUrl, {
         method: 'PUT', headers,
         body: JSON.stringify({
