@@ -1,0 +1,1096 @@
+{
+  "status": "complete",
+  "client": "peerless2",
+  "generatedAt": "2026-06-03T01:10:55.911Z",
+  "sourceFiles": [],
+  "businessContext": {
+    "companyDescription": "Peerless Fence is a specialty contractor providing residential and commercial fence installation services. The company operates through Home Depot Service Center (HD) as a primary sales channel and uses ComputerEase (Deltek) for job costing and project management. Integration is required to automate lead-to-job workflows across HD Portal, Salesforce, and ComputerEase.",
+    "industry": "Construction / Specialty Contracting (Fence Installation)",
+    "engagementType": "new-integration",
+    "goLiveUrgency": "soft target",
+    "goLiveDate": null,
+    "budgetSignals": "GCP infrastructure costs ~$5,000/month; Deltek support ticket submitted; no explicit budget envelope mentioned but cost optimization (cloud migration) discussed as future consideration"
+  },
+  "systems": [
+    {
+      "name": "Salesforce",
+      "connectorKey": "salesforce",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Sandbox and production environments mentioned"
+    },
+    {
+      "name": "Home Depot Service Center (HD Portal)",
+      "connectorKey": "hd-portal",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "source",
+      "instanceNote": "API-based lead integration; portal login required"
+    },
+    {
+      "name": "ComputerEase",
+      "connectorKey": "computerease",
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "target",
+      "instanceNote": "Deltek specialty contractor ERP; sandbox (P3) and production environments; GCP-hosted VM"
+    },
+    {
+      "name": "Google Cloud Platform (GCP)",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "infrastructure",
+      "instanceNote": "Hosts ComputerEase VM; single VM for both sandbox and production; external IP 35.222.218.224"
+    },
+    {
+      "name": "Cameo",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "access-layer",
+      "instanceNote": "Remote desktop access tool for ComputerEase; used instead of direct RDP"
+    },
+    {
+      "name": "MuleSoft",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "integration-platform",
+      "instanceNote": "Integration platform for API configuration and data flows"
+    },
+    {
+      "name": "DocHub",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "document-processing",
+      "instanceNote": "Digital signature and document generation for contracts"
+    },
+    {
+      "name": "Deltek Support Portal",
+      "connectorKey": null,
+      "inferenceType": "explicit",
+      "inferencePhrase": null,
+      "role": "vendor-support",
+      "instanceNote": "Support ticketing for ComputerEase/Deltek API configuration"
+    }
+  ],
+  "confirmedFlows": [
+    {
+      "id": "UC1",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+      "entity": "Lead",
+      "trigger": "scheduled",
+      "triggerDetail": "Every 10 minutes (previously 30 minutes)",
+      "evidence": "It takes ten minutes to update. Actually, on the peerless side... It used to be 30 minutes, so it's nice to know that it's gotten to 10 minutes now."
+    },
+    {
+      "id": "UC2",
+      "systems": [
+        "Salesforce",
+        "ComputerEase"
+      ],
+      "direction": "Salesforce → ComputerEase",
+      "entity": "Job (with budget worksheet data)",
+      "trigger": "manual",
+      "triggerDetail": "Sales rep closes opportunity and enters job details manually into ComputerEase job maintenance",
+      "evidence": "I'm going to enter the margin amount. So the margin is showed under apps review budget here. And I'm going to enter the commission amount, which is shown here. So it's going to be 58225 payment terms."
+    },
+    {
+      "id": "UC3",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "ComputerEase"
+      ],
+      "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+      "entity": "Customer (Account/Contact)",
+      "trigger": "manual",
+      "triggerDetail": "Ashley manually creates customer record in ComputerEase based on lead information from HD Portal",
+      "evidence": "So we're going to say it's 26 HD 565 AS. And then we're going to say Tom Tessmuckian Tess for the name. We're going to state the city. And the state, so we're going to say West Chicago."
+    },
+    {
+      "id": "UC4",
+      "systems": [
+        "Salesforce",
+        "DocHub"
+      ],
+      "direction": "Salesforce → DocHub",
+      "entity": "Contract (299A, 299B, 118, Customer Approval Form)",
+      "trigger": "manual",
+      "triggerDetail": "Sales rep or Ashley generates and signs contract documents via DocHub for digital signature capture",
+      "evidence": "I'm going to go into DocHub. Generate a new document. Create document. I'm going to sign in. And then I'm going to download it and save it. I'm going to add it to Salesforce."
+    },
+    {
+      "id": "UC5",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+      "entity": "Quote (with line items and pricing)",
+      "trigger": "manual",
+      "triggerDetail": "Sales rep creates quote in HD Portal; Ashley manually verifies and enters quote details into Salesforce opportunity",
+      "evidence": "I'm going to click into the first quote, because there's only one. I'm going to grab the lead number. I'm going to copy it. I'm going to go inside of Home Depot. I'm going to look it up by lead number."
+    },
+    {
+      "id": "UC6",
+      "systems": [
+        "ComputerEase",
+        "Salesforce"
+      ],
+      "direction": "ComputerEase → Salesforce",
+      "entity": "Job (project status and work order)",
+      "trigger": "manual",
+      "triggerDetail": "Ashley manually attaches ComputerEase project/work order to Salesforce sales order after job entry",
+      "evidence": "From here, I'm going to go to the project and I'm going to a task. This one is because it's aluminum, I'm going to task Barb. So I'm going to say purchase material."
+    },
+    {
+      "id": "UC7",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "ComputerEase"
+      ],
+      "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+      "entity": "Contract Document (299A, 299B, 118)",
+      "trigger": "manual",
+      "triggerDetail": "Ashley manually uploads signed contract documents from HD Portal into ComputerEase job record",
+      "evidence": "So the 118 needs to be re-uploaded back into Home Depot system as it has been completed with the appropriate signature on behalf of Clayton."
+    },
+    {
+      "id": "UC8",
+      "systems": [
+        "Salesforce",
+        "ComputerEase"
+      ],
+      "direction": "Salesforce → ComputerEase",
+      "entity": "Task (material purchase, labor scheduling)",
+      "trigger": "manual",
+      "triggerDetail": "Ashley manually creates tasks in Salesforce project to assign material purchases and labor to team members",
+      "evidence": "I'm going to task Barb. So I'm going to say purchase material. And then I'm going to say stock because it's a stock item."
+    },
+    {
+      "id": "UC9",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+      "entity": "Appointment (consultation scheduling)",
+      "trigger": "manual",
+      "triggerDetail": "Sales rep schedules consultation appointment in HD Portal; appointment syncs to Salesforce calendar",
+      "evidence": "There's an appointment. It's going to go on the sales rep's calendar, which it says I'm a sales rep, even though I am not. It's going to send an email."
+    },
+    {
+      "id": "UC10",
+      "systems": [
+        "ComputerEase",
+        "Google Cloud Platform (GCP)"
+      ],
+      "direction": "ComputerEase ← Google Cloud Platform (GCP)",
+      "entity": "Infrastructure (VM hosting, firewall rules, network configuration)",
+      "trigger": "event-driven",
+      "triggerDetail": "GCP firewall rules and network configuration enable/restrict API access to ComputerEase VM",
+      "evidence": "They're allowing SSH and RDP from anywhere, which is really bad practice. Anyone on the internet can try to log into this server."
+    },
+    {
+      "id": "UC11",
+      "systems": [
+        "ComputerEase",
+        "Deltek Support Portal"
+      ],
+      "direction": "ComputerEase ← Deltek Support Portal",
+      "entity": "API Configuration (CE Live Service relay, API access enablement)",
+      "trigger": "manual",
+      "triggerDetail": "Deltek support ticket submitted to enable API access and configure CE Live Service relay for ComputerEase",
+      "evidence": "We want to enable API access for computer ease. Can you mention the version, Brian? I think it's 26 something. Like you just mentioned, could you please help us to configure this in our GCP?"
+    },
+    {
+      "id": "UC12",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "ComputerEase"
+      ],
+      "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+      "entity": "Deposit/Payment (payment terms, deposit amount)",
+      "trigger": "manual",
+      "triggerDetail": "Ashley manually enters deposit amount and payment terms from HD Portal contract into ComputerEase job record",
+      "evidence": "Payment terms. It's going to be Home Depot. So it's you know, um, this this actually isn't needed. We should be saying if they paid by credit or check or cash into the Home Depot store, they paid with a credit card."
+    }
+  ],
+  "potentialFlows": [
+    {
+      "id": "UC13-potential",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "ComputerEase"
+      ],
+      "entity": "Payment/Deposit (automated deposit verification)",
+      "rationale": "Ashley currently manually checks HD Portal backend reporting to find deposits and update Salesforce. An automated API flow from HD Portal to ComputerEase could verify deposit status and trigger job entry without manual intervention. This would reduce data entry errors and accelerate job processing.",
+      "promotionEvidence": "If there's an API on that, I think, or ask you guys to help with... I don't know how to do that, but yeah. A lot of the times I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box."
+    },
+    {
+      "id": "UC14-potential",
+      "systems": [
+        "Salesforce",
+        "ComputerEase"
+      ],
+      "entity": "Quote Line Items (automated product/material validation)",
+      "rationale": "Quote line items in Salesforce contain product bundle data (material type, picket type, post caps, gates) that must be validated against contract specifications. An automated flow could extract quote line items, validate against master data (material types, SKUs), and flag discrepancies before job entry. This would enforce data quality and reduce manual verification overhead.",
+      "promotionEvidence": "Data is all available within the Salesforce. Like when you said it's a wood and correspondingly only these things should come with respect to the woods. Then if this data is already present for me, this object name should be Find Quote Line Item."
+    },
+    {
+      "id": "UC15-potential",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "entity": "Contract Document (automated document extraction and validation via IDP)",
+      "rationale": "Contract documents (299A, 299B, 118) are currently manually reviewed by Ashley for compliance (legible signatures, correct dates, matching totals). An IDP (Intelligent Document Processing) flow could automatically extract contract data, validate against business rules (permit date must be Friday, deposit amount must match total, signatures legible), and flag exceptions for manual review. This would scale contract validation and reduce manual bottleneck.",
+      "promotionEvidence": "If within the doc, was yes and no both options are selected those cases okay because she will be comparing the doc right so we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce right"
+    }
+  ],
+  "signals": [
+    {
+      "signal": "legacy-application",
+      "triggerPhrase": "This is an ancient system. It definitely it. All right, so let's do Okay. All right, so cost types, they wouldn't need, because cost types is like inventory and what have you.",
+      "questionSet": "modernization-candidate; technical-debt; migration-risk"
+    },
+    {
+      "signal": "sandbox-production-parity",
+      "triggerPhrase": "API is not available in practice. Does it make sense to even create a practice ID for you or no?",
+      "questionSet": "sandbox-limitations; testing-strategy; production-only-features"
+    },
+    {
+      "signal": "on-premise-vm-firewall",
+      "triggerPhrase": "They're allowing SSH and RDP from anywhere, which is really bad practice. Anyone on the internet can try to log into this server.",
+      "questionSet": "security-hardening; firewall-rules; network-isolation"
+    },
+    {
+      "signal": "api-configuration-required",
+      "triggerPhrase": "We want to enable API access for computer ease. Can you mention the version, Brian? I think it's 26 something.",
+      "questionSet": "vendor-support-ticket; api-version-compatibility; ce-live-service-relay"
+    },
+    {
+      "signal": "real-time-data-sync",
+      "triggerPhrase": "It takes ten minutes to update. Actually, on the peerless side... It used to be 30 minutes, so it's nice to know that it's gotten to 10 minutes now.",
+      "questionSet": "sync-frequency; batch-vs-real-time; data-freshness-requirements"
+    },
+    {
+      "signal": "document-compliance-validation",
+      "triggerPhrase": "If within the doc, was yes and no both options are selected those cases okay because she will be comparing the doc right so we would be giving that doc to the idp and we'll try to extract the content",
+      "questionSet": "idp-integration; document-validation-rules; error-handling"
+    },
+    {
+      "signal": "multi-environment-deployment",
+      "triggerPhrase": "We're going to be configuring in the production, but we will be doing only the get operation, not any kind of a post operation with respect to the product.",
+      "questionSet": "read-only-sandbox; production-write-access; deployment-strategy"
+    },
+    {
+      "signal": "user-access-management",
+      "triggerPhrase": "I don't have access to that user. So I don't know. Again, I do not think I have super admin, despite Jean saying that she gave me super admin.",
+      "questionSet": "permission-model; admin-access-verification; user-provisioning"
+    },
+    {
+      "signal": "data-extraction-rules",
+      "triggerPhrase": "There might be some more, right? So that's the reason I was mentioning. Ashley, can you comment on that? On that? You're on mute, Ashley.",
+      "questionSet": "business-rule-documentation; conditional-logic; data-mapping"
+    },
+    {
+      "signal": "manual-process-automation",
+      "triggerPhrase": "The next part's more of the ops review and breaking down the materials, which would be a manual process.",
+      "questionSet": "process-automation-scope; manual-vs-automated; phased-rollout"
+    }
+  ],
+  "namedContacts": [
+    {
+      "name": "Ashley Salerno",
+      "title": "Sales/Operations Coordinator",
+      "email": "ashleyaskatpeerlessfence.com",
+      "systems": [
+        "Salesforce",
+        "Home Depot Service Center",
+        "Computer Ease",
+        "DocHub"
+      ],
+      "responsibilities": [
+        "Lead verification",
+        "Document compliance review",
+        "Job entry",
+        "Contract validation",
+        "Quote verification",
+        "Budget worksheet creation",
+        "Customer approval forms"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Brian Cook",
+      "title": "Infrastructure/Systems Administrator",
+      "email": null,
+      "systems": [
+        "Computer Ease",
+        "GCP",
+        "Salesforce",
+        "API Management"
+      ],
+      "responsibilities": [
+        "API configuration",
+        "Sandbox/Production environment setup",
+        "Firewall rules",
+        "User permissions",
+        "GCP VM management",
+        "RDP access",
+        "Cameo administration"
+      ],
+      "accessChain": {
+        "isSystemAdmin": true,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Jean Jacobs",
+      "title": "Computer Ease Administrator",
+      "email": "JeanJ@peerlessfence.com",
+      "systems": [
+        "Computer Ease",
+        "Deltek Support Portal"
+      ],
+      "responsibilities": [
+        "User access provisioning",
+        "Admin permissions",
+        "Sandbox/Production access",
+        "Deltek support ticket submission",
+        "API access configuration"
+      ],
+      "accessChain": {
+        "isSystemAdmin": true,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": true,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Venkat B",
+      "title": "Technical Lead/Developer",
+      "email": "venkatb@dataskate.ai",
+      "systems": [
+        "Salesforce",
+        "Home Depot Portal",
+        "Computer Ease API",
+        "GCP"
+      ],
+      "responsibilities": [
+        "API testing",
+        "Data extraction",
+        "Business process mapping",
+        "Lead ID testing",
+        "Salesforce data validation"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Raghuram Potluri",
+      "title": "Project Manager/Developer",
+      "email": null,
+      "systems": [
+        "Computer Ease",
+        "GCP",
+        "Salesforce",
+        "Home Depot Portal"
+      ],
+      "responsibilities": [
+        "API connectivity troubleshooting",
+        "GCP firewall configuration",
+        "Sandbox testing",
+        "Business process documentation",
+        "Development coordination"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Jeff Kelly",
+      "title": "Project Coordinator/Manager",
+      "email": null,
+      "systems": [
+        "Salesforce",
+        "Computer Ease"
+      ],
+      "responsibilities": [
+        "Meeting coordination",
+        "Stakeholder communication",
+        "Access request facilitation",
+        "Cameo administration"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Marius",
+      "title": "Home Depot Portal/API Developer",
+      "email": null,
+      "systems": [
+        "Home Depot Portal",
+        "Home Depot APIs"
+      ],
+      "responsibilities": [
+        "HD portal API credentials provisioning",
+        "Lead generation API support",
+        "Salesforce user creation",
+        "API documentation"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": true,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Laura",
+      "title": "Accounting Team Member",
+      "email": null,
+      "systems": [
+        "Computer Ease"
+      ],
+      "responsibilities": [
+        "Accounting operations",
+        "Potential backup admin support"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": true
+      }
+    },
+    {
+      "name": "Stephanie Rice",
+      "title": "Accounting Staff",
+      "email": null,
+      "systems": [
+        "Computer Ease"
+      ],
+      "responsibilities": [
+        "Accounting support"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Kirk",
+      "title": "Management/Leadership",
+      "email": null,
+      "systems": [
+        "Computer Ease"
+      ],
+      "responsibilities": [
+        "Admin access decisions",
+        "System governance"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Greg",
+      "title": "Home Depot Contact",
+      "email": null,
+      "systems": [
+        "Home Depot"
+      ],
+      "responsibilities": [
+        "HD meeting coordination",
+        "API support escalation"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Barb",
+      "title": "Material Ordering/Procurement",
+      "email": null,
+      "systems": [
+        "Salesforce"
+      ],
+      "responsibilities": [
+        "Material ordering",
+        "Task assignment for stock items"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    },
+    {
+      "name": "Clayton Lambert",
+      "title": "Sales Representative",
+      "email": null,
+      "systems": [
+        "Home Depot Service Center",
+        "Salesforce"
+      ],
+      "responsibilities": [
+        "Site plan creation",
+        "Quote generation",
+        "Customer consultation",
+        "Document signing"
+      ],
+      "accessChain": {
+        "isSystemAdmin": false,
+        "createsApiUsers": false,
+        "ownsVendorSupportLogin": false,
+        "isBackupAdmin": false
+      }
+    }
+  ],
+  "systemFindings": [
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "API access not available in sandbox (P3) environment; only available in production. Vendor ticket required to enable API configuration.",
+      "confidence": "high",
+      "sourceQuote": "Since the API is not available in practice, does it make sense to even create a practice ID for you or no?"
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "Uses CE Live Service relay architecture; APIs route through Deltek servers to on-premise GCP instance rather than direct connectivity.",
+      "confidence": "high",
+      "sourceQuote": "These Dell tech, especially computer is APIs work in a little bit different way where like they have this CE live service installed on the same VM where we have computer is. And we have to make a call to the Dell tech URL so that they will route to our computer is instance through the CE live service."
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "Version 26.1.00 running on GCP VM; legacy DOS-based application with archaic user management requiring separate login account (PW_MAINTENANCE) to create users.",
+      "confidence": "high",
+      "sourceQuote": "It's a program that was DOS so who knows? Some of the stuff is still archaic."
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "Single VM hosts both sandbox and production environments; no separate infrastructure isolation.",
+      "confidence": "high",
+      "sourceQuote": "One VM. Okay. So if we are using the same IP, I think we have to check the if any firewall rules are there."
+    },
+    {
+      "system": "Google Cloud Platform",
+      "connectorKey": null,
+      "finding": "ComputerEase VM has static external IP 35.222.218.224; firewall rules allow SSH and RDP from anywhere (0.0.0.0/0); no source IP filtering.",
+      "confidence": "high",
+      "sourceQuote": "They're allowing SSH and RDP from anywhere, which is really bad practice. Anyone on the internet can try to log into this server."
+    },
+    {
+      "system": "Google Cloud Platform",
+      "connectorKey": null,
+      "finding": "Ingress firewall rules created for ports 443 and 8081; egress rules also required for responses. ComputerEase listening on port 445 (RDP/SMB), not on standard HTTPS port 443.",
+      "confidence": "high",
+      "sourceQuote": "We're not listening on 443. We're listening on 445. Which is terrible. But that's how I'm in."
+    },
+    {
+      "system": "Home Depot Service Center",
+      "connectorKey": "hd-portal",
+      "finding": "API credentials provided by Marius; portal login credentials required but not yet provisioned for Datascape team. Login attempts failing with 'user not recognized' error.",
+      "confidence": "high",
+      "sourceQuote": "We don't recognize you. Marius and tell him that and send him a screenshot of that and say the password's incorrect."
+    },
+    {
+      "system": "Home Depot Service Center",
+      "connectorKey": "hd-portal",
+      "finding": "Lead data syncs from HD Portal to Salesforce every 10 minutes (previously 30 minutes). Leads created in HD Portal do not automatically appear in Salesforce; manual pull via API required.",
+      "confidence": "high",
+      "sourceQuote": "It takes ten minutes to update. Actually, on the peerless side... It used to be 30 minutes, so it's nice to know that it's gotten to 10 minutes now."
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Sandbox and production environments both in use. API access management and user configuration available in production but not in sandbox.",
+      "confidence": "high",
+      "sourceQuote": "In production, I do have the ability to configure API management. And I do have the ability to configure users. This is my user. I don't even see it in here."
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Quote line items contain product bundle data (material type, picket type, post caps, gates) that must be validated against contract specifications. Data inconsistencies and spelling errors common in quote line items.",
+      "confidence": "high",
+      "sourceQuote": "I have, like, three sales people who can't spell pyramid. I've got there's a lot of there's a lot of miss miss spelling errors that occur."
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Opportunity and Account records must match lead information; discrepancies flagged as compliance issues. Material type (wood vs. aluminum) determines required fields (e.g., picket type only for wood).",
+      "confidence": "high",
+      "sourceQuote": "Well, I already have a discrepancy because of how the lead was created, and I've done this test object a million times. So on here, it says it's Ashley Peerless, Peerless test. But on the contracts, it says, Muckian test, Tom test."
+    },
+    {
+      "system": "Deltek Support",
+      "connectorKey": null,
+      "finding": "Support ticket submitted for API configuration; response expected within 2-4 hours (legacy system may take longer). Support contact: sales-and-support@deltek.com. Ticket ID and contact person (Brian Cook) provided.",
+      "confidence": "high",
+      "sourceQuote": "It looks like we'll get an answer within like 2 to 4 hours here. Okay. We're considered legacy. So, 4 hours, it won't be 2."
+    },
+    {
+      "system": "ComputerEase",
+      "connectorKey": "computerease",
+      "finding": "User permissions model complex; full admin access not automatically granted despite claims. Separate maintenance user account required for user creation. Permission inheritance unclear between sandbox and production.",
+      "confidence": "medium",
+      "sourceQuote": "I don't think I have super admin, despite Jean saying that she gave me super admin. So I don't have any way of like adding users."
+    },
+    {
+      "system": "Home Depot Service Center",
+      "connectorKey": "hd-portal",
+      "finding": "Business process includes lead creation, consultation scheduling, quote generation, contract signing, and job entry. Documents include 299A (contract), 299B (deposit/terms), 118 (fence removal exception), and customer approval forms.",
+      "confidence": "high",
+      "sourceQuote": "So you want to know the product like how you want to know the customer journey. Yeah, that's so much. Yeah, because we understood that there will be a lead sitting in HTS which is being pulled into the sales force through our API call"
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "finding": "Job entry requires mapping of budget worksheet data (material cost, labor cost, subcontractor cost, sales commission, overhead) to ComputerEase job costing system. Territory, sales rep, product type, and target price must be captured.",
+      "confidence": "high",
+      "sourceQuote": "I'm going to enter the margin amount. So the margin is showed under apps review budget here. And I'm going to enter the commission amount, which is shown here."
+    }
+  ],
+  "quotes": {
+    "primaryPainQuote": "I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow. Then that way it makes it easier to see. I don't like the other one. The other one I have to click on a couple of different things just to get around.",
+    "aspirationQuote": "I think by next early next week, I think we should be able to figure out all the access connectivity and extracting data. So we should be good after that.",
+    "skepticismSignals": [
+      "This is a really, really poor practice right here for security.",
+      "That's scary.",
+      "I thought we fixed this.",
+      "It's an ancient system.",
+      "I feel like I've traveled back to the 90s.",
+      "This is a little bit different setup than how the modern APIs work.",
+      "I don't know why they would go through some ancient way of doing it, but it is what it is.",
+      "It's a program that was DOS so who knows? Some of the stuff is still archaic.",
+      "I don't think I have super admin, despite Jean saying that she gave me super admin.",
+      "I don't see any way of like adding users.",
+      "It's not a good practice to only have one admin, obviously for situations like this.",
+      "There's no firewall. They could put in a username and password and keep trying and trying and trying until they get in.",
+      "Anyone on the internet can try to log into this server.",
+      "They're allowing SSH and RDP from anywhere, which is really bad practice."
+    ],
+    "excitementPhrases": [
+      "This is big.",
+      "This is what we needed.",
+      "Looks great.",
+      "Everything looks grand.",
+      "Beautiful.",
+      "Awesome.",
+      "That should give you pretty good access.",
+      "We're learning things together.",
+      "Yeah, so now you should be able to do a get, guys.",
+      "I think we're good for today.",
+      "I think we should be able to figure out all the access connectivity and extracting data."
+    ]
+  },
+  "architectKnowledge": [
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "I was researching yesterday night there is one service called CE live service Windows VM where the computer is currently installed so that these APIs will be accessible for the internet. These Dell tech, especially computer is APIs work in a little bit different way where like they have this CE live service installed on the same VM where we have computer is. And we have to make a call to the Dell tech URL so that they will route to our computer is instance through the CE live service.",
+      "system": "Deltek ComputerEase",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/deltek_computerease/computerease_playbook.json"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "I was researching. Like how these APIs are exposed to outside world yesterday night. So like what I found out is these Dell tech, especially computer is APIs work in a little bit different way... This is a little bit different setup than how the modern APIs work.",
+      "system": "Deltek ComputerEase",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/deltek_computerease/computerease_playbook.json"
+    },
+    {
+      "speaker": "Brian Cook",
+      "finding": "They're allowing SSH and RDP from anywhere, which is really bad practice. Anyone on the internet can try to log into this server... there's no firewall. They could put in a username and password and keep trying and trying and trying until they get in.",
+      "system": "GCP Infrastructure",
+      "classification": "critical-note",
+      "destinationPath": "pipeline/PLANNING_CONTEXT.md"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "So if we are using the same IP, I think we have to check the if any firewall rules are there. No, at the firewall level, we actually configure it to accept the 443. But before that, we have to check at the external IP level as well.",
+      "system": "GCP Infrastructure",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/gcp/gcp_playbook.json"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "I think this is a kind of a legacy application, right, Brian? So they might have a modern version, but this version is working the same way what I mentioned. Deltek is on the cloud, but for APIs, I think they are routing through their servers to our server the cloud.",
+      "system": "Deltek ComputerEase",
+      "classification": "cross-project-fact",
+      "destinationPath": "pipeline/FIELD_KNOWLEDGE.md"
+    },
+    {
+      "speaker": "Ashley Salerno",
+      "finding": "I have, like, three sales people who can't spell pyramid. I've got there's a lot of there's a lot of miss miss spelling errors that occur. So there could be a possibility of spelling mistakes as well here, like post types. It's a standard.",
+      "system": "Salesforce / Home Depot Service Center",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/salesforce/salesforce_playbook.json"
+    },
+    {
+      "speaker": "Venkat B",
+      "finding": "What I was trying to say is this: data is all available within the Salesforce. Like when you said it's a wood and correspondingly only these things should come with respect to the woods... Then if this data is already present for me, this object name should be Find Quote Line Item.",
+      "system": "Salesforce",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/salesforce/salesforce_playbook.json"
+    },
+    {
+      "speaker": "Ashley Salerno",
+      "finding": "The problem with this is, is that there are like 80,000 SKUs of that and I won't be able to do that this week. There's too many there's way too many different types of it there's no way I just need that code line items right.",
+      "system": "Salesforce",
+      "classification": "critical-note",
+      "destinationPath": "pipeline/PLANNING_CONTEXT.md"
+    },
+    {
+      "speaker": "Raghuram Potluri",
+      "finding": "Any kind of the mappings that you're trying, I mean, any kind of codes or mappings that you're trying to automatically enter, right? For all those things, we would need an Excel sheet, so.",
+      "system": "Salesforce / ComputerEase",
+      "classification": "cross-project-fact",
+      "destinationPath": "pipeline/FIELD_KNOWLEDGE.md"
+    },
+    {
+      "speaker": "Brian Cook",
+      "finding": "We're not listening on 443. We're listening on 445. Which is terrible. But that's how I'm in... we're not listening on either of those ports that you guys mentioned.",
+      "system": "Deltek ComputerEase / GCP",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/deltek_computerease/computerease_playbook.json"
+    },
+    {
+      "speaker": "Brian Cook",
+      "finding": "It's a program that was DOS so who knows? Some of the stuff is still archaic. You have to log into a different account to create users.",
+      "system": "Deltek ComputerEase",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/deltek_computerease/computerease_playbook.json"
+    },
+    {
+      "speaker": "Ashley Salerno",
+      "finding": "If they didn't use a Friday date for the install date, and it's a holiday, it's not a big deal. It's only a big deal for the right of precision.",
+      "system": "Home Depot Service Center / Salesforce",
+      "classification": "system-quirk",
+      "destinationPath": "mulesoft/playbooks/home_depot/home_depot_playbook.json"
+    },
+    {
+      "speaker": "Ashley Salerno",
+      "finding": "The only person that does is Jean, but Laura has more access than all of us except for Jean. So Laura might be able to help us out. It's not a good practice to only have one admin, obviously for situations like this.",
+      "system": "Deltek ComputerEase",
+      "classification": "critical-note",
+      "destinationPath": "pipeline/PLANNING_CONTEXT.md"
+    },
+    {
+      "speaker": "Brian Cook",
+      "finding": "I might want to look into that though, moving computer ease to the cloud. That might give us more functionality with a more modern interface. That would save us about five grand a month because we wouldn't have to host it in GCP anymore.",
+      "system": "Deltek ComputerEase / GCP",
+      "classification": "cross-project-fact",
+      "destinationPath": "pipeline/FIELD_KNOWLEDGE.md"
+    }
+  ],
+  "questionGaps": [
+    {
+      "question": "Are we using the same external IP? Bharat?",
+      "type": "system-gotcha",
+      "priority": "first-asked"
+    },
+    {
+      "question": "Can we check once the external IP?",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "Is there a way to the list of users that are logged in right now?",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "What exact access do we need, Brian? What application would we need?",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "Can we be able to get the GCP host, so that we can connect to this computer?",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "Is there any DNS name configured for this computer use app, Brian? Like might be peerless.computer is in GCP?",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "Do we have any table for that? Can you just go back to the screen? Are mentioning that if it's a wood will not require the pick type. Right, so for that we do we have any table specifically for us to understand if it's a wood type then we did not require this field like that.",
+      "type": "conditional-signal",
+      "priority": "follow-up"
+    },
+    {
+      "question": "Is this data already available in salesforce is what you're trying to say?",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "So basically for all these kind of edge cases, it should be notified to you. I mean, to you or the whoever is the agent, right? For that agent to be notified, right?",
+      "type": "conditional-signal",
+      "priority": "follow-up"
+    },
+    {
+      "question": "For the signature, do we use any specific online tool or something like that? And then you upload the document?",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "By any chance, will there be a change in the status? Like earlier it was showing like a green color button or not being blue color button on the HD screen, right? Will it get changed?",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "Did you ever get the rest of the information from Brian that you were able to work through for computer use for the API pool?",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "So one question I had, Brent, for GCP, different VM for sandbox and production or is it just one VM?",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "So if we are using the same IP, I think we have to check the if any firewall rules are there.",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "Can we grip on compute and see, filter out only compute?",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "So how Cameo will be enabled for us, Brian? Like, is there any URL where we can go to Cameo?",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "So once we get access to computer is right, once a gene gives us the access. So how we should access the computer is the same way like through Cameo, what you're doing or like, is it any different way we have to do it?",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "Is it so CPU intensive when the computer is application?",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "How do I add a new user in computer use?",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "I don't have access to that user. So I don't know. Again, I do not, I do not think I have super admin, despite Jean saying that she gave me super admin. So I don't have any way of like adding users. I don't see any way of adjusting your permissions anywhere.",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "I wonder if it's just the practice environment that this is happening in.",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "The dates that we see over there, right? Are they reflecting in the Salesforce?",
+      "type": "conditional-signal",
+      "priority": "follow-up"
+    },
+    {
+      "question": "If in case it's a government holiday or a state holiday. So should we consider those Fridays?",
+      "type": "conditional-signal",
+      "priority": "follow-up"
+    },
+    {
+      "question": "If they didn't use a Friday date for the install date, and it's a holiday, it's not a big deal. It's only a big deal for the right of precision. Hold on 1, 2, on 1 2nd, I'm going to. I'm not gonna be able to hear you. Again, I'm so sorry. Go ahead.",
+      "type": "conditional-signal",
+      "priority": "follow-up"
+    },
+    {
+      "question": "If in case he has entered a wrong date or this state holiday date, then it should be reported in the HD.",
+      "type": "conditional-signal",
+      "priority": "follow-up"
+    },
+    {
+      "question": "It's not in a sequence, Ashley?",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "When you say ro5 right um do we have this separately on the excel sheet that you have shown because we will not know whether it's an R05 or something, right?",
+      "type": "conditional-signal",
+      "priority": "follow-up"
+    },
+    {
+      "question": "I just say it's a far as it's a record that you're creating. A job that you're doing within the Salesforce. So these kind of jobs, if there are any conditional basis, we would need it in a written format or in a one sheet so that we implement in the course.",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "Are we recording this? SE or can I start the recording at the Google.",
+      "type": "protocol",
+      "priority": "first-asked"
+    },
+    {
+      "question": "Do you mean HD portal login? No, he told us we have to reach out to you for creating a login for us.",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "He is going to share us the API credentials for HDs, but like a login to the portal. He asked us to reach out to you so that you can create a new login.",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "Actually, he was mentioning that whenever there is some issue, especially with the API and all, they used to reach out to API team directly. So do you know if we can have a connect with them so that it will be easy for us?",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "Contact... Did he provide that for you? Because I actually do not have that contact.",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "So you want to know the product like how you want to know the customer journey.",
+      "type": "base",
+      "priority": "first-asked"
+    },
+    {
+      "question": "So when we create a lead inside of Home Depot Service Center, it doesn't come through inside of Salesforce. So that part needs to be fixed.",
+      "type": "system-gotcha",
+      "priority": "first-asked"
+    },
+    {
+      "question": "During the time of the development, if in case we would need one or two documents, you will be able to create them, right?",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "It takes ten minutes to update. Actually, on the peerless side...",
+      "type": "system-gotcha",
+      "priority": "follow-up"
+    },
+    {
+      "question": "The Salesforce user... Like create the Salesforce user for us, or we have to reach out.",
+      "type": "base",
+      "priority": "follow-up"
+    },
+    {
+      "question": "I would require any one lead ID from your end so that I test it now and see that I am able to get the data.",
+      "type": "base",
+      "priority": "follow-up"
+    }
+  ],
+  "p0Flags": [
+    {
+      "system": "ComputerEase",
+      "gotcha": "ComputerEase/Deltek API requires CE Live Service relay; vendor support ticket mandatory; sandbox has no API access",
+      "severity": "P0",
+      "clientAction": "Do not attempt direct API calls to ComputerEase. All API requests must route through Deltek's CE Live Service relay. Sandbox environment cannot be used for API testing; production-only. Vendor support ticket already submitted; await response and follow Deltek's configuration guidance.",
+      "architectNote": "CE Live Service is a legacy relay mechanism that intercepts API calls and routes them through Deltek's infrastructure to the on-premise GCP instance. This is not standard REST/SOAP; it requires special handling. Sandbox (P3) explicitly does not support API access."
+    },
+    {
+      "system": "Google Cloud Platform",
+      "gotcha": "On-premise VM firewall rules allow SSH/RDP from anywhere (0.0.0.0/0); no source IP filtering; static IP exposed to internet",
+      "severity": "P0",
+      "clientAction": "Immediately restrict SSH (port 22) and RDP (port 445) ingress rules to known Peerless office IP ranges and VPN gateways only. Do not leave 0.0.0.0/0 open. Implement egress rules to prevent data exfiltration. Consider moving ComputerEase to Deltek's cloud-hosted version to eliminate on-premise infrastructure risk.",
+      "architectNote": "Current firewall config: ingress allow-all on SSH/RDP; egress only enabled for 443/8081. ComputerEase listening on 445 (SMB/RDP), not 443. Static IP 35.222.218.224 is publicly routable. This is a critical security gap."
+    },
+    {
+      "system": "ComputerEase",
+      "gotcha": "Sandbox and production share single VM; no environment isolation; API configuration only in production",
+      "severity": "P0",
+      "clientAction": "Confirm with Deltek whether separate VMs can be provisioned for sandbox and production. If not, all API testing must occur in production with read-only (GET) operations only. Implement strict change control and rollback procedures. Consider Deltek cloud migration to enable proper environment separation.",
+      "architectNote": "Single VM architecture means sandbox and production share the same ComputerEase instance, database, and firewall rules. API access is production-only. This violates standard integration best practices and increases risk of production incidents during testing."
+    },
+    {
+      "system": "Home Depot Service Center",
+      "gotcha": "HD Portal login not yet provisioned; API credentials provided but portal access blocked; 10-minute sync lag between HD and Salesforce",
+      "severity": "P0",
+      "clientAction": "Follow up with Marius and HD support to provision portal login credentials for Datascape team. Verify API credentials are valid and test connectivity before proceeding. Plan for 10-minute data freshness lag in integration design; do not assume real-time sync.",
+      "architectNote": "HD Portal login credentials not yet issued; API credentials provided but portal access failing ('user not recognized'). Lead sync from HD to Salesforce is asynchronous (10-minute intervals), not real-time. This affects job entry timing and data consistency validation."
+    },
+    {
+      "system": "Salesforce",
+      "connectorKey": "salesforce",
+      "gotcha": "Quote line items contain unstructured product data with spelling errors and inconsistent naming; no data validation rules enforced at entry",
+      "severity": "flag",
+      "clientAction": "Create a data quality dashboard to flag quote line items with spelling errors, missing required fields (e.g., picket type for wood), or mismatched material types. Implement Salesforce validation rules to enforce material-type-dependent field requirements. Consider IDP (Intelligent Document Processing) to extract and validate data from scanned contracts.",
+      "architectNote": "Sales reps manually enter product details (material type, picket type, post caps, gates) into quote line items. No validation enforces that wood materials require picket type, or that material names match a master list. Spelling errors ('pyramid' vs 'piramid') are common. This creates downstream data quality issues in ComputerEase job entry."
+    },
+    {
+      "system": "Salesforce",
+      "gotcha": "Opportunity/Account data must match lead source; discrepancies block job entry; no automated reconciliation",
+      "severity": "flag",
+      "clientAction": "Implement a pre-job-entry validation flow in Salesforce that compares lead name, address, and contact info against Opportunity and Account records. Flag mismatches and require manual review before job entry to ComputerEase. Consider automating lead-to-opportunity conversion to reduce manual data entry errors.",
+      "architectNote": "Lead data from HD Portal is manually verified against Salesforce Opportunity and Account records. Discrepancies (e.g., lead name 'Ashley Peerless' vs. contract name 'Muckian Test') are flagged as compliance issues and block job entry. No automated reconciliation exists."
+    },
+    {
+      "system": "ComputerEase",
+      "gotcha": "User permission model unclear; full admin access not automatically granted; separate maintenance account required for user creation",
+      "severity": "flag",
+      "clientAction": "Request Deltek support to clarify permission model and confirm that Datascape team has full admin access in sandbox. Verify that user creation, API configuration, and job entry permissions are all granted. Test each permission explicitly before proceeding with integration development.",
+      "architectNote": "ComputerEase uses a legacy DOS-based permission model. Full admin access was claimed to be granted but not verified. User creation requires a separate 'PW_MAINTENANCE' account. Permission inheritance between sandbox and production is unclear."
+    },
+    {
+      "system": "Home Depot Service Center",
+      "gotcha": "Business process includes manual document validation (contract compliance, signature legibility, date validation) with no automated rules engine",
+      "severity": "flag",
+      "clientAction": "Document all business rules for contract validation (e.g., 'permit date must be Friday', 'deposit amount must match contract total', 'signatures must be legible'). Create a rules engine or IDP workflow to automate validation. Flag exceptions for manual review by Ashley or designated approver.",
+      "architectNote": "Contract validation is currently manual: Ashley reviews 299A and 299B documents, checks for legible signatures, verifies dates are Fridays, confirms deposit amounts match contract totals, and validates material types against quote line items. No automated rules engine exists. This is a bottleneck for scaling."
+    },
+    {
+      "system": "Salesforce",
+      "gotcha": "Job entry requires manual mapping of budget worksheet data (material, labor, subcontractor, commission, overhead) to ComputerEase; no automated data flow",
+      "severity": "flag",
+      "clientAction": "Create a Salesforce flow or MuleSoft integration to automatically extract budget worksheet data and map it to ComputerEase job costing fields. Validate that all required fields are populated before posting to ComputerEase. Implement error handling and retry logic for failed submissions.",
+      "architectNote": "Budget worksheet data (material cost $2,285.35, subcontractor $891.35, commission $582.25, overhead $671.15) is manually entered into ComputerEase job maintenance. No automated data flow exists. This is error-prone and time-consuming."
+    },
+    {
+      "system": "Google Cloud Platform",
+      "gotcha": "ComputerEase VM infrastructure costs ~$5,000/month; Deltek cloud migration could reduce costs and improve reliability",
+      "severity": "flag",
+      "clientAction": "Request Deltek pricing for cloud-hosted ComputerEase. Compare total cost of ownership (infrastructure, support, security) against on-premise GCP hosting. Evaluate cloud migration as part of long-term roadmap to reduce operational overhead and improve environment isolation.",
+      "architectNote": "Current GCP infrastructure costs approximately $5,000/month for a single beefy compute instance. Deltek offers cloud-hosted ComputerEase with modern API support and environment separation. Cloud migration could reduce costs and eliminate on-premise security/firewall management."
+    }
+  ]
+}

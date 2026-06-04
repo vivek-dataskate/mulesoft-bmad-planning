@@ -1,0 +1,303 @@
+{
+  "status": "complete",
+  "client": "peerless2",
+  "generatedAt": "2026-06-03T01:13:54.497Z",
+  "systemProfiles": [],
+  "detectedSystems": [],
+  "confirmedFlows": [
+    {
+      "target": "Salesforce",
+      "source": "Home Depot Service Center (HD Portal)",
+      "direction": "source-to-target",
+      "description": null,
+      "trigger": "scheduled",
+      "frequency": "Every 10 minutes",
+      "entity": "Lead",
+      "id": "UC1"
+    },
+    {
+      "entity": "Job (with budget worksheet data)",
+      "frequency": null,
+      "trigger": "manual",
+      "description": "Sales rep closes opportunity and enters job details manually into ComputerEase job maintenance",
+      "direction": "source-to-target",
+      "target": "ComputerEase",
+      "source": "Salesforce",
+      "id": "UC2"
+    },
+    {
+      "direction": "source-to-target",
+      "description": "Ashley manually creates customer record in ComputerEase based on lead information from HD Portal",
+      "trigger": "manual",
+      "source": "Home Depot Service Center (HD Portal)",
+      "target": "ComputerEase",
+      "entity": "Customer (Account/Contact)",
+      "frequency": null,
+      "id": "UC3"
+    },
+    {
+      "trigger": "manual",
+      "description": "Sales rep or Ashley generates and signs contract documents via DocHub for digital signature capture",
+      "direction": "source-to-target",
+      "target": "DocHub",
+      "source": "Salesforce",
+      "entity": "Contract (299A, 299B, 118, Customer Approval Form)",
+      "frequency": null,
+      "id": "UC4"
+    },
+    {
+      "id": "UC5",
+      "frequency": null,
+      "entity": "Quote (with line items and pricing)",
+      "target": "Salesforce",
+      "source": "Home Depot Service Center (HD Portal)",
+      "trigger": "manual",
+      "description": "Sales rep creates quote in HD Portal; Ashley manually verifies and enters quote details into Salesforce opportunity",
+      "direction": "source-to-target"
+    },
+    {
+      "id": "UC6",
+      "source": "ComputerEase",
+      "target": "Salesforce",
+      "trigger": "manual",
+      "direction": "source-to-target",
+      "description": "Ashley manually attaches ComputerEase project/work order to Salesforce sales order after job entry",
+      "frequency": null,
+      "entity": "Job (project status and work order)"
+    },
+    {
+      "description": "Ashley manually uploads signed contract documents from HD Portal into ComputerEase job record",
+      "direction": "source-to-target",
+      "trigger": "manual",
+      "target": "ComputerEase",
+      "source": "Home Depot Service Center (HD Portal)",
+      "entity": "Contract Document (299A, 299B, 118)",
+      "frequency": null,
+      "id": "UC7"
+    },
+    {
+      "source": "Salesforce",
+      "target": "ComputerEase",
+      "trigger": "manual",
+      "direction": "source-to-target",
+      "description": "Ashley manually creates tasks in Salesforce project to assign material purchases and labor to team members",
+      "frequency": null,
+      "entity": "Task (material purchase, labor scheduling)",
+      "id": "UC8"
+    },
+    {
+      "frequency": null,
+      "entity": "Appointment (consultation scheduling)",
+      "source": "Home Depot Service Center (HD Portal)",
+      "target": "Salesforce",
+      "trigger": "manual",
+      "description": "Sales rep schedules consultation appointment in HD Portal; appointment syncs to Salesforce calendar",
+      "direction": "source-to-target",
+      "id": "UC9"
+    },
+    {
+      "id": "UC10",
+      "source": "Google Cloud Platform (GCP)",
+      "target": "ComputerEase",
+      "trigger": "event-driven",
+      "direction": "source-to-target",
+      "description": "GCP firewall rules and network configuration enable/restrict API access to ComputerEase VM",
+      "frequency": null,
+      "entity": "Infrastructure (VM hosting, firewall rules, network configuration)"
+    },
+    {
+      "id": "UC11",
+      "description": "Deltek support ticket submitted to enable API access and configure CE Live Service relay for ComputerEase",
+      "direction": "source-to-target",
+      "trigger": "manual",
+      "source": "Deltek Support Portal",
+      "target": "ComputerEase",
+      "entity": "API Configuration (CE Live Service relay, API access enablement)",
+      "frequency": null
+    },
+    {
+      "source": "Home Depot Service Center (HD Portal)",
+      "target": "ComputerEase",
+      "trigger": "manual",
+      "direction": "source-to-target",
+      "description": "Ashley manually enters deposit amount and payment terms from HD Portal contract into ComputerEase job record",
+      "frequency": null,
+      "entity": "Deposit/Payment (payment terms, deposit amount)",
+      "id": "UC12"
+    }
+  ],
+  "potentialFlows": [
+    {
+      "id": "UC13-potential",
+      "source": "Home Depot Service Center (HD Portal)",
+      "target": "ComputerEase",
+      "rationale": "Ashley currently manually checks HD Portal backend reporting to find deposits and update Salesforce. An automated API flow from HD Portal to ComputerEase could verify deposit status and trigger job entry without manual intervention. This would reduce data entry errors and accelerate job processing.",
+      "entity": "Payment/Deposit (automated deposit verification)"
+    },
+    {
+      "id": "UC14-potential",
+      "entity": "Quote Line Items (automated product/material validation)",
+      "rationale": "Quote line items in Salesforce contain product bundle data (material type, picket type, post caps, gates) that must be validated against contract specifications. An automated flow could extract quote line items, validate against master data (material types, SKUs), and flag discrepancies before job entry. This would enforce data quality and reduce manual verification overhead.",
+      "source": "Salesforce",
+      "target": "ComputerEase"
+    },
+    {
+      "entity": "Contract Document (automated document extraction and validation via IDP)",
+      "target": "Salesforce",
+      "source": "Home Depot Service Center (HD Portal)",
+      "rationale": "Contract documents (299A, 299B, 118) are currently manually reviewed by Ashley for compliance (legible signatures, correct dates, matching totals). An IDP (Intelligent Document Processing) flow could automatically extract contract data, validate against business rules (permit date must be Friday, deposit amount must match total, signatures legible), and flag exceptions for manual review. This would scale contract validation and reduce manual bottleneck.",
+      "id": "UC15-potential"
+    }
+  ],
+  "p0Blockers": [
+    {
+      "system": "ComputerEase",
+      "title": "Enable ComputerEase API Access",
+      "clientAction": "Contact Deltek support to enable API access for ComputerEase, configure the CE Live Service relay, and confirm API version compatibility (v26+).",
+      "body": "The client needs to submit a vendor support ticket to Deltek to enable API access for ComputerEase and configure the CE Live Service relay. It's crucial to verify API version compatibility (v26+) and ensure sandbox/production parity for testing and deployment.",
+      "severity": "p0"
+    },
+    {
+      "body": "The current GCP firewall rules allow SSH and RDP access from anywhere, which is a significant security vulnerability. Firewall rules must be hardened to restrict SSH/RDP access to authorized sources only, and network isolation should be configured for the ComputerEase VM to enhance security.",
+      "severity": "p0",
+      "title": "Harden GCP Firewall Rules for ComputerEase VM",
+      "system": "Google Cloud Platform (GCP)",
+      "clientAction": "Work with your IT team or GCP administrator to harden firewall rules for the ComputerEase VM, restricting SSH/RDP access to only necessary IP addresses and configuring network isolation."
+    },
+    {
+      "severity": "p0",
+      "body": "Before any Salesforce integration, it's essential to verify that the API user has appropriate permissions and that an administrator has full access to configure API integrations. This includes confirming sandbox environment parity with production and establishing a read-only API user for ComputerEase data sync to prevent unintended modifications.",
+      "clientAction": "Confirm that the designated Salesforce API user has the necessary permissions for integration and that an administrator has full access to configure API integrations.",
+      "system": "Salesforce",
+      "title": "Verify Salesforce API User Permissions and Admin Access"
+    },
+    {
+      "body": "API credentials are required from the Home Depot Portal team (Marius) to access the lead generation API. The client needs to configure the lead generation API for a 10-minute sync frequency and establish a webhook or polling mechanism for real-time lead updates to ensure data freshness.",
+      "severity": "p0",
+      "title": "Obtain Home Depot Service Center Portal API Credentials",
+      "system": "Home Depot Service Center Portal",
+      "clientAction": "Contact the Home Depot Portal team (Marius) to obtain API credentials for the lead generation API and discuss webhook or polling mechanisms for real-time lead updates."
+    },
+    {
+      "severity": "p0",
+      "body": "DocHub needs to be configured to support digital signature capture for specific contract types (299A, 299B, 118). Additionally, a document storage and retrieval API must be established to facilitate integration with Salesforce for seamless document management.",
+      "clientAction": "Configure DocHub to capture digital signatures for contract types 299A, 299B, and 118, and establish a document storage and retrieval API for Salesforce integration.",
+      "system": "DocHub",
+      "title": "Configure DocHub for Digital Signature Capture and API Access"
+    }
+  ],
+  "internalFlags": [
+    {
+      "system": "ComputerEase",
+      "id": "IF1",
+      "flag": "ComputerEase is a legacy application; assess modernization potential and technical debt.",
+      "severity": "p1"
+    },
+    {
+      "system": "Salesforce",
+      "id": "IF2",
+      "flag": "Investigate sandbox environment limitations and develop a robust testing strategy for production-only features.",
+      "severity": "p1"
+    },
+    {
+      "severity": "p1",
+      "flag": "Evaluate the feasibility of real-time data synchronization for lead updates from HD Portal to Salesforce.",
+      "id": "IF3",
+      "system": "Home Depot Service Center Portal"
+    },
+    {
+      "id": "IF4",
+      "system": "DocHub",
+      "severity": "p1",
+      "flag": "Explore IDP integration for automated document extraction and validation to improve contract compliance."
+    },
+    {
+      "system": "Salesforce",
+      "id": "IF5",
+      "flag": "Define clear business rules and conditional logic for data extraction and mapping, especially for quote line items.",
+      "severity": "p1"
+    },
+    {
+      "severity": "p1",
+      "flag": "Scope process automation for manual tasks, prioritizing those with high impact and frequent execution.",
+      "id": "IF6",
+      "system": "ComputerEase"
+    },
+    {
+      "flag": "Verify user provisioning and permission models across all integrated systems to ensure proper access control.",
+      "severity": "p2",
+      "system": "Salesforce",
+      "id": "IF7"
+    },
+    {
+      "id": "IF8",
+      "system": "Google Cloud Platform (GCP)",
+      "severity": "p2",
+      "flag": "Document deployment strategy for multi-environment scenarios, considering read-only access in sandboxes and controlled write access in production."
+    }
+  ],
+  "playbookStubs": [
+    {
+      "knownQuirks": [],
+      "system": "ComputerEase",
+      "action": "create"
+    },
+    {
+      "action": "create",
+      "knownQuirks": [],
+      "system": "Google Cloud Platform (GCP)"
+    },
+    {
+      "action": "create",
+      "system": "Salesforce",
+      "knownQuirks": []
+    },
+    {
+      "knownQuirks": [],
+      "system": "Home Depot Service Center Portal",
+      "action": "create"
+    },
+    {
+      "action": "create",
+      "knownQuirks": [],
+      "system": "DocHub"
+    },
+    {
+      "knownQuirks": [],
+      "system": "Deltek Support Portal",
+      "action": "create"
+    }
+  ],
+  "connectorRegistryStubs": [
+    {
+      "connectorType": null,
+      "system": "ComputerEase",
+      "authType": null
+    },
+    {
+      "authType": null,
+      "system": "Google Cloud Platform (GCP)",
+      "connectorType": null
+    },
+    {
+      "system": "Salesforce",
+      "connectorType": null,
+      "authType": null
+    },
+    {
+      "system": "Home Depot Service Center Portal",
+      "connectorType": null,
+      "authType": null
+    },
+    {
+      "authType": null,
+      "system": "DocHub",
+      "connectorType": null
+    },
+    {
+      "connectorType": null,
+      "system": "Deltek Support Portal",
+      "authType": null
+    }
+  ]
+}

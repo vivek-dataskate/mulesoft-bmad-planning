@@ -1,0 +1,215 @@
+{
+  "_generatedAt": "2026-06-03T01:13:08.799Z",
+  "_forAgent": "drew",
+  "vera": {
+    "corporateStack": {
+      "dealUrgencyMultipliers": [
+        "Enable ComputerEase API access and configure CE Live Service relay",
+        "Harden GCP firewall rules to restrict SSH/RDP access",
+        "Verify Salesforce user permissions and admin access for API integration",
+        "Obtain API credentials from HD Portal team (Marius)",
+        "Configure DocHub for digital signature capture for contract types 299A, 299B, 118"
+      ],
+      "strategicPartnerships": [],
+      "confidence": "high",
+      "operatingBrand": {
+        "name": "Peerless Fence",
+        "foundedYear": null,
+        "website": null,
+        "slug": null,
+        "description": null
+      },
+      "collaborators": [],
+      "subsidiaries": [],
+      "researchedAt": "2024-07-30",
+      "financialSponsor": {
+        "acquisitionDate": null,
+        "name": "Akoya Capital",
+        "website": null,
+        "thesisForClient": null,
+        "sectorFocus": []
+      },
+      "leadership": {
+        "founders": [],
+        "president": null,
+        "ceo": null
+      },
+      "ownership": "pe-backed-platform-of-brands",
+      "engagementEntity": {
+        "note": null,
+        "sameAsOperatingBrand": true,
+        "name": "Peerless Fence"
+      },
+      "operatingPlatform": {
+        "description": null,
+        "siblingBrands": [],
+        "platformShape": "platform-above",
+        "name": "Elevate Fence Partners",
+        "website": null,
+        "platformExecutiveTeam": [],
+        "regionalStrategy": null
+      }
+    },
+    "company": {
+      "name": "Peerless Fence",
+      "website": null,
+      "industry": "Construction / Specialty Contracting",
+      "verticalSlug": "fence-installation",
+      "hqLocation": null,
+      "hqAddress": null,
+      "revenueEstimate": null,
+      "revenueBracket": null,
+      "sizeSegment": "smb",
+      "foundedYear": null,
+      "logoUrl": null
+    }
+  },
+  "sage": {
+    "confirmedFlows": [
+      {
+        "id": "UC1",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+        "entity": "Lead",
+        "trigger": "scheduled",
+        "triggerDetail": "Every 10 minutes (previously 30 minutes)",
+        "evidence": "It takes ten minutes to update. Actually, on the peerless side... It used to be 30 minutes, so it's nice to know that it's gotten to 10 minutes now."
+      },
+      {
+        "id": "UC2",
+        "systems": [
+          "Salesforce",
+          "ComputerEase"
+        ],
+        "direction": "Salesforce → ComputerEase",
+        "entity": "Job (with budget worksheet data)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep closes opportunity and enters job details manually into ComputerEase job maintenance",
+        "evidence": "I'm going to enter the margin amount. So the margin is showed under apps review budget here. And I'm going to enter the commission amount, which is shown here. So it's going to be 58225 payment terms."
+      },
+      {
+        "id": "UC3",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "ComputerEase"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+        "entity": "Customer (Account/Contact)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually creates customer record in ComputerEase based on lead information from HD Portal",
+        "evidence": "So we're going to say it's 26 HD 565 AS. And then we're going to say Tom Tessmuckian Tess for the name. We're going to state the city. And the state, so we're going to say West Chicago."
+      },
+      {
+        "id": "UC4",
+        "systems": [
+          "Salesforce",
+          "DocHub"
+        ],
+        "direction": "Salesforce → DocHub",
+        "entity": "Contract (299A, 299B, 118, Customer Approval Form)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep or Ashley generates and signs contract documents via DocHub for digital signature capture",
+        "evidence": "I'm going to go into DocHub. Generate a new document. Create document. I'm going to sign in. And then I'm going to download it and save it. I'm going to add it to Salesforce."
+      },
+      {
+        "id": "UC5",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+        "entity": "Quote (with line items and pricing)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep creates quote in HD Portal; Ashley manually verifies and enters quote details into Salesforce opportunity",
+        "evidence": "I'm going to click into the first quote, because there's only one. I'm going to grab the lead number. I'm going to copy it. I'm going to go inside of Home Depot. I'm going to look it up by lead number."
+      },
+      {
+        "id": "UC6",
+        "systems": [
+          "ComputerEase",
+          "Salesforce"
+        ],
+        "direction": "ComputerEase → Salesforce",
+        "entity": "Job (project status and work order)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually attaches ComputerEase project/work order to Salesforce sales order after job entry",
+        "evidence": "From here, I'm going to go to the project and I'm going to a task. This one is because it's aluminum, I'm going to task Barb. So I'm going to say purchase material."
+      },
+      {
+        "id": "UC7",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "ComputerEase"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+        "entity": "Contract Document (299A, 299B, 118)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually uploads signed contract documents from HD Portal into ComputerEase job record",
+        "evidence": "So the 118 needs to be re-uploaded back into Home Depot system as it has been completed with the appropriate signature on behalf of Clayton."
+      },
+      {
+        "id": "UC8",
+        "systems": [
+          "Salesforce",
+          "ComputerEase"
+        ],
+        "direction": "Salesforce → ComputerEase",
+        "entity": "Task (material purchase, labor scheduling)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually creates tasks in Salesforce project to assign material purchases and labor to team members",
+        "evidence": "I'm going to task Barb. So I'm going to say purchase material. And then I'm going to say stock because it's a stock item."
+      },
+      {
+        "id": "UC9",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+        "entity": "Appointment (consultation scheduling)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep schedules consultation appointment in HD Portal; appointment syncs to Salesforce calendar",
+        "evidence": "There's an appointment. It's going to go on the sales rep's calendar, which it says I'm a sales rep, even though I am not. It's going to send an email."
+      },
+      {
+        "id": "UC10",
+        "systems": [
+          "ComputerEase",
+          "Google Cloud Platform (GCP)"
+        ],
+        "direction": "ComputerEase ← Google Cloud Platform (GCP)",
+        "entity": "Infrastructure (VM hosting, firewall rules, network configuration)",
+        "trigger": "event-driven",
+        "triggerDetail": "GCP firewall rules and network configuration enable/restrict API access to ComputerEase VM",
+        "evidence": "They're allowing SSH and RDP from anywhere, which is really bad practice. Anyone on the internet can try to log into this server."
+      },
+      {
+        "id": "UC11",
+        "systems": [
+          "ComputerEase",
+          "Deltek Support Portal"
+        ],
+        "direction": "ComputerEase ← Deltek Support Portal",
+        "entity": "API Configuration (CE Live Service relay, API access enablement)",
+        "trigger": "manual",
+        "triggerDetail": "Deltek support ticket submitted to enable API access and configure CE Live Service relay for ComputerEase",
+        "evidence": "We want to enable API access for computer ease. Can you mention the version, Brian? I think it's 26 something. Like you just mentioned, could you please help us to configure this in our GCP?"
+      },
+      {
+        "id": "UC12",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "ComputerEase"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+        "entity": "Deposit/Payment (payment terms, deposit amount)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually enters deposit amount and payment terms from HD Portal contract into ComputerEase job record",
+        "evidence": "Payment terms. It's going to be Home Depot. So it's you know, um, this this actually isn't needed. We should be saying if they paid by credit or check or cash into the Home Depot store, they paid with a credit card."
+      }
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "client": "peerless2",
+  "assembledAt": "2026-06-03T16:15:19.461Z",
+  "diagrams": [
+    {
+      "id": "system-flow",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/system-flow-dual-panel.mmd",
+      "title": "System Flow — Current State",
+      "generatedBy": "rex+flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless (LangGraph run)",
+        "__CURRENT_SYSTEMS__": "",
+        "__DEPRECATED__": "",
+        "__HUB__": "MuleSoft (DataSkate managed)",
+        "__TARGETS__": "",
+        "__FLOW_COUNT__": "12"
+      }
+    },
+    {
+      "id": "scope-boundary-scoping",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/integration-scope-boundary.mmd",
+      "title": "Integration Scope Boundary",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless (LangGraph run)",
+        "__HUB__": "MuleSoft (DataSkate managed)",
+        "__CONFIRMED_FLOWS__": "Lead Sync from HD Portal to Salesforce, Job Entry with Budget Data, Customer Record Creation, Contract Generation and Digital Signature, Quote Entry from HD Portal to Salesforce, Job Status Attachment to Sales Order, Contract Document Upload to ComputerEase, Task Creation for Material and Labor, Appointment Scheduling Sync, GCP Infrastructure Configuration, API Configuration via Deltek Support, Deposit and Payment Terms Entry",
+        "__OUT_OF_SCOPE__": "",
+        "__FLOW_COUNT__": "12"
+      }
+    },
+    {
+      "id": "scoping-gate",
+      "level": "scoping",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/scoping/decision-scoping-gate.mmd",
+      "title": "Scoping Decision Gate",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless (LangGraph run)",
+        "__P0_BLOCKERS__": "Enable ComputerEase API Access, Harden GCP Firewall Rules for ComputerEase VM, Verify Salesforce API User Permissions and Admin Access, Obtain Home Depot Service Center Portal API Credentials, Configure DocHub for Digital Signature Capture and API Access"
+      }
+    },
+    {
+      "id": "ownership-lattice",
+      "level": "corporate",
+      "type": "custom-svg",
+      "templateRef": "commons/diagram-templates/corporate/ownership-lattice.mmd",
+      "title": "Corporate Ownership Lattice",
+      "generatedBy": "vera+drew+flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless (LangGraph run)"
+      }
+    },
+    {
+      "id": "sow-timeline",
+      "level": "sow",
+      "type": "gantt",
+      "templateRef": "commons/diagram-templates/sow/phased-timeline.mmd",
+      "title": "Phased Implementation Timeline",
+      "generatedBy": "flo+petra",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless (LangGraph run)",
+        "__TIMELINE_BODY__": "    section Discovery\n    Requirements & Architecture :disc, 2026-06-01, 2w\n    section Implementation\n    Integration Build           :build, after disc, 6w\n    section Validation\n    UAT & Go-Live               :uat, after build, 2w"
+      }
+    },
+    {
+      "id": "sow-scope-boundary",
+      "level": "sow",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/sow/scope-boundary.mmd",
+      "title": "Scope Boundary — In vs Out",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless (LangGraph run)",
+        "__IN_SCOPE__": "Lead Sync from HD Portal to Salesforce, Job Entry with Budget Data, Customer Record Creation, Contract Generation and Digital Signature, Quote Entry from HD Portal to Salesforce, Job Status Attachment to Sales Order, Contract Document Upload to ComputerEase, Task Creation for Material and Labor, Appointment Scheduling Sync, GCP Infrastructure Configuration, API Configuration via Deltek Support, Deposit and Payment Terms Entry",
+        "__OUT_OF_SCOPE__": ""
+      }
+    },
+    {
+      "id": "sow-assumptions",
+      "level": "sow",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/sow/assumptions-map.mmd",
+      "title": "Assumptions and Owner Map",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless (LangGraph run)",
+        "__ASSUMPTIONS_BODY__": ""
+      }
+    }
+  ]
+}

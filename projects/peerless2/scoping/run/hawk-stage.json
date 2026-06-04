@@ -1,0 +1,948 @@
+{
+  "_generatedAt": "2026-06-03T16:13:39.812Z",
+  "_forAgent": "hawk",
+  "vera": {
+    "company": {
+      "name": "Peerless Fence",
+      "website": null,
+      "industry": "Construction / Specialty Contracting",
+      "verticalSlug": "fence-installation",
+      "hqLocation": null,
+      "hqAddress": null,
+      "revenueEstimate": null,
+      "revenueBracket": null,
+      "sizeSegment": "smb",
+      "foundedYear": null,
+      "logoUrl": null
+    },
+    "aiJourney": {
+      "phase1": {
+        "headline": "Lead Ingestion & Qualification via HD Portal → Salesforce",
+        "detail": "Automate lead capture from Home Depot Service Center Portal into Salesforce every 10 minutes. Eliminate manual lead verification by Ashley and establish real-time lead routing to sales reps for faster consultation scheduling."
+      },
+      "phase2": {
+        "headline": "Quote-to-Job Workflow: Salesforce → ComputerEase with Contract Validation",
+        "detail": "Automate job creation in ComputerEase when Salesforce opportunity closes. Integrate contract document validation (299A, 299B, 118) via DocHub digital signatures. Sync customer, deposit, and payment terms from HD Portal and Salesforce into ComputerEase job maintenance to eliminate manual data entry."
+      },
+      "phase3": {
+        "headline": "Project Execution & Compliance Automation via ComputerEase API & IDP",
+        "detail": "Enable ComputerEase API access (CE Live Service relay) to automate task creation, material ordering, and labor scheduling. Implement Intelligent Document Processing (IDP) to extract and validate contract data against business rules (permit dates, deposit amounts, signature legibility). Establish read-only Salesforce sync from ComputerEase for project status visibility."
+      }
+    },
+    "corporateStack": {
+      "dealUrgencyMultipliers": [
+        "Enable ComputerEase API access and configure CE Live Service relay",
+        "Harden GCP firewall rules to restrict SSH/RDP access",
+        "Verify Salesforce user permissions and admin access for API integration",
+        "Obtain API credentials from HD Portal team (Marius)",
+        "Configure DocHub for digital signature capture for contract types 299A, 299B, 118"
+      ],
+      "strategicPartnerships": [],
+      "confidence": "high",
+      "operatingBrand": {
+        "name": "Peerless Fence",
+        "foundedYear": null,
+        "website": null,
+        "slug": null,
+        "description": null
+      },
+      "collaborators": [],
+      "subsidiaries": [],
+      "researchedAt": "2024-07-30",
+      "financialSponsor": {
+        "acquisitionDate": null,
+        "name": "Akoya Capital",
+        "website": null,
+        "thesisForClient": null,
+        "sectorFocus": []
+      },
+      "leadership": {
+        "founders": [],
+        "president": null,
+        "ceo": null
+      },
+      "ownership": "pe-backed-platform-of-brands",
+      "engagementEntity": {
+        "note": null,
+        "sameAsOperatingBrand": true,
+        "name": "Peerless Fence"
+      },
+      "operatingPlatform": {
+        "description": null,
+        "siblingBrands": [],
+        "platformShape": "platform-above",
+        "name": "Elevate Fence Partners",
+        "website": null,
+        "platformExecutiveTeam": [],
+        "regionalStrategy": null
+      }
+    },
+    "dealUrgencyMultipliers": [
+      "Enable ComputerEase API access and configure CE Live Service relay",
+      "Harden GCP firewall rules to restrict SSH/RDP access",
+      "Verify Salesforce user permissions and admin access for API integration",
+      "Obtain API credentials from HD Portal team (Marius)",
+      "Configure DocHub for digital signature capture for contract types 299A, 299B, 118"
+    ],
+    "competitorFOMO": [
+      {
+        "sizeSegment": "midmarket",
+        "sourceUrl": null,
+        "fomoProfileFit": "operational-pragmatist",
+        "industry": "Construction / Specialty Contracting",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "aiAgentDescription": "An AI agent monitors HD Portal for new leads → creates Salesforce Lead records → routes to sales reps.",
+        "displayName": "Peerless Fence Group",
+        "analogyNote": null,
+        "relevanceTier": 1,
+        "whatWasBuilt": "Scheduled poll of HD Portal API every 10 minutes; lead records (keyed by F-number) created in Salesforce as Lead objects with HD source attribution.",
+        "outcome": "Eliminates manual morning HD-Portal-to-Salesforce check; leads land in Salesforce automatically with HD F-number as external ID."
+      },
+      {
+        "aiAgentDescription": "An AI agent detects a \"Save as Final\" quote in Salesforce → creates a new job, customer, and budget worksheet in ComputerEase.",
+        "displayName": "Peerless Fence Group",
+        "analogyNote": null,
+        "outcome": "Automates job creation in ComputerEase, eliminating manual data entry and ensuring data consistency between Salesforce and ComputerEase.",
+        "whatWasBuilt": "Event-driven flow triggered by Salesforce quote 'Save as Final' status transition; creates ComputerEase Job (sequential numbering by company code + product line + initials), Customer, and Budget Worksheet.",
+        "relevanceTier": 1,
+        "sourceUrl": null,
+        "sizeSegment": "midmarket",
+        "fomoProfileFit": "operational-pragmatist",
+        "systems": [
+          "Salesforce",
+          "ComputerEase (Deltek)"
+        ],
+        "industry": "Construction / Specialty Contracting"
+      },
+      {
+        "outcome": "Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated",
+        "relevanceTier": 4,
+        "whatWasBuilt": "MuleSoft flow: Salesforce Platform Event (Agreement Created) → QuickBooks invoice creation with line items (products, quantities, pricing) mapped from Salesforce Opportunity products",
+        "analogyNote": "While in a different industry, this demonstrates automating financial workflows from CRM to ERP, similar to Peerless Fence's need to sync data from Salesforce to ComputerEase.",
+        "displayName": "AgileMind",
+        "aiAgentDescription": "An AI agent detects a new agreement in Salesforce → creates an invoice in QuickBooks.",
+        "industry": "Education",
+        "systems": [
+          "Salesforce",
+          "QuickBooks"
+        ],
+        "fomoProfileFit": "roi-analytical",
+        "sourceUrl": null,
+        "sizeSegment": "SMB"
+      }
+    ],
+    "credentialingAnchors": []
+  },
+  "rex": {
+    "p0Blockers": [
+      {
+        "system": "ComputerEase",
+        "title": "Enable ComputerEase API Access",
+        "clientAction": "Contact Deltek support to enable API access for ComputerEase, configure the CE Live Service relay, and confirm API version compatibility (v26+).",
+        "body": "The client needs to submit a vendor support ticket to Deltek to enable API access for ComputerEase and configure the CE Live Service relay. It's crucial to verify API version compatibility (v26+) and ensure sandbox/production parity for testing and deployment.",
+        "severity": "p0"
+      },
+      {
+        "body": "The current GCP firewall rules allow SSH and RDP access from anywhere, which is a significant security vulnerability. Firewall rules must be hardened to restrict SSH/RDP access to authorized sources only, and network isolation should be configured for the ComputerEase VM to enhance security.",
+        "severity": "p0",
+        "title": "Harden GCP Firewall Rules for ComputerEase VM",
+        "system": "Google Cloud Platform (GCP)",
+        "clientAction": "Work with your IT team or GCP administrator to harden firewall rules for the ComputerEase VM, restricting SSH/RDP access to only necessary IP addresses and configuring network isolation."
+      },
+      {
+        "severity": "p0",
+        "body": "Before any Salesforce integration, it's essential to verify that the API user has appropriate permissions and that an administrator has full access to configure API integrations. This includes confirming sandbox environment parity with production and establishing a read-only API user for ComputerEase data sync to prevent unintended modifications.",
+        "clientAction": "Confirm that the designated Salesforce API user has the necessary permissions for integration and that an administrator has full access to configure API integrations.",
+        "system": "Salesforce",
+        "title": "Verify Salesforce API User Permissions and Admin Access"
+      },
+      {
+        "body": "API credentials are required from the Home Depot Portal team (Marius) to access the lead generation API. The client needs to configure the lead generation API for a 10-minute sync frequency and establish a webhook or polling mechanism for real-time lead updates to ensure data freshness.",
+        "severity": "p0",
+        "title": "Obtain Home Depot Service Center Portal API Credentials",
+        "system": "Home Depot Service Center Portal",
+        "clientAction": "Contact the Home Depot Portal team (Marius) to obtain API credentials for the lead generation API and discuss webhook or polling mechanisms for real-time lead updates."
+      },
+      {
+        "severity": "p0",
+        "body": "DocHub needs to be configured to support digital signature capture for specific contract types (299A, 299B, 118). Additionally, a document storage and retrieval API must be established to facilitate integration with Salesforce for seamless document management.",
+        "clientAction": "Configure DocHub to capture digital signatures for contract types 299A, 299B, and 118, and establish a document storage and retrieval API for Salesforce integration.",
+        "system": "DocHub",
+        "title": "Configure DocHub for Digital Signature Capture and API Access"
+      }
+    ]
+  },
+  "flo": {
+    "p0Blockers": [
+      {
+        "title": "Enable ComputerEase API Access",
+        "clientAction": "Contact Deltek support to enable API access for ComputerEase, configure the CE Live Service relay, and confirm API version compatibility (v26 or higher).",
+        "body": "The client needs to submit a vendor support ticket to Deltek to enable API access for ComputerEase and configure the CE Live Service relay. It is crucial to verify API version compatibility (v26+) and ensure sandbox/production parity for testing and deployment.",
+        "system": "ComputerEase",
+        "severity": "p0"
+      },
+      {
+        "title": "Harden GCP Firewall Rules for ComputerEase VM",
+        "clientAction": "Work with your IT team or GCP administrator to harden firewall rules for the ComputerEase VM, restricting SSH/RDP access to only necessary IP addresses and configuring network isolation.",
+        "body": "The current GCP firewall rules allow SSH and RDP access from anywhere, which is a significant security vulnerability. Firewall rules must be hardened to restrict SSH/RDP access to authorized sources only, and network isolation should be configured for the ComputerEase VM to enhance security.",
+        "system": "Google Cloud Platform (GCP)",
+        "severity": "p0"
+      },
+      {
+        "title": "Verify Salesforce API User Permissions and Admin Access",
+        "clientAction": "Confirm that the designated Salesforce API user has the necessary permissions for integration and that an administrator has full access to configure API integrations.",
+        "body": "Before any Salesforce integration, it is essential to verify that the API user has appropriate permissions and that an administrator has full access to configure API integrations. This includes confirming sandbox environment parity with production and establishing a read-only API user for ComputerEase data sync to prevent unintended modifications.",
+        "system": "Salesforce",
+        "severity": "p0"
+      },
+      {
+        "title": "Obtain Home Depot Service Center Portal API Credentials",
+        "clientAction": "Contact the Home Depot Portal team (Marius) to obtain API credentials for the lead generation API and discuss webhook or polling mechanisms for real-time lead updates.",
+        "body": "API credentials are required from the Home Depot Portal team (Marius) to access the lead generation API. The client needs to configure the lead generation API for a 10-minute sync frequency and establish a webhook or polling mechanism for real-time lead updates to ensure data freshness.",
+        "system": "Home Depot Service Center Portal",
+        "severity": "p0"
+      },
+      {
+        "title": "Configure DocHub for Digital Signature Capture and API Access",
+        "clientAction": "Configure DocHub to capture digital signatures for contract types 299A, 299B, and 118, and establish a document storage and retrieval API for Salesforce integration.",
+        "body": "DocHub needs to be configured to support digital signature capture for specific contract types (299A, 299B, 118). Additionally, a document storage and retrieval API must be established to facilitate integration with Salesforce for seamless document management.",
+        "system": "DocHub",
+        "severity": "p0"
+      }
+    ],
+    "confirmedFlows": [
+      {
+        "id": "UC1",
+        "name": "Lead Sync from HD Portal to Salesforce",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "Salesforce",
+        "entity": "Lead",
+        "direction": "source-to-target",
+        "trigger": "scheduled",
+        "frequency": "10-min",
+        "complexity": "medium",
+        "description": "Leads from HD Portal sync to Salesforce every 10 minutes via scheduled polling."
+      },
+      {
+        "id": "UC2",
+        "name": "Job Entry with Budget Data",
+        "source": "Salesforce",
+        "target": "ComputerEase",
+        "entity": "Job",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "high",
+        "description": "Sales rep manually closes opportunity and enters job details with budget worksheet data into ComputerEase."
+      },
+      {
+        "id": "UC3",
+        "name": "Customer Record Creation",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "ComputerEase",
+        "entity": "Customer",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "medium",
+        "description": "Ashley manually creates customer record in ComputerEase based on lead information from HD Portal."
+      },
+      {
+        "id": "UC4",
+        "name": "Contract Generation and Digital Signature",
+        "source": "Salesforce",
+        "target": "DocHub",
+        "entity": "Contract",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "high",
+        "description": "Sales rep or Ashley generates and signs contract documents (299A, 299B, 118) via DocHub for digital signature capture."
+      },
+      {
+        "id": "UC5",
+        "name": "Quote Entry from HD Portal to Salesforce",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "Salesforce",
+        "entity": "Quote",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "medium",
+        "description": "Sales rep creates quote in HD Portal; Ashley manually verifies and enters quote details into Salesforce opportunity."
+      },
+      {
+        "id": "UC6",
+        "name": "Job Status Attachment to Sales Order",
+        "source": "ComputerEase",
+        "target": "Salesforce",
+        "entity": "Job",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "medium",
+        "description": "Ashley manually attaches ComputerEase project/work order to Salesforce sales order after job entry."
+      },
+      {
+        "id": "UC7",
+        "name": "Contract Document Upload to ComputerEase",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "ComputerEase",
+        "entity": "Contract",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "medium",
+        "description": "Ashley manually uploads signed contract documents (299A, 299B, 118) from HD Portal into ComputerEase job record."
+      },
+      {
+        "id": "UC8",
+        "name": "Task Creation for Material and Labor",
+        "source": "Salesforce",
+        "target": "ComputerEase",
+        "entity": "Task",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "medium",
+        "description": "Ashley manually creates tasks in Salesforce project to assign material purchases and labor to team members."
+      },
+      {
+        "id": "UC9",
+        "name": "Appointment Scheduling Sync",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "Salesforce",
+        "entity": "Appointment",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "low",
+        "description": "Sales rep schedules consultation appointment in HD Portal; appointment syncs to Salesforce calendar."
+      },
+      {
+        "id": "UC10",
+        "name": "GCP Infrastructure Configuration",
+        "source": "Google Cloud Platform (GCP)",
+        "target": "ComputerEase",
+        "entity": "Infrastructure",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "high",
+        "description": "GCP firewall rules and network configuration enable/restrict API access to ComputerEase VM."
+      },
+      {
+        "id": "UC11",
+        "name": "API Configuration via Deltek Support",
+        "source": "Deltek Support Portal",
+        "target": "ComputerEase",
+        "entity": "API Configuration",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "high",
+        "description": "Deltek support ticket submitted to enable API access and configure CE Live Service relay for ComputerEase."
+      },
+      {
+        "id": "UC12",
+        "name": "Deposit and Payment Terms Entry",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "ComputerEase",
+        "entity": "Deposit",
+        "direction": "source-to-target",
+        "trigger": "event",
+        "frequency": null,
+        "complexity": "low",
+        "description": "Ashley manually enters deposit amount and payment terms from HD Portal contract into ComputerEase job record."
+      }
+    ],
+    "potentialFlows": [
+      {
+        "id": "PF1",
+        "name": "Automated Deposit Verification and Job Trigger",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "ComputerEase",
+        "entity": "Deposit",
+        "rationale": "Ashley currently manually checks HD Portal backend reporting to find deposits and update Salesforce. An automated API flow could verify deposit status and trigger job entry without manual intervention, reducing data entry errors and accelerating job processing.",
+        "scopeBoundary": "operating-brand",
+        "sourceTag": "inferred: scope-adjacent system from sage transcript"
+      },
+      {
+        "id": "PF2",
+        "name": "Quote Line Item Validation and Product Matching",
+        "source": "Salesforce",
+        "target": "ComputerEase",
+        "entity": "Quote Line Item",
+        "rationale": "Quote line items in Salesforce contain product bundle data (material type, picket type, post caps, gates) that must be validated against contract specifications. An automated flow could extract quote line items, validate against master data, and flag discrepancies before job entry.",
+        "scopeBoundary": "operating-brand",
+        "sourceTag": "inferred: scope-adjacent system from sage transcript"
+      },
+      {
+        "id": "PF3",
+        "name": "Intelligent Document Processing for Contract Validation",
+        "source": "Home Depot Service Center (HD Portal)",
+        "target": "Salesforce",
+        "entity": "Contract",
+        "rationale": "Contract documents (299A, 299B, 118) are currently manually reviewed by Ashley for compliance. An IDP flow could automatically extract contract data, validate against business rules (permit date, deposit amount matching, signature legibility), and flag exceptions for manual review.",
+        "scopeBoundary": "operating-brand",
+        "sourceTag": "inferred: scope-adjacent system from sage transcript"
+      }
+    ],
+    "flags": {
+      "salesforceDetected": true,
+      "computerEaseDetected": true,
+      "idpDetected": true
+    }
+  },
+  "ivy": {
+    "psychologyProfile": {
+      "primaryProfile": "risk-averse-conservative",
+      "primaryProfileLabel": "Risk-Averse Conservative",
+      "secondaryProfile": "operational-pragmatist",
+      "secondaryProfileLabel": "Operational Pragmatist",
+      "signalCounts": {
+        "internal-champion": 0,
+        "roi-analytical": 0,
+        "peer-pressure": 0,
+        "operational-pragmatist": 2,
+        "budget-constrained": 0,
+        "systematic-evaluator": 0,
+        "visionary-strategic": 0,
+        "time-pressured": 0,
+        "competitive-leverager": 0,
+        "risk-averse-conservative": 14
+      },
+      "matchedPhrases": {
+        "risk-averse-conservative": [
+          "This is a really, really poor practice right here for security.",
+          "That's scary.",
+          "I thought we fixed this."
+        ],
+        "operational-pragmatist": [
+          "I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow. Then that way it makes it easier to see. I don't like the other one. The other one I have to click on a couple of different things just to get around.",
+          "I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow. Then that way it makes it easier to see. I don't like the other one. The other one I have to click on a couple of different things just to get around."
+        ]
+      },
+      "primaryPainQuote": "I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow. Then that way it makes it easier to see. I don't like the other one. The other one I have to click on a couple of different things just to get around.",
+      "aspirationQuote": "I think by next early next week, I think we should be able to figure out all the access connectivity and extracting data. So we should be good after that.",
+      "skepticismSignals": [
+        "This is a really, really poor practice right here for security.",
+        "That's scary.",
+        "I thought we fixed this.",
+        "It's an ancient system.",
+        "I feel like I've traveled back to the 90s.",
+        "They're allowing SSH and RDP from anywhere, which is really bad practice."
+      ],
+      "excitementPhrases": [
+        "This is big.",
+        "This is what we needed.",
+        "Looks great.",
+        "Everything looks grand."
+      ],
+      "ebAttributedQuotes": [],
+      "blendNote": "Secondary operational-pragmatist profile applied to challengeFraming: emphasizes naming exact manual processes and roles with specific transcript language for concrete specificity without conflicting with risk-averse primary framing.",
+      "detectedAt": "2026-06-03",
+      "newProfileCreated": false,
+      "newProfileId": null
+    }
+  },
+  "sage": {
+    "primaryPainQuote": "I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow. Then that way it makes it easier to see. I don't like the other one. The other one I have to click on a couple of different things just to get around.",
+    "aspirationQuote": "I think by next early next week, I think we should be able to figure out all the access connectivity and extracting data. So we should be good after that."
+  },
+  "_proposalStructure": "# DataSkate — Client Proposal Structure\n**Authoritative template for all client-facing proposals | Internal Use Only**\n\n---\n\n## Core Principle\n\nEvery DataSkate proposal must lead with the client's AI transformation journey — not with pricing, not with integrations. Pricing and scope answer *how*; the journey answers *why*.\n\nThe primary message: **We are not selling integrations. We are selling the foundation for AI-enabled operations.**\n\nIntegrations (the flows we scope and build) are Stage 1. The proposal must make clear what Stage 2 and Stage 3 look like for *this specific client* — with real examples drawn from their business context, not generic statements.\n\n---\n\n## Mandatory Section Order\n\n1. **Header** — client name, tagline about their AI journey (never just \"connecting systems\"), date, architect, flow count\n2. **The Challenge** — 3–4 specific pain points grounded in scoping notes; quote concrete details from calls\n3. **The Solution** — MuleSoft as the hub; SVG architecture diagram; one line on managed service\n4. **Your Journey to AI-Enabled Operations** — three-stage arc (see below)\n5. **Proposed Integrations** — flow-by-flow cards with source → target, complexity badge, business value\n6. **What You Get** — operational outcome cards; last card is always AI-Ready Foundation\n7. **ROI / Business Case** *(conditional)* — include when specific numbers from scoping justify it; skip if no hard data\n8. **Delivery Timeline** — weeks by phase; final phase references Year 2 automation roadmap\n9. **Investment** — intro paragraph leads with transformation value; pricing models follow; rate schedule table\n10. **What's Included** — managed service scope (6 standard items)\n11. **About DataSkate** *(optional)* — include for first-time clients or when AE is new to DataSkate; omit for repeat clients\n12. **What's Not Included** — explicit out-of-scope list; always include; minimum 4 items, client-specific\n13. **Key Assumptions & Dependencies** — what must be true before development begins; use table format (assumption, owner, when needed)\n14. **Next Steps** — 4 steps in horizontal flow; last step always references Year 2 plan alongside go-live\n\n**Do not lead with pricing.** Pricing is Section 9 of 14 (or 9 of 13 when ROI/Business Case is skipped).\n\n---\n\n## The Three-Stage Journey Section\n\nThis is the most important section. Every proposal must have it. Populate with client-specific examples — never use generic filler.\n\n### Stage 1 — Connected (Year 1 · The flows in this proposal)\nCSS class: `stage1` (background `#FFF0F0`, top border `var(--brand)` red `#ed1c24`)\nBadge label: `Starting Now` (CSS class: `current`)\n\nWhat to write here: the specific operational outcomes from these flows, in plain business terms. Not \"integrations are built\" — name the person who stops doing the manual task, or the backlog that clears on day one. Source from the client's actual pain points in scoping.\n\n### Stage 2 — Automated (Year 1–2 · Built on Stage 1)\nCSS class: `stage2` (background `#F0FFF6`, top border `var(--green)` `#2E9E6B`)\nBadge label: `Year 1–2` (CSS class: `next`)\n\nWhat to write here: rules and triggers that fire automatically once Stage 1 data is reliable. These are specific business scenarios, not technical features:\n- A status change in System A triggers action in System B without human touch\n- An anomaly detected → alert sent before it becomes a problem\n- A manual sorting/routing task that disappears because rules handle it\n\nSource from the client's biggest manual/repetitive processes mentioned in scoping.\n\n### Stage 3 — Agentic (Year 2+ · AI acting on connected data)\nCSS class: `stage3` (background `#F2F4F8`, top border dark navy `#1C2B3A`)\nBadge label: `Year 2+` (CSS class: `next`)\n\n**Salesforce clients — AgentForce is the co-sell, not a footnote:**\nWhen Salesforce is one of the client's systems, Stage 3 must name **Salesforce AgentForce** explicitly — not \"AI agents\" generically. This is a deliberate sales alignment: the Salesforce AE on this deal is already trying to sell AgentForce. DataSkate's proposal should make that AE's job easier, not harder. The message to both the AE and the client is the same: DataSkate builds what AgentForce needs to work. Without clean, connected, event-driven data underneath it, AgentForce underdelivers. With it, Year 2 is an activation, not a new project.\n\nFrame it this way in Stage 3:\n- AgentForce is already in the Salesforce ecosystem the client is paying for — or available as an add-on within their existing relationship. No new vendor. No new procurement cycle.\n- The MuleSoft flows built in Year 1 are the exact data pipelines AgentForce reads. The field schemas, sync triggers, and object models DataSkate designs are what the AgentForce agent queries when it acts.\n- Name the specific AgentForce action using the client's real Salesforce objects: \"An AgentForce agent watches open opportunities in Salesforce against QuickBooks invoice status — when a deal closes and no invoice appears within 24 hours, it alerts finance and logs the exception.\" Not \"AgentForce automates your workflows.\"\n\n**Writing rules — read these before drafting a single word:**\n\n1. **Name the specific operational question the AI answers** — not what technology does it use. Wrong: \"AI agents analyze data.\" Right: \"Which district agreements are at risk of not renewing before the April procurement window closes?\"\n\n2. **Ground every item in Stage 1 data** — each bullet must directly reference a data source created by the flows in Stage 1. If the Stage 1 flows connect Salesforce and QuickBooks, the AI reads Salesforce and QuickBooks data — not \"connected systems.\"\n\n3. **No AI noise words** — banned: \"AI-powered,\" \"data contracts,\" \"agentic platform,\" \"leverage AI,\" \"drive insights,\" \"unlock value,\" \"data-driven decisions.\" These are marketing filler. Write what the AI actually does in one concrete sentence.\n\n4. **Never repeat the peer comparison's AI use case** — if the FOMO section shows a company that used a churn-risk model, do not write \"churn-risk model\" in Stage 3. Pick a different angle from the same data — same data, different question the AI answers.\n\n5. **Use the client's real language** — use the exact terms from the scoping transcript: the names of their systems, their job titles, their seasonal windows, their specific pain points. If they said \"the April procurement window,\" write \"April procurement window\" — not \"seasonal demand.\"\n\n**Examples of right vs. wrong (all for the same B2B SaaS client):**\n\nWrong (AI noise): \"AI agents score churn risk across your customer base using connected data.\"\nRight (specific): \"Which of our 80 accounts is likely to miss renewal — and why — based on invoice payment pattern and HubSpot activity over the last 90 days?\"\n\nWrong (AI noise): \"Automated forecasting replaces manual reconciliation.\"\nRight (specific): \"The weekly spreadsheet your finance team builds to reconcile HubSpot pipeline against NetSuite actuals disappears — the model runs it every Monday at 7am and flags the two or three deals where the numbers don't match.\"\n\n**Vertical examples — use as inspiration, not copy-paste:**\n\n**Healthcare GPO / Member Organizations:**\n- Which members haven't submitted a utilization report in 90 days — flagged before the vendor escalation window opens?\n- Which sales rep's territory shows purchase patterns that signal a certification lapse risk?\n\n**Home Services / Contractor:**\n- Which jobs are 3 days behind cycle-time benchmarks right now — before the customer calls?\n- Which installers generated the most rework requests last quarter — pattern visible only once job data lives in the ERP?\n\n**Manufacturing / Distribution:**\n- Which SKUs are trending toward stockout based on open CRM opportunities not yet converted to orders?\n- Which vendors are late on SLA delivery more than 2× in the last 60 days — pattern invisible until ERP and order data connect?\n\n**B2B SaaS / Tech:**\n- Which accounts have had zero product activity in 30 days and an invoice overdue — and who on the CSM team owns them?\n- Which closed-won deals from last quarter still don't have a NetSuite subscription — and how much ARR is sitting unrecognized?\n\n**EdTech / K-12:**\n- Which district agreements are in the renewal window but haven't had a Salesforce touchpoint in 45 days?\n- Which inventory items are trending below safety stock heading into the April procurement season — visible because QuickBooks purchase orders are now connected to Salesforce opportunity data?\n\n### Closing line for the journey section\nAlways end with this verbatim:\n\"> *\"The 1-year managed service is how [Client] gets from Stage 1 to Stage 2 without rebuilding anything. The architecture we lay down in week one determines what is possible at renewal. No other integration partner structures an engagement with this arc in mind.\"*\n\n---\n\n## Investment Section — Two Models Only\n\nDo not open with model names. Open with the transformation value paragraph first.\n\nEvery proposal shows exactly **two models**. All rates, fees, and payment schedules are computed from `commons/sales/pricing-model.md` — do not hardcode numbers here.\n\n**Model 1 (recommended): IaaS / Managed Service**\n- Implementation: $0 — included in monthly rate\n- Headline number: 1-year managed service total (computed from pricing-model.md)\n- Sub-figures: $0 implementation badge (green) + Period 1 six-month payment\n\n**Model 2: Implementation Only**\n- Implementation fee: per-flow rate from pricing-model.md\n- Headline number: the total implementation fee\n- No ongoing DataSkate service\n\n**Headline numbers must be visually distinct** — IaaS 1-year total vs OTB one-time fee. Never the same dollar amount on both cards.\n\n### Rate schedule\nAlways show both periods. Rates, escalation %, and payment cadence come from pricing-model.md. All integration code is owned by the client in their GitHub repo.\n\n---\n\n## What You Get — Last Card Rule\n\nThe last outcome card in the \"What You Get\" grid must always be **AI-Ready Foundation**, not an operational metric. Use:\n\n> **AI-Ready Foundation** — Clean, connected, well-maintained data infrastructure is what AI agents need to operate. Every flow we build is a pipeline an AI agent will eventually use — built right from the start.\n\nThis anchors the operational outcomes back to the strategic destination.\n\n---\n\n## What's Not Included — Standard Items\n\nAlways include a minimum of 4 out-of-scope items, all client-specific. Standard categories:\n- Platform/middleware the client owns (Salesforce object design, ERP field config, email template design)\n- Third-party prerequisites that are not DataSkate's responsibility (CE Live Service, IDP model training, Shopify webhook setup)\n- Historical data migration (this engagement handles net-new data from go-live forward)\n- Vendor or partner operational tasks (HD Portal test lead management, Gravity Forms license upgrade, etc.)\n\n---\n\n## Key Assumptions — Table Format\n\nAlways use table format with three columns: **Assumption**, **Owner**, **When Needed**.\n\nOwner badge CSS classes:\n- `.owner-client` (blue) — client admin action\n- `.owner-ds` (green) — DataSkate action\n- `.owner-both` (purple) — joint effort\n- `.owner-vendor` (amber) — third-party or partner\n\nP0 blockers (hard blockers to development) go first in the table. Flag them explicitly in the assumption text.\n\n---\n\n## Timeline Calculation\n\n```\nTotal weeks = 2 (requirements) + (N flows × 1.5) (development) + 2 (UAT) + 1 (go-live)\n```\n\nRound up to nearest whole week. Add buffer notes for known coordination dependencies (e.g. CE Live Service, IDP configuration, HD Portal write endpoint confirmation) in the timeline body text — do not inflate the week count for these.\n\n---\n\n## Diagram — SVG Architecture\n\nUse the SVG pattern from the MRN reference (inline SVG, viewBox, no external assets):\n- Left column: source system boxes — `fill:#fff; stroke:#C9302C` (red stroke, class `sv-src`)\n- Center: MuleSoft hub — `fill:#E31F26` (red fill, class `sv-hub`), label \"MuleSoft / DataSkate Managed\"\n- Right column: target system boxes — `fill:#fff; stroke:#2E9E6B` (green stroke, class `sv-tgt`)\n- Connector lines: `stroke:#C8CACC` (gray, class `sv-line`)\n- Source labels: `fill:#C9302C` red; target labels: `fill:#2E9E6B` green; hub label: `fill:#fff` white\n\nFor bidirectional flows: note bidirectionality in the diagram caption text, not by adding double arrows (keeps the SVG clean).\n\n---\n\n## Reference Implementations\n\n- `projects/mrn-healthcare/intake/proposal-mrn-healthcare.html` — MRN Healthcare, May 2026, 10 flows, IaaS + One-Time models. Healthcare GPO vertical. ROI/Business Case section included (specific ARR numbers from scoping). CSS source of truth.\n\n---\n\n## What This Proposal Is NOT\n\n- Not a cost-comparison document (\"we're cheaper than a developer hire\")\n- Not a feature list (\"here are 10 integrations we will build\")\n- Not an IT scope document (keep technical detail in the flow cards only)\n- Not a commitment to AI delivery — Stage 2 and Stage 3 are painted as the trajectory, not contracted deliverables in Stage 1\n\nThe proposal's job is to help the client see where they are going, and understand that Stage 1 is how they start that journey.\n\n---\n\n*DataSkate — dataskate.ai | vivek@dataskate.ai*\n",
+  "_referenceNetwork": {
+    "_comment": "DataSkate named reference clients — companies DataSkate is authorized to cite by name in competitive evaluations, proposals, and social proof. Each entry tracks what DataSkate built for them, how they may be referenced, and which prospect engagements have received this company as a reference.",
+    "_schema": {
+      "slug": "kebab-case — must match client-registry.json slug if client is registered there",
+      "displayName": "Full legal or trading name as it appears in sales materials",
+      "industry": "industry vertical for matching against prospects",
+      "sizeSegment": "smb | midmarket | enterprise | fortune500",
+      "systems": "systems known to be in use — used to match reference to prospect platform overlap",
+      "whatDataSkateBuilt": "1-3 sentences — what DataSkate built or is building for this client",
+      "referenceType": "active-engagement | completed-implementation | in-production",
+      "authorizedUsage": "how this reference may be used in sales contexts",
+      "contactForReference": "who to direct prospects to when requesting a reference call (name / email / note)",
+      "referencedTo": "array of client slugs who have received this company as a named reference in proposals or sales conversations",
+      "addedDate": "ISO date when added to this registry",
+      "notes": "any caveats, restrictions, or context about using this reference"
+    },
+    "references": [
+      {
+        "slug": "clorox",
+        "displayName": "The Clorox Company",
+        "industry": "Consumer Packaged Goods (CPG)",
+        "sizeSegment": "fortune500",
+        "revenueEstimate": "~$7B",
+        "hq": "Oakland, CA",
+        "systems": [
+          "Celigo",
+          "NetSuite",
+          "CloudExtend by Celigo"
+        ],
+        "whatDataSkateBuilt": "Active Celigo + NetSuite integration engagement. Clorox uses Celigo as enterprise iPaaS middleware for third-party system integrations, specifically CloudExtend by Celigo for NetSuite implementations. DataSkate is working on integration connecting business applications, streamlining data workflows, and automating processes across their enterprise tech stack.",
+        "referenceType": "active-engagement",
+        "authorizedUsage": "Name directly in competitive evaluations where the prospect is using Celigo + NetSuite and is evaluating iPaaS vendors. Frame as: 'We are actively working with The Clorox Company on a Celigo and NetSuite integration engagement right now.' Do not describe as completed.",
+        "bestUsedFor": [
+          "Prospects migrating off Celigo to MuleSoft",
+          "Prospects using NetSuite as their ERP",
+          "Competitive evaluations where DataSkate needs to prove enterprise-scale Celigo expertise"
+        ],
+        "contactForReference": "TBD — confirm with Vivek before directing a prospect to request a reference call",
+        "referencedTo": [
+          "homage"
+        ],
+        "addedDate": "2026-05-19",
+        "notes": "Enterprise scale (Fortune 500) makes this the strongest possible credibility anchor for mid-market Celigo migration prospects. Clorox's name carries weight regardless of whether the prospect knows the company's tech stack — it signals that DataSkate works at enterprise scale."
+      },
+      {
+        "slug": "rlcarrier",
+        "displayName": "RLCarrier",
+        "industry": "TBD — fill in",
+        "sizeSegment": "TBD",
+        "revenueEstimate": null,
+        "hq": "TBD",
+        "systems": [],
+        "whatDataSkateBuilt": "TBD — fill in with: systems integrated, what flows were built, current status (active / completed)",
+        "referenceType": "TBD",
+        "authorizedUsage": "TBD — confirm with Vivek what may be said publicly vs. named vs. anonymized",
+        "bestUsedFor": [],
+        "contactForReference": "TBD",
+        "referencedTo": [],
+        "addedDate": "2026-05-19",
+        "notes": "STUB — added as placeholder. Fill in industry, systems, whatDataSkateBuilt, and authorizedUsage before using in any client-facing context."
+      },
+      {
+        "slug": "coleschotz",
+        "displayName": "Cole Schotz P.C.",
+        "industry": "Legal / Professional Services",
+        "sizeSegment": "midmarket",
+        "revenueEstimate": null,
+        "hq": "Hackensack, NJ (offices in NY, NJ, DE, MD, TX, FL)",
+        "systems": [],
+        "whatDataSkateBuilt": "TBD — fill in with: systems integrated, what flows were built, current status (active / completed)",
+        "referenceType": "TBD",
+        "authorizedUsage": "TBD — confirm with Vivek what may be said publicly vs. named vs. anonymized",
+        "bestUsedFor": [],
+        "contactForReference": "TBD",
+        "referencedTo": [],
+        "addedDate": "2026-05-19",
+        "notes": "STUB — Cole Schotz is a full-service law firm. Fill in systems, whatDataSkateBuilt, and authorizedUsage before using in any client-facing context."
+      }
+    ],
+    "howToUse": {
+      "matchingLogic": "When a prospect is in a competitive evaluation, Vera reads this file and checks systems[] overlap with sage.json systems[]. Any reference client with 1+ system overlap and referenceType != 'stub' is a candidate credentialing anchor.",
+      "referencedToTracking": "When a reference client is named in a proposal or sales conversation, add the prospect's slug to that client's referencedTo[] array in this file. This lets DataSkate track reference load (avoid overusing the same reference) and maintain relationship awareness.",
+      "agentAccess": "Vera reads this file in Step 4 (credentialing anchor check). Hawk reads it via competitivePositioning principle. Neither agent modifies it — updates to referencedTo[] are made by the pipeline operator (Vivek) or by the orchestrate.js post-hawk step."
+    }
+  },
+  "_psychologyGuidance": {
+    "version": "1.1",
+    "updated": "2026-05-19",
+    "note": "Buyer psychology profiles extracted from scoping transcripts. Scout adds candidate profiles as new patterns emerge. Agents read this file in Session 1 Step 1d and apply contentModifiers when writing proposal-content.json. Do not invent signals — only add profiles when 3+ distinct signal phrases form a coherent recurring stance.",
+    "profiles": [
+      {
+        "id": "roi-analytical",
+        "label": "ROI-First Analytical",
+        "description": "Buyer needs numbers before narrative. Asks for ROI, quantified savings, and proof. Numbers anchor trust. Generic vision statements land flat.",
+        "signalPhrases": [
+          "what's the ROI",
+          "what does that cost",
+          "how much do we save",
+          "can you put a number on",
+          "prove it",
+          "show me the data",
+          "what's the payback",
+          "justify the cost",
+          "business case",
+          "cost-benefit",
+          "what's the return",
+          "hard numbers",
+          "quantify",
+          "what's the dollar value",
+          "how do we measure",
+          "KPIs",
+          "metrics",
+          "benchmark"
+        ],
+        "socialProofAngle": "quantified-savings",
+        "fomoFraming": "Lead with the dollar amount or hours recovered. Name the number before naming the company. Structure: '{$X saved} by connecting {systems} — here is how.'",
+        "challengeFraming": "Open with a cost or time figure from their transcript — even an estimate. If they said 'we spend hours on this,' convert to weekly/annual cost. Anchor the challenge in a number they recognized when they said it.",
+        "journeyFraming": "Stage 1 bullet items must cite operational outcomes with implied measurement: 'finance stops re-keying 40 invoices a week.' Stage 2 should name an automation that saves a countable step. Stage 3 must answer: 'which specific operational question will AI answer, and what decision does that remove from a human's plate?'",
+        "closingLineVariant": "The managed service model turns the ROI calculation into a single line: the cost of staying manual vs. the monthly service rate.",
+        "fomoFirstField": "savings",
+        "notes": []
+      },
+      {
+        "id": "peer-pressure",
+        "label": "Competitive Peer-Watcher",
+        "description": "Buyer is motivated by peer movement. Asks what competitors are doing. Uses 'falling behind' language. Peer validation matters more than abstract ROI.",
+        "signalPhrases": [
+          "our competitors",
+          "other companies in our space",
+          "what is everyone else doing",
+          "we can't fall behind",
+          "industry trend",
+          "what are companies like us doing",
+          "keep up with",
+          "our peers",
+          "what are others doing",
+          "are we behind",
+          "industry standard",
+          "what does best practice look like",
+          "other firms",
+          "market leaders",
+          "who else is doing this"
+        ],
+        "socialProofAngle": "peer-comparison",
+        "fomoFraming": "Lead with the peer or anonymized company name, not the savings number. Structure: '{Company name or anonymized} — same size, same systems — did this. Here is what changed for them.' The who validates more than the how much.",
+        "challengeFraming": "Frame the current state as the gap between them and their peers. 'While similar companies have automated X, your team is still doing it manually — and that gap is widening.'",
+        "journeyFraming": "Stage 3 bullet items should reference what leading companies in their vertical are doing with this data today. Frame as: 'you're not behind yet — but the window to get ahead is Year 1.' Never use 'catching up' — use 'getting ahead.'",
+        "closingLineVariant": "The companies that connected their systems in Year 1 are the ones whose AI investments are paying off in Year 2. This is how you get there before they get further ahead.",
+        "fomoFirstField": "name",
+        "notes": []
+      },
+      {
+        "id": "risk-averse-conservative",
+        "label": "Risk-Averse Conservative",
+        "description": "Buyer is cautious about change, worried about disruption, or has prior integration trauma. Trust must be built before vision. Stability language opens doors; big-picture AI talk closes them.",
+        "signalPhrases": [
+          "don't want to break anything",
+          "had bad experiences",
+          "what if something goes wrong",
+          "our team is resistant",
+          "we've tried before",
+          "worried about",
+          "don't want to disrupt",
+          "too risky",
+          "slowly",
+          "phased approach",
+          "we've been burned",
+          "previous vendor",
+          "this is sensitive",
+          "how do we roll back",
+          "what happens if it fails",
+          "our IT is conservative",
+          "we need to be careful",
+          "incremental",
+          "we're not early adopters"
+        ],
+        "socialProofAngle": "proven-pattern",
+        "fomoFraming": "Lead with proven-pattern framing: 'this is a solved problem — here is a company that did exactly this safely and without disruption.' Emphasize that the managed service absorbs the operational risk. Savings are secondary — safety and stability are the hook.",
+        "challengeFraming": "Acknowledge past failures or caution explicitly before presenting the solution. Frame the current manual state as the fragile path — not integration. 'Manual processes break silently; automation fails loudly and recovers.'",
+        "journeyFraming": "Stage 1 bullet items emphasize stability and reliability first: 'no more manually reconciling X — the sync runs automatically and retries on failure.' Stage 2 is presented as gradual and reversible. Stage 3 is framed as opt-in capability, not a commitment — 'when you are ready, the data is already there.'",
+        "closingLineVariant": "The managed service model means DataSkate absorbs the operational risk — you get the outcomes without owning the infrastructure that delivers them.",
+        "fomoFirstField": "whatTheyBuilt",
+        "notes": []
+      },
+      {
+        "id": "visionary-strategic",
+        "label": "Visionary Strategic Leader",
+        "description": "Buyer thinks in 3-5 year horizons and is already excited about AI. Wants to lead their category. Integrations are infrastructure for the AI strategy they've already decided on.",
+        "signalPhrases": [
+          "our vision",
+          "where we're going",
+          "AI strategy",
+          "next 3 years",
+          "we want to be the leader",
+          "transform the company",
+          "what does the future look like",
+          "I'm excited about",
+          "big picture",
+          "strategic priority",
+          "competitive advantage",
+          "industry disruptor",
+          "long-term play",
+          "agentic",
+          "what AI can do for us",
+          "we've been thinking about AI",
+          "I've been reading about",
+          "future of our industry",
+          "ahead of the curve"
+        ],
+        "socialProofAngle": "first-mover",
+        "fomoFraming": "Lead with the AI use case first; savings are supporting evidence. Frame competitors as 'the early movers in your vertical.' Position this client as having the opportunity to leapfrog — not catch up.",
+        "challengeFraming": "Frame the current state as the bottleneck standing between them and the AI future they've already decided on. 'The vision is right — the data foundation is the missing prerequisite. Year 1 builds it.'",
+        "journeyFraming": "Stage 3 gets the most real estate and the most specificity. Write Stage 3 first mentally, then build Stages 1 and 2 as infrastructure for it. Frame Stages 1-2 as: 'the prerequisite infrastructure for the AI strategy you are already building — not a separate project.'",
+        "closingLineVariant": "The integrations in Year 1 are the infrastructure layer your AI strategy reads. They are not a stepping stone — they are the foundation.",
+        "fomoFirstField": "aiUseCase",
+        "notes": []
+      },
+      {
+        "id": "operational-pragmatist",
+        "label": "Operational Pragmatist",
+        "description": "Buyer is focused on eliminating a specific manual pain. Not interested in strategy talk. They want to know exactly what stops being their team's problem on go-live day.",
+        "signalPhrases": [
+          "hours a week",
+          "manual process",
+          "our team is drowning",
+          "just fix this",
+          "this is killing us",
+          "we spend too much time",
+          "tired of doing this manually",
+          "just want it to work",
+          "simple problem",
+          "it's a nightmare",
+          "every day we have to",
+          "my team hates doing this",
+          "we're buried",
+          "the bottleneck is",
+          "basic automation",
+          "we just need X to talk to Y",
+          "not complicated",
+          "we keep doing it by hand"
+        ],
+        "socialProofAngle": "time-saved",
+        "fomoFraming": "Lead with hours saved and the specific manual task that disappears. Structure: '{X hours/week} recovered — {the exact task} is gone on go-live day.' No AI framing needed for the hook — Stage 1 outcomes carry the pitch.",
+        "challengeFraming": "Name the exact manual process and the role of the person doing it. Use the specific words from their transcript. 'Your {job title} manually {exact process} every {frequency} — that stops on go-live day.' If they said it, use their exact phrasing.",
+        "journeyFraming": "Stage 1 bullet items should read like a 'things that stop happening Monday morning' list. Use active verbs: 'stops,' 'disappears,' 'no longer.' Stage 2 gets two sentences. Stage 3 gets one — plant the seed without over-pitching to someone who wants immediate relief.",
+        "closingLineVariant": "Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day.",
+        "fomoFirstField": "savings",
+        "notes": [
+          {
+            "source": "observed in agilemind",
+            "finding": "signal phrases matched: 'highly manual process in an Excel worksheet', 'Crystal Robinson manually transfers the account details', 'Crystal Robinson manually updates the invoice number'"
+          },
+          {
+            "source": "observed in homage",
+            "finding": "signal phrases matched: 'make the conversation efficient for both sides', 'A clear picture of platform fit for our stack' — NOTE: source was a written brief not a transcript; signals are weak; migration context (Celigo replacement), not classic manual-data-entry pain"
+          },
+          {
+            "source": "observed in peerless",
+            "finding": "signal phrases matched: Ashley Salerno's 1.5h manual rekey of Salesforce quote into ComputerEase Job; 'I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box'; 'if that could integrate and flow back through an API, that would work' — textbook ops-pragmatist aspiration phrased as 'just need X to talk to Y'"
+          }
+        ]
+      },
+      {
+        "id": "competitive-leverager",
+        "label": "Competitive Leverager",
+        "description": "Buyer is actively shopping competitors and using quotes as negotiating leverage. May be genuinely evaluating alternatives or using rival bids to extract price concessions. The comparison is almost always apples-to-oranges — point-in-time implementation vs. managed service — but the buyer doesn't know that yet. Do not match price; reframe the product being compared.",
+        "signalPhrases": [
+          "we're also talking to",
+          "Workato",
+          "Boomi",
+          "Celigo",
+          "Zapier",
+          "MuleSoft partner",
+          "they quoted us less",
+          "can you match this",
+          "we have another option",
+          "why should we choose you over",
+          "another vendor said",
+          "we got a quote from",
+          "we're evaluating multiple vendors",
+          "what makes you different",
+          "competitor said they could",
+          "we have other proposals",
+          "cheaper option",
+          "lower bid",
+          "someone else offered"
+        ],
+        "socialProofAngle": "managed-vs-implementation",
+        "fomoFraming": "Frame around what happens after the competitor's project closes. 'Companies that chose the lower implementation quote owned the problem again 12–18 months later — when it broke, no one was there. The managed service model means that call goes to us, not back to your team.'",
+        "challengeFraming": "Reframe the comparison before addressing price. 'The lower quote is for a different product — point-in-time implementation ends on day 30. A managed service starts there. You are not comparing two prices; you are comparing two operating models.'",
+        "journeyFraming": "Stage 1 emphasizes DataSkate ownership language — 'we build it, we run it, we fix it.' Stage 2 frames competitor implementations as single-phase; DataSkate's Stage 2 is already in scope. Stage 3 is unreachable with a one-time implementation — the data foundation requires someone to maintain it. Never mention competitor names in client-facing output.",
+        "closingLineVariant": "The comparison is not cost — it's what you own after the project closes. The lower quote transfers ownership back to you on day 31.",
+        "fomoFirstField": "whatTheyBuilt",
+        "notes": []
+      },
+      {
+        "id": "internal-champion",
+        "label": "Internal Champion",
+        "description": "Buyer is an advocate inside the organization trying to get sign-off from skeptical stakeholders above or beside them. They already believe in the project but need help building the internal business case. Proposals and materials will be forwarded and read by people who were not on the call. Write for the audience the champion has to convince, not the champion themselves.",
+        "signalPhrases": [
+          "I need to convince",
+          "my CEO",
+          "my CFO",
+          "my board",
+          "getting buy-in",
+          "I need to show this to",
+          "help me justify",
+          "my boss is skeptical",
+          "I need sign-off",
+          "they'll want to see ROI",
+          "I'm not the final decision",
+          "I need to bring this back to",
+          "how do I make the case",
+          "my team isn't bought in",
+          "others will review this",
+          "I need to present this",
+          "stakeholder approval",
+          "internal approval",
+          "getting leadership aligned",
+          "making the case internally"
+        ],
+        "socialProofAngle": "executive-ready",
+        "fomoFraming": "Frame around what the champion's leadership will ask. 'The question your CFO will ask is not whether to integrate — it is why this vendor and why now. Here is that answer, built for that conversation.'",
+        "challengeFraming": "Acknowledge that the champion already believes; the challenge is the audience above them. 'You understand the value — the proposal is written for the person who hasn't seen the problem up close. Every section is formatted to answer the question a CFO or CTO would ask before approving.'",
+        "journeyFraming": "Stage 1 bullet items should be boardroom-ready: specific, outcome-oriented, with implied dollar or time value. Stage 2 frames the managed service model as risk transfer — language an executive cares about. Stage 3 frames AI capability as strategic positioning that a board-level audience will recognize as a category move.",
+        "closingLineVariant": "This proposal is formatted to travel — every section is written to answer the question the person above you will ask before signing.",
+        "fomoFirstField": "savings",
+        "notes": []
+      },
+      {
+        "id": "budget-constrained",
+        "label": "Budget-Constrained Buyer",
+        "description": "Buyer has a genuine fixed budget ceiling and is trying to fit a real problem into limited resources. Not using price as leverage — they are genuinely cost-conscious and often apologetic about it. Frequently bootstrapped, recently funded, or operating under a budget freeze. The engagement model and phasing story matter as much as the outcome story.",
+        "signalPhrases": [
+          "we have a limited budget",
+          "can't spend more than",
+          "what's the minimum",
+          "can we phase the cost",
+          "we're a small team",
+          "is there a starter option",
+          "we're bootstrapped",
+          "just raised",
+          "seed round",
+          "cost is the main concern",
+          "money is tight",
+          "we can't justify",
+          "what's the entry point",
+          "is there a smaller version",
+          "budget approval needed for anything over",
+          "we don't have budget for",
+          "we're watching every dollar",
+          "lean team"
+        ],
+        "socialProofAngle": "time-saved",
+        "fomoFraming": "Frame around the cost of delay, not the cost of the service. 'A four-person team spending 6 hours a week on manual data entry costs more than the service in labor alone. The math favors acting now, not when budget opens up.'",
+        "challengeFraming": "Acknowledge the constraint before presenting the solution — never make them feel embarrassed about it. 'We work with teams at this stage — the engagement model is designed for it. The question is not whether you can afford to automate; it is whether you can afford to keep paying your team to do it manually.'",
+        "journeyFraming": "Stage 1 gets maximum specificity on what disappears and who gets their time back — this is the ROI story for a budget buyer. Stage 2 is framed as already-funded by Stage 1 recovered labor. Stage 3 is planted in a single line — 'this data foundation is worth more than the integration cost when you are ready to use it' — do not over-pitch to someone focused on immediate relief.",
+        "closingLineVariant": "Stage 1 pays for itself in recovered labor. Stages 2 and 3 build on infrastructure that is already running — no additional discovery cost.",
+        "fomoFirstField": "savings",
+        "notes": []
+      },
+      {
+        "id": "time-pressured",
+        "label": "Time-Pressured Buyer",
+        "description": "Buyer has a real, externally-imposed deadline — a vendor contract ending, a committed go-live date, an investor milestone, or a seasonal window. Urgency is genuine, not manufactured. Speed of delivery and certainty of timeline matter more than price or long-term vision. The proposal must demonstrate delivery confidence before anything else.",
+        "signalPhrases": [
+          "we need this by",
+          "our contract with",
+          "is ending",
+          "we have a deadline",
+          "this is blocking us",
+          "we needed this yesterday",
+          "launching in",
+          "go-live is",
+          "we're behind",
+          "can you deliver by",
+          "is that timeline achievable",
+          "how fast can you start",
+          "we don't have time",
+          "what's the fastest path",
+          "committed to our customers that",
+          "we're replacing",
+          "switching from",
+          "current vendor is",
+          "contract expires",
+          "forced migration"
+        ],
+        "socialProofAngle": "proven-pattern",
+        "fomoFraming": "Lead with delivery certainty, not outcome vision. 'We have delivered this pattern — same systems, same scope — in [X weeks]. The timeline is achievable. Here is what we need from your team to protect it.'",
+        "challengeFraming": "Name the deadline and work backwards from it in the challenge framing. 'Your go-live is [date]. Working backwards, discovery needs to close by [date] and build starts [date]. That is achievable — but the window to start is now, not next quarter.'",
+        "journeyFraming": "Stage 1 bullet items frame outcomes against the deadline: 'before [milestone], your team stops doing X manually.' Stage 2 is presented as already-scoped and ready to execute from day one. Stage 3 is a single sentence — plant it without extending the timeline conversation.",
+        "closingLineVariant": "The fastest path to your deadline is a team that has delivered this pattern before. Discovery starts in week one.",
+        "fomoFirstField": "whatTheyBuilt",
+        "notes": []
+      },
+      {
+        "id": "systematic-evaluator",
+        "label": "Systematic Vendor Evaluator",
+        "description": "Buyer has pre-defined scoring criteria and is running a formal multi-vendor evaluation. Distinguishable from competitive-leverager by the absence of price pressure — this buyer wants the most qualified vendor, not the cheapest. They have often written down their evaluation criteria in advance (discovery outcomes, platform fit criteria, technical requirements). Proof of specialization and named client references carry more weight than narrative vision. The FOMO for this buyer is not about peers moving ahead — it is about the operational risk of choosing an under-qualified vendor. Content modifier: lead with credentials and falsifiable proof before outcomes.",
+        "signalPhrases": [
+          "speaking with three to four vendors",
+          "evaluating multiple vendors",
+          "we have defined discovery outcomes",
+          "platform fit",
+          "vendor selection",
+          "we are comparing",
+          "scoring criteria",
+          "we want to make sure",
+          "before we select",
+          "before locking scope",
+          "we need to validate",
+          "what makes you qualified",
+          "do you have experience with",
+          "have you done this before",
+          "reference clients",
+          "can we speak to a customer",
+          "proof of concept",
+          "we are vetting",
+          "discovery outcomes",
+          "directional pricing posture"
+        ],
+        "socialProofAngle": "proven-pattern",
+        "fomoFraming": "Lead with a named reference client on the exact same platform + engagement type. 'We are actively working with [Named Client] on exactly this pattern — [system] + [system] — right now. Here is the falsifiable proof of that expertise: [specific technical claim the buyer can test].' The FOMO is vendor selection risk, not peer adoption lag.",
+        "challengeFraming": "Frame the challenge as vendor qualification risk, not operational pain. 'The risk in a platform migration is not the technology — it is choosing a vendor who learns your specific platform on your timeline and your budget. Here is how to test every vendor you are talking to.' Follow with 2-3 specific technical questions the buyer can use as a filter.",
+        "journeyFraming": "Stage 1 must prove depth before breadth. Lead with the hardest technical problem in scope and name the specific solution DataSkate brings. Peer company outcomes (Topo Designs, Clorox) are mentioned in Stage 1, not just in a separate FOMO section. Stage 2 and 3 are secondary — this buyer makes the Stage 1 decision first.",
+        "closingLineVariant": "The evaluation comes down to one question: which vendor already knows this platform deeply enough that you are not paying for their learning curve. The answer to that question is in how specifically we described your scope before you asked.",
+        "fomoFirstField": "whatTheyBuilt",
+        "typicalRole": "economic-buyer or senior champion running a formal RFP/evaluation process",
+        "pipelineNote": "Often appears as a secondary profile alongside operational-pragmatist or roi-analytical. When systematic-evaluator is detected as secondary, Hawk adds a competitivePositioning block even if the primary profile would not trigger one. Vera surfaces credentialingAnchors[] from reference-network.json.",
+        "notes": [
+          "First detected: Homage (2026-05-19) — buyer wrote a 4-outcome discovery brief with 'directional pricing posture' and 'platform fit for our stack (NetSuite + Shopify + EDI)' as explicit evaluation criteria. Spoke with 3-4 vendors before committing.",
+          "Distinguishing signal from competitive-leverager: no price pressure language. The buyer is selecting on qualification, not negotiating on cost.",
+          "Key content implication: every claim must be falsifiable. 'We have Celigo experience' → 'We are working with The Clorox Company on Celigo + NetSuite right now, and we named 18 of your 23 flows from your briefing document.' Vague credentialing fails with this buyer."
+        ]
+      }
+    ],
+    "writingRules": {
+      "note": "Global writing standards applied by every agent to all output — internal and client-facing. Scout reads this file in Session 1 and applies it during proposal and intake generation. Analyst, Architect, PM, and Debrief apply it via their inlined principles. This block is the single source of truth — update here, not in individual TOML files.",
+      "bannedWords": [
+        "AI-powered",
+        "data contracts",
+        "agentic platform",
+        "leverage AI",
+        "drive insights",
+        "unlock value",
+        "data-driven decisions",
+        "digital transformation",
+        "seamless",
+        "end-to-end solution",
+        "robust",
+        "scalable solution",
+        "future-proof",
+        "best-in-class",
+        "cutting-edge",
+        "next-generation",
+        "synergy",
+        "paradigm"
+      ],
+      "substitutionRule": "Every sentence that could appear unchanged in any vendor's pitch deck must be rewritten to name a specific role, process, system, or outcome for this client. Generic = rewrite. Specific = keep.",
+      "stage3SpecificityRule": "Every Stage 3 bullet must answer a named operational question ('Which {entity} is {condition} right now?') and must be traceable to a data source created by a Stage 1 flow. Generic AI outcome statements are forbidden regardless of how specific they sound.",
+      "psychologyApplicationRule": "Before writing any client-facing section: (1) read company_context.json psychologyProfile, (2) apply primaryProfile challengeFraming to problem/challenge statements, (3) apply fomoFraming to FOMO and social proof sections, (4) apply journeyFraming to Stage 1–3 bullet items, (5) primary profile drives structure — secondary (if set) contributes exactly one element, (6) use closingLineVariant from primaryProfile, not the generic verbatim, whenever a profile-specific variant exists."
+    },
+    "detectionRules": {
+      "note": "Scout scores every profile against the transcript. Profile with the most signal phrase matches wins. Tie-breaker priority is listed below. Minimum 1 signal phrase to assign a profile — use fallback if none.",
+      "tiebreakerPriority": [
+        "time-pressured",
+        "competitive-leverager",
+        "systematic-evaluator",
+        "operational-pragmatist",
+        "budget-constrained",
+        "roi-analytical",
+        "internal-champion",
+        "peer-pressure",
+        "visionary-strategic",
+        "risk-averse-conservative"
+      ],
+      "minimumSignals": 1,
+      "fallback": "operational-pragmatist",
+      "secondaryProfileThreshold": 2,
+      "note2": "If runner-up profile has 2+ signal phrase matches, set it as secondaryProfile. Blend framing: primary profile drives structure; secondary profile contributes one element (e.g. primary=operational-pragmatist, secondary=roi-analytical → Stage 1 reads like a 'things that stop' list but challenge.lead includes a cost anchor)."
+    },
+    "newProfileProtocol": {
+      "note": "When Scout detects 3+ distinct signal phrases that don't match any existing profile, it runs deep research (buyer psychology, B2B sales archetypes, sales persona literature) and adds a fully formed entry directly to profiles[] — no approval step. The 'notes' array on each profile accumulates empirical observations from each engagement where that profile was detected.",
+      "researchSources": [
+        "B2B buyer psychology literature",
+        "Sales persona research (Gartner, Forrester, CEB/Challenger Sale, SPIN Selling)",
+        "SaaS sales archetype frameworks",
+        "Enterprise software buyer behavior studies"
+      ]
+    }
+  }
+}

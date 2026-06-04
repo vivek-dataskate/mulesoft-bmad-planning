@@ -1,0 +1,573 @@
+{
+  "status": "complete",
+  "client": "peerless2",
+  "generatedAt": "2026-06-03T01:13:07.462Z",
+  "company": {
+    "name": "Peerless Fence",
+    "website": null,
+    "industry": "Construction / Specialty Contracting",
+    "verticalSlug": "fence-installation",
+    "hqLocation": null,
+    "hqAddress": null,
+    "revenueEstimate": null,
+    "revenueBracket": null,
+    "sizeSegment": "smb",
+    "foundedYear": null,
+    "logoUrl": null
+  },
+  "businessObjects": [
+    "Lead",
+    "Quote",
+    "Customer",
+    "Contract",
+    "Job",
+    "Task",
+    "Appointment",
+    "Deposit"
+  ],
+  "aiJourney": {
+    "phase1": {
+      "headline": "Lead Ingestion & Qualification via HD Portal → Salesforce",
+      "detail": "Automate lead capture from Home Depot Service Center Portal into Salesforce every 10 minutes. Eliminate manual lead verification by Ashley and establish real-time lead routing to sales reps for faster consultation scheduling."
+    },
+    "phase2": {
+      "headline": "Quote-to-Job Workflow: Salesforce → ComputerEase with Contract Validation",
+      "detail": "Automate job creation in ComputerEase when Salesforce opportunity closes. Integrate contract document validation (299A, 299B, 118) via DocHub digital signatures. Sync customer, deposit, and payment terms from HD Portal and Salesforce into ComputerEase job maintenance to eliminate manual data entry."
+    },
+    "phase3": {
+      "headline": "Project Execution & Compliance Automation via ComputerEase API & IDP",
+      "detail": "Enable ComputerEase API access (CE Live Service relay) to automate task creation, material ordering, and labor scheduling. Implement Intelligent Document Processing (IDP) to extract and validate contract data against business rules (permit dates, deposit amounts, signature legibility). Establish read-only Salesforce sync from ComputerEase for project status visibility."
+    }
+  },
+  "systemPrerequisites": [
+    {
+      "system": "ComputerEase (Deltek)",
+      "prerequisite": "Enable API access and configure CE Live Service relay; verify API version compatibility (v26+); submit vendor support ticket to Deltek for API enablement and sandbox/production parity"
+    },
+    {
+      "system": "Google Cloud Platform (GCP)",
+      "prerequisite": "Harden firewall rules to restrict SSH/RDP access; configure network isolation for ComputerEase VM; establish secure API gateway for inbound integrations"
+    },
+    {
+      "system": "Salesforce",
+      "prerequisite": "Verify user permissions and admin access for API integration; confirm sandbox environment parity with production; establish read-only API user for ComputerEase data sync"
+    },
+    {
+      "system": "Home Depot Service Center Portal",
+      "prerequisite": "Obtain API credentials from HD Portal team (Marius); configure lead generation API for 10-minute sync frequency; establish webhook or polling mechanism for real-time lead updates"
+    },
+    {
+      "system": "DocHub",
+      "prerequisite": "Configure digital signature capture for contract types 299A, 299B, 118; establish document storage and retrieval API for Salesforce integration"
+    }
+  ],
+  "legacyBoltOns": [],
+  "corporateStack": {
+    "dealUrgencyMultipliers": [
+      "Enable ComputerEase API access and configure CE Live Service relay",
+      "Harden GCP firewall rules to restrict SSH/RDP access",
+      "Verify Salesforce user permissions and admin access for API integration",
+      "Obtain API credentials from HD Portal team (Marius)",
+      "Configure DocHub for digital signature capture for contract types 299A, 299B, 118"
+    ],
+    "strategicPartnerships": [],
+    "confidence": "high",
+    "operatingBrand": {
+      "name": "Peerless Fence",
+      "foundedYear": null,
+      "website": null,
+      "slug": null,
+      "description": null
+    },
+    "collaborators": [],
+    "subsidiaries": [],
+    "researchedAt": "2024-07-30",
+    "financialSponsor": {
+      "acquisitionDate": null,
+      "name": "Akoya Capital",
+      "website": null,
+      "thesisForClient": null,
+      "sectorFocus": []
+    },
+    "leadership": {
+      "founders": [],
+      "president": null,
+      "ceo": null
+    },
+    "ownership": "pe-backed-platform-of-brands",
+    "engagementEntity": {
+      "note": null,
+      "sameAsOperatingBrand": true,
+      "name": "Peerless Fence"
+    },
+    "operatingPlatform": {
+      "description": null,
+      "siblingBrands": [],
+      "platformShape": "platform-above",
+      "name": "Elevate Fence Partners",
+      "website": null,
+      "platformExecutiveTeam": [],
+      "regionalStrategy": null
+    }
+  },
+  "dealUrgencyMultipliers": [
+    "Enable ComputerEase API access and configure CE Live Service relay",
+    "Harden GCP firewall rules to restrict SSH/RDP access",
+    "Verify Salesforce user permissions and admin access for API integration",
+    "Obtain API credentials from HD Portal team (Marius)",
+    "Configure DocHub for digital signature capture for contract types 299A, 299B, 118"
+  ],
+  "contactCrossReferences": [],
+  "corporateStackEnrichment": {
+    "financialSponsor": {
+      "portfolioCompanies": []
+    }
+  },
+  "competitorFOMO": [
+    {
+      "sizeSegment": "midmarket",
+      "sourceUrl": null,
+      "fomoProfileFit": "operational-pragmatist",
+      "industry": "Construction / Specialty Contracting",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "aiAgentDescription": "An AI agent monitors HD Portal for new leads → creates Salesforce Lead records → routes to sales reps.",
+      "displayName": "Peerless Fence Group",
+      "analogyNote": null,
+      "relevanceTier": 1,
+      "whatWasBuilt": "Scheduled poll of HD Portal API every 10 minutes; lead records (keyed by F-number) created in Salesforce as Lead objects with HD source attribution.",
+      "outcome": "Eliminates manual morning HD-Portal-to-Salesforce check; leads land in Salesforce automatically with HD F-number as external ID."
+    },
+    {
+      "aiAgentDescription": "An AI agent detects a \"Save as Final\" quote in Salesforce → creates a new job, customer, and budget worksheet in ComputerEase.",
+      "displayName": "Peerless Fence Group",
+      "analogyNote": null,
+      "outcome": "Automates job creation in ComputerEase, eliminating manual data entry and ensuring data consistency between Salesforce and ComputerEase.",
+      "whatWasBuilt": "Event-driven flow triggered by Salesforce quote 'Save as Final' status transition; creates ComputerEase Job (sequential numbering by company code + product line + initials), Customer, and Budget Worksheet.",
+      "relevanceTier": 1,
+      "sourceUrl": null,
+      "sizeSegment": "midmarket",
+      "fomoProfileFit": "operational-pragmatist",
+      "systems": [
+        "Salesforce",
+        "ComputerEase (Deltek)"
+      ],
+      "industry": "Construction / Specialty Contracting"
+    },
+    {
+      "outcome": "Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated",
+      "relevanceTier": 4,
+      "whatWasBuilt": "MuleSoft flow: Salesforce Platform Event (Agreement Created) → QuickBooks invoice creation with line items (products, quantities, pricing) mapped from Salesforce Opportunity products",
+      "analogyNote": "While in a different industry, this demonstrates automating financial workflows from CRM to ERP, similar to Peerless Fence's need to sync data from Salesforce to ComputerEase.",
+      "displayName": "AgileMind",
+      "aiAgentDescription": "An AI agent detects a new agreement in Salesforce → creates an invoice in QuickBooks.",
+      "industry": "Education",
+      "systems": [
+        "Salesforce",
+        "QuickBooks"
+      ],
+      "fomoProfileFit": "roi-analytical",
+      "sourceUrl": null,
+      "sizeSegment": "SMB"
+    }
+  ],
+  "aiThoughtStarters": [
+    "Teams in Construction / Specialty Contracting are using AI agents to automate task creation and material ordering based on project status.",
+    "Teams in Construction / Specialty Contracting are using AI agents to extract and validate contract data against business rules using Intelligent Document Processing (IDP).",
+    "Teams in Construction / Specialty Contracting are using AI agents to establish read-only syncs from ERP systems to CRM for project status visibility.",
+    "Teams in Construction / Specialty Contracting are using AI agents to automate labor scheduling based on job requirements and resource availability."
+  ],
+  "nearbyPeers": [],
+  "libraryContributions": [],
+  "useCaseLibraryUpdates": {
+    "alreadyInLibrary": 0,
+    "stagedForPromotion": 0
+  },
+  "buyerMap": {
+    "confidence": "high",
+    "summary": {
+      "economicBuyer": {
+        "title": "Management/Leadership",
+        "name": "Kirk",
+        "matchConfidence": "transcript-only"
+      },
+      "championOnCall": {
+        "title": "Computer Ease Administrator",
+        "name": "Jean Jacobs",
+        "matchConfidence": "transcript-only"
+      },
+      "coverageNote": "Kirk is identified as the economic buyer due to his management role and decision-making authority. Jean Jacobs is a key champion given her administrative role for ComputerEase and API access responsibilities."
+    },
+    "people": [
+      {
+        "talkToBefore": false,
+        "talkingPointSeed": "How will automating lead verification and contract validation directly reduce her workload?",
+        "sources": [
+          "transcript"
+        ],
+        "name": "Ashley Salerno",
+        "matchConfidence": "transcript-only",
+        "angleForHawk": "Focus on how automation will eliminate her manual tasks and improve efficiency in lead verification, document compliance, and job entry.",
+        "title": "Sales/Operations Coordinator",
+        "webEvidence": {
+          "appointmentDate": null,
+          "sourceUrl": null,
+          "priorRole": null,
+          "backgroundSummary": null,
+          "tenureMonths": null,
+          "linkedIn": null
+        },
+        "angleForIvy": "Emphasize the immediate relief from manual work and the direct impact on her daily responsibilities, aligning with an operational-pragmatist profile.",
+        "role": "operationalInfluencer",
+        "company": "Peerless Fence"
+      },
+      {
+        "angleForHawk": "Highlight the technical feasibility and security aspects of the proposed solutions, addressing his concerns about firewall rules and VM management.",
+        "title": "Infrastructure/Systems Administrator",
+        "webEvidence": {
+          "backgroundSummary": null,
+          "priorRole": null,
+          "appointmentDate": null,
+          "sourceUrl": null,
+          "linkedIn": null,
+          "tenureMonths": null
+        },
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the proposed solution ensure secure API access and simplify sandbox/production environment management?",
+        "sources": [
+          "transcript"
+        ],
+        "name": "Brian Cook",
+        "matchConfidence": "transcript-only",
+        "role": "technicalInfluencer",
+        "angleForIvy": "Address his technical responsibilities directly, focusing on how the solution simplifies API configuration, sandbox setup, and user permissions.",
+        "company": "Peerless Fence"
+      },
+      {
+        "angleForHawk": "Emphasize how the solution streamlines ComputerEase administration, API access, and Deltek support, making her job easier and more efficient.",
+        "webEvidence": {
+          "tenureMonths": null,
+          "linkedIn": null,
+          "priorRole": null,
+          "backgroundSummary": null,
+          "sourceUrl": null,
+          "appointmentDate": null
+        },
+        "title": "Computer Ease Administrator",
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the solution simplify ComputerEase API access configuration and Deltek support ticket submission?",
+        "sources": [
+          "transcript"
+        ],
+        "matchConfidence": "transcript-only",
+        "name": "Jean Jacobs",
+        "angleForIvy": "Focus on the direct benefits to her role, such as simplified user access provisioning and efficient API configuration, aligning with an operational-pragmatist approach.",
+        "role": "technicalInfluencer",
+        "company": "Peerless Fence"
+      },
+      {
+        "sources": [
+          "transcript"
+        ],
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the solution facilitate efficient API testing and data extraction for Salesforce and Home Depot Portal?",
+        "name": "Venkat B",
+        "matchConfidence": "transcript-only",
+        "angleForHawk": "Focus on the technical details of API testing, data extraction, and business process mapping, demonstrating a deep understanding of his development role.",
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "sourceUrl": null,
+          "appointmentDate": null,
+          "priorRole": null,
+          "backgroundSummary": null
+        },
+        "title": "Technical Lead/Developer",
+        "role": "technicalInfluencer",
+        "angleForIvy": "Address his technical concerns and highlight how the solution supports efficient API testing and data validation.",
+        "company": "dataskate.ai"
+      },
+      {
+        "name": "Raghuram Potluri",
+        "matchConfidence": "transcript-only",
+        "sources": [
+          "transcript"
+        ],
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the solution simplify API connectivity troubleshooting and GCP firewall configuration?",
+        "webEvidence": {
+          "sourceUrl": null,
+          "appointmentDate": null,
+          "priorRole": null,
+          "backgroundSummary": null,
+          "tenureMonths": null,
+          "linkedIn": null
+        },
+        "title": "Project Manager/Developer",
+        "angleForHawk": "Highlight how the solution addresses API connectivity troubleshooting, GCP firewall configuration, and sandbox testing, aligning with his project management and development responsibilities.",
+        "company": "Peerless Fence",
+        "role": "technicalInfluencer",
+        "angleForIvy": "Focus on the practical aspects of the solution that will aid in his development coordination and troubleshooting tasks."
+      },
+      {
+        "name": "Jeff Kelly",
+        "matchConfidence": "transcript-only",
+        "sources": [
+          "transcript"
+        ],
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the solution improve project coordination and communication among stakeholders?",
+        "webEvidence": {
+          "sourceUrl": null,
+          "appointmentDate": null,
+          "backgroundSummary": null,
+          "priorRole": null,
+          "tenureMonths": null,
+          "linkedIn": null
+        },
+        "title": "Project Coordinator/Manager",
+        "angleForHawk": "Emphasize how the solution will streamline project coordination and stakeholder communication, making his role more efficient.",
+        "company": "Peerless Fence",
+        "role": "operationalInfluencer",
+        "angleForIvy": "Focus on the practical benefits of improved meeting coordination and access request facilitation."
+      },
+      {
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "backgroundSummary": null,
+          "priorRole": null,
+          "appointmentDate": null,
+          "sourceUrl": null
+        },
+        "title": "Home Depot Portal/API Developer",
+        "angleForHawk": "Address his role in providing API credentials and supporting lead generation, emphasizing the ease of integration with the Home Depot Portal.",
+        "matchConfidence": "transcript-only",
+        "name": "Marius",
+        "sources": [
+          "transcript"
+        ],
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the solution streamline the process of obtaining Home Depot Portal API credentials and supporting lead generation?",
+        "company": "Home Depot",
+        "role": "technicalInfluencer",
+        "angleForIvy": "Focus on how the solution simplifies the process of obtaining API credentials and supports efficient lead generation."
+      },
+      {
+        "matchConfidence": "transcript-only",
+        "name": "Laura",
+        "sources": [
+          "transcript"
+        ],
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the solution improve accounting operations and provide reliable backup admin support for Computer Ease?",
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "sourceUrl": null,
+          "appointmentDate": null,
+          "priorRole": null,
+          "backgroundSummary": null
+        },
+        "title": "Accounting Team Member",
+        "angleForHawk": "Highlight how the solution will improve accounting operations and potentially provide backup admin support for Computer Ease.",
+        "company": "Peerless Fence",
+        "role": "operationalInfluencer",
+        "angleForIvy": "Focus on the practical benefits to accounting operations and the potential for streamlined processes."
+      },
+      {
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "sourceUrl": null,
+          "appointmentDate": null,
+          "backgroundSummary": null,
+          "priorRole": null
+        },
+        "title": "Accounting Staff",
+        "angleForHawk": "Emphasize how the solution will support accounting functions and improve efficiency.",
+        "matchConfidence": "transcript-only",
+        "name": "Stephanie Rice",
+        "sources": [
+          "transcript"
+        ],
+        "talkingPointSeed": "How will the solution provide effective support for accounting functions?",
+        "talkToBefore": false,
+        "company": "Peerless Fence",
+        "role": "operationalInfluencer",
+        "angleForIvy": "Focus on the practical benefits to her daily accounting tasks."
+      },
+      {
+        "angleForIvy": "Focus on the overall business impact and how the solution supports strategic decision-making and system governance.",
+        "role": "economicBuyer",
+        "company": "Peerless Fence",
+        "talkingPointSeed": "How will the solution contribute to better system governance and more informed administrative access decisions?",
+        "talkToBefore": false,
+        "sources": [
+          "transcript"
+        ],
+        "matchConfidence": "transcript-only",
+        "name": "Kirk",
+        "angleForHawk": "Frame the solution in terms of strategic value, improved system governance, and efficient resource allocation, aligning with his leadership responsibilities.",
+        "webEvidence": {
+          "priorRole": null,
+          "backgroundSummary": null,
+          "appointmentDate": null,
+          "sourceUrl": null,
+          "tenureMonths": null,
+          "linkedIn": null
+        },
+        "title": "Management/Leadership"
+      },
+      {
+        "company": "Home Depot",
+        "angleForIvy": "Focus on how the solution facilitates efficient communication and support for Home Depot related integrations.",
+        "role": "unknown",
+        "title": "Home Depot Contact",
+        "webEvidence": {
+          "appointmentDate": null,
+          "sourceUrl": null,
+          "backgroundSummary": null,
+          "priorRole": null,
+          "linkedIn": null,
+          "tenureMonths": null
+        },
+        "angleForHawk": "Acknowledge his role in coordinating Home Depot meetings and escalating API support, ensuring smooth collaboration.",
+        "name": "Greg",
+        "matchConfidence": "transcript-only",
+        "sources": [
+          "transcript"
+        ],
+        "talkToBefore": false,
+        "talkingPointSeed": "How will the solution streamline Home Depot meeting coordination and API support escalation?"
+      },
+      {
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "sourceUrl": null,
+          "appointmentDate": null,
+          "backgroundSummary": null,
+          "priorRole": null
+        },
+        "title": "Material Ordering/Procurement",
+        "angleForHawk": "Highlight how the solution will improve material ordering and task assignment for stock items within Salesforce.",
+        "name": "Barb",
+        "matchConfidence": "transcript-only",
+        "sources": [
+          "transcript"
+        ],
+        "talkingPointSeed": "How will the solution improve material ordering and task assignment processes in Salesforce?",
+        "talkToBefore": false,
+        "company": "Peerless Fence",
+        "angleForIvy": "Focus on the practical benefits of streamlined material ordering and task management.",
+        "role": "operationalInfluencer"
+      },
+      {
+        "talkingPointSeed": "How will the solution streamline site plan creation, quote generation, and document signing for sales representatives?",
+        "talkToBefore": false,
+        "sources": [
+          "transcript"
+        ],
+        "name": "Clayton Lambert",
+        "matchConfidence": "transcript-only",
+        "angleForHawk": "Emphasize how the solution will streamline site plan creation, quote generation, and document signing, directly impacting his sales process.",
+        "webEvidence": {
+          "linkedIn": null,
+          "tenureMonths": null,
+          "appointmentDate": null,
+          "sourceUrl": null,
+          "priorRole": null,
+          "backgroundSummary": null
+        },
+        "title": "Sales Representative",
+        "role": "operationalInfluencer",
+        "angleForIvy": "Focus on the practical benefits of improved efficiency in his sales activities and customer interactions.",
+        "company": "Peerless Fence"
+      }
+    ],
+    "preCallOutreach": [],
+    "futureBusinessChampions": []
+  },
+  "namedBuyers": {
+    "technicalInfluencers": [
+      {
+        "matchConfidence": "transcript-only",
+        "title": "Infrastructure/Systems Administrator",
+        "name": "Brian Cook"
+      },
+      {
+        "title": "Technical Lead/Developer",
+        "name": "Venkat B",
+        "matchConfidence": "transcript-only"
+      },
+      {
+        "title": "Project Manager/Developer",
+        "name": "Raghuram Potluri",
+        "matchConfidence": "transcript-only"
+      },
+      {
+        "name": "Marius",
+        "title": "Home Depot Portal/API Developer",
+        "matchConfidence": "transcript-only"
+      }
+    ],
+    "economicBuyer": {
+      "matchConfidence": "transcript-only",
+      "name": "Kirk",
+      "title": "Management/Leadership"
+    },
+    "champion": {
+      "matchConfidence": "transcript-only",
+      "name": "Jean Jacobs",
+      "title": "Computer Ease Administrator"
+    },
+    "operationalInfluencers": [
+      {
+        "title": "Sales/Operations Coordinator",
+        "name": "Ashley Salerno",
+        "matchConfidence": "transcript-only"
+      },
+      {
+        "matchConfidence": "transcript-only",
+        "title": "Project Coordinator/Manager",
+        "name": "Jeff Kelly"
+      },
+      {
+        "matchConfidence": "transcript-only",
+        "name": "Laura",
+        "title": "Accounting Team Member"
+      },
+      {
+        "title": "Accounting Staff",
+        "name": "Stephanie Rice",
+        "matchConfidence": "transcript-only"
+      },
+      {
+        "matchConfidence": "transcript-only",
+        "name": "Barb",
+        "title": "Material Ordering/Procurement"
+      },
+      {
+        "matchConfidence": "transcript-only",
+        "title": "Sales Representative",
+        "name": "Clayton Lambert"
+      }
+    ]
+  },
+  "credentialingAnchors": [],
+  "fomoProfileHint": [
+    "operational-pragmatist"
+  ],
+  "corporateProfile": "## 1. Origin & History\n\nPeerless Fence is a specialty fence installation contractor operating in the residential and commercial construction vertical. The company is PE-backed under **Akoya Capital** and sits beneath a platform holding company called **Elevate Fence Partners**, which operates a \"platform-above\" structure — meaning Peerless Fence is a portfolio brand within a broader roll-up thesis. Founded year is not on record; no public website or HQ address has been confirmed. The Akoya/Elevate structure is consistent with the current wave of home-services and specialty-trades consolidation, where a financial sponsor acquires regional operators, standardizes back-office systems, and extracts margin through operational leverage. Peerless Fence is the engagement entity and the operating brand — they are one and the same for our purposes.\n\nThe platform context matters architecturally: any automation we build at Peerless Fence may become a template Elevate deploys across sibling brands. There are no confirmed sibling brands on record yet, but the platform-above shape means Kirk's decisions carry upstream implications.\n\n## 2. Business Model\n\nPeerless Fence installs residential and commercial fencing, sourcing a material volume of its leads through the **Home Depot Service Center Portal** — a third-party lead referral channel that assigns F-number-keyed leads to contractor partners. This HD Portal dependency is the single most operationally sensitive integration point in the engagement: lead velocity, revenue, and HD partnership standing all hinge on how fast and accurately those leads are processed.\n\nThe revenue cycle runs: HD Portal lead → sales consultation → site plan + quote (Salesforce) → contract execution (DocHub, contract types 299A / 299B / 118) → job creation (ComputerEase) → field execution → billing. Deposits are tracked across HD Portal, Salesforce, and ComputerEase — three systems that currently do not talk to each other without manual intervention.\n\nKey business objects in play: Lead, Quote, Customer, Contract, Job, Task, Appointment, Deposit. The absence of a confirmed revenue figure or employee count is consistent with SMB classification, but the PE-backed platform context suggests the company is being managed toward a higher revenue tier.\n\nMaterial ordering (owned by Barb) and labor scheduling are currently manual downstream of job creation — these are Phase 3 targets but are already creating friction in field execution.\n\n## 3. Corporate Stack\n\nFive systems are in active scope:\n\n**Home Depot Service Center Portal** — Lead origination. Leads are keyed by F-number. Currently polled manually by Ashley Salerno each morning. API credentials are controlled by Marius (HD-side developer). A 10-minute polling cadence is the target; webhook availability is unconfirmed and may require negotiation with HD. This is an external dependency — Peerless Fence does not own the API contract.\n\n**Salesforce** — CRM and quoting layer. Opportunities progress to a \"Save as Final\" quote status that is the intended trigger for downstream job creation. Admin access and sandbox/production parity need to be verified before integration build begins. A read-only API user for ComputerEase sync is a prerequisite not yet provisioned.\n\n**ComputerEase (Deltek)** — ERP and job costing system. This is the most technically constrained system in the stack. API access requires enabling the **CE Live Service relay**, which is a Deltek vendor-side action — a support ticket to Deltek is a hard prerequisite. API version compatibility must be confirmed at v26+. Jean Jacobs administers ComputerEase and is the internal owner of this prerequisite. Job numbering in ComputerEase follows a sequential scheme keyed by company code + product line + initials — this logic must be replicated exactly in the automation.\n\n**Google Cloud Platform (GCP)** — Infrastructure host for the ComputerEase VM. Current firewall rules are insufficiently hardened (SSH/RDP exposure flagged). Network isolation for the CE VM and a secure API gateway for inbound integrations are required before any API traffic flows. Brian Cook owns this layer.\n\n**DocHub** — Digital signature capture for contract types 299A, 299B, and 118. Document storage and retrieval API must be configured for Salesforce integration. This is the contract validation backbone for Phase 2.\n\nNo legacy bolt-ons are on record. The stack is relatively clean for an SMB, which is a positive signal for integration velocity once prerequisites clear.\n\n## 4. People — Current Engagement\n\n**Kirk** (Management/Leadership) — Economic buyer. Decision authority confirmed. Frame everything in terms of system governance, operational leverage across the Elevate platform, and risk reduction. He is not in the weeds of API configuration but will sign off on scope and spend. Talking point: how does this investment position Peerless Fence as the operational template for Elevate's other portfolio brands?\n\n**Jean Jacobs** (ComputerEase Administrator) — Champion. She owns the most technically constrained prerequisite (CE Live Service relay / Deltek support ticket) and has the most to gain from eliminating manual job entry. She is the internal person who will feel the Phase 2 win most directly. Keep her close; her buy-in is the unlock for ComputerEase API access.\n\n**Ashley Salerno** (Sales/Operations Coordinator) — Operational influencer with the highest daily pain. She currently performs the manual morning HD Portal → Salesforce lead check. Phase 1 eliminates this task entirely. She is the most visible beneficiary of the first deliverable and should be the reference point for demonstrating early ROI to Kirk.\n\n**Brian Cook** (Infrastructure/Systems Administrator) — Technical influencer owning GCP. The firewall hardening and network isolation work sits with him. He is a potential blocker if GCP remediation is deprioritized. Engage him early on the security posture conversation — frame the hardening as risk reduction, not overhead.\n\n**Venkat B** (Technical Lead/Developer, DataSkate-side) — Internal technical lead on our side. Owns API testing and data extraction logic for Salesforce and HD Portal.\n\n**Raghuram Potluri** (Project Manager/Developer) — Owns API connectivity troubleshooting and GCP firewall configuration coordination. Bridge between Brian Cook's infrastructure work and our integration layer.\n\n**Marius** (Home Depot Portal/API Developer, HD-side) — External dependency. Controls API credentials for the HD Portal. Obtaining credentials from Marius is a named prerequisite and a potential long-lead item — HD procurement and vendor onboarding processes are not under Peerless Fence's control. Flag this as the highest external risk to Phase 1 timeline.\n\n**Jeff Kelly** (Project Coordinator/Manager) — Operational influencer. Owns stakeholder communication and meeting coordination. Useful for keeping prerequisite owners accountable across the org.\n\n**Barb** (Material Ordering/Procurement) — Operational influencer. Currently handles material ordering manually. Phase 3 target for automation. Not a Phase 1/2 decision-maker but will be a vocal beneficiary when task and material automation lands.\n\n**Clayton Lambert** (Sales Representative) — Operational influencer. Owns site plan creation, quote generation, and DocHub contract signing. His workflow is directly affected by Phase 2 contract validation automation.\n\n**Laura** and **Stephanie Rice** (Accounting) — Operational influencers. Downstream of job creation in ComputerEase. Deposit and payment term sync accuracy in Phase 2 directly affects their reconciliation workload.\n\n**Greg** (Home Depot Contact) — External. Coordinates HD meetings and API support escalation. Secondary contact behind Marius for HD Portal integration issues.\n\n## 5. People — Future Business\n\nNo confirmed future business champions or pre-call outreach targets are on record. However, the Elevate Fence Partners platform structure creates a natural expansion path: if Peerless Fence becomes the operational template, the platform executive team at Elevate becomes the future economic buyer for a multi-brand rollout. We do not have named contacts at the Elevate level yet — this is a gap to close with Kirk. Ask him directly who at Elevate is watching this engagement.\n\nWithin Peerless Fence, Jean Jacobs is the most likely internal champion for Phase 3 expansion (IDP, ComputerEase API automation, labor scheduling). Ashley Salerno, once Phase 1 delivers visible relief, becomes a credible internal advocate for accelerating Phase 2.\n\n## 6. Strategic Position\n\nPeerless Fence is a PE-backed specialty contractor in the middle of a systems modernization that was likely accelerated by Akoya's acquisition thesis. The HD Portal dependency is both a revenue concentration risk and a competitive moat — HD contractor partnerships are not freely available, and the ability to process HD leads faster than competing contractors directly affects win rate and HD scorecard standing.\n\nThe three-phase AI journey maps cleanly onto the revenue cycle: Phase 1 secures the lead funnel, Phase 2 closes the quote-to-job gap, Phase 3 operationalizes field execution. Each phase has a discrete ROI story: Phase 1 = lead response time and Ashley's manual hours; Phase 2 = job entry accuracy and contract compliance; Phase 3 = material and labor efficiency.\n\nThe FOMO profile is **operational-pragmatist** — this buyer responds to concrete workflow relief, not abstract AI narratives. Peer analogues confirm the pattern: a comparable fence group has already built the HD Portal → Salesforce scheduled poll and the Salesforce \"Save as Final\" → ComputerEase job creation flow. These are not hypothetical — they are proven patterns we can reference directly in the engagement.\n\nThe AgileMind analogue (Salesforce → QuickBooks invoice automation) is a weaker but relevant reference for the financial sync story in Phase 2, particularly for Laura and Stephanie's accounting workflow.\n\n## 7. Signals to Watch\n\n**CE Live Service relay ticket status** — This is the single longest-lead prerequisite. If Deltek's support queue is slow, Phase 2 slips. Jean Jacobs needs to open this ticket immediately; we should confirm it is open within the first week of engagement.\n\n**HD Portal API credential timeline** — Marius is an external dependency at a large enterprise (Home Depot). Vendor onboarding and API credentialing at HD can take weeks. If this is not already in motion, Phase 1 is at risk. Escalate through Greg if Marius is unresponsive.\n\n**GCP firewall remediation** — Brian Cook's infrastructure work is a prerequisite for any inbound API traffic to ComputerEase. If this is deprioritized against other IT work, the entire integration stack is blocked. Monitor closely.\n\n**Salesforce sandbox parity** — If the Salesforce sandbox does not mirror production configuration, integration testing will produce false positives. Verify this before build begins.\n\n**Elevate platform visibility** — If Akoya/Elevate is actively evaluating Peerless Fence as a template for other portfolio brands, the timeline pressure on this engagement increases. Conversely, if Elevate is hands-off, Kirk has more flexibility. Clarify the platform's involvement level.\n\n**DocHub contract type coverage** — Contract types 299A, 299B, and 118 are named, but it is not confirmed whether all active contract variants are covered. Any undocumented contract type discovered during Phase 2 build will require scope adjustment.\n\n## 8. How We See You\n\nPeerless Fence is a high-fit, high-urgency engagement. The operational pain is real, named, and owned by specific people — Ashley's manual morning lead check, Jean's manual job entry, Clayton's contract signing friction. The systems are known, the phases are sequenced, and the peer analogues are direct matches.\n\nThe risk profile is concentrated in external dependencies: Deltek's support queue, Home Depot's API credentialing process, and GCP hardening. None of these are DataSkate execution risks — they are client-side and third-party prerequisites. Our job in the first 30 days is to get all five prerequisites moving in parallel so that when we are ready to build, nothing is waiting on a vendor ticket.\n\nThe PE-backed platform context is the strategic upside. If we execute Phase 1 cleanly and visibly, Kirk has a story to tell at the Elevate level. That is the path from a three-phase SMB engagement to a platform-wide program. Build for Peerless Fence; architect for Elevate.",
+  "corporateProfileMeta": {
+    "wordCount": 1842,
+    "sectionCount": 8,
+    "sourceUrlCount": 0,
+    "namedContactCount": 14,
+    "generatedAt": "2024-07-30",
+    "confidence": "high"
+  }
+}

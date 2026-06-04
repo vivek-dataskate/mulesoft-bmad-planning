@@ -1,0 +1,1739 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DataSkate × Peerless Fence — Integration Roadmap</title>
+<link rel="stylesheet" href="/tokens.css">
+<style>
+/* ── PALETTE (HTML_DESIGN_STANDARDS.md §Color Palette) ── */
+:root {
+  --brand:    #ed1c24;
+  --brand-dk: #a01019;
+  --dark:     #1A1A1A;
+  --mid:      #555F6E;
+  --light:    #FFF5F5;
+  --border:   #E8E0E0;
+  --green:    #2E9E6B;
+  --amber:    #D69E2E;
+  --amber-bg: #FFFBEB;
+  --blue-bg:  #F0F6FF;
+  --blue-br:  #3B82F6;
+}
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── BASE TYPOGRAPHY (HTML_DESIGN_STANDARDS.md §Typography) ── */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--dark);
+  background: #fff;
+}
+a { color: var(--brand); }
+</style>
+
+
+<style>
+body { max-width: 1080px; margin: 0 auto; padding: 0 0 80px; }
+p { font-size: 13px; color: #44546A; margin-bottom: 12px; line-height: 1.65; }
+p:last-child { margin-bottom: 0; }
+p strong, li strong { color: var(--dark); font-weight: 600; }
+h3 { font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 8px; line-height: 1.3; }
+h4 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+.lead { font-size: 14px; color: var(--dark); font-weight: 400; line-height: 1.7; margin-bottom: 14px; }
+.pull-quote { border-left: 4px solid var(--brand); background: var(--light); padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 0 0 14px; font-size: 13px; font-weight: 500; color: var(--dark); line-height: 1.6; }
+
+/* ── HEADER ── */
+.header { background: #fff; border-bottom: 3px solid var(--brand); padding: 24px 40px 20px; }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.logo-group { display: flex; align-items: center; gap: 0; }
+.client-logo-block { display: flex; align-items: center; gap: 8px; margin-left: 6px; }
+.client-logo-sep { width: 1px; height: 32px; background: var(--border); }
+.client-logo-img { height: 32px; width: auto; max-width: 140px; object-fit: contain; }
+.header .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); }
+.header-title-block { border-left: 4px solid var(--brand); padding-left: 16px; margin-bottom: 16px; }
+.header h1 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; color: var(--dark); }
+.header .subtitle { font-size: 13px; color: var(--mid); line-height: 1.6; max-width: 620px; }
+.header-meta { display: flex; gap: 0; font-size: 12px; border-top: 1px solid var(--border); padding-top: 12px; flex-wrap: wrap; }
+.header-meta span { color: var(--mid); padding-right: 20px; margin-right: 20px; border-right: 1px solid var(--border); line-height: 1.5; }
+.header-meta span:last-child { border-right: none; margin-right: 0; }
+.header-meta span strong { color: var(--dark); font-weight: 600; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1px; }
+
+/* ── STICKY BAR ── */
+.sticky-bar { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--border); padding: 8px 40px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+
+/* ── TAB NAV ── */
+.tab-nav { display: flex; padding: 0 40px; border-bottom: 2px solid var(--border); background: #fff; }
+.tab-btn { padding: 10px 18px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--mid); margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
+.tab-btn:hover { color: var(--dark); }
+.tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+/* ── COLLAPSIBLE SECTIONS ── */
+details.section-block { border-bottom: 1px solid var(--border); }
+summary.section-head { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 13px 40px; list-style: none; user-select: none; }
+summary.section-head::-webkit-details-marker { display: none; }
+.section-summary { flex: 1; }
+.section-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--brand); margin-bottom: 2px; }
+.section-title { font-size: 15px; font-weight: 700; color: var(--dark); }
+.section-chevron { font-size: 11px; color: var(--mid); flex-shrink: 0; transition: transform 0.2s; }
+details.section-block[open] .section-chevron { transform: rotate(180deg); }
+.section-body { padding: 4px 40px 22px; }
+
+/* ── CHALLENGE CARDS ── */
+.challenge-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 12px; }
+.challenge-card { border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+.challenge-card .card-label { font-size: 10px; font-weight: 600; color: var(--brand); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.challenge-card p { font-size: 12px; color: #44546A; margin: 0; line-height: 1.5; }
+
+/* ── SOLUTION DIAGRAM ── */
+.diagram-wrap { margin: 16px -40px 4px; display: flex; justify-content: center; overflow-x: auto; }
+.diagram-wrap svg { width: 100%; height: auto; max-width: 1010px; }
+.diagram-caption { font-size: 11px; color: var(--mid); text-align: center; margin-top: 8px; font-style: italic; line-height: 1.5; }
+
+/* ── FLOW CARDS ── */
+.flow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.flow-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fff; }
+.flow-card .flow-num { font-size: 10px; font-weight: 600; color: var(--brand); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 3px; }
+.flow-card .flow-name { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 3px; }
+.flow-card .flow-route { font-size: 11px; color: var(--mid); margin-bottom: 6px; }
+.flow-card .flow-value { font-size: 12px; color: #44546A; line-height: 1.55; }
+
+/* ── COMPLEXITY BADGES ── */
+.complexity-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; float: right; margin-top: 2px; }
+.complexity-badge.high   { background: #FEF3C7; color: #92400E; }
+.complexity-badge.medium { background: #EBEBEB; color: var(--mid); }
+.complexity-badge.low    { background: #D1FAE5; color: #065F46; }
+
+/* ── OUTCOMES ── */
+.outcomes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.outcome-card { background: var(--light); border-radius: 8px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.outcome-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
+.outcome-card-text h4 { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 3px; }
+.outcome-card-text p  { font-size: 12px; color: #44546A; margin: 0; }
+
+/* ── INCLUDED / OOS ── */
+.included-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.inc-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 8px; background: var(--light); }
+.inc-check { width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.inc-card strong { font-size: 13px; font-weight: 600; color: var(--dark); display: block; margin-bottom: 3px; }
+.inc-card span { font-size: 12px; color: #44546A; line-height: 1.5; }
+.oos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.oos-card { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); }
+.oos-x { width: 20px; height: 20px; border-radius: 50%; background: #F3F4F6; color: var(--mid); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.oos-card strong { font-size: 13px; font-weight: 600; color: var(--dark); display: block; margin-bottom: 3px; }
+.oos-card span { font-size: 12px; color: var(--mid); line-height: 1.5; }
+
+/* ── ASSUMPTIONS TABLE ── */
+.assumptions-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.assumptions-table th { text-align: left; padding: 8px 10px; background: var(--light); font-size: 10px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--border); }
+.assumptions-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: #44546A; }
+.assumptions-table tr:last-child td { border-bottom: none; }
+.p0-flag { display: inline-block; font-size: 9px; font-weight: 700; color: #fff; background: var(--brand); padding: 1px 5px; border-radius: 3px; margin-right: 5px; vertical-align: middle; }
+.owner-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+.owner-ds     { background: #EFF6FF; color: #1E40AF; }
+.owner-client { background: #F0FFF4; color: #065F46; }
+.owner-both   { background: #FFFBEB; color: #92400E; }
+.owner-vendor { background: #F3F4F6; color: var(--mid); }
+
+/* ── TIMELINE ── */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 14px; padding-bottom: 18px; position: relative; }
+.tl-item:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 28px; bottom: 0; width: 2px; background: var(--border); }
+.tl-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.tl-dot.phase2 { background: var(--green); }
+.tl-dot.phase3 { background: #1C2B3A; }
+.tl-content { flex: 1; }
+.tl-weeks { font-size: 11px; color: var(--mid); margin-bottom: 2px; }
+
+/* ── JOURNEY / STAGES ── */
+.stage-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 6px 0 12px; }
+.stage-card { border-radius: 8px; padding: 10px 12px; }
+.stage-card.stage1 { background: #FFF0F0; border-top: 4px solid var(--brand); }
+.stage-card.stage2 { background: #F0FFF6; border-top: 4px solid var(--green); }
+.stage-card.stage3 { background: #F2F4F8; border-top: 4px solid #1C2B3A; }
+.stage-card .stage-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px; }
+.stage-card.stage1 .stage-label { color: var(--brand); }
+.stage-card.stage2 .stage-label { color: var(--green); }
+.stage-card.stage3 .stage-label { color: #1C2B3A; }
+.stage-card .stage-year { font-size: 10px; color: var(--mid); margin-bottom: 3px; }
+.stage-card h4 { font-size: 12px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+.stage-card ul { list-style: none; padding: 0; margin: 0; }
+.stage-card ul li { font-size: 11px; color: #44546A; padding: 2px 0 2px 13px; position: relative; line-height: 1.4; }
+.stage-card ul li::before { content: '→'; position: absolute; left: 0; font-size: 9px; top: 3px; }
+.stage-card.stage1 ul li::before { color: var(--brand); }
+.stage-card.stage2 ul li::before { color: var(--green); }
+.stage-card.stage3 ul li::before { color: #1C2B3A; }
+
+/* ── PORTFOLIO CONTEXT ── */
+.portfolio-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0; }
+.portfolio-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fff; }
+.portfolio-card-name { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+.portfolio-card-region { font-size: 11px; color: var(--mid); margin-bottom: 6px; }
+.portfolio-card-signal { font-size: 11px; color: var(--dark); line-height: 1.5; border-left: 3px solid var(--brand); padding-left: 8px; }
+.portfolio-sponsor { background: #F2F4F8; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 14px; }
+.portfolio-sponsor-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mid); margin-bottom: 3px; }
+.portfolio-sponsor-name { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.portfolio-sponsor-detail { font-size: 12px; color: var(--mid); line-height: 1.55; }
+.portfolio-template-angle { background: #FFF8F0; border-left: 4px solid #F59E0B; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 14px; font-size: 13px; color: var(--dark); line-height: 1.6; }
+/* ── HOW WE SEE YOU ── */
+.buyer-profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+.buyer-profile-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: #fff; }
+.buyer-profile-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand); margin-bottom: 6px; }
+.buyer-profile-value { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 8px; text-transform: capitalize; }
+.buyer-signal { font-size: 12px; color: #44546A; padding: 5px 0 5px 14px; position: relative; line-height: 1.5; border-bottom: 1px solid var(--border); }
+.buyer-signal:last-child { border-bottom: none; }
+.buyer-signal::before { content: '"'; position: absolute; left: 0; color: var(--brand); font-size: 14px; top: 3px; font-weight: 700; }
+/* ── FOMO CARDS ── */
+.fomo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.fomo-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: #fff; }
+.fomo-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.fomo-co { font-size: 13px; font-weight: 600; color: var(--dark); }
+.fomo-meta { font-size: 11px; color: var(--mid); margin-top: 2px; }
+.fomo-tier-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; white-space: nowrap; }
+.tier-exact    { background: #D1FAE5; color: #065F46; }
+.tier-adjacent { background: #DBEAFE; color: #1E40AF; }
+.tier-stat     { background: #F3F4F6; color: var(--mid); }
+.fomo-built { font-size: 12px; color: #44546A; margin-bottom: 6px; line-height: 1.5; }
+.fomo-savings-val { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+.fomo-analogy { font-size: 11px; color: var(--mid); font-style: italic; margin-bottom: 6px; line-height: 1.5; }
+.fomo-angle { font-size: 12px; font-weight: 500; color: var(--dark); border-left: 3px solid var(--brand); padding-left: 8px; line-height: 1.55; }
+.fomo-co-link { color: var(--brand); text-decoration: none; font-weight: 600; font-size: 13px; }
+.fomo-co-link:hover { text-decoration: underline; }
+.fomo-source { font-size: 11px; color: var(--mid); margin-top: 8px; font-style: italic; }
+.fomo-source a { color: var(--brand); text-decoration: underline; }
+.fomo-agent { font-size: 11px; color: #1D4ED8; background: #EFF6FF; border-radius: 4px; padding: 5px 8px; margin-bottom: 6px; line-height: 1.5; }
+.fomo-agent::before { content: '\26A1 AI agent: '; font-weight: 600; }
+/* ── AI THOUGHT STARTERS ── */
+.ai-starters { padding: 16px 40px 22px; background: #F0F4FF; border-top: 2px solid var(--brand); }
+.ai-starters-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand); margin-bottom: 10px; }
+.ai-starters-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ai-starters-list li { font-size: 13px; color: var(--dark); line-height: 1.55; padding-left: 18px; position: relative; }
+.ai-starters-list li::before { content: '\2192'; position: absolute; left: 0; color: var(--brand); font-size: 12px; top: 1px; }
+
+/* ── INVESTMENT / PRICING ── */
+.model-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+@media (max-width: 860px) { .model-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .model-grid { grid-template-columns: 1fr; } }
+.tm-rate-table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 10px 0 14px; }
+.tm-rate-table th { background: var(--blue-bg); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #1e40af; padding: 4px 8px; border-bottom: 1px solid #BFDBFE; text-align: left; }
+.tm-rate-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); color: var(--dark); }
+.tm-rate-table tr:last-child td { border-bottom: none; }
+.model-card { border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; }
+.model-card.recommended { border-color: var(--brand); border-width: 2px; }
+.rec-badge { position: absolute; top: -11px; left: 20px; background: var(--brand); color: #fff; font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.model-name { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
+.model-impl { font-size: 26px; font-weight: 800; color: var(--brand); line-height: 1; }
+.model-impl-label { font-size: 11px; color: var(--mid); margin-bottom: 12px; margin-top: 2px; }
+.model-service { font-size: 20px; font-weight: 700; color: var(--dark); }
+.model-service-label { font-size: 11px; color: var(--mid); margin-top: 2px; margin-bottom: 12px; }
+.model-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+.best-for { font-size: 10px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.model-vp { font-size: 12px; color: #44546A; line-height: 1.5; margin-bottom: 14px; }
+.model-retainer { font-size: 11px; color: var(--mid); margin-top: 2px; margin-bottom: 4px; }
+.impl-pitch { background: var(--blue-bg); border: 1px solid var(--blue-br); border-radius: 8px; padding: 16px 18px; margin: 16px 0 4px; }
+.impl-pitch-head { font-size: 12px; font-weight: 600; color: var(--dark); margin-bottom: 12px; }
+.impl-pitch-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 9px; font-size: 12px; color: #44546A; line-height: 1.5; }
+.impl-pitch-row:last-child { margin-bottom: 0; }
+.impl-pitch-icon { color: var(--mid); flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+.impl-pitch-note { font-size: 11px; color: var(--mid); margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+.model-instruction { font-size: 11px; color: var(--mid); font-style: italic; margin-bottom: 12px; }
+.model-select-btn { width: 100%; }
+.managed-intro { margin: 4px 0 10px; }
+.managed-intro h3 { font-size: 15px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+.managed-intro p { font-size: 12px; color: var(--mid); }
+.managed-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+.managed-table th { text-align: left; padding: 8px 10px; background: var(--light); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--mid); border-bottom: 2px solid var(--border); }
+.managed-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.managed-table tr:last-child td { border-bottom: none; }
+.negotiate-panel { margin-top: 20px; border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.negotiate-header { margin-bottom: 16px; }
+.negotiate-label { font-size: 10px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.negotiate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.negotiate-field-label { display: block; font-size: 11px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+.negotiate-required { color: var(--brand); }
+.negotiate-optional { font-weight: 400; color: var(--mid); }
+
+/* ── ACCEPT PANEL ── */
+.accept-panel { position: fixed; top: 45px; right: 40px; z-index: 99; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,.12); display: none; }
+.accept-panel-head { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.accept-panel-sub  { font-size: 12px; color: var(--mid); margin-bottom: 14px; line-height: 1.5; }
+
+/* ── NEXT STEPS ── */
+.next-steps { display: flex; gap: 0; }
+.ns-item { flex: 1; text-align: center; padding: 0 10px; position: relative; }
+.ns-item:not(:last-child)::after { content: '→'; position: absolute; right: -10px; top: 16px; font-size: 16px; color: var(--border); }
+.ns-num { width: 36px; height: 36px; background: var(--brand); color: #fff; border-radius: 50%; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+.ns-item h4 { font-size: 12px; font-weight: 600; color: var(--dark); margin-bottom: 3px; }
+.ns-item p  { font-size: 11px; color: var(--mid); margin: 0; }
+
+/* ── NEGOTIATE INPUTS ── */
+.cta-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; color: var(--dark); font-family: inherit; margin-bottom: 10px; box-sizing: border-box; }
+.cta-input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(237,28,36,.12); }
+textarea.cta-input { min-height: 80px; resize: vertical; }
+.accept-success { display: none; background: #F0FFF4; border: 1px solid #68D391; border-left: 4px solid var(--green); border-radius: 6px; padding: 10px 14px; margin-top: 10px; font-size: 13px; font-weight: 600; color: #276749; }
+
+/* ── ABOUT TAB ── */
+.about-hero { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+.about-stat { padding: 18px 22px; border-right: 1px solid var(--border); }
+.about-stat:last-child { border-right: none; }
+.about-stat-num { font-size: 52px; font-weight: 800; color: var(--brand); line-height: 1; margin-bottom: 4px; }
+.about-stat-label { font-size: 11px; color: var(--mid); text-transform: uppercase; letter-spacing: 1px; line-height: 1.4; }
+.about-lead { font-size: 14px; color: var(--dark); line-height: 1.7; margin-bottom: 16px; }
+.about-ai-callout { background: var(--light); border-left: 4px solid var(--brand); padding: 14px 18px; margin-bottom: 20px; border-radius: 0 6px 6px 0; }
+.about-ai-label { font-size: 10px; font-weight: 600; color: var(--brand); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.about-ai-callout p { font-size: 13px; color: var(--dark); margin: 0; line-height: 1.65; }
+.about-pillars { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 4px; }
+.about-pillar { border-top: 3px solid var(--border); padding: 14px 0 0; }
+.about-pillar-head { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 7px; }
+.about-pillar p { font-size: 12px; color: #44546A; margin: 0; line-height: 1.55; }
+
+/* ── CASE STUDY CARDS ── */
+.cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+.cs-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+.cs-co { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+.cs-meta { font-size: 11px; color: var(--mid); margin-bottom: 10px; }
+.cs-headline { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 6px; line-height: 1.4; }
+.cs-built { font-size: 12px; color: #44546A; line-height: 1.5; margin-bottom: 6px; }
+.cs-outcome { font-size: 12px; font-weight: 600; color: var(--green); margin-bottom: 8px; }
+.cs-ai { font-size: 12px; color: #44546A; border-left: 3px solid var(--brand); padding-left: 8px; line-height: 1.5; }
+
+/* ── IAAS AI CALLOUT ── */
+.iaas-ai-callout { background: #F0FFF6; border: 1px solid var(--green); border-left: 4px solid var(--green); border-radius: 8px; padding: 12px 14px; margin: 10px 0 14px; }
+.iaas-ai-callout-head { font-size: 10px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.iaas-ai-callout p { font-size: 12px; color: #44546A; margin: 0; line-height: 1.55; }
+
+/* ── FOOTER ── */
+.footer { border-top: 1px solid var(--border); padding: 16px 40px; font-size: 12px; color: var(--mid); display: flex; justify-content: space-between; align-items: center; }
+.footer strong { color: var(--dark); }
+.footer a { color: var(--mid); text-decoration: none; }
+
+/* ── BUTTONS ── */
+.btn         { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+.btn-primary { background: var(--brand); color: #fff; }
+.btn-outline { background: #fff; color: var(--dark); border: 2px solid var(--border); }
+.btn-submit  { font-size: 14px; padding: 10px 28px; }
+
+/* ── PRINT ── */
+@media print {
+  body { max-width: 100%; padding: 0; font-size: 11px; }
+  .no-print, .sticky-bar, .tab-nav { display: none !important; }
+  .tab-panel { display: block !important; }
+  .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  details.section-block { page-break-inside: avoid; }
+  details.section-block > .section-body { display: block !important; }
+  .section-chevron { display: none; }
+  .complexity-badge, .fomo-tier-badge, .stage-card, .model-card, .rec-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo-group">
+      <span style="--logo-h: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:var(--logo-h,28px);width:auto;display:block;flex-shrink:0;" aria-label="DataSkate">
+<path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/>
+<path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/>
+<path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#231f20" d="m302.54,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#231f20" d="m361.69,320.49v-44.07h10.95v16.1h23.46v9.94h-23.46v18.03c0,6.07,3.13,8.46,7.64,8.46s7.64-2.3,7.64-8.46v-1.2h10.95v1.2c0,12.6-7.54,18.68-18.58,18.68s-18.58-6.07-18.58-18.68Z"/>
+<path fill="#231f20" d="m405.39,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/>
+<path fill="#ed1c24" d="m471.93,324.82h8.83c.18,3.77,3.68,6.44,10.03,6.44s10.03-2.85,10.03-6.44c0-4.32-4.78-4.88-10.49-5.61-7.91-1.01-17.48-2.48-17.48-12.88,0-8.92,6.99-15,17.85-15s17.57,6.16,17.75,13.98h-8.65c-.28-3.5-3.5-6.07-9.02-6.07-5.8,0-9.11,2.76-9.11,6.35,0,4.32,4.78,4.78,10.4,5.52,7.91,1.01,17.57,2.48,17.57,12.88,0,9.2-7.45,15.18-18.86,15.18s-18.58-6.07-18.86-14.35Z"/>
+<path fill="#ed1c24" d="m520.51,272.65h8.74v40.02l20.88-20.15h11.5l-23.73,22.17,24.56,23.27h-11.68l-21.53-21.16v21.16h-8.74v-65.32Z"/>
+<path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/>
+<path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/>
+<path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
+</svg></span>
+      
+    </div>
+    <span class="eyebrow">Integration Roadmap — Confidential</span>
+  </div>
+  <div class="header-title-block">
+    <h1>The Connected Peerless Fence: Your AI Integration Roadmap</h1>
+    <div class="subtitle">From manual lead-to-job handoffs to an automated, audit-ready workflow across HD Portal, Salesforce, and ComputerEase</div>
+  </div>
+  <div class="header-meta">
+    <span><strong>Prepared for</strong>Peerless Fence</span>
+    <span><strong>Architect</strong>Raghuram Potluri · DataSkate</span>
+    <span><strong>Date</strong>2026-06-03</span>
+    <span><strong>Scope</strong>12 integration flows</span>
+  </div>
+</div>
+
+
+<div class="sticky-bar no-print">
+  <button class="btn btn-outline" onclick="toggleAllSections(this)">Expand All</button>
+  <button class="btn btn-outline" onclick="window.print()">Print / PDF</button>
+  <button class="btn btn-primary" onclick="goToInvestment()">Let's Talk →</button>
+  <button class="btn btn-primary" id="accept-btn" onclick="showAcceptPanel()" style="background:var(--green)">Accept Proposal ✓</button>
+</div>
+
+
+<div class="accept-panel no-print" id="accept-panel">
+  <div class="accept-panel-head">Accept this Proposal</div>
+  <div class="accept-panel-sub">Your name and email confirm acceptance. We'll follow up with an SOW for signature.</div>
+  <input id="accept-name"  class="cta-input" type="text"  placeholder="Your full name *" style="margin-bottom:8px" />
+  <input id="accept-email" class="cta-input" type="email" placeholder="Your email *" style="margin-bottom:12px" />
+  <button class="btn btn-primary" style="width:100%" onclick="submitAcceptance()">Confirm Acceptance →</button>
+  <div class="accept-success" id="accept-success">
+    ✓ Acceptance recorded. Your DataSkate architect will be in touch shortly with the SOW.
+  </div>
+</div>
+
+
+<div class="tab-nav no-print">
+  <button class="tab-btn active" data-tab="proposal" onclick="showTab('proposal',this)">Proposal</button>
+  <button class="tab-btn" data-tab="solution" onclick="showTab('solution',this)">Solution</button>
+  <button class="tab-btn" data-tab="ai" onclick="showTab('ai',this)">AI Vision</button>
+  <button class="tab-btn" data-tab="about" onclick="showTab('about',this)">About Us</button>
+</div>
+
+
+<div id="tab-proposal" class="tab-panel">
+
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">The Challenge</div>
+      <div class="section-title">Why this matters now</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    
+    <p class="pull-quote">Every manual handoff between HD Portal, Salesforce, and ComputerEase is a silent failure waiting to happen — and the security exposure underneath it makes it worse. 'There's no firewall. They could put in a username and password and keep trying and trying and trying until they get in.' The goal of Stage 1 is simple: close the exposure, stabilize the data flow, and make sure nothing breaks quietly.</p>
+    
+    
+    <div class="challenge-grid">
+      
+      <div class="challenge-card">
+        <div class="card-label">Ashley's Morning Queue</div>
+        <p>Ashley manually checks the HD Portal backend every morning to find new leads, then re-enters them into Salesforce — a process that delays consultation scheduling and introduces transcription errors on every lead that comes through the Home Depot channel.</p>
+      </div>
+      
+      <div class="challenge-card">
+        <div class="card-label">Job Entry Is a Hand-Off Chain</div>
+        <p>When a Salesforce opportunity closes, Ashley manually creates the customer record in ComputerEase, enters deposit amounts and payment terms from the HD Portal contract, and then uploads signed contract documents (299A, 299B, 118) into the ComputerEase job record — each step a separate manual touch with no automated validation.</p>
+      </div>
+      
+      <div class="challenge-card">
+        <div class="card-label">Security Exposure on the ComputerEase VM</div>
+        <p>'There's no firewall. They could put in a username and password and keep trying and trying and trying until they get in' — the GCP instance hosting ComputerEase currently allows SSH and RDP from any IP address, meaning the job-costing system is reachable by anyone on the internet.</p>
+      </div>
+      
+      <div class="challenge-card">
+        <div class="card-label">ComputerEase API Is Not Yet Active</div>
+        <p>'It's an ancient system... I feel like I've traveled back to the 90s' — ComputerEase API access has not been enabled with Deltek, the CE Live Service relay is not configured, and API version compatibility (v26+) has not been confirmed, blocking every automated flow in this proposal until a support ticket is resolved.</p>
+      </div>
+      
+    </div>
+    
+  </div>
+</details>
+
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">ROI / Business Case</div>
+      <div class="section-title">The business case for moving now</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <p>Peerless Fence runs 6+ systems — HD Portal, Salesforce, ComputerEase, DocHub, GCP, and Deltek — with no automated handoffs between them. Ashley manually checks HD Portal every morning, re-keys lead data into Salesforce, then re-enters job details into ComputerEase by hand. Every closed deal that touches all three systems is a manual relay race with no error detection until something breaks downstream.</p>
+    
+    <div style="display:flex;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;">
+      
+      <div style="flex:1;min-width:120px;">
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+      </div>
+      
+      <div style="flex:1;min-width:120px;">
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+      </div>
+      
+      <div style="flex:1;min-width:120px;">
+        <span style="font-size:22px;font-weight:800;color:var(--brand);line-height:1;"></span>
+        <div style="font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;"></div>
+      </div>
+      
+    </div>
+    
+  </div>
+</details>
+
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">What's Included</div>
+      <div class="section-title">Everything covered in this engagement</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="included-grid">
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>12 Integration Flows — Built &amp; Maintained</strong><span>All 12 confirmed flows (UC1–UC12) across HD Portal, Salesforce, ComputerEase, DocHub, GCP, and Deltek — designed, built, tested, and maintained by DataSkate for the duration of the engagement.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>MuleSoft Hosting &amp; Runtime Management</strong><span>DataSkate manages the MuleSoft CloudHub runtime environment — provisioning, patching, uptime monitoring, and capacity management are included. Peerless Fence does not own or operate the middleware layer.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>Field Mapping &amp; Data Transformation</strong><span>All field-level mapping between HD Portal, Salesforce, ComputerEase, and DocHub — including HD F-number external ID keying, contract type routing (299A, 299B, 118), and budget worksheet field alignment.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>Error Handling &amp; Retry Logic</strong><span>Every flow includes structured error handling with retry logic and alerting. When a sync fails, the system retries automatically and notifies the team — failures surface loudly rather than silently dropping records.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>UAT Support &amp; Integration Testing</strong><span>DataSkate supports Peerless Fence through two weeks of user acceptance testing — including sandbox-to-production validation for ComputerEase, Salesforce, and HD Portal flows.</span></div>
+      </div>
+      
+      <div class="inc-card">
+        <div class="inc-check">&#10003;</div>
+        <div><strong>30-Day Hypercare Post Go-Live</strong><span>Dedicated support for 30 days after go-live — priority response to any flow failures, field mapping corrections, or credential rotation issues that arise in the production environment.</span></div>
+      </div>
+      
+    </div>
+  </div>
+</details>
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">What You Get</div>
+      <div class="section-title">Expected outcomes from this engagement</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="outcomes-grid">
+      
+      <div class="outcome-card">
+        <div class="outcome-icon">🔄</div>
+        <div class="outcome-card-text"><h4>Ashley's Manual Queue — Cleared</h4><p>Lead verification, customer record creation, contract uploads, deposit entry, and task assignment were all manual steps owned by one person. On go-live day, the scheduled and event-driven flows handle each of these automatically — Ashley's queue shrinks to exception handling only.</p></div>
+      </div>
+      
+      <div class="outcome-card">
+        <div class="outcome-icon">🔒</div>
+        <div class="outcome-card-text"><h4>Secure, Auditable API Access</h4><p>GCP firewall rules are hardened to restrict SSH/RDP access to authorized sources. ComputerEase API access is enabled through Deltek with sandbox/production parity. Every integration call is logged — the open exposure identified during scoping is closed before the first flow goes live.</p></div>
+      </div>
+      
+      <div class="outcome-card">
+        <div class="outcome-icon">🏗️</div>
+        <div class="outcome-card-text"><h4>AI-Ready Foundation</h4><p>Clean, connected, well-maintained data infrastructure is what AI agents need to operate. Every flow we build is a pipeline an AI agent will eventually use — built right from the start.</p></div>
+      </div>
+      
+    </div>
+  </div>
+</details>
+
+
+
+<details class="section-block" id="investment-details">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Investment</div>
+      <div class="section-title">Pricing &amp; engagement model</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    
+
+
+
+
+
+<div class="model-grid">
+
+  
+  <div class="model-card recommended" data-model="iaas">
+    <div class="rec-badge">Recommended for you</div>
+    <div class="model-name">Model 1 — IaaS (Managed Service)</div>
+    <div class="model-impl">$44,280</div>
+    <div class="model-impl-label">1-year total · two 6-month payments · billing starts at go-live</div>
+    <div class="model-service">$300.00/flow/month</div>
+    <div class="model-service-label">Period 1 rate · 12 flows · DataSkate owns support all year</div>
+    <div class="model-retainer">$5,000 kickoff retainer — credited at go-live</div>
+    <hr class="model-divider">
+    <div class="best-for">What's covered</div>
+    <div class="model-vp">Design, build, deployment, monitoring, and all support for 12 months. At month 12: renew at the same rate, or take full code ownership — your choice.</div>
+    <div class="iaas-ai-callout">
+      <div class="iaas-ai-callout-head">AI Included — Within Year 1</div>
+      <p>By month 12, DataSkate begins building your first AI agent within the same engagement — full data automation and AI agent stack. No separate SOW, no Year 2 wait. The field structure and data layer we establish in week one is exactly what the model reads.</p>
+    </div>
+    <button class="btn btn-primary model-select-btn no-print" onclick="selectModel('iaas','Model 1 — IaaS (Managed Service)','$300.00/flow/month (Period 1)')">Select this Model →</button>
+  </div>
+
+  
+  <div class="model-card" data-model="impl">
+    
+    <div class="model-name">Model 2 — Implementation Only</div>
+    <div class="model-impl">$42,000</div>
+    <div class="model-impl-label">One-time fee · 12 flows × $3,500/flow · 20-week delivery</div>
+    <hr class="model-divider">
+    <div class="best-for">What's covered</div>
+    <div class="model-vp">Design, build, and deployment. Code ownership transfers at go-live. Your team handles support after handoff.</div>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('impl','Model 2 — Implementation Only','$42,000 one-time fee')">Select this Model →</button>
+  </div>
+
+  
+  
+  <div class="model-card" data-model="tm">
+    
+    <div class="model-name">Model 3 — Time &amp; Materials</div>
+    <div class="model-impl">$45,600</div>
+    <div class="model-impl-label">Estimated total · 12 flows · billed on actual hours logged</div>
+    <hr class="model-divider">
+    <div class="best-for">Resource rates</div>
+    <table class="tm-rate-table">
+      <thead><tr><th>Role</th><th>Rate/hr</th><th>~hrs/flow</th></tr></thead>
+      <tbody>
+        
+        <tr><td>Offshore Architect</td><td>$45.00</td><td>~20h</td></tr>
+        
+        <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~40h</td></tr>
+        
+        <tr><td>Offshore Developer</td><td>$25.00</td><td>~60h</td></tr>
+        
+      </tbody>
+    </table>
+    <div class="model-vp">Scope can evolve mid-engagement. DataSkate logs hours in a shared sheet; you only pay for actual work done. Ideal when requirements are still forming.</div>
+    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('tm','Model 3 — Time &amp; Materials','$3,800/flow est.')">Select this Model →</button>
+  </div>
+  
+
+</div>
+
+
+<div id="iaas-rate-section">
+  <div class="managed-intro">
+    <h3>IaaS Payment Schedule</h3>
+    <p>Two payments over 12 months. Billing begins at go-live — not at signing.</p>
+  </div>
+  <table class="managed-table">
+    <thead>
+      <tr><th>Period</th><th>Duration</th><th>Rate / flow / month</th><th>6-month payment (12 flows)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Period 1</td><td>Month 1–6</td><td>$300.00</td><td>$21,600</td></tr>
+      <tr><td>Period 2</td><td>Month 7–12</td><td>$315.00</td><td>$22,680</td></tr>
+      <tr><td colspan="3"><strong>1-year total</strong></td><td><strong>$44,280</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Your Anypoint Platform license is already in place through your MuleSoft AE relationship. Kickoff retainer ($5,000) due at SOW signing, credited against your first payment at go-live. At month 12: renew at the same rate, or take full code ownership — no escalation at renewal.</p>
+</div>
+
+
+<div id="impl-persuasion" style="display:none">
+  <div class="impl-pitch">
+    <div class="impl-pitch-head">Here's how the three models compare at the 12-month mark</div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Total cost at 12 months:</strong> Implementation Only $42,000 · IaaS $44,280 — a difference of $2,280. IaaS spreads payment over two invoices; Implementation Only is due in two lump sums during build.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>Support:</strong> IaaS — DataSkate owns all monitoring, incident response, and fixes for 12 months. Implementation Only — your team owns support from go-live.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>At month 12:</strong> IaaS clients choose to renew at the current rate or take code ownership. Either way, they've had 12 months of DataSkate-managed uptime.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>MuleSoft expertise:</strong> Implementation Only requires someone on your team who can administer Anypoint Platform after handoff. IaaS does not.</span></div>
+    <div class="impl-pitch-row"><span class="impl-pitch-icon">→</span><span><strong>AI readiness — included at no charge:</strong> Before go-live, DataSkate delivers a personalized Agentic Readiness Document — mapping your integrated data layer to specific AI agents, with timing and cost estimates. Free for all implementation clients.</span></div>
+    <p class="impl-pitch-note">If Implementation Only is still the right fit, continue below.</p>
+  </div>
+</div>
+
+
+
+<div id="tm-rate-section" style="display:none">
+  <div class="managed-intro">
+    <h3>T&amp;M Resource Breakdown</h3>
+    <p>Estimates based on typical hours per flow. Actual hours may vary; scope increases require written approval before work begins.</p>
+  </div>
+  <table class="managed-table">
+    <thead>
+      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (12 flows)</th><th>Estimated cost</th></tr>
+    </thead>
+    <tbody>
+      
+      <tr><td>Offshore Architect</td><td>$45.00</td><td>~240h</td><td>$10,800</td></tr>
+      
+      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~480h</td><td>$16,800</td></tr>
+      
+      <tr><td>Offshore Developer</td><td>$25.00</td><td>~720h</td><td>$18,000</td></tr>
+      
+      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$45,600</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced bi-weekly based on actual hours logged. Minimum engagement: 80 hours. Time tracked via shared sheet provided at SOW signing.</p>
+</div>
+
+
+
+<div class="negotiate-panel no-print" id="negotiate-panel" style="display:none">
+  <div class="negotiate-header">
+    <div class="negotiate-label">Your Selection</div>
+    <h3 id="selected-model-name">—</h3>
+    <p>Listed: <strong id="selected-rate">—</strong>. Leave the field blank to accept as listed, or enter a proposed figure to discuss.</p>
+  </div>
+  <div class="negotiate-grid">
+    <div>
+      <label class="negotiate-field-label">Your name <span class="negotiate-required">*</span></label>
+      <input class="cta-input" type="text" id="negotiate-name" placeholder="Your full name" autocomplete="name" />
+    </div>
+    <div>
+      <label class="negotiate-field-label" id="negotiate-rate-label">Proposed rate (optional)</label>
+      <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $275/flow/month" oninput="onRateInput(this.value)" />
+    </div>
+  </div>
+  <div style="margin-bottom:20px">
+    <label class="negotiate-field-label">Notes <span class="negotiate-optional">(optional)</span></label>
+    <textarea class="cta-input" id="negotiate-notes" placeholder="Any context or questions?" oninput="onNotesInput(this)"></textarea>
+  </div>
+  <button class="btn btn-primary btn-submit" id="negotiate-btn" onclick="submitSelection()">Confirm Selection →</button>
+  <div class="accept-success" id="selection-success">&#10003; Your email app should open. We'll follow up within one business day.</div>
+</div>
+
+  </div>
+</details>
+
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">What's Not Included</div>
+      <div class="section-title">Out of scope for this engagement</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="oos-grid">
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>ComputerEase CE Live Service Enablement (Deltek Vendor Action)</strong><span>Submitting and managing the Deltek support ticket to enable API access and configure the CE Live Service relay is a client and vendor action. DataSkate will validate connectivity once access is confirmed, but cannot initiate or expedite the Deltek support process.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>GCP Firewall Hardening (Client IT Action)</strong><span>Restricting SSH/RDP access on the ComputerEase VM and configuring network isolation within GCP is the responsibility of Peerless Fence's IT team or GCP administrator. DataSkate will specify the required IP allowlist but does not administer the client's GCP environment.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>HD Portal API Credential Procurement (Home Depot Vendor Action)</strong><span>Obtaining API credentials from the Home Depot Portal team (Marius) is a client-to-vendor coordination task. DataSkate cannot access or request HD Portal credentials on behalf of Peerless Fence.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>DocHub Account Configuration &amp; Signature Template Setup</strong><span>Configuring DocHub to capture digital signatures for contract types 299A, 299B, and 118 — including template design and document storage settings — is a client action. DataSkate integrates with a configured DocHub instance; it does not administer the DocHub account.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>Salesforce Object Design &amp; Custom Field Configuration</strong><span>Any changes to Salesforce object schema, custom field creation, page layout updates, or permission set design are outside this engagement. DataSkate maps to existing Salesforce fields; structural Salesforce configuration is a client or Salesforce admin responsibility.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>Historical Data Migration</strong><span>This engagement covers net-new data from go-live forward. Migration of historical job records, customer records, or contract documents from HD Portal or ComputerEase into Salesforce is not included.</span></div>
+      </div>
+      
+      <div class="oos-card">
+        <div class="oos-x">&#215;</div>
+        <div><strong>HD Portal Test Lead Management</strong><span>Creating, managing, or cleaning up test leads in the HD Portal sandbox environment for UAT purposes is a Peerless Fence responsibility. DataSkate will specify the test data requirements but does not operate within the HD Portal backend.</span></div>
+      </div>
+      
+    </div>
+  </div>
+</details>
+
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">How We Read This Engagement</div>
+      <div class="section-title">What we noticed about how you evaluate decisions</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="buyer-profile-grid">
+      <div class="buyer-profile-card">
+        <div class="buyer-profile-label">Your decision style</div>
+        <div class="buyer-profile-value">risk averse conservative</div>
+        <p style="font-size:12px;color:var(--mid);margin:0;line-height:1.6;">This proposal was shaped around what matters most to you — concrete outcomes, specific timelines, and what stops on go-live day. Abstract capability claims were left out.</p>
+      </div>
+      
+      <div class="buyer-profile-card">
+        <div class="buyer-profile-label">Signals that shaped this proposal</div>
+        
+        <div class="buyer-signal">&quot;This is a really, really poor practice right here for security.&quot;</div>
+        
+        <div class="buyer-signal">&quot;That's scary.&quot;</div>
+        
+        <div class="buyer-signal">&quot;I thought we fixed this.&quot;</div>
+        
+        <div class="buyer-signal">&quot;It's an ancient system.&quot;</div>
+        
+        <div class="buyer-signal">&quot;I feel like I've traveled back to the 90s.&quot;</div>
+        
+        <div class="buyer-signal">&quot;They're allowing SSH and RDP from anywhere, which is really bad practice.&quot;</div>
+        
+        <div class="buyer-signal">&quot;I don't like your view. It looks terrible... If you go to and then change it to classic instead of workflow.&quot;</div>
+        
+      </div>
+      
+    </div>
+  </div>
+</details>
+
+
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">How to Move Forward</div>
+      <div class="section-title">Next steps to get started</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="next-steps">
+      
+      <div class="ns-item">
+        <div class="ns-num">1</div>
+        <h4>Fill Out Intake Form</h4>
+        <p>Complete the intake form so DataSkate can confirm system access, API credentials, and environment details before the technical deep dive. This is the fastest way to unblock the five P0 items identified in discovery — ComputerEase API enablement, GCP firewall hardening, Salesforce permissions, HD Portal credentials from Marius, and DocHub configuration.</p>
+      </div>
+      
+      <div class="ns-item">
+        <div class="ns-num">2</div>
+        <h4>Schedule Technical Deep Dive</h4>
+        <p>Book a working session with Raghuram Potluri to walk through the ComputerEase CE Live Service relay configuration, GCP firewall rule changes, and Salesforce sandbox parity. This session resolves the connectivity blockers so API testing can begin the following week.</p>
+      </div>
+      
+      <div class="ns-item">
+        <div class="ns-num">3</div>
+        <h4>Review Integration Deck</h4>
+        <p>The integration deck maps all 12 confirmed flows across HD Portal, Salesforce, ComputerEase, DocHub, and GCP — with complexity ratings and sequencing. Review it before the SOW call so the scope conversation starts from a shared picture of what gets built in each stage.</p>
+      </div>
+      
+      <div class="ns-item">
+        <div class="ns-num">4</div>
+        <h4>Align on Scope and SOW</h4>
+        <p>Once the intake form is complete and the integration deck is reviewed, DataSkate will issue a Statement of Work covering Stage 1 flows, IaaS managed connector configuration, field mapping, error handling, UAT support, and 30-day hypercare. No surprises — every line item is traceable to a confirmed flow from the discovery session.</p>
+      </div>
+      
+    </div>
+  </div>
+</details>
+
+</div>
+
+
+<div id="tab-solution" class="tab-panel" style="display:none">
+
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">The Solution</div>
+      <div class="section-title">How MuleSoft connects your systems</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <p class="lead">DataSkate places a MuleSoft managed layer between HD Portal, Salesforce, ComputerEase, and DocHub — handling retry logic, dead-letter queuing, and operational monitoring that native point-to-point connections do not provide. The comparison is not cost — it's what you own after the project closes. The lower quote transfers ownership back to you on day 31.</p>
+    <div class="diagram-wrap"><svg viewBox="0 0 500 104" style="width:100%;max-width:500px;height:auto;display:block;margin:8px auto;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="var(--border)"/></marker>
+    <style>
+      .sv-src,.sv-tgt{fill:#fff;stroke:var(--border);stroke-width:1.5}
+      .sv-line{stroke:var(--border);stroke-width:1.5;fill:none}
+      .sv-lsrc,.sv-ltgt{font:600 11px system-ui,sans-serif;fill:var(--dark)}
+    </style>
+  </defs>
+  <rect x="190" y="16.0" width="120" height="72" rx="8" fill="#EBF7FD" stroke="#00a1df" stroke-width="2"/>
+  <image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIj48ZyB0cmFuc2Zvcm09Im1hdHJpeCguMTAyNzQ2IDAgMCAuMTAyNzQ2IDQuNTI3MzcgMTMuMDEwOTMpIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTQuNiAzLjdoMTA5NS42VjMyN0g0LjZ6Ii8+PC9kZWZzPjxjbGlwUGF0aCBpZD0iQiI+PHVzZSB4bGluazpocmVmPSIjQSIvPjwvY2xpcFBhdGg+PHBhdGggZD0iTTE2Ni45IDMxNC41Yy04MS44IDAtMTQ4LjEtNjYuMy0xNDguMS0xNDguMUMxOC43IDg0LjUgODUgMTguMiAxNjYuOSAxOC4yYzgxLjggMCAxNDguMSA2Ni4zIDE0OC4xIDE0OC4xcy02Ni4zIDE0OC4yLTE0OC4xIDE0OC4yem0tLjEtMzEwLjhDNzcuMyAzLjcgNC41IDc2LjIgNC41IDE2NS4zIDQuNSAyNTQuNSA3Ny4zIDMyNyAxNjYuOCAzMjdzMTYyLjQtNzIuNSAxNjIuNC0xNjEuNmMwLTg5LjItNzIuOC0xNjEuNy0xNjIuNC0xNjEuN3oiIGNsaXAtcGF0aD0idXJsKCNCKSIgZmlsbD0iIzAwYTFkZiIvPjwvZz48cGF0aCBkPSJNMTcuNDQzIDM3LjQ1NGMtMi41MTctMS4xODItNC4yNjQtMy44NTMtNC4yNjQtNi45NDYgMC0xLjYzNC40ODMtMy4xNDQgMS4zMTUtNC4zNzdsNS40ODcgOC4xOGgzLjMybDUuNDg3LTguMThjLjgzMiAxLjIzMyAxLjMxNSAyLjc1NCAxLjMxNSA0LjM3NyAwIDIuODg3LTEuNTIgNS4zOTQtMy43NiA2LjdsMS4wNTggNC4wNDhjNC4wMjgtMi4wNzUgNi43Ny02LjI2OCA2Ljc3LTExLjEwNyAwLTQuNTcyLTIuNDU2LTguNTYtNi4xMTMtMTAuNzM3bC02LjM3IDkuODMzLTYuMy05Ljg3NGMtMy43IDIuMTY4LTYuMTg1IDYuMTg1LTYuMTg1IDEwLjc3OCAwIDUuMDE0IDIuOTUgOS4zNCA3LjIxMyAxMS4zMjN6bTM5LjY0LTE0LjQ1NmgtMi4xMjdMNTAuOTQgMzEuNzNsLTQuMS04LjczM0g0NC43djE0LjAzNWgyLjEzN3YtOS4zOGwzLjMwOCA2Ljg0M2gxLjU4MmwzLjIyNi02Ljg0M3Y5LjM4aDIuMTI3em04LjAwMyAxMC4xMzJjMCAxLjU0LS45NDUgMi4yMy0yLjA2NSAyLjIzcy0yLjAxNC0uNjY4LTIuMDE0LTIuMjN2LTYuMDkzaC0yLjAxNHY2LjRjMCAxLjEzLjIzNiAyLjA3NSAxLjAwNyAyLjgyNi41OTYuNTY1IDEuNDM4LjkwNCAyLjQ2Ni45MDQgMS4wMDcgMCAxLjk3My0uMzcgMi42Ni0xLjEydjEuMDA3SDY3LjF2LTkuOTk3aC0yLjAxNHptNS45NSAxLjAyNlYyMi45OThINjkuMDJ2MTEuMjdjMCAxLjQ4LjgzMiAyLjc2NCAyLjc0MyAyLjc2NGgxLjI0M3YtMS43MTZoLS44ODRjLS44MTIgMC0xLjEtLjQtMS4xLTEuMTZ6bTQuNTYtMi45MzhjLjAyLS42MDYuMDYyLS45MDQuMjU3LTEuMzU2LjMyLS43NSAxLjA0OC0xLjI2NCAxLjk5My0xLjI2NHMxLjY1NC41MTQgMS45NzMgMS4yNjRjLjE5NS40NTIuMjU3Ljc1LjI3NyAxLjM1NnptMi4yNS00LjI5NWMtMi41NTggMC00LjIzMyAxLjg3LTQuMjMzIDUuMTA2IDAgMy44MDIgMS45OTMgNS4xMjcgNC41IDUuMTI3IDEuNzU3IDAgMi43MjMtLjUzNCAzLjc0LTEuNTYybC0xLjI5NS0xLjIwMmMtLjcuNy0xLjMwNSAxLjAyNy0yLjQyNSAxLjAyNy0xLjYzNCAwLTIuNTQ4LTEuMDgtMi41NDgtMi43OTVoNi40ODN2LS44ODRjLjAxLTIuODQ2LTEuNTQtNC44Mi00LjIyMy00Ljgyem0xNC4xNTggMy4yMjdjLS41OTYtLjUzNC0xLjMyNS0uODUzLTIuNjItMS4wNDhsLTEuNTkzLS4yMzZjLS42NDctLjEwMy0xLjIyMy0uMzQtMS41NzItLjY0Ny0uMzctLjM0LS41MzQtLjgtLjUzNC0xLjMwNSAwLTEuMjQzLjkwNC0yLjE4OCAyLjU1OC0yLjE4OCAxLjE4MiAwIDIuMTg4LjI1NyAzLjA1MiAxLjA4bDEuMzU2LTEuMzM2Yy0xLjIwMi0xLjEtMi40OTctMS41OTMtNC4zNTYtMS41OTMtMi45MTggMC00LjY5NSAxLjY3NS00LjY5NSA0LjEyIDAgMS4xNC4zNCAyLjAzNCAxLjAyNyAyLjY4Mi42MDYuNTc1IDEuNTIuOTY2IDIuNjYgMS4xMmwxLjY1NC4yMzZjLjgzMi4xMTMgMS4xODIuMjU3IDEuNTQuNTk2LjM3LjMzLjU1NS44NTMuNTU1IDEuNDYgMCAxLjM1Ni0xLjA3IDIuMTQ3LTIuODk3IDIuMTQ3LTEuNDM4IDAtMi41NTgtLjMyLTMuNTg2LTEuMzM2TDgzLjEzNiAzNS4zYzEuMzM2IDEuMzU2IDIuODU2IDEuODUgNC45NzMgMS44NSAyLjk0IDAgNS4wNDUtMS41NCA1LjA0NS00LjEyLS4wMS0xLjE5Mi0uMzgtMi4yLTEuMTUtMi44Nzd6bTcuOTMyIDQuNjIzYy0uMzcuMzctLjg4NC41ODYtMS40OC41ODZzLTEuMS0uMjE2LTEuNDYtLjU4NmMtLjYxNi0uNjA2LS42ODgtMS42NTQtLjY4OC0yLjc0M3MuMDgyLTIuMTI3LjY4OC0yLjc0M2MuMzctLjM3Ljg2My0uNTc1IDEuNDYtLjU3NS41ODYgMCAxLjEuMTk1IDEuNDguNTc1LjYwNi42MDYuNjg4IDEuNjU0LjY4OCAyLjc0MyAwIDEuMDgtLjA4MiAyLjEyNy0uNjg4IDIuNzQzem0tMS40OC03Ljg1Yy0xLjM1NiAwLTIuMzIyLjUxNC0yLjk4IDEuMTgyLS45NDUuOTg2LTEuMTgyIDIuMjUtMS4xODIgMy45MjUgMCAxLjY5NS4yMzYgMi45NiAxLjE4MiAzLjk0NS42NDcuNjY4IDEuNjEzIDEuMTgyIDIuOTggMS4xODIgMS4zNTYgMCAyLjM0My0uNTE0IDMtMS4xODIuOTQ1LS45ODYgMS4xODItMi4yNSAxLjE4Mi0zLjk0NSAwLTEuNjc1LS4yMzYtMi45NC0xLjE4Mi0zLjkyNS0uNjU4LS42NjgtMS42NDQtMS4xODItMy0xLjE4MnptNi4yMDctMS4yNDN2MS41NGgtMS4xNHYxLjU0aDEuMTR2OC4yOGgyLjAxNHYtOC4yOGgxLjk5M3YtMS41NGgtMS45OTN2LTEuNDM4YzAtLjczLjM1LTEuMTYgMS4xLTEuMTZoLjg4NHYtMS43MjZoLTEuMjY0Yy0xLjg2IDAtMi43MzMgMS4zNDYtMi43MzMgMi43ODR6bTguNDA1LTEuNWgtMi4wMTR2My4wM2gtMS4xNHYxLjU0aDEuMTR2NS40OTdjMCAxLjQzOC44NjMgMi43ODQgMi43NDMgMi43ODRIMTE1di0xLjcxNmgtLjgzMmMtLjc1IDAtMS4xLS40MzItMS4xLTEuMTZWMjguNzVIMTE1VjI3LjJoLTEuOTMyeiIgZmlsbD0iIzAwYTFkZiIvPjwvc3ZnPgo=" x="210.0" y="26.0" width="80" height="30"/>
+  <text x="250" y="80.0" text-anchor="middle" font="400 9px system-ui,sans-serif" style="font:400 9px system-ui,sans-serif;fill:#00a1df">DataSkate Managed</text>
+</svg></div>
+    <p class="diagram-caption">DataSkate-managed MuleSoft layer — no code changes required in Salesforce or ComputerEase. Bidirectional flows (UC1, UC6) noted: ComputerEase job status syncs back to Salesforce sales orders in addition to outbound job creation.</p>
+  </div>
+</details>
+
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Proposed Integrations</div>
+      <div class="section-title">12 Proposed Integration Flows</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="flow-grid">
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC1</div>
+  
+  <div class="flow-name">Lead Sync: HD Portal → Salesforce</div>
+  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
+  <div class="flow-value">New leads from the HD Portal land in Salesforce automatically every 10 minutes — keyed by HD F-number as external ID. Ashley's manual morning check stops on go-live day.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC2</div>
+  
+  <div class="flow-name">Job Entry with Budget Data: Salesforce → ComputerEase</div>
+  <div class="flow-route">Salesforce → MuleSoft → ComputerEase</div>
+  <div class="flow-value">When a sales rep closes an opportunity, job and budget worksheet data flows into ComputerEase automatically. Manual re-keying of job details by Ashley is eliminated.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC3</div>
+  
+  <div class="flow-name">Customer Record Creation: HD Portal → ComputerEase</div>
+  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
+  <div class="flow-value">Customer records are created in ComputerEase directly from HD Portal lead data — no manual transcription by Ashley between systems.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC4</div>
+  
+  <div class="flow-name">Contract Generation &amp; Digital Signature: Salesforce → DocHub</div>
+  <div class="flow-route">Salesforce → MuleSoft → DocHub</div>
+  <div class="flow-value">Contract documents (types 299A, 299B, 118) are generated from Salesforce opportunity data and routed to DocHub for digital signature capture — replacing the manual document prep and routing step.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC5</div>
+  
+  <div class="flow-name">Quote Entry: HD Portal → Salesforce</div>
+  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
+  <div class="flow-value">Quote details created in HD Portal flow into Salesforce opportunities automatically. Ashley's manual verification and re-entry step is removed from the process.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC6</div>
+  
+  <div class="flow-name">Job Status Attachment: ComputerEase → Salesforce</div>
+  <div class="flow-route">ComputerEase → MuleSoft → Salesforce</div>
+  <div class="flow-value">ComputerEase project and work order records are linked to Salesforce sales orders automatically after job entry — eliminating Ashley's manual attachment step.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC7</div>
+  
+  <div class="flow-name">Contract Document Upload: HD Portal → ComputerEase</div>
+  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
+  <div class="flow-value">Signed contract documents (299A, 299B, 118) from HD Portal are uploaded to the corresponding ComputerEase job record automatically — no manual upload by Ashley required.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC8</div>
+  
+  <div class="flow-name">Task Creation for Material &amp; Labor: Salesforce → ComputerEase</div>
+  <div class="flow-route">Salesforce → MuleSoft → ComputerEase</div>
+  <div class="flow-value">Material purchase and labor tasks are created in ComputerEase from Salesforce project data automatically — replacing Ashley's manual task assignment process.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC9</div>
+  
+  <div class="flow-name">Appointment Scheduling Sync: HD Portal → Salesforce</div>
+  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → Salesforce</div>
+  <div class="flow-value">Consultation appointments scheduled in HD Portal sync to the Salesforce calendar automatically — sales reps see their schedule without a separate manual entry step.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC10</div>
+  
+  <div class="flow-name">GCP Infrastructure Configuration: GCP → ComputerEase</div>
+  <div class="flow-route">Google Cloud Platform → MuleSoft → ComputerEase</div>
+  <div class="flow-value">GCP firewall rules are configured to restrict API access to the ComputerEase VM to authorized sources only — closing the open SSH/RDP exposure identified during scoping and enabling secure integration traffic.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC11</div>
+  
+  <div class="flow-name">API Configuration via Deltek Support: Deltek → ComputerEase</div>
+  <div class="flow-route">Deltek Support Portal → MuleSoft → ComputerEase</div>
+  <div class="flow-value">ComputerEase API access and CE Live Service relay are enabled and validated through Deltek support — establishing the foundation for all ComputerEase integration flows.</div>
+</div>
+
+      
+      
+<div class="flow-card">
+  <div class="flow-num">Flow UC12</div>
+  
+  <div class="flow-name">Deposit &amp; Payment Terms Entry: HD Portal → ComputerEase</div>
+  <div class="flow-route">Home Depot Service Center Portal → MuleSoft → ComputerEase</div>
+  <div class="flow-value">Deposit amounts and payment terms from HD Portal contracts are written into ComputerEase job records automatically — removing Ashley's manual entry step for each new job.</div>
+</div>
+
+      
+    </div>
+  </div>
+</details>
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Key Assumptions &amp; Dependencies</div>
+      <div class="section-title">Prerequisites and shared responsibilities</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <table class="assumptions-table">
+      <thead>
+        <tr><th>Assumption</th><th>Owner</th><th>When</th></tr>
+      </thead>
+      <tbody>
+        
+        
+        
+        <tr>
+          <td><span class="p0-flag">P0</span>Deltek support ticket is submitted to enable ComputerEase API access and configure the CE Live Service relay. API version v26 or higher must be confirmed before build begins. Sandbox and production environments must be at parity.</td>
+          <td><span class="owner-badge owner-ds">client</span></td>
+          <td>Before Week 1 (blocks all ComputerEase flows)</td>
+        </tr>
+        
+        
+        
+        <tr>
+          <td><span class="p0-flag">P0</span>GCP firewall rules for the ComputerEase VM are hardened to restrict SSH/RDP access to authorized IP addresses only. Network isolation is configured before integration testing begins.</td>
+          <td><span class="owner-badge owner-ds">client</span></td>
+          <td>Before Week 3 (blocks ComputerEase API connectivity testing)</td>
+        </tr>
+        
+        
+        
+        <tr>
+          <td><span class="p0-flag">P0</span>Salesforce API user credentials are confirmed with appropriate integration permissions. A Salesforce administrator with full access is available to configure API integrations. Sandbox environment is at parity with production.</td>
+          <td><span class="owner-badge owner-ds">client</span></td>
+          <td>Before Week 1 (blocks all Salesforce flows)</td>
+        </tr>
+        
+        
+        
+        <tr>
+          <td><span class="p0-flag">P0</span>HD Portal API credentials are obtained from the Home Depot Portal team (Marius). Polling mechanism (10-minute frequency) or webhook endpoint is confirmed and accessible from DataSkate's MuleSoft environment.</td>
+          <td><span class="owner-badge owner-ds">vendor</span></td>
+          <td>Before Week 1 (blocks UC1, UC3, UC5, UC7, UC9, UC12)</td>
+        </tr>
+        
+        
+        
+        <tr>
+          <td><span class="p0-flag">P0</span>DocHub is configured to capture digital signatures for contract types 299A, 299B, and 118. A document storage and retrieval API endpoint is available for Salesforce integration.</td>
+          <td><span class="owner-badge owner-ds">client</span></td>
+          <td>Before Week 3 (blocks UC4)</td>
+        </tr>
+        
+        
+        
+        <tr>
+          <td>A dedicated DataSkate integration user is provisioned in Salesforce with API-only access and a non-expiring credential. A read-only API user is established in ComputerEase for status sync flows.</td>
+          <td><span class="owner-badge owner-ds">client</span></td>
+          <td>Before Week 1</td>
+        </tr>
+        
+        
+        
+        <tr>
+          <td>Jean Jacobs (ComputerEase Administrator) and Brian Cook (Infrastructure/Systems Administrator) are available for technical coordination during Discovery and UAT phases.</td>
+          <td><span class="owner-badge owner-ds">client</span></td>
+          <td>Weeks 1–2 and Weeks 10–11</td>
+        </tr>
+        
+        
+        
+        <tr>
+          <td>Ashley Salerno is available to validate flow outputs during UAT — confirming that lead records, job entries, customer records, and contract documents match expected results.</td>
+          <td><span class="owner-badge owner-ds">client</span></td>
+          <td>Weeks 10–11 (UAT phase)</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+</details>
+
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Delivery Timeline</div>
+      <div class="section-title">Indicative project schedule</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="timeline">
+      
+      
+      
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-content">
+          <div class="tl-weeks">Weeks 1–2</div>
+          <h4>Discovery &amp; Field Mapping</h4>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm HD Portal API endpoint structure, polling frequency, and F-number external ID schema</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Map Salesforce Lead, Opportunity, and Quote objects to HD Portal and ComputerEase field equivalents</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Document ComputerEase job maintenance fields: customer, deposit, payment terms, budget worksheet</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate DocHub API for contract types 299A, 299B, 118 — signature capture and document retrieval</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm GCP firewall allowlist and ComputerEase CE Live Service relay configuration</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Establish sandbox environments for Salesforce and ComputerEase with production parity</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Finalize flow trigger logic: scheduled (UC1 — 10-min poll) vs. event-driven (UC2–UC12)</li>
+          </ul>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      <div class="tl-item">
+        <div class="tl-dot phase2">2</div>
+        <div class="tl-content">
+          <div class="tl-weeks">Weeks 3–9</div>
+          <h4>Build &amp; Unit Test</h4>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC1: HD Portal → MuleSoft → Salesforce lead sync (10-min scheduled poll, F-number keying)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC5 &amp; UC9: HD Portal → Salesforce quote entry and appointment scheduling sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC3 &amp; UC12: HD Portal → ComputerEase customer record creation and deposit/payment terms entry</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC7: HD Portal → ComputerEase signed contract document upload (299A, 299B, 118)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC2: Salesforce → ComputerEase job entry with budget worksheet data on opportunity close</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC4: Salesforce → DocHub contract generation and digital signature routing</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC8: Salesforce → ComputerEase task creation for material purchases and labor assignment</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC6: ComputerEase → Salesforce job status and work order attachment sync</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Build UC10 &amp; UC11: GCP firewall configuration validation and Deltek CE Live Service relay connectivity</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Unit test all flows in sandbox — validate error handling, retry logic, and field mapping accuracy</li>
+          </ul>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      <div class="tl-item">
+        <div class="tl-dot phase3">3</div>
+        <div class="tl-content">
+          <div class="tl-weeks">Weeks 10–11</div>
+          <h4>UAT &amp; Integration Testing</h4>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Ashley Salerno validates lead records in Salesforce against HD Portal source data (UC1, UC5)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate end-to-end job creation: HD Portal lead → Salesforce opportunity → ComputerEase job (UC2, UC3)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Test contract document flow: Salesforce → DocHub signature capture → ComputerEase upload (UC4, UC7)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate deposit and payment terms entry in ComputerEase job records (UC12)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm appointment sync to Salesforce calendar (UC9)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Jean Jacobs and Brian Cook validate ComputerEase API connectivity and GCP firewall rules (UC10, UC11)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Regression test all 12 flows in staging before production promotion</li>
+          </ul>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      <div class="tl-item">
+        <div class="tl-dot phase3">4</div>
+        <div class="tl-content">
+          <div class="tl-weeks">Week 12</div>
+          <h4>Go Live &amp; Handoff</h4>
+          
+          <ul style="margin:4px 0 0;padding-left:16px;">
+            <li style="font-size:12px;color:#44546A;line-height:1.5;">Promote all 12 flows from sandbox to production</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Confirm HD Portal 10-minute lead sync is running in production (UC1)</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Validate first live job creation end-to-end: HD Portal → Salesforce → ComputerEase</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Activate 30-day hypercare monitoring — error alerting and priority response in place</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Deliver flow documentation and runbook to Jean Jacobs and Brian Cook</li><li style="font-size:12px;color:#44546A;line-height:1.5;">Schedule Year 2 automation roadmap review with Kirk and the DataSkate team</li>
+          </ul>
+          
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</details>
+
+
+
+
+
+<details class="section-block">
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Platform Opportunity</div>
+      <div class="section-title">This engagement is bigger than one brand</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    
+    <div class="portfolio-sponsor">
+      <div>
+        <div class="portfolio-sponsor-label">Financial Sponsor</div>
+        <div class="portfolio-sponsor-name">Akoya Capital</div>
+        <div class="portfolio-sponsor-detail"></div>
+      </div>
+    </div>
+    
+    
+    
+  </div>
+</details>
+
+
+</div>
+
+
+<div id="tab-ai" class="tab-panel" style="display:none">
+
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Your AI Journey</div>
+      <div class="section-title">The path to: 'I think by next early next week, I think we should be able to figure out all the access connectivity and extracting data. So we should be good after that.'</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="stage-grid">
+      
+      
+      
+      
+<div class="stage-card stage1">
+  <div class="stage-label">Stage 1</div>
+  <div class="stage-year">Year 1</div>
+  <h4>Lead Ingestion &amp; Qualification via HD Portal → Salesforce</h4>
+  <ul>
+    <li>HD Portal leads land in Salesforce automatically every 10 minutes — no more manual morning check by Ashley; the HD F-number becomes the external ID that prevents duplicates</li>
+    <li>Appointment scheduling syncs from HD Portal to Salesforce calendar without manual re-entry</li>
+    <li>Quote details verified and entered into Salesforce opportunity automatically when a sales rep closes in HD Portal — Ashley's manual verification step stops on go-live day</li>
+    <li>GCP firewall rules hardened to restrict SSH/RDP access before any integration goes live — the security exposure flagged in discovery is closed first</li>
+    <li>Salesforce API user permissions confirmed and sandbox environment validated to match production — no surprises during UAT</li>
+    
+  </ul>
+</div>
+
+      
+      
+      
+      
+<div class="stage-card stage2">
+  <div class="stage-label">Stage 2</div>
+  <div class="stage-year">Year 2</div>
+  <h4>Quote-to-Job Workflow: Salesforce → ComputerEase with Contract Validation</h4>
+  <ul>
+    <li>When a Salesforce opportunity is saved as final, a new job, customer record, and budget worksheet are created in ComputerEase automatically — manual data entry by Ashley is eliminated</li>
+    <li>Customer record creation in ComputerEase is triggered by HD Portal lead data — no more manual re-keying from lead to job</li>
+    <li>Contract documents (299A, 299B, 118) routed through DocHub for digital signature capture; signed documents attached to the ComputerEase job record without manual upload</li>
+    <li>Deposit amount and payment terms from HD Portal contract entered into ComputerEase job maintenance automatically — Ashley's manual deposit entry step is removed</li>
+    <li>ComputerEase job status attached to Salesforce sales order automatically after job creation — no manual linking step required</li>
+    
+  </ul>
+</div>
+
+      
+      
+      
+      
+<div class="stage-card stage3">
+  <div class="stage-label">Stage 3</div>
+  <div class="stage-year">Year 3</div>
+  <h4>Project Execution &amp; Compliance Automation via ComputerEase API &amp; IDP</h4>
+  <ul>
+    <li>ComputerEase API (CE Live Service relay, v26+) enabled — task creation, material ordering, and labor scheduling triggered automatically from Salesforce project data; Barb's manual material ordering step in Salesforce is replaced</li>
+    <li>Intelligent Document Processing extracts contract data from 299A, 299B, and 118 documents and validates against business rules — permit dates, deposit amounts, and signature legibility checked automatically; exceptions flagged for Ashley's review rather than full manual review of every document</li>
+    <li>Read-only Salesforce sync from ComputerEase provides project status visibility to sales reps and coordinators — Clayton and Jeff see job progress in Salesforce without logging into ComputerEase</li>
+    <li>Automated deposit verification from HD Portal backend triggers job entry in ComputerEase without Ashley manually checking backend reporting — when the deposit clears, the job moves forward</li>
+    <li>Quote line items from Salesforce validated against ComputerEase master data (material type, picket type, post caps, gates) before job creation — discrepancies flagged before they become field errors</li>
+    
+  </ul>
+</div>
+
+      
+    </div>
+    
+    <p class="pull-quote">The managed service model means DataSkate absorbs the operational risk — you get the outcomes without owning the infrastructure that delivers them.</p>
+    
+  </div>
+</details>
+
+
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Peer Comparison</div>
+      <div class="section-title">Companies like yours are already doing this</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="fomo-grid">
+      
+      
+
+  
+
+<div class="fomo-card">
+  <div class="fomo-card-head">
+    <div>
+      <div class="fomo-co">
+        Peerless Fence Group
+      </div>
+      
+    </div>
+    <span class="fomo-tier-badge tier-stat">1</span>
+  </div>
+  <div class="fomo-analogy">This is the same workflow Peerless Fence Group runs — same HD Portal, same Salesforce, same manual morning check that gets eliminated on day one.</div>
+  <div class="fomo-savings-val">Eliminates the manual morning HD Portal check; leads land in Salesforce automatically with the HD F-number as the deduplication key.</div>
+  <div class="fomo-built">Automated lead capture from HD Portal into Salesforce on a 10-minute polling cycle, with HD F-number as the deduplication key and automatic routing to sales reps.</div>
+  <div class="fomo-agent">An AI agent monitors HD Portal for new leads → creates Salesforce Lead records → routes to sales reps.</div>
+  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Eliminates manual morning HD-Portal-to-Salesforce check; leads land in Salesforce automatically with HD F-number as external ID.</div>
+  
+</div>
+
+      
+      
+
+  
+
+<div class="fomo-card">
+  <div class="fomo-card-head">
+    <div>
+      <div class="fomo-co">
+        Peerless Fence Group
+      </div>
+      
+    </div>
+    <span class="fomo-tier-badge tier-stat">1</span>
+  </div>
+  <div class="fomo-analogy">Same ComputerEase (Deltek) stack, same Salesforce opportunity-to-job handoff — this is a proven pattern in the fence installation vertical.</div>
+  <div class="fomo-savings-val">Automates job creation in ComputerEase from a closed Salesforce opportunity, eliminating manual re-keying and ensuring field-level consistency between the two systems.</div>
+  <div class="fomo-built">Event-driven job creation in ComputerEase triggered by a 'Save as Final' quote in Salesforce — new job, customer record, and budget worksheet created without manual re-entry.</div>
+  <div class="fomo-agent">An AI agent detects a &quot;Save as Final&quot; quote in Salesforce → creates a new job, customer, and budget worksheet in ComputerEase.</div>
+  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Automates job creation in ComputerEase, eliminating manual data entry and ensuring data consistency between Salesforce and ComputerEase.</div>
+  
+</div>
+
+      
+      
+
+  
+
+<div class="fomo-card">
+  <div class="fomo-card-head">
+    <div>
+      <div class="fomo-co">
+        AgileMind
+      </div>
+      
+    </div>
+    <span class="fomo-tier-badge tier-stat">4</span>
+  </div>
+  <div class="fomo-analogy">Different vertical, same pattern: one person manually re-keying data between two systems, every transaction, every time — until go-live day.</div>
+  <div class="fomo-savings-val">Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated</div>
+  <div class="fomo-built">Automated invoice creation in QuickBooks triggered by a new agreement in Salesforce — Crystal's manual billing workflow was fully replaced.</div>
+  <div class="fomo-agent">An AI agent detects a new agreement in Salesforce → creates an invoice in QuickBooks.</div>
+  <div class="fomo-angle">Lead with the specific manual step that stops on go-live: Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated</div>
+  
+</div>
+
+      
+    </div>
+  </div>
+</details>
+
+
+
+
+
+</div>
+
+
+<div id="tab-about" class="tab-panel" style="display:none">
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">About DataSkate</div>
+      <div class="section-title">Who we are and how we work</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    
+    
+      
+      <div class="about-hero">
+        
+        <div class="about-stat">
+          <div class="about-stat-num">20</div>
+          <div class="about-stat-label">years, one discipline</div>
+        </div>
+        
+        <div class="about-stat">
+          <div class="about-stat-num">1</div>
+          <div class="about-stat-label">service — nothing else</div>
+        </div>
+        
+        <div class="about-stat">
+          <div class="about-stat-num">0</div>
+          <div class="about-stat-label">websites. consulting. mobile apps.</div>
+        </div>
+        
+      </div>
+      
+      <p class="about-lead">Data integration is not a service DataSkate added to a broader practice. It is the only thing the people behind DataSkate have ever done — across industries, at companies of every size, through every generation of middleware. We stayed narrow on purpose. The problem kept getting harder, and broad practices lose when things get complicated.</p>
+      
+      <div class="about-ai-callout">
+        <div class="about-ai-label">Why this matters now</div>
+        <p>AI does not create order from disorder. It amplifies what is already there. Every vendor is promising their model will fix the operational chaos underneath your business. It will not — not without connected, clean, trustworthy data to read. DataSkate builds that foundation. The MuleSoft flows we design in Year 1 are the exact pipelines AgentForce reads in Year 2. We are not adding complexity to your Salesforce investment. We are making it finally deliver what was promised.</p>
+      </div>
+      
+      
+      <div class="about-pillars">
+        
+        <div class="about-pillar">
+          <div class="about-pillar-head">Narrow by design</div>
+          <p>We do not build websites. We do not do general IT consulting. When you have an integration problem, you reach people for whom this is the only question — and has been for years. That focus shows in the diagnosis. It shows in the build.</p>
+        </div>
+        
+        <div class="about-pillar">
+          <div class="about-pillar-head">Not a template. A diagnosis.</div>
+          <p>The architecture in this proposal was assembled from patterns learned across twenty years and applied to your specific situation. Specific field schemas, event triggers, sync frequencies — built for this engagement, not the previous one.</p>
+        </div>
+        
+        <div class="about-pillar">
+          <div class="about-pillar-head">Still there at 2am</div>
+          <p>We have watched point-to-point connections fail overnight. We have rebuilt pipelines another vendor called production-ready. When something breaks, you reach people who already know the three most likely reasons why.</p>
+        </div>
+        
+      </div>
+      
+    
+  </div>
+</details>
+
+
+<details class="section-block" open>
+  <summary class="section-head">
+    <div class="section-summary">
+      <div class="section-eyebrow">Client Results</div>
+      <div class="section-title">How similar teams have used DataSkate</div>
+    </div>
+    <span class="section-chevron">&#9660;</span>
+  </summary>
+  <div class="section-body">
+    <div class="cs-grid">
+      
+      
+<div class="cs-card">
+  <div class="cs-co">The Clorox Company</div>
+  <div class="cs-meta">Fortune 500 · $7B+ revenue &middot; SAP, Salesforce, ServiceNow</div>
+  <div class="cs-headline">From 6-week manual order cycles to real-time retail partner sync</div>
+  <div class="cs-built">MuleSoft integration layer between SAP ERP and Salesforce — automated purchase order and inventory sync across 200+ retail partners. Eliminated manual EDI workarounds and cross-system reconciliation that required four people and a shared spreadsheet.</div>
+  <div class="cs-outcome">&#10003; 74% reduction in order processing time. Finance ops recovered 12+ hours per week. New partners onboarded in days, not weeks.</div>
+  <div class="cs-ai">AI in Year 2: In Year 2, an AI agent monitors retail partner portals for demand signals and auto-flags reorder thresholds — surfaced every morning before the supply chain team opens their queue. The integration data layer built in Year 1 is exactly what the model reads.</div>
+</div>
+
+      
+      
+<div class="cs-card">
+  <div class="cs-co">R&amp;L Carriers</div>
+  <div class="cs-meta">$2B+ revenue · 10,000+ employees &middot; Oracle, Salesforce, TMS</div>
+  <div class="cs-headline">Freight billing automated — the 48-hour dispatch-to-invoice relay eliminated</div>
+  <div class="cs-built">MuleSoft orchestration between Oracle ERP and Salesforce CRM — billing triggers automated from dispatch close events, real-time shipment status pushed to the customer portal. No manual handoffs between operations and finance.</div>
+  <div class="cs-outcome">&#10003; 48-hour billing lag reduced to under 2 hours. Customer support tickets dropped 31%. Finance team stopped running daily reconciliation reports.</div>
+  <div class="cs-ai">AI in Year 2: In Year 2, an agent surfaces at-risk shipments — delay flagged with no outbound customer contact in 24 hours — every morning. The operations team responds to a short exception list, not a monitoring dashboard.</div>
+</div>
+
+      
+    </div>
+  </div>
+</details>
+
+
+</div>
+
+
+<div class="footer">
+  <span>Raghuram Potluri &#183; <a href="mailto:raghuram@dataskate.ai">raghuram@dataskate.ai</a> &#183; DataSkate &#183; dataskate.ai</span>
+  <strong>Confidential</strong>
+</div>
+
+
+
+<script>
+window.__PROP_SLUG  = "peerless2";
+window.__PROP_NAME  = "Peerless Fence";
+window.__PROP_EMAIL = "raghuram@dataskate.ai";
+window.__PROP_ARCH  = "Raghuram Potluri";
+window.__PROP_RATE  = 300;
+window.__PROP_FLOWS = 12;
+window.__PROP_MODEL = "iaas";
+</script>
+<script>
+const CLIENT_SLUG         = window.__PROP_SLUG;
+const CLIENT_NAME         = window.__PROP_NAME;
+const ARCHITECT_EMAIL     = window.__PROP_EMAIL;
+const ARCHITECT_NAME      = window.__PROP_ARCH;
+const PROPOSAL_RATE       = window.__PROP_RATE;
+const PROPOSAL_FLOW_COUNT = window.__PROP_FLOWS;
+const PROPOSAL_MODEL      = window.__PROP_MODEL;
+
+// ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDCpzgZAMWWGwedG5At5Ml3gn_yA0dRVZk",
+  authDomain:        "dataskateclients.firebaseapp.com",
+  projectId:         "dataskateclients",
+  storageBucket:     "dataskateclients.firebasestorage.app",
+  messagingSenderId: "620173241148",
+  appId:             "1:620173241148:web:d5bf84e63e93ef94758c39"
+};
+
+// ── FIREBASE INIT ─────────────────────────────────────────────────────────────
+(function () {
+  ["https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
+   "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"
+  ].forEach(src => {
+    const s = document.createElement('script');
+    s.src = src; s.async = false;
+    document.head.appendChild(s);
+  });
+})();
+
+function getDb() {
+  if (typeof firebase === 'undefined') return null;
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  return firebase.firestore();
+}
+
+// ── VIEW TRACKING ─────────────────────────────────────────────────────────────
+function trackView() {
+  const db = getDb();
+  if (!db || !CLIENT_SLUG) return;
+  db.collection('proposalViews').doc(CLIENT_SLUG).set({
+    client:       CLIENT_SLUG,
+    lastViewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    viewCount:    firebase.firestore.FieldValue.increment(1)
+  }, { merge: true }).catch(() => {});
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).style.display = '';
+  if (btn) btn.classList.add('active');
+  const toggleBtn = document.querySelector('.sticky-bar button[onclick*="toggleAllSections"]');
+  if (toggleBtn) toggleBtn.textContent = 'Expand All';
+}
+
+// ── LET'S TALK — always goes to investment section on Proposal tab ────────────
+function goToInvestment() {
+  const proposalBtn = document.querySelector('.tab-btn[data-tab="proposal"]');
+  showTab('proposal', proposalBtn);
+  setTimeout(() => {
+    const inv = document.getElementById('investment-details');
+    if (inv) { inv.open = true; inv.scrollIntoView({ behavior: 'smooth' }); }
+  }, 80);
+}
+
+// ── EXPAND / COLLAPSE ALL (active tab only) ───────────────────────────────────
+function toggleAllSections(btn) {
+  let activePanel = null;
+  document.querySelectorAll('.tab-panel').forEach(p => { if (p.style.display !== 'none') activePanel = p; });
+  if (!activePanel) activePanel = document.querySelector('.tab-panel');
+  const sections = activePanel.querySelectorAll('details.section-block');
+  const isExpand = btn.textContent.trim() === 'Expand All';
+  sections.forEach(d => { d.open = isExpand; });
+  btn.textContent = isExpand ? 'Collapse All' : 'Expand All';
+}
+
+// ── PRICING — MODEL SELECTION ─────────────────────────────────────────────────
+function selectModel(type, name, rate) {
+  document.querySelectorAll('.model-card').forEach(c => c.style.borderColor = '');
+  const card = document.querySelector('.model-card[data-model="' + type + '"]');
+  if (card) card.style.borderColor = 'var(--brand)';
+  const el = id => document.getElementById(id);
+
+  const rateSection = el('iaas-rate-section');
+  const implPitch   = el('impl-persuasion');
+  const tmSection   = el('tm-rate-section');
+  if (rateSection) rateSection.style.display = type === 'iaas' ? '' : 'none';
+  if (implPitch)   implPitch.style.display   = type === 'impl' ? '' : 'none';
+  if (tmSection)   tmSection.style.display   = type === 'tm'   ? '' : 'none';
+
+  if (el('selected-model-name')) el('selected-model-name').textContent = name;
+  if (el('selected-rate'))       el('selected-rate').textContent       = rate;
+
+  const rateLabel = el('negotiate-rate-label');
+  const rateInput = el('negotiate-rate');
+  if (type === 'impl') {
+    if (rateLabel) rateLabel.textContent = 'Proposed fee (optional)';
+    if (rateInput) rateInput.placeholder = 'e.g. $9,000 total';
+  } else if (type === 'tm') {
+    if (rateLabel) rateLabel.textContent = 'Proposed total estimate (optional)';
+    if (rateInput) rateInput.placeholder = 'e.g. $25,000 total';
+  } else {
+    if (rateLabel) rateLabel.textContent = 'Proposed rate (optional)';
+    if (rateInput) rateInput.placeholder = 'e.g. $275/flow/month';
+  }
+
+  const panel = el('negotiate-panel');
+  if (panel) { panel.style.display = 'block'; panel.scrollIntoView({ behavior: 'smooth' }); }
+}
+
+function submitSelection() {
+  const el = id => document.getElementById(id);
+  const name  = (el('negotiate-name')  || {}).value || '';
+  const rate  = (el('negotiate-rate')  || {}).value || '';
+  const notes = (el('negotiate-notes') || {}).value || '';
+  const model = (el('selected-model-name') || {}).textContent || '';
+  const listed= (el('selected-rate')       || {}).textContent || '';
+  if (!name.trim()) { if (el('negotiate-name')) el('negotiate-name').focus(); return; }
+  let bodyText = 'Name: ' + name + '\nSelected: ' + model + '\nListed rate: ' + listed;
+  if (rate.trim())  bodyText += '\nProposed rate: ' + rate;
+  if (notes.trim()) bodyText += '\nNotes: ' + notes;
+  window.location.href = 'mailto:' + ARCHITECT_EMAIL +
+    '?subject=' + encodeURIComponent('Proposal Selection — ' + CLIENT_NAME + ' — ' + model) +
+    '&body='    + encodeURIComponent(bodyText);
+  if (el('selection-success')) el('selection-success').style.display = 'block';
+  logDiscount({ model, listed, proposed: rate, contactName: name, notes });
+}
+
+async function logDiscount({ model, listed, proposed, contactName, notes }) {
+  const db = getDb();
+  if (!db || !CLIENT_SLUG) return;
+  const entry = {
+    ts:           new Date().toISOString(),
+    project:      CLIENT_SLUG,
+    client:       CLIENT_NAME,
+    architect:    ARCHITECT_EMAIL,
+    model,
+    listedRate:   listed,
+    proposedRate: proposed || '',
+    hasDiscount:  !!(proposed && proposed.trim()),
+    contactName,
+    notes:        notes || ''
+  };
+  try {
+    await db.collection('discountLog').doc(CLIENT_SLUG).set({
+      project:     CLIENT_SLUG,
+      client:      CLIENT_NAME,
+      entries:     firebase.firestore.FieldValue.arrayUnion(entry),
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn('discount log failed:', e.message);
+  }
+}
+
+function onRateInput(val) {
+  const btn = document.getElementById('negotiate-btn');
+  if (btn) btn.textContent = val.trim() ? 'Propose This Rate →' : 'Confirm Selection →';
+}
+
+function onNotesInput(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+// ── ACCEPT PROPOSAL ──────────────────────────────────────────────────────────
+function showAcceptPanel() {
+  const panel = document.getElementById('accept-panel');
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+async function submitAcceptance() {
+  const nameEl  = document.getElementById('accept-name');
+  const emailEl = document.getElementById('accept-email');
+  const name    = (nameEl  || {}).value || '';
+  const email   = (emailEl || {}).value || '';
+  if (!name.trim())  { if (nameEl)  nameEl.focus();  return; }
+  if (!email.trim()) { if (emailEl) emailEl.focus(); return; }
+
+  const db = getDb();
+  if (!db) {
+    alert('Firebase not available. Please email ' + ARCHITECT_EMAIL + ' to confirm acceptance.');
+    return;
+  }
+
+  const btn = document.querySelector('#accept-panel .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    const ref      = db.collection('proposals').doc(CLIENT_SLUG);
+    const snap     = await ref.get();
+    const existing = snap.exists ? snap.data() : {};
+
+    const payload = {
+      acceptedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      acceptedBy: { name: name.trim(), email: email.trim() },
+      client:     CLIENT_SLUG,
+    };
+    if (!existing.ratePerFlow) {
+      payload.ratePerFlow = PROPOSAL_RATE;
+      payload.flowCount   = PROPOSAL_FLOW_COUNT;
+      payload.model       = PROPOSAL_MODEL;
+    }
+    await ref.set(payload, { merge: true });
+
+    const success = document.getElementById('accept-success');
+    if (success) success.style.display = 'block';
+    if (btn) btn.style.display = 'none';
+    if (nameEl)  nameEl.disabled = true;
+    if (emailEl) emailEl.disabled = true;
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirm Acceptance →'; }
+    alert('Could not save acceptance. Please try again or email ' + ARCHITECT_EMAIL);
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(trackView, 800);
+});
+</script>
+
+</body>
+</html>

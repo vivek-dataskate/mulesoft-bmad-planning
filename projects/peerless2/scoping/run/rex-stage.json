@@ -1,0 +1,273 @@
+{
+  "_generatedAt": "2026-06-03T01:13:10.013Z",
+  "_forAgent": "rex",
+  "vera": {
+    "company": {
+      "name": "Peerless Fence",
+      "website": null,
+      "industry": "Construction / Specialty Contracting",
+      "verticalSlug": "fence-installation",
+      "hqLocation": null,
+      "hqAddress": null,
+      "revenueEstimate": null,
+      "revenueBracket": null,
+      "sizeSegment": "smb",
+      "foundedYear": null,
+      "logoUrl": null
+    },
+    "systemPrerequisites": [
+      {
+        "system": "ComputerEase (Deltek)",
+        "prerequisite": "Enable API access and configure CE Live Service relay; verify API version compatibility (v26+); submit vendor support ticket to Deltek for API enablement and sandbox/production parity"
+      },
+      {
+        "system": "Google Cloud Platform (GCP)",
+        "prerequisite": "Harden firewall rules to restrict SSH/RDP access; configure network isolation for ComputerEase VM; establish secure API gateway for inbound integrations"
+      },
+      {
+        "system": "Salesforce",
+        "prerequisite": "Verify user permissions and admin access for API integration; confirm sandbox environment parity with production; establish read-only API user for ComputerEase data sync"
+      },
+      {
+        "system": "Home Depot Service Center Portal",
+        "prerequisite": "Obtain API credentials from HD Portal team (Marius); configure lead generation API for 10-minute sync frequency; establish webhook or polling mechanism for real-time lead updates"
+      },
+      {
+        "system": "DocHub",
+        "prerequisite": "Configure digital signature capture for contract types 299A, 299B, 118; establish document storage and retrieval API for Salesforce integration"
+      }
+    ]
+  },
+  "sage": {
+    "confirmedFlows": [
+      {
+        "id": "UC1",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+        "entity": "Lead",
+        "trigger": "scheduled",
+        "triggerDetail": "Every 10 minutes (previously 30 minutes)",
+        "evidence": "It takes ten minutes to update. Actually, on the peerless side... It used to be 30 minutes, so it's nice to know that it's gotten to 10 minutes now."
+      },
+      {
+        "id": "UC2",
+        "systems": [
+          "Salesforce",
+          "ComputerEase"
+        ],
+        "direction": "Salesforce → ComputerEase",
+        "entity": "Job (with budget worksheet data)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep closes opportunity and enters job details manually into ComputerEase job maintenance",
+        "evidence": "I'm going to enter the margin amount. So the margin is showed under apps review budget here. And I'm going to enter the commission amount, which is shown here. So it's going to be 58225 payment terms."
+      },
+      {
+        "id": "UC3",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "ComputerEase"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+        "entity": "Customer (Account/Contact)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually creates customer record in ComputerEase based on lead information from HD Portal",
+        "evidence": "So we're going to say it's 26 HD 565 AS. And then we're going to say Tom Tessmuckian Tess for the name. We're going to state the city. And the state, so we're going to say West Chicago."
+      },
+      {
+        "id": "UC4",
+        "systems": [
+          "Salesforce",
+          "DocHub"
+        ],
+        "direction": "Salesforce → DocHub",
+        "entity": "Contract (299A, 299B, 118, Customer Approval Form)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep or Ashley generates and signs contract documents via DocHub for digital signature capture",
+        "evidence": "I'm going to go into DocHub. Generate a new document. Create document. I'm going to sign in. And then I'm going to download it and save it. I'm going to add it to Salesforce."
+      },
+      {
+        "id": "UC5",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+        "entity": "Quote (with line items and pricing)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep creates quote in HD Portal; Ashley manually verifies and enters quote details into Salesforce opportunity",
+        "evidence": "I'm going to click into the first quote, because there's only one. I'm going to grab the lead number. I'm going to copy it. I'm going to go inside of Home Depot. I'm going to look it up by lead number."
+      },
+      {
+        "id": "UC6",
+        "systems": [
+          "ComputerEase",
+          "Salesforce"
+        ],
+        "direction": "ComputerEase → Salesforce",
+        "entity": "Job (project status and work order)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually attaches ComputerEase project/work order to Salesforce sales order after job entry",
+        "evidence": "From here, I'm going to go to the project and I'm going to a task. This one is because it's aluminum, I'm going to task Barb. So I'm going to say purchase material."
+      },
+      {
+        "id": "UC7",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "ComputerEase"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+        "entity": "Contract Document (299A, 299B, 118)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually uploads signed contract documents from HD Portal into ComputerEase job record",
+        "evidence": "So the 118 needs to be re-uploaded back into Home Depot system as it has been completed with the appropriate signature on behalf of Clayton."
+      },
+      {
+        "id": "UC8",
+        "systems": [
+          "Salesforce",
+          "ComputerEase"
+        ],
+        "direction": "Salesforce → ComputerEase",
+        "entity": "Task (material purchase, labor scheduling)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually creates tasks in Salesforce project to assign material purchases and labor to team members",
+        "evidence": "I'm going to task Barb. So I'm going to say purchase material. And then I'm going to say stock because it's a stock item."
+      },
+      {
+        "id": "UC9",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → Salesforce",
+        "entity": "Appointment (consultation scheduling)",
+        "trigger": "manual",
+        "triggerDetail": "Sales rep schedules consultation appointment in HD Portal; appointment syncs to Salesforce calendar",
+        "evidence": "There's an appointment. It's going to go on the sales rep's calendar, which it says I'm a sales rep, even though I am not. It's going to send an email."
+      },
+      {
+        "id": "UC10",
+        "systems": [
+          "ComputerEase",
+          "Google Cloud Platform (GCP)"
+        ],
+        "direction": "ComputerEase ← Google Cloud Platform (GCP)",
+        "entity": "Infrastructure (VM hosting, firewall rules, network configuration)",
+        "trigger": "event-driven",
+        "triggerDetail": "GCP firewall rules and network configuration enable/restrict API access to ComputerEase VM",
+        "evidence": "They're allowing SSH and RDP from anywhere, which is really bad practice. Anyone on the internet can try to log into this server."
+      },
+      {
+        "id": "UC11",
+        "systems": [
+          "ComputerEase",
+          "Deltek Support Portal"
+        ],
+        "direction": "ComputerEase ← Deltek Support Portal",
+        "entity": "API Configuration (CE Live Service relay, API access enablement)",
+        "trigger": "manual",
+        "triggerDetail": "Deltek support ticket submitted to enable API access and configure CE Live Service relay for ComputerEase",
+        "evidence": "We want to enable API access for computer ease. Can you mention the version, Brian? I think it's 26 something. Like you just mentioned, could you please help us to configure this in our GCP?"
+      },
+      {
+        "id": "UC12",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "ComputerEase"
+        ],
+        "direction": "Home Depot Service Center (HD Portal) → ComputerEase",
+        "entity": "Deposit/Payment (payment terms, deposit amount)",
+        "trigger": "manual",
+        "triggerDetail": "Ashley manually enters deposit amount and payment terms from HD Portal contract into ComputerEase job record",
+        "evidence": "Payment terms. It's going to be Home Depot. So it's you know, um, this this actually isn't needed. We should be saying if they paid by credit or check or cash into the Home Depot store, they paid with a credit card."
+      }
+    ],
+    "potentialFlows": [
+      {
+        "id": "UC13-potential",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "ComputerEase"
+        ],
+        "entity": "Payment/Deposit (automated deposit verification)",
+        "rationale": "Ashley currently manually checks HD Portal backend reporting to find deposits and update Salesforce. An automated API flow from HD Portal to ComputerEase could verify deposit status and trigger job entry without manual intervention. This would reduce data entry errors and accelerate job processing.",
+        "promotionEvidence": "If there's an API on that, I think, or ask you guys to help with... I don't know how to do that, but yeah. A lot of the times I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box."
+      },
+      {
+        "id": "UC14-potential",
+        "systems": [
+          "Salesforce",
+          "ComputerEase"
+        ],
+        "entity": "Quote Line Items (automated product/material validation)",
+        "rationale": "Quote line items in Salesforce contain product bundle data (material type, picket type, post caps, gates) that must be validated against contract specifications. An automated flow could extract quote line items, validate against master data (material types, SKUs), and flag discrepancies before job entry. This would enforce data quality and reduce manual verification overhead.",
+        "promotionEvidence": "Data is all available within the Salesforce. Like when you said it's a wood and correspondingly only these things should come with respect to the woods. Then if this data is already present for me, this object name should be Find Quote Line Item."
+      },
+      {
+        "id": "UC15-potential",
+        "systems": [
+          "Home Depot Service Center (HD Portal)",
+          "Salesforce"
+        ],
+        "entity": "Contract Document (automated document extraction and validation via IDP)",
+        "rationale": "Contract documents (299A, 299B, 118) are currently manually reviewed by Ashley for compliance (legible signatures, correct dates, matching totals). An IDP (Intelligent Document Processing) flow could automatically extract contract data, validate against business rules (permit date must be Friday, deposit amount must match total, signatures legible), and flag exceptions for manual review. This would scale contract validation and reduce manual bottleneck.",
+        "promotionEvidence": "If within the doc, was yes and no both options are selected those cases okay because she will be comparing the doc right so we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce right"
+      }
+    ],
+    "signals": [
+      {
+        "signal": "legacy-application",
+        "triggerPhrase": "This is an ancient system. It definitely it. All right, so let's do Okay. All right, so cost types, they wouldn't need, because cost types is like inventory and what have you.",
+        "questionSet": "modernization-candidate; technical-debt; migration-risk"
+      },
+      {
+        "signal": "sandbox-production-parity",
+        "triggerPhrase": "API is not available in practice. Does it make sense to even create a practice ID for you or no?",
+        "questionSet": "sandbox-limitations; testing-strategy; production-only-features"
+      },
+      {
+        "signal": "on-premise-vm-firewall",
+        "triggerPhrase": "They're allowing SSH and RDP from anywhere, which is really bad practice. Anyone on the internet can try to log into this server.",
+        "questionSet": "security-hardening; firewall-rules; network-isolation"
+      },
+      {
+        "signal": "api-configuration-required",
+        "triggerPhrase": "We want to enable API access for computer ease. Can you mention the version, Brian? I think it's 26 something.",
+        "questionSet": "vendor-support-ticket; api-version-compatibility; ce-live-service-relay"
+      },
+      {
+        "signal": "real-time-data-sync",
+        "triggerPhrase": "It takes ten minutes to update. Actually, on the peerless side... It used to be 30 minutes, so it's nice to know that it's gotten to 10 minutes now.",
+        "questionSet": "sync-frequency; batch-vs-real-time; data-freshness-requirements"
+      },
+      {
+        "signal": "document-compliance-validation",
+        "triggerPhrase": "If within the doc, was yes and no both options are selected those cases okay because she will be comparing the doc right so we would be giving that doc to the idp and we'll try to extract the content",
+        "questionSet": "idp-integration; document-validation-rules; error-handling"
+      },
+      {
+        "signal": "multi-environment-deployment",
+        "triggerPhrase": "We're going to be configuring in the production, but we will be doing only the get operation, not any kind of a post operation with respect to the product.",
+        "questionSet": "read-only-sandbox; production-write-access; deployment-strategy"
+      },
+      {
+        "signal": "user-access-management",
+        "triggerPhrase": "I don't have access to that user. So I don't know. Again, I do not think I have super admin, despite Jean saying that she gave me super admin.",
+        "questionSet": "permission-model; admin-access-verification; user-provisioning"
+      },
+      {
+        "signal": "data-extraction-rules",
+        "triggerPhrase": "There might be some more, right? So that's the reason I was mentioning. Ashley, can you comment on that? On that? You're on mute, Ashley.",
+        "questionSet": "business-rule-documentation; conditional-logic; data-mapping"
+      },
+      {
+        "signal": "manual-process-automation",
+        "triggerPhrase": "The next part's more of the ops review and breaking down the materials, which would be a manual process.",
+        "questionSet": "process-automation-scope; manual-vs-automated; phased-rollout"
+      }
+    ]
+  }
+}

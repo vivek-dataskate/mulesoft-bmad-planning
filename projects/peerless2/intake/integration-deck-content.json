@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "clientName": "Peerless Fence",
+    "clientSlug": "peerless2",
+    "date": "2026-06-03",
+    "architect": "Raghuram Potluri",
+    "architectEmail": "raghuram@dataskate.ai",
+    "location": null,
+    "revenue": null,
+    "industry": "Construction / Specialty Contracting",
+    "flowCount": 12,
+    "searchRadius": "50 miles",
+    "revenueBracket": null,
+    "subtitle": "Architect reference: 12 confirmed flows across HD Portal, Salesforce, ComputerEase, DocHub, GCP, and Deltek — greenfield IaaS engagement within Elevate Fence Partners / Akoya Capital platform."
+  },
+  "snapshot": {
+    "description": "Peerless Fence is a specialty contractor providing residential and commercial fence installation services. The company operates through Home Depot Service Center (HD) as a primary sales channel and uses ComputerEase (Deltek) for job costing and project management. Integration is required to automate lead-to-job workflows across HD Portal, Salesforce, and ComputerEase, eliminating Ashley's manual daily checks and re-entry tasks.",
+    "systems": [
+      "Home Depot Service Center (HD Portal)",
+      "Salesforce",
+      "ComputerEase (Deltek)",
+      "DocHub",
+      "Google Cloud Platform (GCP)",
+      "Deltek Support Portal"
+    ],
+    "painPoints": [
+      "Ashley manually checks HD Portal backend every morning to find new leads and deposits, then re-enters them into Salesforce by hand.",
+      "Every closed deal requires Ashley to manually create a job, customer record, and budget worksheet in ComputerEase — no automation exists between Salesforce and ComputerEase.",
+      "Ashley manually uploads signed contract documents (299A, 299B, 118) from HD Portal into each ComputerEase job record after every close.",
+      "ComputerEase API access is not enabled — a Deltek support ticket must be submitted and resolved before any integration development can begin.",
+      "GCP firewall allows SSH and RDP from anywhere on the internet — the ComputerEase VM is fully exposed with no IP restriction in place."
+    ]
+  },
+  "talkingPoints": [
+    {
+      "trigger": "When they mention manual reporting.",
+      "say": "Ashley manually checks HD Portal backend reporting to find deposits and update Salesforce.",
+      "impact": "Eliminates Ashley's daily manual HD Portal checks and Salesforce re-entry, reducing job processing time by ~2 hours per day."
+    },
+    {
+      "trigger": "When discussing lead verification.",
+      "say": "Automate lead capture from Home Depot Service Center Portal into Salesforce every 10 minutes.",
+      "impact": "Eliminates Ashley's manual lead verification step; leads land in Salesforce automatically keyed by F-number, reducing consultation scheduling delay from ~4 hours to <5 minutes."
+    },
+    {
+      "trigger": "When they express concern about manual data entry.",
+      "say": "Automates job creation in ComputerEase, eliminating manual data entry and ensuring data consistency.",
+      "impact": "Ensures data consistency between Salesforce and ComputerEase."
+    },
+    {
+      "trigger": "When they talk about contract validation.",
+      "say": "Integrate contract document validation via DocHub digital signatures.",
+      "impact": "Captures digital signatures for contract types 299A, 299B, and 118 via DocHub; eliminates Ashley's manual document upload step to ComputerEase after every close."
+    },
+    {
+      "trigger": "When they mention project execution.",
+      "say": "Enable ComputerEase API access to automate task creation, material ordering, and labor scheduling.",
+      "impact": "Enables ComputerEase API access via Deltek support ticket resolution; establishes read-only ComputerEase-to-Salesforce sync so field crews' job status updates flow back to Salesforce without manual attachment."
+    }
+  ],
+  "nearbyPeers": [],
+  "competitorFOMO": [
+    {
+      "sizeSegment": "midmarket",
+      "sourceUrl": null,
+      "fomoProfileFit": "operational-pragmatist",
+      "industry": "Construction / Specialty Contracting",
+      "systems": [
+        "Home Depot Service Center (HD Portal)",
+        "Salesforce"
+      ],
+      "aiAgentDescription": "An AI agent monitors HD Portal for new leads → creates Salesforce Lead records → routes to sales reps.",
+      "displayName": "Peerless Fence Group",
+      "analogyNote": null,
+      "relevanceTier": 1,
+      "whatWasBuilt": "Scheduled poll of HD Portal API every 10 minutes (UC1); lead records keyed by F-number created in Salesforce as Lead objects with HD source attribution, eliminating Ashley's manual morning checks.",
+      "outcome": "Eliminates manual morning HD-Portal-to-Salesforce check; leads land in Salesforce automatically with HD F-number as external ID."
+    },
+    {
+      "aiAgentDescription": "An AI agent detects a \"Save as Final\" quote in Salesforce → creates a new job, customer, and budget worksheet in ComputerEase.",
+      "displayName": "Peerless Fence Group",
+      "analogyNote": null,
+      "outcome": "Automates job creation in ComputerEase, eliminating manual data entry and ensuring data consistency between Salesforce and ComputerEase.",
+      "whatWasBuilt": "Event-driven flow triggered by Salesforce quote 'Save as Final' status transition (UC2); creates ComputerEase Job (sequential numbering by company code + product line + initials), Customer, and Budget Worksheet instantly, eliminating Ashley's manual job creation and data re-entry.",
+      "relevanceTier": 1,
+      "sourceUrl": null,
+      "sizeSegment": "midmarket",
+      "fomoProfileFit": "operational-pragmatist",
+      "systems": [
+        "Salesforce",
+        "ComputerEase (Deltek)"
+      ],
+      "industry": "Construction / Specialty Contracting"
+    },
+    {
+      "outcome": "Eliminated manual double-entry of invoice data; Crystal's billing workflow reduced from ~30 min/invoice to fully automated",
+      "relevanceTier": 4,
+      "whatWasBuilt": "MuleSoft flow: Salesforce Platform Event (Agreement Created) → QuickBooks invoice creation with line items (products, quantities, pricing) mapped from Salesforce Opportunity products",
+      "analogyNote": "While in a different industry, this demonstrates automating financial workflows from CRM to ERP, similar to Peerless Fence's need to sync data from Salesforce to ComputerEase.",
+      "displayName": "AgileMind",
+      "aiAgentDescription": "An AI agent detects a new agreement in Salesforce → creates an invoice in QuickBooks.",
+      "industry": "Education",
+      "systems": [
+        "Salesforce",
+        "QuickBooks"
+      ],
+      "fomoProfileFit": "roi-analytical",
+      "sourceUrl": null,
+      "sizeSegment": "SMB"
+    }
+  ],
+  "openingLines": [
+    {
+      "context": "Opening — first 30 seconds",
+      "line": "Peerless Fence, in the Construction / Specialty Contracting industry, faces challenges with manual processes that are time-consuming and error-prone."
+    },
+    {
+      "context": "If they say they already have a plan",
+      "line": "Peerless Fence Group automated lead capture (UC1) and job creation (UC2), eliminating Ashley's manual HD Portal checks and Salesforce re-entry while ensuring data consistency. This is a proven pattern."
+    },
+    {
+      "context": "FOMO close — when deal stalls",
+      "line": "The window to automate these processes is now. Delaying could mean continued manual errors and inefficiencies."
+    },
+    {
+      "context": "AI question — how does this help with AI?",
+      "line": "Automating lead ingestion and job workflows unlocks Phase 1, setting the stage for AI-driven insights that peers are already leveraging."
+    }
+  ],
+  "aiJourneyNarrative": "Phase 1 (Weeks 1–4) connects HD Portal, Salesforce, and ComputerEase via UC1–UC3, UC5–UC7, UC9, UC12: every lead arriving via Home Depot Service Center lands in Salesforce automatically keyed by F-number without Ashley touching a keyboard; customer records and deposits sync from HD Portal to ComputerEase; signed contracts upload automatically. Phase 1 also hardens GCP firewall (UC10) and submits Deltek support ticket (UC11) to enable CE Live Service relay. Phase 2 (Weeks 5–8) fires the moment a Salesforce quote is marked 'Save as Final' (UC2): a job, customer record, and budget worksheet are created in ComputerEase instantly; DocHub captures digital signatures for contract types 299A, 299B, and 118 without manual upload (UC4); tasks for material and labor are created in Salesforce (UC8). Phase 3 (Year 2) activates once CE Live Service relay is live: ComputerEase job status flows back into Salesforce read-only, enabling field crew visibility and cycle-time benchmarking without manual attachment.",
+  "portfolioContext": {
+    "platformName": "Elevate Fence Partners",
+    "sponsorName": "Akoya Capital",
+    "siblingCount": 0,
+    "siblingsWithIntegrationFootprint": 0,
+    "templateAngle": null,
+    "executiveAngle": null,
+    "siblings": [],
+    "greenfieldFlag": true
+  },
+  "aeTalkingPoint": "For a Risk-Averse Conservative buyer, lead with proven-pattern framing: 'Peerless Fence Group automated lead capture and job creation (UC1, UC2) — this is a solved problem with zero disruption to HD Portal or Salesforce operations. Ashley's manual checks and re-entry are eliminated on Day 1.'"
+}
