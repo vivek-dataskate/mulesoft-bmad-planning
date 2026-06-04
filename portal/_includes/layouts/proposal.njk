@@ -992,17 +992,18 @@ function loadNegotiationThread(attempt) {
   const local = loadNegThreadLocally();
   if (local && local.length) { _negThread = local; renderNegThread(); }
 
-  // 2. Sync from Firestore
+  // 2. Subscribe to Firestore with onSnapshot so DS counter-offers appear without reload
   attempt = attempt || 0;
   const db = getDb();
   if (!db) { if (attempt < 10) setTimeout(() => loadNegotiationThread(attempt + 1), 400); return; }
-  db.collection('negotiations').doc(CLIENT_SLUG).get().then(snap => {
-    if (!snap.exists) return;
-    const thread = snap.data().thread || [];
-    _negThread = thread;
-    saveNegThreadLocally(thread);
-    renderNegThread();
-  }).catch(() => {});
+  db.collection('negotiations').doc(CLIENT_SLUG)
+    .onSnapshot(snap => {
+      if (!snap.exists) return;
+      const thread = snap.data().thread || [];
+      _negThread = thread;
+      saveNegThreadLocally(thread);
+      renderNegThread();
+    }, () => {});
 }
 
 function renderNegThread() {
