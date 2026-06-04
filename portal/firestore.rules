@@ -26,11 +26,33 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Proposal acceptance — written by client browser (no auth required; public URL)
-    // Architects can read; merge: true on set means this is append-safe
+    // Proposal acceptance — written and read by client browser (no auth; public URL)
+    // Client needs read access to restore accepted state on page reload (localStorage fallback).
     match /proposals/{clientId} {
       allow create, update: if true;
+      allow read: if true;
+    }
+
+    // Proposal view tracking — written by client browser on page load (no auth)
+    // Architects can read; field-level increment is append-safe
+    match /proposalViews/{clientId} {
+      allow create, update: if true;
       allow read: if isArchitect();
+    }
+
+    // Negotiation thread — read/write by client browser; DataSkate responds via Firebase Console
+    // Client counter-offers append to thread[]; DataSkate entries added server-side
+    match /negotiations/{clientId} {
+      allow create, update: if true;
+      allow read: if true;
+    }
+
+    // SOW electronic signatures — written and read by client browser (no auth; public URL)
+    // Client needs read access to restore their signature on page reload.
+    // Signature data (name, title, email, PNG) is non-sensitive confirmation data.
+    match /sow_signatures/{clientId} {
+      allow create, update: if true;
+      allow read: if true;
     }
 
     // Architect pitch kits — written by build pipeline (REST API, bypasses rules)

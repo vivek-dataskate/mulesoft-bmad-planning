@@ -1,0 +1,826 @@
+{#
+  layouts/sow.njk
+  ───────────────
+  Statement of Work — print-optimized legal document.
+
+  Data contract (from clientsWithSow.js → sow.njk pagination):
+    client.slug
+    client.meta          — project.json
+    client.sow           — scoping/run/sol.json (Sol output)
+    client.logoPath      — resolved Firebase logo URL
+
+  Sections:
+    1. Engagement Summary
+    2. Scope of Work
+    3. Milestones, Deliverables & Payment
+    4. Assumptions & Client Responsibilities
+    5. Terms
+    6. Legal Terms
+    7. Payment Terms
+    8. Acceptance and Signature
+#}
+{% extends "layouts/base.njk" %}
+
+{% set sow = client.sow %}
+{% set meta = sow.meta %}
+{% set es = sow.engagementSummary %}
+{% set scope = sow.scopeOfWork %}
+{% set terms = sow.terms %}
+{% set legal = sow.legalClauses %}
+{% set payment = sow.paymentClauses %}
+
+{% block head %}
+<style>
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; }
+body { max-width: 860px; margin: 0 auto; padding: 0 0 80px; font-family: 'Inter', system-ui, sans-serif; background: #fff; }
+p { font-size: 13px; color: #374151; margin: 0 0 10px; line-height: 1.7; }
+p:last-child { margin-bottom: 0; }
+strong { color: #111827; font-weight: 600; }
+ul, ol { margin: 6px 0 10px 18px; padding: 0; }
+li { font-size: 13px; color: #374151; line-height: 1.65; margin-bottom: 3px; }
+
+/* ── Header ── */
+.sow-header { background: #fff; border-bottom: 3px solid var(--brand, #1a56db); padding: 28px 40px 22px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.sow-header-left { flex: 1; }
+.sow-header-right { flex-shrink: 0; text-align: right; font-size: 12px; color: #6b7280; line-height: 1.8; }
+.sow-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--brand, #1a56db); margin-bottom: 6px; }
+.sow-title { font-size: 22px; font-weight: 800; color: #111827; line-height: 1.2; margin-bottom: 2px; }
+.sow-subtitle { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.sow-logos { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.sow-logos img { height: 28px; width: auto; }
+.sow-logos .sep { width: 1px; height: 24px; background: #e5e7eb; }
+.ds-wordmark { font-size: 15px; font-weight: 800; color: #111827; letter-spacing: -0.3px; }
+.ds-wordmark span { color: var(--brand, #1a56db); }
+
+/* ── Sticky bar ── */
+.sticky-bar { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 7px 40px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #6b7280; }
+.sticky-bar .client-name { font-weight: 600; color: #111827; }
+.sticky-bar .status-chip { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.sticky-bar .status-chip.signed { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+.no-print { }
+
+/* ── Summary band ── */
+.summary-band { background: #f9fafb; border-bottom: 1px solid #e5e7eb; padding: 16px 40px; display: flex; gap: 0; flex-wrap: wrap; }
+.summary-item { flex: 1; min-width: 140px; padding: 0 20px 0 0; border-right: 1px solid #e5e7eb; margin-right: 20px; }
+.summary-item:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.summary-item .label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #9ca3af; margin-bottom: 3px; }
+.summary-item .value { font-size: 15px; font-weight: 700; color: #111827; }
+.summary-item .sub { font-size: 11px; color: #6b7280; margin-top: 1px; }
+
+/* ── Sections ── */
+.sow-section { border-bottom: 1px solid #e5e7eb; padding: 24px 40px; }
+.sow-section:last-child { border-bottom: none; }
+.section-num { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--brand, #1a56db); margin-bottom: 4px; }
+.section-heading { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 14px; }
+
+/* ── Scope table ── */
+.scope-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+.scope-table th { background: #f3f4f6; color: #374151; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; text-align: left; border: 1px solid #e5e7eb; }
+.scope-table td { padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151; vertical-align: top; line-height: 1.5; }
+.scope-table tr:nth-child(even) td { background: #f9fafb; }
+.scope-table .flow-name { font-weight: 600; color: #111827; }
+.dir-arrow { white-space: nowrap; }
+
+/* ── Included / OOS ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+.col-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; }
+.col-box .col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 8px; }
+.col-box ul { margin: 0; padding-left: 16px; }
+.oos-box { background: #fff7ed; border-color: #fed7aa; }
+.oos-box .col-title { color: #9a3412; }
+
+/* ── Milestones ── */
+.milestone-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.milestone-card { border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; display: flex; gap: 16px; align-items: flex-start; }
+.milestone-card.has-payment { border-left: 4px solid var(--brand, #1a56db); }
+.milestone-num { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--brand, #1a56db); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.milestone-body { flex: 1; }
+.milestone-name { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 2px; }
+.milestone-timing { font-size: 11px; color: #6b7280; margin-bottom: 6px; }
+.milestone-payment { font-size: 15px; font-weight: 800; color: var(--brand, #1a56db); margin-bottom: 8px; }
+.milestone-deliverables { font-size: 12px; color: #374151; }
+.milestone-deliverables ul { margin: 4px 0 0 16px; padding: 0; }
+
+/* ── Assumptions ── */
+.obligations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+.obligation-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; }
+.obligation-box .ob-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.ds-box .ob-title { color: #1a56db; }
+.client-box .ob-title { color: #374151; }
+.obligation-box ul { margin: 0; padding-left: 16px; }
+.obligation-box li { font-size: 12px; line-height: 1.65; margin-bottom: 4px; }
+
+/* ── Terms ── */
+.terms-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.term-row { display: flex; gap: 12px; border-bottom: 1px solid #f3f4f6; padding-bottom: 8px; font-size: 13px; }
+.term-row:last-child { border-bottom: none; }
+.term-label { min-width: 200px; font-weight: 600; color: #374151; flex-shrink: 0; }
+.term-body { color: #374151; line-height: 1.6; }
+
+/* ── Legal clauses ── */
+.legal-grid { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.legal-clause { border-left: 3px solid #e5e7eb; padding: 4px 0 4px 14px; }
+.legal-clause .cl-title { font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.legal-clause .cl-body { font-size: 13px; color: #374151; line-height: 1.7; margin: 0; }
+
+/* ── Payment clauses ── */
+.payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+.payment-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; }
+.payment-card .pc-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 6px; }
+.payment-card .pc-body { font-size: 13px; color: #374151; line-height: 1.65; margin: 0; }
+.payment-card .pc-value { font-size: 15px; font-weight: 700; color: #111827; }
+.invoice-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.invoice-table th { background: #f3f4f6; color: #374151; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 7px 12px; border: 1px solid #e5e7eb; text-align: left; }
+.invoice-table td { padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151; vertical-align: top; line-height: 1.5; }
+.invoice-table .amount-col { font-weight: 700; color: var(--brand, #1a56db); }
+.late-fee-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; padding: 12px 16px; margin-top: 12px; font-size: 13px; color: #92400e; line-height: 1.65; }
+.late-fee-box strong { color: #7c2d12; }
+
+/* ── Signature block ── */
+.sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 16px; }
+.sig-box { border-top: 2px solid #111827; padding-top: 12px; }
+.sig-company { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px; }
+.sig-line { border-bottom: 1px solid #9ca3af; margin-bottom: 6px; height: 36px; }
+.sig-field { font-size: 11px; color: #6b7280; margin-bottom: 10px; }
+.sig-field strong { display: block; font-size: 13px; color: #111827; font-weight: 600; }
+
+/* ── Print ── */
+@media print {
+  .sticky-bar, .no-print { display: none !important; }
+  body { max-width: 100%; padding: 0; }
+  .sow-section { page-break-inside: avoid; }
+  .sig-grid { page-break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── Header ── #}
+<header class="sow-header">
+  <div class="sow-header-left">
+    <div class="sow-logos">
+      <div class="ds-wordmark">Data<span>Skate</span></div>
+      {% if client.logoPath %}
+      <div class="sep"></div>
+      <img src="{{ client.logoPath }}" alt="{{ meta.clientDisplayName }}">
+      {% endif %}
+    </div>
+    <div class="sow-eyebrow">Statement of Work</div>
+    <div class="sow-title">{{ meta.clientDisplayName or meta.clientLegalName }} — MuleSoft Integration</div>
+    <div class="sow-subtitle">DataSkate LLC &nbsp;·&nbsp; Effective Date: {{ meta.effectiveDate }}</div>
+  </div>
+  <div class="sow-header-right">
+    <strong>{{ meta.architect }}</strong><br>
+    {{ meta.architectEmail }}<br>
+    contracts@dataskate.ai<br>
+    186 Princeton Hightstown Rd, Bldg 4, Suite 17<br>
+    West Windsor, NJ 08550
+  </div>
+</header>
+
+{# ── Sticky bar ── #}
+<div class="sticky-bar no-print">
+  <span class="client-name">{{ meta.clientLegalName or meta.clientDisplayName }}</span>
+  <span>
+    <span class="status-chip{% if meta.status == 'signed' %} signed{% endif %}">
+      {{ meta.status | upper }}
+    </span>
+    &nbsp; v{{ meta.version }} &nbsp;·&nbsp; Generated {{ meta.effectiveDate }}
+    {% if not meta.primaryContact %}
+    &nbsp;·&nbsp; <em style="color:#b45309">⚠ No primary contact in project.json</em>
+    {% endif %}
+  </span>
+</div>
+
+{# ── Summary band ── #}
+<div class="summary-band">
+  <div class="summary-item">
+    <div class="label">Timeline</div>
+    <div class="value">{{ es.timeline or '—' }}</div>
+    <div class="sub">from effective date</div>
+  </div>
+  <div class="summary-item">
+    <div class="label">Fixed Fee</div>
+    <div class="value">{{ es.fee or '—' }}</div>
+    <div class="sub">all professional services</div>
+  </div>
+  <div class="summary-item">
+    <div class="label">Flows in Scope</div>
+    <div class="value">{{ scope.flows | length }}</div>
+    <div class="sub">{{ es.systemsSynced | join(' · ') }}</div>
+  </div>
+  <div class="summary-item">
+    <div class="label">Delivery</div>
+    <div class="value" style="font-size:12px">{{ es.delivery }}</div>
+  </div>
+</div>
+
+{# ── 1. Engagement Summary ── #}
+<section class="sow-section">
+  <div class="section-num">1</div>
+  <div class="section-heading">Engagement Summary</div>
+  <p>{{ es.description }}</p>
+  <table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:13px;">
+    <tbody>
+      <tr>
+        <td style="padding:6px 0; width:140px; color:#6b7280; font-weight:600;">Timeline</td>
+        <td style="padding:6px 0;">{{ es.timeline }}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0; color:#6b7280; font-weight:600;">Fee</td>
+        <td style="padding:6px 0; font-weight:700; font-size:15px; color:var(--brand,#1a56db)">{{ es.fee }}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0; color:#6b7280; font-weight:600;">Payment Terms</td>
+        <td style="padding:6px 0;">
+          {% for p in es.paymentSchedule %}
+            <span style="margin-right:16px"><strong>{{ p.amount }}</strong> — {{ p.milestone }}</span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0; color:#6b7280; font-weight:600;">Delivery</td>
+        <td style="padding:6px 0;">{{ es.delivery }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+{# ── 2. Scope of Work ── #}
+<section class="sow-section">
+  <div class="section-num">2</div>
+  <div class="section-heading">Scope of Work</div>
+  {% if scope.basisDate %}
+  <p style="margin-bottom:12px">Scope is based on the technical discovery conducted <strong>{{ scope.basisDate }}</strong>.</p>
+  {% endif %}
+
+  <table class="scope-table">
+    <thead>
+      <tr>
+        <th>Integration</th>
+        <th>Direction</th>
+        <th>Pattern</th>
+        <th>Tool / Technology</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for flow in scope.flows %}
+      <tr>
+        <td class="flow-name">{{ flow.name }}</td>
+        <td class="dir-arrow">{{ flow.direction }}</td>
+        <td>{{ flow.pattern }}</td>
+        <td>{{ flow.tool }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="two-col" style="margin-top:16px">
+    <div class="col-box">
+      <div class="col-title">Included in Fixed Fee</div>
+      <ul>
+        {% for item in scope.includedItems %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-box oos-box">
+      <div class="col-title">Not in Scope</div>
+      <ul>
+        {% for item in scope.notInScope %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{# ── 3. Milestones, Deliverables & Payment ── #}
+<section class="sow-section">
+  <div class="section-num">3</div>
+  <div class="section-heading">Milestones, Deliverables &amp; Payment</div>
+  <div class="milestone-list">
+    {% for m in sow.milestones %}
+    <div class="milestone-card{% if m.payment %} has-payment{% endif %}">
+      <div class="milestone-num">{{ loop.index }}</div>
+      <div class="milestone-body">
+        <div class="milestone-name">{{ m.name }}</div>
+        <div class="milestone-timing">{{ m.timing }}</div>
+        {% if m.payment %}
+        <div class="milestone-payment">{{ m.payment }}</div>
+        {% endif %}
+        <div class="milestone-deliverables">
+          <ul>
+            {% for d in m.deliverables %}
+            <li>{{ d }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{# ── 4. Assumptions & Client Responsibilities ── #}
+<section class="sow-section">
+  <div class="section-num">4</div>
+  <div class="section-heading">Assumptions &amp; Client Responsibilities</div>
+  <p>DataSkate's fee and timeline are contingent on the following. Any request requiring more than
+  <strong>{{ sow.assumptions.changeControlThresholdHours or 3 }} hours</strong> of effort beyond
+  documented scope will be treated as a Change Request.</p>
+
+  <div class="obligations-grid">
+    <div class="obligation-box ds-box">
+      <div class="ob-title">DataSkate Commits To</div>
+      <ul>
+        {% for c in sow.assumptions.dataskateCommits %}
+        <li>{{ c }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="obligation-box client-box">
+      <div class="ob-title">{{ meta.clientDisplayName }} Commits To</div>
+      <ul>
+        {% for c in sow.assumptions.clientCommits %}
+        <li>{{ c }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{# ── 5. Terms ── #}
+<section class="sow-section">
+  <div class="section-num">5</div>
+  <div class="section-heading">Terms</div>
+  <div class="terms-grid">
+    <div class="term-row">
+      <span class="term-label">Engagement Term</span>
+      <span class="term-body">{{ es.timeline }} from the Effective Date. Either party may extend by mutual written agreement.</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Fixed Fee</span>
+      <span class="term-body">The fee covers all professional services in Section 2. Minor adjustments within scope will not attract additional fees. Licenses for Salesforce, MuleSoft, and any third-party software are the client's responsibility.</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Change Control</span>
+      <span class="term-body">Any change to scope, timeline, or fee requires a signed Change Order. DataSkate will not perform out-of-scope work without one. DataSkate will respond to any Change Request within <strong>{{ terms.changeControlThresholdHours }} business days</strong>.</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Acceptance</span>
+      <span class="term-body">Client provides written acceptance within <strong>{{ terms.acceptancePeriodDays }} business days</strong> of each milestone submission. If no response is received within <strong>{{ terms.deemedAcceptedDays }} business days</strong>, the milestone is deemed accepted.</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Termination for Convenience</span>
+      <span class="term-body">Either party may terminate with <strong>{{ terms.terminationNoticeDays }} days</strong> written notice. Client pays for all work completed through the termination date plus a 2-week transition period at the same daily rate.</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Delivery</span>
+      <span class="term-body">All services delivered remotely. Working hours: <strong>{{ terms.workingHours }}</strong>.</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Subcontractors</span>
+      <span class="term-body">{{ terms.subcontractors }}</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Data &amp; Confidentiality</span>
+      <span class="term-body">{{ terms.confidentiality }}</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">Limitation of Liability</span>
+      <span class="term-body">DataSkate's total liability under this SOW shall not exceed {{ terms.liabilityCap }}. Neither party shall be liable for indirect, incidental, or consequential damages.</span>
+    </div>
+    <div class="term-row">
+      <span class="term-label">General</span>
+      <span class="term-body">{{ terms.governingLaw }} In the event of conflict between this SOW and any prior agreement, this SOW controls.</span>
+    </div>
+  </div>
+</section>
+
+{# ── 6. Legal Terms ── #}
+<section class="sow-section">
+  <div class="section-num">6</div>
+  <div class="section-heading">Legal Terms</div>
+  <div class="legal-grid">
+    {% if legal.ipOwnership %}
+    <div class="legal-clause">
+      <div class="cl-title">{{ legal.ipOwnership.headline }}</div>
+      <p class="cl-body">{{ legal.ipOwnership.body }}</p>
+    </div>
+    {% endif %}
+    {% if legal.warranty %}
+    <div class="legal-clause">
+      <div class="cl-title">{{ legal.warranty.headline }}</div>
+      <p class="cl-body">{{ legal.warranty.body }}</p>
+    </div>
+    {% endif %}
+    {% if legal.indemnification %}
+    <div class="legal-clause">
+      <div class="cl-title">{{ legal.indemnification.headline }}</div>
+      <p class="cl-body">{{ legal.indemnification.body }}</p>
+    </div>
+    {% endif %}
+    {% if legal.governingLaw %}
+    <div class="legal-clause">
+      <div class="cl-title">{{ legal.governingLaw.headline }}</div>
+      <p class="cl-body">{{ legal.governingLaw.body }}</p>
+    </div>
+    {% endif %}
+    {% if legal.dataSecurity %}
+    <div class="legal-clause">
+      <div class="cl-title">{{ legal.dataSecurity.headline }}</div>
+      <p class="cl-body">{{ legal.dataSecurity.body }}</p>
+    </div>
+    {% endif %}
+    {% if legal.forceMajeure %}
+    <div class="legal-clause">
+      <div class="cl-title">{{ legal.forceMajeure.headline }}</div>
+      <p class="cl-body">{{ legal.forceMajeure.body }}</p>
+    </div>
+    {% endif %}
+    {% if legal.entireAgreement %}
+    <div class="legal-clause">
+      <div class="cl-title">{{ legal.entireAgreement.headline }}</div>
+      <p class="cl-body">{{ legal.entireAgreement.body }}</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{# ── 7. Payment Terms ── #}
+<section class="sow-section">
+  <div class="section-num">7</div>
+  <div class="section-heading">Payment Terms</div>
+
+  {% if payment.invoiceSchedule %}
+  <table class="invoice-table">
+    <thead>
+      <tr>
+        <th>Milestone</th>
+        <th>Invoice Trigger</th>
+        <th>Amount</th>
+        <th>Due (net days)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inv in payment.invoiceSchedule %}
+      <tr>
+        <td><strong>{{ inv.milestone }}</strong><br><span style="font-size:11px;color:#6b7280">{{ inv.description }}</span></td>
+        <td>{{ inv.trigger }}</td>
+        <td class="amount-col">{{ inv.amount }}</td>
+        <td>Net-{{ inv.dueDays }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if payment.latePayment %}
+  <div class="late-fee-box">
+    <strong>Late Payment:</strong> {{ payment.latePayment.body }}
+  </div>
+  {% endif %}
+
+  <div class="payment-grid" style="margin-top:16px">
+    {% if payment.currency %}
+    <div class="payment-card">
+      <div class="pc-title">Currency &amp; Method</div>
+      <div class="pc-value">{{ payment.currency }}</div>
+      <p class="pc-body">{{ payment.preferredMethod }} — {{ payment.wiringInstructions }}</p>
+    </div>
+    {% endif %}
+    {% if payment.taxResponsibility %}
+    <div class="payment-card">
+      <div class="pc-title">Tax Responsibility</div>
+      <p class="pc-body">{{ payment.taxResponsibility }}</p>
+    </div>
+    {% endif %}
+    {% if payment.disputedInvoices %}
+    <div class="payment-card">
+      <div class="pc-title">Disputed Invoices</div>
+      <p class="pc-body">{{ payment.disputedInvoices }}</p>
+    </div>
+    {% endif %}
+    {% if payment.expenseReimbursement %}
+    <div class="payment-card">
+      <div class="pc-title">Expense Reimbursement</div>
+      <p class="pc-body">{{ payment.expenseReimbursement }}</p>
+    </div>
+    {% endif %}
+    {% if payment.workSuspension %}
+    <div class="payment-card" style="grid-column: 1 / -1;">
+      <div class="pc-title">Work Suspension for Non-Payment</div>
+      <p class="pc-body">{{ payment.workSuspension }}</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{# ── 8. Acceptance and Signature ── #}
+<section class="sow-section" id="sig-section">
+  <div class="section-num">8</div>
+  <div class="section-heading">Acceptance and Signature</div>
+  <p>By signing below, both parties agree to the scope, fees, timeline, and terms set forth in this Statement of Work. Draw your signature in the box, fill in your details, and click <strong>Submit Signature</strong>.</p>
+
+  <div id="sig-signed-banner" style="display:none;background:#d1fae5;border:1px solid #6ee7b7;border-left:4px solid #2E9E6B;border-radius:6px;padding:14px 18px;margin:16px 0;font-size:13px;font-weight:600;color:#065f46;">
+    ✓ Electronically signed — <span id="sig-signed-date"></span>. DataSkate will countersign and email a fully executed copy within 1 business day.
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px">
+
+    {# ── Client e-sign panel ── #}
+    <div id="sig-client-box">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:14px">{{ meta.clientLegalName or meta.clientDisplayName }}</div>
+
+      {# Signature canvas #}
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-bottom:4px">Draw Signature *</div>
+      <div style="position:relative;border:1.5px solid #d1d5db;border-radius:6px;background:#fafafa;height:110px;cursor:crosshair" id="sig-canvas-wrap">
+        <canvas id="sig-canvas" style="display:block;width:100%;height:100%;border-radius:5px;touch-action:none"></canvas>
+        <span id="sig-canvas-hint" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;color:#d1d5db;pointer-events:none;user-select:none">Sign here</span>
+        <button onclick="clearSigCanvas()" style="position:absolute;top:6px;right:8px;background:none;border:none;font-size:11px;color:#9ca3af;cursor:pointer;padding:2px 6px;border-radius:3px;transition:color .15s" onmouseover="this.style.color='#374151'" onmouseout="this.style.color='#9ca3af'">Clear</button>
+      </div>
+
+      {# Form fields #}
+      <div style="display:grid;gap:8px;margin-top:12px">
+        <div>
+          <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;display:block;margin-bottom:3px">Full Name *</label>
+          <input id="sig-name" type="text" placeholder="Your full legal name"
+            style="width:100%;border:1px solid #d1d5db;border-radius:4px;padding:7px 10px;font-size:13px;color:#111827;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='#ed1c24'" onblur="this.style.borderColor='#d1d5db'" />
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;display:block;margin-bottom:3px">Title *</label>
+          <input id="sig-title" type="text" placeholder="Your title / role"
+            style="width:100%;border:1px solid #d1d5db;border-radius:4px;padding:7px 10px;font-size:13px;color:#111827;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='#ed1c24'" onblur="this.style.borderColor='#d1d5db'" />
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;display:block;margin-bottom:3px">Email *</label>
+          <input id="sig-email" type="email" placeholder="Your email address"
+            style="width:100%;border:1px solid #d1d5db;border-radius:4px;padding:7px 10px;font-size:13px;color:#111827;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='#ed1c24'" onblur="this.style.borderColor='#d1d5db'" />
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;display:block;margin-bottom:3px">Date</label>
+          <input id="sig-date" type="text" readonly
+            style="width:100%;border:1px solid #e5e7eb;border-radius:4px;padding:7px 10px;font-size:13px;color:#6b7280;background:#f9fafb;box-sizing:border-box" />
+        </div>
+      </div>
+
+      <button id="sig-submit-btn" onclick="submitSowSignature()"
+        style="margin-top:14px;width:100%;background:#ed1c24;color:#fff;border:none;border-radius:5px;padding:11px 16px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px">
+        Submit Signature →
+      </button>
+      <div id="sig-error" style="display:none;margin-top:8px;font-size:12px;color:#dc2626;font-weight:600;line-height:1.5"></div>
+    </div>
+
+    {# ── DataSkate countersign panel ── #}
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:14px">DataSkate LLC</div>
+      <div style="border:1.5px dashed #e5e7eb;border-radius:6px;background:#fafafa;height:110px;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:12px">
+        Countersignature pending
+      </div>
+      <div style="margin-top:12px;display:grid;gap:8px">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#111827">{{ meta.architect or 'Kailash Kumar Chanda' }}</div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-top:1px">Name</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#111827">Co-Founder, VP Integration &amp; Automation</div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-top:1px">Title</div>
+        </div>
+        <div>
+          <div id="ds-date" style="font-size:13px;font-weight:600;color:#111827"></div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-top:1px">Date</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;font-size:12px;color:#6b7280;line-height:1.65;background:#f9fafb;border-radius:6px;padding:12px 14px;">
+        DataSkate will countersign within <strong>1 business day</strong> of receiving your signature.
+        A fully executed PDF copy will be emailed to <strong>{{ meta.architectEmail or 'contracts@dataskate.ai' }}</strong> and to you.
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  const CLIENT_SLUG = '{{ meta.clientSlug | esc }}';
+  const ARCH_EMAIL  = '{{ meta.architectEmail | esc }}';
+  const FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyDCpzgZAMWWGwedG5At5Ml3gn_yA0dRVZk",
+    authDomain:        "dataskateclients.firebaseapp.com",
+    projectId:         "dataskateclients",
+    storageBucket:     "dataskateclients.firebasestorage.app",
+    messagingSenderId: "620173241148",
+    appId:             "1:620173241148:web:d5bf84e63e93ef94758c39"
+  };
+
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+  // ── Canvas signature pad ──────────────────────────────────────────────────
+  let canvas, ctx, drawing = false, hasMark = false;
+
+  function initCanvas() {
+    canvas = document.getElementById('sig-canvas');
+    if (!canvas) return;
+    const wrap = document.getElementById('sig-canvas-wrap');
+    canvas.width  = wrap.offsetWidth  || 380;
+    canvas.height = wrap.offsetHeight || 110;
+    ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#111827';
+    ctx.lineWidth   = 2;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      return { x: (t.clientX - r.left) * (canvas.width / r.width),
+               y: (t.clientY - r.top)  * (canvas.height / r.height) };
+    }
+    function start(e) { e.preventDefault(); drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+    function move(e)  { if (!drawing) return; e.preventDefault(); hasMark = true; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); document.getElementById('sig-canvas-hint').style.display = 'none'; }
+    function end()    { drawing = false; }
+
+    canvas.addEventListener('mousedown',  start);
+    canvas.addEventListener('mousemove',  move);
+    canvas.addEventListener('mouseup',    end);
+    canvas.addEventListener('mouseleave', end);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove',  move,  { passive: false });
+    canvas.addEventListener('touchend',   end);
+  }
+
+  window.clearSigCanvas = function () {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasMark = false;
+    document.getElementById('sig-canvas-hint').style.display = '';
+  };
+
+  // ── Firebase ──────────────────────────────────────────────────────────────
+  function initFirebase() {
+    if (typeof firebase === 'undefined') return null;
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    return firebase.firestore();
+  }
+
+  const LS_KEY = 'sow_sig_' + CLIENT_SLUG;
+
+  function saveSigToLocalStorage(data) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch(e) { return null; }
+  }
+
+  // Retry until Firebase JS is fully loaded (dynamic scripts take variable time)
+  function loadSigStatus(attempt) {
+    // 1. Check localStorage first — instant, no Firebase needed
+    const local = loadFromLocalStorage();
+    if (local && local.clientSignedAt) { showSignedState(local); return; }
+
+    // 2. Fall back to Firestore (handles different browsers / cleared cache)
+    attempt = attempt || 0;
+    const db = initFirebase();
+    if (!db) {
+      if (attempt < 12) setTimeout(() => loadSigStatus(attempt + 1), 300);
+      return;
+    }
+    db.collection('sow_signatures').doc(CLIENT_SLUG).get().then(snap => {
+      if (snap.exists && snap.data().clientSignedAt) {
+        saveSigToLocalStorage(snap.data()); // cache locally for future reloads
+        showSignedState(snap.data());
+      }
+    }).catch(() => {});
+  }
+
+  function restoreSignatureImage(dataUrl) {
+    if (!dataUrl || !canvas) return;
+    // Re-measure canvas in case layout shifted since initCanvas ran
+    const wrap = document.getElementById('sig-canvas-wrap');
+    if (wrap && (canvas.width < 10 || canvas.height < 10)) {
+      canvas.width  = wrap.offsetWidth  || 380;
+      canvas.height = wrap.offsetHeight || 110;
+    }
+    const img = new Image();
+    img.onload = function () {
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        hasMark = true;
+      }
+    };
+    img.src = dataUrl;
+  }
+
+  function showSignedState(data) {
+    const ts = data.clientSignedAt;
+    const dateStr = ts
+      ? new Date(ts.seconds ? ts.seconds * 1000 : ts).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      : today;
+    const banner = document.getElementById('sig-signed-banner');
+    const dateEl = document.getElementById('sig-signed-date');
+    const btn    = document.getElementById('sig-submit-btn');
+    if (dateEl) dateEl.textContent = dateStr;
+    if (banner) banner.style.display = 'block';
+    if (btn)    btn.style.display = 'none';
+
+    // Restore drawn signature image from Firestore
+    restoreSignatureImage(data.signatureDataUrl);
+
+    // Populate and lock form fields
+    const fields = { 'sig-name': data.clientName, 'sig-title': data.clientTitle, 'sig-email': data.clientEmail };
+    Object.entries(fields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) { el.value = val || ''; el.disabled = true; el.style.background = '#f9fafb'; el.style.color = '#374151'; }
+    });
+    if (canvas) canvas.style.pointerEvents = 'none';
+    const hint = document.getElementById('sig-canvas-hint');
+    if (hint) hint.style.display = 'none';
+    const clearBtn = document.querySelector('#sig-canvas-wrap button');
+    if (clearBtn) clearBtn.style.display = 'none';
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  window.submitSowSignature = async function () {
+    const nameEl  = document.getElementById('sig-name');
+    const titleEl = document.getElementById('sig-title');
+    const emailEl = document.getElementById('sig-email');
+    const dateEl  = document.getElementById('sig-date');
+    const errEl   = document.getElementById('sig-error');
+    const btn     = document.getElementById('sig-submit-btn');
+
+    if (errEl) errEl.style.display = 'none';
+
+    if (!hasMark) {
+      if (errEl) { errEl.textContent = 'Please draw your signature in the box above.'; errEl.style.display = 'block'; }
+      return;
+    }
+    const name  = (nameEl  || {}).value || '';
+    const title = (titleEl || {}).value || '';
+    const email = (emailEl || {}).value || '';
+    if (!name.trim())  { if (errEl) { errEl.textContent = 'Full name is required.';  errEl.style.display = 'block'; } nameEl  && nameEl.focus();  return; }
+    if (!title.trim()) { if (errEl) { errEl.textContent = 'Title is required.';      errEl.style.display = 'block'; } titleEl && titleEl.focus(); return; }
+    if (!email.trim()) { if (errEl) { errEl.textContent = 'Email is required.';      errEl.style.display = 'block'; } emailEl && emailEl.focus(); return; }
+
+    const db = initFirebase();
+    if (!db) { alert('Could not connect. Email ' + ARCH_EMAIL); return; }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    const signatureDataUrl = canvas ? canvas.toDataURL('image/png') : null;
+
+    try {
+      const payload = {
+        client:           CLIENT_SLUG,
+        clientName:       name.trim(),
+        clientTitle:      title.trim(),
+        clientEmail:      email.trim(),
+        clientSignedAt:   firebase.firestore.FieldValue.serverTimestamp(),
+        clientSignedDate: dateEl ? dateEl.value : today,
+        signatureDataUrl,
+        status:           'client_signed',
+      };
+      await db.collection('sow_signatures').doc(CLIENT_SLUG).set(payload, { merge: true });
+
+      // Cache locally so restore is instant on reload (no Firebase round-trip needed)
+      const localPayload = { ...payload, clientSignedAt: { seconds: Date.now() / 1000 }, clientName: name.trim(), clientTitle: title.trim(), clientEmail: email.trim() };
+      saveSigToLocalStorage(localPayload);
+      showSignedState(localPayload);
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit Signature →'; }
+      if (errEl) { errEl.textContent = 'Could not save — please try again or email ' + ARCH_EMAIL; errEl.style.display = 'block'; }
+    }
+  };
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    const dateEl = document.getElementById('sig-date');
+    const dsDate = document.getElementById('ds-date');
+    if (dateEl) dateEl.value = today;
+    if (dsDate) dsDate.textContent = today;
+    initCanvas();
+    loadSigStatus(); // retries every 300ms until Firebase is ready (up to ~3.6s)
+  });
+
+  ['https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
+   'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js'
+  ].forEach(src => {
+    const s = document.createElement('script');
+    s.src = src; s.async = false;
+    document.head.appendChild(s);
+  });
+})();
+</script>
+
+{% endblock %}
