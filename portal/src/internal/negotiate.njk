@@ -1,0 +1,326 @@
+---
+pagination:
+  data: clients
+  size: 1
+  alias: client
+permalink: "/internal/negotiate-{{ client.slug }}.html"
+layout: false
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Negotiate — {{ client.slug }} | DataSkate Internal</title>
+<style>
+:root {
+  --brand: #ED1C24; --dark: #1C2B3A; --mid: #6B7280; --border: #E5E7EB;
+  --light: #F9FAFB; --green: #10B981; --blue-bg: #EFF6FF; --blue-br: #BFDBFE;
+}
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding: 20px; }
+.page { max-width: 680px; margin: 0 auto; }
+.header { background: #fff; border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; border-left: 4px solid var(--brand); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.header-left h1 { font-size: 18px; font-weight: 800; color: var(--dark); margin: 0 0 2px; }
+.header-left p  { font-size: 12px; color: var(--mid); margin: 0; }
+.badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; }
+.badge-internal { background: #FEF3C7; color: #92400E; }
+.auth-wall { background: #fff; border-radius: 10px; padding: 40px 24px; text-align: center; border: 1px solid var(--border); }
+.auth-wall h2 { font-size: 16px; color: var(--dark); margin: 0 0 8px; }
+.auth-wall p  { font-size: 13px; color: var(--mid); margin: 0 0 20px; }
+.btn { padding: 9px 20px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+.btn-primary { background: var(--brand); color: #fff; }
+.btn-outline  { background: #fff; color: var(--dark); border: 2px solid var(--border); }
+.btn-green    { background: var(--green); color: #fff; }
+.btn-sm       { font-size: 12px; padding: 6px 14px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.card { background: #fff; border-radius: 10px; padding: 20px 24px; margin-bottom: 14px; border: 1px solid var(--border); }
+.card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mid); margin-bottom: 12px; }
+.thread-empty { font-size: 13px; color: var(--mid); font-style: italic; text-align: center; padding: 20px 0; }
+.bubble-wrap { display: flex; flex-direction: column; gap: 10px; max-height: 420px; overflow-y: auto; padding-right: 4px; }
+.bubble { display: flex; flex-direction: column; }
+.bubble.ds    { align-items: flex-end; }
+.bubble.client { align-items: flex-start; }
+.bubble-meta  { font-size: 10px; color: #9CA3AF; margin-bottom: 3px; }
+.bubble-body  { padding: 10px 14px; border-radius: 8px; max-width: 85%; }
+.bubble.ds    .bubble-body { background: var(--blue-bg); border: 1px solid var(--blue-br); }
+.bubble.client .bubble-body { background: var(--light); border: 1px solid var(--border); }
+.bubble-amount { font-size: 18px; font-weight: 800; color: var(--dark); margin-bottom: 2px; }
+.bubble-model  { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--mid); margin-bottom: 4px; }
+.bubble-note   { font-size: 12px; color: #374151; line-height: 1.5; }
+.field-label { display: block; font-size: 11px; font-weight: 600; color: var(--dark); margin-bottom: 5px; }
+.field-opt   { font-weight: 400; color: var(--mid); }
+input.field, textarea.field {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 13px; color: var(--dark); font-family: inherit; margin-bottom: 12px;
+}
+input.field:focus, textarea.field:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(237,28,36,.1); }
+textarea.field { min-height: 70px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.success-msg { background: #F0FFF4; border: 1px solid #68D391; border-left: 4px solid var(--green); border-radius: 6px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #276749; display: none; margin-top: 10px; }
+.user-bar { font-size: 12px; color: var(--mid); display: flex; align-items: center; gap: 8px; }
+.user-bar strong { color: var(--dark); }
+.current-offer { background: var(--blue-bg); border: 1.5px solid var(--blue-br); border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; }
+.current-offer-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3B82F6; margin-bottom: 4px; }
+.current-offer-amount { font-size: 24px; font-weight: 900; color: #1E40AF; }
+.current-offer-model  { font-size: 11px; color: #6B7280; margin-top: 2px; }
+.sep { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Negotiation — {{ client.slug }}</h1>
+      <p>DataSkate internal — respond to counter-offers</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="badge badge-internal">Internal Only</span>
+    </div>
+  </div>
+
+  <!-- AUTH WALL -->
+  <div class="auth-wall" id="auth-wall">
+    <h2>Sign in to continue</h2>
+    <p>Only @dataskate.ai accounts may access this page.</p>
+    <button class="btn btn-primary" onclick="signIn()">Sign in with Google →</button>
+  </div>
+
+  <!-- MAIN UI (hidden until auth) -->
+  <div id="main-ui" style="display:none">
+
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;margin-bottom:14px">
+      <div class="user-bar">Signed in as <strong id="user-email">—</strong></div>
+      <button class="btn btn-outline btn-sm" onclick="signOut()">Sign out</button>
+    </div>
+
+    <!-- CURRENT DS OFFER -->
+    <div class="current-offer" id="current-offer-block" style="display:none">
+      <div class="current-offer-label">Your Current Offer</div>
+      <div class="current-offer-amount" id="current-offer-amount">—</div>
+      <div class="current-offer-model"  id="current-offer-model"></div>
+    </div>
+
+    <!-- THREAD -->
+    <div class="card">
+      <div class="card-title">Negotiation Thread</div>
+      <div class="bubble-wrap" id="thread-list">
+        <div class="thread-empty" id="thread-empty">No messages yet.</div>
+      </div>
+    </div>
+
+    <!-- DS RESPONSE FORM -->
+    <div class="card">
+      <div class="card-title">Send DataSkate Response</div>
+      <div class="form-row">
+        <div>
+          <label class="field-label">Your name *</label>
+          <input class="field" type="text" id="ds-name" placeholder="e.g. Vivek Yadlapalli" />
+        </div>
+        <div>
+          <label class="field-label">Offer amount <span class="field-opt">(optional)</span></label>
+          <input class="field" type="text" id="ds-amount" placeholder="e.g. $11,500 total" />
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Engagement model <span class="field-opt">(optional)</span></label>
+        <input class="field" type="text" id="ds-model" placeholder="e.g. Model 1 — IaaS (Managed Service)" />
+      </div>
+      <div>
+        <label class="field-label">Message / note *</label>
+        <textarea class="field" id="ds-note" placeholder="Explain the offer or ask a clarifying question…"></textarea>
+      </div>
+      <button class="btn btn-primary" id="send-btn" onclick="sendResponse()">Send Response →</button>
+      <div class="success-msg" id="send-success">✓ Response sent. The client will see it live.</div>
+    </div>
+
+  </div><!-- /main-ui -->
+
+</div><!-- /page -->
+
+<script>
+const CLIENT_SLUG = '{{ client.slug }}';
+
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyDCpzgZAMWWGwedG5At5Ml3gn_yA0dRVZk',
+  authDomain:        'dataskateclients.firebaseapp.com',
+  projectId:         'dataskateclients',
+  storageBucket:     'dataskateclients.firebasestorage.app',
+  messagingSenderId: '620173241148',
+  appId:             '1:620173241148:web:d5bf84e63e93ef94758c39'
+};
+
+// ── Firebase bootstrap ───────────────────────────────────────────────────────
+(function() {
+  [
+    'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
+    'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js'
+  ].forEach(src => {
+    const s = document.createElement('script');
+    s.src = src; s.async = false;
+    document.head.appendChild(s);
+  });
+})();
+
+let _db = null, _thread = [];
+
+function getDb() {
+  if (_db) return _db;
+  if (typeof firebase === 'undefined') return null;
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  _db = firebase.firestore();
+  return _db;
+}
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+function signIn() {
+  if (typeof firebase === 'undefined') { setTimeout(signIn, 300); return; }
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).catch(e => alert('Sign-in failed: ' + e.message));
+}
+
+function signOut() {
+  firebase.auth().signOut();
+}
+
+function onAuth(user) {
+  const authWall = document.getElementById('auth-wall');
+  const mainUi   = document.getElementById('main-ui');
+  if (!user) {
+    authWall.style.display = '';
+    mainUi.style.display   = 'none';
+    return;
+  }
+  const email = user.email || '';
+  if (!email.endsWith('@dataskate.ai')) {
+    firebase.auth().signOut();
+    authWall.innerHTML = '<h2 style="color:#b91c1c">Access denied</h2><p>Only @dataskate.ai accounts may use this page.</p>';
+    authWall.style.display = '';
+    mainUi.style.display   = 'none';
+    return;
+  }
+  authWall.style.display = 'none';
+  mainUi.style.display   = '';
+  const emailEl = document.getElementById('user-email');
+  if (emailEl) emailEl.textContent = email;
+
+  const nameEl = document.getElementById('ds-name');
+  if (nameEl && !nameEl.value) nameEl.value = user.displayName || email.split('@')[0];
+
+  subscribeThread();
+}
+
+// ── Thread ────────────────────────────────────────────────────────────────────
+function subscribeThread() {
+  const db = getDb();
+  if (!db) { setTimeout(subscribeThread, 300); return; }
+  db.collection('negotiations').doc(CLIENT_SLUG)
+    .onSnapshot(snap => {
+      _thread = snap.exists ? (snap.data().thread || []) : [];
+      renderThread();
+    }, () => {});
+}
+
+function renderThread() {
+  const list  = document.getElementById('thread-list');
+  const empty = document.getElementById('thread-empty');
+  if (!list) return;
+
+  if (!_thread.length) {
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  list.innerHTML = _thread.map(e => {
+    const isDS  = e.by === 'dataskate';
+    const cls   = isDS ? 'ds' : 'client';
+    const label = isDS ? (e.authorName || 'DataSkate') : (e.authorName || 'Client');
+    const date  = e.ts ? new Date(e.ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+    return `<div class="bubble ${cls}">
+      <div class="bubble-meta">${label} · ${date}</div>
+      <div class="bubble-body">
+        ${e.amount ? `<div class="bubble-amount">${e.amount}</div>` : ''}
+        ${e.model  ? `<div class="bubble-model">${e.model}</div>` : ''}
+        ${e.note   ? `<div class="bubble-note">${e.note}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // scroll to bottom
+  list.scrollTop = list.scrollHeight;
+
+  // update current DS offer banner
+  const lastDS = [..._thread].reverse().find(e => e.by === 'dataskate');
+  const block = document.getElementById('current-offer-block');
+  if (block && lastDS) {
+    block.style.display = '';
+    const amEl = document.getElementById('current-offer-amount');
+    const moEl = document.getElementById('current-offer-model');
+    if (amEl) amEl.textContent = lastDS.amount || '(no amount set)';
+    if (moEl) moEl.textContent = lastDS.model  || '';
+  }
+}
+
+// ── Send response ─────────────────────────────────────────────────────────────
+async function sendResponse() {
+  const v = id => (document.getElementById(id) || {}).value || '';
+  const name   = v('ds-name').trim();
+  const amount = v('ds-amount').trim();
+  const model  = v('ds-model').trim();
+  const note   = v('ds-note').trim();
+
+  if (!name)  { document.getElementById('ds-name').focus(); return; }
+  if (!note)  { document.getElementById('ds-note').focus(); return; }
+
+  const btn = document.getElementById('send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+  const entry = {
+    seq:        _thread.length + 1,
+    by:         'dataskate',
+    authorName: name,
+    model:      model || null,
+    amount:     amount || null,
+    note,
+    ts:         new Date().toISOString(),
+  };
+
+  const db = getDb();
+  try {
+    await db.collection('negotiations').doc(CLIENT_SLUG).set({
+      client:      CLIENT_SLUG,
+      status:      'countered',
+      thread:      firebase.firestore.FieldValue.arrayUnion(entry),
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    document.getElementById('ds-amount').value = '';
+    document.getElementById('ds-note').value   = '';
+    const s = document.getElementById('send-success');
+    if (s) { s.style.display = 'block'; setTimeout(() => { s.style.display = 'none'; }, 3000); }
+  } catch(e) {
+    alert('Write failed: ' + e.message);
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Send Response →'; }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  function waitForFirebase(cb, tries) {
+    tries = tries || 0;
+    if (typeof firebase !== 'undefined') { cb(); return; }
+    if (tries < 20) setTimeout(() => waitForFirebase(cb, tries + 1), 200);
+  }
+  waitForFirebase(() => {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().onAuthStateChanged(onAuth);
+  });
+});
+</script>
+</body>
+</html>
