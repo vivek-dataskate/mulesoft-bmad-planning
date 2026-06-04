@@ -262,14 +262,22 @@ exports.onProposalAccepted = onDocumentWritten(
         }
       } catch (e) {}
 
+      const ts = after.acceptedAt;
+      const isoDate = ts?.toMillis ? new Date(ts.toMillis()).toISOString()
+                    : ts?.seconds   ? new Date(ts.seconds * 1000).toISOString()
+                    : new Date().toISOString();
+
+      const negSnap = await admin.firestore().collection('negotiations').doc(clientId).get();
+      const fullThread = negSnap.exists ? (negSnap.data().thread || []) : (after.negotiationThread || []);
+
       const patched = {
         ...existing,
         status:        'accepted',
-        acceptedAt:    new Date(after.acceptedAt.toMillis()).toISOString(),
+        acceptedAt:    isoDate,
         acceptedBy:    after.acceptedBy    || null,
-        acceptedPrice: after.acceptedPrice || null,   // from negotiation thread last DS offer
-        acceptedModel: after.acceptedModel || null,   // IaaS / Implementation Only / T&M
-        negotiationThread: after.negotiationThread || null,
+        acceptedPrice: after.acceptedPrice || null,
+        acceptedModel: after.acceptedModel || null,
+        negotiationThread: fullThread.length ? fullThread : null,
       };
 
       const putRes = await fetch(apiUrl, {
