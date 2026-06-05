@@ -10,7 +10,7 @@
     "test:integration": "jest mulesoft/tests/integration",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":80,\"functions\":80,\"branches\":70}}'",
-    "lint": "eslint mulesoft/generate.js pipeline/tools/*.js mulesoft/tests/**/*.js portal/tests/**/*.js",
+    "lint": "eslint mulesoft/generate.js pipeline/scripts/*.js mulesoft/tests/**/*.js portal/tests/**/*.js",
     "lint:html": "htmlhint 'portal/public/**/*.html' 'projects/**/intake/client/*.html' --config .htmlhintrc && node commons/branding/lint-html.js",
     "lint:style": "stylelint 'portal/public/**/*.html' 'projects/**/intake/client/*.html'",
     "lint:format": "prettier --check './*.json' '.htmlhintrc'",
@@ -51,7 +51,7 @@
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "mulesoft/generate.js",
-      "pipeline/tools/check-registry-freshness.js"
+      "pipeline/scripts/check-registry-freshness.js"
     ],
     "coverageThreshold": {
       "global": {
@@ -76,8 +76,12 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@langchain/core": "^1.1.48",
+    "@langchain/langgraph": "^1.3.3",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "firebase-admin": "^13.9.0",
     "mammoth": "^1.12.0",
+    "openai": "^6.41.0",
     "pdf-parse": "^1.1.1",
     "puppeteer": "^24.43.1"
   }
