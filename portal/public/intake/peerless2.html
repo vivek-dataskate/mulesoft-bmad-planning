@@ -998,10 +998,10 @@ body.sys-filter-on .q.sys-match { border-left: 3px solid var(--brand); padding-l
         <div class="sys-card-bar"><div class="sys-card-fill" id="sys-card-fill-salesforce"></div></div>
       </div>
       
-      <div class="sys-card" data-sys="home-depot-service-center-portal" onclick="clickSysCard('home-depot-service-center-portal')">
+      <div class="sys-card" data-sys="hd-portal-home-depot-service-center" onclick="clickSysCard('hd-portal-home-depot-service-center')">
         <div class="sys-card-name">Home Depot Service Center Portal</div>
-        <div class="sys-card-count" id="sys-card-count-home-depot-service-center-portal">— / — questions</div>
-        <div class="sys-card-bar"><div class="sys-card-fill" id="sys-card-fill-home-depot-service-center-portal"></div></div>
+        <div class="sys-card-count" id="sys-card-count-hd-portal-home-depot-service-center">— / — questions</div>
+        <div class="sys-card-bar"><div class="sys-card-fill" id="sys-card-fill-hd-portal-home-depot-service-center"></div></div>
       </div>
       
       <div class="sys-card" data-sys="dochub" onclick="clickSysCard('dochub')">
@@ -1631,7 +1631,7 @@ State/Country Picklists: [Yes/No]
 Shared Activities: [Yes/No]</textarea></div></div>
 <div class='q' data-sys='salesforce'><div class='q-num'>10.2.3</div><div class='q-body'><p class='q-text'>What is the Salesforce sandbox environment name, and has it been verified to have feature parity with production for all integrated objects (Leads, Opportunities, Accounts, Contacts, custom fields)?</p><textarea class='answer is-prefilled' rows='3'>⚠️ NEEDS CLIENT CONFIRMATION: Org flag defaults assumed: Multi-currency = No, State/Country Picklists = No, Shared Activities = No. Each setting affects DWL transform logic. — Confirm each: ☐ Multi-currency ON ☐ State/Country Picklists ON ☐ Shared Activities ON ☐ All Off (assumed)</textarea></div></div>
 
-</div><h3>10.3 — Home Depot Service Center Portal</h3><div id="sys-home-home-depot-service-center-portal" class="sys-home" data-sys="home-depot-service-center-portal">
+</div><h3>10.3 — Home Depot Service Center Portal</h3><div id="sys-home-hd-portal-home-depot-service-center" class="sys-home" data-sys="hd-portal-home-depot-service-center">
 <div class='q' data-sys='hd-portal-home-depot-service-center'><div class='q-num'>10.3.1</div><div class='q-body'><p class='q-text'><em>⚠️ CRITICAL:</em> Provide the API credentials (API Key and/or OAuth token) from the Home Depot Portal team (contact: Marius) for accessing the lead generation and quote APIs.</p><textarea class='answer is-prefilled' rows='3'>⚠️ NEEDS CLIENT CONFIRMATION: HD Portal API credentials (API Key) to be obtained from HD Portal team via Marius. IMPORTANT: HD Portal disables clipboard copy — credentials must be hand-transcribed in a 10–15 min session. DataSkate to schedule credential handoff with Marius. — Confirm: ☐ Credentials obtained ☐ Meeting with Marius not yet scheduled</textarea></div></div>
 <div class='q' data-sys='hd-portal-home-depot-service-center'><div class='q-num'>10.3.2</div><div class='q-body'><p class='q-text'>Confirm the write endpoint availability for the HD Portal API: Does it support POST/PATCH for comment write-back and deposit-paid status updates?</p><textarea class='answer is-prefilled' rows='3'>HD Portal write endpoints assumed: POST /comments for comment write-back, PATCH /deposit-status for deposit confirmation. DataSkate to verify during live API probe with Marius. — ⚠️ Assumed — confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div>
 <div class='q' data-sys='hd-portal-home-depot-service-center'><div class='q-num'>10.3.3</div><div class='q-body'><p class='q-text'>Has a developer login account been created for the HD Portal API, and has the test lead labeling procedure been documented and validated?</p><textarea class='answer is-prefilled' rows='3'>Developer login not yet created per scoping. DataSkate (Raghuram) to request developer login from HD Portal team (Marius) during kickoff. Test lead labeling procedure TBD. — Confirm: ☐ Login created ☐ Request to Marius pending</textarea></div></div>
@@ -1966,7 +1966,7 @@ ComputerEase (Deltek): CE Live Service relay authentication. Confirm Deltek supp
     <span class="section-chevron">▼</span>
   </summary>
   <div class="section-body">
-    <h2>Section 8 — Operations and Support</h2><p class='section-intro'>Post-go-live operational readiness, monitoring, support ownership, and client visibility.</p><div class='q' data-sys=''><div class='q-num'>43</div><div class='q-body'><p class='q-text'>What logging and monitoring tools will be used to track integration health and performance post-go-live?</p><textarea class='answer is-prefilled' rows='3'>Anypoint Monitoring (DataSkate standard for all MuleSoft IaaS engagements). No client-side APM mentioned in scoping. — Confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div><div class='q' data-sys=''><div class='q-num'>44</div><div class='q-body'><p class='q-text'>Who owns post-go-live support and operational management of the integration platform?</p><textarea class='answer is-prefilled' rows='3'>DataSkate (IaaS model — recommended). Client has no in-house MuleSoft developer. — Confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div><div class='q' data-sys=''><div class='q-num'>45</div><div class='q-body'><p class='q-text'>Will a client-facing dashboard or audit trail be required post-go-live for visibility into integration activity?</p><textarea class='answer is-prefilled' rows='3'>DataSkate standard IaaS monthly report (integrations processed, pass/fail rates, exceptions). No real-time dashboard scoped. — Confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div></div>
+    <h2>Section 8 — Operations and Support</h2><p class='section-intro'>Post-go-live operational readiness, monitoring, support ownership, and client visibility.</p><div class='q' data-sys=''><div class='q-num'>43</div><div class='q-body'><p class='q-text'>What logging and monitoring tools will be used to track integration health and performance post-go-live?</p><textarea class='answer is-prefilled' rows='3'>Anypoint Monitoring (DataSkate standard for all MuleSoft IaaS engagements). No client-side APM mentioned in scoping. — Confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div><div class='q' data-sys=''><div class='q-num'>44</div><div class='q-body'><p class='q-text'>Who owns post-go-live support and operational management of the integration platform?</p><textarea class='answer is-prefilled' rows='3'>DataSkate (IaaS model — recommended). Client has no in-house MuleSoft developer. — Confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div><div class='q' data-sys=''><div class='q-num'>45</div><div class='q-body'><p class='q-text'>Will a client-facing dashboard or audit trail be required post-go-live for visibility into integration activity?</p><textarea class='answer is-prefilled' rows='3'>DataSkate standard IaaS monthly report (integrations processed, pass/fail rates, exceptions). No real-time dashboard scoped. — Confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div>
   </div>
 </details>
 
@@ -2210,11 +2210,11 @@ ComputerEase (Deltek): CE Live Service relay authentication. Confirm Deltek supp
     <div class="rail-label">Needs Attention</div>
     <ul class="attention-list" id="attention-list">
       
-<li data-target="sec:Section 1.1" tabindex="0" role="link"><strong class="attn-title">Enable ComputerEase API Access</strong><span class="attn-body">Contact Deltek support and submit a vendor support ticket to enable API access for ComputerEase. Request configuration of the CE Live Service relay and confirm that your API version is v26 or higher. Verify that sandbox and production environments match so we can test safely before going live.</span></li>
-<li data-target="sec:Section 1.2" tabindex="0" role="link"><strong class="attn-title">Harden GCP Firewall Rules for ComputerEase VM</strong><span class="attn-body">Work with your IT team or GCP administrator to lock down the firewall rules on the ComputerEase VM. Right now SSH and RDP access is open from anywhere — that's a security risk. Restrict access to only the IP addresses that need it, and isolate the ComputerEase network so only authorized systems can reach it.</span></li>
-<li data-target="sec:Section 1.3" tabindex="0" role="link"><strong class="attn-title">Verify Salesforce API User Permissions and Admin Access</strong><span class="attn-body">Confirm that the Salesforce user account we'll use for the integration has the right permissions to read and write data. Make sure a Salesforce admin has full access to configure API integrations. We'll set up a read-only API user for ComputerEase data sync so nothing gets accidentally changed.</span></li>
-<li data-target="sec:Section 1.4" tabindex="0" role="link"><strong class="attn-title">Obtain Home Depot Service Center Portal API Credentials</strong><span class="attn-body">Contact Marius on the Home Depot Portal team and request API credentials for the lead generation API. Discuss whether they support webhooks for real-time lead updates or if we need to poll every 10 minutes. This is the starting point for all lead data flowing into Salesforce.</span></li>
-<li data-target="sec:Section 1.5" tabindex="0" role="link"><strong class="attn-title">Configure DocHub for Digital Signature Capture and API Access</strong><span class="attn-body">Set up DocHub to capture digital signatures on your three contract types: 299A, 299B, and 118. Establish a document storage and retrieval API so signed contracts automatically flow back into Salesforce and ComputerEase without Ashley handling paper.</span></li>
+<li data-target="el:sys-home-computerease-deltek" tabindex="0" role="link"><strong class="attn-title">Enable ComputerEase API Access</strong><span class="attn-body">Contact Deltek support and submit a vendor support ticket to enable API access for ComputerEase. Request configuration of the CE Live Service relay and confirm that your API version is v26 or higher. Verify that sandbox and production environments match so we can test safely before going live.</span></li>
+<li data-target="el:sys-home-google-cloud-platform-gcp" tabindex="0" role="link"><strong class="attn-title">Harden GCP Firewall Rules for ComputerEase VM</strong><span class="attn-body">Work with your IT team or GCP administrator to lock down the firewall rules on the ComputerEase VM. Right now SSH and RDP access is open from anywhere — that's a security risk. Restrict access to only the IP addresses that need it, and isolate the ComputerEase network so only authorized systems can reach it.</span></li>
+<li data-target="el:sys-home-salesforce" tabindex="0" role="link"><strong class="attn-title">Verify Salesforce API User Permissions and Admin Access</strong><span class="attn-body">Confirm that the Salesforce user account we'll use for the integration has the right permissions to read and write data. Make sure a Salesforce admin has full access to configure API integrations. We'll set up a read-only API user for ComputerEase data sync so nothing gets accidentally changed.</span></li>
+<li data-target="el:sys-home-hd-portal-home-depot-service-center" tabindex="0" role="link"><strong class="attn-title">Obtain Home Depot Service Center Portal API Credentials</strong><span class="attn-body">Contact Marius on the Home Depot Portal team and request API credentials for the lead generation API. Discuss whether they support webhooks for real-time lead updates or if we need to poll every 10 minutes. This is the starting point for all lead data flowing into Salesforce.</span></li>
+<li data-target="el:sys-home-dochub" tabindex="0" role="link"><strong class="attn-title">Configure DocHub for Digital Signature Capture and API Access</strong><span class="attn-body">Set up DocHub to capture digital signatures on your three contract types: 299A, 299B, and 118. Establish a document storage and retrieval API so signed contracts automatically flow back into Salesforce and ComputerEase without Ashley handling paper.</span></li>
 
 
     </ul>
@@ -2682,11 +2682,21 @@ function focusAttentionTarget(target) {
     const sec = document.getElementById(id) || document.getElementById('sec-' + id);
     if (sec) {
       sec.setAttribute('open', '');
-      // Prefer landing on the first unanswered required question inside the
-      // section; fall back to the section header when nothing's outstanding.
       if (!jumpToFirstUnanswered(sec)) {
         sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+    }
+  }
+  if (target.startsWith('el:')) {
+    const el = document.getElementById(target.slice(3));
+    if (el) {
+      // Open all ancestor <details> so the element is visible
+      let node = el.parentElement;
+      while (node) {
+        if (node.tagName === 'DETAILS') node.setAttribute('open', '');
+        node = node.parentElement;
+      }
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 }
