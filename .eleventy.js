@@ -93,7 +93,7 @@ module.exports = function(eleventyConfig) {
       input:    'portal/src',
       includes: '../_includes',   // relative to input dir → portal/_includes
       data:     '../_data',       // relative to input dir → portal/_data
-      output:   'portal/_build'
+      output:   'portal/public'
     },
     // Use Nunjucks for all .njk templates and HTML files
     templateFormats: ['njk', 'html', 'md'],

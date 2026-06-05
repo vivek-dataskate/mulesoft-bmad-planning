@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "title": "DataSkate MuleSoft Integration Services — Pricing Model",
+    "version": "1.3",
+    "date": "May 2026",
+    "purpose": "Single source of truth for all pricing computations. Agents and scripts read this file. Never hardcode numbers from memory."
+  },
+  "engagementModels": [
+    {
+      "id": "iaas",
+      "name": "IaaS (Managed Service)",
+      "implementationFee": 0,
+      "implementationFeeNote": "Included in monthly managed service rate",
+      "baseRate": 300,
+      "escalationPct": 5,
+      "minimumTermMonths": 12,
+      "paymentCadence": "Upfront every 6 months (2 payments over 1 year). Billing starts at go-live, not at contract signing.",
+      "covered": "Build, deployment, 24/7 monitoring, incident response, connector upgrades, minor enhancements, code ownership, AI roadmap"
+    },
+    {
+      "id": "implementation-only",
+      "name": "Implementation Only",
+      "standardPerFlow": 3500,
+      "withFullLicensePerFlow": 0,
+      "withFullLicenseNote": "AE sells full $50K Anypoint license — implementation fee drops to $0",
+      "paymentSchedule": [
+        { "milestone": "SOW signed", "pct": 50 },
+        { "milestone": "UAT sign-off", "pct": 50 }
+      ],
+      "ongoing": "None — code ownership transfers at go-live. Future phases scoped separately."
+    },
+    {
+      "id": "tm",
+      "name": "T&M — Time & Materials",
+      "description": "Dedicated offshore resources billed at actual hours worked. Scope can flex mid-project with written approval. Minimum 80 hours.",
+      "invoiceCycle": "bi-weekly",
+      "minimumHours": 80,
+      "resources": [
+        { "role": "Offshore Architect",    "ratePerHour": 45, "typicalHoursPerFlow": 20 },
+        { "role": "Offshore Sr Developer", "ratePerHour": 35, "typicalHoursPerFlow": 40 },
+        { "role": "Offshore Developer",    "ratePerHour": 25, "typicalHoursPerFlow": 60 }
+      ],
+      "useWhen": "Scope is evolving or client needs flexibility to change requirements mid-engagement. Switch to IaaS at renewal once flows stabilize."
+    }
+  ],
+  "retainerSchedule": [
+    { "minFlows": 1,  "maxFlows": 5,  "retainer": 2500 },
+    { "minFlows": 6,  "maxFlows": 10, "retainer": 5000 },
+    { "minFlows": 11, "maxFlows": null, "retainer": 7500 }
+  ],
+  "rateSchedule": [
+    { "period": 1, "months": "1–6",    "ratePerFlowPerMonth": 300.00 },
+    { "period": 2, "months": "7–12",   "ratePerFlowPerMonth": 315.00 },
+    { "period": 3, "months": "Y2 H1",  "ratePerFlowPerMonth": 330.75 },
+    { "period": 4, "months": "Y2 H2",  "ratePerFlowPerMonth": 347.29 }
+  ],
+  "timeline": {
+    "requirementsWeeks": 2,
+    "devWeeksPerFlow": 1.5,
+    "formula": "Total weeks = 2 (requirements) + (N flows × 1.5)",
+    "examples": [
+      { "flows": 5,  "weeks": 9.5 },
+      { "flows": 7,  "weeks": 12.5 },
+      { "flows": 10, "weeks": 17 }
+    ]
+  },
+  "changeOrders": {
+    "config":       { "name": "Config",          "fee": 0,    "covers": "Field mapping updates, filter value changes, credential rotation, performance tuning" },
+    "modification": { "name": "Modification",    "fee": 750,  "covers": "New transformation logic, new condition/branch, additional field requiring new transform" },
+    "extension":    { "name": "Extension",       "fee": 1500, "covers": "New object type added to existing flow, one-directional becomes bidirectional, new secondary system added" },
+    "replacement":  { "name": "Flow Replacement","fee": 1500, "covers": "New trigger, new target, fundamentally different business process — old flow closes, fresh 12-month contract starts" }
+  },
+  "policies": [
+    "No bundling discounts across flows",
+    "No multi-year prepay discounts — 6-month upfront is the only payment cadence",
+    "Contract renewal after 1-year term: renegotiated at then-current catalog rate, new 1-year term required",
+    "All integration code is owned by the client and lives in their GitHub repository",
+    "Decommissioning a flow does not cancel its payment obligation — remaining balance accelerates unless replaced",
+    "Client has in-house developer and will self-maintain: always propose Implementation Only. Then pivot to Phase 2 agent development."
+  ]
+}

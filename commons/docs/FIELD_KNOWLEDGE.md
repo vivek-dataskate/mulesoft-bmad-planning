@@ -57,6 +57,8 @@
 | [FK-030](#fk-030) | Vendor relay services (CE Live Service-style) — some legacy ERPs only expose APIs via a vendor-managed URL that routes back through a service on the customer VM. Treat as P0 question at scoping. | ComputerEase / vendor relay API exposure | observation | 2026-05-22 | 2026-05-22 | 1 |
 | [FK-031](#fk-031) | Confidential credential email blocks copy-paste — recipients must hand-type or screenshot-OCR. Architect-warning: do NOT rely on LLM OCR for passwords (hallucination risk → account lockout) | HD Portal / any confidential credential delivery | observation | 2026-05-22 | 2026-05-22 | 1 |
 | [FK-032](#fk-032) | Sandbox-environment API parity gap — some legacy ERPs (ComputerEase confirmed) expose APIs ONLY in production. Sandbox testing is not possible; agree GET-only production testing posture in writing before development. | ComputerEase / sandbox parity | observation | 2026-05-22 | 2026-05-22 | 1 |
+| [FK-033](#fk-033) | Sequential job-number consumption in legacy ERPs — integration must call the ERP's next-ID endpoint (never self-allocate). Test writes must NOT consume live sequence numbers — design a test-safe mode for UAT. | ComputerEase / any ERP with sequential ID allocation | observation | 2026-05-22 | 2026-05-22 | 1 |
+| [FK-034](#fk-034) | AI extraction + deterministic validation separation — separate the AI/IDP extraction layer from the validation layer (deterministic code). Never ask the AI model to validate business rules — write them as explicit DataWeave/Java conditions. | MuleSoft IDP / any AI document processing flow | observation | 2026-05-22 | 2026-05-22 | 1 |
 
 ---
 
@@ -1401,5 +1403,87 @@ Client question used:
    for our integration testing?"
 
 Promotes to: mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (p0Conditions) — written 2026-05-22
+
+---
+
+## FK-033 — Sequential job-number consumption in legacy ERPs
+Date: 2026-05-22
+Project: peerless
+Trigger: Integration must create job records in a legacy ERP that uses sequential integer job numbers
+         (e.g., ComputerEase format: {YY} HD {seq} {initials}). Sequence numbers are gapless and
+         visible to end users — gaps signal deleted records or data problems.
+
+Scenario:
+  Peerless ComputerEase assigns job numbers sequentially. The format confirmed from Ashley's demo
+  was "26 HD 565 AS" — year + program + sequence + sales rep initials. The sequence is shared
+  across all jobs. If the Mule flow self-allocates a number (e.g., queries max(job_number)+1 and
+  assigns it locally), a race condition with concurrent manual entry creates duplicate job numbers
+  or sequence gaps.
+
+What failed:
+  Naive approach: query the last job number and increment locally. Race condition: a human creates
+  a job manually between the Mule query and the Mule write → duplicate or skipped number →
+  CE rejects the write or creates a gap visible to accounting.
+
+What worked:
+  1. Always call the ERP's own next-ID endpoint (or POST with no ID field and let the ERP assign it).
+     Never self-allocate sequence numbers.
+  2. UAT/test writes: design a test-mode flag that either (a) uses a reserved test-range
+     (e.g., 99-HD-{seq}-TEST) or (b) immediately deletes the created record after assertion.
+     If CE has no delete API: use the GET-only production read access for UAT and do
+     end-to-end write only in a dedicated UAT window with known sequence ranges.
+  3. Confirm with client: "Is there a way to reserve a block of test job numbers that won't
+     appear in production reports?" — some clients maintain a separate company code for test.
+
+Client question used:
+  "We need to confirm how ComputerEase assigns job numbers. Does CE have an endpoint that returns
+   the next available job number, or does the system auto-assign on POST? And do you have a
+   company code or number range reserved for test / UAT traffic that won't pollute production
+   sequences?"
+
+Promotes to: mulesoft/playbooks/playbooks/computerease/computerease_playbook.json (knownQuirks) — pending
+
+---
+
+## FK-034 — AI extraction + deterministic validation separation
+Date: 2026-05-22
+Project: peerless
+Trigger: Integration uses an AI document processing tool (MuleSoft IDP, Amazon Textract, etc.)
+         to extract fields from PDFs/images, AND must apply business rule validation on those
+         fields before routing/approving the document.
+
+Scenario:
+  Peerless UC3 uses MuleSoft IDP to extract fields from 4 document types (HS-105, 299A, 299B,
+  HS-118): customer signature, contractor signature, date of signing, contract price, deposit
+  amount, yes/no authorization box, permit flag. Seven deterministic validation rules must then
+  be applied (Friday date, WI 99% deposit vs. IL/IN/OH 100%, price match between 299A+299B,
+  single checkbox, etc.).
+
+What failed:
+  Temptation to ask IDP/LLM to "validate and approve the document" in one step, embedding
+  validation logic in the AI extraction prompt. This produces unreliable, non-auditable results
+  because LLM responses to rules are probabilistic — the LLM might interpret "Friday" loosely,
+  or conflate 99% and 100% for Wisconsin vs. other states.
+
+What worked:
+  Two-stage pipeline:
+  Stage 1 — IDP/AI extraction only: extract raw field values, return structured JSON.
+             IDP job = { fields: { customerSignaturePresent, contractorSignaturePresent,
+             dateOfSigning, contractPrice299A, contractPrice299B, depositAmount,
+             yesNoBoxChecked, permitFlag, state } }
+  Stage 2 — DataWeave/Java validation: deterministic code applies every business rule against
+             the extracted JSON. No AI involvement. Each rule maps to a validation error code
+             (e.g., VALIDATION_007 = "Wisconsin deposit < 99%").
+  The two stages are separate Mule flows; Stage 2 can be unit-tested without IDP.
+  Extraction confidence scores from IDP are passed through to Stage 2 as metadata —
+  low-confidence extractions can trigger manual review regardless of rule pass/fail.
+
+Client question used:
+  "For UC3, we're planning a two-stage pipeline: Stage 1 uses MuleSoft IDP to extract the raw
+   field values from your documents. Stage 2 runs DataSkate's validation rules in deterministic
+   code. Does that match your expectation, or do you need the AI to also make the approve/reject
+   decision?"
+
+Promotes to: mulesoft/playbooks/playbooks/mulesoft-idp/mulesoft-idp_playbook.json (knownQuirks) — pending
 
 *Added: 2026-05-22 — Source: peerless transcript 2026-04-17 — Jean Jacobs / Brian Cook — status: observation*

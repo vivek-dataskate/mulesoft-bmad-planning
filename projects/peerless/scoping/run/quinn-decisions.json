@@ -1,0 +1,177 @@
+{
+  "agent": "Quinn v1.0.0",
+  "client": "peerless",
+  "generatedAt": "2026-05-22T18:00:00Z",
+  "decisions": [
+    {
+      "id": "QD-001",
+      "type": "questionnaire-prefill",
+      "question": "Who signs off on go-live?",
+      "prefillValue": "Jeff Kelly (named in sage.json as go-live decision maker candidate, transcript-referenced) and/or Roger Greenhagel (President, Peerless — formal authority identified via vera.json web research). Confirm routing path with Ashley.",
+      "confidence": "medium",
+      "source": "vera.json namedBuyers.economicBuyer + sage.json namedContacts",
+      "rationale": "Jeff Kelly title is unconfirmed from web sources. Roger Greenhagel is the formal authority at this revenue scale. The routing path (Kelly vs. Greenhagel vs. both) is unknown and must be confirmed by Ashley."
+    },
+    {
+      "id": "QD-002",
+      "type": "questionnaire-prefill",
+      "question": "Which ComputerEase company codes are in scope?",
+      "prefillValue": "Company code 00 confirmed for IL/WI Home Depot residential (from transcript Ashley Salerno demo 2026-04-16). Additional codes for IN and OH operations may exist.",
+      "confidence": "medium",
+      "source": "flo.json p0Blockers + vera.json systemPrerequisites[CE].prerequisites",
+      "rationale": "Only company code 00 was explicitly mentioned in transcripts. Peerless operates in IL, IN, OH, and WI — additional company codes for Indiana/Ohio operations are possible. Client must confirm complete list."
+    },
+    {
+      "id": "QD-003",
+      "type": "questionnaire-prefill",
+      "question": "Expected transaction volume — leads per day, jobs per week, documents per week",
+      "prefillValue": "Inferred from company size (~$15M-$32M ARV, 7-branch regional contractor): 10–30 HD leads/week standard, 40–80 during spring/summer peak (March–September). 5–15 'Save as Final' jobs/week. 5–20 contract documents/week.",
+      "confidence": "medium",
+      "source": "Inferred from vera.json company.revenueBracket + industry patterns for residential fence contractor",
+      "rationale": "No explicit volume figures in transcripts. Estimates derived from company size, revenue bracket, and residential contractor industry norms. Client must confirm actuals."
+    },
+    {
+      "id": "QD-004",
+      "type": "questionnaire-prefill",
+      "question": "CI/CD tools in use",
+      "prefillValue": "None — inferred from first-engagement posture (no CI/CD mentioned in any scoping call). Brian Cook is the IT director but stated he is not the integration owner.",
+      "confidence": "medium",
+      "source": "Logical derivation from project.json (isNewToDataSkate: true) + transcript signals",
+      "rationale": "CI/CD tools were never mentioned in 4 scoping calls. Brian Cook's comment 'I'm in to GCP only to debug, not to operate' implies no pipeline tooling. DataSkate will configure from scratch."
+    },
+    {
+      "id": "QD-005",
+      "type": "questionnaire-prefill",
+      "question": "Logging and monitoring tools",
+      "prefillValue": "Anypoint Monitoring (DataSkate standard for all MuleSoft IaaS engagements). No client-side monitoring platform mentioned.",
+      "confidence": "medium",
+      "source": "DataSkate standard default (pipeline/PLANNING_CONTEXT.md) + no client monitoring tool mentioned in transcripts",
+      "rationale": "DataSkate standard applies. Client has not named any monitoring platform. Brian Cook manages GCP but no application-level APM was discussed."
+    },
+    {
+      "id": "QD-006",
+      "type": "questionnaire-prefill",
+      "question": "Failure notification recipients and channel",
+      "prefillValue": "Ashley Salerno (ashley@peerlessfence.com) — primary operational contact for all 4 flows. DataSkate on-call (raghuram@dataskate.ai) always notified. Notification channel: email (Slack not confirmed in use at Peerless).",
+      "confidence": "medium",
+      "source": "vera.json buyerMap.people[] + transcript evidence (Ashley owns all manual processes)",
+      "rationale": "Ashley is the operational owner of UC1–UC4. No alternative operational contact identified. Slack not mentioned — email is safest default until confirmed."
+    },
+    {
+      "id": "QD-007",
+      "type": "questionnaire-prefill",
+      "question": "Post go-live support ownership",
+      "prefillValue": "DataSkate (IaaS model — recommended). Peerless has no in-house MuleSoft developer. Brian Cook confirmed he is not the integration operator.",
+      "confidence": "high",
+      "source": "flo.json pricing.recommendedModel = 'IaaS' + flo.json pricing.recommendedModelRationale",
+      "rationale": "IaaS is the recommended model explicitly. The rationale includes 'Peerless has no in-house MuleSoft developer; Brian Cook has explicitly stated he is not the integration owner.'"
+    },
+    {
+      "id": "QD-008",
+      "type": "questionnaire-prefill",
+      "question": "Data residency requirements",
+      "prefillValue": "US only — inferred from Peerless's footprint (IL, IN, OH, WI). CloudHub 2.0 US East-1 region recommended for Midwest clients.",
+      "confidence": "medium",
+      "source": "Inferred from vera.json company.hqLocation (St. Charles, IL) + DataSkate standard for US-only clients",
+      "rationale": "No international operations indicated. Standard US-only stance applies. US East-1 is the DataSkate standard for US Midwest clients."
+    },
+    {
+      "id": "QD-009",
+      "type": "questionnaire-prefill",
+      "question": "Uptime SLA",
+      "prefillValue": "99.5% (DataSkate IaaS standard for mid-market construction vertical). Equivalent to ~43 hours downtime/year.",
+      "confidence": "medium",
+      "source": "DataSkate IaaS standard default",
+      "rationale": "No SLA specified in transcripts. 99.5% is appropriate for a midmarket construction contractor where downtime during business hours is disruptive but not catastrophic."
+    },
+    {
+      "id": "QD-010",
+      "type": "questionnaire-prefill",
+      "question": "Peak load times / seasonal patterns",
+      "prefillValue": "Spring/summer peak (March–September) — residential fence installation is highly seasonal. March–May: permit/approval backlog clears. May–August: highest install volume. Pattern inferred from residential construction industry norms.",
+      "confidence": "medium",
+      "source": "Inferred from vera.json company.industry ('residential fence installation') + industry patterns",
+      "rationale": "Residential fence installation in the Midwest peaks with warm weather. Ashley's mention of a 'lot of ideas on the business process' (Raghuram 2026-04-14) suggests volume pressure exists. Actual peak dates must be confirmed."
+    },
+    {
+      "id": "QD-011",
+      "type": "field-mapping",
+      "flow": "UC1",
+      "description": "HD Portal Lead → Salesforce Lead field mapping",
+      "assumedFields": [
+        "portalLeadId (F-number) → SF_HD_FNumber__c (External ID)",
+        "customerName → FirstName + LastName (parsed)",
+        "phone → Phone",
+        "email → Email",
+        "serviceAddress.street → Street",
+        "serviceAddress.city → City",
+        "serviceAddress.state → State",
+        "serviceAddress.postalCode → PostalCode",
+        "jobType → Description + LeadSource = 'Home Depot Pro'",
+        "status → Status (mapped to SF Lead Status enum)",
+        "isTest → [tag field] — must carry 'Peerless test' marker",
+        "timestamps.createdAt → (read-only in SF)"
+      ],
+      "confidence": "medium",
+      "source": "canonical-lead.yaml + rex.json HD Portal knownQuirks + salesforce_playbook.json",
+      "rationale": "Fields derived from canonical-lead.yaml stub and HD Portal/Salesforce playbook knowledge. HD Portal API field names not yet confirmed via developer login — client must verify during Section 3 review."
+    },
+    {
+      "id": "QD-012",
+      "type": "field-mapping",
+      "flow": "UC2",
+      "description": "Salesforce Quote → ComputerEase Job + Customer + Budget Worksheet field mapping",
+      "assumedFields": [
+        "SF Quote.Name → CE Job Description",
+        "SF Account.Name → CE Customer Name",
+        "SF BillingStreet → CE Customer Address",
+        "SF BillingCity → CE Customer City",
+        "SF BillingState → CE Customer State",
+        "SF BillingPostalCode → CE Customer Zip",
+        "[CE next-id endpoint] → CE Job Number (sequential: {YY} HD {seq} {initials})",
+        "[constant: 00] → CE Company Code",
+        "[constant: R05] → CE Customer Type",
+        "SF Quote.ContractAmount → CE Contract Amount",
+        "SF QuoteLineItem.Material → CE Picket Type / Material",
+        "SF SalesRep.Initials → CE Sales Rep Initials (for job number)",
+        "[constant: 3] → CE Department (IL/WI)"
+      ],
+      "confidence": "medium",
+      "source": "canonical-job.yaml + computerease_playbook.json knownQuirks + transcript evidence Ashley demo 2026-04-16",
+      "rationale": "Job number format confirmed from Ashley's demo ('26 HD 565 AS'). Company code 00, customer type R05, and department 3 derived from transcript context. CE API field names must be confirmed post CE Live Service installation."
+    },
+    {
+      "id": "QD-013",
+      "type": "field-mapping",
+      "flow": "UC3",
+      "description": "IDP extraction field mapping and validation rules for HS-105, 299A, 299B, HS-118",
+      "assumedValidationRules": [
+        "CustomerSignature: present and legible → PASS",
+        "ContractorSignature: present and legible → PASS",
+        "DateOfSigning: is a Friday → PASS",
+        "299A.ContractPrice == 299B.ContractPrice → PASS (price match)",
+        "YesNoAuthorizationBox: exactly one box checked (not both) → PASS",
+        "PermitRequiredFlag: single consistent value throughout document → PASS",
+        "DepositAmount: >= 100% of contract price (IL/IN/OH) OR >= 99% (WI) → PASS"
+      ],
+      "confidence": "high",
+      "source": "flo.json confirmedFlows[UC3].evidence — Venkat B 2026-04-15 + rex.json MuleSoft IDP prerequisites",
+      "rationale": "All 7 validation rules confirmed from Venkat B's 2026-04-15 description and Ashley's process walkthrough. Wisconsin 99% deposit exception explicitly confirmed in multiple transcript sources."
+    },
+    {
+      "id": "QD-014",
+      "type": "field-mapping",
+      "flow": "UC4",
+      "description": "Salesforce → HD Portal exception comment write-back field mapping",
+      "assumedFields": [
+        "SF Quote.SF_HD_FNumber__c → HD Portal F-number (lookup key for comment routing)",
+        "Validation failure reason list → HD Comment text (structured exception message)",
+        "Timestamp → Comment creation time (ISO 8601)",
+        "SF Quote URL → Optional reference link in comment"
+      ],
+      "confidence": "medium",
+      "source": "hd-portal_playbook.json p0Conditions + rex.json HD Portal knownQuirks + transcript Venkat B 2026-04-15",
+      "rationale": "HD write endpoint availability is a P0 blocker — specific field names for comment API not yet confirmed. F-number as routing key confirmed. Email fallback via Greg is the degradation path if POST endpoint unavailable."
+    }
+  ]
+}

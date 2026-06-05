@@ -36,27 +36,27 @@
       {
         "title": "Enable ComputerEase API Access",
         "clientAction": "— Contact Deltek support and submit a vendor support ticket to enable API access for ComputerEase. Request configuration of the CE Live Service relay and confirm that your API version is v26 or higher. Verify that sandbox and production environments match so we can test safely before going live.",
-        "sectionRef": "Section 1.1"
+        "sysHomeId": "computerease-deltek"
       },
       {
         "title": "Harden GCP Firewall Rules for ComputerEase VM",
         "clientAction": "— Work with your IT team or GCP administrator to lock down the firewall rules on the ComputerEase VM. Right now SSH and RDP access is open from anywhere — that's a security risk. Restrict access to only the IP addresses that need it, and isolate the ComputerEase network so only authorized systems can reach it.",
-        "sectionRef": "Section 1.2"
+        "sysHomeId": "google-cloud-platform-gcp"
       },
       {
         "title": "Verify Salesforce API User Permissions and Admin Access",
         "clientAction": "— Confirm that the Salesforce user account we'll use for the integration has the right permissions to read and write data. Make sure a Salesforce admin has full access to configure API integrations. We'll set up a read-only API user for ComputerEase data sync so nothing gets accidentally changed.",
-        "sectionRef": "Section 1.3"
+        "sysHomeId": "salesforce"
       },
       {
         "title": "Obtain Home Depot Service Center Portal API Credentials",
         "clientAction": "— Contact Marius on the Home Depot Portal team and request API credentials for the lead generation API. Discuss whether they support webhooks for real-time lead updates or if we need to poll every 10 minutes. This is the starting point for all lead data flowing into Salesforce.",
-        "sectionRef": "Section 1.4"
+        "sysHomeId": "hd-portal-home-depot-service-center"
       },
       {
         "title": "Configure DocHub for Digital Signature Capture and API Access",
         "clientAction": "— Set up DocHub to capture digital signatures on your three contract types: 299A, 299B, and 118. Establish a document storage and retrieval API so signed contracts automatically flow back into Salesforce and ComputerEase without Ashley handling paper.",
-        "sectionRef": "Section 1.5"
+        "sysHomeId": "dochub"
       }
     ]
   },

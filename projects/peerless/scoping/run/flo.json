@@ -1,8 +1,8 @@
 {
   "status": "complete",
   "client": "peerless",
-  "generatedAt": "2026-05-22T12:30:00Z",
-  "agent": "Flo v1.0.0",
+  "generatedAt": "2026-05-23T00:00:00Z",
+  "agent": "Flo v1.1.1",
 
   "confirmedFlows": [
     {
@@ -30,7 +30,7 @@
       "triggerDetail": "Salesforce quote 'Save as Final' status transition — confirmed as the canonical downstream-automation trigger by Ashley Salerno. Currently manual (~1.5 hours per job by Ashley).",
       "pattern": "event-driven",
       "complexity": "high",
-      "complexityRationale": "On-prem legacy ERP behind Deltek CE Live Service relay, sequential job-number consumption rule (must call CE's next-id endpoint, never allocate locally), production-only API surface (FK-032), composite write (Job + Customer + Budget Worksheet) on a single transition — multi-quirk write path on a legacy system.",
+      "complexityRationale": "On-prem legacy ERP behind Deltek CE Live Service relay, sequential job-number consumption rule (must call CE's next-id endpoint, never allocate locally), production-only API surface (FK-032), composite write (Job + Customer + Budget Worksheet) on a single transition — multi-quirk write path on a DOS-era core qualifies as high.",
       "canonicalModel": "mulesoft/canonical-models/construction/canonical-job.yaml",
       "confirmed": true,
       "evidence": "Ashley Salerno 2026-04-16 demo: 'I'm going to take the information inside the budget worksheet... I'm going to go to Computer Ease... duplicate a job... customer number is 180... Muckian test... 26 HD 565 AS.' Sequential job-number rule: company code + product line + initials."
@@ -45,7 +45,7 @@
       "triggerDetail": "Salesforce quote 'Save as Final' + signed-document upload triggers IDP extraction; deterministic rule engine validates extracted fields against Salesforce quote/contract data.",
       "pattern": "idp-document-processing",
       "complexity": "high",
-      "complexityRationale": "3 systems (HD + IDP + Salesforce), AI-augmented document extraction with async submit/poll, custom deterministic rule library (signatures legible, Friday-date, 299A=299B price match, both-yes/no-boxes, permit flag, Wisconsin 99% deposit), manual-review queue required, document-size/page validation gate.",
+      "complexityRationale": "3 systems (HD + IDP + Salesforce), AI-augmented document extraction with async submit/poll, custom deterministic rule library (signatures legible, Friday-date, 299A=299B price match, both-yes/no-boxes, permit flag, Wisconsin 99% deposit exception), manual-review queue required, document-size/page validation gate.",
       "canonicalModel": "mulesoft/canonical-models/construction/canonical-contract.yaml",
       "confirmed": true,
       "evidence": "Venkat B 2026-04-15: 'we would be giving that doc to the idp and we'll try to extract the content that is there and we will be evaluating with the data that we have in bond to what you say salesforce.' Specific rules: signatures legible, dates are Fridays, 299A and 299B prices match, yes/no boxes not both ticked, permit-required flag is one value, 100% deposit except Wisconsin (99%)."
@@ -74,8 +74,9 @@
       "systems": ["Home Depot Service Center (HD Portal)", "Salesforce"],
       "entity": "Deposit payment status",
       "priority": "high",
-      "source": "explicit (Ashley aspiration quote 2026-04-14)",
-      "rationale": "Ashley Salerno explicitly named this as today-manual and her #1 desired future automation ('select the deposit paid box. If that could integrate and flow back through an API, that would work'). Direct client aspiration; promotion gated on HD write/read endpoint confirmation via Greg/Marius."
+      "rationale": "Ashley Salerno explicitly named this as today-manual and her #1 desired future automation ('select the deposit paid box. If that could integrate and flow back through an API, that would work'). Direct client aspiration; promotion gated on HD write/read endpoint confirmation via Greg/Marius.",
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: transaction split from UC1"
     },
     {
       "id": "UC6-potential",
@@ -83,8 +84,9 @@
       "systems": ["Salesforce", "ComputerEase (Deltek)"],
       "entity": "Subcontract / commission worksheet (financial detail)",
       "priority": "medium",
-      "source": "explicit (Ashley demo 2026-04-16 — subcontract + commission + overhead GA + target price entry)",
-      "rationale": "Ashley demonstrated entering subcontract amounts, sales commission, overhead GA, target price into the CE budget worksheet — these are downstream of UC2 Job creation but distinct transactional records. If UC2 scope is 'job header only', these become a follow-on flow."
+      "rationale": "Ashley demonstrated entering subcontract amounts, sales commission, overhead GA, target price into the CE budget worksheet — these are downstream of UC2 Job creation but distinct transactional records. If UC2 scope is 'job header only', these become a follow-on flow on the same Salesforce → ComputerEase channel.",
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: transaction split from UC2"
     },
     {
       "id": "UC7-potential",
@@ -92,8 +94,9 @@
       "systems": ["ComputerEase (Deltek)", "Salesforce"],
       "entity": "Job status / completion event",
       "priority": "medium",
-      "source": "inferred: reverse of UC2 (close-the-loop), surfaced in Vera Phase 2 AI journey",
-      "rationale": "Operational close-the-loop pattern — Peerless currently has no way to surface CE job status (in-progress, complete, paid) back in Salesforce. Standard construction-vertical reverse-ETL gap. Validate with Ashley if Salesforce users need to see job status without logging into Cameo + ComputerEase. Vera's Phase 2 narrative names this explicitly."
+      "rationale": "Operational close-the-loop pattern — Peerless currently has no way to surface CE job status (in-progress, complete, paid) back in Salesforce. Standard construction-vertical reverse-ETL gap. Validate with Ashley if Salesforce users need to see job status without logging into Cameo + ComputerEase. Vera's Phase 2 narrative names this explicitly.",
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: reverse of UC2"
     },
     {
       "id": "UC8-potential",
@@ -101,10 +104,159 @@
       "systems": ["DocHub", "Salesforce"],
       "entity": "Signed customer-approval form (HS-118)",
       "priority": "low",
-      "source": "inferred: DocHub mentioned in sage.json as human-signing tool; write-back deferred",
-      "rationale": "DocHub is currently UI-only for HS-118 signature capture. If Peerless wants the signed PDF artefact attached directly to the Salesforce Quote/Contract record (rather than relying on the IDP path through UC3), a DocHub → Salesforce write-back becomes a follow-on flow. Promote only if Peerless wants UI signing tied to CRM record without going through HD."
+      "rationale": "DocHub is currently UI-only for HS-118 signature capture. If Peerless wants the signed PDF artefact attached directly to the Salesforce Quote/Contract record (rather than relying on the IDP path through UC3), a DocHub → Salesforce write-back becomes a follow-on flow. Promote only if Peerless wants UI signing tied to CRM record without going through HD.",
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: scope-adjacent system from sage transcript"
     }
   ],
+
+  "portfolioOpportunities": [
+    {
+      "id": "PO-001",
+      "source": "sibling-template",
+      "title": "Florida State Fence — UC1–UC4 Template Deployment (HD Portal → Salesforce → ComputerEase + IDP)",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce", "ComputerEase (Deltek)", "MuleSoft IDP"],
+      "entity": "Lead, Job, Contract",
+      "atEntity": "Florida State Fence",
+      "atEntitySlug": "florida-state-fence",
+      "referenceUcId": "UC1",
+      "rationale": "Florida State Fence is the highest-priority Elevate installer-contractor sibling (Tampa + Ocala, FL). It runs the same HD Portal → CRM → ComputerEase model as Peerless; the UC1–UC4 integration template deploys with only state-specific rule extensions to UC3's validation engine and a new ComputerEase company code. Brian Cook (Elevate Director of IT) is already setting the platform standard in Peerless scoping sessions — Florida State Fence inherits it directly.",
+      "regionalAdaptation": "Florida-specific deposit percentages and permit requirements replace the Wisconsin 99% deposit rule in UC3's validation engine; a separate ComputerEase company code is required for FL operations.",
+      "whenToEngage": "When Florida State Fence staff express HD reconciliation or CE job-entry pain — the pattern is identical to Peerless's pre-integration pain — or when Brian Cook signals the Elevate platform-IT mandate to standardize across all 6 sibling brands.",
+      "sourceUrl": "https://peerlessfence.com/about-us/our-company/",
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-002",
+      "source": "sibling-template",
+      "title": "Foremost Fence — UC1–UC4 Template Deployment (HD Portal → Salesforce → ComputerEase + IDP)",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce", "ComputerEase (Deltek)", "MuleSoft IDP"],
+      "entity": "Lead, Job, Contract",
+      "atEntity": "Foremost Fence",
+      "atEntitySlug": "foremost-fence",
+      "referenceUcId": "UC1",
+      "rationale": "Foremost Fence (Sarasota, FL) is an Elevate installer-contractor sibling operating in the same Florida market as Florida State Fence. Brian Cook's architecture note indicates these two FL siblings may share a ComputerEase company code — bundling the Florida State Fence and Foremost Fence deployments into a single 'Florida platform template' engagement at two company codes is the optimal path.",
+      "regionalAdaptation": "Shares Florida regulatory profile with Florida State Fence (deposit %, permit rules, FL state tax); architecture decision needed on whether Foremost Fence shares a CE company code with Florida State Fence or operates its own.",
+      "whenToEngage": "Bundle with Florida State Fence pursuit — one engagement, two company codes, shared UC3 rule extensions. Do not wait for Foremost Fence to express independent pain.",
+      "sourceUrl": null,
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-003",
+      "source": "sibling-template",
+      "title": "Allied Fence Co. — UC1–UC4 Template Deployment (HD Portal → Salesforce → ComputerEase + IDP)",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce", "ComputerEase (Deltek)", "MuleSoft IDP"],
+      "entity": "Lead, Job, Contract",
+      "atEntity": "Allied Fence Co.",
+      "atEntitySlug": "allied-fence-co",
+      "referenceUcId": "UC1",
+      "rationale": "Allied Fence Co. (Mableton / Atlanta Metro, GA) is an Elevate installer-contractor sibling with the same HD Portal → CRM → ComputerEase model as Peerless. Georgia adds a third state-specific rule extension to UC3's validation engine (GA permit + deposit rules + GA state tax) and a separate ComputerEase company code — incrementally expanding the template.",
+      "regionalAdaptation": "Georgia-specific permit requirements, deposit percentages, and GA state tax must be encoded as rule extensions to UC3's validation engine; separate ComputerEase company code for GA operations required.",
+      "whenToEngage": "Third-priority candidate after the two Florida brands. Engage 90–120 days post-Peerless go-live, or sooner if Brian Cook signals Elevate-wide mandate.",
+      "sourceUrl": null,
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-004",
+      "source": "sibling-template",
+      "title": "Jan Fence — UC1–UC4 Template Deployment (HD Portal → Salesforce → ComputerEase + IDP)",
+      "systems": ["Home Depot Service Center (HD Portal)", "Salesforce", "ComputerEase (Deltek)", "MuleSoft IDP"],
+      "entity": "Lead, Job, Contract",
+      "atEntity": "Jan Fence",
+      "atEntitySlug": "jan-fence",
+      "referenceUcId": "UC1",
+      "rationale": "Jan Fence (Pequannock, NJ) is an Elevate installer-contractor sibling with the same HD Portal → CRM → ComputerEase model as Peerless. NJ's Home Improvement Contractor (HIC) registration requirements add the most regulatory complexity of any Elevate sibling state — making the Peerless-designed rule engine especially valuable as the compliance foundation.",
+      "regionalAdaptation": "NJ-specific Home Improvement Contractor (HIC) registration rules, NJ permit requirements, and NJ deposit thresholds must be encoded as rule extensions to UC3's validation engine; separate ComputerEase company code required.",
+      "whenToEngage": "Fourth-priority candidate among installer-contractor siblings; pursue after FL brands are underway. NJ's HIC regulatory complexity increases scoping effort relative to FL/GA but also increases value of the rule engine.",
+      "sourceUrl": null,
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-005",
+      "source": "sibling-template",
+      "title": "MyFence2Go — Salesforce ↔ ComputerEase Backbone (UC2 + UC7 — e-commerce model, no HD Portal layer)",
+      "systems": ["Salesforce", "ComputerEase (Deltek)"],
+      "entity": "Job, Order",
+      "atEntity": "MyFence2Go",
+      "atEntitySlug": "myfence2go",
+      "referenceUcId": "UC2",
+      "rationale": "MyFence2Go is the Elevate e-commerce / direct-to-consumer sibling (nationwide material supply). It does NOT consume HD Portal Pro leads — so UC1, UC3, and UC4 do not apply. However, the Salesforce ↔ ComputerEase backbone (UC2 + UC7) is reusable: order-to-ComputerEase-job creation and CE job-status close-the-loop are applicable to an e-commerce fulfillment context. Requires separate scoping to map the e-commerce order entity to the CE job model.",
+      "regionalAdaptation": "E-commerce nationwide model — no state-specific deposit/permit rules; ComputerEase company code structure for nationwide inventory/financial backend requires separate scoping to confirm.",
+      "whenToEngage": "Lowest priority among Elevate siblings. Engage separately from installer-contractor deployments; requires distinct scoping for the e-commerce order → CE job model mapping.",
+      "sourceUrl": null,
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-006",
+      "source": "sponsor-portco",
+      "title": "Edge Adhesives — CRM + ERP Integration (Akoya Portfolio — Construction-Adjacent)",
+      "systems": ["CRM (unconfirmed)", "ERP (unconfirmed)"],
+      "entity": "Order, Account",
+      "atEntity": "Edge Adhesives",
+      "atEntitySlug": "edge-adhesives",
+      "referenceUcId": null,
+      "rationale": "Edge Adhesives (Akoya + Gladstone Investment, March 2014) manufactures specialty adhesives, sealants, and tapes for construction, transportation, HVAC, and electrical markets — directly adjacent to Peerless's construction vertical. As an Akoya portfolio company in building-products manufacturing, the DataSkate CRM + ERP integration pattern (Salesforce + manufacturing ERP) is highly applicable. A successful Peerless engagement positions DataSkate as Akoya's preferred integration partner; Edge Adhesives is the first adjacent-industry portco to pursue.",
+      "regionalAdaptation": null,
+      "whenToEngage": "After Peerless go-live, engage via the Akoya relationship — present a one-page 'construction-vertical integration template' brief to the Akoya portfolio operations team. Do not approach Edge Adhesives directly before establishing the Akoya-level relationship through the Peerless success story.",
+      "sourceUrl": "https://akoyacapital.com/acquisitions/akoya-capital-acquires-edge-adhesives/",
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-007",
+      "source": "sponsor-portco",
+      "title": "Indigo Signworks — CRM + ERP Integration (Akoya Portfolio — Most Structurally Similar to Peerless)",
+      "systems": ["CRM (unconfirmed)", "ERP (unconfirmed)"],
+      "entity": "Order, Account, Job",
+      "atEntity": "Indigo Signworks",
+      "atEntitySlug": "indigo-signworks",
+      "referenceUcId": null,
+      "rationale": "Indigo Signworks (custom signage — design, manufacture, install, service across ND, SD, MN, WI, IA) is Vera's top-rated structural analog to Peerless among Akoya's portfolio: hybrid product+service business model, multi-state footprint, and a service-installation revenue stream. The pattern of quote → job costing → installation → sign-off maps directly to Peerless's Salesforce Quote → ComputerEase Job path. As a multi-state operator, its CRM + ERP integration needs parallel the Peerless template closely.",
+      "regionalAdaptation": null,
+      "whenToEngage": "Same Akoya-relationship path as Edge Adhesives. Indigo Signworks' geographic overlap with Peerless (WI footprint) may create a natural conversation point during the Peerless engagement.",
+      "sourceUrl": "https://akoyacapital.com/portfolio/",
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-008",
+      "source": "sponsor-portco",
+      "title": "Alinabal Holding Corporation — ERP + MES Integration (Akoya Portfolio — Manufacturing)",
+      "systems": ["ERP (unconfirmed)", "MES (unconfirmed)"],
+      "entity": "Work Order, Production Order",
+      "atEntity": "Alinabal Holding Corporation",
+      "atEntitySlug": "alinabal-holding",
+      "referenceUcId": null,
+      "rationale": "Alinabal Holding Corporation is a contract manufacturer of precision machined, stamped, and molded metal components — less directly adjacent to Peerless's fence installation business but still an Akoya portfolio company with meaningful ERP/MES integration needs typical of contract manufacturers. Lower priority than Edge Adhesives and Indigo Signworks; pursue only after the Akoya-level relationship is established through Peerless + the more-adjacent portcos.",
+      "regionalAdaptation": null,
+      "whenToEngage": "Third-priority Akoya portco; engage only after Edge Adhesives and Indigo Signworks conversations are underway and the manufacturing ERP integration pattern has been validated at another Akoya portco.",
+      "sourceUrl": "https://akoyacapital.com/portfolio/",
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    },
+    {
+      "id": "PO-009",
+      "source": "strategic-partnership",
+      "title": "Elevate Fence Partners Multi-State Expansion — UC3 Validation Engine Rule Extensions (Per-State Compliance Layer)",
+      "systems": ["Salesforce", "Home Depot Service Center (HD Portal)", "ComputerEase (Deltek)"],
+      "entity": "Contract, Job",
+      "atEntity": "Elevate Fence Partners",
+      "atEntitySlug": "elevate-fence-partners",
+      "referenceUcId": null,
+      "rationale": "The Elevate strategic partnership's integration impact (per vera.json) is that each new state Elevate adds creates a new ComputerEase company code, state-specific deposit/permit rules, and an expanded HD Portal footprint — all extensions to the UC3 validation rule engine. This portfolio entry represents the ongoing template-evolution engagement as Elevate scales nationally: the DataSkate rule engine becomes the living compliance layer that grows with each Elevate acquisition and state expansion, maintained under a recurring managed-service relationship.",
+      "regionalAdaptation": "Each new Elevate state adds state-specific rules to UC3's validation engine; the Wisconsin 99% deposit exception becomes a pattern (not a one-off) as FL, GA, NJ, and future state rules are encoded.",
+      "whenToEngage": "Ongoing — triggered each time Elevate announces a new sibling brand acquisition or a new-state expansion. The IaaS managed-service model positions DataSkate to capture rule-engine expansion work on a recurring basis. Surface this to Brian Cook at the 60-day post-Peerless-go-live check-in.",
+      "sourceUrl": null,
+      "proposalExclusion": true,
+      "intakeExclusion": true
+    }
+  ],
+  "portfolioOpportunitiesTruncatedNote": null,
 
   "p0Blockers": [
     {
@@ -151,7 +303,7 @@
     {
       "title": "HD Portal Write Endpoints + Developer Login",
       "system": "Home Depot Service Center (HD Portal)",
-      "clientAction": "Through Greg (HD account manager), file a single HD ticket bundling: (a) confirm HD Portal exposes POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential); (b) request a developer-named HD Portal interactive login for DataSkate so the team can inspect HD-side data shape and field-level mappings; (c) confirm document-download endpoints for 299A/299B/HS-118 signed PDFs (UC3). Use Marius as the developer escalation (engaged 15 more days per Ashley 2026-04-16). If HD does not expose write endpoints, plan to fall back to the email channel (Venkat: 'depending upon the endpoint... we can try to mail as well').",
+      "clientAction": "Through Greg (HD account manager), file a single HD ticket bundling: (a) confirm HD Portal exposes POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential); (b) request a developer-named HD Portal interactive login for DataSkate so the team can inspect HD-side data shape and field-level mappings; (c) confirm document-download endpoints for 299A/299B/HS-118 signed PDFs (UC3). Use Marius as the developer escalation (engaged 15 more days per Ashley 2026-04-16). If HD does not expose write endpoints, plan to fall back to the email channel.",
       "body": "Per the hd-portal playbook. GET endpoints confirmed (HTTP 200 against HD API on 2026-04-17 by Venkat B). Write endpoints unconfirmed; F-number is the lead identifier (NOT SFIM vendor-number — confirmed exchange between Venkat B and Ashley 2026-04-17). Credentials arrive via clipboard-disabled confidential email — plan a 10–15 minute hand-transcription buffer; do NOT OCR via LLM (FK-031, AI hallucination risk per Raghuram 2026-04-15). Test leads must carry a 'Peerless test' marker to avoid HD contractor-quality scoring penalties.",
       "priority": "P1",
       "bundledWith": []
@@ -159,31 +311,14 @@
   ],
 
   "pricing": {
-    "flowCount": 4,
-    "implementationFee": "0",
-    "implementationFeeNote": "IaaS model — implementation cost absorbed into the $300/flow/month rate. Kickoff retainer $2,500 (1–5 flow band) is non-refundable at SOW signing and fully credited against the first 6-month payment at go-live.",
-    "kickoffRetainer": "2500",
-    "timelineWeeks": 8,
-    "timelineBreakdown": "Requirements & Analysis 2 weeks + Development & Testing (4 flows × 1.5 weeks = 6 weeks) = 8 weeks total",
-    "period1RatePerFlow": "300",
-    "period2RatePerFlow": "315",
-    "period3RatePerFlow": "330.75",
-    "period4RatePerFlow": "347.29",
-    "period1Payment6mo": "7200",
-    "period2Payment6mo": "7560",
-    "period3Payment6mo": "7938",
-    "period4Payment6mo": "8335",
-    "oneYearManagedServiceTotal": "14760",
-    "twoYearManagedServiceTotal": "31033",
-    "implementationOnlyFee": "14000",
-    "implementationOnlyNote": "Standard rate: 4 flows × $3,500 = $14,000. Paid 50% at SOW signing + 50% at UAT sign-off. Code ownership transfers to Peerless at go-live; no ongoing DataSkate service.",
     "recommendedModel": "IaaS",
-    "recommendedModelRationale": "IaaS is the recommended model for Peerless for five compounding reasons: (1) ComputerEase is Deltek-classified legacy with a 4-hour minimum support SLA and CE Live Service relay plumbing — ongoing monitoring and incident response have continuous operational value, not one-time build value. (2) MuleSoft IDP requires a manual-review queue and rule-library tuning as new contract templates appear or HD-side document formats shift — that is operational work, not implementation work. (3) Peerless has no in-house MuleSoft developer; Brian Cook is the platform IT director but has explicitly stated he is not the integration owner ('I'm in' to GCP only to debug, not to operate). (4) Akoya is a PE sponsor actively hunting another Home Services platform — a managed-service relationship gives DataSkate continuous touchpoints during the 18-month window President Roger Greenhagel uses to modernize IT, positioning DataSkate for the next Akoya platform play. (5) The Elevate Fence Partners national-rollout thesis means UC1–UC4 are the template for 5 additional sibling brands — that template needs ongoing maintenance as state-specific rules (Wisconsin 99% deposit becomes N exceptions) accumulate. Implementation Only would treat this as a one-time build and forfeit the recurring template-evolution role.",
+    "recommendedModelRationale": "IaaS is the recommended model for Peerless for five compounding reasons: (1) ComputerEase is Deltek-classified legacy with a 4-hour minimum support SLA and CE Live Service relay plumbing — ongoing monitoring and incident response have continuous operational value, not one-time build value. (2) MuleSoft IDP requires a manual-review queue and rule-library tuning as new contract templates appear or HD-side document formats shift — that is operational work, not implementation work. (3) Peerless has no in-house MuleSoft developer; Brian Cook is the Elevate platform IT director but has explicitly stated he is not the integration owner — he is in to debug GCP, not to operate integration flows. (4) Akoya is a PE sponsor actively hunting another Home Services platform — a managed-service relationship gives DataSkate continuous touchpoints during the 18-month window President Roger Greenhagel uses to modernize IT, positioning DataSkate for the next Akoya platform play. (5) The Elevate Fence Partners national-rollout thesis means UC1–UC4 are the template for 5 additional sibling brands — that template needs ongoing maintenance as state-specific rules (Wisconsin 99% deposit becomes N state exceptions) accumulate. Implementation Only would treat this as a one-time build and forfeit the recurring template-evolution role.",
     "edgeCases": [
-      "Flow count is 4 — sits at the top of the 1–5 retainer band ($2,500). If Peerless promotes UC5 (deposit-paid) and UC6 (subcontract worksheet) to confirmed in a Phase 1b expansion, retainer would jump to $5,000 (6–10 band) and 2-year total scales linearly.",
-      "Implementation Only delta: at 4 flows, IaaS Year 1 ($14,760) is just under Implementation Only flat fee ($14,000) — but IaaS carries no Year 2 upside for Peerless if they self-maintain. Implementation Only is the right fit only if Peerless hires a MuleSoft developer before kickoff — they have not signaled this.",
-      "Anypoint license bundling: pricing-model.md row 'AE sells full $50K Anypoint license → $0 implementation' is not in play at Peerless — no Anypoint license sale discussed in scoping."
-    ]
+      "Flow count is 4 — sits at the top of the 1–5 retainer band. If Peerless promotes UC5 (deposit-paid) and UC6 (subcontract worksheet) to confirmed in a Phase 1b expansion, retainer jumps to the 6–10 band and 2-year total scales linearly.",
+      "At 4 flows, IaaS Year 1 ≈ Implementation Only flat fee — IaaS only wins on Year 2+. Implementation Only is the right fit only if Peerless hires a MuleSoft developer before kickoff. They have not signaled this.",
+      "Anypoint license bundling: the '$0 implementation when AE sells full Anypoint license' path is not in play at Peerless — no Anypoint license sale was discussed in scoping."
+    ],
+    "proposalCaveat": null
   },
 
   "downstreamLoadList": {

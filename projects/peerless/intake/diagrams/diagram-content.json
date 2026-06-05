@@ -1,6 +1,6 @@
 {
   "client": "peerless",
-  "assembledAt": "2026-05-22T12:16:01.403Z",
+  "assembledAt": "2026-05-22T20:37:53.374Z",
   "diagrams": [
     {
       "id": "system-flow",
@@ -43,6 +43,43 @@
       "tokens": {
         "__CLIENT_NAME__": "Peerless",
         "__P0_BLOCKERS__": "ComputerEase CE Live Service Relay Installation, ComputerEase Production-Only API Testing Posture, ComputerEase Backup Super-Admin Provisioning (SPOF), GCP VM Firewall + Static IP Confirmation, HD Portal Write Endpoints + Developer Login"
+      }
+    },
+    {
+      "id": "sow-timeline",
+      "level": "sow",
+      "type": "gantt",
+      "templateRef": "commons/diagram-templates/sow/phased-timeline.mmd",
+      "title": "Phased Implementation Timeline",
+      "generatedBy": "flo+petra",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless",
+        "__TIMELINE_BODY__": "    section Discovery\n    Requirements & Architecture :disc, 2026-06-01, 2w\n    section Implementation\n    Integration Build           :build, after disc, 6w\n    section Validation\n    UAT & Go-Live               :uat, after build, 2w"
+      }
+    },
+    {
+      "id": "sow-scope-boundary",
+      "level": "sow",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/sow/scope-boundary.mmd",
+      "title": "Scope Boundary — In vs Out",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless",
+        "__IN_SCOPE__": "HD Portal Lead → Salesforce Lead (scheduled, 10-min polling), Salesforce 'Save as Final' Quote → ComputerEase Job + Customer + Budget Worksheet, Contract PDF → MuleSoft IDP → Salesforce validation, Salesforce → HD Portal exception comment / email write-back",
+        "__OUT_OF_SCOPE__": ""
+      }
+    },
+    {
+      "id": "sow-assumptions",
+      "level": "sow",
+      "type": "flowchart",
+      "templateRef": "commons/diagram-templates/sow/assumptions-map.mmd",
+      "title": "Assumptions and Owner Map",
+      "generatedBy": "flo",
+      "tokens": {
+        "__CLIENT_NAME__": "Peerless",
+        "__ASSUMPTIONS_BODY__": ""
       }
     }
   ]

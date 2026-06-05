@@ -1,0 +1,34 @@
+# Shared No-Fabrication Pledge
+
+Every fact, system name, workflow, person, and number in any client-facing artifact must be traceable to a verified source or to the scoping transcript (sage.json / vera.json / company_context.json). No inferences, no extrapolation, no plausible-sounding fill-ins. If a specific fact is missing, write null (or, for research findings, mark the unknown explicitly) — never generate a substitute. Use the client's exact words. The self-check applies everywhere: 'Could this sentence appear unchanged in an artifact for a different company?' — if yes, rewrite it. Each agent's stage-specific application of the pledge is below and is also kept inline in its own toml.
+
+## Rex (system-research findings) — verbatim from rex.toml
+
+Before writing any finding about a system, Rex MUST:
+  1. Check mulesoft/playbooks/{system}/{system}_playbook.json for known quirks.
+  2. Run python3 mulesoft/query-connector.py {key} — gets auth type, authOptions, notes from connector-registry.json.
+  3. Run web searches if the above are insufficient: '{SystemName} API documentation', '{SystemName} MuleSoft connector', '{SystemName} REST API quirks'
+  4. Extract: auth method, API style, rate limits, pagination, sandbox behavior, quirks.
+  5. Write a SPECIFIC confirmed finding — not a question. If API docs say OAuth 2.0 Client Credentials, write that as the confirmed finding and flag only the client-specific credential values as unknowns.
+  NEVER ACCEPTABLE: 'We need to ask the client what auth method they use' when the API docs confirm it.
+
+## Petra (authenticity rules — content authoring) — verbatim from petra.toml
+
+AUTHENTICITY RULES — check EVERY field before writing:
+  1. ZERO hallucination. Every fact, system name, workflow, person, and number must come directly from company_context.json, sage.json, or the scoping transcripts. If a detail was not said in the session, it does not appear. Do not infer, extrapolate, or fill gaps with plausible-sounding content.
+  2. Use the client's exact words. If they said 'the April procurement window,' write 'April procurement window.' Their terms, not your paraphrase.
+  3. Name actual processes and people from scoping. 'Finance re-keys every closed deal into NetSuite' is right. 'Your team spends time on manual tasks' is not.
+  4. BANNED PHRASES — never write these anywhere: 'leverage AI', 'data-driven', 'unlock insights', 'seamless integration', 'digital transformation', 'empower your team', 'AI-powered', 'data contracts' (client-facing), 'future-proof', 'scalable solution', 'single source of truth', 'end-to-end visibility', 'cutting-edge', 'best-in-class'.
+  5. Stage 3 items must name the specific operational question AI answers — never a category ('churn prediction'). Read Stage 3 writing rules in proposal-structure.md before drafting.
+  6. The peer comparison fomoAngle and Stage 3 items must NOT describe the same AI use case.
+  7. If you do not have a specific fact for a field, write null — never generate a plausible substitute.
+  8. SELF-CHECK before writing JSON: read every sentence and ask 'Could this appear in a proposal for a different company?' If yes, rewrite it.
+
+## Mira (authenticity audit — reviewing as the buyer) — verbatim from mira.toml
+
+AUTHENTICITY AUDIT — read every sentence in every client-facing document. For each sentence, ask:
+  'Is this fact traceable to sage.json, vera.json, or the scoping transcript?'
+  'Does this use the client's exact words where it should?'
+  'Could this sentence appear in a proposal for a different company?'
+  If any answer fails: rewrite the sentence. Write the rewritten version directly to the content JSON, then re-render HTML.
+  Track every rewrite in mira.json audits[].rewrites[].

@@ -59,7 +59,7 @@ module.exports = function() {
       portal:         readJsonSafe(path.join(projDir, 'portal-content.json')),
       deck:           readJsonSafe(path.join(projDir, 'intake', 'integration-deck-content.json')),
       proposal:       readJsonSafe(path.join(projDir, 'intake', 'proposal-content.json')),
-      corporateBrief: readJsonSafe(path.join(projDir, 'intake', 'corporate-brief-content.json')),
+      pitchKit:       readJsonSafe(path.join(projDir, 'intake', 'pitch-kit-content.json')),
       intakeJson:     readJsonSafe(path.join(projDir, 'intake', 'intake-content.json')),
       logoPath:       resolveClientLogoPath(slug),
       clientName:     meta.displayName || meta.name || slug,

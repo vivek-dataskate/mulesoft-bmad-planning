@@ -154,11 +154,16 @@ function buildIntakeRailLinks(meta) {
 
 function buildIntakeRailAttention(p0Blockers) {
   if (!p0Blockers || !p0Blockers.length) return [];
-  return p0Blockers.map(b => ({
-    target: b.sectionRef ? `sec:${b.sectionRef}` : 'biz',
-    title:  b.title || b.system || 'P0 Blocker',
-    body:   (b.clientAction || b.body || b.blocker || '').replace(/^\s*[—\-:·]+\s*/, ''),
-  }));
+  return p0Blockers.map(b => {
+    let target = 'biz';
+    if (b.sysHomeId)   target = `el:sys-home-${b.sysHomeId}`;
+    else if (b.sectionRef) target = `sec:${b.sectionRef}`;
+    return {
+      target,
+      title: b.title || b.system || 'P0 Blocker',
+      body:  (b.clientAction || b.body || b.blocker || '').replace(/^\s*[—\-:·]+\s*/, ''),
+    };
+  });
 }
 
 // ─── PHASE CHIP ───────────────────────────────────────────────────────────────

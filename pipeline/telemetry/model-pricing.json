@@ -1,8 +1,14 @@
 {
-  "_comment": "Price per million tokens. Update here when rates change — scripts read this at runtime.",
-  "_updated": "2026-05-19",
-  "haiku":           { "modelId": "claude-haiku-4-5",    "input": 0.80,  "output": 4.00  },
-  "sonnet":          { "modelId": "claude-sonnet-4-6",   "input": 3.00,  "output": 15.00 },
-  "opus":            { "modelId": "claude-opus-4-7",     "input": 15.00, "output": 75.00 },
-  "gemini-2.5-flash":{ "modelId": "gemini-2.5-flash",   "input": 0.075, "output": 0.30  }
+  "_comment": "Price per million tokens. Keys are functional tiers — map to actual models in openrouter.mjs. Update here when rates change.",
+  "_updated": "2026-06-03",
+  "classifier":  { "modelId": "claude-haiku-4-5",    "input": 0.80,  "output": 4.00,  "cached": 0.08  },
+  "extractor":   { "modelId": "claude-haiku-4-5",    "input": 0.80,  "output": 4.00,  "cached": 0.08  },
+  "researcher":  { "modelId": "gemini-2.5-flash",    "input": 0.075, "output": 0.30                   },
+  "analyst":     { "modelId": "gemini-2.5-flash",    "input": 0.075, "output": 0.30                   },
+  "writer":      { "modelId": "claude-sonnet-4-6",   "input": 3.00,  "output": 15.00, "cached": 0.30  },
+  "scribe":      { "modelId": "gemini-2.5-flash",    "input": 0.075, "output": 0.30                   },
+  "auditor":     { "modelId": "claude-haiku-4-5",    "input": 0.80,  "output": 4.00,  "cached": 0.08  },
+  "reviewer":    { "modelId": "claude-sonnet-4-6",   "input": 3.00,  "output": 15.00, "cached": 0.30  },
+  "checker":     { "modelId": "gemini-2.5-flash",    "input": 0.075, "output": 0.30                   },
+  "strategist":  { "modelId": "gpt-4o",              "input": 2.50,  "output": 10.00                  }
 }

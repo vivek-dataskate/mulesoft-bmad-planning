@@ -1,7 +1,7 @@
 {
-  "agent": "Flo v1.0.0",
+  "agent": "Flo v1.1.1",
   "client": "peerless",
-  "generatedAt": "2026-05-22T12:30:00Z",
+  "generatedAt": "2026-05-23T00:00:00Z",
   "decisions": [
     {
       "id": "FD-001",
@@ -44,7 +44,9 @@
       "type": "flow-classification",
       "flowId": "UC5-potential",
       "classification": "potential",
-      "rationale": "Ashley's #1 aspiration quote ('select the deposit paid box. If that could integrate and flow back through an API, that would work'). Not promoted to confirmed because HD write/read endpoint for deposit-paid status is unvalidated. Promotion gate: Greg/Marius confirm POST/PATCH endpoint exposure during P1 HD-write-endpoints discovery (bundled into the same HD ticket).",
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: transaction split from UC1",
+      "rationale": "Ashley's #1 aspiration quote ('select the deposit paid box. If that could integrate and flow back through an API, that would work'). Not promoted to confirmed because HD write/read endpoint for deposit-paid status is unvalidated. Promotion gate: Greg/Marius confirm POST/PATCH endpoint exposure during P1 HD-write-endpoints discovery. Source classification: transaction split from UC1 — same HD Portal ↔ Salesforce channel, different entity (deposit-paid status vs. Lead). Buyer-reading-proposal test: passes (same project as UC1, just more of it). Different-legal-entity test: same operating brand.",
       "evidence": "rex.json potentialFlows[0] + sage.json potentialFlows[UC5-potential] + Ashley aspiration quote 2026-04-14"
     },
     {
@@ -52,7 +54,9 @@
       "type": "flow-classification",
       "flowId": "UC6-potential",
       "classification": "potential",
-      "rationale": "Ashley demoed subcontract + commission + overhead GA + target price entry into the CE budget worksheet — these are distinct transactional records downstream of UC2 Job creation. Promotion gate: confirm with Ashley whether UC2 scope covers the full budget-worksheet payload or just the job header. If just header, UC6 promotes.",
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: transaction split from UC2",
+      "rationale": "Ashley demoed subcontract + commission + overhead GA + target price entry into the CE budget worksheet — these are distinct transactional records downstream of UC2 Job creation. Promotion gate: confirm with Ashley whether UC2 scope covers the full budget-worksheet payload or just the job header. Source classification: transaction split from UC2 — same Salesforce → ComputerEase channel, different payload (financial detail vs. job header). Buyer-reading-proposal test: passes (same project, same systems).",
       "evidence": "rex.json potentialFlows[1] + Ashley demo 2026-04-16"
     },
     {
@@ -60,7 +64,9 @@
       "type": "flow-classification",
       "flowId": "UC7-potential",
       "classification": "potential",
-      "rationale": "Standard construction-vertical close-the-loop pattern (ComputerEase job status back to Salesforce). Vera Phase 2 AI journey names this explicitly. Promotion gate: confirm with Ashley whether Salesforce users need to see CE job status (in-progress/complete/paid) without logging into Cameo. Adjacent-flow detection: reverse direction of UC2.",
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: reverse of UC2",
+      "rationale": "Standard construction-vertical close-the-loop pattern (ComputerEase job status back to Salesforce). Vera Phase 2 AI journey names this explicitly. Promotion gate: confirm with Ashley whether Salesforce users need to see CE job status (in-progress/complete/paid) without logging into Cameo. Source classification: bidirectional reverse of UC2 — UC2 sends Salesforce → ComputerEase; UC7 brings status back ComputerEase → Salesforce. Buyer-reading-proposal test: passes (same project, operationally complete with UC2).",
       "evidence": "rex.json potentialFlows[2] + vera.json aiJourney.phase2.body"
     },
     {
@@ -68,14 +74,15 @@
       "type": "flow-classification",
       "flowId": "UC8-potential",
       "classification": "potential",
-      "source": "adjacent-flow-detection",
-      "rationale": "Adjacent flow inferred from Sage system list — DocHub is mentioned as the HS-118 signing tool but only as a UI-only step today. Adjacent-flow rule (implicit system mentions): DocHub → Salesforce signed-PDF write-back is a plausible Phase 1b follow-on if Peerless wants the signed artefact attached directly to the Salesforce Quote/Contract record rather than relying on IDP path through UC3. Surfaced as potential (not adjacent-only) per principle: 'All potential flows — both explicit and adjacent — must appear in the proposal.'",
-      "evidence": "sage.json systems[DocHub] + vera.json systemPrerequisites[DocHub] (explicitly out-of-scope at Phase 1)"
+      "scopeBoundary": "operating-brand",
+      "source": "inferred: scope-adjacent system from sage transcript",
+      "rationale": "Adjacent flow inferred from sage.json system list — DocHub is mentioned as the HS-118 signing tool but only as a UI-only step today. It was explicitly out-of-scope at Phase 1 per vera.json systemPrerequisites[DocHub]. Qualifies as scope-adjacent under test 3: DocHub appears in the sage transcript and shares the HS-118 contract entity with UC3. Buyer-reading-proposal test: passes (same contract document domain as UC3). Promotion gate: Peerless must express a need for the signed artefact to be attached to Salesforce outside the IDP path.",
+      "evidence": "sage.json systems[DocHub] + vera.json systemPrerequisites[DocHub]"
     },
     {
       "id": "FD-009",
       "type": "p0-consolidation",
-      "rationale": "5 P0 blockers consolidated from rex.json. Three ComputerEase items (CE Live Service Relay, Production-Only API Testing, Backup Super-Admin) are bundled per Rex — all three resolve in the same Deltek support ticket Jean filed 2026-04-17. GCP Firewall is independent (Brian Cook + GCP IAM). HD Write Endpoints is independent (Greg + HD ticket). All five have title + clientAction + body. Priority: P0 = CE×3 + GCP (gates the entire engagement); P1 = HD Write Endpoints (UC1–UC3 can proceed; UC4 + UC5-potential depend on confirmation).",
+      "rationale": "5 P0 blockers consolidated from rex.json. Three ComputerEase items (CE Live Service Relay, Production-Only API Testing, Backup Super-Admin) are bundled per Rex — all three resolve in the same Deltek support ticket Jean filed 2026-04-17. GCP Firewall is independent (Brian Cook + GCP IAM). HD Write Endpoints is independent (Greg + HD ticket). All five have title + clientAction + body. Priority: P0 = CE×3 + GCP (gates the entire engagement); P1 = HD Write Endpoints (UC1–UC3 can proceed; UC4 + UC5-potential depend on confirmation). No changes from v1.0.0 — consolidation was already complete and correct.",
       "p0Count": 4,
       "p1Count": 1,
       "p2Count": 0,
@@ -87,35 +94,21 @@
       "id": "FD-010",
       "type": "pricing",
       "flowCount": 4,
-      "rationale": "Pricing computed from commons/sales/pricing-model.md (v1.2 May 2026). Confirmed-flow count N=4 from flo.json confirmedFlows[]. All four flows confirmed=true; potential flows excluded from pricing per principle.",
-      "computed": {
-        "implementationFee": "0 (IaaS — absorbed into monthly rate)",
-        "implementationOnlyFee": "$14,000 (4 × $3,500 standard rate)",
-        "kickoffRetainer": "$2,500 (1–5 flow band)",
-        "timelineWeeks": "8 weeks (2 + 4 × 1.5)",
-        "period1RatePerFlow": "$300",
-        "period2RatePerFlow": "$315 (5% escalation)",
-        "period3RatePerFlow": "$330.75 (5% escalation compounded)",
-        "period4RatePerFlow": "$347.29 (5% escalation compounded)",
-        "period1Payment6mo": "$7,200 ($300 × 4 × 6)",
-        "period2Payment6mo": "$7,560 ($315 × 4 × 6)",
-        "period3Payment6mo": "$7,938 ($330.75 × 4 × 6)",
-        "period4Payment6mo": "$8,335 ($347.29 × 4 × 6, rounded)",
-        "oneYearManagedServiceTotal": "$14,760 (Period 1 + Period 2)",
-        "twoYearManagedServiceTotal": "$31,033 (P1+P2+P3+P4)"
-      },
+      "rationale": "N=4 confirmed flows (UC1–UC4). All four confirmed=true; potential flows excluded from pricing per principle. Numeric fields removed in v1.1.1 — orchestrate.js computes all rates/payments/totals post-Flo from confirmedFlows[].length × rate card. Flo outputs judgment only: recommendedModel, recommendedModelRationale, edgeCases, proposalCaveat.",
       "recommendedModel": "IaaS",
       "recommendedModelRationale": "Five-factor IaaS recommendation: (1) Legacy ComputerEase with 4-hr vendor SLA needs continuous monitoring, not one-time build. (2) MuleSoft IDP rule-library tuning is operational work. (3) Peerless has no in-house MuleSoft dev — Brian Cook is platform-IT, not integration owner. (4) Akoya PE-sponsor + Roger Greenhagel 'first 18 months' window = managed-service relationship positions DataSkate for next Akoya platform play. (5) Elevate Fence Partners national rollout = UC1–UC4 is the template for 5 sibling brands; template needs ongoing maintenance as state-specific rules accumulate.",
       "edgeCases": [
-        "4 flows sits at top of 1–5 retainer band ($2,500). Promotion of UC5+UC6 would jump retainer to $5,000 (6–10 band).",
-        "At 4 flows, IaaS Year 1 ($14,760) ≈ Implementation Only flat fee ($14,000) — IaaS only wins on Year 2+. Implementation Only is right ONLY if Peerless hires a MuleSoft developer before kickoff (not signaled).",
+        "4 flows sits at top of 1–5 retainer band. Promotion of UC5+UC6 would jump retainer to 6–10 band.",
+        "At 4 flows, IaaS Year 1 ≈ Implementation Only flat fee — IaaS only wins on Year 2+. Implementation Only only if Peerless hires a MuleSoft developer before kickoff (not signaled).",
         "Anypoint $50K license bundle ($0 implementation) not in play — no Anypoint license sale discussed."
-      ]
+      ],
+      "proposalCaveat": null,
+      "proposalCaveatRationale": "Flow list is fully confirmed from transcripts (not inferred). No spreadsheet gap. No caveat required."
     },
     {
       "id": "FD-011",
       "type": "downstream-load-list",
-      "rationale": "Downstream load list computed from flo.json confirmedFlows[] systems. 4 playbooks (hd-portal, salesforce, computerease, mulesoft-idp), 6 canonical models (lead, customer, quote, budget-worksheet, job, contract — all in construction vertical), 4 connector keys. mulesoft-idp playbook is stub-created per Rex; others are pre-existing.",
+      "rationale": "Downstream load list computed from flo.json confirmedFlows[] systems. 4 playbooks (hd-portal, salesforce, computerease, mulesoft-idp), 6 canonical models (lead, customer, quote, budget-worksheet, job, contract — all in construction vertical), 4 connector keys. mulesoft-idp playbook is stub-created per Rex; others are pre-existing. No changes from v1.0.0.",
       "playbookCount": 4,
       "canonicalModelCount": 6,
       "connectorKeyCount": 4
@@ -132,6 +125,32 @@
         "ipaasMigration": false,
         "spreadsheetMissing": false
       }
+    },
+    {
+      "id": "FD-013",
+      "type": "portfolio-opportunities",
+      "generatedAt": "2026-05-23T00:00:00Z",
+      "agentVersion": "Flo v1.1.1",
+      "totalEntries": 9,
+      "bySource": {
+        "rex-uncovered-system": 0,
+        "sibling-template": 5,
+        "legacy-boltOn": 0,
+        "sponsor-portco": 3,
+        "strategic-partnership": 1
+      },
+      "rexUncoveredRationale": "All operating brand systems in rex.json are either (a) in confirmedFlows[] (HD Portal, Salesforce, ComputerEase, IDP), (b) in potentialFlows[] as scope-adjacent (DocHub → UC8-potential), or (c) infrastructure/UI-only (GCP, Cameo). No rex-uncovered-system entries qualify.",
+      "siblingTemplateRationale": "5 Elevate sibling brands: 4 installer-contractors (Florida State Fence, Foremost Fence, Allied Fence Co., Jan Fence) qualify for UC1–UC4 template deployment; MyFence2Go qualifies for UC2-only (e-commerce model, no HD Portal). All siblings are Tier-B (lite research pass in vera.json). Entries generated from vera.json.corporateStackEnrichment.operatingPlatform.siblingBrands[] integration signals. isCurrentClient=true (Peerless) skipped per principle.",
+      "legacyBoltOnRationale": "All 10 legacyBoltOns in vera.json.corporateStack.operatingBrand.legacyBoltOns[] have notes indicating absorbed status. The principle requires 'operates as separate brand (NOT absorbed)' to qualify. None qualify. 0 entries generated.",
+      "sponsorPortcoRationale": "3 of 11 Akoya portfolio companies surfaced in vera.json by adjacency to Peerless's construction stack. Edge Adhesives (construction-adjacent specialty chemicals) and Indigo Signworks (most structurally similar — hybrid product+service, multi-state) are highest priority. Alinabal Holding (precision manufacturing) is lower priority but included for completeness. Remaining 8 Akoya portcos (Beacon Manufacturing Group, Star Plastics, Trinity Technology Group, WePackItAll, Adherex Packaging, Devansoy, Converged Security Solutions, DiSTI) excluded per portfolio truncation note in vera.json.",
+      "strategicPartnershipRationale": "1 strategic partnership in vera.json (Elevate Fence Partners). Integration impact field calls out multi-state ComputerEase company codes and state-specific HD Portal footprint — both are systems/channels not in confirmedFlows[]. 1 entry generated covering the ongoing multi-state UC3 rule-engine expansion opportunity.",
+      "promotionTestResults": {
+        "buyerReadingProposalTest": "All 9 entries pass — a buyer reading the Peerless proposal would say 'we didn't ask for any of that' for each (correct: they belong in corporate brief, not proposal).",
+        "differentLegalEntityTest": "PO-001 through PO-005 (sibling-template): different legal entity from Peerless Fence Group — correct routing to portfolio. PO-006 through PO-008 (sponsor-portco): different legal entities — correct routing. PO-009 (strategic-partnership): Elevate Fence Partners is a different entity from the engagement entity (Peerless Fence Group) — correct routing.",
+        "singleSourceTest": "All 9 entries cite at least one upstream source (vera.json corporate profile, vera.json.corporateStackEnrichment, or akoyacapital.com portfolio page)."
+      },
+      "exceedsCap": false,
+      "capNote": "9 total entries against 25-entry cap. No truncation required."
     }
   ]
 }

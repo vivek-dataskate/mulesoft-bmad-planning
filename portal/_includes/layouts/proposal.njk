@@ -240,6 +240,13 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .negotiate-field-label { display: block; font-size: 11px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
 .negotiate-required { color: var(--brand); }
 .negotiate-optional { font-weight: 400; color: var(--mid); }
+/* ── Negotiation status bar (inline, below model cards) ── */
+#neg-status-bar { background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:8px; padding:12px 16px; margin-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+#neg-status-bar.accepted { background:#f0fdf4; border-color:#86efac; }
+.neg-status-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#3b82f6; margin-bottom:2px; }
+.neg-status-text { font-size:13px; color:#1e40af; font-weight:500; }
+#neg-status-bar.accepted .neg-status-label { color:#16a34a; }
+#neg-status-bar.accepted .neg-status-text { color:#15803d; }
 
 /* ── ACCEPT PANEL ── */
 .accept-panel { position: fixed; top: 45px; right: 40px; z-index: 99; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,.12); display: none; }
@@ -839,8 +846,69 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
   {% for d in proposalDeployments %}{% if loop.index < loop.length %}<a href="{{ d.url | esc }}" style="color:var(--mid);text-decoration:underline;" target="_blank" rel="noopener">{{ d.version | esc }} &middot; {{ d.dateLabel | esc }}</a>{% if loop.index < loop.length - 1 %}<span>&#183;</span>{% endif %}{% endif %}{% endfor %}
 </div>
 {% endif %}
+{# ── Negotiate modal — hoisted to body root so position:fixed isn't trapped inside <details> ── #}
+<div class="neg-backdrop no-print" id="neg-backdrop" onclick="closeNegotiatePanel(event)">
+  <div class="negotiate-panel" id="negotiate-panel">
+    <button class="neg-close" onclick="closeNegotiatePanel()" title="Close">✕</button>
+
+    {# Thread section — shown inside modal when thread exists #}
+    <div id="neg-thread-wrap" style="display:none">
+      {# Current DS offer banner — shown when DS has responded with an amount #}
+      <div id="neg-current-offer" style="display:none;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:14px 18px;margin-bottom:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#3b82f6;margin-bottom:2px">Current DataSkate Offer</div>
+          <div style="font-size:22px;font-weight:900;color:#1e40af" id="neg-offer-amount">—</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:1px" id="neg-offer-model"></div>
+        </div>
+        <button class="btn btn-primary" onclick="showAcceptPanel()" style="background:var(--green);flex-shrink:0">Accept This Offer ✓</button>
+      </div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-bottom:10px">Negotiation Thread</div>
+      <div id="neg-thread-list" style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;background:#fafafa;margin-bottom:10px"></div>
+      <div id="neg-waiting-msg" style="display:none;background:#fef3c7;border:1px solid #fcd34d;border-left:4px solid #f59e0b;border-radius:6px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:10px">
+        Previous selection submitted — DataSkate will respond within 1 business day. You can update your selection below if your preference has changed.
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+        <button class="btn btn-outline no-print" id="neg-counter-btn" onclick="showNegotiatePanel()" style="font-size:12px;padding:6px 14px">Make Another Counter-Offer</button>
+      </div>
+      <hr style="margin:14px 0 16px;border:none;border-top:1px solid var(--border)">
+    </div>
+
+    {# Form header — shows selected model name + listed rate #}
+    <div class="negotiate-header" id="negotiate-header">
+      <div class="negotiate-label">Your Selection</div>
+      <h3 id="selected-model-name" style="margin:4px 0 6px;font-size:16px;color:var(--dark)">—</h3>
+      <p style="margin:0;font-size:13px;color:var(--mid)">Listed: <strong id="selected-rate">—</strong>. Leave the price field blank to accept the listed rate, or enter a counter-offer below.</p>
+    </div>
+
+    {# Form body — disabled+dimmed when waiting for DS response or after acceptance #}
+    <div id="neg-form-body">
+      <div class="negotiate-grid">
+        <div>
+          <label class="negotiate-field-label">Your name <span class="negotiate-required">*</span></label>
+          <input class="cta-input" type="text" id="negotiate-name" placeholder="Your full name" autocomplete="name" />
+        </div>
+        <div>
+          <label class="negotiate-field-label" id="negotiate-rate-label">Counter-offer <span class="negotiate-optional">(optional)</span></label>
+          <input class="cta-input" type="text" id="negotiate-rate" placeholder="e.g. $25,000 total" oninput="onRateInput(this.value)" />
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <label class="negotiate-field-label">Notes <span class="negotiate-optional">(optional)</span></label>
+        <textarea class="cta-input" id="negotiate-notes" rows="3" placeholder="Any context or questions for DataSkate?" oninput="onNotesInput(this)" style="resize:vertical"></textarea>
+      </div>
+    </div>
+
+    {# Action buttons — hidden after acceptance #}
+    <div id="neg-btn-row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary btn-submit" id="negotiate-btn" onclick="submitSelection()" style="flex:1">Confirm Selection →</button>
+      <button class="btn btn-outline" onclick="closeNegotiatePanel()" style="flex-shrink:0">Cancel</button>
+    </div>
+    <div class="accept-success" id="selection-success" style="margin-top:12px">✓ Sent to DataSkate. We'll respond within 1 business day.</div>
+  </div>
+</div>
+
 <div class="footer">
-  <span>{{ meta.architect | esc }} &#183; <a href="mailto:{{ meta.architectEmail | esc }}">{{ meta.architectEmail | esc }}</a> &#183; DataSkate &#183; dataskate.ai</span>
+  <span>{{ meta.architect | esc }} &#183; {{ meta.architectEmail | esc }} &#183; DataSkate &#183; dataskate.ai</span>
   <strong>Confidential</strong>
 </div>
 {% endblock %}
@@ -979,6 +1047,7 @@ function selectModel(type, name, rate) {
 const NEG_LS_KEY = 'neg_thread_' + CLIENT_SLUG;
 let _negThread = [];   // in-memory cache of the thread
 let _selectedModel = '', _selectedListedRate = '';
+let _showForm = false; // true when client is actively entering a counter-offer
 
 function saveNegThreadLocally(thread) {
   try { localStorage.setItem(NEG_LS_KEY, JSON.stringify(thread)); } catch(e) {}
@@ -1011,36 +1080,58 @@ function renderNegThread() {
   const list  = document.getElementById('neg-thread-list');
   if (!wrap || !list || !_negThread.length) return;
   wrap.style.display = '';
+
+  // Scroll only when thread grows large
+  if (_negThread.length >= 10) {
+    list.style.maxHeight = '220px';
+    list.style.overflowY = 'auto';
+  } else {
+    list.style.maxHeight = '';
+    list.style.overflowY = '';
+  }
+
   list.innerHTML = _negThread.map(entry => {
     const isDS   = entry.by === 'dataskate';
-    const align  = isDS ? 'right' : 'left';
     const bg     = isDS ? '#EBF4FF' : '#F9FAFB';
     const border = isDS ? '#BFDBFE' : '#E5E7EB';
     const label  = isDS ? (entry.authorName || 'DataSkate') : (entry.authorName || 'You');
     const date   = entry.ts ? new Date(entry.ts).toLocaleDateString('en-US', {month:'short',day:'numeric'}) : '';
-    return `<div style="display:flex;flex-direction:column;align-items:${isDS?'flex-end':'flex-start'};margin-bottom:10px">
-      <div style="font-size:10px;color:#9ca3af;margin-bottom:3px;text-align:${align}">${label} · ${date}</div>
-      <div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:10px 14px;max-width:80%">
-        ${entry.amount ? `<div style="font-size:16px;font-weight:800;color:#111827;margin-bottom:2px">${entry.amount}</div>` : ''}
-        ${entry.model  ? `<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:4px">${entry.model}</div>` : ''}
-        ${entry.note   ? `<div style="font-size:12px;color:#374151;line-height:1.5">${entry.note}</div>` : ''}
-      </div>
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:${bg};border:1px solid ${border};border-radius:6px;margin-bottom:6px">
+      <span style="font-size:10px;color:#9ca3af;white-space:nowrap;flex-shrink:0">${label} · ${date}</span>
+      ${entry.amount ? `<span style="font-weight:700;white-space:nowrap;color:#111827">${entry.amount}</span>` : ''}
+      ${entry.model  ? `<span style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#6b7280;white-space:nowrap">${entry.model}</span>` : ''}
+      ${entry.note   ? `<span style="font-size:12px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">— ${entry.note}</span>` : ''}
     </div>`;
   }).join('');
 
-  // Show the last DataSkate offer as the "current offer" banner
+  // DS offer banner — explicit flex/none to avoid double-display CSS bug
   const lastDS = [..._negThread].reverse().find(e => e.by === 'dataskate');
   const banner = document.getElementById('neg-current-offer');
-  if (banner && lastDS && lastDS.amount) {
-    banner.style.display = '';
-    const el = id => document.getElementById(id);
-    if (el('neg-offer-amount')) el('neg-offer-amount').textContent = lastDS.amount;
-    if (el('neg-offer-model'))  el('neg-offer-model').textContent  = lastDS.model || '';
+  if (banner) {
+    banner.style.display = (lastDS && lastDS.amount) ? 'flex' : 'none';
+    if (lastDS && lastDS.amount) {
+      const elb = id => document.getElementById(id);
+      if (elb('neg-offer-amount')) elb('neg-offer-amount').textContent = lastDS.amount;
+      if (elb('neg-offer-model'))  elb('neg-offer-model').textContent  = lastDS.model || '';
+    }
   }
 
-  const alreadyAccepted = !!localStorage.getItem('proposal_accepted_' + CLIENT_SLUG);
-  const counterBtnEl = document.getElementById('neg-counter-btn');
-  if (counterBtnEl) counterBtnEl.style.display = alreadyAccepted ? 'none' : '';
+  // Update inline status bar (below model cards)
+  const statusBar  = document.getElementById('neg-status-bar');
+  const statusText = document.getElementById('neg-status-text');
+  if (statusBar) {
+    statusBar.style.display = 'flex';
+    const lastEntry = _negThread[_negThread.length - 1];
+    if (statusText) {
+      statusText.textContent = lastEntry.by === 'dataskate'
+        ? (lastEntry.amount ? `DataSkate offered ${lastEntry.amount} — click to respond or accept` : 'DataSkate responded — click to view and respond')
+        : `Selection submitted by ${lastEntry.authorName || 'you'} — awaiting DataSkate response`;
+    }
+  }
+
+  // Sync modal form state if modal is open
+  const backdrop = document.getElementById('neg-backdrop');
+  if (backdrop && backdrop.classList.contains('open')) syncModalState();
 }
 
 async function submitCounterOffer() {
@@ -1119,6 +1210,46 @@ function openNegotiateModal() {
   if (!backdrop) return;
   backdrop.classList.add('open');
   document.body.style.overflow = 'hidden';
+  syncModalState();
+}
+
+function syncModalState() {
+  const el = id => document.getElementById(id);
+  const isAccepted = !!localStorage.getItem('proposal_accepted_' + CLIENT_SLUG);
+  const lastEntry  = _negThread.length ? _negThread[_negThread.length - 1] : null;
+  const isWaiting  = !isAccepted && !!lastEntry && lastEntry.by === 'client';
+  const hasThread  = _negThread.length > 0;
+  // Show form only when: no thread (first time) OR client explicitly requested it
+  const showForm   = !hasThread || _showForm;
+
+  // Pre-fill header from last DS entry if no model explicitly selected
+  if (lastEntry && lastEntry.by === 'dataskate' && !_selectedModel) {
+    _selectedModel      = lastEntry.model  || '';
+    _selectedListedRate = lastEntry.amount || '';
+    if (el('selected-model-name') && _selectedModel) el('selected-model-name').textContent = _selectedModel;
+    if (el('selected-rate') && _selectedListedRate)  el('selected-rate').textContent = _selectedListedRate;
+  }
+
+  // Form header: show only when form is active and a model is selected
+  if (el('negotiate-header')) el('negotiate-header').style.display = (showForm && _selectedModel) ? '' : 'none';
+
+  // Form body: hidden when thread exists and form not requested; disabled only after acceptance
+  const formBody = el('neg-form-body');
+  if (formBody) {
+    formBody.style.display = showForm ? '' : 'none';
+    formBody.querySelectorAll('input,textarea').forEach(i => { i.disabled = isAccepted; });
+    formBody.style.opacity = isAccepted ? '0.5' : '';
+  }
+
+  // Submit button and row: hidden when form is hidden OR after acceptance
+  if (el('negotiate-btn')) el('negotiate-btn').disabled = isAccepted;
+  if (el('neg-btn-row'))   el('neg-btn-row').style.display = (showForm && !isAccepted) ? '' : 'none';
+
+  // Waiting message: shown when last entry is from client (in thread section, always visible)
+  if (el('neg-waiting-msg')) el('neg-waiting-msg').style.display = isWaiting ? '' : 'none';
+
+  // Counter-offer button: visible only when thread exists, not accepted, and form not already open
+  if (el('neg-counter-btn')) el('neg-counter-btn').style.display = (hasThread && !isAccepted && !_showForm) ? '' : 'none';
 }
 
 function closeNegotiatePanel(e) {
@@ -1127,9 +1258,10 @@ function closeNegotiatePanel(e) {
   const backdrop = document.getElementById('neg-backdrop');
   if (backdrop) backdrop.classList.remove('open');
   document.body.style.overflow = '';
+  _showForm = false;
 }
 
-// Called by "Make Another Counter-Offer" button in the thread — pre-fills from last DS offer
+// Called by "Make Another Counter-Offer" button — reveals form without reopening the modal
 function showNegotiatePanel() {
   const lastDSOffer = [..._negThread].reverse().find(e => e.by === 'dataskate');
   if (lastDSOffer && !_selectedModel) {
@@ -1140,7 +1272,13 @@ function showNegotiatePanel() {
     if (nameEl) nameEl.textContent = _selectedModel || 'Previously selected model';
     if (rateEl) rateEl.textContent = lastDSOffer.amount || 'as previously quoted';
   }
-  openNegotiateModal();
+  _showForm = true;
+  const backdrop = document.getElementById('neg-backdrop');
+  if (backdrop && backdrop.classList.contains('open')) {
+    syncModalState();
+  } else {
+    openNegotiateModal();
+  }
 }
 
 function onRateInput(val) {
@@ -1229,6 +1367,25 @@ function showAcceptedState(name, email) {
   if (nameEl)  { nameEl.value = name || ''; nameEl.disabled = true; }
   if (emailEl) { emailEl.value = email || ''; emailEl.disabled = true; }
   if (acceptBtn) { acceptBtn.textContent = '✓ Proposal Accepted'; acceptBtn.style.background = 'var(--green)'; acceptBtn.onclick = null; acceptBtn.style.cursor = 'default'; }
+
+  // Disable all model-select buttons so client can't re-open modal after acceptance
+  document.querySelectorAll('.model-select-btn').forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.6';
+    b.style.cursor = 'default';
+    b.textContent = '✓ Proposal Accepted';
+  });
+
+  // Update status bar to accepted state
+  const sBar   = document.getElementById('neg-status-bar');
+  const sLabel = document.getElementById('neg-status-label');
+  const sText  = document.getElementById('neg-status-text');
+  if (sBar)   { sBar.classList.add('accepted'); sBar.style.display = 'flex'; }
+  if (sLabel) sLabel.textContent = 'Proposal Accepted ✓';
+  if (sText)  sText.textContent  = 'Accepted by ' + (name || 'you') + '. DataSkate will follow up within 1 business day.';
+
+  // Re-sync modal state (hides form body, button row)
+  syncModalState();
 }
 
 function restoreAcceptedState() {

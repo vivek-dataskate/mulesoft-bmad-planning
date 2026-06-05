@@ -1,6 +1,6 @@
 {
   "client": "peerless",
-  "updatedAt": "2026-05-22T14:19:55.744Z",
+  "updatedAt": "2026-05-22T21:53:05.965Z",
   "decisions": [
     {
       "id": "FD-001",
@@ -135,6 +135,389 @@
         "ipaasMigration": false,
         "spreadsheetMissing": false
       }
+    },
+    {
+      "id": "HD-001",
+      "type": "content-adaptation",
+      "field": "fomoOrdered — sort order",
+      "default": "vera.json competitorFOMO[] order: ServiceTitan, CE+SF, Document Crunch, McKinsey",
+      "chosen": "Document Crunch first (weeks→minutes = largest stated time reduction), then CE+SF (1.5h/job — most specific to client), then ServiceTitan (hours/week ongoing), then McKinsey (industry stat)",
+      "rationale": "ivy.json.contentLayers.champion.socialProofAngle = 'time-saved' → sort by hours/people recovered, largest first. Document Crunch's 'weeks to minutes' exceeds all others in stated time magnitude. CE+SF ranks second despite smaller absolute magnitude because it maps exactly to Ashley's documented 1.5h/job pain point — highest resonance for operational-pragmatist. ServiceTitan third (same upstream system, unquantified weekly hours). McKinsey last (analytical stat, not a task-elimination story).",
+      "profileDrivers": [
+        "operational-pragmatist",
+        "socialProofAngle=time-saved"
+      ]
+    },
+    {
+      "id": "HD-002",
+      "type": "content-adaptation",
+      "field": "fomoOrdered[0].fomoAngleAdapted — Document Crunch",
+      "default": "Other construction firms have already shifted contract review from 'read every document' to 'review the exception list.' Peerless is in the 'read every document' bucket right now. UC3 + UC4 move you to the exception list.",
+      "chosen": "The time Ashley spends reading every HS-105, 299A, 299B, and HS-118 by hand disappears on go-live day — construction firms that moved to exception-list review got that time back permanently. UC3 + UC4 build the same shift for Peerless's exact contract set.",
+      "rationale": "Original led with peer comparison ('Other construction firms'). Operational-pragmatist fomoFraming requires leading with hours saved and the specific manual task. Rewrite leads with the exact person (Ashley) and the exact document types (HS-105, 299A, 299B, HS-118 — their actual contract set named in sage.json) before naming the comparison group.",
+      "profileDrivers": [
+        "operational-pragmatist",
+        "fomoFraming=hours-saved-first"
+      ]
+    },
+    {
+      "id": "HD-003",
+      "type": "content-adaptation",
+      "field": "fomoOrdered[1].fomoAngleAdapted — CE+SF SYNC",
+      "default": "Other contractors on Peerless's exact stack — Salesforce Sales Cloud upstream of Deltek ComputerEase — have already deleted the 1.5-hour-per-job manual entry Ashley walked us through on 2026-04-16. UC2 is the same pattern.",
+      "chosen": "1.5 hours recovered per closed quote — the manual rekey of customer number, job number, budget worksheet, and subcontracts from Salesforce into ComputerEase stops on go-live day. Contractors on Peerless's exact stack — Salesforce upstream of Deltek ComputerEase — already have this automated. UC2 is the same pattern.",
+      "rationale": "Original led with peer comparison ('Other contractors'). Operational-pragmatist rewrite leads with the quantified time savings ('1.5 hours recovered per closed quote') and names the specific fields being rekeyed (customer number, job number, budget worksheet, subcontracts) — all documented in Ashley's demo transcript. Peer comparison remains but is now supporting evidence, not the hook.",
+      "profileDrivers": [
+        "operational-pragmatist",
+        "fomoFraming=hours-saved-first"
+      ]
+    },
+    {
+      "id": "HD-004",
+      "type": "content-adaptation",
+      "field": "fomoOrdered[2].fomoAngleAdapted — ServiceTitan",
+      "default": "Every other Home Depot Pro installer using a CRM with an HD integration has already deleted the morning 'check email for new leads' step. Peerless is still doing it because HD Portal → Salesforce is the missing wire — and that's exactly what UC1 builds.",
+      "chosen": "The morning HD Portal check-and-rekey step — gone on go-live day. Every HD Pro installer with a CRM integration has already removed this from their morning routine. Peerless is still running it manually because HD Portal → Salesforce is the missing wire. UC1 puts Peerless in the same group.",
+      "rationale": "Original led with the peer comparison ('Every other HD Pro installer'). Operational-pragmatist rewrite leads with the specific task elimination ('The morning HD Portal check-and-rekey step — gone on go-live day') before framing the peer comparison. Uses 'go-live day' per profile requirement to anchor the outcome to a concrete moment.",
+      "profileDrivers": [
+        "operational-pragmatist",
+        "fomoFraming=task-elimination-first",
+        "socialProofAngle=time-saved"
+      ]
+    },
+    {
+      "id": "HD-005",
+      "type": "content-adaptation",
+      "field": "fomoOrdered[3].fomoAngleAdapted — McKinsey",
+      "default": "McKinsey's 2024 number: 14–15% productivity gain for data-driven construction firms vs. 0.4%/year for everyone else. The price of staying in the 0.4% bucket is paid by Ashley every morning.",
+      "chosen": "Every morning Ashley spends on manual HD reconciliation, ComputerEase rekey, and document-by-document contract review is the operating cost of staying in construction's 0.4%/year productivity baseline. Data-driven contractors reach 14–15% productivity gains. That gap closes in Year 1.",
+      "rationale": "Original opened with the McKinsey stat (roi-analytical hook). For an operational-pragmatist, the hook must be the specific daily activity, not the number. Rewrite opens with Ashley's named morning tasks (HD reconciliation, CE rekey, document review — all sage.json documented) as the cost of the baseline, then names the McKinsey stat as the comparison benchmark. Stat is preserved but repositioned as supporting evidence.",
+      "profileDrivers": [
+        "operational-pragmatist",
+        "challengeFraming=name-the-person-and-task"
+      ]
+    },
+    {
+      "id": "HD-006",
+      "type": "content-adaptation",
+      "field": "closingLine",
+      "default": "Stage 1 eliminates the specific manual work your team does today. Stages 2 and 3 build on that foundation — but the immediate win is on go-live day. [ivy.json contentModifiers.champion.closingLineVariant]",
+      "chosen": "The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once. [AgentForce override — flo.json.flags.salesforceDetected = true]",
+      "rationale": "Closing line decision tree: (1) check ivy.json contentModifiers.closingLineVariant → champion variant exists: 'Stage 1 eliminates the specific manual work...' (2) check flo.json.flags.salesforceDetected → TRUE → override both contentModifiers variant AND proposal-structure.md default with the AgentForce-specific line. AgentForce override takes highest precedence per Hawk principles. Salesforce detected in all 4 confirmed flows (UC1-UC4) per flo.json.flags.salesforceDetected note.",
+      "profileDrivers": [
+        "salesforceDetected=true",
+        "AgentForce-override-rule"
+      ]
+    },
+    {
+      "id": "HD-007",
+      "type": "content-adaptation",
+      "field": "journeyHeadline",
+      "default": "null (no aspirationQuote found)",
+      "chosen": "the path to 'select the deposit paid box — and have it sync back automatically' — the API integration Ashley named on day one of scoping",
+      "rationale": "sage.json.quotes.aspirationQuote is not null: 'So a lot of the times I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box. If that could integrate and flow back through an API, that was awesome, that would work.' Hawk principle: write a journey.headline callback as 'the path to [their aspiration, in their words].' The headline distills the aspiration into its core ask ('select the deposit paid box — automatically') and anchors it to the client's voice and the date of the quote.",
+      "profileDrivers": [
+        "aspirationQuote=non-null",
+        "operational-pragmatist"
+      ]
+    },
+    {
+      "id": "HD-008",
+      "type": "cost-of-waiting",
+      "field": "costOfWaiting",
+      "default": "null (no client-specific volume data)",
+      "chosen": "195 hours over 6 months (conservative floor: 1.5h/job × 5 jobs/week × 26 weeks, CE rekey only)",
+      "rationale": "Source priority per principle: (a) sage.json volume × lag — no explicit weekly job count documented in transcripts; (b) sage.json manual hours: 1.5h/job (Ashley's demo, 2026-04-16, sage.json systemFindings) × conservative 5 HD jobs/week × 26 weeks = 195h. The 5-job/week estimate is conservative for a 7-location regional fence contractor at peak season. Figure uses documented per-unit metric (1.5h/job) with an estimated volume. Excludes daily HD reconciliation (~2.5h/week) and contract review (~2h/week) — both documented manual activities — which means 195h is a conservative floor. The '$5K/month GCP hosting' figure from Brian Cook (sage.json budgetSignals) is infrastructure cost, not labor cost; not applicable to this calculation. Figure is stated as a 'conservative floor' to reflect the estimation component.",
+      "dataSource": "sage.json systemFindings — Ashley Salerno manual rekey demo 2026-04-16; sage.json budgetSignals"
+    },
+    {
+      "id": "HD-009",
+      "type": "competitive-counterpunch",
+      "field": "competitorCounterpunch",
+      "likelyVendorJustification": "Peerless has Salesforce already licensed and active. The most common competitive threat DataSkate faces in Salesforce-anchored accounts is the incumbent Salesforce SI offering to build natively in Flows/Apex — avoids adding MuleSoft licensing, appears cheaper upfront. This is more likely than Boomi (no Salesforce-native pitch), Celigo (CPG/NetSuite focus, no CE expertise), or Zapier (too lightweight for legacy ERP writes). In-house development is possible but Peerless has no MuleSoft developer and Brian explicitly is not the integration operator.",
+      "countermeasureJustification": "The strongest DataSkate-specific defensive claim is the CE Live Service relay architecture knowledge. No generalist Salesforce SI knows this CE quirk (production-only API, Deltek-managed relay URL, port 445, sequential job-number consumption rule). Naming it in the challenge section forces any competing vendor to answer the same question before Peerless engages them — and most cannot.",
+      "embedIn": "challenge"
+    },
+    {
+      "id": "HD-010",
+      "type": "portfolio-template-framing",
+      "field": "portfolioTemplateFraming",
+      "siblingCount": 5,
+      "greenfieldFlag": true,
+      "executiveSponsorInRoom": "yes",
+      "angleChosen": "PORTFOLIO-TEMPLATE + executiveSponsorInRoomAngle (Brian Cook cross-referenced across sage.json.namedContacts[] and company_context.json.corporateStack.operatingPlatform.platformExecutiveTeam[])",
+      "rationale": "company_context.json.corporateStack.operatingPlatform.siblingBrands[] has 6 entries total (including Peerless as current client). 5 non-Peerless siblings all have integrationSignal = 'unknown — no public integration footprint captured' → siblingsWithIntegrationFootprint = 0 → greenfieldFlag = true. Brian Cook cross-reference: appears in sage.json.namedContacts[] (index 1) AND in company_context.json.corporateStack.operatingPlatform.platformExecutiveTeam[] as Director of Information Technology — executiveSponsorInRoomAngle generated per principle. executiveSponsorAngle generated because financialSponsor = Akoya Capital Partners (non-null). dealUrgencyMultipliers copied verbatim from company_context.json (sourced from vera.json)."
+    },
+    {
+      "id": "HD-011",
+      "type": "per-person-talking-point",
+      "person": "Ashley Salerno",
+      "buyerMapIndex": 0,
+      "role": "championOnCall",
+      "dealUrgencyMultiplierLeveraged": "PORTFOLIO-TEMPLATE (as backstory) + SIBLING-EXPANSION (implicit in the go-live day framing)",
+      "adaptationNote": "Vera's talkingPointSeed was generic ('walk me through your Tuesday morning'). Hawk refined to name the specific tasks from sage.json (HD check, CE rekey, contract review, exception comment) as the proposal scope. 'Go-live day is your Tuesday morning minus all of those' is the operational-pragmatist closing line — aligns with her profile and her aspirationQuote."
+    },
+    {
+      "id": "HD-012",
+      "type": "per-person-talking-point",
+      "person": "Brian Cook",
+      "buyerMapIndex": 1,
+      "role": "technicalInfluencer",
+      "dealUrgencyMultiplierLeveraged": "PORTFOLIO-TEMPLATE (primary — Brian is the platform-level executive)",
+      "adaptationNote": "Brian is the highest-priority talking point target — matchConfidence=high, sources include both transcript AND web (platform-level role confirmed via RocketReach). Hawk principle: 'talking point MUST reference the platform-level role explicitly.' Vera's talkingPointSeed mentioned CE Live Service relay; Hawk refined to explicitly name Brian as 'Elevate's Director of IT' (not a local Peerless admin) and to connect the relay architecture to the firewall configuration he has already been hardening. Security-first framing (CRISC-certified background) applied per angleForIvy hint."
+    },
+    {
+      "id": "HD-013",
+      "type": "per-person-talking-point",
+      "person": "Jean Jacobs",
+      "buyerMapIndex": 2,
+      "role": "technicalInfluencer",
+      "dealUrgencyMultiplierLeveraged": "SIBLING-EXPANSION (implicit — if Jean can't create the API user, no CE development begins)",
+      "adaptationNote": "Jean's buyerMap entry: accessChain.isSystemAdmin=true → 'control preserved' clause is mandatory per Hawk principle. Hawk named the PWMAINT account specifically (documented in sage.json flo.json P0 blockers) and affirmed that her user-creation authority is unchanged. Vera's talkingPointSeed was one sentence; Hawk expanded to cover the PWMAINT process reference, the 'additive not replacing' framing, and the explicit 'you remain the only person who can create or modify CE users' control statement. Risk-averse-conservative profile applied per angleForIvy."
+    },
+    {
+      "id": "HD-014",
+      "type": "per-person-talking-point",
+      "person": "Jeff Kelly",
+      "buyerMapIndex": 3,
+      "role": "economicBuyer",
+      "dealUrgencyMultiplierLeveraged": "PORTFOLIO-TEMPLATE + NEW-LEADERSHIP (since Jeff Kelly is likely a senior director reporting to Roger Greenhagel)",
+      "adaptationNote": "Jeff Kelly has no web identity — no LinkedIn, no press-release confirmation. Vera flagged title unconfirmed (transcript-only). Hawk defaulted to operational-pragmatist primary with internal-champion framing (the proposal must be written to travel — Jeff will forward it to Roger). Talking point covers: Ashley's documented 4-call scoping depth, Brian's platform-level role, the managed service risk absorption, and the 5-sibling template multiplier. This is the EB layer condensed into a single pitch sentence Jeff can repeat upward."
+    },
+    {
+      "id": "HD-015",
+      "type": "per-person-talking-point",
+      "person": "Roger Greenhagel",
+      "buyerMapIndex": 4,
+      "role": "economicBuyer",
+      "dealUrgencyMultiplierLeveraged": "NEW-LEADERSHIP (18-month post-PE presidency window) + PE-FUTURE-DEAL (Akoya acquisition pipeline) + PORTFOLIO-TEMPLATE",
+      "adaptationNote": "Roger is web-only (matchConfidence=web-only) — no transcript evidence. Ivy assigned roi-analytical with medium confidence based on VP Material Sales / National Account Sales Manager background. Hawk applied: roi-analytical framing (managed service ROI single-line), new-leadership urgency ('18 months into a post-PE leadership window'), and PE pipeline angle (Akoya acquisition pipeline). The talking point is the executive summary in spoken form — suitable for the person who has not attended any scoping call but will receive the proposal for sign-off."
+    },
+    {
+      "id": "PD-001",
+      "step": "STEP 2 — challenge.lead",
+      "type": "content-adaptation",
+      "decision": "Used Hawk's challengeLead verbatim, leading with the 'ancient system / traveled back to the 90s' quote and the exact manual sequence rather than a generic pain summary.",
+      "rationale": "Hawk adapted the challenge for an Operational Pragmatist champion who responds to specific named tasks, not abstractions; the ending 'That stops on go-live day' is the profile's hook.",
+      "source": "hawk.json.challengeLead"
+    },
+    {
+      "id": "PD-002",
+      "step": "STEP 2 — fomo ordering",
+      "type": "content-adaptation",
+      "decision": "Ordered FOMO as Document Crunch → CE+Salesforce → ServiceTitan → McKinsey, leading with task-elimination peers ahead of the productivity statistic.",
+      "rationale": "Hawk's socialProofAngle for the champion is 'time-saved'; the McKinsey ROI stat was demoted to last as the roi-analytical EB-layer evidence rather than the champion hook.",
+      "source": "hawk.json.fomoOrdered"
+    },
+    {
+      "id": "PD-003",
+      "step": "STEP 2 — fomoAngle wording",
+      "type": "content-adaptation",
+      "decision": "Used fomoAngleAdapted strings (hours-recovered / task-disappears framing) verbatim instead of vera's original analyst-style fomoAngle text.",
+      "rationale": "Hawk re-voiced each peer angle through the Operational Pragmatist lens, naming Ashley's specific disappearing task on go-live day.",
+      "source": "hawk.json.fomoOrdered[].fomoAngleAdapted"
+    },
+    {
+      "id": "PD-004",
+      "step": "STEP 2 — journey.closingLine",
+      "type": "content-adaptation",
+      "decision": "Used Hawk's AgentForce-specific closing line verbatim ('The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once.').",
+      "rationale": "salesforceDetected=true; Hawk pre-set the AgentForce variant so the close ties Year 1 build to the Year 2 agentic payoff the EB cares about.",
+      "source": "hawk.json.closingLine"
+    },
+    {
+      "id": "PD-005",
+      "step": "STEP 2 — Stage 3 AgentForce",
+      "type": "content-adaptation",
+      "decision": "Named AgentForce explicitly in Stage 3 and grounded both queries (Wisconsin 99% deposit; budget-worksheet target-price burn) in UC2/UC3 data rather than generic 'AI agents'.",
+      "rationale": "AgentForce detection rule + Stage 3 writing rules require the specific operational question and a Stage-1 data source; the two queries avoid reusing any FOMO use case.",
+      "source": "flo.json.flags.salesforceDetected"
+    },
+    {
+      "id": "PD-006",
+      "step": "STEP 2 — challenge counterpunch",
+      "type": "content-adaptation",
+      "decision": "Embedded Hawk's competitorCounterpunch preemptiveLine verbatim as the closing card of the challenge section.",
+      "rationale": "Hawk's competitorCounterpunch.embedIn = 'challenge'; pre-empts the Salesforce-SI 'build it natively in Flows/Apex' rebuttal at the ComputerEase relay layer.",
+      "source": "hawk.json.competitorCounterpunch"
+    },
+    {
+      "id": "PD-007",
+      "step": "STEP 2 — addressedTo / EB routing",
+      "type": "content-adaptation",
+      "decision": "Addressed the proposal to both Jeff Kelly and Roger Greenhagel and wrote the EB layer to travel upward.",
+      "rationale": "Hawk's reviewConfirmed ebRoutingConfirmed = 'both'; ROI section kept Peerless-internal per Ivy's EB framing while strategic/portfolio context carries the platform-template angle for Roger.",
+      "source": "hawk.json.ebRoutingConfirmed"
+    },
+    {
+      "id": "QD-001",
+      "type": "questionnaire-prefill",
+      "question": "Who signs off on go-live?",
+      "prefillValue": "Jeff Kelly (named in sage.json as go-live decision maker candidate, transcript-referenced) and/or Roger Greenhagel (President, Peerless — formal authority identified via vera.json web research). Confirm routing path with Ashley.",
+      "confidence": "medium",
+      "source": "vera.json namedBuyers.economicBuyer + sage.json namedContacts",
+      "rationale": "Jeff Kelly title is unconfirmed from web sources. Roger Greenhagel is the formal authority at this revenue scale. The routing path (Kelly vs. Greenhagel vs. both) is unknown and must be confirmed by Ashley."
+    },
+    {
+      "id": "QD-002",
+      "type": "questionnaire-prefill",
+      "question": "Which ComputerEase company codes are in scope?",
+      "prefillValue": "Company code 00 confirmed for IL/WI Home Depot residential (from transcript Ashley Salerno demo 2026-04-16). Additional codes for IN and OH operations may exist.",
+      "confidence": "medium",
+      "source": "flo.json p0Blockers + vera.json systemPrerequisites[CE].prerequisites",
+      "rationale": "Only company code 00 was explicitly mentioned in transcripts. Peerless operates in IL, IN, OH, and WI — additional company codes for Indiana/Ohio operations are possible. Client must confirm complete list."
+    },
+    {
+      "id": "QD-003",
+      "type": "questionnaire-prefill",
+      "question": "Expected transaction volume — leads per day, jobs per week, documents per week",
+      "prefillValue": "Inferred from company size (~$15M-$32M ARV, 7-branch regional contractor): 10–30 HD leads/week standard, 40–80 during spring/summer peak (March–September). 5–15 'Save as Final' jobs/week. 5–20 contract documents/week.",
+      "confidence": "medium",
+      "source": "Inferred from vera.json company.revenueBracket + industry patterns for residential fence contractor",
+      "rationale": "No explicit volume figures in transcripts. Estimates derived from company size, revenue bracket, and residential contractor industry norms. Client must confirm actuals."
+    },
+    {
+      "id": "QD-004",
+      "type": "questionnaire-prefill",
+      "question": "CI/CD tools in use",
+      "prefillValue": "None — inferred from first-engagement posture (no CI/CD mentioned in any scoping call). Brian Cook is the IT director but stated he is not the integration owner.",
+      "confidence": "medium",
+      "source": "Logical derivation from project.json (isNewToDataSkate: true) + transcript signals",
+      "rationale": "CI/CD tools were never mentioned in 4 scoping calls. Brian Cook's comment 'I'm in to GCP only to debug, not to operate' implies no pipeline tooling. DataSkate will configure from scratch."
+    },
+    {
+      "id": "QD-005",
+      "type": "questionnaire-prefill",
+      "question": "Logging and monitoring tools",
+      "prefillValue": "Anypoint Monitoring (DataSkate standard for all MuleSoft IaaS engagements). No client-side monitoring platform mentioned.",
+      "confidence": "medium",
+      "source": "DataSkate standard default (pipeline/PLANNING_CONTEXT.md) + no client monitoring tool mentioned in transcripts",
+      "rationale": "DataSkate standard applies. Client has not named any monitoring platform. Brian Cook manages GCP but no application-level APM was discussed."
+    },
+    {
+      "id": "QD-006",
+      "type": "questionnaire-prefill",
+      "question": "Failure notification recipients and channel",
+      "prefillValue": "Ashley Salerno (ashley@peerlessfence.com) — primary operational contact for all 4 flows. DataSkate on-call (raghuram@dataskate.ai) always notified. Notification channel: email (Slack not confirmed in use at Peerless).",
+      "confidence": "medium",
+      "source": "vera.json buyerMap.people[] + transcript evidence (Ashley owns all manual processes)",
+      "rationale": "Ashley is the operational owner of UC1–UC4. No alternative operational contact identified. Slack not mentioned — email is safest default until confirmed."
+    },
+    {
+      "id": "QD-007",
+      "type": "questionnaire-prefill",
+      "question": "Post go-live support ownership",
+      "prefillValue": "DataSkate (IaaS model — recommended). Peerless has no in-house MuleSoft developer. Brian Cook confirmed he is not the integration operator.",
+      "confidence": "high",
+      "source": "flo.json pricing.recommendedModel = 'IaaS' + flo.json pricing.recommendedModelRationale",
+      "rationale": "IaaS is the recommended model explicitly. The rationale includes 'Peerless has no in-house MuleSoft developer; Brian Cook has explicitly stated he is not the integration owner.'"
+    },
+    {
+      "id": "QD-008",
+      "type": "questionnaire-prefill",
+      "question": "Data residency requirements",
+      "prefillValue": "US only — inferred from Peerless's footprint (IL, IN, OH, WI). CloudHub 2.0 US East-1 region recommended for Midwest clients.",
+      "confidence": "medium",
+      "source": "Inferred from vera.json company.hqLocation (St. Charles, IL) + DataSkate standard for US-only clients",
+      "rationale": "No international operations indicated. Standard US-only stance applies. US East-1 is the DataSkate standard for US Midwest clients."
+    },
+    {
+      "id": "QD-009",
+      "type": "questionnaire-prefill",
+      "question": "Uptime SLA",
+      "prefillValue": "99.5% (DataSkate IaaS standard for mid-market construction vertical). Equivalent to ~43 hours downtime/year.",
+      "confidence": "medium",
+      "source": "DataSkate IaaS standard default",
+      "rationale": "No SLA specified in transcripts. 99.5% is appropriate for a midmarket construction contractor where downtime during business hours is disruptive but not catastrophic."
+    },
+    {
+      "id": "QD-010",
+      "type": "questionnaire-prefill",
+      "question": "Peak load times / seasonal patterns",
+      "prefillValue": "Spring/summer peak (March–September) — residential fence installation is highly seasonal. March–May: permit/approval backlog clears. May–August: highest install volume. Pattern inferred from residential construction industry norms.",
+      "confidence": "medium",
+      "source": "Inferred from vera.json company.industry ('residential fence installation') + industry patterns",
+      "rationale": "Residential fence installation in the Midwest peaks with warm weather. Ashley's mention of a 'lot of ideas on the business process' (Raghuram 2026-04-14) suggests volume pressure exists. Actual peak dates must be confirmed."
+    },
+    {
+      "id": "QD-011",
+      "type": "field-mapping",
+      "flow": "UC1",
+      "description": "HD Portal Lead → Salesforce Lead field mapping",
+      "assumedFields": [
+        "portalLeadId (F-number) → SF_HD_FNumber__c (External ID)",
+        "customerName → FirstName + LastName (parsed)",
+        "phone → Phone",
+        "email → Email",
+        "serviceAddress.street → Street",
+        "serviceAddress.city → City",
+        "serviceAddress.state → State",
+        "serviceAddress.postalCode → PostalCode",
+        "jobType → Description + LeadSource = 'Home Depot Pro'",
+        "status → Status (mapped to SF Lead Status enum)",
+        "isTest → [tag field] — must carry 'Peerless test' marker",
+        "timestamps.createdAt → (read-only in SF)"
+      ],
+      "confidence": "medium",
+      "source": "canonical-lead.yaml + rex.json HD Portal knownQuirks + salesforce_playbook.json",
+      "rationale": "Fields derived from canonical-lead.yaml stub and HD Portal/Salesforce playbook knowledge. HD Portal API field names not yet confirmed via developer login — client must verify during Section 3 review."
+    },
+    {
+      "id": "QD-012",
+      "type": "field-mapping",
+      "flow": "UC2",
+      "description": "Salesforce Quote → ComputerEase Job + Customer + Budget Worksheet field mapping",
+      "assumedFields": [
+        "SF Quote.Name → CE Job Description",
+        "SF Account.Name → CE Customer Name",
+        "SF BillingStreet → CE Customer Address",
+        "SF BillingCity → CE Customer City",
+        "SF BillingState → CE Customer State",
+        "SF BillingPostalCode → CE Customer Zip",
+        "[CE next-id endpoint] → CE Job Number (sequential: {YY} HD {seq} {initials})",
+        "[constant: 00] → CE Company Code",
+        "[constant: R05] → CE Customer Type",
+        "SF Quote.ContractAmount → CE Contract Amount",
+        "SF QuoteLineItem.Material → CE Picket Type / Material",
+        "SF SalesRep.Initials → CE Sales Rep Initials (for job number)",
+        "[constant: 3] → CE Department (IL/WI)"
+      ],
+      "confidence": "medium",
+      "source": "canonical-job.yaml + computerease_playbook.json knownQuirks + transcript evidence Ashley demo 2026-04-16",
+      "rationale": "Job number format confirmed from Ashley's demo ('26 HD 565 AS'). Company code 00, customer type R05, and department 3 derived from transcript context. CE API field names must be confirmed post CE Live Service installation."
+    },
+    {
+      "id": "QD-013",
+      "type": "field-mapping",
+      "flow": "UC3",
+      "description": "IDP extraction field mapping and validation rules for HS-105, 299A, 299B, HS-118",
+      "assumedValidationRules": [
+        "CustomerSignature: present and legible → PASS",
+        "ContractorSignature: present and legible → PASS",
+        "DateOfSigning: is a Friday → PASS",
+        "299A.ContractPrice == 299B.ContractPrice → PASS (price match)",
+        "YesNoAuthorizationBox: exactly one box checked (not both) → PASS",
+        "PermitRequiredFlag: single consistent value throughout document → PASS",
+        "DepositAmount: >= 100% of contract price (IL/IN/OH) OR >= 99% (WI) → PASS"
+      ],
+      "confidence": "high",
+      "source": "flo.json confirmedFlows[UC3].evidence — Venkat B 2026-04-15 + rex.json MuleSoft IDP prerequisites",
+      "rationale": "All 7 validation rules confirmed from Venkat B's 2026-04-15 description and Ashley's process walkthrough. Wisconsin 99% deposit exception explicitly confirmed in multiple transcript sources."
+    },
+    {
+      "id": "QD-014",
+      "type": "field-mapping",
+      "flow": "UC4",
+      "description": "Salesforce → HD Portal exception comment write-back field mapping",
+      "assumedFields": [
+        "SF Quote.SF_HD_FNumber__c → HD Portal F-number (lookup key for comment routing)",
+        "Validation failure reason list → HD Comment text (structured exception message)",
+        "Timestamp → Comment creation time (ISO 8601)",
+        "SF Quote URL → Optional reference link in comment"
+      ],
+      "confidence": "medium",
+      "source": "hd-portal_playbook.json p0Conditions + rex.json HD Portal knownQuirks + transcript Venkat B 2026-04-15",
+      "rationale": "HD write endpoint availability is a P0 blocker — specific field names for comment API not yet confirmed. F-number as routing key confirmed. Email fallback via Greg is the degradation path if POST endpoint unavailable."
     },
     {
       "id": "SD-001",

@@ -1,0 +1,410 @@
+{
+  "meta": {
+    "clientName": "Peerless Fence Group",
+    "clientSlug": "peerless",
+    "title": "The Connected Peerless Fence Group: Your AI Integration Roadmap",
+    "subtitle": "From the manual steps in Ashley's morning to an AgentForce-ready data foundation — the path that starts on go-live day.",
+    "date": "2026-05-22",
+    "architect": "Raghuram Potluri",
+    "architectEmail": "raghuram@dataskate.ai",
+    "flowCount": 4,
+    "addressedTo": {
+      "name": "Jeff Kelly and Roger Greenhagel",
+      "title": "Peerless Leadership / President (proposal routes to both per scoping review)",
+      "source": "namedBuyers"
+    }
+  },
+  "strategicContext": {
+    "summary": "Peerless Fence Group, founded in 1961, is the largest independently owned fence contractor in the Midwest — a family business Dean White grew through ten regional bolt-on acquisitions before Chicago PE firm Akoya Capital Partners acquired it on January 1, 2023 as a Residential Home Services platform investment. Peerless now operates as the Midwest anchor brand of Elevate Fence Partners, a six-brand national platform sitting above the operating company. The integration being scoped inside Peerless is not a single-brand IT project: Brian Cook — Elevate's Director of IT — is in every scoping session, and the architecture decisions made for Peerless company code 00 are the standard that will govern all six Elevate company codes.",
+    "operatingBrandPositioning": "Peerless is a specialty residential fence contractor (aluminum, wood, vinyl, chain-link) serving homeowners across Illinois, Indiana, Ohio, and southern Wisconsin from six locations, with a material share of revenue flowing through the Home Depot Pro-contractor channel.",
+    "lattice": "The corporate stack runs three layers deep: Peerless Fence Group (operating brand, family-founded 1961) sits beneath Elevate Fence Partners (the national operating platform of six regional sibling brands), which in turn traces to Akoya Capital Partners (the Chicago-based PE sponsor that acquired Peerless in January 2023).",
+    "whyNow": "Brian Cook — Elevate Fence Partners' Director of IT — is already in the scoping room making platform-standard architecture decisions; every choice made for Peerless company code 00 becomes the standard that governs all six Elevate company codes, the rarest deal-urgency condition there is. At the same time, Roger Greenhagel (appointed President on 2024-02-05) is in a post-PE first-leadership window where IT modernization decisions get made and resourced — new president plus recent PE acquisition plus a DOS-era legacy ERP plus a sole-admin single point of failure plus national expansion is a textbook trigger stack for IT modernization.",
+    "sourceUrls": [
+      "https://peerlessfence.com/about-us/our-company/",
+      "https://www.businesswire.com/news/home/20240205568305/en/Peerless-Fence-Group-Announces-Executive-Changes",
+      "https://akoyacapital.com",
+      "https://www.linkedin.com/company/elevate-fence-partners",
+      "https://rocketreach.co/elevate-fence-partners-management_b6e8c595c6c031d5"
+    ]
+  },
+  "portfolioContext": {
+    "platformName": "Elevate Fence Partners",
+    "sponsorName": "Akoya Capital Partners",
+    "siblingCount": 5,
+    "templateAngle": "A successful integration with Peerless Fence Group becomes the template for 5 sibling brands under Elevate Fence Partners — each adding a ComputerEase company code and state-specific rule extensions to UC3's validation engine, not a new build cycle.",
+    "executiveAngle": "An Elevate Fence Partners portfolio-wide integration standard reduces due-diligence overhead on Akoya Capital Partners' next residential Home Services acquisition — pipeline created by a single Peerless engagement.",
+    "siblings": [
+      {
+        "name": "Florida State Fence",
+        "website": null,
+        "integrationSignal": "unknown — no public integration footprint captured yet. First logical second-engagement candidate post-Peerless: Florida adds non-Midwest tax/permit rules + separate ComputerEase company code + separate HD Portal tenant footprint."
+      },
+      {
+        "name": "Foremost Fence",
+        "website": null,
+        "integrationSignal": "unknown — no public integration footprint captured yet. Likely shares Florida regulatory profile + tax/permit rule set with Florida State Fence."
+      },
+      {
+        "name": "Allied Fence Co.",
+        "website": null,
+        "integrationSignal": "unknown — no public integration footprint captured yet. Georgia-specific permit + deposit rule set + GA state tax. Separate ComputerEase company code likely."
+      },
+      {
+        "name": "Jan Fence",
+        "website": null,
+        "integrationSignal": "unknown — no public integration footprint captured yet. NJ-specific Home Improvement Contractor (HIC) registration rules. Separate ComputerEase company code likely."
+      },
+      {
+        "name": "MyFence2Go",
+        "website": null,
+        "integrationSignal": "Distinct from installer-contractor siblings — e-commerce storefront + WMS / fulfillment + ComputerEase as inventory/financial backend. Does NOT consume HD Portal Pro leads. Peerless integration template applies partially: Salesforce ↔ ComputerEase backbone reusable; HD Portal layer not applicable."
+      }
+    ],
+    "greenfieldFlag": true
+  },
+  "challenge": {
+    "lead": "'This is an ancient system. I feel like I've traveled back to the 90s.' That's the current state at Peerless — and it's also the daily routine: Ashley manually checks Home Depot reporting to find deposit status by hand, then spends 1.5 hours rekeying every closed Salesforce quote into ComputerEase, then reviews each contract document one by one against the rule set she has memorized. That stops on go-live day.",
+    "cards": [
+      {
+        "label": "The 1.5-hour rekey",
+        "text": "Every time a Salesforce quote is marked 'Save as Final,' Ashley opens ComputerEase and rebuilds the job by hand — customer number, the sequential job number (company code + product line + initials, e.g. '26 HD 565 AS'), and the full budget worksheet. She walked us through it on 2026-04-16: roughly 1.5 hours per closed quote, every closed quote."
+      },
+      {
+        "label": "Reading every document by hand",
+        "text": "Ashley reviews each signed HS-105, 299A, 299B, and HS-118 one at a time against a rule set she has memorized — prices on the 299A and 299B must match, signatures must be legible, dates must fall on a Friday, the yes/no boxes can't both be ticked, and Wisconsin deposits must hit 99% where everywhere else is 100%."
+      },
+      {
+        "label": "Why this isn't a Salesforce-native build",
+        "text": "The ComputerEase connection isn't a REST API call — it's a Deltek-managed relay URL routed through CE Live Service, running on port 445, accessible only in production, with a sequential job-number consumption rule that requires calling Deltek's next-id endpoint before every write. A Salesforce-native Flows/Apex approach hits an architectural wall at the ComputerEase layer. DataSkate named this before the engagement started."
+      }
+    ]
+  },
+  "solution": {
+    "lead": "MuleSoft sits in the middle as a DataSkate-managed layer between Home Depot Service Center, Salesforce, and ComputerEase — no code changes inside any of those systems. This is the part a native marketplace connector or a Salesforce Flow does not cover: retry logic when ComputerEase's relay is slow, a dead-letter queue when a write fails, and an operations layer that watches the legacy Deltek stack so a 4-hour vendor SLA never becomes a silent data gap.",
+    "diagramNodes": {
+      "sources": [
+        "Home Depot Service Center",
+        "Salesforce"
+      ],
+      "targets": [
+        "Salesforce",
+        "ComputerEase",
+        "Home Depot Service Center"
+      ]
+    },
+    "diagramCaption": "DataSkate-managed MuleSoft layer — no code changes required in Home Depot Service Center, Salesforce, or ComputerEase. The ComputerEase connection routes through the Deltek-managed CE Live Service relay, not the GCP VM's external IP.",
+    "mermaid": "graph LR\n  HD[\"Home Depot\\nService Center\"] --> MS[\"MuleSoft\\n(DataSkate managed)\"]\n  SF[\"Salesforce\"] --> MS\n  MS --> SF\n  MS --> CE[\"ComputerEase\\n(Deltek)\"]\n  MS --> IDP[\"MuleSoft IDP\"]\n  IDP --> MS\n  MS --> HD\n  style MS fill:#F0FFF4,stroke:#38A169,color:#276749"
+  },
+  "roi": {
+    "headline": "The business case for moving now",
+    "body": "Ashley spends about 1.5 hours rekeying every closed Salesforce quote into ComputerEase by hand. At a conservative five Home Depot jobs per week, that is 195+ hours of operations time over six months in the rekey step alone — before counting the daily HD reconciliation pass or the document-by-document contract review. McKinsey's 2024 construction analysis puts construction firms that connect their data at a 14–15% productivity gain against a sector baseline of 0.4% per year; every week Peerless stays manual is a week paid out of that gap.",
+    "stats": [
+      {
+        "value": "1.5 hrs",
+        "label": "manual ComputerEase rekey eliminated per closed quote (UC2)"
+      },
+      {
+        "value": "195+ hrs",
+        "label": "operations time recovered over 6 months at 5 jobs/week — rekey step alone"
+      },
+      {
+        "value": "14–15%",
+        "label": "productivity gain for construction firms that connect their data vs. 0.4%/yr baseline (McKinsey 2024)"
+      }
+    ]
+  },
+  "journey": {
+    "headline": "the path to 'select the deposit paid box — and have it sync back automatically' — the API integration Ashley named on day one of scoping",
+    "stage1": {
+      "label": "Connected",
+      "year": "Year 1",
+      "headline": "The manual steps in Ashley's morning stop happening",
+      "items": [
+        "Ashley's morning Home Depot Portal check for new leads stops — HD Pro leads land in Salesforce as Lead records within 10 minutes, no manual rekey (UC1).",
+        "The ~1.5-hour manual rebuild of every closed Salesforce quote in ComputerEase — customer number, sequential job number, budget worksheet — disappears on go-live day (UC2).",
+        "Document-by-document contract review of HS-105, 299A, 299B, and HS-118 is replaced by an exception list — MuleSoft IDP extracts and validates each signed contract against the Salesforce quote (UC3).",
+        "The exception comment Ashley types on the HD screen by hand is written back automatically the moment validation fails (UC4)."
+      ]
+    },
+    "stage2": {
+      "label": "Automated",
+      "year": "Year 1–2",
+      "headline": "Triggers replace the lookups Ashley still does by hand",
+      "items": [
+        "The deposit-paid box Ashley checks by going through Home Depot reporting syncs back into Salesforce automatically — the exact API flow she named on day one of scoping (UC5). The 'Save as Final' transition becomes the system-of-record trigger for the whole downstream chain.",
+        "ComputerEase job status — in-progress, complete, paid — flows back into Salesforce so the operations team stops logging into Cameo and ComputerEase to check milestones (UC7)."
+      ]
+    },
+    "stage3": {
+      "label": "Agentic",
+      "year": "Year 2+",
+      "headline": "AgentForce — Activated",
+      "items": [
+        "\"Which Wisconsin jobs posted a deposit below the required 99% threshold this week?\" — an AgentForce agent answers it by reading the Salesforce Quote and the contract fields UC3's IDP validation captured, instead of Ashley cross-referencing Home Depot reporting and the signed PDF by hand.",
+        "\"Which ComputerEase jobs are trending over their budget-worksheet target price before close-out?\" — an AgentForce agent reads ComputerEase Job Totals against the budget worksheet UC2 wrote and surfaces margin erosion 30 days early, instead of it being found at close-out. No new vendor and no new procurement cycle — AgentForce runs inside the Salesforce relationship Peerless already owns, reading the exact objects these Year 1 flows create."
+      ]
+    },
+    "closingLine": "The Salesforce objects and MuleSoft event triggers established in Year 1 are what AgentForce reads in Year 2. That architecture is decided once."
+  },
+  "flows": [
+    {
+      "num": 1,
+      "name": "Home Depot Pro lead → Salesforce Lead",
+      "route": "Home Depot Service Center → MuleSoft → Salesforce",
+      "value": "Every Home Depot Pro lead lands in Salesforce as a Lead record within 10 minutes — no morning portal check, no hand-rekey of customer and job-type fields."
+    },
+    {
+      "num": 2,
+      "name": "Salesforce 'Save as Final' quote → ComputerEase job",
+      "route": "Salesforce → MuleSoft → ComputerEase",
+      "value": "When a quote is marked 'Save as Final,' the ComputerEase job header, customer record, and budget worksheet are created automatically — replacing the ~1.5-hour manual entry per closed quote."
+    },
+    {
+      "num": 3,
+      "name": "Signed contract PDF → IDP → Salesforce validation",
+      "route": "Home Depot Service Center → MuleSoft IDP → Salesforce",
+      "value": "Each signed HS-105, 299A, 299B, and HS-118 is read, extracted, and checked against the Salesforce quote and Peerless's rule set — Ashley reviews the exception list instead of every document."
+    },
+    {
+      "num": 4,
+      "name": "Salesforce exception → Home Depot Portal write-back",
+      "route": "Salesforce → MuleSoft → Home Depot Service Center",
+      "value": "When a contract fails validation, a structured comment is written back to the HD lead screen — or emailed to the HD account manager — automatically, instead of Ashley typing it by hand."
+    }
+  ],
+  "outcomes": [
+    {
+      "icon": "clock",
+      "title": "Ashley's morning back",
+      "body": "The HD Portal lead check, the 1.5-hour ComputerEase rekey, the document-by-document contract review, and the manual exception comment all stop on go-live day. Her time goes to the work only she can do."
+    },
+    {
+      "icon": "shield",
+      "title": "Legacy ERP, safely connected",
+      "body": "The ComputerEase connection runs through the Deltek-managed CE Live Service relay — identified in week one of scoping — so the integration never touches the GCP VM's external IP. The only firewall change is the MuleSoft tenant allowlist Brian already started."
+    },
+    {
+      "icon": "sparkles",
+      "title": "The data foundation Year 2 reads",
+      "body": "The Salesforce Quote, the HD F-number, and the ComputerEase job number that UC1–UC4 connect are the exact records a Year-2 AgentForce agent reads to answer 'which Wisconsin deposits missed 99% this week' or 'which jobs are trending over budget-worksheet target price' — questions Ashley answers today by opening three systems. The architecture is decided once, in Year 1."
+    }
+  ],
+  "included": [
+    {
+      "title": "4 integration flows",
+      "detail": "UC1–UC4: HD Portal → Salesforce lead sync, Salesforce → ComputerEase job creation, contract IDP validation, and Salesforce → HD Portal exception write-back, built and managed end to end."
+    },
+    {
+      "title": "MuleSoft hosting & monitoring",
+      "detail": "DataSkate-managed Anypoint runtime — including the CE Live Service relay path to ComputerEase — with proactive monitoring of the legacy Deltek connection against its 4-hour vendor SLA."
+    },
+    {
+      "title": "Field mapping & canonical models",
+      "detail": "Mapping of Salesforce Quote / Quote Line Item, HD F-number lead identifier, and ComputerEase job/customer/budget-worksheet fields to canonical construction data models."
+    },
+    {
+      "title": "Error handling & exception routing",
+      "detail": "Retry logic, dead-letter queue, and the manual-review queue for IDP-flagged contract exceptions, so a failed write or a low-confidence extraction never silently drops."
+    },
+    {
+      "title": "UAT support",
+      "detail": "Joint user-acceptance testing with Ashley as business-process owner, using HD test leads marked to avoid contractor-quality scoring penalties and GET-only ComputerEase production access."
+    },
+    {
+      "title": "30-day hypercare",
+      "detail": "Post-go-live monitoring and rapid-response support across all four flows, with special attention to the ComputerEase relay and HD Portal write-back paths."
+    }
+  ],
+  "oos": [
+    {
+      "title": "ComputerEase upgrade or Deltek cloud migration",
+      "detail": "Upgrading the ~v26.x DOS-era ERP, or migrating ComputerEase off the self-hosted GCP VM to Deltek's cloud (the ~$5K/month move Brian raised), is a separate Peerless decision — not part of this engagement."
+    },
+    {
+      "title": "Salesforce configuration & AgentForce licensing",
+      "detail": "Salesforce object/layout design, permission-set setup, Quote Line Item product-bundle data, and AgentForce licensing (a Year 2 / Phase 3 prerequisite) are owned by Peerless."
+    },
+    {
+      "title": "Home Depot Portal account & test-lead management",
+      "detail": "HD Portal UI changes, SLA negotiations, account-manager escalations beyond Greg, and managing 'Peerless test' lead markers to avoid contractor-quality scoring penalties remain with Peerless/HD."
+    },
+    {
+      "title": "DocHub signing workflow",
+      "detail": "DocHub remains the UI-only human-signing tool for HS-118; a DocHub → Salesforce write-back is deferred unless separately scoped. IDP picks up the signed PDF downstream."
+    },
+    {
+      "title": "Historical data migration",
+      "detail": "This engagement handles net-new data from go-live forward. Back-loading historical leads, quotes, or jobs is not in scope."
+    },
+    {
+      "title": "IDP training-sample preparation",
+      "detail": "Peerless provides representative samples of HS-105, 299A, 299B, and HS-118 for IDP training; LLM-based extraction was explicitly steered away from during scoping."
+    }
+  ],
+  "assumptions": [
+    {
+      "assumption": "ComputerEase CE Live Service Relay Installation — Confirm that the Deltek support ticket Jean Jacobs filed on 2026-04-17 is actively in queue. Ensure Deltek support installs the CE Live Service Windows service on the production ComputerEase VM and provides the Deltek-managed integration URL (the API endpoint — NOT the VM external IP). Expect 4-hour minimum SLA per Deltek's legacy-product classification.",
+      "owner": "owner-vendor",
+      "when": "Before development begins (Week 1)",
+      "p0": true
+    },
+    {
+      "assumption": "ComputerEase Production-Only API Testing Posture — Agree in writing with Peerless leadership AND Deltek that integration testing will occur in PRODUCTION ComputerEase with strictly GET-only access groups until Deltek confirms a dev/sandbox API path. Bundle this confirmation request into the same Deltek support ticket as CE Live Service.",
+      "owner": "owner-vendor",
+      "when": "Before development begins (Week 1)",
+      "p0": true
+    },
+    {
+      "assumption": "ComputerEase Backup Super-Admin Provisioning (SPOF) — Identify and provision a backup ComputerEase super-admin BEFORE kickoff. Candidate per Ashley Salerno: Laura ('has more access than all of us except for Jean'). Confirm in writing that the backup admin can log in as the PWMAINT system account to create users and grant API access groups. Bundle this with the same Deltek support ticket.",
+      "owner": "owner-vendor",
+      "when": "Before development begins (Week 1)",
+      "p0": true
+    },
+    {
+      "assumption": "GCP VM Firewall + Static IP Confirmation — (a) Reconcile the canonical static external IP of the ComputerEase production VM — transcripts cite 35.222.218.224 AND 135.226.22218; only one is correct. (b) Lock GCP ingress firewall to the MuleSoft tenant IP allowlist only (pre-engagement state was SSH/RDP open to the entire internet — partially remediated 2026-04-16). (c) Confirm egress firewall permits CE Live Service outbound to the Deltek-managed cloud URL.",
+      "owner": "owner-client",
+      "when": "Before development begins (Week 1)",
+      "p0": true
+    },
+    {
+      "assumption": "HD Portal Write Endpoints + Developer Login — Through Greg (HD account manager), file a single HD ticket bundling: (a) confirm HD Portal exposes POST/PATCH endpoints for comment write-back (UC4) and deposit-paid status (UC5-potential); (b) request a developer-named HD Portal interactive login for DataSkate so the team can inspect HD-side data shape and field-level mappings; (c) confirm document-download endpoints for 299A/299B/HS-118 signed PDFs (UC3). Use Marius as the developer escalation (engaged 15 more days per Ashley 2026-04-16). If HD does not expose write endpoints, plan to fall back to the email channel (Venkat: 'depending upon the endpoint... we can try to mail as well').",
+      "owner": "owner-both",
+      "when": "Before UC4 build / API discovery",
+      "p0": false
+    }
+  ],
+  "timeline": [
+    {
+      "label": "Discovery & Field Mapping",
+      "weeks": "Weeks 1–2",
+      "tasks": [
+        "Confirm CE Live Service relay URL once Jean's Deltek ticket resolves",
+        "Map Salesforce Quote / Quote Line Item, HD F-number, and ComputerEase job/customer/budget-worksheet fields",
+        "Reconcile the canonical ComputerEase VM static IP and lock the GCP ingress allowlist to the MuleSoft tenant"
+      ]
+    },
+    {
+      "label": "Build & Unit Test",
+      "weeks": "Weeks 3–8",
+      "tasks": [
+        "Build UC1 HD Portal → Salesforce lead sync (10-minute polling, idempotent upsert on F-number)",
+        "Build UC2 Salesforce → ComputerEase job creation using the sequential next-id endpoint",
+        "Build UC3 contract IDP extraction + deterministic rule validation (incl. Wisconsin 99% deposit)",
+        "Build UC4 Salesforce → HD Portal exception write-back with email fallback path"
+      ]
+    },
+    {
+      "label": "UAT & Integration Testing",
+      "weeks": "Weeks 9–10",
+      "tasks": [
+        "Joint UAT with Ashley using HD 'Peerless test' leads and GET-only ComputerEase production access",
+        "Validate IDP exception queue and HD write-back / email fallback end to end"
+      ]
+    },
+    {
+      "label": "Go Live & Handoff",
+      "weeks": "Week 11",
+      "tasks": [
+        "Production cutover across UC1–UC4",
+        "Begin 30-day hypercare; hand off code ownership to Peerless GitHub repo"
+      ]
+    }
+  ],
+  "pricing": true,
+  "fomo": [
+    {
+      "name": "Document Crunch",
+      "revenue": "n/a — vendor platform deployed across construction firms",
+      "relevanceTier": "same-industry",
+      "savings": "Contract review time reduced from weeks to minutes (vendor-reported)",
+      "whatTheyBuilt": "Construction firms using Document Crunch have shortened contract review from weeks to minutes — AI identifies ambiguities, validates contract clauses, surfaces risk language, and flags missing required fields.",
+      "fomoAngle": "The time Ashley spends reading every HS-105, 299A, 299B, and HS-118 by hand disappears on go-live day — construction firms that moved to exception-list review got that time back permanently. UC3 + UC4 build the same shift for Peerless's exact contract set.",
+      "analogyNote": "Same vertical (construction), same problem class (contract / risk-clause review), different commercial product. Peerless's UC3 builds an equivalent capability in-house using MuleSoft IDP against the exact contract set Ashley reviews daily (HS-105, 299A, 299B, HS-118) plus Peerless's specific rules (Wisconsin 99% deposit, Friday-date, both-boxes-ticked).",
+      "aiAgentDescription": "An AI agent reads every signed contract the moment it lands → extracts clause-level fields → validates them against the source quote and a rule library (price match, signature legibility, permit flag, deposit threshold) → flags only the exception cases for human review.",
+      "sourceUrl": "https://www.documentcrunch.com/",
+      "sourceLabel": "documentcrunch.com"
+    },
+    {
+      "name": "A specialty contractor using Deltek ComputerEase + Salesforce Sales Cloud (anonymized)",
+      "revenue": "n/a — documented integration pattern across multiple Deltek ComputerEase + Salesforce customers",
+      "relevanceTier": "exact-match",
+      "savings": "Elimination of the ~1.5-hour manual job entry step per closed quote",
+      "whatTheyBuilt": "Specialty contractors running both Deltek ComputerEase and Salesforce Sales Cloud have eliminated the manual rekey of closed quotes into ComputerEase as Jobs / Sales Orders — matching the exact 1.5-hour-per-job manual entry Ashley walked through on 2026-04-16.",
+      "fomoAngle": "1.5 hours recovered per closed quote — the manual rekey of customer number, job number, budget worksheet, and subcontracts from Salesforce into ComputerEase stops on go-live day. Contractors on Peerless's exact stack — Salesforce upstream of Deltek ComputerEase — already have this automated. UC2 is the same pattern.",
+      "analogyNote": null,
+      "aiAgentDescription": "An AI agent watches every Salesforce quote status change → detects the 'Save as Final' transition → creates the corresponding ComputerEase Job header, customer record, and budget worksheet → reports the assigned ComputerEase job number back to Salesforce and notifies the operations lead only on exception.",
+      "sourceUrl": null,
+      "sourceLabel": null
+    },
+    {
+      "name": "ServiceTitan",
+      "revenue": "n/a — vendor platform deployed across thousands of Home Depot installer contractors",
+      "relevanceTier": "adjacent-industry",
+      "savings": "'Eliminate hours of manual data entry' per contractor per week (vendor-reported)",
+      "whatTheyBuilt": "Home Depot installer contractors using ServiceTitan manage HD bookings, online requests, and call-center leads from a single intake — leads land pre-populated with customer info, job type, and campaign source, with no manual entry or copy-over.",
+      "fomoAngle": "The morning HD Portal check-and-rekey step — gone on go-live day. Every HD Pro installer with a CRM integration has already removed this from their morning routine. Peerless is still running it manually because HD Portal → Salesforce is the missing wire. UC1 puts Peerless in the same group.",
+      "analogyNote": "Same upstream system (Home Depot Service Center), same operational pain (manual lead rekey), different CRM. The structural automation pattern transfers directly to Peerless's Salesforce target. The 10-minute HD update cadence is platform-side behavior, not ServiceTitan-specific.",
+      "aiAgentDescription": "An AI scheduling agent reads each new HD lead the moment it arrives → checks installer route density, technician availability, and job-type SLA → books the appointment slot and writes the confirmation back to HD so the customer sees a scheduled time in the channel they originated in.",
+      "sourceUrl": "https://www.servicetitan.com/partners/thd-leads",
+      "sourceLabel": "ServiceTitan / The Home Depot partner page"
+    },
+    {
+      "name": "McKinsey 2024 construction-automation insight",
+      "revenue": "n/a (industry analyst)",
+      "relevanceTier": "industry-stat",
+      "savings": "14–15% productivity gain and 4–6% cost reduction at firm level (analyst-reported)",
+      "whatTheyBuilt": "Industry-wide analyst finding: construction companies that connect their data achieve productivity gains of 14–15% and cost reductions of 4–6% compared to industry averages. Construction sector overall productivity grew only 0.4% annually from 2000 to 2024 — vs. 2% economy-wide and 3% in manufacturing.",
+      "fomoAngle": "Every morning Ashley spends on manual HD reconciliation, ComputerEase rekey, and document-by-document contract review is the operating cost of staying in construction's 0.4%/year productivity baseline. Contractors that connect their data reach 14–15% productivity gains. That gap closes in Year 1.",
+      "analogyNote": "Peerless sits in McKinsey's 0.4%-baseline bucket today — Salesforce data, ComputerEase data, and HD Portal data all live in separate boxes. The four confirmed flows + IDP validation are the entry door to the 14–15% bucket.",
+      "aiAgentDescription": "Industry-stat entry — McKinsey's finding is that construction firms that connect their data outperform peers because joined data enables both automation and AI reasoning.",
+      "sourceUrl": "https://www.mckinsey.com/capabilities/operations/our-insights/the-impact-and-opportunities-of-automation-in-construction",
+      "sourceLabel": "mckinsey.com"
+    }
+  ],
+  "buyerProfile": {
+    "primary": "operational-pragmatist",
+    "secondary": null,
+    "signals": [
+      "I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box",
+      "If that could integrate and flow back through an API, that was awesome, that would work",
+      "we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead"
+    ],
+    "contentModifiersApplied": [
+      "challenge.lead: used Hawk's challengeLead verbatim — leads with the '90s ancient system' quote and the specific manual sequence (HD deposit lookup → 1.5h ComputerEase rekey → document-by-document review) ending in 'That stops on go-live day' (source: hawk.json.challengeLead).",
+      "fomo ordering: used Hawk's fomoOrdered[] — Document Crunch / CE+Salesforce / ServiceTitan lead (time-saved socialProofAngle for an Operational Pragmatist) ahead of the McKinsey ROI stat (source: hawk.json.fomoOrdered).",
+      "fomoAngle: used fomoAngleAdapted (hours-saved / task-disappears framing) instead of vera originals (source: hawk.json.fomoOrdered[].fomoAngleAdapted).",
+      "journey.closingLine: used Hawk's AgentForce-specific closing line verbatim (source: hawk.json.closingLine).",
+      "Stage 3 AgentForce adaptation: salesforceDetected=true → Stage 3 named AgentForce, grounded each query in UC2/UC3 data and the client's real Wisconsin-99% and budget-worksheet-target-price questions (source: flo.json.flags.salesforceDetected + proposal-structure Stage 3 rules).",
+      "competitorCounterpunch: embedded Hawk's preemptiveLine verbatim as the closing card of the challenge section (source: hawk.json.competitorCounterpunch)."
+    ],
+    "closingLineVariant": "operational-pragmatist"
+  },
+  "fomoThoughtStarters": [
+    "Teams in residential construction are using AI agents to auto-acknowledge Home Depot Pro leads — your AgentForce agent could send a structured response back through the HD comment channel the moment a lead arrives, replacing Ashley's morning HD reconciliation pass.",
+    "Teams in specialty trades are using AI agents to flag ComputerEase job-cost burn rates in real time — your AgentForce agent could read Job Totals nightly and surface jobs running over budget-worksheet target price 30 days before they finish, instead of finding margin erosion at close-out.",
+    "Teams in home improvement are using AI agents to read signed contracts and auto-populate downstream ERP fields — once IDP pulls fields from HS-118 / 299A / 299B, an AgentForce agent could create the ComputerEase budget-worksheet draft for Ashley to approve, instead of her manually rekeying 1.5 hours per job.",
+    "Other construction firms are converting state-specific compliance rules (Wisconsin 99% deposit, Friday-date, both-yes/no-boxes-ticked, permit-required-flag-one-value) into deterministic agent checks — the rule set Ashley enforces by hand becomes an AgentForce-callable validator that runs before any human sees the document."
+  ],
+  "nextSteps": [
+    {
+      "title": "Fill Out Intake Form",
+      "body": "Complete the DataSkate intake form so we lock the system credentials, contacts, and the four flow specifications before kickoff."
+    },
+    {
+      "title": "Schedule Technical Deep Dive",
+      "body": "Book the technical deep dive with Raghuram Potluri to confirm the CE Live Service relay URL, the reconciled GCP static IP, and HD Portal write-endpoint availability."
+    },
+    {
+      "title": "Review Integration Deck",
+      "body": "Walk through the architect integration deck together — the four flows, the ComputerEase relay finding, and the Elevate portfolio-template angle."
+    },
+    {
+      "title": "Align on Scope and SOW",
+      "body": "Confirm the four-flow scope, the managed-service model, and the Year 2 AgentForce roadmap, then move to SOW signing and kickoff retainer."
+    }
+  ],
+  "about": {
+    "title": "About DataSkate",
+    "body": "DataSkate is an integration partner that builds and operates the MuleSoft data layer underneath a client's existing systems — so the platforms you already own work together without re-platforming any of them. We scope before we sell: in the first week of the Peerless engagement, our architect identified that ComputerEase's API does not live on the GCP VM's external IP and answers only through Deltek's CE Live Service relay on port 445 — the single finding that determines whether this integration works in production. Every flow we build is owned by the client in their own GitHub repository, and every flow is designed as a pipeline an AI agent will eventually read."
+  }
+}

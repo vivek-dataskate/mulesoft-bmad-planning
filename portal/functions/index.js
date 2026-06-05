@@ -136,6 +136,7 @@ exports.onClientCounterOffer = onDocumentWritten(
       submittedAt:  latest.ts,
       fullThread:   after,
       nextAction:   `Respond by adding to negotiations/${clientId}.thread[] in Firebase Console with by:"dataskate".`,
+      proposalUrl:  `https://dataskateclients.web.app/intake/proposal-${clientId}.html`,
       firebaseUrl:  `https://console.firebase.google.com/project/dataskateclients/firestore/data/negotiations/${clientId}`,
     }, null, 2);
 
@@ -143,7 +144,7 @@ exports.onClientCounterOffer = onDocumentWritten(
       await commitToGitHub(token,
         `projects/${clientId}/delivery/negotiation-log.json`,
         notifContent,
-        `negotiation: counter-offer ${ latest.amount ? latest.amount + ' ' : ''}from ${latest.authorName || 'client'} for ${clientId}`
+        `negotiation: counter-offer ${ latest.amount ? latest.amount + ' ' : ''}from ${latest.authorName || 'client'} for ${clientId}\n\nProposal: https://dataskateclients.web.app/intake/proposal-${clientId}.html`
       );
       console.log(`Negotiation notification committed for ${clientId}`);
     } catch (e) {

@@ -1,0 +1,658 @@
+{#
+  layouts/pitch-kit.njk
+  ─────────────────────
+  3-tab internal pitch kit: Overview (diagram) | Pitch (call prep) | Intel (corporate research).
+  Overview + Pitch tabs: shells filled at runtime from Firestore (pitchKits/{slug}).
+  Intel tab: rendered at build time from projects/{slug}/intake/pitch-kit-content.json.
+  Auth gate: Firebase Google Sign-In restricted to @dataskate.ai accounts.
+  Inputs (via page data from clientsWithPitchKit):
+    client.slug
+    client.clientName
+    client.pitchKit   — pitch-kit-content.json object
+#}
+{% extends "layouts/base.njk" %}
+
+{% set pk = client.pitchKit %}
+
+{% block head %}
+<style>
+a{text-decoration:none}
+
+/* Header */
+.header{background:#fff;border-bottom:3px solid var(--brand);padding:18px 48px 14px;max-width:1024px;margin:0 auto}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);display:flex;align-items:center;gap:8px}
+.internal-badge{background:var(--brand);color:#fff;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
+.header-title{font-size:22px;font-weight:800;color:var(--dark);border-left:4px solid var(--brand);padding-left:14px;margin-bottom:8px}
+.fact-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.chip{font-size:12px;font-weight:600;color:var(--dark);background:var(--light);border:1px solid var(--border);padding:3px 10px;border-radius:3px;display:inline-flex;gap:5px}
+.chip span{color:var(--mid);font-weight:400}
+.stack-chips{display:flex;flex-wrap:wrap;gap:5px}
+.stack-pill{font-size:11px;font-weight:700;color:var(--brand);background:#fff;border:1px solid var(--brand);padding:2px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.04em}
+
+/* Tabs */
+.tab-bar{max-width:1024px;margin:0 auto;border-bottom:2px solid var(--border);display:flex;padding:0 48px;position:sticky;top:0;background:#fff;z-index:10}
+.tab-btn{font-size:13px;font-weight:600;color:var(--mid);padding:10px 20px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s}
+.tab-btn:hover{color:var(--dark)}
+.tab-btn.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:700}
+.tab-panel{display:none;max-width:1024px;margin:0 auto;padding:32px 48px 60px}
+.tab-panel.active{display:block}
+
+/* Overview */
+.diagram-hero{margin-bottom:24px;overflow-x:auto;display:flex;justify-content:center;padding:8px 0}
+.diagram-hero svg{max-width:100%;height:auto}
+.overview-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.overview-fact{display:flex;flex-direction:column;gap:2px;padding:10px 16px;border:1px solid var(--border);border-radius:6px;min-width:130px}
+.overview-fact-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--mid)}
+.overview-fact-value{font-size:14px;font-weight:700;color:var(--dark)}
+.overview-portfolio{background:var(--light);border-left:4px solid var(--brand);padding:12px 18px;border-radius:0 6px 6px 0;font-size:14px;color:var(--dark);line-height:1.5;margin-bottom:24px}
+.overview-portfolio strong{color:var(--brand)}
+.btn-next{background:var(--brand);color:#fff;border:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer}
+.btn-next:hover{background:var(--brand-dk)}
+.btn-link{background:none;border:none;color:var(--brand);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;padding:8px}
+
+/* Pitch sections */
+section{border-bottom:1px solid var(--border);padding:24px 0}
+section:last-of-type{border-bottom:none}
+section h2{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--brand);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+section h2::before{content:'';display:inline-block;width:18px;height:2px;background:var(--brand);flex-shrink:0}
+.p-badge{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:3px;white-space:nowrap;flex-shrink:0}
+.p1{background:var(--brand);color:#fff}
+.p2{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber)}
+.p3{background:var(--light);color:var(--mid);border:1px solid var(--border)}
+.opener-block{border-left:4px solid var(--brand);padding:14px 18px;margin-bottom:8px;background:var(--light);border-radius:0 6px 6px 0}
+.opener-context{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mid);margin-bottom:6px}
+.opener-line{font-size:14px;font-style:italic;color:var(--dark);line-height:1.6}
+.opener-line::before{content:'\201C';color:var(--brand);font-style:normal;font-weight:700}
+.opener-line::after{content:'\201D';color:var(--brand);font-style:normal;font-weight:700}
+.obj-card{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden}
+.obj-head{padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:#fafafa}
+.obj-trigger{font-size:12px;font-weight:600;color:var(--dark);flex:1;line-height:1.35}
+.obj-body{padding:12px 14px}
+.obj-say{font-size:14px;font-style:italic;color:var(--dark);line-height:1.6;margin-bottom:6px}
+.obj-say::before{content:'\201C';color:var(--brand);font-style:normal}
+.obj-say::after{content:'\201D';color:var(--brand);font-style:normal}
+.obj-impact{font-size:12px;color:var(--mid);line-height:1.4;border-top:1px solid var(--border);padding-top:6px;margin-top:2px}
+.proof-table{width:100%;border-collapse:collapse;font-size:13px}
+.proof-table th{background:var(--dark);color:#fff;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.proof-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.4}
+.proof-table tr:last-child td{border-bottom:none}
+.proof-stat{font-weight:700;color:var(--green);display:block;margin-bottom:2px}
+.proof-say{font-size:12px;font-style:italic;color:var(--mid);margin-top:5px;padding-top:5px;border-top:1px solid var(--border)}
+.proof-say::before{content:'Say: \201C';font-style:normal;font-weight:700;font-size:10px;color:var(--brand);text-transform:uppercase;display:block;margin-bottom:2px}
+.tier-exact-badge{font-size:10px;font-weight:700;background:var(--light);color:var(--brand);border:1px solid var(--border);padding:1px 6px;border-radius:3px}
+.tier-stat-badge{font-size:10px;font-weight:700;background:var(--light);color:var(--mid);border:1px solid var(--border);padding:1px 6px;border-radius:3px}
+.stall-block{background:var(--amber-bg);border-left:4px solid var(--amber);padding:16px 20px;border-radius:0 6px 6px 0}
+.stall-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--amber);margin-bottom:6px}
+.ai-line-block{border-left:4px solid var(--blue-br);padding:12px 16px;background:var(--blue-bg);border-radius:0 6px 6px 0;margin-bottom:10px}
+.ai-narrative{font-size:13px;line-height:1.7;color:var(--mid)}
+.portfolio-frame{border-left:4px solid var(--brand);background:var(--light);padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:12px}
+.portfolio-greenfield{background:var(--amber-bg);border-left-color:var(--amber)}
+.pf-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mid);margin-bottom:4px}
+.portfolio-greenfield .pf-eyebrow{color:var(--amber)}
+.pf-platform{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.pf-platform span{color:var(--mid);font-weight:400}
+.pf-angle{font-size:14px;line-height:1.6;color:var(--dark);font-style:italic;margin-bottom:6px}
+.pf-angle::before{content:'\201C';color:var(--brand);font-style:normal;font-weight:700}
+.pf-angle::after{content:'\201D';color:var(--brand);font-style:normal;font-weight:700}
+.pf-exec{font-size:12px;color:var(--mid);line-height:1.5;border-top:1px solid var(--border);padding-top:6px;margin-top:6px}
+.pf-exec strong{color:var(--dark)}
+.sib-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.sib-row{border:1px solid var(--border);border-radius:5px;padding:8px 10px;background:#fff}
+.sib-name{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.sib-name a{color:var(--dark)}
+.sib-meta{font-size:11px;color:var(--mid);margin-bottom:4px}
+.sib-signal{font-size:12px;line-height:1.4;color:var(--dark)}
+.sib-signal.unknown{color:var(--mid);font-style:italic}
+
+/* Intel — corporate stack */
+.stack-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.stack-card{border:1px solid var(--border);border-radius:7px;padding:12px 14px 14px;background:#fff;display:flex;flex-direction:column;gap:5px}
+.stack-role{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mid)}
+.stack-name{font-size:15px;font-weight:800;color:var(--dark);line-height:1.25}
+.stack-meta{font-size:12px;color:var(--mid);line-height:1.4}
+.brand-card{border-left:3px solid var(--brand)}
+.platform-card{border-left:3px solid var(--green)}
+.sponsor-card{border-left:3px solid var(--amber)}
+
+/* Intel — why now */
+.why-now-list{display:flex;flex-direction:column;gap:8px}
+.why-now-item{font-size:13px;color:var(--dark);line-height:1.5;padding:10px 14px;border-left:3px solid var(--brand);background:var(--light);border-radius:0 6px 6px 0}
+.why-now-item:first-child{background:var(--amber-bg);border-left-color:var(--amber)}
+.why-now-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);display:block;margin-bottom:3px}
+.why-now-item:first-child .why-now-tag{color:var(--amber)}
+
+/* Intel — exec grid */
+.exec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.exec-card{border:1px solid var(--border);border-radius:6px;padding:10px 12px;background:#fff}
+.exec-name{font-size:13px;font-weight:700;color:var(--dark)}
+.exec-title{font-size:12px;color:var(--mid);margin-top:1px}
+.exec-scope{font-size:12px;color:var(--dark);line-height:1.5;margin-top:6px}
+.exec-source{font-size:11px;color:var(--mid);margin-top:4px}
+.exec-sponsor-badge{font-size:9px;background:var(--amber);color:#fff;padding:2px 6px;border-radius:3px;margin-left:6px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+
+/* Intel — sibling portfolio (drawn from Drew data) */
+.sibling-wrap{display:flex;flex-direction:column;gap:8px}
+.sibling-row{display:grid;grid-template-columns:180px 1fr;gap:12px;align-items:start;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#fff}
+.sibling-name{font-size:13px;font-weight:700;color:var(--dark)}
+.sibling-name a{color:var(--dark)}
+.sibling-current{font-size:9px;background:var(--brand);color:#fff;padding:2px 6px;border-radius:3px;margin-left:6px;font-weight:800;text-transform:uppercase;vertical-align:middle}
+.sibling-meta{font-size:11px;color:var(--mid);margin-top:2px}
+.sibling-signal{font-size:12px;color:var(--dark);line-height:1.5}
+.sibling-signal.unknown{color:var(--mid);font-style:italic}
+.sibling-customers{font-size:11px;color:var(--green);margin-top:4px}
+
+/* Intel — per-person angles */
+.person-card{border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:8px;background:#FFFEF8}
+.person-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:8px}
+.person-name{font-size:13px;font-weight:700;color:var(--dark)}
+.person-meta{font-size:11px;color:var(--mid);margin-top:2px}
+.role-pill{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:var(--brand);color:#fff;white-space:nowrap}
+.role-pill.eb{background:var(--amber)}
+.role-pill.champion{background:var(--green)}
+.role-pill.gate{background:var(--mid)}
+.person-angle{font-size:12px;color:var(--dark);line-height:1.5;margin-top:6px}
+.angle-label{font-weight:700;color:var(--brand-dk);display:inline-block;min-width:80px}
+.person-talkpoint{font-size:12px;color:var(--dark);line-height:1.5;padding-top:6px;margin-top:6px;border-top:1px dashed var(--border);font-style:italic}
+.person-flag{font-size:11px;color:var(--amber);margin-top:4px}
+
+/* Intel — future biz */
+.future-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.future-card{border:1px solid var(--border);border-radius:6px;padding:10px 12px;background:#fff}
+.future-name{font-size:12px;font-weight:700;color:var(--dark)}
+.future-org{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-top:2px}
+.future-why{font-size:12px;color:var(--mid);line-height:1.5;margin-top:6px}
+
+/* Intel — pre-call outreach */
+.outreach-list{display:flex;flex-direction:column;gap:8px}
+.outreach-item{background:var(--amber-bg);border-left:3px solid var(--amber);padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;color:var(--dark);line-height:1.5}
+.outreach-name{font-weight:700;color:var(--amber);display:block;margin-bottom:3px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+
+/* Intel — corporate profile */
+.profile-toggle{font-size:12px;font-weight:600;color:var(--brand);cursor:pointer;background:none;border:none;padding:8px 0;display:flex;align-items:center;gap:6px}
+.profile-body{display:none;padding-top:12px}
+.profile-body.open{display:block}
+.profile-narrative{font-size:13px;color:var(--dark);line-height:1.65}
+.profile-narrative h2{font-size:13px;font-weight:800;color:var(--brand-dk);margin:16px 0 6px}
+.profile-narrative h2::before{display:none}
+.profile-narrative p{margin-bottom:10px}
+.profile-narrative ul,.profile-narrative ol{margin:8px 0 12px 18px}
+.profile-narrative li{margin-bottom:4px}
+.profile-meta{font-size:11px;color:var(--mid);padding-top:8px;border-top:1px dashed var(--border);margin-top:10px}
+
+/* Intel — citations */
+.citations{display:flex;flex-wrap:wrap;gap:6px}
+.citation-chip{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--mid)}
+.citation-chip a{color:var(--mid)}
+.citation-chip a:hover{color:var(--brand)}
+
+/* Auth / Loading */
+#login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:40px;background:#fff}
+#login-screen p{font-size:14px;color:var(--mid);text-align:center;max-width:320px;margin:0}
+.btn-google{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--border);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;color:var(--dark);cursor:pointer;transition:border-color .15s}
+.btn-google:hover{border-color:var(--brand)}
+.btn-google svg{width:20px;height:20px;flex-shrink:0}
+#login-error{color:var(--brand-dk);font-size:13px;font-weight:600;background:var(--light);border:1px solid var(--brand);padding:10px 18px;border-radius:6px;display:none}
+#deck-loading{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fff}
+#deck-loading p{font-size:14px;color:var(--mid)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#deck-content{display:none}
+
+/* Footer */
+.footer{border-top:1px solid var(--border);padding:16px 48px;font-size:12px;color:var(--mid);display:flex;justify-content:space-between;align-items:center;max-width:1024px;margin:0 auto}
+
+@media(max-width:700px){
+  .header,.tab-panel{padding-left:20px;padding-right:20px}
+  .tab-bar{padding:0 20px}
+  .stack-grid,.exec-grid,.future-grid,.sib-grid,.sibling-row{grid-template-columns:1fr}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── AUTH GATE ─────────────────────────────────────────────────── #}
+<div id="login-screen">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:28px;width:auto" aria-label="DataSkate">
+    <path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/><path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/><path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/><path fill="#231f20" d="m302.54,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/><path fill="#231f20" d="m361.69,320.49v-44.07h10.95v16.1h23.46v9.94h-23.46v18.03c0,6.07,3.13,8.46,7.64,8.46s7.64-2.3,7.64-8.46v-1.2h10.95v1.2c0,12.6-7.54,18.68-18.58,18.68s-18.58-6.07-18.58-18.68Z"/><path fill="#231f20" d="m405.39,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/><path fill="#ed1c24" d="m471.93,324.82h8.83c.18,3.77,3.68,6.44,10.03,6.44s10.03-2.85,10.03-6.44c0-4.32-4.78-4.88-10.49-5.61-7.91-1.01-17.48-2.48-17.48-12.88,0-8.92,6.99-15,17.85-15s17.57,6.16,17.75,13.98h-8.65c-.28-3.5-3.5-6.07-9.02-6.07-5.8,0-9.11,2.76-9.11,6.35,0,4.32,4.78,4.78,10.4,5.52,7.91,1.01,17.57,2.48,17.57,12.88,0,9.2-7.45,15.18-18.86,15.18s-18.58-6.07-18.86-14.35Z"/><path fill="#ed1c24" d="m520.51,272.65h8.74v40.02l20.88-20.15h11.5l-23.73,22.17,24.56,23.27h-11.68l-21.53-21.16v21.16h-8.74v-65.32Z"/><path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/><path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/><path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
+  </svg>
+  <div style="text-align:center">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mid);margin-bottom:8px">DataSkate Internal</div>
+    <div style="font-size:20px;font-weight:800;color:var(--dark);margin-bottom:6px">Architect Pitch Kit</div>
+    <p>Sign in with your @dataskate.ai Google account to access this document.</p>
+  </div>
+  <button class="btn-google" onclick="signIn()">
+    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+    Sign in with Google
+  </button>
+  <div id="login-error"></div>
+</div>
+
+{# ── LOADING ───────────────────────────────────────────────────── #}
+<div id="deck-loading">
+  <div class="spinner"></div>
+  <p>Loading pitch kit&hellip;</p>
+</div>
+
+{# ── DECK ──────────────────────────────────────────────────────── #}
+<div id="deck-content">
+
+<div class="header">
+  <div class="header-top">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 258 590 96" style="height:24px;width:auto" aria-label="DataSkate">
+      <path fill="#ed1c24" d="m195.02,287.72v-12.49c21.94,0,38.48,10.29,38.48,23.93s-16.55,23.93-38.48,23.93v-12.49c15.86,0,25.99-6.77,25.99-11.44s-10.13-11.44-25.99-11.44Z"/><path fill="#231f20" d="m195.02,327.75v12.49c-21.94,0-38.48-10.29-38.48-23.93s16.55-23.93,38.48-23.93v12.49c-15.86,0-25.99,6.77-25.99,11.44s10.13,11.44,25.99,11.44Z"/><path fill="#231f20" d="m245.22,314.79c0-15.55,11.59-23.46,22.63-23.46,6.53,0,11.96,2.76,15.18,7.82v-26.49h10.95v42.23c0,14.72-9.94,24.29-24.2,24.29s-24.56-9.94-24.56-24.38Zm37.81.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/><path fill="#231f20" d="m302.54,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/><path fill="#231f20" d="m361.69,320.49v-44.07h10.95v16.1h23.46v9.94h-23.46v18.03c0,6.07,3.13,8.46,7.64,8.46s7.64-2.3,7.64-8.46v-1.2h10.95v1.2c0,12.6-7.54,18.68-18.58,18.68s-18.58-6.07-18.58-18.68Z"/><path fill="#231f20" d="m405.39,315.71c0-14.44,10.12-24.38,24.56-24.38s24.2,9.66,24.2,24.29v22.35h-10.03v-8.92c-2.76,6.72-8.92,10.12-16.1,10.12-11.04,0-22.63-7.91-22.63-23.46Zm37.81-.46c0-8-5.33-13.71-13.34-13.71s-13.43,5.7-13.43,13.71,5.43,13.71,13.43,13.71,13.34-5.7,13.34-13.71Z"/><path fill="#ed1c24" d="m471.93,324.82h8.83c.18,3.77,3.68,6.44,10.03,6.44s10.03-2.85,10.03-6.44c0-4.32-4.78-4.88-10.49-5.61-7.91-1.01-17.48-2.48-17.48-12.88,0-8.92,6.99-15,17.85-15s17.57,6.16,17.75,13.98h-8.65c-.28-3.5-3.5-6.07-9.02-6.07-5.8,0-9.11,2.76-9.11,6.35,0,4.32,4.78,4.78,10.4,5.52,7.91,1.01,17.57,2.48,17.57,12.88,0,9.2-7.45,15.18-18.86,15.18s-18.58-6.07-18.86-14.35Z"/><path fill="#ed1c24" d="m520.51,272.65h8.74v40.02l20.88-20.15h11.5l-23.73,22.17,24.56,23.27h-11.68l-21.53-21.16v21.16h-8.74v-65.32Z"/><path fill="#ed1c24" d="m565.49,315.62c0-14.26,10.12-24.29,24.56-24.29s24.2,9.75,24.2,24.29v22.35h-8v-9.94c-3.04,7.36-9.75,11.13-17.66,11.13-11.87,0-23.09-8.56-23.09-23.55Zm40.11-.37c0-9.2-6.25-15.82-15.64-15.82s-15.64,6.62-15.64,15.82,6.26,15.82,15.64,15.82,15.64-6.62,15.64-15.82Z"/><path fill="#ed1c24" d="m624.65,320.77v-44.34h8.74v16.1h25.02v8h-25.02v20.24c0,7.18,3.77,10.3,9.48,10.3s9.57-3.04,9.57-10.3v-1.01h8.65v1.01c0,12.33-7.36,18.4-18.21,18.4s-18.21-6.07-18.21-18.4Z"/><path fill="#ed1c24" d="m667.89,315.25c0-13.8,10.12-23.92,24.47-23.92s24.29,10.12,24.29,23.92v3.22h-39.56c1.29,8.1,7.36,12.6,15.27,12.6,5.89,0,10.03-1.84,12.7-5.8h9.66c-3.5,8.46-11.78,13.89-22.35,13.89-14.35,0-24.47-10.12-24.47-23.92Zm39.56-4.6c-1.75-7.27-7.73-11.22-15.09-11.22s-13.25,4.05-15,11.22h30.08Z"/>
+    </svg>
+    <span class="eyebrow">Architect Pitch Kit <span class="internal-badge">Internal Only</span></span>
+  </div>
+  <div class="header-title" id="dk-client-name">{{ pk.meta.clientName }}</div>
+  <div class="fact-chips" id="dk-fact-chips"></div>
+  <div class="stack-chips" id="dk-stack-chips"></div>
+</div>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('pitch')">Pitch</button>
+  <button class="tab-btn" onclick="switchTab('intel')">Intel</button>
+</nav>
+
+{# ── TAB 1: OVERVIEW — diagram hero + fact chips (JS fills from Firestore) ── #}
+<div class="tab-panel active" id="tab-overview">
+  <div class="diagram-hero" id="dk-diagram-hero">
+    <div style="color:var(--mid);font-style:italic;font-size:13px;padding:60px 0;text-align:center">System diagram loads after pipeline sync &mdash; run update-firebase.js {{ client.slug }}</div>
+  </div>
+  <div class="overview-meta" id="dk-overview-meta"></div>
+  <div id="dk-overview-portfolio"></div>
+  <div style="text-align:center;padding:24px 0 8px">
+    <button class="btn-next" onclick="switchTab('pitch')">Open Pitch &rarr;</button>
+  </div>
+</div>
+
+{# ── TAB 2: PITCH — shells filled by JS from Firestore ─────────── #}
+<div class="tab-panel" id="tab-pitch">
+  <section>
+    <h2>Open With This</h2>
+    <div id="dk-opener"></div>
+  </section>
+  <section id="s-portfolio" style="display:none">
+    <h2>Portfolio Frame &mdash; Why This Deal Is Bigger Than One Brand</h2>
+    <div id="dk-portfolio"></div>
+    <div id="dk-portfolio-siblings"></div>
+  </section>
+  <section>
+    <h2>Objection Playbook</h2>
+    <div id="dk-objections"></div>
+  </section>
+  <section>
+    <h2>Social Proof &mdash; Drop These Stats</h2>
+    <table class="proof-table">
+      <thead><tr><th>Company</th><th>What They Did + Result</th></tr></thead>
+      <tbody id="dk-proof-rows"></tbody>
+    </table>
+  </section>
+  <section>
+    <h2>If It Stalls</h2>
+    <div id="dk-stall"></div>
+  </section>
+  <section>
+    <h2>If They Ask About AI</h2>
+    <div id="dk-ai-line"></div>
+    <div class="ai-narrative" id="dk-ai-narrative"></div>
+  </section>
+  <div style="text-align:center;padding:20px 0 8px">
+    <button class="btn-link" onclick="switchTab('intel')">View Full Intel Brief &rarr;</button>
+  </div>
+</div>
+
+{# ── TAB 3: INTEL — rendered from pitch-kit-content.json ─────────── #}
+<div class="tab-panel" id="tab-intel">
+
+  {# Corporate Stack #}
+  {% if pk.corporateStack %}
+  <section>
+    <h2>Corporate Stack</h2>
+    <div class="stack-grid">
+      {% if pk.corporateStack.operatingBrand %}
+      <div class="stack-card brand-card">
+        <div class="stack-role">Operating brand</div>
+        <div class="stack-name">{{ pk.corporateStack.operatingBrand.name }}</div>
+        <div class="stack-meta">
+          {% if pk.corporateStack.operatingBrand.website %}<a href="{{ pk.corporateStack.operatingBrand.website }}" target="_blank" rel="noopener">{{ pk.corporateStack.operatingBrand.website | replace("https://","") | replace("http://","") | replace("/","") }}</a>{% endif %}
+          {% if pk.corporateStack.operatingBrand.linkedIn %} &middot; <a href="{{ pk.corporateStack.operatingBrand.linkedIn }}" target="_blank" rel="noopener">LinkedIn</a>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% if pk.corporateStack.operatingPlatform %}
+      <div class="stack-card platform-card">
+        <div class="stack-role">Operating platform</div>
+        <div class="stack-name">{{ pk.corporateStack.operatingPlatform.name }}</div>
+        <div class="stack-meta">
+          {% if pk.corporateStack.operatingPlatform.website %}<a href="{{ pk.corporateStack.operatingPlatform.website }}" target="_blank" rel="noopener">{{ pk.corporateStack.operatingPlatform.website | replace("https://","") | replace("http://","") | replace("/","") }}</a>{% endif %}
+          {% if pk.corporateStack.operatingPlatform.linkedIn %} &middot; <a href="{{ pk.corporateStack.operatingPlatform.linkedIn }}" target="_blank" rel="noopener">LinkedIn</a>{% endif %}
+          {% if pk.corporateStack.operatingPlatform.siblingBrands %} &middot; {{ pk.corporateStack.operatingPlatform.siblingBrands | length }} sibling brands{% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% if pk.corporateStack.financialSponsor %}
+      <div class="stack-card sponsor-card">
+        <div class="stack-role">Financial sponsor</div>
+        <div class="stack-name">{{ pk.corporateStack.financialSponsor.name }}</div>
+        <div class="stack-meta">
+          {% if pk.corporateStack.financialSponsor.website %}<a href="{{ pk.corporateStack.financialSponsor.website }}" target="_blank" rel="noopener">{{ pk.corporateStack.financialSponsor.website | replace("https://","") | replace("http://","") | replace("/","") }}</a>{% endif %}
+          {% if pk.corporateStack.financialSponsor.linkedIn %} &middot; <a href="{{ pk.corporateStack.financialSponsor.linkedIn }}" target="_blank" rel="noopener">LinkedIn</a>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Why Now — deal urgency multipliers #}
+  {% if pk.dealUrgencyMultipliers and pk.dealUrgencyMultipliers.length %}
+  <section>
+    <h2>Why Now &mdash; {{ pk.dealUrgencyMultipliers.length }} Deal-Urgency Signal{{ "s" if pk.dealUrgencyMultipliers.length != 1 }}</h2>
+    <div class="why-now-list">
+      {% for m in pk.dealUrgencyMultipliers %}
+      <div class="why-now-item">
+        {% if m.tag %}<span class="why-now-tag">{{ m.tag }}</span>{% endif %}
+        {{ m.body }}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Platform Executive Team #}
+  {% if pk.corporateStack.operatingPlatform.platformExecutiveTeam and pk.corporateStack.operatingPlatform.platformExecutiveTeam.length %}
+  <section>
+    <h2>Platform Executive Team &mdash; {{ pk.corporateStack.operatingPlatform.name }}</h2>
+    <div class="exec-grid">
+      {% for exec in pk.corporateStack.operatingPlatform.platformExecutiveTeam %}
+      <div class="exec-card"{% if exec.isExecutiveSponsorCandidate %} style="border-left:3px solid var(--amber)"{% endif %}>
+        <div class="exec-name">
+          {{ exec.name }}
+          {% if exec.isExecutiveSponsorCandidate %}<span class="exec-sponsor-badge">Exec-Sponsor</span>{% endif %}
+        </div>
+        <div class="exec-title">{{ exec.title }}</div>
+        {% if exec.scope %}<div class="exec-scope">{{ exec.scope }}</div>{% endif %}
+        {% if exec.sourceUrl %}<div class="exec-source"><a href="{{ exec.sourceUrl }}" target="_blank" rel="noopener">Source</a></div>{% endif %}
+        {% if exec.linkedIn %}<div class="exec-source"><a href="{{ exec.linkedIn }}" target="_blank" rel="noopener">LinkedIn</a></div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Sibling Portfolio Map — Drew-enriched data #}
+  {% if pk.corporateStack.operatingPlatform.siblingBrands and pk.corporateStack.operatingPlatform.siblingBrands.length %}
+  <section>
+    <h2>Sibling Portfolio Map</h2>
+    <div class="sibling-wrap">
+      {% for sib in pk.corporateStack.operatingPlatform.siblingBrands %}
+      <div class="sibling-row">
+        <div>
+          <div class="sibling-name">
+            {% if sib.website %}<a href="{{ sib.website }}" target="_blank" rel="noopener">{{ sib.name }}</a>{% else %}{{ sib.name }}{% endif %}
+            {% if sib.isCurrentClient %}<span class="sibling-current">Current client</span>{% endif %}
+          </div>
+          {% set metaParts = [] %}
+          {% if sib.region %}{% set metaParts = (metaParts.push(sib.region), metaParts) %}{% endif %}
+          {% if sib.footprint %}{% set metaParts = (metaParts.push(sib.footprint), metaParts) %}{% endif %}
+          {% if metaParts.length %}<div class="sibling-meta">{{ metaParts | join(" &middot; ") | safe }}</div>{% endif %}
+        </div>
+        <div>
+          {% if sib.integrationSignal %}
+          {% set isUnknown = "unknown" in sib.integrationSignal %}
+          <div class="sibling-signal{% if isUnknown %} unknown{% endif %}">{{ sib.integrationSignal }}</div>
+          {% endif %}
+          {% if sib.namedCustomers and sib.namedCustomers.length %}
+          <div class="sibling-customers">Customers: {{ sib.namedCustomers | join(", ") }}</div>
+          {% endif %}
+          {% if sib.sourceUrl %}<div style="font-size:11px;margin-top:4px"><a href="{{ sib.sourceUrl }}" target="_blank" rel="noopener" style="color:var(--mid)">source</a></div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Per-Person Angles — buyer map #}
+  {% if pk.buyerMap.people and pk.buyerMap.people.length %}
+  <section>
+    <h2>Per-Person Angles &mdash; Buyer Map</h2>
+    {% for person in pk.buyerMap.people %}
+    {% if person.role == "championOnCall" %}{% set roleClass = "champion" %}{% elif person.role == "economicBuyer" %}{% set roleClass = "eb" %}{% elif person.role == "technicalInfluencer" and person.talkToBefore %}{% set roleClass = "gate" %}{% else %}{% set roleClass = "" %}{% endif %}
+    {% if person.role == "championOnCall" %}{% set roleLabel = "Champion" %}{% elif person.role == "economicBuyer" %}{% set roleLabel = "Economic Buyer" %}{% else %}{% set roleLabel = "Tech Influencer" %}{% endif %}
+    <div class="person-card">
+      <div class="person-header">
+        <div>
+          <div class="person-name">{{ person.name }}</div>
+          <div class="person-meta">{{ person.title }}{% if person.company %} &middot; {{ person.company }}{% endif %}{% if person.matchConfidence %} &middot; {{ person.matchConfidence }}{% endif %}</div>
+        </div>
+        <span class="role-pill {{ roleClass }}">{{ roleLabel }}</span>
+      </div>
+      {% if person.angleForHawk %}<div class="person-angle"><span class="angle-label">Hawk:</span> {{ person.angleForHawk }}</div>{% endif %}
+      {% if person.angleForIvy %}<div class="person-angle"><span class="angle-label">Psychology:</span> {{ person.angleForIvy }}</div>{% endif %}
+      {% if person.hawkTalkingPoint %}<div class="person-angle" style="margin-top:8px"><span class="angle-label">Full script:</span> {{ person.hawkTalkingPoint }}</div>{% endif %}
+      {% if person.talkingPointSeed %}<div class="person-talkpoint">{{ person.talkingPointSeed }}</div>{% endif %}
+      {% if person.talkToBefore and person.talkToBeforeRationale %}<div class="person-flag">&9888; Engage before kickoff: {{ person.talkToBeforeRationale }}</div>{% endif %}
+      {% if person.detractorWarning %}<div class="person-flag" style="color:var(--brand-dk)">&9888; {{ person.detractorWarning }}</div>{% endif %}
+    </div>
+    {% endfor %}
+
+    {% if pk.buyerMap.preCallOutreach and pk.buyerMap.preCallOutreach.length %}
+    <div class="outreach-list" style="margin-top:12px">
+      {% for item in pk.buyerMap.preCallOutreach %}
+      <div class="outreach-item">
+        <span class="outreach-name">Pre-call: {{ item.name }}</span>
+        {% if item.what %}<strong>{{ item.what }}</strong> &mdash; {% endif %}{{ item.why }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {# Future Business Champions #}
+  {% if pk.buyerMap.futureBusinessChampions and pk.buyerMap.futureBusinessChampions.length %}
+  <section>
+    <h2>Future Business &mdash; Champions to Cultivate</h2>
+    <div class="future-grid">
+      {% for champ in pk.buyerMap.futureBusinessChampions %}
+      <div class="future-card">
+        <div class="future-name">{{ champ.name }}</div>
+        {% if champ.title %}<div class="future-org">{{ champ.title }}</div>{% endif %}
+        {% if champ.organization %}<div class="future-org">{{ champ.organization }}</div>{% endif %}
+        {% if champ.why %}<div class="future-why">{{ champ.why }}</div>{% endif %}
+        {% if champ.sourceUrl %}<div style="font-size:11px;margin-top:6px"><a href="{{ champ.sourceUrl }}" target="_blank" rel="noopener" style="color:var(--mid)">Source</a></div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Corporate Profile — collapsible #}
+  {% if pk.corporateProfileHtml %}
+  <section>
+    <h2>Corporate Profile</h2>
+    {% set wordCount = pk.corporateProfileMeta.wordCount if pk.corporateProfileMeta and pk.corporateProfileMeta.wordCount else "" %}
+    <button class="profile-toggle" onclick="var b=this.nextElementSibling;b.classList.toggle('open');this.textContent=b.classList.contains('open')?'&#9650; Collapse profile':'&#9660; Read full profile{% if wordCount %} ({{ wordCount }} words){% endif %}'">&#9660; Read full profile{% if wordCount %} ({{ wordCount }} words){% endif %}</button>
+    <div class="profile-body">
+      <div class="profile-narrative">{{ pk.corporateProfileHtml | safe }}</div>
+      {% if pk.corporateProfileMeta %}
+      <div class="profile-meta">
+        {% if pk.corporateProfileMeta.wordCount %}{{ pk.corporateProfileMeta.wordCount }} words &middot; {% endif %}
+        {% if pk.corporateProfileMeta.sections %}{{ pk.corporateProfileMeta.sections }} sections &middot; {% endif %}
+        {% if pk.corporateProfileMeta.confidence %}confidence: {{ pk.corporateProfileMeta.confidence }}{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Sources / Citations #}
+  {% if pk.citations and pk.citations.length %}
+  <section>
+    <h2>Sources</h2>
+    <div class="citations">
+      {% for cite in pk.citations %}
+      {% if cite.url %}
+      <span class="citation-chip"><a href="{{ cite.url }}" target="_blank" rel="noopener">{{ cite.label }}</a></span>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</div>{# /tab-intel #}
+
+<div class="footer">
+  <span id="dk-footer-architect">{{ pk.meta.architect }} &middot; DataSkate Internal</span>
+  <span>dataskate.ai</span>
+</div>
+
+</div>{# /deck-content #}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="/firebase-config.js"></script>
+<script>window.__CLIENT_SLUG = "{{ client.slug }}";</script>
+<script>
+(function () {
+  const CLIENT_SLUG = window.__CLIENT_SLUG;
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const auth     = firebase.auth();
+  const db       = firebase.firestore();
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.onAuthStateChanged(async user => {
+    if (user && user.email && user.email.endsWith('@dataskate.ai')) {
+      hide('login-screen'); show('deck-loading');
+      try {
+        const doc = await db.collection('pitchKits').doc(CLIENT_SLUG).get();
+        if (!doc.exists) { showError('Pitch kit not yet generated for this client.'); return; }
+        renderDeck(JSON.parse(doc.data().contentJson));
+        hide('deck-loading'); show('deck-content');
+      } catch (err) { showError('Failed to load: ' + err.message); }
+    } else {
+      if (user) { auth.signOut(); showError('Access restricted to @dataskate.ai accounts.'); }
+      hide('deck-loading'); hide('deck-content'); show('login-screen');
+    }
+  });
+
+  window.signIn = () => auth.signInWithPopup(provider).catch(err => showError(err.message));
+
+  function show(id) { const el = document.getElementById(id); if (el) el.style.display = id === 'deck-loading' ? 'flex' : id === 'deck-content' ? 'block' : ''; }
+  function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+  function showError(msg) {
+    const el = document.getElementById('login-error');
+    el.textContent = msg; el.style.display = 'block';
+    hide('deck-loading'); hide('deck-content'); show('login-screen');
+  }
+  function e(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function set(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+  function txt(id, val)  { const el = document.getElementById(id); if (el) el.textContent = val || ''; }
+
+  window.switchTab = function(name) {
+    const tabs = ['overview','pitch','intel'];
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  };
+
+  const PRIORITY = [
+    {cls:'p1',label:'P1 · Expect Every Call'},
+    {cls:'p2',label:'P2 · Likely'},
+    {cls:'p2',label:'P2 · Likely'},
+    {cls:'p3',label:'P3 · Situational'},
+    {cls:'p3',label:'P3 · Situational'},
+  ];
+
+  function renderDeck(c) {
+    const m  = c.meta    || {};
+    const sn = c.snapshot || {};
+
+    set('dk-fact-chips', [
+      ['Revenue',  m.revenue],
+      ['Industry', m.industry],
+      ['Location', m.location],
+      ['Flows',    m.flowCount ? m.flowCount + ' integration flows' : null],
+    ].filter(([,v]) => v).map(([k,v]) =>
+      `<div class="chip"><span>${e(k)}</span>${e(v)}</div>`
+    ).join(''));
+
+    set('dk-stack-chips', (sn.systems || []).map(s =>
+      `<span class="stack-pill">${e(s)}</span>`
+    ).join(''));
+
+    // Overview — diagram from Firestore SVG field
+    if (c.systemDiagram && c.systemDiagram.svg) {
+      document.getElementById('dk-diagram-hero').innerHTML = c.systemDiagram.svg;
+    }
+    set('dk-overview-meta', [
+      ['Revenue',  m.revenue],
+      ['Industry', m.industry],
+      ['Location', m.location],
+      ['Flows',    m.flowCount ? m.flowCount + ' confirmed flows' : null],
+    ].filter(([,v]) => v).map(([k,v]) =>
+      `<div class="overview-fact"><div class="overview-fact-label">${e(k)}</div><div class="overview-fact-value">${e(v)}</div></div>`
+    ).join(''));
+    const pc = c.portfolioContext;
+    if (pc && pc.platformName) {
+      set('dk-overview-portfolio', `<div class="overview-portfolio">
+        <strong>${e(pc.platformName)}</strong>${pc.siblingCount ? ` &middot; ${e(pc.siblingCount)} sibling brands` : ''}${pc.sponsorName ? ` &middot; ${e(pc.sponsorName)}` : ''}${pc.greenfieldFlag ? ' &middot; <strong style="color:var(--amber)">Greenfield</strong>' : ''}
+        ${pc.templateAngle ? `<br><span style="font-size:13px;color:var(--mid);font-style:italic">${e(pc.templateAngle)}</span>` : ''}
+      </div>`);
+    }
+
+    // Pitch — opening lines
+    const lines   = c.openingLines || [];
+    const isStall = ol => /stall|fomo close/i.test(ol.context);
+    const isAI    = ol => /\bai\b/i.test(ol.context);
+    const openers = lines.filter(ol => !isStall(ol) && !isAI(ol));
+    const stall   = lines.find(isStall);
+    const ai      = lines.find(isAI);
+
+    set('dk-opener', openers.map(ol =>
+      `<div class="opener-block"><div class="opener-context">${e(ol.context)}</div><div class="opener-line">${e(ol.line)}</div></div>`
+    ).join(''));
+
+    if (pc && pc.platformName) {
+      document.getElementById('s-portfolio').style.display = '';
+      const isGF = pc.greenfieldFlag === true;
+      set('dk-portfolio', `<div class="portfolio-frame${isGF?' portfolio-greenfield':''}">
+        <div class="pf-eyebrow">${isGF?'Portfolio greenfield':'Portfolio template'}</div>
+        <div class="pf-platform">${e(pc.platformName)}${pc.siblingCount?` <span>&middot; ${e(pc.siblingCount)} sibling brand${pc.siblingCount===1?'':'s'}</span>`:''}${pc.sponsorName?` <span>&middot; ${e(pc.sponsorName)}</span>`:''}</div>
+        ${pc.templateAngle?`<div class="pf-angle">${e(pc.templateAngle)}</div>`:''}
+        ${pc.executiveAngle?`<div class="pf-exec"><strong>For the sponsor:</strong> ${e(pc.executiveAngle)}</div>`:''}
+        ${isGF&&pc.siblingCount?`<div class="pf-exec" style="margin-top:6px"><strong>Greenfield:</strong> none of the ${e(pc.siblingCount)} sibling brand${pc.siblingCount===1?'':'s'} shows a public integration footprint yet.</div>`:''}
+      </div>`);
+      const siblings = Array.isArray(pc.siblings) ? pc.siblings : [];
+      if (siblings.length) {
+        set('dk-portfolio-siblings', `<div class="sib-grid">${siblings.map(s => {
+          const sig  = s.integrationSignal || 'unknown — no public integration footprint found';
+          const isUnk = /^unknown/i.test(sig);
+          const nameHtml = s.website ? `<a href="${e(s.website)}" target="_blank" rel="noopener">${e(s.name)}</a>` : e(s.name);
+          return `<div class="sib-row"><div class="sib-name">${nameHtml}</div>${s.website?`<div class="sib-meta">${e(String(s.website).replace(/^https?:\/\//,'').replace(/\/$/,''))}</div>`:''}<div class="sib-signal${isUnk?' unknown':''}">${e(sig)}</div></div>`;
+        }).join('')}</div>`);
+      }
+    }
+
+    const TIER = {'exact-match':'tier-exact-badge','same-industry':'tier-exact-badge','adjacent-industry':'tier-stat-badge','industry-stat':'tier-stat-badge'};
+    set('dk-proof-rows', (c.competitorFOMO||[]).map(f => {
+      const tierCls = TIER[f.relevanceTier]||'tier-stat-badge';
+      const tierLbl = f.relevanceTier==='exact-match'?'Exact match':f.relevanceTier==='same-industry'?'Same industry':f.relevanceTier==='adjacent-industry'?'Adjacent':'Industry data';
+      const systems = (f.systemsUsed||[]).join(' + ');
+      return `<tr><td><strong>${e(f.displayName||f.name)}</strong><br><span style="font-size:12px;color:var(--mid)">${[f.location,f.revenue].filter(Boolean).map(e).join(' &middot; ')}</span><br><span class="${tierCls}" style="margin-top:4px;display:inline-block">${tierLbl}</span></td><td>${f.whatTheyBuilt||f.what?`<span style="font-size:13px">${e(f.whatTheyBuilt||f.what)}</span><br>`:''}${f.savings?`<span class="proof-stat">${e(f.savings)}</span>`:''}${systems?`<span style="font-size:11px;color:var(--mid)">${e(systems)}</span>`:''}${f.fomoAngle?`<div class="proof-say">${e(f.fomoAngle)}</div>`:''}</td></tr>`;
+    }).join(''));
+
+    if (stall) set('dk-stall', `<div class="stall-block"><div class="stall-label">Use when deal stalls</div><div class="opener-line" style="font-style:italic;font-size:14px;line-height:1.6;color:var(--dark)">${e(stall.line)}</div></div>`);
+    if (ai)    set('dk-ai-line', `<div class="ai-line-block"><div class="opener-context" style="color:var(--blue-br)">${e(ai.context)}</div><div class="opener-line">${e(ai.line)}</div></div>`);
+    txt('dk-ai-narrative', c.aiJourneyNarrative || '');
+  }
+})();
+</script>
+{% endblock %}

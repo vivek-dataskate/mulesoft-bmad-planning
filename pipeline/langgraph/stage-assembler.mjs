@@ -94,8 +94,8 @@ const INPUT_PROJECTION = {
   petra: { vera: ['company', 'buyerMap', 'namedBuyers', 'dealUrgencyMultipliers', 'aiJourney'],
            rex:  ['p0Blockers'],
            flo:  ['confirmedFlows', 'potentialFlows', 'p0Blockers', 'pricing'] },
-  quinn: { vera: ['systemPrerequisites', 'company'],
-           flo:  ['confirmedFlows', 'potentialFlows', 'pricing'] },
+  // quinn reads company_context.json + project.json directly — no agent projection needed
+  quinn: {},
   mira:  { vera: ['company'], flo: ['confirmedFlows', 'pricing'] },
 };
 
@@ -269,38 +269,41 @@ function buildPetraStage(clientSlug, completedAgents) {
   return proj;
 }
 
-function buildQuinnStage(clientSlug, completedAgents) {
-  const proj = buildInputContract('quinn', clientSlug, completedAgents);
+function buildQuinnStage(clientSlug) {
+  // Quinn reads only from orchestrator-maintained canonical files.
+  // company_context.json is the single merged source of truth — the orchestrator
+  // writes to it after every agent via assembleContext(). Quinn never touches
+  // raw agent JSONs (vera.json, flo.json, rex.json, etc.).
+  const ctx  = readJson(path.join(PROJECTS_DIR, clientSlug, 'company_context.json')) || {};
+  const proj = readJson(path.join(PROJECTS_DIR, clientSlug, 'project.json'))          || {};
 
-  const ivyData = readAgentOutput(clientSlug, 'ivy');
-  if (ivyData) {
-    proj.ivy = {
-      psychologyProfile: ivyData.psychologyProfile ?? null,
-      callerRole:        ivyData.callerRole        ?? null,
-      callerTitle:       ivyData.callerTitle       ?? null,
-    };
-  }
+  return {
+    _generatedAt:        isoNow(),
+    _forAgent:           'quinn',
 
-  // rex p0Blockers + open questions for intake form
-  const rexData = readAgentOutput(clientSlug, 'rex');
-  if (rexData) {
-    proj.rex = {
-      p0Blockers:    rexData.p0Blockers    ?? null,
-      internalFlags: rexData.internalFlags ?? null,
-    };
-  }
+    // Integration flows — from sage + flo via orchestrator
+    confirmedFlows:      ctx.confirmedFlows      ?? [],
+    potentialFlows:      ctx.potentialFlows       ?? [],
+    p0Blockers:          ctx.p0Blockers           ?? [],
 
-  const projPath = path.join(PROJECTS_DIR, clientSlug, 'project.json');
-  const projData = readJson(projPath);
-  if (projData) {
-    proj._project = {
-      flowCount:       projData.flowCount       ?? null,
-      pricingComputed: projData.pricingComputed ?? null,
-      architect:       projData.architect       ?? null,
-      architectEmail:  projData.architectEmail  ?? null,
-    };
-  }
-  return proj;
+    // System knowledge — from vera + rex via orchestrator
+    systemPrerequisites: ctx.systemPrerequisites  ?? [],
+    systemFindings:      ctx.systemFindings        ?? [],
+
+    // People — from sage via orchestrator
+    namedContacts:       ctx.namedContacts         ?? [],
+    snapshot:            ctx.snapshot              ?? null,
+    industry:            ctx.industry              ?? null,
+
+    // Buyer psychology — from ivy via orchestrator
+    psychologyProfile:   ctx.psychologyProfile     ?? null,
+
+    // Project metadata — from project.json
+    architect:           proj.architect            ?? null,
+    architectEmail:      proj.architectEmail       ?? null,
+    pricingComputed:     proj.pricingComputed       ?? null,
+    displayName:         proj.displayName           ?? null,
+  };
 }
 
 function buildSolStage(clientSlug, completedAgents) {
@@ -416,7 +419,7 @@ function buildAgentStage(agentSlug, clientSlug, completedAgents) {
     case 'flo':   return buildFloStage(clientSlug, completedAgents);
     case 'hawk':  return buildHawkStage(clientSlug, completedAgents);
     case 'petra': return buildPetraStage(clientSlug, completedAgents);
-    case 'quinn': return buildQuinnStage(clientSlug, completedAgents);
+    case 'quinn': return buildQuinnStage(clientSlug);
     case 'sol':   return buildSolStage(clientSlug, completedAgents);
     case 'mira':  return buildMiraStage(clientSlug, completedAgents);
     default:      return { _generatedAt: isoNow(), _forAgent: agentSlug, _note: 'no stage builder defined' };

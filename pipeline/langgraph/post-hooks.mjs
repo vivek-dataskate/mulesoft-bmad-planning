@@ -526,7 +526,8 @@ export function renderIntake(slug) {
     console.log(`  [post-hooks] renderIntake: Eleventy build failed`);
     return null;
   }
-  const src = path.join(ROOT, 'portal', '_build', 'intake', `intake-questionnaire-${slug}.html`);
+  // Eleventy outputs to portal/public/ (not portal/_build/) per .eleventy.js output config.
+  const src = path.join(ROOT, 'portal', 'public', 'intake', `intake-questionnaire-${slug}.html`);
   const dst = path.join(projectDir, 'intake', 'client', `intake-questionnaire-${slug}.html`);
   if (!fs.existsSync(src)) return null;
   fs.mkdirSync(path.dirname(dst), { recursive: true });
