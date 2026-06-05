@@ -2102,7 +2102,7 @@ ComputerEase (Deltek): CE Live Service relay authentication. Confirm Deltek supp
 <p><strong>Proposed Automation:</strong> An API flow that verifies deposit status in HD Portal, matches it to the contract, and automatically triggers job entry in ComputerEase without manual intervention.</p>
 <div class='q' data-sys='hd-portal-home-depot-service-center computerease-deltek'><div class='q-num'>52</div><div class='q-body'><p class='q-text'>Should PF1 (Automated Deposit Verification) be added to Phase 1 go-live, deferred to Phase 2, or not pursued?</p><textarea class='answer is-prefilled' rows='3'>⚠️ Phase scoping decision: PF1 (Automated Deposit Verification) — DataSkate recommends Phase 2 (adds HD Portal dependency complexity to Phase 1 scope). — Confirm: ☐ Add to Phase 1 ☐ Phase 2 (recommended) ☐ Not pursuing</textarea></div></div>
 <div class='q' data-sys='hd-portal-home-depot-service-center computerease-deltek'><div class='q-num'>52b</div><div class='q-body'><p class='q-text'>If PF1 is added to Phase 1: What is the acceptable latency between deposit receipt in HD Portal and job creation in ComputerEase? (e.g., within 1 hour, same day, next business day)</p><textarea class='answer is-prefilled' rows='3'>If PF1 added to Phase 1: latency of 15 minutes acceptable (matches UC1 polling cadence). — ⚠️ Assumed — confirm if added: ☐ Correct ☐ Correct it: ___</textarea></div></div>
-</details>
+</div></details>
 
 <details class='uc' open><summary class='uc-hd'><span class='uc-tag'>PF2</span><h3>Quote Line Item Validation and Product Matching</h3><span class='uc-chevron'>▼</span></summary><div class='uc-body'>
 <p class='uc-note'><strong>Source:</strong> Salesforce | <strong>Target:</strong> ComputerEase | <strong>Entity:</strong> Quote Line Item | <strong>Trigger:</strong> Event-driven</p>
@@ -2110,7 +2110,7 @@ ComputerEase (Deltek): CE Live Service relay authentication. Confirm Deltek supp
 <p><strong>Proposed Automation:</strong> An automated flow that extracts quote line items from Salesforce, validates them against master product data, and flags discrepancies (e.g., quote specifies vinyl pickets but contract specifies wood) for manual review before job entry.</p>
 <div class='q' data-sys='salesforce computerease-deltek'><div class='q-num'>53</div><div class='q-body'><p class='q-text'>Should PF2 (Quote Line Item Validation) be added to Phase 1 go-live, deferred to Phase 2, or not pursued?</p><textarea class='answer is-prefilled' rows='3'>⚠️ Phase scoping decision: PF2 (Quote Line Item Validation) — DataSkate recommends Phase 2 (requires HD Portal quote API to support structured line-item responses). — Confirm: ☐ Add to Phase 1 ☐ Phase 2 (recommended) ☐ Not pursuing</textarea></div></div>
 <div class='q' data-sys='salesforce computerease-deltek'><div class='q-num'>53b</div><div class='q-body'><p class='q-text'>If PF2 is added to Phase 1: What product attributes must be validated? (e.g., material type, picket style, post caps, gate type, color, height)</p><textarea class='answer is-prefilled' rows='3'>If PF2 added: validate material type (vinyl/wood/aluminum), picket style, post caps, gate type, and linear footage per quote line. — ⚠️ Assumed — confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div>
-</details>
+</div></details>
 
 <details class='uc' open><summary class='uc-hd'><span class='uc-tag'>PF3</span><h3>Intelligent Document Processing for Contract Validation</h3><span class='uc-chevron'>▼</span></summary><div class='uc-body'>
 <p class='uc-note'><strong>Source:</strong> Home Depot Service Center (HD Portal) | <strong>Target:</strong> Salesforce | <strong>Entity:</strong> Contract | <strong>Trigger:</strong> Event-driven</p>
@@ -2118,7 +2118,7 @@ ComputerEase (Deltek): CE Live Service relay authentication. Confirm Deltek supp
 <p><strong>Proposed Automation:</strong> An Intelligent Document Processing (IDP) flow that automatically extracts contract data, validates against business rules, and flags exceptions (e.g., missing signature, permit date in past, deposit amount mismatch) for manual review.</p>
 <div class='q' data-sys='hd-portal-home-depot-service-center salesforce'><div class='q-num'>54</div><div class='q-body'><p class='q-text'>Should PF3 (Intelligent Document Processing for Contracts) be added to Phase 1 go-live, deferred to Phase 2, or not pursued?</p><textarea class='answer is-prefilled' rows='3'>⚠️ Phase scoping decision: PF3 (IDP for Contract Processing) — DataSkate recommends Phase 2 as a standalone MuleSoft IDP engagement after Phase 1 integration foundation is live. — Confirm: ☐ Add to Phase 1 ☐ Phase 2 (recommended) ☐ Not pursuing</textarea></div></div>
 <div class='q' data-sys='hd-portal-home-depot-service-center salesforce'><div class='q-num'>54b</div><div class='q-body'><p class='q-text'>If PF3 is added to Phase 1: What are the critical validation rules for contract compliance? (e.g., permit date must be within 30 days, deposit ≥ 25% of contract total, all required signatures present, no blank required fields)</p><textarea class='answer is-prefilled' rows='3'>If PF3 added: critical rules = permit date within 90 days of contract signing, digital signature required on all pages, contract amount matches Salesforce opportunity amount. — ⚠️ Assumed — confirm: ☐ Correct ☐ Correct it: ___</textarea></div></div>
-</details>
+</div></details>
 
 <h3>9.8 — Go-Live Readiness Checklist</h3>
 
@@ -2250,7 +2250,7 @@ ComputerEase (Deltek): CE Live Service relay authentication. Confirm Deltek supp
 
 
 
-<script>window.__INTAKE_SLUG = "peerless-fence"; window.__INTAKE_ARCH_EMAIL = "raghuram@dataskate.ai"; window.__SYS_NODES = [{"id":"computerease-deltek","label":"ComputerEase (Deltek)","questionCount":3},{"id":"salesforce","label":"Salesforce","questionCount":3},{"id":"home-depot-service-center-portal","label":"Home Depot Service Center Portal","questionCount":3},{"id":"dochub","label":"DocHub","questionCount":3},{"id":"google-cloud-platform-gcp","label":"Google Cloud Platform (GCP)","questionCount":3}];</script>
+<script>window.__INTAKE_SLUG = "peerless-fence"; window.__INTAKE_ARCH_EMAIL = "raghuram@dataskate.ai"; window.__SYS_NODES = [{"id":"computerease-deltek","label":"ComputerEase (Deltek)","questionCount":3},{"id":"salesforce","label":"Salesforce","questionCount":3},{"id":"hd-portal-home-depot-service-center","label":"Home Depot Service Center Portal","questionCount":3},{"id":"dochub","label":"DocHub","questionCount":3},{"id":"google-cloud-platform-gcp","label":"Google Cloud Platform (GCP)","questionCount":3}];</script>
 <script>
 const SYS_NODES = window.__SYS_NODES || [];
 

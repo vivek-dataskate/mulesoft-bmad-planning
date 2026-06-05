@@ -166,25 +166,6 @@ details.section-block[open] .section-chevron { transform: rotate(180deg); }
 .stage-card.stage2 ul li::before { color: var(--green); }
 .stage-card.stage3 ul li::before { color: #1C2B3A; }
 
-/* ── PORTFOLIO CONTEXT ── */
-.portfolio-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0; }
-.portfolio-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fff; }
-.portfolio-card-name { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
-.portfolio-card-region { font-size: 11px; color: var(--mid); margin-bottom: 6px; }
-.portfolio-card-signal { font-size: 11px; color: var(--dark); line-height: 1.5; border-left: 3px solid var(--brand); padding-left: 8px; }
-.portfolio-sponsor { background: #F2F4F8; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 14px; }
-.portfolio-sponsor-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mid); margin-bottom: 3px; }
-.portfolio-sponsor-name { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
-.portfolio-sponsor-detail { font-size: 12px; color: var(--mid); line-height: 1.55; }
-.portfolio-template-angle { background: #FFF8F0; border-left: 4px solid #F59E0B; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 14px; font-size: 13px; color: var(--dark); line-height: 1.6; }
-/* ── HOW WE SEE YOU ── */
-.buyer-profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
-.buyer-profile-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: #fff; }
-.buyer-profile-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand); margin-bottom: 6px; }
-.buyer-profile-value { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 8px; text-transform: capitalize; }
-.buyer-signal { font-size: 12px; color: #44546A; padding: 5px 0 5px 14px; position: relative; line-height: 1.5; border-bottom: 1px solid var(--border); }
-.buyer-signal:last-child { border-bottom: none; }
-.buyer-signal::before { content: '"'; position: absolute; left: 0; color: var(--brand); font-size: 14px; top: 3px; font-weight: 700; }
 /* ── FOMO CARDS ── */
 .fomo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
 .fomo-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: #fff; }
@@ -604,29 +585,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 
   
   
-  <div class="model-card" data-model="tm">
-    
-    <div class="model-name">Model 3 — Time &amp; Materials</div>
-    <div class="model-impl">$15,200</div>
-    <div class="model-impl-label">Estimated total · 4 flows · billed on actual hours logged</div>
-    <hr class="model-divider">
-    <div class="best-for">Resource rates</div>
-    <table class="tm-rate-table">
-      <thead><tr><th>Role</th><th>Rate/hr</th><th>~hrs/flow</th></tr></thead>
-      <tbody>
-        
-        <tr><td>Offshore Architect</td><td>$45.00</td><td>~20h</td></tr>
-        
-        <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~40h</td></tr>
-        
-        <tr><td>Offshore Developer</td><td>$25.00</td><td>~60h</td></tr>
-        
-      </tbody>
-    </table>
-    <div class="model-vp">Scope can evolve mid-engagement. DataSkate logs hours in a shared sheet; you only pay for actual work done. Ideal when requirements are still forming.</div>
-    <button class="btn btn-outline model-select-btn no-print" onclick="selectModel('tm','Model 3 — Time &amp; Materials','$3,800/flow est.')">Select this Model →</button>
-  </div>
-  
 
 </div>
 
@@ -663,29 +621,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
 </div>
 
 
-
-<div id="tm-rate-section" style="display:none">
-  <div class="managed-intro">
-    <h3>T&amp;M Resource Breakdown</h3>
-    <p>Estimates based on typical hours per flow. Actual hours may vary; scope increases require written approval before work begins.</p>
-  </div>
-  <table class="managed-table">
-    <thead>
-      <tr><th>Role</th><th>Rate/hr</th><th>Est. hrs (4 flows)</th><th>Estimated cost</th></tr>
-    </thead>
-    <tbody>
-      
-      <tr><td>Offshore Architect</td><td>$45.00</td><td>~80h</td><td>$3,600</td></tr>
-      
-      <tr><td>Offshore Sr Developer</td><td>$35.00</td><td>~160h</td><td>$5,600</td></tr>
-      
-      <tr><td>Offshore Developer</td><td>$25.00</td><td>~240h</td><td>$6,000</td></tr>
-      
-      <tr><td colspan="3"><strong>Total estimate</strong></td><td><strong>$15,200</strong></td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:12px;color:var(--mid);margin-top:10px;">Invoiced bi-weekly based on actual hours logged. Minimum engagement: 80 hours. Time tracked via shared sheet provided at SOW signing.</p>
-</div>
 
 
 
@@ -762,40 +697,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
     </div>
   </div>
 </details>
-
-
-
-<details class="section-block">
-  <summary class="section-head">
-    <div class="section-summary">
-      <div class="section-eyebrow">How We Read This Engagement</div>
-      <div class="section-title">What we noticed about how you evaluate decisions</div>
-    </div>
-    <span class="section-chevron">&#9660;</span>
-  </summary>
-  <div class="section-body">
-    <div class="buyer-profile-grid">
-      <div class="buyer-profile-card">
-        <div class="buyer-profile-label">Your decision style</div>
-        <div class="buyer-profile-value">operational pragmatist</div>
-        <p style="font-size:12px;color:var(--mid);margin:0;line-height:1.6;">This proposal was shaped around what matters most to you — concrete outcomes, specific timelines, and what stops on go-live day. Abstract capability claims were left out.</p>
-      </div>
-      
-      <div class="buyer-profile-card">
-        <div class="buyer-profile-label">Signals that shaped this proposal</div>
-        
-        <div class="buyer-signal">I will go through the backend and go through Home Depot reporting and find the deposits or not deposits the payment and then select the deposit paid box</div>
-        
-        <div class="buyer-signal">If that could integrate and flow back through an API, that was awesome, that would work</div>
-        
-        <div class="buyer-signal">we are writing a comment at the hd screen so that should be fine for me like I have to respond back to hd instead of taking the process ahead</div>
-        
-      </div>
-      
-    </div>
-  </div>
-</details>
-
 
 
 <details class="section-block" open>
@@ -1079,70 +980,6 @@ textarea.cta-input { min-height: 80px; resize: vertical; }
       </div>
       
     </div>
-  </div>
-</details>
-
-
-
-
-
-<details class="section-block">
-  <summary class="section-head">
-    <div class="section-summary">
-      <div class="section-eyebrow">Platform Opportunity</div>
-      <div class="section-title">This engagement is bigger than one brand</div>
-    </div>
-    <span class="section-chevron">&#9660;</span>
-  </summary>
-  <div class="section-body">
-    
-    <div class="portfolio-sponsor">
-      <div>
-        <div class="portfolio-sponsor-label">Financial Sponsor</div>
-        <div class="portfolio-sponsor-name">Akoya Capital Partners</div>
-        <div class="portfolio-sponsor-detail">An Elevate Fence Partners portfolio-wide integration standard reduces due-diligence overhead on Akoya Capital Partners' next residential Home Services acquisition — pipeline created by a single Peerless engagement.</div>
-      </div>
-    </div>
-    
-    
-    <div class="portfolio-template-angle">A successful integration with Peerless Fence Group becomes the template for 5 sibling brands under Elevate Fence Partners — each adding a ComputerEase company code and state-specific rule extensions to UC3's validation engine, not a new build cycle.</div>
-    
-    
-    <p style="font-size:12px;color:var(--mid);margin-bottom:8px;">5 sibling brands under Elevate Fence Partners — each a future engagement once the Peerless template is proven:</p>
-    <div class="portfolio-grid">
-      
-      <div class="portfolio-card">
-        <div class="portfolio-card-name">Florida State Fence</div>
-        
-        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. First logical second-engagement candidate post-Peerless: Florida adds non-Midwest tax/permit rules + separate ComputerEase company code + separate HD Portal tenant footprint.</div>
-      </div>
-      
-      <div class="portfolio-card">
-        <div class="portfolio-card-name">Foremost Fence</div>
-        
-        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. Likely shares Florida regulatory profile + tax/permit rule set with Florida State Fence.</div>
-      </div>
-      
-      <div class="portfolio-card">
-        <div class="portfolio-card-name">Allied Fence Co.</div>
-        
-        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. Georgia-specific permit + deposit rule set + GA state tax. Separate ComputerEase company code likely.</div>
-      </div>
-      
-      <div class="portfolio-card">
-        <div class="portfolio-card-name">Jan Fence</div>
-        
-        <div class="portfolio-card-signal">unknown — no public integration footprint captured yet. NJ-specific Home Improvement Contractor (HIC) registration rules. Separate ComputerEase company code likely.</div>
-      </div>
-      
-      <div class="portfolio-card">
-        <div class="portfolio-card-name">MyFence2Go</div>
-        
-        <div class="portfolio-card-signal">Distinct from installer-contractor siblings — e-commerce storefront + WMS / fulfillment + ComputerEase as inventory/financial backend. Does NOT consume HD Portal Pro leads. Peerless integration template applies partially: Salesforce ↔ ComputerEase backbone reusable; HD Portal layer not applicable.</div>
-      </div>
-      
-    </div>
-    
   </div>
 </details>
 
