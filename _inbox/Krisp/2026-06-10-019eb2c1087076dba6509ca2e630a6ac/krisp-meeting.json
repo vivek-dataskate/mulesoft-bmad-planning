@@ -1,0 +1,231 @@
+{
+  "id": "019eb2c1087076dba6509ca2e630a6ac",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019eb2b98102779984fbbb840199c5d5",
+      "title": "Kailash:Nouman",
+      "duration": 487,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "4mup89pfn1ta3ovs0bcpfud6oo",
+      "participants": [
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": "e4e4147e6b895e10bc6537685ba6b60c",
+          "first_name": "nouman.umer",
+          "email": "nouman.umer@salesforce.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "e4e4147e6b895e10bc6537685ba6b60c",
+          "first_name": "nouman.umer",
+          "email": "nouman.umer@salesforce.com"
+        },
+        {
+          "index": 3
+        }
+      ],
+      "start_date": "2026-06-10T18:08:50.810Z",
+      "end_date": "2026-06-10T18:16:57.810Z",
+      "url": "https://app.krisp.ai/n/019eb2b98102779984fbbb840199c5d5"
+    },
+    "content": [
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That I can't hear you."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Now, you should be able to hear me."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So let me share my screen."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Okay. So I'm just working on the deck that we're going to be presenting. So I'm..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I have put down a few slides. So let me show you the rest of the documentation and let me know once you can see my screen."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Onesation. That was LA."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay? So yeah, I put down first the API documentation for Salesforce. Okay, I'm showing how API we can extract that from Salesforce ID and I put down that we'll have a court, a special schema for the Salesforce.\nThis would be the Salesforce API that we'll be calling, which is extracted from the top one. Okay, the second is a paid documentation for Sage. I'm showing them that there are price lists and price list entries and this will convert. A Salesforce co header will be converted to a price list. Every item will be added to the price list entry and once all this is done we will create a project inside sent that and that project will be assigned with the price list tiding.\nI'll give one screenshot here for the project creation API so that it will be shown. The prerequisite is that the products have to match in both the systems. And then if that is created via creation of project or anything or while adding a price entry, then we will send out an email and has to handle manually.\nOkay, this is the end of a snapshot where Salesforce API we will query, we'll extract all the orders, we'll create a price list and link the price list to a project. The proposed integration flow. The trigger is... Let's say a sales order is activated. A sales quote is activated. We get the order. We extract the line items, transform it, and create the price lists with the pricing, and then create the project and the price list.\nOkay, so for charging here, 2."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "So where we going to charge them?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "As I mentioned, the first thing is on the line items and products. If they are already in sync, that would eliminate one flow, right? At what stage do they want to create the customer as soon as an opportunity is created?\nIf they want to create a customer in sales intact, that would add one flow. But if they just want a sales code to be triggered and pushed directly here, then altogether I'm looking at nine to ten. If it's only one flow, as soon as a quote is created, we pick it up, we create a price list, we add the entries, and we create a project."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Nine to ten... So what can we tell them?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That's it."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "So we are not going to do it at code creation."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That'."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "What we need to do is approved pricing. So quotes are often ambiguous. So let me take a step back. So the total use case is sales to accounting handoff.\nThat's it, that's the use case, right? So right now there's no integration in place. Whatever sales enters, then accounting needs to re-enter, right? So basically what they need is approved pricing and job information to flow into stage, right?\nSo code is not an improved job. So basically there will be a step which says only approved code should go hit the stage intact. That is it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So, yeah, I think that's pretty... If that's the thing, right? I mean, once the quote is approved or finalized inside Salesforce, we'll pick it up, create a price list at the price entries, and create the project.\nThat's it. No updates, nothing. It's on approved. Take it, create it. If that's the only one we are looking at 9 to 10."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Nine to ten... What if the price syncs need to happen as well?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "If the pricing needs to happen then 12-13k zero."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "So maybe, in the call, ask the questions that you need to get an understanding and then share the price because I'm going to share the price as well. What's the timeline?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, timeline number of flows. I can adjust the timeline. Do they have any restrictions on timeline?"
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "No, but we should have a timeline for them, right?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I will have a timeline, but what I'm thinking is if I know the number of flows, I can put down the timeline if, let's say they have even there are five flows, but they have a timeline to say that. \"Hey, August.\nFirst we are going to want it live.\" Then I have to accommodate accordingly and adjust it. That's the reason. Otherwise, with the number of flows, I'll create a timeline and ask the questions and prepare that."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Can you...?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I'll add another deck here that will outline the number of flows, pricing, and everything, and then we'll hit that out."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Okay, so here's what we're going to do. Have the timeline ready like a ballpark range."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay?"
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "So I'm presenting this deck, which is what the objective is, what the current state is there? Yeah, what are the pain points?\nThen I'm going to talk about APL LE connectivity because he wants to know what our point of view on integrations is."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. Project. Okay."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "So I'm going to talk about that at this point. I'll hand it over to you and we'll do a bit more deep dive into what you have prepared."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Hey.\nLike in real time. This is how it's going to work."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So after this one, can you put one slide for Q&A and during that Q&A, I will ask out all the questions and then I'll switch back to my documentation and other slides, okay?"
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Okay? So maybe after this, I can. I can hand it over to you that. Hey, before you know, Kllage shows you his side of things and how he's gonna do it. There're just a couple of questions, and then you can ask them.\nOkay, so got it. I just need to work on this then."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, perfect."
+      },
+      {
+        "speaker": "nouman.umer",
+        "speakerIndex": 2,
+        "text": "Okay, see you in 15."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you. See. You. You? Yes."
+      }
+    ],
+    "raw_meeting": "**Kailash:Nouman**\n🕞 Started at 06:08 PM on 10 Jun, lasted 8m",
+    "raw_content": "kailash chanda | 00:13\nThat I can't hear you.\nnouman.umer | 00:18\nNow, you should be able to hear me.\nkailash chanda | 00:22\nSo let me share my screen.\nnouman.umer | 00:31\nOkay. So I'm just working on the deck that we're going to be presenting. So I'm...\nkailash chanda | 00:37\nI have put down a few slides. So let me show you the rest of the documentation and let me know once you can see my screen.\nSpeaker 3 | 01:12\nOnesation. That was LA.\nkailash chanda | 01:30\nOkay? So yeah, I put down first the API documentation for Salesforce. Okay, I'm showing how API we can extract that from Salesforce ID and I put down that we'll have a court, a special schema for the Salesforce.\nThis would be the Salesforce API that we'll be calling, which is extracted from the top one. Okay, the second is a paid documentation for Sage. I'm showing them that there are price lists and price list entries and this will convert. A Salesforce co header will be converted to a price list. Every item will be added to the price list entry and once all this is done we will create a project inside sent that and that project will be assigned with the price list tiding.\nI'll give one screenshot here for the project creation API so that it will be shown. The prerequisite is that the products have to match in both the systems. And then if that is created via creation of project or anything or while adding a price entry, then we will send out an email and has to handle manually.\nOkay, this is the end of a snapshot where Salesforce API we will query, we'll extract all the orders, we'll create a price list and link the price list to a project. The proposed integration flow. The trigger is... Let's say a sales order is activated. A sales quote is activated. We get the order. We extract the line items, transform it, and create the price lists with the pricing, and then create the project and the price list.\nOkay, so for charging here, 2.\nnouman.umer | 03:28\nSo where we going to charge them?\nkailash chanda | 03:32\nAs I mentioned, the first thing is on the line items and products. If they are already in sync, that would eliminate one flow, right? At what stage do they want to create the customer as soon as an opportunity is created?\nIf they want to create a customer in sales intact, that would add one flow. But if they just want a sales code to be triggered and pushed directly here, then altogether I'm looking at nine to ten. If it's only one flow, as soon as a quote is created, we pick it up, we create a price list, we add the entries, and we create a project.\nnouman.umer | 04:08\nNine to ten... So what can we tell them?\nkailash chanda | 04:20\nThat's it.\nnouman.umer | 04:21\nSo we are not going to do it at code creation.\nkailash chanda | 04:21\nThat'.\nnouman.umer | 04:23\nWhat we need to do is approved pricing. So quotes are often ambiguous. So let me take a step back. So the total use case is sales to accounting handoff.\nThat's it, that's the use case, right? So right now there's no integration in place. Whatever sales enters, then accounting needs to re-enter, right? So basically what they need is approved pricing and job information to flow into stage, right?\nSo code is not an improved job. So basically there will be a step which says only approved code should go hit the stage intact. That is it.\nkailash chanda | 05:07\nSo, yeah, I think that's pretty... If that's the thing, right? I mean, once the quote is approved or finalized inside Salesforce, we'll pick it up, create a price list at the price entries, and create the project.\nThat's it. No updates, nothing. It's on approved. Take it, create it. If that's the only one we are looking at 9 to 10.\nnouman.umer | 05:30\nNine to ten... What if the price syncs need to happen as well?\nkailash chanda | 05:33\nIf the pricing needs to happen then 12-13k zero.\nnouman.umer | 05:38\nSo maybe, in the call, ask the questions that you need to get an understanding and then share the price because I'm going to share the price as well. What's the timeline?\nkailash chanda | 05:48\nOkay, timeline number of flows. I can adjust the timeline. Do they have any restrictions on timeline?\nnouman.umer | 05:56\nNo, but we should have a timeline for them, right?\nkailash chanda | 05:58\nNo, I will have a timeline, but what I'm thinking is if I know the number of flows, I can put down the timeline if, let's say they have even there are five flows, but they have a timeline to say that. \"Hey, August.\nFirst we are going to want it live.\" Then I have to accommodate accordingly and adjust it. That's the reason. Otherwise, with the number of flows, I'll create a timeline and ask the questions and prepare that.\nnouman.umer | 06:17\nCan you...?\nkailash chanda | 06:22\nI'll add another deck here that will outline the number of flows, pricing, and everything, and then we'll hit that out.\nnouman.umer | 06:29\nOkay, so here's what we're going to do. Have the timeline ready like a ballpark range.\nkailash chanda | 06:35\nOkay?\nnouman.umer | 06:37\nSo I'm presenting this deck, which is what the objective is, what the current state is there? Yeah, what are the pain points?\nThen I'm going to talk about APL LE connectivity because he wants to know what our point of view on integrations is.\nkailash chanda | 06:57\nOkay. Project. Okay.\nnouman.umer | 07:03\nSo I'm going to talk about that at this point. I'll hand it over to you and we'll do a bit more deep dive into what you have prepared.\nkailash chanda | 07:08\nOkay.\nnouman.umer | 07:14\nHey.\nLike in real time. This is how it's going to work.\nkailash chanda | 07:18\nSo after this one, can you put one slide for Q&A and during that Q&A, I will ask out all the questions and then I'll switch back to my documentation and other slides, okay?\nnouman.umer | 07:33\nOkay? So maybe after this, I can. I can hand it over to you that. Hey, before you know, Kllage shows you his side of things and how he's gonna do it. There're just a couple of questions, and then you can ask them.\nOkay, so got it. I just need to work on this then.\nkailash chanda | 07:52\nOkay, perfect.\nnouman.umer | 07:54\nOkay, see you in 15.\nkailash chanda | 07:56\nThank you. See. You. You? Yes."
+  }
+}
