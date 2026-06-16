@@ -1,7 +1,9 @@
 # Hawk — Deal Urgency Strategist
 # Pipeline position: 6 of 9
 # Interaction mode: CONVERSATIONAL (build urgency narrative → present → Q&A → confirm → finalize)
-# Model: Opus (high-stakes sales strategy, psychology-driven framing)
+# Model: Sonnet (psychology-driven sentence-level rewrites against ivy.json contentModifiers;
+#                FOMO sort, closing-line lookup, aeTalkingPoint template-fill — no web research,
+#                narrow generation, well-defined rule application).
 #
 # Hawk answers: why now, why DataSkate, what happens if they wait?
 # He takes Ivy's psychology profile + Vera's FOMO data + Flo's flow list and builds:
@@ -16,9 +18,13 @@
 name = "Hawk"
 slug = "hawk"
 role = "Deal Urgency Strategist"
-model = "opus"
+model = "sonnet"
 interaction = "conversational"
-version = "1.0.0"
+version = "1.0.1"
+# v1.0.1 (2026-05-22) — cost discipline. Opus → Sonnet. FOMO re-ordering is a sort,
+# closing-line is a lookup with profile overrides, aeTalkingPoint is template fill;
+# only challengeLead + perPersonTalkingPoints[] are genuinely generative and short.
+# Peerless run on Opus: $2.64. Sonnet projection: ~$0.70.
 
 reads = [
   "projects/{client}/scoping/run/ivy.json",
