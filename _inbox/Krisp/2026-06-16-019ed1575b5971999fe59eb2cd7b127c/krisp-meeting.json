@@ -1,0 +1,713 @@
+{
+  "id": "019ed1575b5971999fe59eb2cd7b127c",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019ed129fa20772b95c5e5175a5e1fae",
+      "title": "Sidari | Salesforce - Scoping Pt.2 ",
+      "duration": 2951,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "46vt7dh9tgm0mqhj6br380bqdj",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "gfernander@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": "35ad004c71015a77902020f049461afc",
+          "first_name": "ryan",
+          "email": "ryan@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "mobrien@sidaribrands.com"
+        },
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "dcanavan@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "holson@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "vincent@harrtravel.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "ebrauser@sidaribrands.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "0a9ffe914da759808a759e7184fa47de",
+          "first_name": "Gaddiel",
+          "email": "06ebd4d0c69f4d0489ee6a3e79dab15c@noemail.krisp.ai"
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4
+        },
+        {
+          "index": 5
+        }
+      ],
+      "start_date": "2026-06-16T16:00:17.941Z",
+      "end_date": "2026-06-16T16:49:28.941Z",
+      "url": "https://app.krisp.ai/n/019ed129fa20772b95c5e5175a5e1fae"
+    },
+    "content": [
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Morning. Well, afternoon."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Just barely... [Laughter]."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "I remember afternoon your..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So Elizabeth is going to be about fifteen minutes late. She had another meeting that was overlapping, so hopefully, there's some other stuff that we can cover without her. I don't know for certain if... Was going to be on here or not.\nSo, yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So I think last time we stopped... Let me share my screen, so let me know if you guys can see it. So I think last time what we captured, Matt, is basically the product data from S7 to QuickBooks CRM and DMs, and that's where we wanted to discuss with Elizabeth. Purchase order from email into S7 that is basically via IDP that we have to submit and then enter into it.\nThen even the regular purchase orders apart from IDP that come in into an Excel or any other document format we enter into. Since then, we have the EDI part of it getting an EDI purchase order to be stated into S7.\nThen we discussed the back orders. I know today they are not being handled, but we wanted to get the ten into scope."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "One."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "When we receive an email purchase order that's not available in stock, then we go ahead and create a back order inside S7 and tie back the back order to the original order to say that, \"Hey, this back order is part of this particular order.\""
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay. And for what it's worth, I know S7's got some capabilities in it, like for... Okay, so say somebody orders, I don't know, for three or four different things, different products, different variations of the products, whatever. We have enough of one or two of the things, but we don't have enough of the other stuff. There's still some questions as to whether or not we handle those things intact as a whole, as an order as a whole or if we do allow for a partial ship.\nUnfortunately, I think I'm not sure if each customer is going to be the same. I think we may actually be up to running algorithms or hierarchies against... Okay, does this customer specifically allow us to send them a partial order or not?\nOkay, if they do, then... Okay, here is what we're trying to do ship and we can process it and send it on its way. If they don't, then there's our stop. Right? So there are just a couple more things to keep in mind.\nLike I said, I know that we're not doing the back order thing right now, at least not in the system. We're simply sitting on the order before putting it into the system. But again, that's not going to help us, right?\nSo we have to figure out how to deal with that and get it set. How are we...? However we need it or want it and simply because we don't use it or don't have it, we don't necessarily know for sure which way we're going to go.\nSo we'll have to get into some nitty gritty on that, but..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Then we have the customer creation for the purchase orders that we received via email into CRM and books as well. Let it be either the PDF or... Full email text or any format the customer that comes in."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Hemm two."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We have to get them created into CRM and as well as QuickBooks. Then the invoice. Invoice raised inside S7 will be published back to QuickBooks.\nThat is a status change in S7. Sales order to create an invoice inside QuickBooks and then invoice in QuickBooks once it's created. Then we pick the email ID, from, either Salesforce or pick books for the customer that we have created and emailed the index to the customer.\nSo I know we kind of discussed at these points in our last call. And then wanted to kind of catch up with Elizabeth today on other future LE."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, go back over the EDDI stuff and get into some of the product data. Okay, so we'll give for a few minutes. That's fine. Actually, let me ask a question. Your customer email to CRM actually brings up a fairly decent question for me. Now I think about it.\nSo typically, right, we're calling on or we're reaching out or we're looking for possible customers. And because we're looking for them or we've got their information, typically we're going to have their information in the CRM, which is going to get synced down to the other players, whether it's Quickbooks or S7 whoever right all the systems... Just out of curiosity, what happens if somebody sees our information? Has our information because of a pamphlet that they picked up at a trade show or something?\nThey didn't actually ever reach out and we have not contacted them yet or whatever. They just try to put an order through what happens then?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So basically, if somebody registers at a trade show and you have them registered as a lead inside Salesforce, now they come back and place an order for a purchase order via email. We first check back if that contact exists in the system in the contacts and accounts to manage to verify if this particular company exists in part of the accounts.\nIf that's exactly..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Has gone through all the other, like all the other steps. Right, so if they're there, okay, and you know, you meet these parameters and."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "She wouldn't want to do anything. Yes."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, fine, what if they don't what if they like, out of the blue just decided that you know what? I want some of this, and here, here's my order, send me this stuff. What, like, obviously it's got to do something right?\nIt's going to receive the information and it's going to go, hey, somebody wants some stuff. Okay, now what?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So what we do is if we receive an email, first we check back if that account exists based upon the email domain that we receive. Then we identify this contact exists. If this contact does not exist, then basically in the CR we create this order or a purchase order inside for that particular account. Either an opportunity is created. In the opportunity we create this particular order so somebody can review it and then send the statement, which could push through into QuickBooks."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, so ultimately the system is going to say, \"Okay, well, I've got this information, and that doesn't match anything I have.\" So it's going to start that process. It's going to start by creating the initial record for the customer's name and whatever, and then flag it to say, \"Hey, I've got this thing, and nobody's here.\""
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "What do you want me to do with this?\nRight."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay. Perfect. That's perfect. That's perfect."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "And..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Man."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, I think that you just... So we discussed last time about the order and then invoice and then on the shipment part of it.\nI know the invoice will be raised only after the product is being shipped out. Then the invoice is raised. So that is where S7. We get to know that. Okay, if the status has changed, then we go and raise an invoice.\nSo now, as you mentioned earlier, for every client, we must have some rules configured to say that for Dataskate, we can ship partial shipments or full shipments, or we have to do a full shipment. If it is a full shipment\nthat is allowed for Dataskate, then I think there should be some identifier in Syn that tells us that. \"Hey, okay. Even though the status has changed, there are some items that are not shipped.\"\nThen, when we create the invoice, only for the shipped items."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Right, well, I'll tell you what, for what it's worth, I can..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Do you want to share them too?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, if I can, I'm... Don't get me wrong, I'm not necessarily the one that's the best at this stuff or this particular platform, but I know enough to be dangerous for sure. That being said, there are...\nWell, let's see, how do I do this? Meet your call. Bring... Fair had to share the window the sky here. Okay? Sorry, just the daughter making a noise over there. Okay, so here's the customer information on this particular customer. HubSpot didn't want to do that.\nThat's probably... I'm guessing that's too small. Can you guys see that, or is that too big, or is that okay? All right, so we've got all this information and then comments, right?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah. No. We can see that. Yeah."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So, we can put... In theory, we can put a ton of notes or comments in here, right? The hard part, I believe, is that there are... We're going to have to learn a little bit more along the way as we go. It has all this stuff on the side attachments. This is where we've been putting things like specific notes and instructions.\nSo they're... They're... Confirmation. This is the confirmation from the ship or excuse me from the destination of hey, here are your rules, right? These are the things that have to be in place. Yes. It requires an appointment. That can't be any more than 56 inches high.\nAnd, you know, blah, here's the information. So when I go in there looking for that, you know, general stuff, I'm looking. Well, you probably didn't even see that, because I'm not sharing that window. Of course, it opened up a PDF never mind.\nLong story short details on that particular customer specific to their receiving hours, they're receiving requirements. And hey, the stuff can't be any higher than this, or any bigger than this, or smaller than that or blah. All that stuff is here. What we ultimately have to do is find in here somewhere.\nSay, sales by product, default templates, contacts, addresses, general. There has to be something in here insides and seven that controls that particular, you know, functionality, right? So we get something that is, you know.\nWell, it's partially back ordered. Okay. So if it's partial, then the stuff that's back ordered gets back ordered, the stuff that's not and goes on. So there has to be, I would believe, something in this customer record here that says yes or no. You can or cannot send them stuff if it's not full or if it's not complete. Sales Order. Sales Order. Sales Quote Matrix. Pick the matrix."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The second one was in sorted on the top of the no. Next to the sales quote. There is a sales quote."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Sales order. Sales order. Matrix.\nCan you see this little window that came up for me? Okay. The..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. So it says for the back order, we create a new sales order."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Split, it becomes the second one. Okay.\nAnd this is where it's going to become a okay, well, S seven and don't get me wrong, the s seven platform is generally it's it seems to be pretty good for what we needed and know where we're at and whatever.\nBut there are some things that are kind of, you know, lacking or missing, you know, in a bigger picture kind of realm. That being said, that's where it turns into... Okay, so now we've got... Sorry, Mulesoft, that's got its own rules and regulations and things so it knows what to look for. The CRM, maybe it's in HubSpot that we track, who can or can't do that so that it refers to that before it refers to the other one and then knows what it has to do if it's got a partial or whatever."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Where is co?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So ultimately, I'm sure we can figure it out, but it's things like that are going to be... Again, we're going to have to... We'll have to get through them to figure them out. But there's got to be a way to do it right, like there just has to be, so...\nOkay, well, I would imagine Elizabeth should be along here momentarily. What other... Let me stop sharing this other... I guess what other topics or what other questions or what else can we..."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Yeah, I guess one of the things that I wanted to talk about is we have a couple of creative contract options. Both Sage and Dylan and myself are able to get back with our finance team. We just want to see what direction makes sense.\nI know in our conversation you're looking for a compelling event, you want to be able to take something that Kris... That he's like, \"This is really good.\" So what that being said, we have two different options. There are two main options that we can definitely go with, one I was able to work with last week.\nWe can give you a package where you get all of your credits upfront for two years. I think the exact amount would be... Just that I can credit would be 23 million credits. And that you can use it over the course of two years.\nSo if you're worried about not having enough consumption at first, we're going to be front-loading. And you can once again spend that over the course of the two years as you choose to. The great thing about that is if you do need more capacity, we can just do an early renewal.\nAnd once again built into the contract if there's not going to be overtree. Then we talked about that briefly. There's just going to be $500 buckets off 100K credits as option number one. Okay, any questions on option number one?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No, I don't think so far. So it sounds okay."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Option number two is a package that we talked about previously that we would get here about like fourteen million. That's one that's going to be pretty consistent across your yearly contract. Then you can move it into the next year.\nSo if you have any cards that you don't consume, that'll move it into the next year. So if you're worried about consuming too much in year one as you like ramp and scale things rapidly, then it's definitely leaning more towards the first option, but the second option just provides more structure and more consistency. Both options, you'll be able to pay monthly and restructure what it would look like as well.\nThen we did come back with our finance team. So having a delayed activation. Something along those lines is something that we could do to try and make it compelling but just want to see in terms of do you think it would make more sense to have a consistent 14?\nIf not, we can provide you the extra funding you can choose and divide it with your digital wallet. I consuming it higher pacing as well and it doesn't really change the price. Per saying that we were able to get a really big discount or essentially we were able to get a good discount given it would do a two-year term to the point that we were referencing in previous years.\nSo I have some flexibility there."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "All right, so the two-year deal. Okay, I'm sorry, I'm going to need to wrap my head around that. Could you send me those two in writing so that I can read through them, please? The...\nGod, the front loading. Okay, so on either option, does the billing happen like a full boat right away, or is it not until we start using it? So not either option is not until we start using it.\nOkay, so we sign a contract and we don't start paying for anything until we actually start using part one."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "But in addition to both contracts, specifically for this month, if you do need to give yourself an extra thirty days as you wrap up your spot, we can ramp in your pricing. Then you can push that off and defer an extra month if you as well..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay. All right, so, I mean, realistically, it's the 16th, right? So even if we can get him to say yes for sure, between now and the end of this month, which, technically, I'm going on vacation next...\nLike the last week of the month. I'm going out of town because it's just me and because it's a small organ. I'm sure my stuff will... My equipment will follow me and I'll... It is what it is. I'll be available or I'll be doing stuff on the beach. While that's not unusual, the key is, I would rather not have to cajole him while I'm sitting on the beach.\nSo, that being said, I'd like to have him locked down before I leave. Which is the 27th. So, by the 26th, I'd like to have it in ten days. I'd like to have it completely locked down and\nsigned off with a tentative start time or start date of... Okay, this is when we're going to start implementing this. When I get back, whether it's right after I get back or if it's two weeks after I get back.\nIt's going to depend a little bit on the HubSpot implementation, which has started we started last week. And as a matter of fact, I've got a couple of deliverables for that I have to do yet today and tomorrow.\nSo there's that that's actually it's coming along. So."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Okay. Yeah. Would you say... Let me pull up calendars about where I can work with your team... With our team? Do you think it'd be reasonable for us to have a call either on Thursday or Friday? Whatever works... May be better for the team, and we can come with all the numbers from both an implementation and from a cost of licensing. That way, that gives us enough time before you leave next week, and then we can use Tuesday and Monday of next week to completely wrap up the project.\nSo we have an ideal understanding of what the kickoff date, service start date, and specific terms are that we want to make sure that we have locked down. Then, that way, going into Friday, you're already on your invitation. At least you understand what the path to success looks like when we turn back."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "We can set something for Friday. That'd be fine. Probably about the same time would be... Okay, you can do a noon Easter time now."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Just out of curiosity, what does... What needs to happen between now and when we lock this down? Then what should we bring in? Your guy? Does he want to be a part of this sign-up?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No, he doesn't. He doesn't want to be a part of it. What he wants is for me to come back and say, \"Okay, Matt, what did you get him? What did you get him down to? What was the lowest possible number?\"\nPlaying good cop, bad cop. For what it's worth, I'm the good cop. I'm always the good cop because this is what I wanted, right? And once the software was shown to do the thing that I wanted it to do, that nobody else could, which, by the way, now I'm being told... Shoot, hang on, what's her name? That's Kailash. Clio, the Clio integration cloud. They're now saying that they can do files that are not digitally generated, which they were pretty adamant about. The fact that they couldn't do that when I first brought it up.\nBut, yeah, I remember this. So ultimately, it really comes down to just how much I can knock you guys around and get more money out of it for us. Because really, when it comes down to it, he wants it to look like a payroll thing, right?\nSo in the long term, it wants to be a steady run rate that is not terribly a whole lot per month. Fine. What would seal the deal immediately is if you were to come back and say, \"Okay, they knock 20% off the overall price.\"\nRight now they're giving us two years and front-loading it with 23 million credits at, I don't know, $40,000 a year. So whatever... If you were to say that I get him to come back and say, \"Okay, sign it,\" but it's got to be juicy. He wants a big fat...\nYeah, absolutely. There's no question I should do this right now because it's financially viable for us. We've got no real fear of overages at the end. Okay, fine. We've got no concerns about the ability to do the things we're trying to do. No, I believe we're all on the same page here. You guys have been very intent on getting exactly what it is that we're after.\nI've been very clear about that. I don't think there are any questions as to the capabilities of the software. It really just comes down to whether or not we can make it financially enticing for him to sign it.\nAnd... And honestly, the hardest part of it is the fact that because we are a small company and the fact that we are, you know, trying to get some investors together to kind of like give us a little bit of boost here.\nAnd they've been working on that, unfortunately, since probably the tail end of last year. That they keep having meetings about it. And they keep going over stuff. And the strategy keeps, you know, getting tweaked and blah.\nYou know, we're on the verge and we're on the bubble and that because we're still on the bubble. And there hasn't been, you know, other things that have happened or and or because of, you know, I don't other bills that are not getting paid to us because we've got, you know, product out there for whatever like it really just comes down to the money. I hate. I hate it to be that way, but it's like that's it.\nLike if we just let it go for right now. If we were just to assume that he's not going to sign it because the numbers can't really change, then we're talking. We're not going to sign this until after I get back, which is from our perspective, it's don't get me wrong, it's not great, but it's not horrible because we've got other stuff that we're doing anyhow."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah. So..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Let me ask you this. So first off, thank you. That makes a ton of sense. Is Kris concerned about the implementation price as well? Because I know this is one thing we're talking about the licensing costs. How does he view that as a separate expense? One time or what do you think about that?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "That was a little bit of a flag for me, too, because I honestly, I thought it was only going to be like fifteen grand, but that's a different that's a me thing. And II don't know for sure where I had that number from. It might have been from one of the other six players, but whatever. That being said, I think that there's something to be said about looking at the managed services contract and agreement because that's well,\nthat's a completely separate thing, okay? Because if we're talking about Dataskate, is it skate or skate? Okay, versus the actual license for the software if we say, \"Okay, so we're going to get the software, and it's $X dollars.\" Fine. We still need the help to stand it up. We still need the help to keep it going. Or we need to figure out a plan to make the stand-up or the implementation run not just over a month or two.\nBecause, as Adiel and I talked the other day, he's fairly certain that you guys are capable of standing everything that we're asking for up in a month and a half, maybe two months. Don't get me wrong, you guys may very well be able to do that. I don't think we can do that in that time frame because of the number of players involved and the number of intermixing pieces and the other players that are going to have to get involved in answering questions for... How is this supposed to work? How do you want this to work?\nSome of us don't know the answers that we want, having to do it once and maybe redo it a little bit because it isn't exactly what we thought we wanted. Because again, we're creating this whole thing from scratch, which is another part of the endeavor."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "It's a big project, and it's critical to your business. I get that completely. So you want to make sure, Matt, every time going into these things, that the number one thing for me is what you've already said, which is that you're confident that the tech can do what you need to do, and that this is the team your daysk can achieve what you're looking to achieve. Everything else feels like we can find a way to get it to work.\nDo you know what I mean? Okay, so I guess for me, I know that we had initially shown around 55, and this was your... Did you get feedback from Krisp where he said, \"Hey, Matt, you got this to 40. I pulled the trigger today.\" Did he tell you that?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Justly no, not specifically, he just said make it juicy. Get him to make a juicy that juicy enough that he'll want it. Like that's really the key."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "This has got to be everybody. This is a call to Elizabeth."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I'm just going to continue on my rant. Everybody, this is Elizabeth. She's our CEO, and I will let her introduce herself, and then we can come back around to the implementation thing because I have an idea for that too, but it's not as short and sweet."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Sounds good."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "By Elizabeth. Guys, how are you?"
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "How are you?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I'm Elizabeth. Nice to meet you. How are you?"
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Well, thank you so much for hopping on."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I had another call that went over, but what can I help with or do you need information from me?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, well, I would say we were just outlying Elizabeth, I think, where we're at, and pleasure to meet you. My name is Dylan. I lead one of the teams here from the Mulesoft team. So a quick kind of recap. We were just saying essentially, look like we've been evaluating this thing now for a little while and we now are at a place where we've had a couple of scoping calls and we feel good now like we feel good, we feel that like the technology is there, we feel that we understand what the Dataskate team has to do to execute this. This is the team that is confident that we're going to be able to get this done.\nBut to Matt's point, it's a big endeavor, and it's going to require involvement from Matt's team as well to make sure that there's a handoff back and forth of getting this thing pushed forward. So we were actually just talking about the timeline for kicking this thing off and what needs to happen from a dollar and cents perspective to make this something that could happen.\nBecause I know Matt has a vacation coming up. But I would say from that... To that end, Elizabeth, is there anything that you would want to add to that or any insight you could give in terms of maybe Chris's appetite to move this forward and timelines on... And what needs to happen to get there?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "No, I'm not involved in any of that. That's between Matt and Chris. I'm simply here just to answer any questions or operational stuff that you guys need to perfect."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Then, Matt, anything that you need that's on your mind?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Well, we'll come back around to the implementation cost because like I said, I've got an idea for that. But let's give Kailash back his platform so that he can get the questions he has for Elizabeth out there, because ultimately she's going to be the one who has the answers to those flow throughs."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So again, hands off. Thanks again. This is... We will be the implementation partner for the solution. So that's where we were trying to identify the use cases.\nSo while I was discussing with Matt based on DI and a few TMS interactions, that's where Matt mentioned that you would be the one who can help us identify what would be the best fit into phase one to identify what can be implemented.\nSo we put down to say that our product data. Any changes or updates into S7, we will push it into QuickBooks CRM and do you need the product data inside TMS, the transportation management system as well or not as well? The first question we wanted to check."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "That's a..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, we don't... I'm going to say I don't know yet, because again, this is the TMS is to be decided."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Decided."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "It's still be still TBD. So yeah, let's put in that one for a second."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. Okay. So we'll kind of pick up."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Actually, I would say specifically for Elizabeth, let's talk about the EDI process and the flow through and the documents that have to get there and the things that have to happen to them and then go back to the ordering company."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So we identified one use case for the purchase orders to come into DI Instinct 7. So that's where we wanted to understand... With how many VI documents that you guys interact on day to day basis purchase orders, invoices. I just wanted to know how many total different types of documents and the flow of those documents."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Well, they are each week to week, right? We have two customers on EDI right now, and when they send over an order, we do a couple of things within the EDI system. We route the order so that everyone knows, transportation-wise, who's picking up and aware.\nThen we pack the orders in the DI system, meaning that we need to allocate the boxes or the cases on pallets. And all of that goes there. Then at the end it fits out labels for us. So on average, we can have anywhere from five orders a week to 50 orders a week. It just really depends on the week, and unfortunately you can't really forecast that out too well just because customers order whatever they frankly feel like it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So not about the number of documents, number of orders. Elizabeth, it's basically you get an order, and then does your system send out an invoice to the customer as well?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yes, it does. Then it goes through CI, I believe, so, but unfortunately, you have to talk to our ADI provider on the labels and all of the..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, the in okay, so in ADI I we have a purchase order and then we have an invoice. And I know probably we will send a 997 functional app as well. Once we receive an ADII. We see that here this has been received and do we send out even the shipment notifications an 08:56.\nWhat it."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I can if we need to, I can get into that system and we can poke around."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, I think that will be helpful just to identify if we will be using the same system, then we will understand how to extract the data from there.\nBut because you're using Mulesoft, and you have access to the... All of the different technology tool set available, and ADI is one of them. That's where I wanted to understand to see what different types of documents you guys are processing.\nSo that way we can tell you on the DI implementation consideration as well."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So I do believe that in the long term, the intent is to go away from the current EI provider, but I don't know that I want to do that. At the same time, we're doing an implement at the implementation.\nI think we want to make this work first and then change. And unless you're. That's, you know, completely crazy. And we should just change it. That way we're, you know, not having to redo it. I'm open to, you know, suggestions, I guess."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. So the current platform at which you have... Again, I know this is now all credit usage-based. So... And you have credits being rolled over as well. We could do it in two parts. Phase one gets the customer product order and invoices down.\nThen we could start with EDI as well because again, example S7. We will have an API exposed now coming from email IDP calling since seven tomorrow. If an ADI comes and we can reuse a part of it and then just have the EDI part plugged in so that it can be done exactly."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Got it. So... Okay. You build one piece of it, and then you can just use that as a stair step or a module to sit on top of the other stuff. Okay?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So we could end up with reusable components."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, got it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So it wouldn't change much of it. So if you have your current system license extending over for a longer duration of time... Then we could do it in phase two.\nBut if you say that way that system renewal is close by... So let's try to utilize that money into EDI investment as well. So that's a few functional decisions that you guys can let us know based on that, we could get that implementation done in phase one as well.\nBut if you think that... We can do it in phase two and could cover the phase one with these and start off."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, Elizabeth, the question I have for you is... My intention is to... If we do this... I shouldn't say if we do this... My expectation would be to do the EDI stuff first as the first priority and then the purchase order as a second priority in the... For phase one stuff, which is the idea of making it so that when you get those things from whoever was a MCX or whatever, you have to fill in the individual palette pieces that are 47 different things at one time that you don't actually have to do that manually. Is that agreeable? Sure.\nOkay. All right, were there any questions for them or for me about this particular product, or are you okay, Elizabeth?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah. Yeah. So. I think that's far. End of it. That."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, that was for you. Sorry."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I don't have any cautions, I don't really know much. Tremendous amount, right? So you'll have to show everything."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Well, I'll tell you what, I will send over the stuff that they've sent us. The big picture is similar to the other product or the other products we've been looking at. There's an automation system that talks to all the other players, but this one has the ability to import virtually any document and read it without having to be told what it is, or without having it to be generated by some sort of digital format or us having to manually input it because it's unreadable. Their system ingests the file, reads it, runs their AI against it to verify stuff.\nThen if it meets the confidence score, it continues on and down the process. If it doesn't meet the confidence score, it flags it. And somebody has to get involved to find out why. Then again, it's cleared and continues on.\nSo it's similar as far as the rest of the tools go, but this one's got, I believe, a lot more horsepower. It's built on Salesforce as a backend, so it's part of the Salesforce."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "I did have... As for you, Matt, in terms of does Kris still want to get Slack or is that put back on the table?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I know there's... So based on the parameters he gave me and the platform as well, Slack is the only thing that we are going to be able to use going forward for an instant messaging platform that meets all the security parameters as well as all the capability parameters that we have to have. The Slack bot thing makes the most sense."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Okay, because I can take that back for our team too as well. And obviously, it's not going to be as huge of a discount. But once again, like where we just want to partner with you, we understand the long term.\nLike the long term strategy is I can maybe just go back and ask and once again and see like what's that look like? And in terms of when Cris is ready for that product, when it makes sense."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay. You saw those two different numbers, right? The first number you sent me was different than the second number that was shown."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Correct. Because the finance team approves different things. So, for example, I'm not a Slack specialist, so I can't give you discounts for a product that I can't represent. So I'm sure we're able to get back. That's why the timing of when you want to execute things can be very specific.\nSo if you apply and ask for that, they're going to ask me today. It is going to update on Slack, and they can give you updated pricing. Okay. Are there any other questions you think from our side that we did not answer? I'm sure... Elizabeth, there's... You're probably just to speak throw into the mix of it right now.\nSo you're... I'm not sure exactly what this is, so I'll try to make sure you do have some resources, and I can send you an outline of what we've talked about so far. That may be a little bit helpful."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I'd love to see an example of how it works with orders and all the details. So if you could send me that, that would be great."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Seals, the seal's not on the call. Okay."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Sorry, I'll share the demo that we had if that works for you. I'll try and clip it maybe, but I'll try and share over that demo. Yeah, absolutely. Then if it works for everyone, what we can do is map... You said Friday around the same time.\nSo 9 AM would be about noon your time. Does that work? So we can set that as a follow-up call. Things that I need to do... My son, you resources, get you the updated information regarding slides. We want to make sure that we have between now and Friday's call that you have the updated information for pricing from scoping. Matt, did you want to have a separate call so that you can get the exact numbers? You said you had some thoughts about it, but I know we..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Elizabeth, if you've got nothing else or if you've got other questions you can take off. I don't know if you've had anything else scheduled, but... Yeah, thank you."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "I'm sorry, thank you. I will send up some follow-up resources. Yes, thank you, appreciate it."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So my... I've got a little bit yet have actually got a little while. So the thought or the thinking from a perspective of... Okay. So if the term is two years for the contractor, even if it's a year at a time, whatever, the project is going to take us, I believe, more than just a month or two to actually get the whole thing together. That being said, I still want to do some sort of managed services agreement with you guys because I'm only one person, right? There needs to be redundancy. There needs to be recovery in case, God forbid, something happened."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "S."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "To the managed services agreement. I believe the one I was looking at... I think it was $300 or $450 in an 800. I think the $450 was the first one that I was looking at that included all the things that I thought I needed.\nBut that being said, if we take that $36,000, that was the first. Or what was it? 20 somewhere between 22 and 36,000 for the initial stand-up cost. Okay, fine. Again, it was a little bit higher than I expected.\nSo it was a little bit of sticker shock. But if we sign an agreement and you say, \"Okay, so instead of it being $36,000 upfront, we're going to sign a two-year agreement and it's going to be X dollars a month.\"\nSo that the money that you would get from the initial stand-up would actually be recovered in the overall term of the contract because there's... I'm going to have a hard time getting him to spend that kind of money upfront, right?\nSo that's really how I was looking at it. If there's some other way, then, great. But that was really all I was thinking."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Because I think I'll come up with a few options, Matt. Because the managed services, we do allocate a developer fully to you.\nSo that way they stay monitoring the whole solutions that we deploy.\nSo the cost of that developer stays along the two-year contract. But to complete the implementation in two months, I would need to deploy multiple developers to get this done. So that way it's developed, tested, and validated."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, and for what it's worth, I don't know that it would be bad."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So I'll try to... I think last time I proposed a list price of $30,000 to $60,000, we brought it down to $22,000 for the use cases. But I think now whatever we discuss narrows down a few of the use cases, which will bring down the price. By Friday, I'll show you the updated price and scope along with the managed services offer as well. Okay."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Will you tell me? Would it be bad to only do like, I don't know, a platform or two a month to stretch it out?\nBecause again, Vince is concerned and I'm... The more he kept saying it, the more I was a little bit concerned about it now, too. Is that we're going to try and bite off more than we can chew, and it's not going to happen, or it's going to get bungled because of stuff that we're doing or not able to do, or that we can't give you enough time to do it properly or whatever.\nSo... Okay, yeah, we've got the time built into the monthly contract. Okay, great. Well, let's do this piece this month. We'll do the next piece next month. We'll do the next piece next month. Or if we need to do something more then...\nWe figure that that's the right way to do it. Or if it has to be done together or something, then so be it. We'll figure it out. But there's... I think there's got to be a way to do it that again benefits us both because it's just that's a hard number to swallow. Then again, so is the... If you agree on it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I will come up with a plan for Friday. I'll prepare something creative and come back, and then we can think and discuss about it."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "On how we can cover these six to seven use cases over a period of time, not having to spend too much upfront.\nGo on a monthly for a two-year agreement. I will come up, and then discuss that."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah. Whatever you're working out for numbers and contracts stuff, I would say let's make the contract stuff match, like the terms and the year, the DIS, the length, whatever you want to call it, make them all match up.\nSo even if it's only like a $5,000 down payment upfront for the initial implementation, that's again, that's still within the realm of what I would have expected anyhow, like something... Think of something that's fine too."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. Sure.\nSo let me. Let me do some homework. And come back."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Just tell Gado it's all his fault."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "It's my fault. I'm happy to take the beta. Okay, so I think I know that I need to send some resources out to a bunch of people and send some things out. I'll make sure that invites are available. Is it just yourself matters person joining on F?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I would not think that he's going to want to join that until we actually get something ready for him to sign."
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "Okay, so here's what my next steps are. Do we think that on Friday, we come to you with what we need to prepare for Krisp, both from a licensing contract from our standpoint, from an implementation standpoint?\nThen on Tuesday off next week, should we have after we iron out hopefully... If there's anything that you think you can figure out internally too as well like if you float around some numbers or ideas of what we strategize that homeless or finest call with having something tailored...\nBut we come tail with what we can provide, and then we can go from there."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay. Dylan, you had other questions, I thought. Are you okay?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I think we're good. Bet I think we hammered out a plan here so I'm good to go, and if anything comes up in the interim, you just ping me."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "All right? All right, sorry, who did I cut off?"
+      },
+      {
+        "speaker": "Gaddiel",
+        "speakerIndex": 2,
+        "text": "No one else. Perfect. Well, I will let you guys go with... Thanks, everyone. I will see you."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I really appreciate it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you. Thank."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Take care."
+      }
+    ],
+    "raw_meeting": "**Sidari | Salesforce - Scoping Pt.2 **\n🕞 Started at 04:00 PM on 16 Jun, lasted 49m",
+    "raw_content": "Gaddiel | 00:18\nMorning. Well, afternoon.\nSpeaker 3 | 00:21\nJust barely... [Laughter].\nGaddiel | 00:23\nI remember afternoon your...\nSpeaker 3 | 00:30\nSo Elizabeth is going to be about fifteen minutes late. She had another meeting that was overlapping, so hopefully, there's some other stuff that we can cover without her. I don't know for certain if... Was going to be on here or not.\nSo, yeah.\nkailash chanda | 00:49\nSo I think last time we stopped... Let me share my screen, so let me know if you guys can see it. So I think last time what we captured, Matt, is basically the product data from S7 to QuickBooks CRM and DMs, and that's where we wanted to discuss with Elizabeth. Purchase order from email into S7 that is basically via IDP that we have to submit and then enter into it.\nThen even the regular purchase orders apart from IDP that come in into an Excel or any other document format we enter into. Since then, we have the EDI part of it getting an EDI purchase order to be stated into S7.\nThen we discussed the back orders. I know today they are not being handled, but we wanted to get the ten into scope.\nSpeaker 3 | 02:07\nOne.\nkailash chanda | 02:07\nWhen we receive an email purchase order that's not available in stock, then we go ahead and create a back order inside S7 and tie back the back order to the original order to say that, \"Hey, this back order is part of this particular order.\"\nSpeaker 3 | 02:25\nOkay. And for what it's worth, I know S7's got some capabilities in it, like for... Okay, so say somebody orders, I don't know, for three or four different things, different products, different variations of the products, whatever. We have enough of one or two of the things, but we don't have enough of the other stuff. There's still some questions as to whether or not we handle those things intact as a whole, as an order as a whole or if we do allow for a partial ship.\nUnfortunately, I think I'm not sure if each customer is going to be the same. I think we may actually be up to running algorithms or hierarchies against... Okay, does this customer specifically allow us to send them a partial order or not?\nOkay, if they do, then... Okay, here is what we're trying to do ship and we can process it and send it on its way. If they don't, then there's our stop. Right? So there are just a couple more things to keep in mind.\nLike I said, I know that we're not doing the back order thing right now, at least not in the system. We're simply sitting on the order before putting it into the system. But again, that's not going to help us, right?\nSo we have to figure out how to deal with that and get it set. How are we...? However we need it or want it and simply because we don't use it or don't have it, we don't necessarily know for sure which way we're going to go.\nSo we'll have to get into some nitty gritty on that, but...\nkailash chanda | 04:10\nThen we have the customer creation for the purchase orders that we received via email into CRM and books as well. Let it be either the PDF or... Full email text or any format the customer that comes in.\nSpeaker 3 | 04:19\nHemm two.\nkailash chanda | 04:26\nWe have to get them created into CRM and as well as QuickBooks. Then the invoice. Invoice raised inside S7 will be published back to QuickBooks.\nThat is a status change in S7. Sales order to create an invoice inside QuickBooks and then invoice in QuickBooks once it's created. Then we pick the email ID, from, either Salesforce or pick books for the customer that we have created and emailed the index to the customer.\nSo I know we kind of discussed at these points in our last call. And then wanted to kind of catch up with Elizabeth today on other future LE.\nSpeaker 3 | 05:09\nOkay, go back over the EDDI stuff and get into some of the product data. Okay, so we'll give for a few minutes. That's fine. Actually, let me ask a question. Your customer email to CRM actually brings up a fairly decent question for me. Now I think about it.\nSo typically, right, we're calling on or we're reaching out or we're looking for possible customers. And because we're looking for them or we've got their information, typically we're going to have their information in the CRM, which is going to get synced down to the other players, whether it's Quickbooks or S7 whoever right all the systems... Just out of curiosity, what happens if somebody sees our information? Has our information because of a pamphlet that they picked up at a trade show or something?\nThey didn't actually ever reach out and we have not contacted them yet or whatever. They just try to put an order through what happens then?\nkailash chanda | 06:11\nSo basically, if somebody registers at a trade show and you have them registered as a lead inside Salesforce, now they come back and place an order for a purchase order via email. We first check back if that contact exists in the system in the contacts and accounts to manage to verify if this particular company exists in part of the accounts.\nIf that's exactly...\nSpeaker 3 | 06:34\nHas gone through all the other, like all the other steps. Right, so if they're there, okay, and you know, you meet these parameters and.\nkailash chanda | 06:39\nShe wouldn't want to do anything. Yes.\nSpeaker 3 | 06:42\nOkay, fine, what if they don't what if they like, out of the blue just decided that you know what? I want some of this, and here, here's my order, send me this stuff. What, like, obviously it's got to do something right?\nIt's going to receive the information and it's going to go, hey, somebody wants some stuff. Okay, now what?\nkailash chanda | 07:01\nSo what we do is if we receive an email, first we check back if that account exists based upon the email domain that we receive. Then we identify this contact exists. If this contact does not exist, then basically in the CR we create this order or a purchase order inside for that particular account. Either an opportunity is created. In the opportunity we create this particular order so somebody can review it and then send the statement, which could push through into QuickBooks.\nSpeaker 3 | 07:30\nOkay, so ultimately the system is going to say, \"Okay, well, I've got this information, and that doesn't match anything I have.\" So it's going to start that process. It's going to start by creating the initial record for the customer's name and whatever, and then flag it to say, \"Hey, I've got this thing, and nobody's here.\"\nkailash chanda | 07:43\nExactly.\nSpeaker 3 | 07:54\nWhat do you want me to do with this?\nRight.\nkailash chanda | 07:55\nExactly.\nSpeaker 3 | 07:56\nOkay. Perfect. That's perfect. That's perfect.\nkailash chanda | 08:01\nAnd...\nSpeaker 3 | 08:01\nMan.\nkailash chanda | 08:12\nOkay, I think that you just... So we discussed last time about the order and then invoice and then on the shipment part of it.\nI know the invoice will be raised only after the product is being shipped out. Then the invoice is raised. So that is where S7. We get to know that. Okay, if the status has changed, then we go and raise an invoice.\nSo now, as you mentioned earlier, for every client, we must have some rules configured to say that for Dataskate, we can ship partial shipments or full shipments, or we have to do a full shipment. If it is a full shipment\nthat is allowed for Dataskate, then I think there should be some identifier in Syn that tells us that. \"Hey, okay. Even though the status has changed, there are some items that are not shipped.\"\nThen, when we create the invoice, only for the shipped items.\nSpeaker 3 | 09:11\nRight, well, I'll tell you what, for what it's worth, I can...\nkailash chanda | 09:26\nDo you want to share them too?\nSpeaker 3 | 09:28\nYeah, if I can, I'm... Don't get me wrong, I'm not necessarily the one that's the best at this stuff or this particular platform, but I know enough to be dangerous for sure. That being said, there are...\nWell, let's see, how do I do this? Meet your call. Bring... Fair had to share the window the sky here. Okay? Sorry, just the daughter making a noise over there. Okay, so here's the customer information on this particular customer. HubSpot didn't want to do that.\nThat's probably... I'm guessing that's too small. Can you guys see that, or is that too big, or is that okay? All right, so we've got all this information and then comments, right?\nkailash chanda | 10:25\nYeah. No. We can see that. Yeah.\nSpeaker 3 | 10:33\nSo, we can put... In theory, we can put a ton of notes or comments in here, right? The hard part, I believe, is that there are... We're going to have to learn a little bit more along the way as we go. It has all this stuff on the side attachments. This is where we've been putting things like specific notes and instructions.\nSo they're... They're... Confirmation. This is the confirmation from the ship or excuse me from the destination of hey, here are your rules, right? These are the things that have to be in place. Yes. It requires an appointment. That can't be any more than 56 inches high.\nAnd, you know, blah, here's the information. So when I go in there looking for that, you know, general stuff, I'm looking. Well, you probably didn't even see that, because I'm not sharing that window. Of course, it opened up a PDF never mind.\nLong story short details on that particular customer specific to their receiving hours, they're receiving requirements. And hey, the stuff can't be any higher than this, or any bigger than this, or smaller than that or blah. All that stuff is here. What we ultimately have to do is find in here somewhere.\nSay, sales by product, default templates, contacts, addresses, general. There has to be something in here insides and seven that controls that particular, you know, functionality, right? So we get something that is, you know.\nWell, it's partially back ordered. Okay. So if it's partial, then the stuff that's back ordered gets back ordered, the stuff that's not and goes on. So there has to be, I would believe, something in this customer record here that says yes or no. You can or cannot send them stuff if it's not full or if it's not complete. Sales Order. Sales Order. Sales Quote Matrix. Pick the matrix.\nkailash chanda | 12:38\nThe second one was in sorted on the top of the no. Next to the sales quote. There is a sales quote.\nSpeaker 3 | 12:48\nSales order. Sales order. Matrix.\nCan you see this little window that came up for me? Okay. The...\nkailash chanda | 14:08\nOkay. So it says for the back order, we create a new sales order.\nSpeaker 3 | 14:12\nSplit, it becomes the second one. Okay.\nAnd this is where it's going to become a okay, well, S seven and don't get me wrong, the s seven platform is generally it's it seems to be pretty good for what we needed and know where we're at and whatever.\nBut there are some things that are kind of, you know, lacking or missing, you know, in a bigger picture kind of realm. That being said, that's where it turns into... Okay, so now we've got... Sorry, Mulesoft, that's got its own rules and regulations and things so it knows what to look for. The CRM, maybe it's in HubSpot that we track, who can or can't do that so that it refers to that before it refers to the other one and then knows what it has to do if it's got a partial or whatever.\nkailash chanda | 15:45\nWhere is co?\nSpeaker 3 | 15:54\nSo ultimately, I'm sure we can figure it out, but it's things like that are going to be... Again, we're going to have to... We'll have to get through them to figure them out. But there's got to be a way to do it right, like there just has to be, so...\nOkay, well, I would imagine Elizabeth should be along here momentarily. What other... Let me stop sharing this other... I guess what other topics or what other questions or what else can we...\nGaddiel | 16:27\nYeah, I guess one of the things that I wanted to talk about is we have a couple of creative contract options. Both Sage and Dylan and myself are able to get back with our finance team. We just want to see what direction makes sense.\nI know in our conversation you're looking for a compelling event, you want to be able to take something that Kris... That he's like, \"This is really good.\" So what that being said, we have two different options. There are two main options that we can definitely go with, one I was able to work with last week.\nWe can give you a package where you get all of your credits upfront for two years. I think the exact amount would be... Just that I can credit would be 23 million credits. And that you can use it over the course of two years.\nSo if you're worried about not having enough consumption at first, we're going to be front-loading. And you can once again spend that over the course of the two years as you choose to. The great thing about that is if you do need more capacity, we can just do an early renewal.\nAnd once again built into the contract if there's not going to be overtree. Then we talked about that briefly. There's just going to be $500 buckets off 100K credits as option number one. Okay, any questions on option number one?\nSpeaker 3 | 17:38\nNo, I don't think so far. So it sounds okay.\nGaddiel | 17:42\nOption number two is a package that we talked about previously that we would get here about like fourteen million. That's one that's going to be pretty consistent across your yearly contract. Then you can move it into the next year.\nSo if you have any cards that you don't consume, that'll move it into the next year. So if you're worried about consuming too much in year one as you like ramp and scale things rapidly, then it's definitely leaning more towards the first option, but the second option just provides more structure and more consistency. Both options, you'll be able to pay monthly and restructure what it would look like as well.\nThen we did come back with our finance team. So having a delayed activation. Something along those lines is something that we could do to try and make it compelling but just want to see in terms of do you think it would make more sense to have a consistent 14?\nIf not, we can provide you the extra funding you can choose and divide it with your digital wallet. I consuming it higher pacing as well and it doesn't really change the price. Per saying that we were able to get a really big discount or essentially we were able to get a good discount given it would do a two-year term to the point that we were referencing in previous years.\nSo I have some flexibility there.\nSpeaker 3 | 18:47\nAll right, so the two-year deal. Okay, I'm sorry, I'm going to need to wrap my head around that. Could you send me those two in writing so that I can read through them, please? The...\nGod, the front loading. Okay, so on either option, does the billing happen like a full boat right away, or is it not until we start using it? So not either option is not until we start using it.\nOkay, so we sign a contract and we don't start paying for anything until we actually start using part one.\nGaddiel | 19:44\nBut in addition to both contracts, specifically for this month, if you do need to give yourself an extra thirty days as you wrap up your spot, we can ramp in your pricing. Then you can push that off and defer an extra month if you as well...\nSpeaker 3 | 19:57\nOkay. All right, so, I mean, realistically, it's the 16th, right? So even if we can get him to say yes for sure, between now and the end of this month, which, technically, I'm going on vacation next...\nLike the last week of the month. I'm going out of town because it's just me and because it's a small organ. I'm sure my stuff will... My equipment will follow me and I'll... It is what it is. I'll be available or I'll be doing stuff on the beach. While that's not unusual, the key is, I would rather not have to cajole him while I'm sitting on the beach.\nSo, that being said, I'd like to have him locked down before I leave. Which is the 27th. So, by the 26th, I'd like to have it in ten days. I'd like to have it completely locked down and\nsigned off with a tentative start time or start date of... Okay, this is when we're going to start implementing this. When I get back, whether it's right after I get back or if it's two weeks after I get back.\nIt's going to depend a little bit on the HubSpot implementation, which has started we started last week. And as a matter of fact, I've got a couple of deliverables for that I have to do yet today and tomorrow.\nSo there's that that's actually it's coming along. So.\nGaddiel | 21:20\nOkay. Yeah. Would you say... Let me pull up calendars about where I can work with your team... With our team? Do you think it'd be reasonable for us to have a call either on Thursday or Friday? Whatever works... May be better for the team, and we can come with all the numbers from both an implementation and from a cost of licensing. That way, that gives us enough time before you leave next week, and then we can use Tuesday and Monday of next week to completely wrap up the project.\nSo we have an ideal understanding of what the kickoff date, service start date, and specific terms are that we want to make sure that we have locked down. Then, that way, going into Friday, you're already on your invitation. At least you understand what the path to success looks like when we turn back.\nSpeaker 3 | 22:02\nWe can set something for Friday. That'd be fine. Probably about the same time would be... Okay, you can do a noon Easter time now.\nSpeaker 4 | 22:09\nJust out of curiosity, what does... What needs to happen between now and when we lock this down? Then what should we bring in? Your guy? Does he want to be a part of this sign-up?\nSpeaker 3 | 22:21\nNo, he doesn't. He doesn't want to be a part of it. What he wants is for me to come back and say, \"Okay, Matt, what did you get him? What did you get him down to? What was the lowest possible number?\"\nPlaying good cop, bad cop. For what it's worth, I'm the good cop. I'm always the good cop because this is what I wanted, right? And once the software was shown to do the thing that I wanted it to do, that nobody else could, which, by the way, now I'm being told... Shoot, hang on, what's her name? That's Kailash. Clio, the Clio integration cloud. They're now saying that they can do files that are not digitally generated, which they were pretty adamant about. The fact that they couldn't do that when I first brought it up.\nBut, yeah, I remember this. So ultimately, it really comes down to just how much I can knock you guys around and get more money out of it for us. Because really, when it comes down to it, he wants it to look like a payroll thing, right?\nSo in the long term, it wants to be a steady run rate that is not terribly a whole lot per month. Fine. What would seal the deal immediately is if you were to come back and say, \"Okay, they knock 20% off the overall price.\"\nRight now they're giving us two years and front-loading it with 23 million credits at, I don't know, $40,000 a year. So whatever... If you were to say that I get him to come back and say, \"Okay, sign it,\" but it's got to be juicy. He wants a big fat...\nYeah, absolutely. There's no question I should do this right now because it's financially viable for us. We've got no real fear of overages at the end. Okay, fine. We've got no concerns about the ability to do the things we're trying to do. No, I believe we're all on the same page here. You guys have been very intent on getting exactly what it is that we're after.\nI've been very clear about that. I don't think there are any questions as to the capabilities of the software. It really just comes down to whether or not we can make it financially enticing for him to sign it.\nAnd... And honestly, the hardest part of it is the fact that because we are a small company and the fact that we are, you know, trying to get some investors together to kind of like give us a little bit of boost here.\nAnd they've been working on that, unfortunately, since probably the tail end of last year. That they keep having meetings about it. And they keep going over stuff. And the strategy keeps, you know, getting tweaked and blah.\nYou know, we're on the verge and we're on the bubble and that because we're still on the bubble. And there hasn't been, you know, other things that have happened or and or because of, you know, I don't other bills that are not getting paid to us because we've got, you know, product out there for whatever like it really just comes down to the money. I hate. I hate it to be that way, but it's like that's it.\nLike if we just let it go for right now. If we were just to assume that he's not going to sign it because the numbers can't really change, then we're talking. We're not going to sign this until after I get back, which is from our perspective, it's don't get me wrong, it's not great, but it's not horrible because we've got other stuff that we're doing anyhow.\nSpeaker 4 | 26:05\nYeah. So...\nSpeaker 3 | 26:06\nYes.\nSpeaker 4 | 26:08\nLet me ask you this. So first off, thank you. That makes a ton of sense. Is Kris concerned about the implementation price as well? Because I know this is one thing we're talking about the licensing costs. How does he view that as a separate expense? One time or what do you think about that?\nSpeaker 3 | 26:22\nThat was a little bit of a flag for me, too, because I honestly, I thought it was only going to be like fifteen grand, but that's a different that's a me thing. And II don't know for sure where I had that number from. It might have been from one of the other six players, but whatever. That being said, I think that there's something to be said about looking at the managed services contract and agreement because that's well,\nthat's a completely separate thing, okay? Because if we're talking about Dataskate, is it skate or skate? Okay, versus the actual license for the software if we say, \"Okay, so we're going to get the software, and it's $X dollars.\" Fine. We still need the help to stand it up. We still need the help to keep it going. Or we need to figure out a plan to make the stand-up or the implementation run not just over a month or two.\nBecause, as Adiel and I talked the other day, he's fairly certain that you guys are capable of standing everything that we're asking for up in a month and a half, maybe two months. Don't get me wrong, you guys may very well be able to do that. I don't think we can do that in that time frame because of the number of players involved and the number of intermixing pieces and the other players that are going to have to get involved in answering questions for... How is this supposed to work? How do you want this to work?\nSome of us don't know the answers that we want, having to do it once and maybe redo it a little bit because it isn't exactly what we thought we wanted. Because again, we're creating this whole thing from scratch, which is another part of the endeavor.\nSpeaker 4 | 28:10\nIt's a big project, and it's critical to your business. I get that completely. So you want to make sure, Matt, every time going into these things, that the number one thing for me is what you've already said, which is that you're confident that the tech can do what you need to do, and that this is the team your daysk can achieve what you're looking to achieve. Everything else feels like we can find a way to get it to work.\nDo you know what I mean? Okay, so I guess for me, I know that we had initially shown around 55, and this was your... Did you get feedback from Krisp where he said, \"Hey, Matt, you got this to 40. I pulled the trigger today.\" Did he tell you that?\nSpeaker 3 | 28:47\nJustly no, not specifically, he just said make it juicy. Get him to make a juicy that juicy enough that he'll want it. Like that's really the key.\nGaddiel | 28:56\nThis has got to be everybody. This is a call to Elizabeth.\nSpeaker 3 | 29:01\nI'm just going to continue on my rant. Everybody, this is Elizabeth. She's our CEO, and I will let her introduce herself, and then we can come back around to the implementation thing because I have an idea for that too, but it's not as short and sweet.\nSpeaker 4 | 29:16\nSounds good.\nSpeaker 5 | 29:17\nBy Elizabeth. Guys, how are you?\nGaddiel | 29:20\nHow are you?\nSpeaker 5 | 29:23\nI'm Elizabeth. Nice to meet you. How are you?\nGaddiel | 29:26\nWell, thank you so much for hopping on.\nSpeaker 5 | 29:28\nI had another call that went over, but what can I help with or do you need information from me?\nSpeaker 4 | 29:40\nYeah, well, I would say we were just outlying Elizabeth, I think, where we're at, and pleasure to meet you. My name is Dylan. I lead one of the teams here from the Mulesoft team. So a quick kind of recap. We were just saying essentially, look like we've been evaluating this thing now for a little while and we now are at a place where we've had a couple of scoping calls and we feel good now like we feel good, we feel that like the technology is there, we feel that we understand what the Dataskate team has to do to execute this. This is the team that is confident that we're going to be able to get this done.\nBut to Matt's point, it's a big endeavor, and it's going to require involvement from Matt's team as well to make sure that there's a handoff back and forth of getting this thing pushed forward. So we were actually just talking about the timeline for kicking this thing off and what needs to happen from a dollar and cents perspective to make this something that could happen.\nBecause I know Matt has a vacation coming up. But I would say from that... To that end, Elizabeth, is there anything that you would want to add to that or any insight you could give in terms of maybe Chris's appetite to move this forward and timelines on... And what needs to happen to get there?\nSpeaker 5 | 30:49\nNo, I'm not involved in any of that. That's between Matt and Chris. I'm simply here just to answer any questions or operational stuff that you guys need to perfect.\nSpeaker 4 | 30:57\nThen, Matt, anything that you need that's on your mind?\nSpeaker 3 | 31:02\nWell, we'll come back around to the implementation cost because like I said, I've got an idea for that. But let's give Kailash back his platform so that he can get the questions he has for Elizabeth out there, because ultimately she's going to be the one who has the answers to those flow throughs.\nkailash chanda | 31:16\nSo again, hands off. Thanks again. This is... We will be the implementation partner for the solution. So that's where we were trying to identify the use cases.\nSo while I was discussing with Matt based on DI and a few TMS interactions, that's where Matt mentioned that you would be the one who can help us identify what would be the best fit into phase one to identify what can be implemented.\nSo we put down to say that our product data. Any changes or updates into S7, we will push it into QuickBooks CRM and do you need the product data inside TMS, the transportation management system as well or not as well? The first question we wanted to check.\nSpeaker 5 | 32:12\nThat's a...\nSpeaker 3 | 32:14\nYeah, we don't... I'm going to say I don't know yet, because again, this is the TMS is to be decided.\nkailash chanda | 32:22\nDecided.\nSpeaker 3 | 32:23\nIt's still be still TBD. So yeah, let's put in that one for a second.\nkailash chanda | 32:25\nOkay. Okay. So we'll kind of pick up.\nSpeaker 3 | 32:28\nActually, I would say specifically for Elizabeth, let's talk about the EDI process and the flow through and the documents that have to get there and the things that have to happen to them and then go back to the ordering company.\nkailash chanda | 32:43\nSo we identified one use case for the purchase orders to come into DI Instinct 7. So that's where we wanted to understand... With how many VI documents that you guys interact on day to day basis purchase orders, invoices. I just wanted to know how many total different types of documents and the flow of those documents.\nSpeaker 5 | 33:12\nWell, they are each week to week, right? We have two customers on EDI right now, and when they send over an order, we do a couple of things within the EDI system. We route the order so that everyone knows, transportation-wise, who's picking up and aware.\nThen we pack the orders in the DI system, meaning that we need to allocate the boxes or the cases on pallets. And all of that goes there. Then at the end it fits out labels for us. So on average, we can have anywhere from five orders a week to 50 orders a week. It just really depends on the week, and unfortunately you can't really forecast that out too well just because customers order whatever they frankly feel like it.\nkailash chanda | 34:03\nSo not about the number of documents, number of orders. Elizabeth, it's basically you get an order, and then does your system send out an invoice to the customer as well?\nSpeaker 5 | 34:20\nYes, it does. Then it goes through CI, I believe, so, but unfortunately, you have to talk to our ADI provider on the labels and all of the...\nkailash chanda | 34:21\nOkay, the in okay, so in ADI I we have a purchase order and then we have an invoice. And I know probably we will send a 997 functional app as well. Once we receive an ADII. We see that here this has been received and do we send out even the shipment notifications an 08:56.\nWhat it.\nSpeaker 3 | 34:55\nI can if we need to, I can get into that system and we can poke around.\nkailash chanda | 35:00\nOkay, I think that will be helpful just to identify if we will be using the same system, then we will understand how to extract the data from there.\nBut because you're using Mulesoft, and you have access to the... All of the different technology tool set available, and ADI is one of them. That's where I wanted to understand to see what different types of documents you guys are processing.\nSo that way we can tell you on the DI implementation consideration as well.\nSpeaker 3 | 35:32\nSo I do believe that in the long term, the intent is to go away from the current EI provider, but I don't know that I want to do that. At the same time, we're doing an implement at the implementation.\nI think we want to make this work first and then change. And unless you're. That's, you know, completely crazy. And we should just change it. That way we're, you know, not having to redo it. I'm open to, you know, suggestions, I guess.\nkailash chanda | 36:02\nOkay. So the current platform at which you have... Again, I know this is now all credit usage-based. So... And you have credits being rolled over as well. We could do it in two parts. Phase one gets the customer product order and invoices down.\nThen we could start with EDI as well because again, example S7. We will have an API exposed now coming from email IDP calling since seven tomorrow. If an ADI comes and we can reuse a part of it and then just have the EDI part plugged in so that it can be done exactly.\nSpeaker 3 | 36:34\nGot it. So... Okay. You build one piece of it, and then you can just use that as a stair step or a module to sit on top of the other stuff. Okay?\nkailash chanda | 36:43\nSo we could end up with reusable components.\nSpeaker 3 | 36:44\nOkay, got it.\nkailash chanda | 36:46\nSo it wouldn't change much of it. So if you have your current system license extending over for a longer duration of time... Then we could do it in phase two.\nBut if you say that way that system renewal is close by... So let's try to utilize that money into EDI investment as well. So that's a few functional decisions that you guys can let us know based on that, we could get that implementation done in phase one as well.\nBut if you think that... We can do it in phase two and could cover the phase one with these and start off.\nSpeaker 3 | 37:23\nOkay, Elizabeth, the question I have for you is... My intention is to... If we do this... I shouldn't say if we do this... My expectation would be to do the EDI stuff first as the first priority and then the purchase order as a second priority in the... For phase one stuff, which is the idea of making it so that when you get those things from whoever was a MCX or whatever, you have to fill in the individual palette pieces that are 47 different things at one time that you don't actually have to do that manually. Is that agreeable? Sure.\nOkay. All right, were there any questions for them or for me about this particular product, or are you okay, Elizabeth?\nkailash chanda | 38:10\nYeah. Yeah. So. I think that's far. End of it. That.\nSpeaker 3 | 38:16\nYeah, that was for you. Sorry.\nSpeaker 5 | 38:20\nI don't have any cautions, I don't really know much. Tremendous amount, right? So you'll have to show everything.\nSpeaker 3 | 38:27\nWell, I'll tell you what, I will send over the stuff that they've sent us. The big picture is similar to the other product or the other products we've been looking at. There's an automation system that talks to all the other players, but this one has the ability to import virtually any document and read it without having to be told what it is, or without having it to be generated by some sort of digital format or us having to manually input it because it's unreadable. Their system ingests the file, reads it, runs their AI against it to verify stuff.\nThen if it meets the confidence score, it continues on and down the process. If it doesn't meet the confidence score, it flags it. And somebody has to get involved to find out why. Then again, it's cleared and continues on.\nSo it's similar as far as the rest of the tools go, but this one's got, I believe, a lot more horsepower. It's built on Salesforce as a backend, so it's part of the Salesforce.\nGaddiel | 39:36\nI did have... As for you, Matt, in terms of does Kris still want to get Slack or is that put back on the table?\nSpeaker 3 | 39:45\nI know there's... So based on the parameters he gave me and the platform as well, Slack is the only thing that we are going to be able to use going forward for an instant messaging platform that meets all the security parameters as well as all the capability parameters that we have to have. The Slack bot thing makes the most sense.\nGaddiel | 40:11\nOkay, because I can take that back for our team too as well. And obviously, it's not going to be as huge of a discount. But once again, like where we just want to partner with you, we understand the long term.\nLike the long term strategy is I can maybe just go back and ask and once again and see like what's that look like? And in terms of when Cris is ready for that product, when it makes sense.\nSpeaker 3 | 40:28\nOkay. You saw those two different numbers, right? The first number you sent me was different than the second number that was shown.\nGaddiel | 40:35\nCorrect. Because the finance team approves different things. So, for example, I'm not a Slack specialist, so I can't give you discounts for a product that I can't represent. So I'm sure we're able to get back. That's why the timing of when you want to execute things can be very specific.\nSo if you apply and ask for that, they're going to ask me today. It is going to update on Slack, and they can give you updated pricing. Okay. Are there any other questions you think from our side that we did not answer? I'm sure... Elizabeth, there's... You're probably just to speak throw into the mix of it right now.\nSo you're... I'm not sure exactly what this is, so I'll try to make sure you do have some resources, and I can send you an outline of what we've talked about so far. That may be a little bit helpful.\nSpeaker 5 | 41:20\nI'd love to see an example of how it works with orders and all the details. So if you could send me that, that would be great.\nSpeaker 3 | 41:29\nSeals, the seal's not on the call. Okay.\nGaddiel | 41:32\nSorry, I'll share the demo that we had if that works for you. I'll try and clip it maybe, but I'll try and share over that demo. Yeah, absolutely. Then if it works for everyone, what we can do is map... You said Friday around the same time.\nSo 9 AM would be about noon your time. Does that work? So we can set that as a follow-up call. Things that I need to do... My son, you resources, get you the updated information regarding slides. We want to make sure that we have between now and Friday's call that you have the updated information for pricing from scoping. Matt, did you want to have a separate call so that you can get the exact numbers? You said you had some thoughts about it, but I know we...\nSpeaker 3 | 42:17\nElizabeth, if you've got nothing else or if you've got other questions you can take off. I don't know if you've had anything else scheduled, but... Yeah, thank you.\nGaddiel | 42:28\nI'm sorry, thank you. I will send up some follow-up resources. Yes, thank you, appreciate it.\nSpeaker 3 | 42:38\nSo my... I've got a little bit yet have actually got a little while. So the thought or the thinking from a perspective of... Okay. So if the term is two years for the contractor, even if it's a year at a time, whatever, the project is going to take us, I believe, more than just a month or two to actually get the whole thing together. That being said, I still want to do some sort of managed services agreement with you guys because I'm only one person, right? There needs to be redundancy. There needs to be recovery in case, God forbid, something happened.\nkailash chanda | 43:19\nS.\nSpeaker 3 | 43:20\nTo the managed services agreement. I believe the one I was looking at... I think it was $300 or $450 in an 800. I think the $450 was the first one that I was looking at that included all the things that I thought I needed.\nBut that being said, if we take that $36,000, that was the first. Or what was it? 20 somewhere between 22 and 36,000 for the initial stand-up cost. Okay, fine. Again, it was a little bit higher than I expected.\nSo it was a little bit of sticker shock. But if we sign an agreement and you say, \"Okay, so instead of it being $36,000 upfront, we're going to sign a two-year agreement and it's going to be X dollars a month.\"\nSo that the money that you would get from the initial stand-up would actually be recovered in the overall term of the contract because there's... I'm going to have a hard time getting him to spend that kind of money upfront, right?\nSo that's really how I was looking at it. If there's some other way, then, great. But that was really all I was thinking.\nkailash chanda | 44:37\nBecause I think I'll come up with a few options, Matt. Because the managed services, we do allocate a developer fully to you.\nSo that way they stay monitoring the whole solutions that we deploy.\nSo the cost of that developer stays along the two-year contract. But to complete the implementation in two months, I would need to deploy multiple developers to get this done. So that way it's developed, tested, and validated.\nSpeaker 3 | 45:03\nOkay, and for what it's worth, I don't know that it would be bad.\nkailash chanda | 45:05\nSo I'll try to... I think last time I proposed a list price of $30,000 to $60,000, we brought it down to $22,000 for the use cases. But I think now whatever we discuss narrows down a few of the use cases, which will bring down the price. By Friday, I'll show you the updated price and scope along with the managed services offer as well. Okay.\nSpeaker 3 | 45:36\nWill you tell me? Would it be bad to only do like, I don't know, a platform or two a month to stretch it out?\nBecause again, Vince is concerned and I'm... The more he kept saying it, the more I was a little bit concerned about it now, too. Is that we're going to try and bite off more than we can chew, and it's not going to happen, or it's going to get bungled because of stuff that we're doing or not able to do, or that we can't give you enough time to do it properly or whatever.\nSo... Okay, yeah, we've got the time built into the monthly contract. Okay, great. Well, let's do this piece this month. We'll do the next piece next month. We'll do the next piece next month. Or if we need to do something more then...\nWe figure that that's the right way to do it. Or if it has to be done together or something, then so be it. We'll figure it out. But there's... I think there's got to be a way to do it that again benefits us both because it's just that's a hard number to swallow. Then again, so is the... If you agree on it.\nkailash chanda | 46:38\nI will come up with a plan for Friday. I'll prepare something creative and come back, and then we can think and discuss about it.\nSpeaker 3 | 46:41\nOkay.\nkailash chanda | 46:46\nOn how we can cover these six to seven use cases over a period of time, not having to spend too much upfront.\nGo on a monthly for a two-year agreement. I will come up, and then discuss that.\nSpeaker 3 | 47:01\nYeah. Whatever you're working out for numbers and contracts stuff, I would say let's make the contract stuff match, like the terms and the year, the DIS, the length, whatever you want to call it, make them all match up.\nSo even if it's only like a $5,000 down payment upfront for the initial implementation, that's again, that's still within the realm of what I would have expected anyhow, like something... Think of something that's fine too.\nkailash chanda | 47:14\nOkay. Sure.\nSo let me. Let me do some homework. And come back.\nSpeaker 3 | 47:38\nJust tell Gado it's all his fault.\nGaddiel | 47:41\nIt's my fault. I'm happy to take the beta. Okay, so I think I know that I need to send some resources out to a bunch of people and send some things out. I'll make sure that invites are available. Is it just yourself matters person joining on F?\nSpeaker 3 | 47:58\nI would not think that he's going to want to join that until we actually get something ready for him to sign.\nGaddiel | 48:05\nOkay, so here's what my next steps are. Do we think that on Friday, we come to you with what we need to prepare for Krisp, both from a licensing contract from our standpoint, from an implementation standpoint?\nThen on Tuesday off next week, should we have after we iron out hopefully... If there's anything that you think you can figure out internally too as well like if you float around some numbers or ideas of what we strategize that homeless or finest call with having something tailored...\nBut we come tail with what we can provide, and then we can go from there.\nSpeaker 3 | 48:37\nOkay. Dylan, you had other questions, I thought. Are you okay?\nSpeaker 4 | 48:44\nI think we're good. Bet I think we hammered out a plan here so I'm good to go, and if anything comes up in the interim, you just ping me.\nSpeaker 3 | 48:49\nAll right? All right, sorry, who did I cut off?\nGaddiel | 48:54\nNo one else. Perfect. Well, I will let you guys go with... Thanks, everyone. I will see you.\nkailash chanda | 49:00\nThank you.\nSpeaker 3 | 49:01\nI really appreciate it.\nkailash chanda | 49:01\nThank you. Thank.\nSpeaker 3 | 49:02\nTake care."
+  }
+}
