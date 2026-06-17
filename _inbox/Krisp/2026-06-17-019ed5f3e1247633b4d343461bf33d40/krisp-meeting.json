@@ -1,0 +1,371 @@
+{
+  "id": "019ed5f3e1247633b4d343461bf33d40",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019ed5e112d176aa988abefb0786fe6e",
+      "title": "Spray Foam Systems + MuleSoft ",
+      "duration": 1227,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "2d1rej7092dleph7tc6i2b5nqi",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "natasha@sprayfoamsys.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "trilochan.panda@aress.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "adam.allen@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jprusaczyk@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "b.springer@sprayfoamsys.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "ebowdoin@salesforce.com"
+        },
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "shubham.dhekale@aress.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4
+        }
+      ],
+      "start_date": "2026-06-17T13:58:45.704Z",
+      "end_date": "2026-06-17T14:19:12.704Z",
+      "url": "https://app.krisp.ai/n/019ed5e112d176aa988abefb0786fe6e"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "The...\nSix.\nHello, Natasha. Hello, Kailash."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Hey. I. Listen hi everybody."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "One person that we needed but that we should be good to go. Thank you everybody for being so prompt this morning.\nNatasha, are we waiting for anybody else on your end or should we be...? Good."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "But go ahead, there shouldn't be... Bill's on vacation, so I think we're good. Bill [Laughter] right."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "All right, I guess we could go ahead and get started. Definitely appreciate the flexibility for shifting the time for today. I definitely wanted to make sure that we could get some time with Kailash here. He is a partner that our team works with all the time. He's with a company called Dataskate, an implementation partner for Mulesoft. I chatted with Kailash after our conversation last week, filled him in on the fishbowl to Salesforce integration challenges that we're having especially...\nBut postman that for a five error that the team is getting to see how we can essentially help because Natasha was out of the same opinion as you. You guys definitely aren't the only ones that are trying to do this.\nSo I was like, \"There has to be a way to facilitate this.\" So Kailash is so great at getting creative on figuring out how to get things done. So before I just start to ramble Kailash, Bill, take it over to you to introduce yourself. Natasha, I know, I said on the phone yesterday. He comes with two options of ideas of how we can accomplish this, so we'll walk through that today too."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Hey, so hi Sasha, this is Kailash. I represent Dataskate. We have been a Salesforce partner for the last eight years and into the integration space. From the last 17 years I had the integration and automation for Dataskate. Looking forward to the stop TOS MAR."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So do we? Trust me."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "[Laughter] So I'll take up a quick one on the use case.\nSo I understand that while creating RMS currently, you guys are creating and sales order into Fishbowl, but you want to mark the item type as written rather than a regular order, which is giving an error of 405, which does not allow to change. As for what I have done, I have done some research. Overall, I got to know or I understand that it's a default option that wouldn't Fishbowl allow you to do that. Let me know if it's visible or you want me to zoom in, zoom out."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. I think it is."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, so yeah. It does not allow you to have the credit return type updated at the line items level, which is a default option that doesn't allow you to override it. So we went through multiple options to understand how it can be done, what are the advantages and disadvantages.\nOut of which we identified two options that can be looked through. The first option is basically the CSU import that we saw. So Salesforce fires an RMA request as the usual day-to-day, and once Mulesoft transforms the payload as per CSV import, we will import that CSV to create this sales order with a type of credit return type, right?\nBecause directly creating a credit return type sales order inside Fishbowl is something that it doesn't allow, and it by having the default option to set as credit return will impact creating regular sales orders.\nSo we have identified multiple solutions as I proposed. So when we create, there is an option to set the default type as credit return, but that would override any of your regular sales orders that are being created.\nFor us, that option we have to roll out because that will impact a regular sales order creation. So then we understood to say that... Okay, let's allow us to create a sales order with the CSV format with the type as credit return and then push through the CSV import option into...\nThat is one of the most feasible options I understand. But again, I mentioned the risks as well. So the risk is that once an existing sales order is there, the CSV we import will not work or allow you to update or override it. Any new things you can... Allow it to go and create and update it, but any existing...\nSo it will not allow us to go and update that back. So upcoming RMS, yes, we can solve it and get that done. The next one is on the SQL patch right on the SQL side, connecting directly to the Fishball SQL database and then having them update those SQL with the SQL queries to understand what are the SOS and then try to update the return SOS into the database directly.\nBut again, this allows us to have direct access to the database, allowing the firewalls and others. So that way, either of these two options can be done to make sure it is handled without impacting the regular day-to-day business."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "To come. TA what are your thoughts here?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, the solutions look good. Do we have the SQL database as the backend for our PayPal instance, if you're aware? Natasha, yeah. My question is at the backend, the data that we are entering into the Fishball are those stored in the SQL database or they are stored as a normal file?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "It might be a normal file, but I can't say for sure. We would have to ask. Megan may know. Or we may have to ask... BD okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "The first approach is Mulesoft can do that, but... Using Mulesoft."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "How do you feel? Yeah."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, it is a good solution, but we are just thinking whether we should be using these because there is just one field that we need to update for that setting up everything again, that is not the challenge.\nBut yeah, if we need to update that..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The limitation lands inside the target system, that's where we have to find an alternative to get this done. So either we go from the back end to have that getting updated like you create a regular sales order.\nI mean you create RMS sales order with a default type, then probably have an event scheduled to trigger the updates via SQL. Otherwise we go and create manually. I mean when we manually through a CSV import.\nSo yeah, if the painpoint is on the order type or the line item type, then I think this would be the one."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah. So you think the CSP and port is the better option for this? The only downfall being that just any existing RMS we have in the system, it wouldn't reflect that basically, which I don't know if that would necessarily matter. There are some sales orders that have that as a return type in, but typically they start... I mean, I don't know, they typically start in the RMA module in Fish Bowl when they're created.\nSo I'm not sure. Or, we can... I mean, it's something to talk to our team and see if that's even worth it. If we even need to import those in if that this benefit outweighs that, because our RMS are tracked in another system as well, we can discuss that with them if this seems like the more feasible option."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "If you have data based connectivity in a bruser, then I think that would be kind of even more straightforward. MULE offers direct connectivity to the SQL databases. We just need to have the firewall access enabled. Then we can go and update even the existing line items."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay. All right, so I guess the next question would be where does that come in on pricing?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, obviously not, but I would like to kind of have you guys confirmed on which option is more kind of available."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Is it worth for us to do this for one thing?\nIt's going to be $40,000, and we're going to say no."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "If your Fishball instance has the database connectivity, then I think the effort and others would be different from what the CSB format is.\nSo if you can confirm on which option..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, SL files, we can find out."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, I think then I can have a quick slide prepared for you on the estimate and the pricing and then share. Of course, we will not put down anything around $40,000 for sure."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "You never know."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So, yes, how do you see it? Can you get us a confirmation something by tomorrow or so, or how long do you think?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah. No, our tech team, our IT team that manages everything and our server. They're pretty quick for the most part, but I'm pretty sure we can get an answer no later than tomorrow. We should probably get it today.\nIf you can send over a ticket to bed and just let them know what we're looking for on the... That's possible. Then, as soon as they do, we can follow up with you guys and see if that's even an option for four."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. So just... From my side, I think once we know which option we are going in, I can give you a concrete estimate on the timeline and price. So that would be great."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Sure."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, that sounds good. Natasha, understanding that you think it could be later today, at the very latest tomorrow morning, when it makes sense. Maybe for us to meet again tomorrow afternoon, we could walk through Kailash pricing, and we could talk about the mules socks it's saying as well.\nYeah, okay, awesome."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Of..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I guess looking at tomorrow afternoon eastern time, how would 03:30 work for everyone?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, Charlie Chan, is that too late for you?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, it would be a bit late for me. ST right?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "You're leaving earlier Thursday or Friday."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Let's see. We could do. I mean we could do the same time tomorrow if that works ten again tomorrow."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes, looks for American."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Would that work? Charlie Chan, or you're in another country, you tell me."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Same time will work for me tomorrow. Okay."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I will go ahead and send over a calendar, and by it the same time tomorrow, we'll plan to go through the pricing for Kailash implementation as well as the licensing for Mulesoft, and then we can go from there. Natasha, definitely let me know once you're able to confirm that QL database, and then we can get all of this finalized on Charlie's end, and then I guess tomorrow after we walk through pricing. I understand we're not going to put anything in front of you that's like forty thousand dollars. We're definitely going to be conscious of budget here. After you have the pricing in front of you, how quickly do you think it would take for the team to make a decision if you would want to move forward with this or not?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Bills is on vacation. So really, it's gonna have to be shot up to TJ Probably Bill's going to have to propose it the best way. I mean, we already have, you know, almost. I think we're at like 180 on this project. Two years.\nSo, you know, do they want to put more money into it now? It's going to be is the value worth it, you know, from themually changing it or, you know, going this option. So I mean, with Bill being on vacation, I would honestly say by Tuesday, that gives Bill time to propose it.\nI mean, I can send it over to TJ, but I'd rather, you know, talk with Bill and have a strategy first on how we present the information."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay. That's just good for us to know because... Thanke and I are going to start getting questions internally. So Tuesday is a perfectly fine timeline. Understanding that the team has invested a ton of money into this project already... I had... Of tomorrow's call and just looking into discounting. Is there a number that we could put in front of you tomorrow that would just make the decision a little bit easier? Do you think once Bill comes back?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "The cheapest number? [Laughter] I mean, it's really hard to say. I think if we're saying, \"Okay, we'll have to measure it at the way of... Okay, what how much time is it going to take for people to manually change it?\""
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "What is the room for error there? What that can do to mess things up. That's where I think me and Bill would have to strategize. I think if it's under two grand...\nYeah, that's a possibility. If it's more than that, me and Bill would have to get creative, so I'm not sure. I mean, there's... It would really just be in how we lay it out to say, \"Okay, is this worth it?\"\nBecause I know TJ's main thing is \"Let's get this done. This is not our holdup right now. It was one of the more important things... Another integration is the hold-up at this time. So... I mean, once we have that, we're good to move forward.\nBut, you know, TJ is like, \"Okay, it's been two years, and it was two hundred grand, and we still have nothing.\" So we're just sitting on this and to say, \"Okay, well, let's throw some more money at this.\"\nTo me, it's easy I would say yes, because I just... I know the room for error. What's that going to do if they just go? Okay, and they're going to start sending items out, and it's going to be a double negative balance. There's just...\nThat's what makes me up. Not to say... I mean, human error is a lot more... Not to say that we can tell them all day, but they would probably be \"Oops, I missed it.\" Or just people not... Eng.\nSo I think that Bill and I can kind of give that... We would be able to present it to him a little bit better. That's why I would say let Bill get back. I don't want to bother him on vacation.\nI may send it over, and he may take a look. Maybe we can get to it on Monday, but I think by Tuesday would be the best. It's just really breaking things down to see what it's worth it. And if TJ will agree or not.\nHonestly."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, that's fair. Out of full transparency, the list price for Mulesoft, which I'm going to work on getting some preliminary discounting approved ahead of tomorrow's call. But the list price is 24,000 dollars, and I'm going to get a discount approved ahead of the call tomorrow, like I said.\nBut with that, you'll have the ability to do a couple of additional integrations as well. We can go into it tomorrow. So I know you said the team's working on another one already with Dataskate, we would do the fish bull intuition that Kailash and we've been talking about today.\nBut you would have the ability to put other iterations in there on top of it. So it doesn't just have to be for the Spitishbot piece that we've been focusing on."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, well, that sounds good. I'll go ahead. I'll get that calendar invite over for the same time tomorrow. Definitely let us know once you're able to confirm the SQL piece, but we'll reconnect that if nothing else."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Awesome. Thank you guys so much."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, of course, have a great day."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Thank you, everyone."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Thanke."
+      }
+    ],
+    "raw_meeting": "**Spray Foam Systems + MuleSoft **\n🕞 Started at 01:58 PM on 17 Jun, lasted 20m",
+    "raw_content": "Speaker 2 | 01:58\nThe...\nSix.\nHello, Natasha. Hello, Kailash.\nSpeaker 3 | 02:29\nOkay.\nkailash chanda | 02:29\nHey. I. Listen hi everybody.\nSpeaker 4 | 02:37\nOne person that we needed but that we should be good to go. Thank you everybody for being so prompt this morning.\nNatasha, are we waiting for anybody else on your end or should we be...? Good.\nSpeaker 3 | 02:55\nBut go ahead, there shouldn't be... Bill's on vacation, so I think we're good. Bill [Laughter] right.\nSpeaker 4 | 03:06\nAll right, I guess we could go ahead and get started. Definitely appreciate the flexibility for shifting the time for today. I definitely wanted to make sure that we could get some time with Kailash here. He is a partner that our team works with all the time. He's with a company called Dataskate, an implementation partner for Mulesoft. I chatted with Kailash after our conversation last week, filled him in on the fishbowl to Salesforce integration challenges that we're having especially...\nBut postman that for a five error that the team is getting to see how we can essentially help because Natasha was out of the same opinion as you. You guys definitely aren't the only ones that are trying to do this.\nSo I was like, \"There has to be a way to facilitate this.\" So Kailash is so great at getting creative on figuring out how to get things done. So before I just start to ramble Kailash, Bill, take it over to you to introduce yourself. Natasha, I know, I said on the phone yesterday. He comes with two options of ideas of how we can accomplish this, so we'll walk through that today too.\nkailash chanda | 04:14\nHey, so hi Sasha, this is Kailash. I represent Dataskate. We have been a Salesforce partner for the last eight years and into the integration space. From the last 17 years I had the integration and automation for Dataskate. Looking forward to the stop TOS MAR.\nSpeaker 3 | 04:35\nSo do we? Trust me.\nkailash chanda | 04:37\n[Laughter] So I'll take up a quick one on the use case.\nSo I understand that while creating RMS currently, you guys are creating and sales order into Fishbowl, but you want to mark the item type as written rather than a regular order, which is giving an error of 405, which does not allow to change. As for what I have done, I have done some research. Overall, I got to know or I understand that it's a default option that wouldn't Fishbowl allow you to do that. Let me know if it's visible or you want me to zoom in, zoom out.\nSpeaker 2 | 05:29\nYeah. I think it is.\nkailash chanda | 05:29\nOkay, so yeah. It does not allow you to have the credit return type updated at the line items level, which is a default option that doesn't allow you to override it. So we went through multiple options to understand how it can be done, what are the advantages and disadvantages.\nOut of which we identified two options that can be looked through. The first option is basically the CSU import that we saw. So Salesforce fires an RMA request as the usual day-to-day, and once Mulesoft transforms the payload as per CSV import, we will import that CSV to create this sales order with a type of credit return type, right?\nBecause directly creating a credit return type sales order inside Fishbowl is something that it doesn't allow, and it by having the default option to set as credit return will impact creating regular sales orders.\nSo we have identified multiple solutions as I proposed. So when we create, there is an option to set the default type as credit return, but that would override any of your regular sales orders that are being created.\nFor us, that option we have to roll out because that will impact a regular sales order creation. So then we understood to say that... Okay, let's allow us to create a sales order with the CSV format with the type as credit return and then push through the CSV import option into...\nThat is one of the most feasible options I understand. But again, I mentioned the risks as well. So the risk is that once an existing sales order is there, the CSV we import will not work or allow you to update or override it. Any new things you can... Allow it to go and create and update it, but any existing...\nSo it will not allow us to go and update that back. So upcoming RMS, yes, we can solve it and get that done. The next one is on the SQL patch right on the SQL side, connecting directly to the Fishball SQL database and then having them update those SQL with the SQL queries to understand what are the SOS and then try to update the return SOS into the database directly.\nBut again, this allows us to have direct access to the database, allowing the firewalls and others. So that way, either of these two options can be done to make sure it is handled without impacting the regular day-to-day business.\nSpeaker 3 | 08:28\nTo come. TA what are your thoughts here?\nSpeaker 2 | 08:38\nYeah, the solutions look good. Do we have the SQL database as the backend for our PayPal instance, if you're aware? Natasha, yeah. My question is at the backend, the data that we are entering into the Fishball are those stored in the SQL database or they are stored as a normal file?\nSpeaker 3 | 09:07\nIt might be a normal file, but I can't say for sure. We would have to ask. Megan may know. Or we may have to ask... BD okay.\nSpeaker 2 | 09:18\nThe first approach is Mulesoft can do that, but... Using Mulesoft.\nkailash chanda | 09:18\nHow do you feel? Yeah.\nSpeaker 2 | 09:26\nYeah, it is a good solution, but we are just thinking whether we should be using these because there is just one field that we need to update for that setting up everything again, that is not the challenge.\nBut yeah, if we need to update that...\nkailash chanda | 09:44\nThe limitation lands inside the target system, that's where we have to find an alternative to get this done. So either we go from the back end to have that getting updated like you create a regular sales order.\nI mean you create RMS sales order with a default type, then probably have an event scheduled to trigger the updates via SQL. Otherwise we go and create manually. I mean when we manually through a CSV import.\nSo yeah, if the painpoint is on the order type or the line item type, then I think this would be the one.\nSpeaker 3 | 10:27\nYeah. So you think the CSP and port is the better option for this? The only downfall being that just any existing RMS we have in the system, it wouldn't reflect that basically, which I don't know if that would necessarily matter. There are some sales orders that have that as a return type in, but typically they start... I mean, I don't know, they typically start in the RMA module in Fish Bowl when they're created.\nSo I'm not sure. Or, we can... I mean, it's something to talk to our team and see if that's even worth it. If we even need to import those in if that this benefit outweighs that, because our RMS are tracked in another system as well, we can discuss that with them if this seems like the more feasible option.\nkailash chanda | 11:35\nIf you have data based connectivity in a bruser, then I think that would be kind of even more straightforward. MULE offers direct connectivity to the SQL databases. We just need to have the firewall access enabled. Then we can go and update even the existing line items.\nSpeaker 3 | 11:52\nOkay. All right, so I guess the next question would be where does that come in on pricing?\nkailash chanda | 12:04\nYeah, obviously not, but I would like to kind of have you guys confirmed on which option is more kind of available.\nSpeaker 3 | 12:04\nIs it worth for us to do this for one thing?\nIt's going to be $40,000, and we're going to say no.\nkailash chanda | 12:23\nIf your Fishball instance has the database connectivity, then I think the effort and others would be different from what the CSB format is.\nSo if you can confirm on which option...\nSpeaker 3 | 12:38\nYeah, SL files, we can find out.\nkailash chanda | 12:41\nYeah, I think then I can have a quick slide prepared for you on the estimate and the pricing and then share. Of course, we will not put down anything around $40,000 for sure.\nSpeaker 3 | 12:54\nYou never know.\nkailash chanda | 12:56\nSo, yes, how do you see it? Can you get us a confirmation something by tomorrow or so, or how long do you think?\nSpeaker 3 | 13:07\nYeah. No, our tech team, our IT team that manages everything and our server. They're pretty quick for the most part, but I'm pretty sure we can get an answer no later than tomorrow. We should probably get it today.\nIf you can send over a ticket to bed and just let them know what we're looking for on the... That's possible. Then, as soon as they do, we can follow up with you guys and see if that's even an option for four.\nkailash chanda | 13:34\nOkay. So just... From my side, I think once we know which option we are going in, I can give you a concrete estimate on the timeline and price. So that would be great.\nSpeaker 3 | 13:44\nSure.\nSpeaker 4 | 13:47\nYeah, that sounds good. Natasha, understanding that you think it could be later today, at the very latest tomorrow morning, when it makes sense. Maybe for us to meet again tomorrow afternoon, we could walk through Kailash pricing, and we could talk about the mules socks it's saying as well.\nYeah, okay, awesome.\nkailash chanda | 14:06\nOf...\nSpeaker 4 | 14:08\nI guess looking at tomorrow afternoon eastern time, how would 03:30 work for everyone?\nSpeaker 3 | 14:19\nOkay, Charlie Chan, is that too late for you?\nSpeaker 2 | 14:22\nYeah, it would be a bit late for me. ST right?\nSpeaker 3 | 14:26\nYeah.\nkailash chanda | 14:26\nNo.\nSpeaker 3 | 14:27\nYou're leaving earlier Thursday or Friday.\nSpeaker 4 | 14:30\nLet's see. We could do. I mean we could do the same time tomorrow if that works ten again tomorrow.\nkailash chanda | 14:36\nYes, looks for American.\nSpeaker 3 | 14:42\nWould that work? Charlie Chan, or you're in another country, you tell me.\nSpeaker 2 | 14:50\nSame time will work for me tomorrow. Okay.\nSpeaker 4 | 14:55\nI will go ahead and send over a calendar, and by it the same time tomorrow, we'll plan to go through the pricing for Kailash implementation as well as the licensing for Mulesoft, and then we can go from there. Natasha, definitely let me know once you're able to confirm that QL database, and then we can get all of this finalized on Charlie's end, and then I guess tomorrow after we walk through pricing. I understand we're not going to put anything in front of you that's like forty thousand dollars. We're definitely going to be conscious of budget here. After you have the pricing in front of you, how quickly do you think it would take for the team to make a decision if you would want to move forward with this or not?\nSpeaker 3 | 15:36\nBills is on vacation. So really, it's gonna have to be shot up to TJ Probably Bill's going to have to propose it the best way. I mean, we already have, you know, almost. I think we're at like 180 on this project. Two years.\nSo, you know, do they want to put more money into it now? It's going to be is the value worth it, you know, from themually changing it or, you know, going this option. So I mean, with Bill being on vacation, I would honestly say by Tuesday, that gives Bill time to propose it.\nI mean, I can send it over to TJ, but I'd rather, you know, talk with Bill and have a strategy first on how we present the information.\nSpeaker 4 | 16:22\nOkay. That's just good for us to know because... Thanke and I are going to start getting questions internally. So Tuesday is a perfectly fine timeline. Understanding that the team has invested a ton of money into this project already... I had... Of tomorrow's call and just looking into discounting. Is there a number that we could put in front of you tomorrow that would just make the decision a little bit easier? Do you think once Bill comes back?\nSpeaker 3 | 16:50\nThe cheapest number? [Laughter] I mean, it's really hard to say. I think if we're saying, \"Okay, we'll have to measure it at the way of... Okay, what how much time is it going to take for people to manually change it?\"\nSpeaker 4 | 17:08\nOkay.\nSpeaker 3 | 17:09\nWhat is the room for error there? What that can do to mess things up. That's where I think me and Bill would have to strategize. I think if it's under two grand...\nYeah, that's a possibility. If it's more than that, me and Bill would have to get creative, so I'm not sure. I mean, there's... It would really just be in how we lay it out to say, \"Okay, is this worth it?\"\nBecause I know TJ's main thing is \"Let's get this done. This is not our holdup right now. It was one of the more important things... Another integration is the hold-up at this time. So... I mean, once we have that, we're good to move forward.\nBut, you know, TJ is like, \"Okay, it's been two years, and it was two hundred grand, and we still have nothing.\" So we're just sitting on this and to say, \"Okay, well, let's throw some more money at this.\"\nTo me, it's easy I would say yes, because I just... I know the room for error. What's that going to do if they just go? Okay, and they're going to start sending items out, and it's going to be a double negative balance. There's just...\nThat's what makes me up. Not to say... I mean, human error is a lot more... Not to say that we can tell them all day, but they would probably be \"Oops, I missed it.\" Or just people not... Eng.\nSo I think that Bill and I can kind of give that... We would be able to present it to him a little bit better. That's why I would say let Bill get back. I don't want to bother him on vacation.\nI may send it over, and he may take a look. Maybe we can get to it on Monday, but I think by Tuesday would be the best. It's just really breaking things down to see what it's worth it. And if TJ will agree or not.\nHonestly.\nSpeaker 4 | 19:13\nYeah, that's fair. Out of full transparency, the list price for Mulesoft, which I'm going to work on getting some preliminary discounting approved ahead of tomorrow's call. But the list price is 24,000 dollars, and I'm going to get a discount approved ahead of the call tomorrow, like I said.\nBut with that, you'll have the ability to do a couple of additional integrations as well. We can go into it tomorrow. So I know you said the team's working on another one already with Dataskate, we would do the fish bull intuition that Kailash and we've been talking about today.\nBut you would have the ability to put other iterations in there on top of it. So it doesn't just have to be for the Spitishbot piece that we've been focusing on.\nSpeaker 3 | 19:56\nOkay.\nSpeaker 4 | 19:58\nOkay, well, that sounds good. I'll go ahead. I'll get that calendar invite over for the same time tomorrow. Definitely let us know once you're able to confirm the SQL piece, but we'll reconnect that if nothing else.\nSpeaker 3 | 20:12\nAwesome. Thank you guys so much.\nSpeaker 4 | 20:14\nYeah, of course, have a great day.\nSpeaker 3 | 20:17\nThank you, everyone.\nSpeaker 2 | 20:19\nThanke."
+  }
+}
