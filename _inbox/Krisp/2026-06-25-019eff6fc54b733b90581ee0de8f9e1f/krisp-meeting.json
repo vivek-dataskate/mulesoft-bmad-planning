@@ -1,0 +1,198 @@
+{
+  "id": "019eff6fc54b733b90581ee0de8f9e1f",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019eff67aa72736f8290c092cfb6bf61",
+      "title": "Sync - Dataskate & Mule",
+      "duration": 522,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "hg5autiv7qf72ratcbogjnqq0k",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "melida.castro@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "dcanavan@salesforce.com"
+        },
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        }
+      ],
+      "start_date": "2026-06-25T15:30:12.313Z",
+      "end_date": "2026-06-25T15:38:54.313Z",
+      "url": "https://app.krisp.ai/n/019eff67aa72736f8290c092cfb6bf61"
+    },
+    "content": [
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, Fi."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I to morning, how are you?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "You are fine. That's great. How are you?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I'm doing well, thank you. How do you say your name by this? Sorry to repeat that, tell us you don't say the \"eye\"."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes. What? Like... No."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "No worries. Delen might join us in a little bit, but thank you so much for making time today. We have this... I sent you the message, we have this very simple implementation that we need to get going, but basically, the use case is that..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Hey. I'. Look."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Hey, what's up, guys? I'm like, how are you doing today?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "You're good. I was about to start telling you about the use case right now. Yeah, go."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "For..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So we have this customer, they currently have an average by almost 50% over file storage in Salesforce. Yeah. So when I reached out to him, he said that this is something that's occurred in the past as well. He wasn't even aware that they had hit the ceiling, nor that they passed it. That he didn't know, but he wasn't surprised. Basically, there's a lot of files by the sales team that are being put into Salesforce unnecessarily. Some of them are duplicated, but a lot of them, they just put them in there to say, \"I did this.\"\nI showed the customer this demo or I sent him this video, but it's unnecessary data. So what we were trying to figure out is the best way to help them so they don't have these concept overages that they have to buy more data for.\nThe simplest plan that Dylan, Maya, and... Naha and I could come up with was they have a physical file server. We did try to say, \"Let's use OneDrive.\" And they were like, \"No.\" What they want to do, what we would think would be the best way to go about it...\nYou can tell us a little bit on your separate from the implementation point of view. But we were thinking we should put the current files that are costing these averages into the file server and keep a link on the record so they can always click into it if necessary and then create another flow that every time a file comes in through these specific clouds because they have two clouds specifically through sales clouds. Every time a file comes, it'll automatically put it into the server, but we'll keep a link to it on the record."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So I think it sounds good. We can do that. The basic thing is, when we want to put it onto a physical server and provide them a link, then it has to be a shared drive for them to access across their organization.\nSo we do an FDP and place the file there or have a shape that is... If they have a service account that we could use to log in and place it... But that file does have to be shared across their employees to access them through the link.\nKind of an explorer that opens up into our laptop, right? So those are a few configurations that need to be done by the client because they will be hacking in the physical server. But from our side, if you are selling them a platform, then I think that's the apt way to do this to connect to the SFT PA war and then place the file."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Questions from me. First off, that sounds good. They were like, \"He was a starter to the guy essentially on the sales cloud side. Melio exactly the way... It that stuff doesn't need to be in the sales source, it could be fine in the file server. There are some things he was like on the service side we want to keep in Salesforce potentially, but even those things I think, could live in the server as long as they have access to it.\nOn that point, they're fine with if somebody is on the mobile app on the field. They don't have access to the links. They don't care. He was like, \"Most of the people that need that stuff are right on premises anyway, so we don't have to worry about that.\"\nYeah, so that would be... And that they're just physically sitting there in the same building as the server, so on the same network. No need to do anything crazy there.\nSo that should be fine. Now we want to try to make this as easy as possible for him and basically give him pricing tomorrow honestly and get this thing done by next week."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think standard we can go with $7k for implementation of two flows."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Monday, Tuesday at the latest.\nSo what do you need? What are you thinking right now for scope in terms of complexity and cost?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "One is like a scheduled chalk to clean up all the old records if they have a filter on date or any certain criteria. We could have that push all of the files and then update back the folder to each one of the opportunities or account wherever they are storing.\nThe other one is build a Salesforce floor where it would publish a platform event to reference particular opportunity or object. When a file is uploaded so immediately mules SOF will receive, that platform will pick that file, put it back onto the server and update back.\nSo overall, I think that's where we are looking at. But I think we could consider the platform event and everything into one flow and put it. That's where I gave $7k to close it."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Amaz dude, that sounds perfect to me. Thank you so much, that sounds great. We're going to come in and basically at our floor as well at like fourteen. So I think that sounds great."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I'm going to create some slides to help him list all the information. If you can get me some slides from your side that are not too technical. He's not a technical guy, but we just want the timeline. What is going to be included?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "And the price. And theco."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, exactly. Amazing, incredible. What's our call?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I'll give you a single slide later. You can just hand it to your deck. I'll just prepare one slide and share it with you. Next, please."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Our call is tomorrow at 02:30 eastern. Are you able to make it?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, tomorrow at 02:30 is open for me."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay? Perf."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Amazing. Okay, if anything comes up, let us know, and the same to our side and leader if we need anything, we'll let you know. Yeah, but I think this sounds good, easy, and pleasing. Thank you guys, really appreciate it. Let's win this."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. Thank you so much as well."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thanks a lot. See you."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Thanks, guys. Bye by."
+      }
+    ],
+    "raw_meeting": "**Sync - Dataskate & Mule**\n🕞 Started at 03:30 PM on 25 Jun, lasted 8m",
+    "raw_content": "kailash chanda | 00:16\nNo, Fi.\nSpeaker 2 | 01:25\nI to morning, how are you?\nkailash chanda | 01:27\nYou are fine. That's great. How are you?\nSpeaker 2 | 01:32\nI'm doing well, thank you. How do you say your name by this? Sorry to repeat that, tell us you don't say the \"eye\".\nkailash chanda | 01:42\nYes. What? Like... No.\nSpeaker 2 | 01:48\nNo worries. Delen might join us in a little bit, but thank you so much for making time today. We have this... I sent you the message, we have this very simple implementation that we need to get going, but basically, the use case is that...\nkailash chanda | 02:19\nHey. I'. Look.\nSpeaker 3 | 02:21\nHey, what's up, guys? I'm like, how are you doing today?\nSpeaker 2 | 02:24\nYou're good. I was about to start telling you about the use case right now. Yeah, go.\nSpeaker 3 | 02:28\nFor...\nSpeaker 2 | 02:29\nSo we have this customer, they currently have an average by almost 50% over file storage in Salesforce. Yeah. So when I reached out to him, he said that this is something that's occurred in the past as well. He wasn't even aware that they had hit the ceiling, nor that they passed it. That he didn't know, but he wasn't surprised. Basically, there's a lot of files by the sales team that are being put into Salesforce unnecessarily. Some of them are duplicated, but a lot of them, they just put them in there to say, \"I did this.\"\nI showed the customer this demo or I sent him this video, but it's unnecessary data. So what we were trying to figure out is the best way to help them so they don't have these concept overages that they have to buy more data for.\nThe simplest plan that Dylan, Maya, and... Naha and I could come up with was they have a physical file server. We did try to say, \"Let's use OneDrive.\" And they were like, \"No.\" What they want to do, what we would think would be the best way to go about it...\nYou can tell us a little bit on your separate from the implementation point of view. But we were thinking we should put the current files that are costing these averages into the file server and keep a link on the record so they can always click into it if necessary and then create another flow that every time a file comes in through these specific clouds because they have two clouds specifically through sales clouds. Every time a file comes, it'll automatically put it into the server, but we'll keep a link to it on the record.\nkailash chanda | 04:29\nSo I think it sounds good. We can do that. The basic thing is, when we want to put it onto a physical server and provide them a link, then it has to be a shared drive for them to access across their organization.\nSo we do an FDP and place the file there or have a shape that is... If they have a service account that we could use to log in and place it... But that file does have to be shared across their employees to access them through the link.\nKind of an explorer that opens up into our laptop, right? So those are a few configurations that need to be done by the client because they will be hacking in the physical server. But from our side, if you are selling them a platform, then I think that's the apt way to do this to connect to the SFT PA war and then place the file.\nSpeaker 3 | 05:25\nQuestions from me. First off, that sounds good. They were like, \"He was a starter to the guy essentially on the sales cloud side. Melio exactly the way... It that stuff doesn't need to be in the sales source, it could be fine in the file server. There are some things he was like on the service side we want to keep in Salesforce potentially, but even those things I think, could live in the server as long as they have access to it.\nOn that point, they're fine with if somebody is on the mobile app on the field. They don't have access to the links. They don't care. He was like, \"Most of the people that need that stuff are right on premises anyway, so we don't have to worry about that.\"\nYeah, so that would be... And that they're just physically sitting there in the same building as the server, so on the same network. No need to do anything crazy there.\nSo that should be fine. Now we want to try to make this as easy as possible for him and basically give him pricing tomorrow honestly and get this thing done by next week.\nkailash chanda | 06:22\nI think standard we can go with $7k for implementation of two flows.\nSpeaker 3 | 06:26\nMonday, Tuesday at the latest.\nSo what do you need? What are you thinking right now for scope in terms of complexity and cost?\nkailash chanda | 06:38\nOne is like a scheduled chalk to clean up all the old records if they have a filter on date or any certain criteria. We could have that push all of the files and then update back the folder to each one of the opportunities or account wherever they are storing.\nThe other one is build a Salesforce floor where it would publish a platform event to reference particular opportunity or object. When a file is uploaded so immediately mules SOF will receive, that platform will pick that file, put it back onto the server and update back.\nSo overall, I think that's where we are looking at. But I think we could consider the platform event and everything into one flow and put it. That's where I gave $7k to close it.\nSpeaker 3 | 07:25\nAmaz dude, that sounds perfect to me. Thank you so much, that sounds great. We're going to come in and basically at our floor as well at like fourteen. So I think that sounds great.\nSpeaker 2 | 07:35\nI'm going to create some slides to help him list all the information. If you can get me some slides from your side that are not too technical. He's not a technical guy, but we just want the timeline. What is going to be included?\nkailash chanda | 07:49\nAnd the price. And theco.\nSpeaker 3 | 07:51\nYeah, exactly. Amazing, incredible. What's our call?\nkailash chanda | 07:52\nI'll give you a single slide later. You can just hand it to your deck. I'll just prepare one slide and share it with you. Next, please.\nSpeaker 2 | 08:05\nOur call is tomorrow at 02:30 eastern. Are you able to make it?\nkailash chanda | 08:13\nYeah, tomorrow at 02:30 is open for me.\nSpeaker 2 | 08:16\nOkay? Perf.\nSpeaker 3 | 08:18\nAmazing. Okay, if anything comes up, let us know, and the same to our side and leader if we need anything, we'll let you know. Yeah, but I think this sounds good, easy, and pleasing. Thank you guys, really appreciate it. Let's win this.\nSpeaker 2 | 08:31\nYeah. Thank you so much as well.\nkailash chanda | 08:31\nThanks a lot. See you.\nSpeaker 3 | 08:33\nThanks, guys. Bye by."
+  }
+}
