@@ -1,0 +1,540 @@
+{
+  "id": "019f23a03c9c704c950ba7b92028db2d",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019f238f1264758f9887fb571998a93a",
+      "title": "Dataskate/devon ",
+      "duration": 1116,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "34qphm57et224q7j3s3oj3bblr",
+      "participants": [
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "dglinski@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "sravankiran@dataskate.ai"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "f4ebfa04e0a05d6db7c7e27447dc457b",
+          "first_name": "sasank",
+          "email": "sasank@dataskate.io"
+        },
+        {
+          "index": 4
+        }
+      ],
+      "start_date": "2026-07-02T15:59:34.352Z",
+      "end_date": "2026-07-02T16:18:10.352Z",
+      "url": "https://app.krisp.ai/n/019f238f1264758f9887fb571998a93a"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Align so that you can start with the information you need."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Understood? Okay, got it, Jim."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, so in no particular order for sweets and cakes QuickBooks, we need to create invoices with the same POs that we use for the stores. So right now... Good afternoon, Kailash, how about you?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Aging. Doing. Good. Grasment. How you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Good, fine.\nOkay, so for Infantor here too. Hello."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Pandorjan. I'm good. Thank you for asking about you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay. So circling back. So for sweet cakes right now, we don't have a way to either deduct inventory or enter any sales since that is the distribution center and not an actual store. So for the stores right now, we have flow that takes the sales from Square each day, imports it deducts... You know that. Of course you did that.\nSo we need a similar mechanism for the Sweeten Cakes distribution center. The only difference being that instead of going to Square to get our sales, we're going to use the same purchase orders that we use to import to the actual store locations. The actual appeals that you are already reading from with the items so that you can add to the inventory of the stores. H PO needs to come in as its own invoice from the Sweeten Cakes location to the store, so the actual customers will be the store names themselves.\nSo that way we know we sold Hunter Street location. We sold 100 Pana Boos. 100 TCAOS? What happened to you? This PO number 10055 and it's for $800,700 dollars. Whatever the amount would be.\nAt the same time, the same operation but reverse for the inventory we will be taking out from the inventory from the production center and those units that we're selling to the stores. So instead of... Rather than just the stores, when we see the sales coming from Quick from Square, we deduct... In this case, we're going to deduct from the inventory from the actual product sector."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Okay, one question. So when we talk about purchase orders, you source these purchase orders. Is it the purchases table in the database that we have?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Correct. It's the exact same one with the exact same items. It's the exact same thing but in this operation, we're just going to be using it to enter the actual invoices in the assumed cake location.\nThat way we know store X owes us X amount of money and we deduct from the inventory so we can actually have numbers there."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Okay, so that means we have to read the purchasers table. Depending upon the location ID, we have to create a customer in the store's location and we have to create the invoices for those specific locations, correct? Those specific customers.\nOkay, understood."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Correct. Let me see the implementation and the final one. It's a new table that I need to create. We're running a production schedule from the actual commentary itself so that we can add to the inventory.\nSo let's say we produce the thousands. You're going to read from that new table, which is not nailed down yet, but it's going to be pretty similar to what you've been seeing. Just the actual SKU numbers, the quantities produced and add that to the inventory.\nIt's not going to be terribly complicated. It's actually fairly straightforward. So that we can use that to add to the inventory from the production center. Right now, the only operation adding to that inventory is the invoices from the vendors as we receive them."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Three."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "But we are not adding finished products to that inventory. This would allow us to actually have the inventory that we're going to be discounting once we actually build all those purchase orders."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Okay, understood."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, so the second part, the product update. I know we've discussed this lightly previously, but we need an operation to read from Square the purchase price, the actual cost, and the sales cost.\nThe sales price and update those fields in QuickBooks for all the stores.\nThis would not include the student location because pricing there is going to be a little bit different, but it's going to be for the stores themselves. So by relocation that... Okay, another straightforward one, but a necessary one nonetheless.\nAnother simple one that we need is to increase the think frequency for the inventory."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Three."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So we are updating the inventory once a day, if I'm not mistaken. At the afternoon, we need to buck that off to every 30 minutes.\nIf something that the flow allows, we need to up it to 30 minutes rather than daily or..."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Mr okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "The final one is a little bit more involved, and that's the one I'm going to need to accomplish."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "3.\nCalled on."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "I lost you there, James. I couldn't hear you clearly."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I'm sorry."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Yeah, now you are clear. I lost you there in a for a minute."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, so this one, the final one is a little bit more involved. I'm going to start by explaining the situation and the solution I came up with and see if that's something that's feasible."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "It is an issue of a general change request, non-so on the discount medication wasal volume."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I think it is, but I just want to run by you and see if we can figure it out a little bit.\nSo right now let's say we are receiving from Square a sale from one of the... Okay. Let's use the Techano example. We have three Techano SKUs in the system. Right now, we have the single pick, which is fine, that deducts correctly. We receive single Techanos from the purchase order.\nSo if we order 100 Techanos, we're going to enter 100 as into the inventory. Now, two additional SKUs that are in Square are two combos, the Tech X3 and the Techano X6, which, conversely, refers to a three-free Techano annual pack or a six-pack."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Of this list, it's for some..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Now, each of these has its own skew number, so when they go into QuickBooks, it's treating it as its own entity, its own product, and it says you sold, I don't know, ten Techanos instead of saying you sold 30 Techanos, which would be the correct one since it's a multiplier."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "As... And you can roam around because we are really over-standard and complicated in the way this country is with the government."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Now, my solution to this originally was to have the bundles inside of QuickBooks. The issue with the bundles is that no matter where I looked at any of the documentation for the API of QuickBooks, we cannot control through API the creation, modification, or anything of the bundles."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "What they're saying right now. Everything...\nSo before we even understand now, most of the open data is for opportunities to offers only generic all four products create... What's the name? Then with the talk of a kind of news case or a study type, what you see... West Coast look at... Creeny SA okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So it would have to be a manual process. That's not only time-consuming, it's ten stores, and then it's going to be more stores, and it's just right now, it's going to be manageable and intelligent in the future.\nSo what I was thinking about doing is instead of flowing the data through as we are currently in search, an operation where we can actually mantle those bundles and say, for reference, you got SKU one to three.\nIf you go to the Tech X6 street, you look up a table, and I say, \"Yeah, this queue contains these products.\"\nYou take those products, and then that's how you do your further operations down. You say these are T-shirts. We need to deduct three T-shirts from the inventory for quickbooks."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "How do they price in their way?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Understood."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Can you show that example of GenAI where it has a bundle or a pack so that I can understand better?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "But I never wanted... The idea was to... Next year the offering was as..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Sure, let me just...\nLet me know when you see my screen."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Yep, I can see it."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, so let's see if that's an example.\nOkay, so see here...\nOkay, so Minitekeano has these variations, it's a single one, which is the one I was talking about. It has its price. And here we see the actual SKUs are different for each of them under... The only difference being when they order this one, we give them three units of this one rather than a separate pack."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, will the statement download this? Is it a statement or as a then advice the saying that anyone there I want pics she can make converted."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "But the whole hiccup here comes from the actual SKUs themselves. So for the purposes of quickbooks and everything, this is a completely separate product in and of itself. It's not a pack product. So we see in the inventory volumes, negative whatever value for this one and for this one as well, which is not correct because these are not separate items."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Lond."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "These are all the same items, just multiple footage."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Understood? Okay, but let's say... I mean, you still want the variant name in the items, right?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We are... So I think that would play content on the future ec that..."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "GenAI, whenever we create it."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So when you're creating the actual sales receipt, yes, that still needs to be there. We want to track how well these bundles are doing so they can actually see... Yeah, people prefer the X3 over the single. Tianos or... Yeah, we can do an offer because this is working out more so."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "You gentle."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Referring to the actual inventory operations is where we need to actually track the comies."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Okay, got it. My only challenge is with GenAI. So let's say you create a sales receipt, you add items with a single... I mean you add items with bundles only. Okay, so QuickBooks treats it as a unique product there since it has a unique SKU and unique name to it.\nBut if I have to break it down, right, then what would be my product of reference? So because if I have to deduct from certain inventory... Okay, so then I'll have three products with me. One is a single, and the other one is X3 and the other one is X6.\nOkay, because I cannot choose to have X3 and X6 in sales receipt and deduct from only a single. So that's what my point was. I hope you're able to understand what the challenge here is."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So yeah, for the sales receipt, we would keep it as is. So no modification there. I'm talking about the operation to work for the inventory. Let's just speak in pseudocode for a minute."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Asa offers as at informatical in so we just you know the just and you would know ident lose contacts and on approaching number okay margin for some technology."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "You bring up your table and you look up this SKU number and say, if this is present in the bundles table, if not, okay, it's not present. Just continue your operations as they are. Now, if you look at this one, it is present in the bundles table, and then it's going to give you a breakout of, say, this bundle is comprised of three of these quantities of this one."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Understood? Okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "And then if, say, the person bought two of these bundles, you multiply that by the contents and do your operation for on line."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We have to showcas peoples."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Understood? Okay. So once we do that calculation right, like how many items we have and how many items we have to deduct when we do an inventory adjustment. So we do that inventory adjustment in QuickBooks, right? Is that the flow or is it something different?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes, for now, but that's... I have an additional final point about this one, and it's that if we're done with this, I can move to that. I want to keep a reference, a local database, with all these operations that you're doing to QuickBooks."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "He wants to discuss about as."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I want to keep one locally as well. That may invalidate the inventory sync point that I spoke to earlier, but I want to be able to see if there are any discrepancies with what we should have and see if I can catch any errors on QuickBooks and/or this."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The calendar ends in assemble tenant."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "It's an inbuilt redundancy that I want for a little bit more transparency just so it's clear that everything is proceeding correctly into QuickBooks. If it's not, then we adjust accordingly."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Is..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "But more so, these operations will give us a clean inventory table in our system that I can reference through the back office software dynamically rather than having to wait for anything."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Cr want to make all of tea. Ofer is the bust in the best rest."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Understood? Okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So, yeah, in total, five new operations that have children tasks within them. Okay. Now, is that enough to give you guys enough so we can get a quote ready and we can start working on this? Or do you need some additional information?"
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Yeah, I think on a high level, I understand these things, but again, there are a few things like some of the tables are not created and all these things. Right? So it might be a simple table only, but we just have to calculate the number of flows as well. Kailash, do you want to add anything there?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah. So, GenAI, what we will do is we will create the number of flows, what is the timeline, what tasks we need to cover through this implementation.\nThen I will share with you the scoping high range and another call between us, and we will go over the scoping and the pricing on that."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "6?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "And then once up. We can start."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, just for reference, when do you think...?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "To our holiday. Tomorrow is a holiday."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I'm sorry."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Tomorrow is a holiday, right?\nSo I'm not sure if you are working or not, but I could do that on Monday."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, I work all day, so on my end, there are no issues. If you want to meet tomorrow, that's good, if not, then Monday."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I'll do Monday. I'm off tomorrow, so I'll come back home on Monday."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, so, yeah, so Monday, then. Same time, yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Same time. Yeah, I'll send out an invite right away so that it is blocked. Then we'll go over it."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, perfect."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "One thing, GenAI, that I need some help from us since the initial part of the scope has been completed. So we have something called CSAT score. So where it talks about the customer satisfaction on whether they were able to achieve all the things that were intended to plan.\nSo it is... I mean, it's a survey questionnaire that will be sent to you. So it would be great if you could fill that specific survey and if you can share your feedback there."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Sure, you're saying I have that in my inbox or it's going to be sent."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I think puncare wills can be dr."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "You will send that."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, it's okay to you. Once that is rolled out, I'll send out an email to you as well."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay? Yeah, sounds good."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Yeah, it would be great, Gene, if you can give five so and that would help me."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Well, yeah, let's just be clear here. I know we're good and all we got there. I'm happy that we got there. But you guys know, there was a lot of friction in the beginning. I'm going to treat you guys well, but...\nYeah, the scope is the scope. But, yeah. Actually, you on the whole, yes, I am satisfied."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "It did take a little bit more than originally envisioned, and again, there was some friction. A lot of friction, rather.\nBut yeah, I'm going to give you guys as much as possible."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you."
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "Yeah, thank you, Jane, not good help."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, perfect. So yeah, I'll be waiting for it. Thank you."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thanks, Allen. Thank"
+      },
+      {
+        "speaker": "sasank",
+        "speakerIndex": 3,
+        "text": "You, thank you, I thinkcker."
+      }
+    ],
+    "raw_meeting": "**Dataskate/devon **\n🕞 Started at 03:59 PM on 02 Jul, lasted 18m",
+    "raw_content": "Speaker 2 | 00:00\nAlign so that you can start with the information you need.\nsasank | 00:04\nUnderstood? Okay, got it, Jim.\nSpeaker 2 | 00:07\nOkay, so in no particular order for sweets and cakes QuickBooks, we need to create invoices with the same POs that we use for the stores. So right now... Good afternoon, Kailash, how about you?\nkailash chanda | 00:26\nAging. Doing. Good. Grasment. How you.\nSpeaker 2 | 00:29\nGood, fine.\nOkay, so for Infantor here too. Hello.\nSpeaker 4 | 00:34\nPandorjan. I'm good. Thank you for asking about you.\nSpeaker 2 | 00:44\nOkay. So circling back. So for sweet cakes right now, we don't have a way to either deduct inventory or enter any sales since that is the distribution center and not an actual store. So for the stores right now, we have flow that takes the sales from Square each day, imports it deducts... You know that. Of course you did that.\nSo we need a similar mechanism for the Sweeten Cakes distribution center. The only difference being that instead of going to Square to get our sales, we're going to use the same purchase orders that we use to import to the actual store locations. The actual appeals that you are already reading from with the items so that you can add to the inventory of the stores. H PO needs to come in as its own invoice from the Sweeten Cakes location to the store, so the actual customers will be the store names themselves.\nSo that way we know we sold Hunter Street location. We sold 100 Pana Boos. 100 TCAOS? What happened to you? This PO number 10055 and it's for $800,700 dollars. Whatever the amount would be.\nAt the same time, the same operation but reverse for the inventory we will be taking out from the inventory from the production center and those units that we're selling to the stores. So instead of... Rather than just the stores, when we see the sales coming from Quick from Square, we deduct... In this case, we're going to deduct from the inventory from the actual product sector.\nsasank | 02:34\nOkay, one question. So when we talk about purchase orders, you source these purchase orders. Is it the purchases table in the database that we have?\nSpeaker 2 | 02:46\nCorrect. It's the exact same one with the exact same items. It's the exact same thing but in this operation, we're just going to be using it to enter the actual invoices in the assumed cake location.\nThat way we know store X owes us X amount of money and we deduct from the inventory so we can actually have numbers there.\nsasank | 03:07\nOkay, so that means we have to read the purchasers table. Depending upon the location ID, we have to create a customer in the store's location and we have to create the invoices for those specific locations, correct? Those specific customers.\nOkay, understood.\nSpeaker 2 | 03:29\nCorrect. Let me see the implementation and the final one. It's a new table that I need to create. We're running a production schedule from the actual commentary itself so that we can add to the inventory.\nSo let's say we produce the thousands. You're going to read from that new table, which is not nailed down yet, but it's going to be pretty similar to what you've been seeing. Just the actual SKU numbers, the quantities produced and add that to the inventory.\nIt's not going to be terribly complicated. It's actually fairly straightforward. So that we can use that to add to the inventory from the production center. Right now, the only operation adding to that inventory is the invoices from the vendors as we receive them.\nkailash chanda | 04:15\nThree.\nSpeaker 2 | 04:19\nBut we are not adding finished products to that inventory. This would allow us to actually have the inventory that we're going to be discounting once we actually build all those purchase orders.\nsasank | 04:34\nOkay, understood.\nSpeaker 2 | 04:38\nOkay, so the second part, the product update. I know we've discussed this lightly previously, but we need an operation to read from Square the purchase price, the actual cost, and the sales cost.\nThe sales price and update those fields in QuickBooks for all the stores.\nThis would not include the student location because pricing there is going to be a little bit different, but it's going to be for the stores themselves. So by relocation that... Okay, another straightforward one, but a necessary one nonetheless.\nAnother simple one that we need is to increase the think frequency for the inventory.\nkailash chanda | 05:26\nThree.\nSpeaker 2 | 05:34\nSo we are updating the inventory once a day, if I'm not mistaken. At the afternoon, we need to buck that off to every 30 minutes.\nIf something that the flow allows, we need to up it to 30 minutes rather than daily or...\nsasank | 05:49\nMr okay.\nSpeaker 2 | 05:51\nThe final one is a little bit more involved, and that's the one I'm going to need to accomplish.\nkailash chanda | 05:52\n3.\nCalled on.\nsasank | 06:03\nI lost you there, James. I couldn't hear you clearly.\nSpeaker 2 | 06:07\nI'm sorry.\nsasank | 06:08\nYeah, now you are clear. I lost you there in a for a minute.\nSpeaker 2 | 06:12\nOkay, so this one, the final one is a little bit more involved. I'm going to start by explaining the situation and the solution I came up with and see if that's something that's feasible.\nkailash chanda | 06:19\nIt is an issue of a general change request, non-so on the discount medication wasal volume.\nSpeaker 2 | 06:26\nI think it is, but I just want to run by you and see if we can figure it out a little bit.\nSo right now let's say we are receiving from Square a sale from one of the... Okay. Let's use the Techano example. We have three Techano SKUs in the system. Right now, we have the single pick, which is fine, that deducts correctly. We receive single Techanos from the purchase order.\nSo if we order 100 Techanos, we're going to enter 100 as into the inventory. Now, two additional SKUs that are in Square are two combos, the Tech X3 and the Techano X6, which, conversely, refers to a three-free Techano annual pack or a six-pack.\nkailash chanda | 07:08\nOf this list, it's for some...\nSpeaker 2 | 07:16\nNow, each of these has its own skew number, so when they go into QuickBooks, it's treating it as its own entity, its own product, and it says you sold, I don't know, ten Techanos instead of saying you sold 30 Techanos, which would be the correct one since it's a multiplier.\nkailash chanda | 07:28\nAs... And you can roam around because we are really over-standard and complicated in the way this country is with the government.\nSpeaker 2 | 07:38\nNow, my solution to this originally was to have the bundles inside of QuickBooks. The issue with the bundles is that no matter where I looked at any of the documentation for the API of QuickBooks, we cannot control through API the creation, modification, or anything of the bundles.\nkailash chanda | 07:54\nWhat they're saying right now. Everything...\nSo before we even understand now, most of the open data is for opportunities to offers only generic all four products create... What's the name? Then with the talk of a kind of news case or a study type, what you see... West Coast look at... Creeny SA okay.\nSpeaker 2 | 08:00\nSo it would have to be a manual process. That's not only time-consuming, it's ten stores, and then it's going to be more stores, and it's just right now, it's going to be manageable and intelligent in the future.\nSo what I was thinking about doing is instead of flowing the data through as we are currently in search, an operation where we can actually mantle those bundles and say, for reference, you got SKU one to three.\nIf you go to the Tech X6 street, you look up a table, and I say, \"Yeah, this queue contains these products.\"\nYou take those products, and then that's how you do your further operations down. You say these are T-shirts. We need to deduct three T-shirts from the inventory for quickbooks.\nkailash chanda | 08:51\nHow do they price in their way?\nSpeaker 2 | 08:52\nUnderstood.\nsasank | 08:53\nCan you show that example of GenAI where it has a bundle or a pack so that I can understand better?\nkailash chanda | 08:53\nBut I never wanted... The idea was to... Next year the offering was as...\nSpeaker 2 | 09:00\nSure, let me just...\nLet me know when you see my screen.\nsasank | 09:23\nYep, I can see it.\nSpeaker 2 | 09:26\nOkay, so let's see if that's an example.\nOkay, so see here...\nOkay, so Minitekeano has these variations, it's a single one, which is the one I was talking about. It has its price. And here we see the actual SKUs are different for each of them under... The only difference being when they order this one, we give them three units of this one rather than a separate pack.\nkailash chanda | 09:56\nOkay, will the statement download this? Is it a statement or as a then advice the saying that anyone there I want pics she can make converted.\nSpeaker 2 | 10:04\nBut the whole hiccup here comes from the actual SKUs themselves. So for the purposes of quickbooks and everything, this is a completely separate product in and of itself. It's not a pack product. So we see in the inventory volumes, negative whatever value for this one and for this one as well, which is not correct because these are not separate items.\nkailash chanda | 10:32\nLond.\nSpeaker 2 | 10:34\nThese are all the same items, just multiple footage.\nsasank | 10:38\nUnderstood? Okay, but let's say... I mean, you still want the variant name in the items, right?\nkailash chanda | 10:41\nWe are... So I think that would play content on the future ec that...\nsasank | 10:46\nGenAI, whenever we create it.\nSpeaker 2 | 10:48\nSo when you're creating the actual sales receipt, yes, that still needs to be there. We want to track how well these bundles are doing so they can actually see... Yeah, people prefer the X3 over the single. Tianos or... Yeah, we can do an offer because this is working out more so.\nkailash chanda | 11:06\nYou gentle.\nSpeaker 2 | 11:10\nReferring to the actual inventory operations is where we need to actually track the comies.\nsasank | 11:16\nOkay, got it. My only challenge is with GenAI. So let's say you create a sales receipt, you add items with a single... I mean you add items with bundles only. Okay, so QuickBooks treats it as a unique product there since it has a unique SKU and unique name to it.\nBut if I have to break it down, right, then what would be my product of reference? So because if I have to deduct from certain inventory... Okay, so then I'll have three products with me. One is a single, and the other one is X3 and the other one is X6.\nOkay, because I cannot choose to have X3 and X6 in sales receipt and deduct from only a single. So that's what my point was. I hope you're able to understand what the challenge here is.\nSpeaker 2 | 12:19\nSo yeah, for the sales receipt, we would keep it as is. So no modification there. I'm talking about the operation to work for the inventory. Let's just speak in pseudocode for a minute.\nkailash chanda | 12:35\nAsa offers as at informatical in so we just you know the just and you would know ident lose contacts and on approaching number okay margin for some technology.\nSpeaker 2 | 12:36\nYou bring up your table and you look up this SKU number and say, if this is present in the bundles table, if not, okay, it's not present. Just continue your operations as they are. Now, if you look at this one, it is present in the bundles table, and then it's going to give you a breakout of, say, this bundle is comprised of three of these quantities of this one.\nsasank | 13:04\nUnderstood? Okay.\nSpeaker 2 | 13:05\nAnd then if, say, the person bought two of these bundles, you multiply that by the contents and do your operation for on line.\nkailash chanda | 13:09\nWe have to showcas peoples.\nsasank | 13:17\nUnderstood? Okay. So once we do that calculation right, like how many items we have and how many items we have to deduct when we do an inventory adjustment. So we do that inventory adjustment in QuickBooks, right? Is that the flow or is it something different?\nSpeaker 2 | 13:37\nYes, for now, but that's... I have an additional final point about this one, and it's that if we're done with this, I can move to that. I want to keep a reference, a local database, with all these operations that you're doing to QuickBooks.\nkailash chanda | 13:48\nHe wants to discuss about as.\nSpeaker 2 | 13:55\nI want to keep one locally as well. That may invalidate the inventory sync point that I spoke to earlier, but I want to be able to see if there are any discrepancies with what we should have and see if I can catch any errors on QuickBooks and/or this.\nkailash chanda | 14:03\nThe calendar ends in assemble tenant.\nSpeaker 2 | 14:14\nIt's an inbuilt redundancy that I want for a little bit more transparency just so it's clear that everything is proceeding correctly into QuickBooks. If it's not, then we adjust accordingly.\nkailash chanda | 14:24\nIs...\nSpeaker 2 | 14:26\nBut more so, these operations will give us a clean inventory table in our system that I can reference through the back office software dynamically rather than having to wait for anything.\nkailash chanda | 14:33\nCr want to make all of tea. Ofer is the bust in the best rest.\nsasank | 14:39\nUnderstood? Okay.\nSpeaker 2 | 14:43\nSo, yeah, in total, five new operations that have children tasks within them. Okay. Now, is that enough to give you guys enough so we can get a quote ready and we can start working on this? Or do you need some additional information?\nsasank | 15:07\nYeah, I think on a high level, I understand these things, but again, there are a few things like some of the tables are not created and all these things. Right? So it might be a simple table only, but we just have to calculate the number of flows as well. Kailash, do you want to add anything there?\nkailash chanda | 15:29\nYeah. So, GenAI, what we will do is we will create the number of flows, what is the timeline, what tasks we need to cover through this implementation.\nThen I will share with you the scoping high range and another call between us, and we will go over the scoping and the pricing on that.\nSpeaker 2 | 15:39\n6?\nkailash chanda | 15:47\nAnd then once up. We can start.\nSpeaker 2 | 15:52\nOkay, just for reference, when do you think...?\nkailash chanda | 15:53\nTo our holiday. Tomorrow is a holiday.\nSpeaker 2 | 15:58\nI'm sorry.\nkailash chanda | 15:59\nTomorrow is a holiday, right?\nSo I'm not sure if you are working or not, but I could do that on Monday.\nSpeaker 2 | 16:06\nYeah, I work all day, so on my end, there are no issues. If you want to meet tomorrow, that's good, if not, then Monday.\nkailash chanda | 16:16\nI'll do Monday. I'm off tomorrow, so I'll come back home on Monday.\nSpeaker 2 | 16:22\nOkay, so, yeah, so Monday, then. Same time, yeah.\nkailash chanda | 16:26\nSame time. Yeah, I'll send out an invite right away so that it is blocked. Then we'll go over it.\nSpeaker 2 | 16:35\nOkay, perfect.\nsasank | 16:39\nOne thing, GenAI, that I need some help from us since the initial part of the scope has been completed. So we have something called CSAT score. So where it talks about the customer satisfaction on whether they were able to achieve all the things that were intended to plan.\nSo it is... I mean, it's a survey questionnaire that will be sent to you. So it would be great if you could fill that specific survey and if you can share your feedback there.\nSpeaker 2 | 17:15\nSure, you're saying I have that in my inbox or it's going to be sent.\nkailash chanda | 17:19\nNo, I think puncare wills can be dr.\nsasank | 17:22\nYou will send that.\nSpeaker 4 | 17:23\nOkay, it's okay to you. Once that is rolled out, I'll send out an email to you as well.\nSpeaker 2 | 17:31\nOkay? Yeah, sounds good.\nsasank | 17:33\nYeah, it would be great, Gene, if you can give five so and that would help me.\nSpeaker 2 | 17:38\nWell, yeah, let's just be clear here. I know we're good and all we got there. I'm happy that we got there. But you guys know, there was a lot of friction in the beginning. I'm going to treat you guys well, but...\nYeah, the scope is the scope. But, yeah. Actually, you on the whole, yes, I am satisfied.\nkailash chanda | 18:01\nThank you.\nSpeaker 2 | 18:02\nIt did take a little bit more than originally envisioned, and again, there was some friction. A lot of friction, rather.\nBut yeah, I'm going to give you guys as much as possible.\nkailash chanda | 18:15\nThank you.\nsasank | 18:15\nYeah, thank you, Jane, not good help.\nSpeaker 2 | 18:20\nOkay, perfect. So yeah, I'll be waiting for it. Thank you.\nkailash chanda | 18:25\nThanks, Allen. Thank\nsasank | 18:26\nYou, thank you, I thinkcker."
+  }
+}
