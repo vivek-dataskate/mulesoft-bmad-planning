@@ -1,0 +1,600 @@
+{
+  "id": "019f85f186c6705b9cfe8f659d33d978",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019f85d71fe47308ab4bb1efeb8892dd",
+      "title": "Paradigm & Mulesoft Technical scoping",
+      "duration": 1721,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "7s2e5jsovf70ij41g3fbcn8c9v",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "arvind@paradigmfleet.ca"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jordan@paradigmfleet.ca"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "john.henderson@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "gnavghare@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "kratner@salesforce.com"
+        },
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "davis@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "dev@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": "35ad004c71015a77902020f049461afc",
+          "first_name": "ryan",
+          "email": "ryan@dataskate.ai"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4
+        },
+        {
+          "index": 5
+        }
+      ],
+      "start_date": "2026-07-21T18:01:05.988Z",
+      "end_date": "2026-07-21T18:29:46.988Z",
+      "url": "https://app.krisp.ai/n/019f85d71fe47308ab4bb1efeb8892dd"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Perfect. Well, I can go ahead and get started. But before I do, I just want to quickly introduce the Dataskate team. I know Arvin. When we last spoke, I mentioned having a partner come in and implement Mulesoft. It's typically what we recommend just to get started.\nSo I work with Dataskate all the time. They specialize in small businesses specifically. So they've been a great resource that I work with very frequently. So Kailash and the rest of the team, maybe if you just do a really quick intro, we can get back into it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure. Again, hi, everyone. Then everybody else, this is Kailash. I have the integration and automation at Dataskate along with me."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "This is... You were looking to purchase it right now."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I have a couple of my team members. Ryan and Dave are from sales. Davis is again part of our technical team. Again, nice to meet you all."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Perfectly nice to meet you all."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "What kind of..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, John, I think... Yep, that's good. You are John."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I always do that. I'm going to go ahead and share my screen. I just wanted to do a quick level set on our understanding of your guys' current state, make sure we understood this correctly. So this is from our last call with ABND, so what we're trying to achieve through this integration is where pricing inventory data is maintained in PBS and then moved into Salesforce largely on a manual process. The data is extracted from PBS, cleaned, and then mapped to the appropriate sales and fields in Salesforce, and then uses data that's done by using data loader."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So there are a lot of duplicates and data exceptions that have to be manually reviewed before it can be used for the sales team for follow-ups, quoting, pipeline management. So AG as a result of batch process is Salesforce only reflects information available at the time of the most recent upload, not real-time updates.\nSo I know... When we last spoke, Salesforce is only as good as the data within it. You mentioned the data is often incomplete and requires someone to actually have to mainly validate it.\nSo there's a lot of fragment and activity your sales reps are living in PDFs because there's too much of a manual process. You mentioned the lock. Real-time information within Salesforce causes you to make outdated information specifically around campaigns that are not performing as expected or being able to adjust targeting and follow-up activities as a result. Is what do you say? This diagram is cracked. Is there anything you would change? I just want to make sure we're on the same page."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes, one thing is that the leads are directly going into Salesforce, so that setup is already done. We use what converts as a integration and it goes directly and gets assigned to the... Okay, according to basically the logic, we have already set it up."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, so leads are connected. It's mostly just the pricing and inventory data that needs to be synced over. Yes, okay, perfect. I appreciate you clarifying that. Any other questions before I walk through what the architecture would look like with Mulesoft as the middle layer?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No, actually, we can. We have. This is perfect."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So just to highlight where Mulesoft would fit in. It would be sitting as a mail layer between PBS, Salesforce, connecting the two systems, managing the flow of data between both directions.\nSo Mulesoft would take care of the mapping, the validating, the synchronization, and the relevant information. So updates are reflected within Salesforce without relying on those manual exports that you guys are currently doing with data loader.\nSo this means for the sales team, current pricing inventory, all the vehicle information would be available directly within the Salesforce workflow, no longer needing to switch between systems. Make it a lot easier for the day-to-day team and actually incentivizes them to use Salesforce because of the manual entry.\nSo really helps with the other automation you were talking about to Arvin around like automated emails, quote triggers, and other workflows just giving you a lot more visibility. So we're really at a high level, just automating the flow of data between systems and giving you visibility so that this is a high level where we fit in. Any questions top of mind on how this would work or Mulesoft as a technology?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No, this makes sense."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, perfect. Well, I will pass it to Kailash and the base team. I believe they need to scope this out at a more granular level. So yeah, Kailash, I'll hand it over to you."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you. Thanks, John. Hey Aaron, so again, thanks for the overview. John, I went through your website as well, went before the call just to understand the business and how it works.\nSo I see that the website allows users or retail users to directly do the booking as well. So is the booking from the website connected back to PBS or is that already in integration in place?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Back to PBS yes, we use the indications to PBS and sales for cor do things."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. Okay. So any... Okay. So any... Any orders placed would directly from the website have the orders into PBS and it will..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Not orders. Basically, what happens is that we capture the lead in PBS and Salesforce, and then from the lead, we follow up through our CRM, and then we quote them through PBS that's all that's happening right now."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So if somebody does the rental equipment online, then the inventory automatically deducts inside PBS or how does that work? Current."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Rental is a different software. It's rental. That's what we are using PBS is specifically for sales, you know, vehicle sales."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Only got it."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So any new inventory that gets added or that gets directly added into PBS, any price changes happen in PBS, and that sync needs to be done back into Salesforce is what I understand."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Everything. One thing, which I think was mentioned in the last call as well, that one vehicle can have multiple codes until it is sold."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "And if you can share the diagram again, it would be kind of helpful just to have it up if you can."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "We do at it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "John. So again, as you mentioned, once the inventory is finalized and the prices are finalized inside PBS, these are synced back to Salesforce, and now your staff or sales team starts working on creation of codes inside Salesforce, and every code that is created for... But in the future state, do you still want them to do...?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "The OTS are being done in PBS for now. We want them to use Salesforce mostly."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "PB okay."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "The one system is always better. PBS can be the source of truth, but Salesforce is where everything should be given."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. So considering the future state, once the pricing inventory is synced back to Salesforce, the staff will be able to create their quotes currently in Salesforce, and once they create a code in the future, once they create the code inside Salesforce..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "In future."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "This code information we sync back to PBS again. Correct."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Once I know if multiple customers... Whoever creates multiple codes, and then one of them is finalized, then we go update back in PBS with only deduction of inventory or we create that order..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Deduction of... Create the order as well. Basically, once the order is recorded, we do it in Salesforce only but PBS records will be updated."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. So PBS maintains the purchase information inside it. Perfect. And again on the... So considering this one, this is the flow that is on the purchase side.\nSo... And the payments are everything that are done again maintained inside PBS. We need to sync back to Salesforce or we don't do it if that information is required."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it? And while you guys sell this product, the vehicles to the customers, do you sell even a soft product as a warranty or an... Like a maintenance part of it as well?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "There are the parts and the accessories as well. Will you be fitting as well? There are other aspects as well, which we sell."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. And those are need to be synced between these two is what I understand."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Joy, if you want... After that."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I mean, ideally we would be able to roll everything into this, but I understand there's different levels of development and how we want to go. It's just creating the base structure to be able to bolt all these other pieces on.\nOur overarching idea is on the website to be able to have upfitting products that are pre-engineered that would then be able to be selected as an e-commerce almost build-your-own van, tie that into Salesforce, and on the back end, spit out drawings like that's the direction that we're going.\nBut I understand that there are a ton of moving pieces in order to get there into complexities."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think, if considering the items or inventory to be... Let it be a vehicle or let it be a spare part. I think that should not create much of a complexity. Jordan, we can sync back everything to Salesforce.\nOnce the staff in the future the staff can use to build the code inside Salesforce selecting all these products based on the inventory available. If certain products are not available in stock in the inventory, do you want a back order to be created? Win or Jordan, when the creation of court or how does that situation need to be handled around?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah. I mean, so there are two levels to the business, I'll say, in the way that we're driving sales. One is leads coming in, and then we're reaching out to those and trying to get to close those sales. The other that we're trying to bolt on is external sales.\nSo that's more like needs analysis, that's more like projecting out. So that's where we wouldn't have those vehicles, say landed, but in six months, that's when that customer is going to do that. We would want to bring those assets into an ecosystem where we understand what the pricing is and what those dynamics are so that we can source those at the proper time."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So as part of this implementation, and Jordan, we would be doing both the lead enhancements or lead promotions into campaigns and other things. Whatever lead comes in and the codes get created and even the actual sale process that when a lead purchases any product and that converts into a sale and that creates an entry into PBS and then have the payment data synced back to Salesforce as well.\nSo we would look through the whole cycle of the business as part of the future implementation. Correct plan that."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah. Have. Have. Have you guys worked with PB S in the past?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Not exactly with PBS, but we have worked with other dealer management software. We have done implementation for similar integration between Salesforce and their dealer management software for a boat dealer inside Florida where their sales and service sit around different systems. All the sales and service were happening inside the dealer management system and the staff who were doing the upsell and promotion of service from Salesforce didn't have the latest information.\nSo we then integrated both the dealer management software and Salesforce together to have the staff with the updated information so that they don't double book a call or call a customer after getting their boat serviced again.\nRight? So a similar integration that we have done. They promote sales of boats and even the accessories or additional spare parts that are being sold, but not sorry."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay. No, I just ask because I don't believe that PBS is the easiest to work with from a flexibility standpoint.\nThe only way that we can get Salesforce to work at this point with PBS was to... It's a terrible roundabout logic. But the opportunity ID had to sync in the fax number because it was the only unusable field.\nWe had to go through six months of approval to add another column. So I just want to make sure that if we're building things... You guys are talking directly to PBS and liaising through their systems and how that's going to integrate."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure. I think that would be something really great, Jordan, if we could get on a call with PBS and walk through it. But I even did some research on PBS where they are providing their API connectivity as well for their software.\nSo I assume currently you guys have the API connectivity or that needs to be something enabled from your side for it."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yes. It's not something we currently have set up. We're manually uploading this data a couple of times a week. But again, part of that problem was because they didn't have a field to tie the opportunity ID to, right?\nThere's no way to make a deal number match an opportunity and roll those pieces out."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. No worries, I think... Yeah, we have dealt with certain systems that are rigid and have to integrate, but always I think we could put down a plan to work along with them. Along with the client support as well.\nSo that way we have to get these implementations ready to be done before we put down the actual design."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, they said they could do that or didn't commit to it, but they're like, \"It's a six-month process to put a request in to get approval.\" That was the rhetoric that we got last time. We were trying to work through this.\nSo, just FYI."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, thanks. Thanks again for that. So while you are doing the current manual day process and having the data linked between PBS and Salesforce just to foresee the thought process of automation, do you think that we would require any further new fields to be added? Or do we have the majority of the business data linked between the systems?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I think... Well, here's the problem. If we want to go towards quoting, it's going to be the creation of calculable fields across other fields, right? That'll be the complexity we've mapped over, I believe, every field that we could possibly export from PBS into Salesforce, whether we're using it or not. We just said, \"Here's everything, roll it all up, and we'll deal with having too many fields and not enough.\"\nSo that's that. Then if we're going to roll rental into this as well, that's a completely other silo upfitting is not really worked into Salesforce at this point in time.\nIt's like a catch-all almost with manual field entry because of the complexities and customization that's on the back end and same with service.\nSo ideally, everything makes its way up, but they're very much different individual business silos. And so there would need to be some build out, probably a lot of copy and paste, but definitely some customization within those silos."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Perfect, I think. Yeah, that should be okay. For the integration standpoint, if the fields are been mapped out, the data transformation or customization can be done in the integration layer to be sync between both of them. Apart from the flows that we discussed to sync between PBS and Salesforce, I was more curious on a couple of other actions that we would like to discuss on is on the I would say follow up emails, code generation tasks and then any automated emails that we want to send. Can you kind of help me with couple I mean with the scenarios that you would like to see what e mail automation that we would kind of you guys would look through."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "We're still kind of learning through what we want that process to look like. Like. So, like, may 13th was our first. Like, hey, we're live. And so it's been, you know, two months of kind of working through what's working, what's not working, what was, you know, fully implemented, what wasn't.\nSo to this point, from like an automation standpoint, we have like a lead comes in an e mail is generated automatically that says, okay, we've seen this. And then after that point, it's just task code are generated based on a cadence.\nThat's as far as we've made it. I think there's a ton more bandwidth to automate a bunch of this stuff. It's just kind of like defining and creating those if rules, right? So, like, okay, you left a voicemail.\nWell, now you can automatically send out that e mail. Or, you know, I talk to this person. I don't want to automatically send out that e mail. And so there's those road maps is where we kind of stop from a complexity standpoint.\nBut I mean, I know you can kind of do whatever you want to do within Salesforce."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Seven."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So it's as much automation as we can do from removing those manual tasks I would love to do just based on volume and capacity."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So right now, when a lead comes in,\nI know Arwin mentioned that it's already integrated into Salesforce. So once the lead lands in, does it kind of auto assigned to one of the reps to kind of look into and they are notified with a message or an e mail."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "There's like. So we have like. So we have a business owner for upfitting, another one for rental, and then everything goes under one sort of like catch all sales rep.\nAnd then they don't sit in like a discovery or qualification phase. They sit in new with anything with nothing action except for that initial email. And then they kind of like peel through and pick the leads from, you know, going down that list."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got that. Okay. I know one of the most... Again, a common use case that could be automated is once the sales rep generates a code for the customer, then the code could automatically create a PDF inside Salesforce, and that could be sent out as an email to the customer sending out the code.\nBut again, if there are any digital signatures that do happen in the sales process, then any follow-ups... I think that the follow-ups can be created or automated. But any digital documents to be signed or any current digital e-signature software that you guys are using that is external to Salesforce or PBS is a scope of integration that would look through. I wouldn't say that might be the priority, but I just wanted to call out to see if that use case fits into your day-to-day business."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, I think there's like a there's a bit of a larger scope, right? So there's the front end sales and all of those silos, but then there's like the movement of inventory from, like, intake through to all the other tasks that need to get that out the door.\nAnd so like, having those pieces like docky signs, they worked into this is a process, but ensuring that like and I know we can now, but it's creating like a systematic process of like, okay, we've got your license on file. We don't need to wait around and ask for you to get that. Or we have you're in non-expired insurance. We can load that under an account.\nSo those are pieces that we'd like to automate to a certain extent after a post-sale flow that automatically ticks these boxes. We've got three of the five, and we only need these two.\nNow those are reports that are generated because we run into waiting for things a lot. We're trying to close and have that cash land in that month. If we're waiting for documentation, there's no sightlines on what we were looking for outside of sending emails or Google Sheets.\nIt's a little bit more time-consuming to manage those processes. So I don't think that falls into the scope of what we're talking about today. But that's the larger vision of making sure that, from the second a vehicle lands to the second it leaves, it's all in here, it has full visibility, and everyone can just log in. Put that like the stock number and know exactly what's happening at that exact moment."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thanks, John. I think again, to understand the current priority to be addressed is the integration between PBS and Salesforce with pricing, inventory, and vehicle information and the code and the sales updates as well.\nSo I think if that is clear, then I think I'm pretty open. As whenever you could have one call with PBS to confirm the API connectivity, then I think that should be a good place to start with us."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "We can ask for BBS I think you know ABS directly. We will initiate that process."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, thanks. Thank you. But again, a thank you, Jordan. Any questions from your side? I'm happy to answer. Along with John and others from Salesforce. And my too."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I mean, next and next part will be the timeline and the kind of budgets, what is needed from our side and how fast we can execute this. Those other things which are more important to us, you know, because what we are trying to build is kind of an ecosystem in a where we can manage everything at one place. As Jordan mentioned, it should be.\nIt's. It's a larger picture, which we are trying to achieve perfect."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "And you mentioned you wanted to kind of confirm with PBS their EPI documentation. What does a turnaround time look like usually for them to get back to you?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I mean, we can try it today and initiate that process."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "How fast is that conversation that you would want Kailash in the Dataskates or myself a part of? Or is that something you want?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Let us start the conversation, and then if we need, we can include you guys as well."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay? Perfect. You did mention cost. Is that something you want me to go over a high-level overview of what it looks like?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yep."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, so there are two costs associated with this project. It's one going to be the ongoing cost of Mulesoft. Then the one-time implementation from Kailash, the Dataskates team. Chapter set up a bigger than integration.\nOnce it's set up, you don't really need their support as much. So the package that we recommend is that you soft integration starter package that's sufficient capacity for you to be able to maintain this integration.\nWe've recently had a new pilot pricing program just get released where the original list price of this package was $42,000. So with knowing you guys are a small business, we got the S&B pilot program where it drops the list price down to $24,000.\nSo that's the list price for the pilot program. I guess I'll pause there to see the feasibility to get this signed by the end of the month. If we were to arrive at a price that makes sense in order to be able to validate this with PBS..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "The price is for the full year or how it is..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "That's a yearly ongoing cost of the twenty-four-kid. Then I believe the close is you would... It is synced internally before they give you a firm number. But I guess that's the list price for the new SBPA."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Of course, our price is just a one-time fee for implementation. We work with you for the next six to eight weeks to make sure that we do proper discovery. We do UT testing and everything's working before we click that switch to turn everything on, make sure you guys are using the system, so..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Is that price kind of what you had in mind? What's your initial reaction from that?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "We didn't have any figure in mind. Literally, we are exploring. After... Let us get back to you on this one if we... When we want to start and on the pricing with Dataskates. I mean, Kailash and his team, who would like to have some... Maybe a case study like Kailash mentioned that what they have implemented in the past, if they can send us some documentation on that, will be helpful."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Absolutely. I can make sure CLA gets that over to you. Again, the biggest lever I have and I don't want a price for me to bear... Answer for you guys at all is timeline. Yes. So definitely go to bad and see what I can get approved here, I guess for next steps. I don't close each system internally. They give you a number.\nBut I guess the next steps are going to go over the total cost of ownership across the implementation and see what I can get approved on discounts as well if that's something you want to schedule just so you have a complete picture of the total ownership."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Let me..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Is there a time that works for you either tomorrow or Thursday?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I can do Thursday. Okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "How does 12 Easter work on your end?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "You said 12."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. Jordan, is that good on your end?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "For Thursday, sorry."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Correct, yes."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "What times?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Well, Eastern."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Could be okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay perfect so it's good all of us and invite and yeah I'll make sure Clash sent you over that key how to you was chat."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Appreciate you guys."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Thank you guys. Thanks, everyone. Thank you."
+      }
+    ],
+    "raw_meeting": "**Paradigm & Mulesoft Technical scoping**\n🕞 Started at 06:01 PM on 21 Jul, lasted 28m",
+    "raw_content": "Speaker 2 | 00:08\nPerfect. Well, I can go ahead and get started. But before I do, I just want to quickly introduce the Dataskate team. I know Arvin. When we last spoke, I mentioned having a partner come in and implement Mulesoft. It's typically what we recommend just to get started.\nSo I work with Dataskate all the time. They specialize in small businesses specifically. So they've been a great resource that I work with very frequently. So Kailash and the rest of the team, maybe if you just do a really quick intro, we can get back into it.\nkailash chanda | 00:44\nSure. Again, hi, everyone. Then everybody else, this is Kailash. I have the integration and automation at Dataskate along with me.\nSpeaker 2 | 00:52\nThis is... You were looking to purchase it right now.\nkailash chanda | 00:58\nI have a couple of my team members. Ryan and Dave are from sales. Davis is again part of our technical team. Again, nice to meet you all.\nSpeaker 3 | 01:09\nPerfectly nice to meet you all.\nSpeaker 2 | 01:14\nWhat kind of...\nkailash chanda | 01:19\nYeah, John, I think... Yep, that's good. You are John.\nSpeaker 2 | 01:27\nI always do that. I'm going to go ahead and share my screen. I just wanted to do a quick level set on our understanding of your guys' current state, make sure we understood this correctly. So this is from our last call with ABND, so what we're trying to achieve through this integration is where pricing inventory data is maintained in PBS and then moved into Salesforce largely on a manual process. The data is extracted from PBS, cleaned, and then mapped to the appropriate sales and fields in Salesforce, and then uses data that's done by using data loader.\nkailash chanda | 01:56\nOkay.\nSpeaker 2 | 02:02\nSo there are a lot of duplicates and data exceptions that have to be manually reviewed before it can be used for the sales team for follow-ups, quoting, pipeline management. So AG as a result of batch process is Salesforce only reflects information available at the time of the most recent upload, not real-time updates.\nSo I know... When we last spoke, Salesforce is only as good as the data within it. You mentioned the data is often incomplete and requires someone to actually have to mainly validate it.\nSo there's a lot of fragment and activity your sales reps are living in PDFs because there's too much of a manual process. You mentioned the lock. Real-time information within Salesforce causes you to make outdated information specifically around campaigns that are not performing as expected or being able to adjust targeting and follow-up activities as a result. Is what do you say? This diagram is cracked. Is there anything you would change? I just want to make sure we're on the same page.\nSpeaker 3 | 03:03\nYes, one thing is that the leads are directly going into Salesforce, so that setup is already done. We use what converts as a integration and it goes directly and gets assigned to the... Okay, according to basically the logic, we have already set it up.\nSpeaker 2 | 03:25\nOkay, so leads are connected. It's mostly just the pricing and inventory data that needs to be synced over. Yes, okay, perfect. I appreciate you clarifying that. Any other questions before I walk through what the architecture would look like with Mulesoft as the middle layer?\nSpeaker 3 | 03:46\nNo, actually, we can. We have. This is perfect.\nSpeaker 2 | 03:51\nSo just to highlight where Mulesoft would fit in. It would be sitting as a mail layer between PBS, Salesforce, connecting the two systems, managing the flow of data between both directions.\nSo Mulesoft would take care of the mapping, the validating, the synchronization, and the relevant information. So updates are reflected within Salesforce without relying on those manual exports that you guys are currently doing with data loader.\nSo this means for the sales team, current pricing inventory, all the vehicle information would be available directly within the Salesforce workflow, no longer needing to switch between systems. Make it a lot easier for the day-to-day team and actually incentivizes them to use Salesforce because of the manual entry.\nSo really helps with the other automation you were talking about to Arvin around like automated emails, quote triggers, and other workflows just giving you a lot more visibility. So we're really at a high level, just automating the flow of data between systems and giving you visibility so that this is a high level where we fit in. Any questions top of mind on how this would work or Mulesoft as a technology?\nSpeaker 3 | 05:03\nNo, this makes sense.\nSpeaker 2 | 05:05\nOkay, perfect. Well, I will pass it to Kailash and the base team. I believe they need to scope this out at a more granular level. So yeah, Kailash, I'll hand it over to you.\nkailash chanda | 05:19\nThank you. Thanks, John. Hey Aaron, so again, thanks for the overview. John, I went through your website as well, went before the call just to understand the business and how it works.\nSo I see that the website allows users or retail users to directly do the booking as well. So is the booking from the website connected back to PBS or is that already in integration in place?\nSpeaker 3 | 05:46\nBack to PBS yes, we use the indications to PBS and sales for cor do things.\nkailash chanda | 05:53\nGot it. Okay. So any... Okay. So any... Any orders placed would directly from the website have the orders into PBS and it will...\nSpeaker 3 | 06:05\nNot orders. Basically, what happens is that we capture the lead in PBS and Salesforce, and then from the lead, we follow up through our CRM, and then we quote them through PBS that's all that's happening right now.\nkailash chanda | 06:22\nSo if somebody does the rental equipment online, then the inventory automatically deducts inside PBS or how does that work? Current.\nSpeaker 3 | 06:31\nRental is a different software. It's rental. That's what we are using PBS is specifically for sales, you know, vehicle sales.\nkailash chanda | 06:40\nOnly got it.\nSpeaker 3 | 06:42\nYes.\nkailash chanda | 06:43\nSo any new inventory that gets added or that gets directly added into PBS, any price changes happen in PBS, and that sync needs to be done back into Salesforce is what I understand.\nSpeaker 3 | 07:02\nEverything. One thing, which I think was mentioned in the last call as well, that one vehicle can have multiple codes until it is sold.\nkailash chanda | 07:14\nAnd if you can share the diagram again, it would be kind of helpful just to have it up if you can.\nSpeaker 2 | 07:14\nWe do at it.\nkailash chanda | 07:21\nJohn. So again, as you mentioned, once the inventory is finalized and the prices are finalized inside PBS, these are synced back to Salesforce, and now your staff or sales team starts working on creation of codes inside Salesforce, and every code that is created for... But in the future state, do you still want them to do...?\nSpeaker 3 | 07:43\nThe OTS are being done in PBS for now. We want them to use Salesforce mostly.\nkailash chanda | 07:50\nPB okay.\nSpeaker 3 | 07:55\nThe one system is always better. PBS can be the source of truth, but Salesforce is where everything should be given.\nkailash chanda | 08:02\nGot it. So considering the future state, once the pricing inventory is synced back to Salesforce, the staff will be able to create their quotes currently in Salesforce, and once they create a code in the future, once they create the code inside Salesforce...\nSpeaker 3 | 08:16\nIn future.\nkailash chanda | 08:21\nThis code information we sync back to PBS again. Correct.\nSpeaker 3 | 08:26\nYes.\nkailash chanda | 08:27\nOnce I know if multiple customers... Whoever creates multiple codes, and then one of them is finalized, then we go update back in PBS with only deduction of inventory or we create that order...\nSpeaker 3 | 08:42\nDeduction of... Create the order as well. Basically, once the order is recorded, we do it in Salesforce only but PBS records will be updated.\nkailash chanda | 08:55\nGot it. So PBS maintains the purchase information inside it. Perfect. And again on the... So considering this one, this is the flow that is on the purchase side.\nSo... And the payments are everything that are done again maintained inside PBS. We need to sync back to Salesforce or we don't do it if that information is required.\nSpeaker 3 | 09:23\nYes.\nkailash chanda | 09:24\nGot it? And while you guys sell this product, the vehicles to the customers, do you sell even a soft product as a warranty or an... Like a maintenance part of it as well?\nSpeaker 3 | 09:35\nThere are the parts and the accessories as well. Will you be fitting as well? There are other aspects as well, which we sell.\nkailash chanda | 09:46\nGot it. And those are need to be synced between these two is what I understand.\nSpeaker 3 | 09:53\nJoy, if you want... After that.\nSpeaker 4 | 10:03\nI mean, ideally we would be able to roll everything into this, but I understand there's different levels of development and how we want to go. It's just creating the base structure to be able to bolt all these other pieces on.\nOur overarching idea is on the website to be able to have upfitting products that are pre-engineered that would then be able to be selected as an e-commerce almost build-your-own van, tie that into Salesforce, and on the back end, spit out drawings like that's the direction that we're going.\nBut I understand that there are a ton of moving pieces in order to get there into complexities.\nkailash chanda | 10:40\nI think, if considering the items or inventory to be... Let it be a vehicle or let it be a spare part. I think that should not create much of a complexity. Jordan, we can sync back everything to Salesforce.\nOnce the staff in the future the staff can use to build the code inside Salesforce selecting all these products based on the inventory available. If certain products are not available in stock in the inventory, do you want a back order to be created? Win or Jordan, when the creation of court or how does that situation need to be handled around?\nSpeaker 4 | 11:20\nYeah. I mean, so there are two levels to the business, I'll say, in the way that we're driving sales. One is leads coming in, and then we're reaching out to those and trying to get to close those sales. The other that we're trying to bolt on is external sales.\nSo that's more like needs analysis, that's more like projecting out. So that's where we wouldn't have those vehicles, say landed, but in six months, that's when that customer is going to do that. We would want to bring those assets into an ecosystem where we understand what the pricing is and what those dynamics are so that we can source those at the proper time.\nkailash chanda | 11:54\nSo as part of this implementation, and Jordan, we would be doing both the lead enhancements or lead promotions into campaigns and other things. Whatever lead comes in and the codes get created and even the actual sale process that when a lead purchases any product and that converts into a sale and that creates an entry into PBS and then have the payment data synced back to Salesforce as well.\nSo we would look through the whole cycle of the business as part of the future implementation. Correct plan that.\nSpeaker 4 | 12:34\nYeah. Have. Have. Have you guys worked with PB S in the past?\nkailash chanda | 12:41\nNot exactly with PBS, but we have worked with other dealer management software. We have done implementation for similar integration between Salesforce and their dealer management software for a boat dealer inside Florida where their sales and service sit around different systems. All the sales and service were happening inside the dealer management system and the staff who were doing the upsell and promotion of service from Salesforce didn't have the latest information.\nSo we then integrated both the dealer management software and Salesforce together to have the staff with the updated information so that they don't double book a call or call a customer after getting their boat serviced again.\nRight? So a similar integration that we have done. They promote sales of boats and even the accessories or additional spare parts that are being sold, but not sorry.\nSpeaker 4 | 13:41\nOkay. No, I just ask because I don't believe that PBS is the easiest to work with from a flexibility standpoint.\nThe only way that we can get Salesforce to work at this point with PBS was to... It's a terrible roundabout logic. But the opportunity ID had to sync in the fax number because it was the only unusable field.\nWe had to go through six months of approval to add another column. So I just want to make sure that if we're building things... You guys are talking directly to PBS and liaising through their systems and how that's going to integrate.\nkailash chanda | 14:19\nSure. I think that would be something really great, Jordan, if we could get on a call with PBS and walk through it. But I even did some research on PBS where they are providing their API connectivity as well for their software.\nSo I assume currently you guys have the API connectivity or that needs to be something enabled from your side for it.\nSpeaker 4 | 14:43\nYes. It's not something we currently have set up. We're manually uploading this data a couple of times a week. But again, part of that problem was because they didn't have a field to tie the opportunity ID to, right?\nThere's no way to make a deal number match an opportunity and roll those pieces out.\nkailash chanda | 14:59\nGot it. No worries, I think... Yeah, we have dealt with certain systems that are rigid and have to integrate, but always I think we could put down a plan to work along with them. Along with the client support as well.\nSo that way we have to get these implementations ready to be done before we put down the actual design.\nSpeaker 4 | 15:19\nYeah, they said they could do that or didn't commit to it, but they're like, \"It's a six-month process to put a request in to get approval.\" That was the rhetoric that we got last time. We were trying to work through this.\nSo, just FYI.\nkailash chanda | 15:36\nNo, thanks. Thanks again for that. So while you are doing the current manual day process and having the data linked between PBS and Salesforce just to foresee the thought process of automation, do you think that we would require any further new fields to be added? Or do we have the majority of the business data linked between the systems?\nSpeaker 4 | 16:04\nI think... Well, here's the problem. If we want to go towards quoting, it's going to be the creation of calculable fields across other fields, right? That'll be the complexity we've mapped over, I believe, every field that we could possibly export from PBS into Salesforce, whether we're using it or not. We just said, \"Here's everything, roll it all up, and we'll deal with having too many fields and not enough.\"\nSo that's that. Then if we're going to roll rental into this as well, that's a completely other silo upfitting is not really worked into Salesforce at this point in time.\nIt's like a catch-all almost with manual field entry because of the complexities and customization that's on the back end and same with service.\nSo ideally, everything makes its way up, but they're very much different individual business silos. And so there would need to be some build out, probably a lot of copy and paste, but definitely some customization within those silos.\nkailash chanda | 17:04\nPerfect, I think. Yeah, that should be okay. For the integration standpoint, if the fields are been mapped out, the data transformation or customization can be done in the integration layer to be sync between both of them. Apart from the flows that we discussed to sync between PBS and Salesforce, I was more curious on a couple of other actions that we would like to discuss on is on the I would say follow up emails, code generation tasks and then any automated emails that we want to send. Can you kind of help me with couple I mean with the scenarios that you would like to see what e mail automation that we would kind of you guys would look through.\nSpeaker 4 | 17:48\nWe're still kind of learning through what we want that process to look like. Like. So, like, may 13th was our first. Like, hey, we're live. And so it's been, you know, two months of kind of working through what's working, what's not working, what was, you know, fully implemented, what wasn't.\nSo to this point, from like an automation standpoint, we have like a lead comes in an e mail is generated automatically that says, okay, we've seen this. And then after that point, it's just task code are generated based on a cadence.\nThat's as far as we've made it. I think there's a ton more bandwidth to automate a bunch of this stuff. It's just kind of like defining and creating those if rules, right? So, like, okay, you left a voicemail.\nWell, now you can automatically send out that e mail. Or, you know, I talk to this person. I don't want to automatically send out that e mail. And so there's those road maps is where we kind of stop from a complexity standpoint.\nBut I mean, I know you can kind of do whatever you want to do within Salesforce.\nkailash chanda | 18:41\nSeven.\nSpeaker 4 | 18:42\nSo it's as much automation as we can do from removing those manual tasks I would love to do just based on volume and capacity.\nkailash chanda | 18:50\nSo right now, when a lead comes in,\nI know Arwin mentioned that it's already integrated into Salesforce. So once the lead lands in, does it kind of auto assigned to one of the reps to kind of look into and they are notified with a message or an e mail.\nSpeaker 4 | 19:07\nThere's like. So we have like. So we have a business owner for upfitting, another one for rental, and then everything goes under one sort of like catch all sales rep.\nAnd then they don't sit in like a discovery or qualification phase. They sit in new with anything with nothing action except for that initial email. And then they kind of like peel through and pick the leads from, you know, going down that list.\nkailash chanda | 19:32\nGot that. Okay. I know one of the most... Again, a common use case that could be automated is once the sales rep generates a code for the customer, then the code could automatically create a PDF inside Salesforce, and that could be sent out as an email to the customer sending out the code.\nBut again, if there are any digital signatures that do happen in the sales process, then any follow-ups... I think that the follow-ups can be created or automated. But any digital documents to be signed or any current digital e-signature software that you guys are using that is external to Salesforce or PBS is a scope of integration that would look through. I wouldn't say that might be the priority, but I just wanted to call out to see if that use case fits into your day-to-day business.\nSpeaker 4 | 20:30\nYeah, I think there's like a there's a bit of a larger scope, right? So there's the front end sales and all of those silos, but then there's like the movement of inventory from, like, intake through to all the other tasks that need to get that out the door.\nAnd so like, having those pieces like docky signs, they worked into this is a process, but ensuring that like and I know we can now, but it's creating like a systematic process of like, okay, we've got your license on file. We don't need to wait around and ask for you to get that. Or we have you're in non-expired insurance. We can load that under an account.\nSo those are pieces that we'd like to automate to a certain extent after a post-sale flow that automatically ticks these boxes. We've got three of the five, and we only need these two.\nNow those are reports that are generated because we run into waiting for things a lot. We're trying to close and have that cash land in that month. If we're waiting for documentation, there's no sightlines on what we were looking for outside of sending emails or Google Sheets.\nIt's a little bit more time-consuming to manage those processes. So I don't think that falls into the scope of what we're talking about today. But that's the larger vision of making sure that, from the second a vehicle lands to the second it leaves, it's all in here, it has full visibility, and everyone can just log in. Put that like the stock number and know exactly what's happening at that exact moment.\nkailash chanda | 21:57\nThanks, John. I think again, to understand the current priority to be addressed is the integration between PBS and Salesforce with pricing, inventory, and vehicle information and the code and the sales updates as well.\nSo I think if that is clear, then I think I'm pretty open. As whenever you could have one call with PBS to confirm the API connectivity, then I think that should be a good place to start with us.\nSpeaker 3 | 22:24\nWe can ask for BBS I think you know ABS directly. We will initiate that process.\nkailash chanda | 22:32\nOkay, thanks. Thank you. But again, a thank you, Jordan. Any questions from your side? I'm happy to answer. Along with John and others from Salesforce. And my too.\nSpeaker 3 | 22:48\nI mean, next and next part will be the timeline and the kind of budgets, what is needed from our side and how fast we can execute this. Those other things which are more important to us, you know, because what we are trying to build is kind of an ecosystem in a where we can manage everything at one place. As Jordan mentioned, it should be.\nIt's. It's a larger picture, which we are trying to achieve perfect.\nSpeaker 2 | 23:24\nAnd you mentioned you wanted to kind of confirm with PBS their EPI documentation. What does a turnaround time look like usually for them to get back to you?\nSpeaker 3 | 23:37\nI mean, we can try it today and initiate that process.\nSpeaker 2 | 23:45\nHow fast is that conversation that you would want Kailash in the Dataskates or myself a part of? Or is that something you want?\nSpeaker 3 | 23:55\nLet us start the conversation, and then if we need, we can include you guys as well.\nSpeaker 2 | 24:04\nOkay? Perfect. You did mention cost. Is that something you want me to go over a high-level overview of what it looks like?\nSpeaker 3 | 24:14\nYep.\nSpeaker 2 | 24:16\nOkay, so there are two costs associated with this project. It's one going to be the ongoing cost of Mulesoft. Then the one-time implementation from Kailash, the Dataskates team. Chapter set up a bigger than integration.\nOnce it's set up, you don't really need their support as much. So the package that we recommend is that you soft integration starter package that's sufficient capacity for you to be able to maintain this integration.\nWe've recently had a new pilot pricing program just get released where the original list price of this package was $42,000. So with knowing you guys are a small business, we got the S&B pilot program where it drops the list price down to $24,000.\nSo that's the list price for the pilot program. I guess I'll pause there to see the feasibility to get this signed by the end of the month. If we were to arrive at a price that makes sense in order to be able to validate this with PBS...\nSpeaker 3 | 25:26\nThe price is for the full year or how it is...\nSpeaker 2 | 25:31\nThat's a yearly ongoing cost of the twenty-four-kid. Then I believe the close is you would... It is synced internally before they give you a firm number. But I guess that's the list price for the new SBPA.\nSpeaker 5 | 25:49\nOf course, our price is just a one-time fee for implementation. We work with you for the next six to eight weeks to make sure that we do proper discovery. We do UT testing and everything's working before we click that switch to turn everything on, make sure you guys are using the system, so...\nSpeaker 2 | 26:05\nYeah.\nSpeaker 3 | 26:07\nOkay.\nSpeaker 2 | 26:09\nIs that price kind of what you had in mind? What's your initial reaction from that?\nSpeaker 3 | 26:16\nWe didn't have any figure in mind. Literally, we are exploring. After... Let us get back to you on this one if we... When we want to start and on the pricing with Dataskates. I mean, Kailash and his team, who would like to have some... Maybe a case study like Kailash mentioned that what they have implemented in the past, if they can send us some documentation on that, will be helpful.\nSpeaker 2 | 26:55\nAbsolutely. I can make sure CLA gets that over to you. Again, the biggest lever I have and I don't want a price for me to bear... Answer for you guys at all is timeline. Yes. So definitely go to bad and see what I can get approved here, I guess for next steps. I don't close each system internally. They give you a number.\nBut I guess the next steps are going to go over the total cost of ownership across the implementation and see what I can get approved on discounts as well if that's something you want to schedule just so you have a complete picture of the total ownership.\nSpeaker 3 | 27:36\nLet me...\nSpeaker 2 | 27:38\nIs there a time that works for you either tomorrow or Thursday?\nSpeaker 3 | 27:44\nI can do Thursday. Okay.\nSpeaker 2 | 27:49\nHow does 12 Easter work on your end?\nSpeaker 3 | 28:01\nYou said 12.\nSpeaker 2 | 28:02\nYeah. Jordan, is that good on your end?\nSpeaker 4 | 28:10\nFor Thursday, sorry.\nSpeaker 3 | 28:12\nCorrect, yes.\nSpeaker 4 | 28:14\nWhat times?\nSpeaker 2 | 28:15\nWell, Eastern.\nSpeaker 4 | 28:17\nCould be okay.\nSpeaker 2 | 28:19\nOkay perfect so it's good all of us and invite and yeah I'll make sure Clash sent you over that key how to you was chat.\nkailash chanda | 28:26\nSure.\nSpeaker 2 | 28:28\nAppreciate you guys.\nkailash chanda | 28:28\nOkay.\nSpeaker 3 | 28:29\nThank you guys. Thanks, everyone. Thank you."
+  }
+}
