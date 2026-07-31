@@ -1,0 +1,1097 @@
+{
+  "id": "019fb76c9be577dcbfb9cc4854a28855",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019fb7308fdd708d855a6105d972f158",
+      "title": "04:00 AM - chrome meeting July 31",
+      "duration": 3913,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": null,
+      "participants": [],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "4b30e1f67315506abed25af98f0d2acf",
+          "first_name": "Philip",
+          "email": "d1f94a159488419a9edbef96236b55d9@noemail.krisp.ai"
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4,
+          "last_name": null,
+          "id": "ef2f8805da525859a12096741240d46b",
+          "first_name": "Ivan",
+          "email": "b9d680e688ec4c52b655db363365cdca@noemail.krisp.ai"
+        },
+        {
+          "index": 5,
+          "last_name": null,
+          "id": "b1fa118474cc536fb160f468f8c5a421",
+          "first_name": "Pablo",
+          "email": "35ceab078d904fe6881067e66b948099@noemail.krisp.ai"
+        }
+      ],
+      "start_date": "2026-07-31T08:00:09.561Z",
+      "end_date": "2026-07-31T09:05:22.561Z",
+      "url": "https://app.krisp.ai/n/019fb7308fdd708d855a6105d972f158"
+    },
+    "content": [
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Morgan. Mar."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Nglas hello."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Good morning."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Hello.\nCols we can get started right a sen..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, okay. I was just waiting to see if... Will join or else we can get started, so... Okay, let me share my screen. Perfect, thank you. Let me know if you guys can see my screen. So just wanted to start off again. Thank you for your time. I hope you guys had a chance to review the initial findings that we discussed and we drafted out as a presentation before even I kicked off. I wanted to see if you guys have any questions or concerns or clarifications from the slides that we have shared."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Nope. Exactly so far. Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. And again, a quick thing. Do you want me to summarize what we have put forward or discussed in the earlier call? Just for the interest of time. I wanted to check with you guys."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "You just want to go over the slides here again or the results from the last call. I don't know..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, I wanted to see if you want me to go over the slides that I have shared. We have shared with you via email. We can go over each slide to explain what it is and what the approach is, and then address the additional questions and concerns that have been put forward by Philip in the email."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yeah, maybe as quickly as possible. Especially probably on those topics where you see... Yeah, things really... Or I mean, it was quite positive from our understanding about what you replied here.\nBut probably... Yeah, just going over them quickly would be a thing here. And then for following that, we'll get to the other topics there."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure, I will share my screen and run through them. So yeah, the initial summary slide, whatever we have or have shown here, is during the summary of our previous call. We have recommended having a strict system API-level access so that these can be invoked only from the process APIs to prevent direct access from external applications and channelize the data propagation and transition from Mulesoft Data Hub as an integration entry point.\nSo that way, the data is streamlined through the channel as well as auditable in a very easy manner. The second one is the governance of the APIs to ensure everything that is directly part of the data hub. The third point again runs through the large data loads which we discussed over the size or limitation constraints over that to be exchanged over MQ, which can have additional impacts on pushing these data loads. We proposed alternative options that can be the FTP file options or a breakdown of these individual full data loads into multiple messages over MQ or even a page-based concept depending on how the backend system is structured and available for connectivity. The last point again, as I mentioned, positions Mulesoft as the integration hub for data as part of the data hub where all the data flows through Mulesoft and makes sure the exact architectural flow is positioned to make sure that all the data is routed to Mulesoft as part of which we have broken down each of these points that we have put forward earlier to implement API Security Layer and firewall policies.\nSo apart from the security layer, the firewall policies inside Mulesoft can be drafted down to limit or constrain who can invoke these APIs. So we have done at an enterprise level a similar approach to make sure that we put down two gateways, one for the external clients and one for the internal ones. The external client. The external gateway has firewall policies that will allow them to only access the experience APIs even though a API URL for system or process level is exposed. They will not be able to invoke or access those based on the firewall policies.\nThe internal gateway is scheduled to have something which is part of the ecosystem or the client network to make sure only those can be involved into the gateway of the internal gateway. So in such aspects, we can make sure on how the data is accessed and propagated along with the security layer being in place.\nSo this was one of the main proposed aspects that can improve security, provide and ensure auditable data that is being accessed. Any questions? Before I move to the next one, the..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "I think it's part from the second topic you mentioned or brought on here that I think that's exactly what we want to follow here, that we really want to have restricted access to certain things.\nWhat you brought more into perspective here is trying to, of course, narrow down or close the access to certain APIs on the source systems, where they provide their APIs or in a certain way for...\nSo for ingestion in our data hub later on so that they cannot be accessed or used by anyone. So it is always the way that everything flows through the use of the Anypoint platform and not through a direct connection.\nI think we already set up certain settings here with our colleague regarding the network. But what you mentioned, setting two separate networks up here for different accesses, things is quite a good thing.\nI think in the beginning we will have to check on this year. But probably most of those are internal stuff where even if they are hosted on a platform or cloud host, it's just an internal app.\nSo I don't..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Know if that we need to differentiate here. But a good point you mentioned there."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Again, Philip. This is basically... This can be majorly done at the Mulesoft platform layer itself..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Where we can create these gateways as part of the Mulesoft platform itself. When the Mulesoft API is... Let's say there is a system API that we have exposed for the source system, and we don't want an external one to access that. You don't need to go into your organization's firewall, but these system APIs can be limited to be accessed inside Mulesoft firewall policies themselves. We could define a..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Gateway in and have that done. So two levels of access, one within the Mulesoft and one external is something that can be done. This is how we are... I wanted to depict or showcase how this can be accessed.\nSo an external client will not be able to access directly an orchestration process API or a back-end system API. They will have only access to the experience API. Even though these URLs are exposed to the external client or application, they will not be able...\nI think... Philip, you brought up direct access of backend systems as well, which is limited based upon the firewall at the organization level. But these two we can block them exactly inside Mulesoft itself.\nHow..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "He hey..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We have proposed... Okay. The external client can access the Experience API, but the Experience API can directly access the Process API or System API because all of these are internal to the Mulesoft ecosystem, and they wouldn't have any unauthorized access. That could cause any application to be blocked or an application to be run into ad hoc mode.\nSo this is how we depicted the proposal that we have put forward."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Right?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Questions from others while they move to the next slide."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Maybe one question, because you mentioned the two gateways... Justice only work if we have isolated apps for every API in the sense that we have free apps for one for Experience, one for Process, and one for System. Or does it work? In any case, let's say for some reason, we combine all those three in one API in one app."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I mean if... If there is no system API and there is a process API directly connecting to the backend system, we can still have the restriction to access the process API, or if there is a system API that is directly exposed to the experience API and we don't want them to access the system API, then that is something we can stop.\nBut the experience API is the one that is allowed to access by the external app. So we have to break down the experience layer for any external application because we... For example, if there is a page navigation logic that is implemented in the process API, the client sends and full data load for a month to be extracted.\nBut our experience API can have to send the data to process API and process API can break down into multiple calls to aggregate the data. So in such cases, what we can do is we can have access to the experience.\nBut we can restrict access to the process or system API or combined process together as well."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, it does not need to be an..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "But to ask again. So the restriction or the five wall rules or the PEP policies are applied on the API URLs and not on the level of an Mulesoft app itself."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We can write down Mulesoft app. What we can do is how the firewall runs inside Mulesoft is we define different naming conventions for each of the applications. And these firewall rules can be written to access to allow only these particular requests from certain applications to access.\nSo that way if the experience API URL is being called, if the experience API is calling cross API, we can make sure that the app URL or that is coming internal to the system is allowed, but the external world is not allowed.\nSo yes."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay, it'sl..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Be of the app. We can do..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Based... It's not app-based. So..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes. Next. Again, this is the second point that we wanted to discuss on the large data loads. I know when we went through the initial analysis, there were requirements for initial data loads as well as delta data loads while onboarding new systems into the ecosystem.\nSo as we discussed, any MQ that has a data size limitation to be available to exchange data and large data loads when they come into play majorly run into 10MB or 20MB data load sites for MQs, let it be an on-prem MQ or cloud MQ. All of these MQs have certain restrictions, and that's where it caught our attention to say that for the initial data loads or full data loads, if the size of the application is higher, then it wouldn't be feasible to push over MQ, especially on multiple cloud hops to be run. Mulesoft is on another cloud, and then MQ on another cloud, and then the application accessing can be on another cloud. All these multiple hops with heavy data loads can cause delays and timeouts.\nSo that's where again, that was another concern that we wanted to make sure is addressed over this large data load strategy. So for these scenarios, we can do two things. The main consideration is what we wanted to propose is, depending on what the backend systems and the consumers are equipped with, if the backend system is basically providing as a file as the full data load, then yes, MULE can access the full data load. Use a streaming approach, break down into chunks, and give it to the consumer over MQ into smaller multiple messages.\nIf the backend system is coming up with basically an API to give or a database that is giving us direct access, then the target application or the consumed application does not support various other protocols. Then we could go and hand over a streaming to extract all this data, write it into a single file, and give them over 5GB or 4GB of data to be accessed and consumed at a single shot.\nSo this strategy is where I wanted to understand... During the implementation phase, we can analyze how the source system and target systems are available, and we can provide multiple options for the consumer to consume this data over different protocols.\nSo that's where we wanted to improve the reliability and performance, avoiding bottlenecks. So that's one other main concern that we wanted to address as part of the future system design."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Let's stay at that topic because this was one we added as an additional question here sent to you because this is exactly what we have in different situations where we need a higher load of messages you're sending out.\nThis is especially important now for us to go ahead with our estimations regarding our requirements for the VC and so on because we have identified those situations where the load is typically high regarding our regular load on certain messages here.\nSo this is, of course, crucial for our sizing strategy regarding our applications in the future. There are... Let's wrap it down to certain situations. Of course, we have an onboarding of a new application where you, of course, need the whole... This is probably the easiest situation because the system is not yet really running. The new system is coming up into an environment.\nSo you can easily hand over the initial file in the form of a file or often an SAM CSV file and whatnot. Most of the time in the past, there were certain options which are quite feasible for doing that even if it's being pushed out the messages."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Or the full load. But there's not an issue in the sense that there's the system currently in use or we can even do this out of business hours. So there are no real issues doing those things. But this is a different thing. When less like a partial or an initial follow-up loot. When for situations where, for instance, there is coming up a new attribute for a certain entity or an API when you're talking about the future.\nOf course, that new attribute is necessary for the target application. You of course need to do a whole or at least a fraction of initial loading so that the target application gets all that new information. Most of the time.\nIt's not necessary to do this for any consumer which is consuming a certain entity or data, because not everyone needs that specific information, that new information or changed information even if data were already corrected in certain situations.\nSo in that situation, we have a typically high amount of messages sent out. We need to make sure that this is not breaking our systems here in regard of... Or they are not getting or consuming their messages in time.\nMaybe some are just batch calling or getting that information in chunks. So it's even taking much more longer. Even in that situation because the initial loot is running through the same path as the regular way to get messages here.\nThe ongoing day-to-day changes here. So even those changes get probably set up in between. It of course takes quite a lot more time to process all the regular parts here. This is a thing which makes it much more complicated to make sure that there's nothing going wrong there.\nSo yeah, it's quite a different situation where we have to make sure that, of course, the other side is capable of processing those changes in the best way that there's no data mismatch.\nAfter such a correction run or initial loot and of course, our resources are not blocked in certain areas there. So it's important for us to know what are the best ways to do such things here. As I said, there are different situations that we need to cover in the future."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes. So I think..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "So please tell us what are the best ways to do this?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So depending upon how the consumer is placed... Now we know that all the data load is coming and sitting up into Data Hub. Data Hub will act as our source to be pushed into a new consumer for initial or even the delta.\nIf now there are two types of consumers, one can accept a pull and one can accept a push. So a pull is basically when we can say that somebody is able to consume a file or consume a step server, that they will be able to access the file or let's say they want to consume via MQ on multiple messages.\nThese are the pull options for the consumer perspective to consume the data. That is where we can go depending on FTP or we can do multiple messages to be published onto MQ. Now if there is a consumer who is accepting a push from us on the initial data load, that's when we can do batch APIs to extract the data from our data hub and push into their system using batch APIs.\nSo the multiple approaches will define or can be put forward depending on how the consumer is. We can work along with you to identify what are the different types of consumers that run into on the day-to-day business and create multiple APIs that can support any type of pull and push into their system.\nSo I will show a couple of examples of what we have done earlier in the coming slides. Again, this is just a representation of what we have discussed and pushed forward. Again, this is another point that we discussed earlier of using ActiveMQ to avoid the multiple hops depending on how we can use ActiveMQ.\nI know this is something that we can consider in the future rather than having it as an immediate attention. But I wanted to see if we can use the whole platform as one particular system where that can be maintained inside the whole ecosystem of Mulesoft. Rather than pushing it outside until and unless there is a reliability option or there are external consumers that are consuming these messages, then we would have an external ActiveMQ being considered.\nBut I know this is the third priority that we would discuss. Again, any questions before we move to the next slide on the proposed engagement or how we can do... Before covering the examples that we put forward.\nSo again, a few proposed next steps of engagement that we have shared last week on how Quest can support Dresso into the further scope of implementation or future scope into architecting it. First is laying an API foundation template.\nSo these templates are... Mulesoft provides us an opportunity to create these templates which can be automated for any developer if they want. Yeah..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Sorry to interrupt, I think the template topic I had discussed with Philip and Oliver a couple..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Of weeks ago. Philip has recommended that the time will come and probably as they go down the path as well when they would want to visit it. So let's..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Park that idea for now."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Philip, we've already got some templates here from our Mulesoft consultant here. Then of course we will continue and we'll improve certain things like naming and so on. So we get from that side already some input.\nBut of course, we can review them together. Or when we're really working on those things here to get a more better basis for the... For when we really start over here."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, so..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Yeah, but I'm not satisfied with the current templates, to be honest. This... From my point of view... Yeah, it's not what we need. So I would at some point at least have a look here."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, sure, no worries. Do we want us to move to the additional topics that we discussed or any topic that you would like to discuss on the next steps of engagement?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "My suggestion would be if you can bring up the email from Philip and some of the questions that he had shared, right? We can just pick it up from there. Philip."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly that."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Hope that's okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So, yeah, this is the email that we have received on... Asking about the planning for the next four years. On the production and nonproduction course and likewise, a few examples for bulk data load. So what we have done is I have put forward a few suggestions on a few examples that we have done in certain use cases like pharma sales, some Salesforce to an external target system that can do a bulk import and then from a SEP Hanna to a manufacturing system for one of the clients.\nSo these were a few examples. To address the topic before... This is something as part of the email which highlights on... The first part is on the application ecosystem that we want to address and size.\nRight? So I think this is one of the good segmentation that you guys have already put down to say small, medium and large. But before I get into the segmentation, I wanted to understand a couple of questions on how or what are the parameters that you guys have considered for small, medium and large. This is what the first thing I would like to get some input on before even I run into it."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Basically, let's say, the pillars for our assumptions are like complexity transactions per second and the maximum amount of messages that come into place. Complexity, as you know, yeah, it's not always how to say really measurable it's let's say an experience value we have here from yeah, from the main knowledge over the decade we work here now.\nSo basically, these are the main consideration points currently that we have and maybe one, more sentence, to our current, landscape scenario, because I just, had to did i did some research this morning and it totally matched. What?\nYeah. What? We expected. So basically, let's say, 80% of our apps are super minimum. It go it goes really down to 0.08 interactions per month for the let's say the last place. And then we have some, let's say 20 entities apps where, wait, yeah, up to 200,000 per month.\nSo it's, there's a large miority in a big range, let's say, that is covered here. But most. Most of them are super small."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. So majoratively in the... No, for... I know the email from Philip mentioned that you guys are doing a one-on-one match with the production and non-production. So generally, in standard use cases, we don't do one-on-one matches for production and non-production because the non-production is something that we can manage, and we don't really do the full amount of volume or testing that happens in production that doesn't match.\nSo we always never try to do a one-on-one match. We put down around 60 to 70% of production into non-production, and the other use case is that I know there will be multiple projects that will be running into implementation in the future over the past four years. Then all of these which are running in production will not be running parallelly inside non-production, which is what I assume.\nSo that's where the general strategy for any enterprise client would not do a one-on-one match. They would put it down a bit lower in non-production because all of them wouldn't be running all at once, and all of them would be consumed or tested parallelly inside non-production. Is that something we can agree on? Or do you foresee any instance where whatever is running in production will run in non-production?"
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Maybe it's a little bit misleading. The one-to-one mirror here is because it's with the one-to-one share, it's meant to be that broad. It has one, and the other one is shared through three non-productive environments. Being..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Deaf test and stage so three and stage or environment altogether. So, it's. I mean, you can imagine that on the stage, probably there's probably quite a little bit more going on or even on test on. We don't see that much of a traffic coming up on the de stream.\nSo. But it's just trying to scale those things further down, if possible, I mean to the minimum possible size. Here we are not 100% sure. Probably the V because cannot be shared with between certain environments.\nYou know, I mean that, it's bound to their usage on or the deployed applications. You. I mean, if there's no usage on one deployed application, that vicor cannot be transferred to the other vcore within the same, non prop real. I see think so."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I think what if, let's say, 10 applications are deployed in prod non-prod, and we are not testing 5 of them. Do you want to utilize or increase the capacity for others? What we can do is all of these non-prod applications, we can either stop or undeploy them, and then allocate those undeployed ones to the ones which are being tested.\nSo that's where the shared or scaling down runs into the picture. Let's say we have a mid-level application that is deployed in non-prod with a 5V core, but we are not using it or testing it right now. Then we could scale down from 5V core to 1V core because it's not being used and use the remaining resources to the testing application which can be matched.\nSo this way, if we are able to manage or adjust the V core application in non-prod, then that is possible that can be done. So I mean different approaches. Philip, that can be..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "But this is a hell of a work. I don't think this is the right thing for us to do."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Because then you have to tweak around all the time you go to the stage. You minimize this to use it somewhere else? I don't..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Know. I don't..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "On the fly. Is it on the fly something like that, or is there some automation you can use? Like something if there's no real loot on that specific application, it automatically skates down to a certain minimum size here. Is this possible?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, we could automate that for any application that is not being used. Or probably a just an initiation trigger to kind of..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "I don't..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Stop it."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Like this idea. To be..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Honest, I don't like this idea at all. Because, Philip, when you do stage testing and at some point it is allocated to 0.1, then it is allocated with 0.3. And you do some measurements whatsoever. This is so much misleading. We should keep to fixed stages, fixed sizes without doing these tricks here and there. You may either..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Buy more CODS if it's needed."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "If you guys are okay to buy the parallel course, I think that is probably the best option that we could do to match the course and maintain it. It was just effective utilization that we have observed through many clients who do have their platform administration team that kind of sets up their testing project initiation to have their matching it.\nIf you guys are okay to match the production, then I think one of the best approaches to go ahead and reduce these minimum changes, then that is something I think 100%. I totally agree. If we are able to match the investment to production, that's the best thing. Yes, I totally agree on that, Philip."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "I think it's not our priority that we really have to mirror the exact resources on a production on the stage-specific environment. I think it should be just near that, probably. Even the other two environments we have, like the dev and the test, probably should be quite lower. The minimum size there."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "I'm not saying they must all be the same. What I'm saying is I don't want the... That it changes five times in a month or six times in a week and nobody knows. Or I have to investigate on what was, when I did this, what was allocated here and there. This is senseless.\nSorry, ma'am. I want stable environments I can rely on. I mean, this is a trick if you don't have the money. Yeah, you can for some time be healthy, but who's going to do this? Who's going to walk around and figure, \"No, let's put this down, let's put this up, let's put this down.\" I don't see it, man. I just don't see it.\nIt's maximum complication for nothing. It's just... How to say... From my point of view, it leads nowhere. To be honest, it's good to have the info. Let's say that it's somehow possible, but I don't know.\nYeah, not everything that is possible. I think we should do cash."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "But I think the. Hopefully you understand that the one to one mirror is not meant to be that... Every like. So it's just a sum. The other one is. Is just a sum of, like, three other environments altogether. So it's. It's quite different."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got that, Philip, and I totally agree..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "This is clear."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "With whatever is being discussed here. If the client, if the customer is able to invest and match it, then whatever we discuss to maintain the standardization and not do any changes is a perfect approach. I totally agree with that. There is nothing I have anything against the idea that is the best option to support it.\nBut just in case of the investment point of view, that's where we have seen multiple clients doing that. And if that doesn't work for us, it doesn't work for us. And that there is no, kind of any obligation or any point to discuss. On that, I totally agree with it."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Yeah, I think I should first figure out what will be, let's say, the final, amount of. Yeah, estimated course. But we should not start with. Yeah, we could tweak here and there to save $5. I don't see that. Really? I don't see that this will complicate things to amount that I just don't want to handle."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, no worries. I think to identify the number of applications and vehicles that we want to discuss. I think the resource that we want to procure overall, we have to put down a plan of architecture on what integrations we want to develop or what each of the projects would have. Number of applications that would run into and whatever you guys have said to discuss. Identifying or segmenting small, medium, and large into buckets is perfectly depending upon volume and number of transactions. We have seen data that can be flown and the number of times... The business hours have heavy peak loads, then non-business hours have less peak loads. Then depending upon the volume, we could segment down to say .2 weeks or .1 weeks or is something that could run through the basic and run down to point three for whatever can be done in non-prod.\nBut in production, depending upon the volume, we would obviously suggest multiple workers running in to handle the workload and receive the request to get that processed. So that is again where we would calculate the number of applications.\nBecause that is required. So if in the future as the next step, I would suggest if we can put down a plan of the architecture on what projects or what data flow we can analyze to say that is required from the system APIs to the consumers, then that could help us calculate the number of vs that we could do."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "We already have like certain things here, looked up here and did like probably and we all took yesterday had like a call with, Stas Force and USSOFT already and presented our initial info. CS sizing or estimations here and they already like signed that probably are quite too high for regarding our estimates here.\nSo we. And this is good to see that that's what I already see here on your slide here that..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "The numbers are even lower here as well. So we can probably in many cases quite go near the minimum size of certain things because our efforts within all the specific applications are quite low there. I..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Mean, there are specific for specific things here, but we have, of course, certain other areas where the loot is quite higher. So we... Yeah. We need to do."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "With our experience, what we have done, we have processed up to four to five GB of data that runs into the large brackets in production. Nonrod with two VOR was something that we were able to push through around 4 GB of data load in production with one worker in place.\nSo this is... That's how I think if we foresee that there are more than 4 GB 10 GB of data, that's where we allocate a larger number of workers to be part of it that can run through it. But with two workers more than 5 GB of data, close to 5 GB of data was easily able to transferred between multiple integrations.\nSo that was something that we have observed and that has been done."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Okay, I have one question. I just want to be sure if I understood everything correctly, not only here in the talk, but from what I read and what I heard here and there. So two questions..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "If I understood correctly, let's assume we assigned 0.2 because for this we... Let's say this is equivalent in... As a benchmark to, I don't know, some memory and some CPU put through measured down to transactions per second.\nOkay. Now let's assume we have... I don't know what the benchmark for 0.2 is, but let's assume it's 10% to 20 transactions per second. Now what happens if at some peak point I have 60 transactions per second? Does it mean only the put through and the worker is working slower? Or is it... How to say a problem in the sense of it could reach some... Memory and blow the application away?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So depending on how the application is designed. So let's consume... Let's understand a design approach. That's where integration patterns come into play. Let's say if there is an unexpected volume of parts of data that can rush through it.\nRight? Number of changes that expect between data hub to be pushed out for a delta change to our customer and we have an MQ pattern. In that case, you put down a point to... And whatever data that is running through is consumed based upon the settings that we do.\nSo when we are going through this reco sizing for any application in production before prod, what we do is we take the business volume estimates from you guys. We do a volume test for 2X and 3X loads and that 2X and 3X loads consume to make sure that the VCOOR is assigned.\nSo if we assign a point to VCOOR, then obviously whatever testing we have done earlier to give that point to... Will consume only 50 to 60% of it. So there will be a certain amount of space that would allow you to process that additional data.\nHow this weaker consumption model works is based on how the code is developed. How many parallel threads are allowed to work or execute, and how much weaker our memory is being processed.\nSo the allocation of VCS is purely understanding the nonfunctional requirements. Performing the load testing to it and then assigning it. If it's a message-based application, we say that \"Hey, process five messages in parallel.\" Then it keeps working even though there is an additional rush of messages that come and get stored down to MQ, then these are processed one by one and don't blow up. Now there is no limitation or constraint on consumption of these MQ messages.\nThere is a heavy rush. Obviously, the message would blow up on it. So the VCS that need to be assigned need to be discussed or identified on how this can be done or how this needs to be allocated before it is deployed based on the volume testing."
+      },
+      {
+        "speaker": "Pablo",
+        "speakerIndex": 5,
+        "text": "I have a question regarding that topic. So the recommendation is to have two or three times the peak in order to make sure we are covering all possible scenarios and peaks, isn't it?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, generally we do three times the load testing to make sure... Depending on how the business is going to identify what can be the best one. But whatever we identify as per the nonfunctional requirements, we do a 2x to make sure that it is available for 50% to 60% of it."
+      },
+      {
+        "speaker": "Pablo",
+        "speakerIndex": 5,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "But I'm just testing with the twice the amount of data here to make sure that the size you have chosen on the VC can analyze, right?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "You don't exactly in the beginning just scale it up and..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, what..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "So you're just..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We do is."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Testing it against..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, if we know that..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Alright, great."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, there are 5050 requests per second. Then we do testing with 100. We do testing with one and 01:40 and we will fix it for 100 in production but we will have metrics in the future when you guys are growing. Then those metrics will help you scale up and scale down the workflows."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay. So, essentially, this SP means that if you really do it wrong, the application will really just blow up."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "It will block."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay, all right. I mean..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "We don't want that."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yeah, and that's exactly what... Probably this goes in the direction regarding our heavy data load here. So where will we be putting those capabilities? We have to make sure that this will not break up. Of course..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That it..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Those APIs, which are probably handling the normal APIs probably right? So we have to make sure that those are properly set there. I don't know if even like relocating those specific ones into separate ones. I don't know.\nSo that they are never, breaking up the other ones. I..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Don't know if they're a patent."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The functionality of applications, the functionality that we are implementing or pushing into each application where the VCO is assigned as you rightly brought up, we have to segregate the functionality into different apps.\nSo assuming right, a new customer being pushed into the data hub is more important than having an update. And a new customer cannot be. I'm just taking a random example. A new customer data Syk into data hub cannot be wait cannot have a wait time.\nBut whereas an update can have a wait time of an existing customer. Then we have to split these two into different applications. So that way, what happens is whenever a new customer is added, that's not impacted with the volume.\nIt is maintained separately, and it is processed independently without affecting any other parallel application. That is functionality that is synced into the application. So the segmentation of functionality into applications is another major important part that needs to be decided when building and deploying an app."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay. Yeah, I think we have done this in our calculations about bringing that into certain domains, which probably reflects our maps to the source systems in the end regarding the ingestion part.\nOf course, we are most likely to have certain specific applications for the output way, like putting out the information to the systems if they are not able to do that on their own. Like leveraging our APIs on what we can provide in the future.\nSo I expect that we are most or often have to do those parts on our side. So that means we need dedicated resources in a sense of what we have for sizing here. So we have a better understanding of what the upcoming requirements are for the applications we already have in mind or see here in the upcoming months and years, and of course, have a raw idea of what we need to have in spare for any additional coming up we don't see already here now.\nSo we have a raw idea. Yeah. Additional things we have to keep in our backlog."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, yeah, I think anywhere we would put down around ten to ten percent or 20% additional in production to have some additional cost so that whenever we see a consumption that hits up to 70. We suggest that client to see that they kind of have start thinking about the expansion.\nSo that way we don't run into immediate depending upon the project pipeline and the volume of growth in business. That's where we suggest seventy percent is the mark that we would need to revisit and consider the procuring of additional COS depending on these two factors. Any questions that we want to discuss before we run into a couple of examples that we have done?"
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "I mean, we are..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Just want to..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "But we have... I think additional time here. I don't know if what's on your side because we are already quite far..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, I..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Into the..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Just wanted to do a time..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Call. It's..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Check. If you guys..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "It's no..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Are okay, then not..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Problem on my side. I don't know guys, what about you?"
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "For me a problem."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "I think it's really helpful to have that discussion currently. Here's no problem. If it's possible just..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Continue here."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think we should be good from our side, so let me share my..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Screen. Sorry. So this is one to start with a smaller use case where Salesforce is being published the data into a marketing client where they will have all their leads and contacts into Salesforce, which is being published back into a campaign system that runs through their campaigns.\nSo this is basically pulling through more than 100K records for each of the objects that they have, like the customer leads or contacts. So here Mulesoft is using the bulk API part of it to extract from Salesforce and then stream back all of these data return to a CS we extract.\nSo streaming is a built-in feature for Mulesoft to support the bulk data processing to be written through. So what it does is it texts it. When it receives the data from the source system, it streams the data to be written into small chunks one by one which is not visible to the regular world.\nBut it keeps pushing or streaming this data into the target system. Let's consider a CSV SSFTP file here that is being written. Then all of this data is returned onto the CFTP server and available for the customer to consume once the whole data is pushed back.\nSo this is one example where the streaming option can be used depending upon the data load and how the source system is available to access the data. So this is an example for the bulk API from Salesforce.\nBut this streaming option can be used even if there are files that are available on any FTP form to read it and push through to an external client on any APIs or anything as well. On how we can stream this data package into smaller chunks and provide the target system to be able to consume this data."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "We could adopt this as, in a way to ingest the data from Salesforce to, let's say the data hub, if I understand this..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "This is the right approach that we could use from Salesforce to the data hub as well. So in that case, we will be writing all of this stream data into the data hub by smaller chunks. Parallel that is being available for the customers to consume from the data hub, yes."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "So it's not only limited to SFTP as a system. Just like..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, the..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "In the end, like writing."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Target, yeah, the target can be anything. We could stream the data and package it into smaller chunks provided for an MCU stage. We could provide it for another API to access it, or we can push that data into smaller chunks and push it into a target system as well. Yes. The streaming option is to process the data, but it can be done into multiple systems and multiple protocols, not only the SFTP.\nSo, we put down another use case from a manufacturing client where all the product and order data is being extracted. When we say product, it has both product and the bill of materials that is being maintained from Sprana. We are extracting all of this data and then doing an I doc.\nI know that Sprana does not support more bulk data as we are able to extract from Salesforce, so Sprana provides us a small chunk of it. So what we are doing is we are doing a bad job here. We are extracting all of these data in parts from Salesforce and then accumulating it and writing it onto a target system target file system, which the manufacturing system is consuming it.\nSo we have done two parts of it. One is the product and BOM data and other is the order data. So both of these have been extracted and pushed through. Here we have gone through the batch approach.\nSo what batch approach does is it takes up the Salesforce APIs. When I say that it could be I doc mode but not the BAPI is synchronous, does not support high volume. So we are using the I doc method to extract the data from parts by using pagination and then getting that data and uploading that back into a CFP service.\nSo this is one of the batch processes. The earlier one was streaming. This one is the batch process that can be used to extract data into multiple chunks from the source system and right into the target into the SFTP part into chunks.\nSo this is breaking down into multiple parts from source and target, but for the consumer it is available once the whole file is available. So we keep appending this chunk data into the existing file and then provide the file into the landing zone for the target system to be consumed."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay. Currently in this area of SAP, we have a challenge here that we are regularly extracting the whole data, currently, I think twice or even four times a day. Like the HR data and extracting it, in the sense of calling the APIs here and in the CPI world, putting it into a data store there and then bulk writing it into an SQL server where it's stored in tables there or databases in a database with certain tables for the untransformed. Just like the plain data as it comes out of SSFEC and yeah, already consumes like 20 minutes, I think in the whole to extract all the data we already get some rumors or I don't know if they are at some point unhappy about that. We're extracting the whole thing in one go.\nWe're at some point discussed or heard about if there are better ways to do that in the future. But I think I heard about from SAP they are quite challenging regarding extracting data out of that world.\nStill, even if they are not allowed to limit those things here recently just read about certain things here in the media about that. But, yeah, it I think it's a thing."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "In this use case..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yeah, sorry, go..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Case, we have done a competitive approach of processing time from the SAP CPI versus Mulesoft, and we were able to show a comparative performance upgrade. And that's where instead of implementing this as part of the AP integration, we have done it in Mulesoft.\nSo yes, I think now SAP is able to expose the majority of the data to the external world not only through a CPI or excite. Then all of these can be done from the external integration platforms as well. Yes..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yeah, maybe we revisit that together again to even understand if there are better ways to do this and in more economical ways."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "If you use the worst, there's always a better way."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "You protect of..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yeah, but, I mean, we noticed that it's not that easy back then. And..."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "Yeah, we know it's a legacy thing, but we need to investigate this. But like I do, this is... Let's say one of our main pain points. I think we need to go into a deeper exchange here.\nBefore I forget it, I wanted to mention something. What you said, let's say some minutes ago now during presenting your styles, what will be great is... Because you said one of the main topics is the segmentation of the applications.\nYeah, and this is a topic or a complete complex. It's even an architectural thing, from my point of view, how to segment and modularize the complete infrastructure. Not only is it... It goes down to two applications, but it's more even on an architectural view. Where to move or how to align the things, how to make the compositions, is it entity-based, app-based, is it a mix? This is maybe a topic we should... If it's possible, discuss in a more deep technical way to figure out from your experience. Let's say with NEWSOFT and transition. Let's call it a spring boot microservice environment to Mulesoft. What options are here? What are the fabs? What are the side effects? We are maybe not aware of when we are starting because I think we rather plan this out properly than to start and at some point get into problems and have to redesign or rethink. St. Philip, I hope you agreed. This is something we have not put on the list because we currently... Our main problem is because of timelines and weaker issues.\nBut I think this is at the end a much bigger topic than..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "How many weeks we will use at the end?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, I..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Think that's from my side, Philip, Ivan, and others. Pablo. But any other questions? Happy to answer and support on what we can share."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "As Ivan pointed out, our account focus is... Now to finalize our requirements regarding the VCO so aligning them with what we initially checked on here, but now refining or even changing those numbers that they are better reflect the real expected requirements here.\nSo we expect to have those numbers ready because offers and negotiations start soon with Salesforce. So we need to probably have all those numbers quite good ready here in a time of next week, I assume something like that.\nSo if we can bring our estate like revised estimations to you to cross-check them again if we are heading in the right direction. If you can share, of course, what you have presented today here as a first few another view on what we should target here. That would be helpful if that's a way to continue with collaboration and check on each other here..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, I think that would be a great next step. Philip. Once you put down an estimation, I would say when you are sharing the estimations, share us on the factors that you considered for the estimation as well, like the volume and the number of transactions, as Ivan mentioned. Then I think probably our review can help us support to say that we can give you an exact feedback."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "That would be really helpful. As I said, it's of course a tough time here to finish those things, but that would be really helpful to have the best estate estimates now for getting into the negotiations which will soon start altogether. Of course, this will be a combined negotiation with the sales for CRM product as well.\nSo we need to provide those estimates to them."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "One of the best times to kind of get this was July because that's the quarter end. And that's where they get to see some good deals coming in from Salesforce with our experience because they are a publicly listed company and they do have to post the numbers.\nSo I think what's done... But I think the quarter-ends are the best time to get some good pricing from Salesforce."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "But this is not quarter. And Kailash, this is the July is, middle of Q3."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Salesforce closes its Q2 in July as. So soon."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay? Not in June..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, July closes the quarter for Q2 and..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Q3 starts from August. So I think that's where the pricing for Salesforce throughout the history has been majorityly running through based upon the quarter ends because that kind of pops up the stock market impact..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "As well. So that's where it plays a major role for pricing."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Your input came too late, roughly."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I'm sorry for that. Yeah, I mean, we probably... The discussion of the week records in the last call. I would have shared this earlier, but it's a bit late. I do understand. Yeah?"
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Okay. Anyway, I mean, we were in our around here not directly involved in the negotiations and there were other colleagues there are doing those things here. But of course, we hope that there they have a good negotiations on that part..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "The best is that we have really reliable and good numbers here on hand. So that should be our priority now. We will provide those informations to you, with the request that you have a look at that and get a few responses on that.\nSo expect that from us. And so far I think it was quite a good exchange here. Now, guys, what do you think? So very good."
+      },
+      {
+        "speaker": "Ivan",
+        "speakerIndex": 4,
+        "text": "We have solved one problem I didn't know about streaming API. Yeah, so that was very good."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "What you said about getting later on in more discussion, deeper discussion, how to do the landscape, the sizing, and those things which really involve our idea of how to put all those things later on in place is quite a good thing we should do afterward when we are heading over here or continuing.\nSo yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Pablo",
+        "speakerIndex": 5,
+        "text": "The only problem here is we are going to be on a holiday, so maybe we are not going to be so high level in the next weeks."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "So maybe... I can give you some insights here about the event that will be available next week. Then he will leave for three weeks, and Pablo will be there another week, so I will be available during that time completely, but expect something like that so that we are at least a little bit limited here with capacity.\nSo... But anyhow, we'll try to push as much as possible here, but of course, a holiday or vacation time is coming here."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I do understand."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Sure, Philip. Philip wants you on this call. I'm sorry. Okay, now, Philip, I just wanted to check. Once you share the details, Kailash will have a look, and then we set up a call. Or we should already put the time on the calendar right away."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "I mean, we should do this. We should provide our revised numbers probably. Guys, with the knowledge we got here now, please provide your information you showed today here with the slides and estimates. Probably this will help us to refine our numbers here in the meantime. We can do this today in the afternoon here. Guys, continue to work on them. Probably we need Monday as well. We will see then. We can provide that information as soon as possible to you and let's... I don't know, of course, we can already set up a call if that suits."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Suit we can do. No."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "That's probably too... Not that late. I think we really... Sorry, but I expect that we need to finish even the end of last week here with coming up with the proper numbers. We, of course, have some follow-up calls probably with Salesforce ours off here about that.\nSo I expect we should do that quite sooner, be it on Tuesday or Wednesday. I don't know. What do you think about..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I think Monday till Wednesday. Kailash is off, so Thursday morning is probably the latest."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thursday morning? Thursday morning."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Thursday morning. We can do this. We can always set, there a call there, like 9..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah. Perf..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "On o'clock."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I'll be off next week. Can you please set up a call?"
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Guys, I'm actually okay."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "So... We will try to do our best as soon as possible to send you in advance, of course, that information so you can review it and even send it out to us again for review again so we can pinpoint those information to have a really good finishing call on Thursday then.\nSo... Yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "If you can..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "That would be..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Share us..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "A good thing."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "By even though I'm off probably whenever I'm available through the... I will review it and share my feedback. Philip and then we can have everything ready for Wednesday's call to Thursday's call."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "We will try our best even if we do our account state and show it to you, and let you know that we are working on those things."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you. Thanks a lot."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "Philip",
+        "speakerIndex": 2,
+        "text": "So good. Thank you. What's really helpful here is the call. I think we should have a very nice weekend here."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you. Say, I..."
+      },
+      {
+        "speaker": "Pablo",
+        "speakerIndex": 5,
+        "text": "Thank you very much."
+      }
+    ],
+    "raw_meeting": "**04:00 AM - chrome meeting July 31**\n🕞 Started at 08:00 AM on 31 Jul, lasted 1h 5m",
+    "raw_content": "Philip | 00:23\nMorgan. Mar.\nSpeaker 3 | 00:27\nNglas hello.\nPhilip | 00:38\nGood morning.\nSpeaker 3 | 00:39\nHello.\nCols we can get started right a sen...\nkailash chanda | 00:50\nYeah, okay. I was just waiting to see if... Will join or else we can get started, so... Okay, let me share my screen. Perfect, thank you. Let me know if you guys can see my screen. So just wanted to start off again. Thank you for your time. I hope you guys had a chance to review the initial findings that we discussed and we drafted out as a presentation before even I kicked off. I wanted to see if you guys have any questions or concerns or clarifications from the slides that we have shared.\nSpeaker 3 | 01:47\nNo.\nPhilip | 01:47\nNope. Exactly so far. Yeah...\nkailash chanda | 01:50\nOkay. And again, a quick thing. Do you want me to summarize what we have put forward or discussed in the earlier call? Just for the interest of time. I wanted to check with you guys.\nPhilip | 02:05\nYou just want to go over the slides here again or the results from the last call. I don't know...\nkailash chanda | 02:12\nYeah, I wanted to see if you want me to go over the slides that I have shared. We have shared with you via email. We can go over each slide to explain what it is and what the approach is, and then address the additional questions and concerns that have been put forward by Philip in the email.\nPhilip | 02:30\nYeah, maybe as quickly as possible. Especially probably on those topics where you see... Yeah, things really... Or I mean, it was quite positive from our understanding about what you replied here.\nBut probably... Yeah, just going over them quickly would be a thing here. And then for following that, we'll get to the other topics there.\nkailash chanda | 02:56\nSure, I will share my screen and run through them. So yeah, the initial summary slide, whatever we have or have shown here, is during the summary of our previous call. We have recommended having a strict system API-level access so that these can be invoked only from the process APIs to prevent direct access from external applications and channelize the data propagation and transition from Mulesoft Data Hub as an integration entry point.\nSo that way, the data is streamlined through the channel as well as auditable in a very easy manner. The second one is the governance of the APIs to ensure everything that is directly part of the data hub. The third point again runs through the large data loads which we discussed over the size or limitation constraints over that to be exchanged over MQ, which can have additional impacts on pushing these data loads. We proposed alternative options that can be the FTP file options or a breakdown of these individual full data loads into multiple messages over MQ or even a page-based concept depending on how the backend system is structured and available for connectivity. The last point again, as I mentioned, positions Mulesoft as the integration hub for data as part of the data hub where all the data flows through Mulesoft and makes sure the exact architectural flow is positioned to make sure that all the data is routed to Mulesoft as part of which we have broken down each of these points that we have put forward earlier to implement API Security Layer and firewall policies.\nSo apart from the security layer, the firewall policies inside Mulesoft can be drafted down to limit or constrain who can invoke these APIs. So we have done at an enterprise level a similar approach to make sure that we put down two gateways, one for the external clients and one for the internal ones. The external client. The external gateway has firewall policies that will allow them to only access the experience APIs even though a API URL for system or process level is exposed. They will not be able to invoke or access those based on the firewall policies.\nThe internal gateway is scheduled to have something which is part of the ecosystem or the client network to make sure only those can be involved into the gateway of the internal gateway. So in such aspects, we can make sure on how the data is accessed and propagated along with the security layer being in place.\nSo this was one of the main proposed aspects that can improve security, provide and ensure auditable data that is being accessed. Any questions? Before I move to the next one, the...\nPhilip | 06:19\nI think it's part from the second topic you mentioned or brought on here that I think that's exactly what we want to follow here, that we really want to have restricted access to certain things.\nWhat you brought more into perspective here is trying to, of course, narrow down or close the access to certain APIs on the source systems, where they provide their APIs or in a certain way for...\nSo for ingestion in our data hub later on so that they cannot be accessed or used by anyone. So it is always the way that everything flows through the use of the Anypoint platform and not through a direct connection.\nI think we already set up certain settings here with our colleague regarding the network. But what you mentioned, setting two separate networks up here for different accesses, things is quite a good thing.\nI think in the beginning we will have to check on this year. But probably most of those are internal stuff where even if they are hosted on a platform or cloud host, it's just an internal app.\nSo I don't...\nkailash chanda | 07:44\nYes...\nPhilip | 07:44\nKnow if that we need to differentiate here. But a good point you mentioned there.\nkailash chanda | 07:51\nAgain, Philip. This is basically... This can be majorly done at the Mulesoft platform layer itself...\nIvan | 07:59\nOkay.\nkailash chanda | 08:00\nWhere we can create these gateways as part of the Mulesoft platform itself. When the Mulesoft API is... Let's say there is a system API that we have exposed for the source system, and we don't want an external one to access that. You don't need to go into your organization's firewall, but these system APIs can be limited to be accessed inside Mulesoft firewall policies themselves. We could define a...\nIvan | 08:25\nOkay.\nkailash chanda | 08:25\nGateway in and have that done. So two levels of access, one within the Mulesoft and one external is something that can be done. This is how we are... I wanted to depict or showcase how this can be accessed.\nSo an external client will not be able to access directly an orchestration process API or a back-end system API. They will have only access to the experience API. Even though these URLs are exposed to the external client or application, they will not be able...\nI think... Philip, you brought up direct access of backend systems as well, which is limited based upon the firewall at the organization level. But these two we can block them exactly inside Mulesoft itself.\nHow...\nIvan | 09:12\nHe hey...\nkailash chanda | 09:12\nWe have proposed... Okay. The external client can access the Experience API, but the Experience API can directly access the Process API or System API because all of these are internal to the Mulesoft ecosystem, and they wouldn't have any unauthorized access. That could cause any application to be blocked or an application to be run into ad hoc mode.\nSo this is how we depicted the proposal that we have put forward.\nIvan | 09:42\nRight?\nkailash chanda | 09:42\nQuestions from others while they move to the next slide.\nIvan | 09:48\nMaybe one question, because you mentioned the two gateways... Justice only work if we have isolated apps for every API in the sense that we have free apps for one for Experience, one for Process, and one for System. Or does it work? In any case, let's say for some reason, we combine all those three in one API in one app.\nkailash chanda | 10:11\nNo, I mean if... If there is no system API and there is a process API directly connecting to the backend system, we can still have the restriction to access the process API, or if there is a system API that is directly exposed to the experience API and we don't want them to access the system API, then that is something we can stop.\nBut the experience API is the one that is allowed to access by the external app. So we have to break down the experience layer for any external application because we... For example, if there is a page navigation logic that is implemented in the process API, the client sends and full data load for a month to be extracted.\nBut our experience API can have to send the data to process API and process API can break down into multiple calls to aggregate the data. So in such cases, what we can do is we can have access to the experience.\nBut we can restrict access to the process or system API or combined process together as well.\nIvan | 11:13\nOkay.\nkailash chanda | 11:14\nYeah, it does not need to be an...\nPhilip | 11:15\nBut to ask again. So the restriction or the five wall rules or the PEP policies are applied on the API URLs and not on the level of an Mulesoft app itself.\nkailash chanda | 11:31\nWe can write down Mulesoft app. What we can do is how the firewall runs inside Mulesoft is we define different naming conventions for each of the applications. And these firewall rules can be written to access to allow only these particular requests from certain applications to access.\nSo that way if the experience API URL is being called, if the experience API is calling cross API, we can make sure that the app URL or that is coming internal to the system is allowed, but the external world is not allowed.\nSo yes.\nPhilip | 12:03\nOkay, it'sl...\nkailash chanda | 12:03\nBe of the app. We can do...\nPhilip | 12:05\nBased... It's not app-based. So...\nkailash chanda | 12:07\nYes. Next. Again, this is the second point that we wanted to discuss on the large data loads. I know when we went through the initial analysis, there were requirements for initial data loads as well as delta data loads while onboarding new systems into the ecosystem.\nSo as we discussed, any MQ that has a data size limitation to be available to exchange data and large data loads when they come into play majorly run into 10MB or 20MB data load sites for MQs, let it be an on-prem MQ or cloud MQ. All of these MQs have certain restrictions, and that's where it caught our attention to say that for the initial data loads or full data loads, if the size of the application is higher, then it wouldn't be feasible to push over MQ, especially on multiple cloud hops to be run. Mulesoft is on another cloud, and then MQ on another cloud, and then the application accessing can be on another cloud. All these multiple hops with heavy data loads can cause delays and timeouts.\nSo that's where again, that was another concern that we wanted to make sure is addressed over this large data load strategy. So for these scenarios, we can do two things. The main consideration is what we wanted to propose is, depending on what the backend systems and the consumers are equipped with, if the backend system is basically providing as a file as the full data load, then yes, MULE can access the full data load. Use a streaming approach, break down into chunks, and give it to the consumer over MQ into smaller multiple messages.\nIf the backend system is coming up with basically an API to give or a database that is giving us direct access, then the target application or the consumed application does not support various other protocols. Then we could go and hand over a streaming to extract all this data, write it into a single file, and give them over 5GB or 4GB of data to be accessed and consumed at a single shot.\nSo this strategy is where I wanted to understand... During the implementation phase, we can analyze how the source system and target systems are available, and we can provide multiple options for the consumer to consume this data over different protocols.\nSo that's where we wanted to improve the reliability and performance, avoiding bottlenecks. So that's one other main concern that we wanted to address as part of the future system design.\nPhilip | 14:59\nLet's stay at that topic because this was one we added as an additional question here sent to you because this is exactly what we have in different situations where we need a higher load of messages you're sending out.\nThis is especially important now for us to go ahead with our estimations regarding our requirements for the VC and so on because we have identified those situations where the load is typically high regarding our regular load on certain messages here.\nSo this is, of course, crucial for our sizing strategy regarding our applications in the future. There are... Let's wrap it down to certain situations. Of course, we have an onboarding of a new application where you, of course, need the whole... This is probably the easiest situation because the system is not yet really running. The new system is coming up into an environment.\nSo you can easily hand over the initial file in the form of a file or often an SAM CSV file and whatnot. Most of the time in the past, there were certain options which are quite feasible for doing that even if it's being pushed out the messages.\nkailash chanda | 16:26\nExactly.\nPhilip | 16:26\nOr the full load. But there's not an issue in the sense that there's the system currently in use or we can even do this out of business hours. So there are no real issues doing those things. But this is a different thing. When less like a partial or an initial follow-up loot. When for situations where, for instance, there is coming up a new attribute for a certain entity or an API when you're talking about the future.\nOf course, that new attribute is necessary for the target application. You of course need to do a whole or at least a fraction of initial loading so that the target application gets all that new information. Most of the time.\nIt's not necessary to do this for any consumer which is consuming a certain entity or data, because not everyone needs that specific information, that new information or changed information even if data were already corrected in certain situations.\nSo in that situation, we have a typically high amount of messages sent out. We need to make sure that this is not breaking our systems here in regard of... Or they are not getting or consuming their messages in time.\nMaybe some are just batch calling or getting that information in chunks. So it's even taking much more longer. Even in that situation because the initial loot is running through the same path as the regular way to get messages here.\nThe ongoing day-to-day changes here. So even those changes get probably set up in between. It of course takes quite a lot more time to process all the regular parts here. This is a thing which makes it much more complicated to make sure that there's nothing going wrong there.\nSo yeah, it's quite a different situation where we have to make sure that, of course, the other side is capable of processing those changes in the best way that there's no data mismatch.\nAfter such a correction run or initial loot and of course, our resources are not blocked in certain areas there. So it's important for us to know what are the best ways to do such things here. As I said, there are different situations that we need to cover in the future.\nkailash chanda | 19:14\nYes. So I think...\nPhilip | 19:15\nSo please tell us what are the best ways to do this?\nkailash chanda | 19:19\nSo depending upon how the consumer is placed... Now we know that all the data load is coming and sitting up into Data Hub. Data Hub will act as our source to be pushed into a new consumer for initial or even the delta.\nIf now there are two types of consumers, one can accept a pull and one can accept a push. So a pull is basically when we can say that somebody is able to consume a file or consume a step server, that they will be able to access the file or let's say they want to consume via MQ on multiple messages.\nThese are the pull options for the consumer perspective to consume the data. That is where we can go depending on FTP or we can do multiple messages to be published onto MQ. Now if there is a consumer who is accepting a push from us on the initial data load, that's when we can do batch APIs to extract the data from our data hub and push into their system using batch APIs.\nSo the multiple approaches will define or can be put forward depending on how the consumer is. We can work along with you to identify what are the different types of consumers that run into on the day-to-day business and create multiple APIs that can support any type of pull and push into their system.\nSo I will show a couple of examples of what we have done earlier in the coming slides. Again, this is just a representation of what we have discussed and pushed forward. Again, this is another point that we discussed earlier of using ActiveMQ to avoid the multiple hops depending on how we can use ActiveMQ.\nI know this is something that we can consider in the future rather than having it as an immediate attention. But I wanted to see if we can use the whole platform as one particular system where that can be maintained inside the whole ecosystem of Mulesoft. Rather than pushing it outside until and unless there is a reliability option or there are external consumers that are consuming these messages, then we would have an external ActiveMQ being considered.\nBut I know this is the third priority that we would discuss. Again, any questions before we move to the next slide on the proposed engagement or how we can do... Before covering the examples that we put forward.\nSo again, a few proposed next steps of engagement that we have shared last week on how Quest can support Dresso into the further scope of implementation or future scope into architecting it. First is laying an API foundation template.\nSo these templates are... Mulesoft provides us an opportunity to create these templates which can be automated for any developer if they want. Yeah...\nSpeaker 3 | 22:28\nSorry to interrupt, I think the template topic I had discussed with Philip and Oliver a couple...\nkailash chanda | 22:32\nOkay...\nSpeaker 3 | 22:33\nOf weeks ago. Philip has recommended that the time will come and probably as they go down the path as well when they would want to visit it. So let's...\nkailash chanda | 22:44\nOkay...\nSpeaker 3 | 22:44\nPark that idea for now.\nPhilip | 22:46\nPhilip, we've already got some templates here from our Mulesoft consultant here. Then of course we will continue and we'll improve certain things like naming and so on. So we get from that side already some input.\nBut of course, we can review them together. Or when we're really working on those things here to get a more better basis for the... For when we really start over here.\nkailash chanda | 23:08\nOkay, so...\nIvan | 23:09\nYeah, but I'm not satisfied with the current templates, to be honest. This... From my point of view... Yeah, it's not what we need. So I would at some point at least have a look here.\nkailash chanda | 23:19\nOkay, sure, no worries. Do we want us to move to the additional topics that we discussed or any topic that you would like to discuss on the next steps of engagement?\nSpeaker 3 | 23:30\nMy suggestion would be if you can bring up the email from Philip and some of the questions that he had shared, right? We can just pick it up from there. Philip.\nkailash chanda | 23:42\nExactly that.\nSpeaker 3 | 23:43\nHope that's okay.\nkailash chanda | 23:49\nSo, yeah, this is the email that we have received on... Asking about the planning for the next four years. On the production and nonproduction course and likewise, a few examples for bulk data load. So what we have done is I have put forward a few suggestions on a few examples that we have done in certain use cases like pharma sales, some Salesforce to an external target system that can do a bulk import and then from a SEP Hanna to a manufacturing system for one of the clients.\nSo these were a few examples. To address the topic before... This is something as part of the email which highlights on... The first part is on the application ecosystem that we want to address and size.\nRight? So I think this is one of the good segmentation that you guys have already put down to say small, medium and large. But before I get into the segmentation, I wanted to understand a couple of questions on how or what are the parameters that you guys have considered for small, medium and large. This is what the first thing I would like to get some input on before even I run into it.\nIvan | 25:08\nBasically, let's say, the pillars for our assumptions are like complexity transactions per second and the maximum amount of messages that come into place. Complexity, as you know, yeah, it's not always how to say really measurable it's let's say an experience value we have here from yeah, from the main knowledge over the decade we work here now.\nSo basically, these are the main consideration points currently that we have and maybe one, more sentence, to our current, landscape scenario, because I just, had to did i did some research this morning and it totally matched. What?\nYeah. What? We expected. So basically, let's say, 80% of our apps are super minimum. It go it goes really down to 0.08 interactions per month for the let's say the last place. And then we have some, let's say 20 entities apps where, wait, yeah, up to 200,000 per month.\nSo it's, there's a large miority in a big range, let's say, that is covered here. But most. Most of them are super small.\nkailash chanda | 26:30\nGot it. So majoratively in the... No, for... I know the email from Philip mentioned that you guys are doing a one-on-one match with the production and non-production. So generally, in standard use cases, we don't do one-on-one matches for production and non-production because the non-production is something that we can manage, and we don't really do the full amount of volume or testing that happens in production that doesn't match.\nSo we always never try to do a one-on-one match. We put down around 60 to 70% of production into non-production, and the other use case is that I know there will be multiple projects that will be running into implementation in the future over the past four years. Then all of these which are running in production will not be running parallelly inside non-production, which is what I assume.\nSo that's where the general strategy for any enterprise client would not do a one-on-one match. They would put it down a bit lower in non-production because all of them wouldn't be running all at once, and all of them would be consumed or tested parallelly inside non-production. Is that something we can agree on? Or do you foresee any instance where whatever is running in production will run in non-production?\nPhilip | 27:51\nMaybe it's a little bit misleading. The one-to-one mirror here is because it's with the one-to-one share, it's meant to be that broad. It has one, and the other one is shared through three non-productive environments. Being...\nkailash chanda | 28:10\nYes.\nPhilip | 28:10\nDeaf test and stage so three and stage or environment altogether. So, it's. I mean, you can imagine that on the stage, probably there's probably quite a little bit more going on or even on test on. We don't see that much of a traffic coming up on the de stream.\nSo. But it's just trying to scale those things further down, if possible, I mean to the minimum possible size. Here we are not 100% sure. Probably the V because cannot be shared with between certain environments.\nYou know, I mean that, it's bound to their usage on or the deployed applications. You. I mean, if there's no usage on one deployed application, that vicor cannot be transferred to the other vcore within the same, non prop real. I see think so.\nkailash chanda | 29:12\nNo, I think what if, let's say, 10 applications are deployed in prod non-prod, and we are not testing 5 of them. Do you want to utilize or increase the capacity for others? What we can do is all of these non-prod applications, we can either stop or undeploy them, and then allocate those undeployed ones to the ones which are being tested.\nSo that's where the shared or scaling down runs into the picture. Let's say we have a mid-level application that is deployed in non-prod with a 5V core, but we are not using it or testing it right now. Then we could scale down from 5V core to 1V core because it's not being used and use the remaining resources to the testing application which can be matched.\nSo this way, if we are able to manage or adjust the V core application in non-prod, then that is possible that can be done. So I mean different approaches. Philip, that can be...\nIvan | 30:20\nBut this is a hell of a work. I don't think this is the right thing for us to do.\nkailash chanda | 30:24\nOkay.\nIvan | 30:24\nBecause then you have to tweak around all the time you go to the stage. You minimize this to use it somewhere else? I don't...\nkailash chanda | 30:33\nI think...\nIvan | 30:33\nKnow. I don't...\nPhilip | 30:34\nOn the fly. Is it on the fly something like that, or is there some automation you can use? Like something if there's no real loot on that specific application, it automatically skates down to a certain minimum size here. Is this possible?\nkailash chanda | 30:48\nYeah, we could automate that for any application that is not being used. Or probably a just an initiation trigger to kind of...\nIvan | 30:55\nI don't...\nkailash chanda | 30:55\nStop it.\nIvan | 30:56\nLike this idea. To be...\nkailash chanda | 30:57\nOkay.\nIvan | 30:57\nHonest, I don't like this idea at all. Because, Philip, when you do stage testing and at some point it is allocated to 0.1, then it is allocated with 0.3. And you do some measurements whatsoever. This is so much misleading. We should keep to fixed stages, fixed sizes without doing these tricks here and there. You may either...\nkailash chanda | 31:21\nI think...\nIvan | 31:21\nBuy more CODS if it's needed.\nkailash chanda | 31:24\nIf you guys are okay to buy the parallel course, I think that is probably the best option that we could do to match the course and maintain it. It was just effective utilization that we have observed through many clients who do have their platform administration team that kind of sets up their testing project initiation to have their matching it.\nIf you guys are okay to match the production, then I think one of the best approaches to go ahead and reduce these minimum changes, then that is something I think 100%. I totally agree. If we are able to match the investment to production, that's the best thing. Yes, I totally agree on that, Philip.\nPhilip | 32:06\nI think it's not our priority that we really have to mirror the exact resources on a production on the stage-specific environment. I think it should be just near that, probably. Even the other two environments we have, like the dev and the test, probably should be quite lower. The minimum size there.\nIvan | 32:31\nI'm not saying they must all be the same. What I'm saying is I don't want the... That it changes five times in a month or six times in a week and nobody knows. Or I have to investigate on what was, when I did this, what was allocated here and there. This is senseless.\nSorry, ma'am. I want stable environments I can rely on. I mean, this is a trick if you don't have the money. Yeah, you can for some time be healthy, but who's going to do this? Who's going to walk around and figure, \"No, let's put this down, let's put this up, let's put this down.\" I don't see it, man. I just don't see it.\nIt's maximum complication for nothing. It's just... How to say... From my point of view, it leads nowhere. To be honest, it's good to have the info. Let's say that it's somehow possible, but I don't know.\nYeah, not everything that is possible. I think we should do cash.\nPhilip | 33:28\nBut I think the. Hopefully you understand that the one to one mirror is not meant to be that... Every like. So it's just a sum. The other one is. Is just a sum of, like, three other environments altogether. So it's. It's quite different.\nkailash chanda | 33:42\nNo, I...\nIvan | 33:43\nYeah...\nkailash chanda | 33:43\nGot that, Philip, and I totally agree...\nIvan | 33:45\nThis is clear.\nkailash chanda | 33:45\nWith whatever is being discussed here. If the client, if the customer is able to invest and match it, then whatever we discuss to maintain the standardization and not do any changes is a perfect approach. I totally agree with that. There is nothing I have anything against the idea that is the best option to support it.\nBut just in case of the investment point of view, that's where we have seen multiple clients doing that. And if that doesn't work for us, it doesn't work for us. And that there is no, kind of any obligation or any point to discuss. On that, I totally agree with it.\nIvan | 34:25\nYeah, I think I should first figure out what will be, let's say, the final, amount of. Yeah, estimated course. But we should not start with. Yeah, we could tweak here and there to save $5. I don't see that. Really? I don't see that this will complicate things to amount that I just don't want to handle.\nkailash chanda | 34:47\nOkay, no worries. I think to identify the number of applications and vehicles that we want to discuss. I think the resource that we want to procure overall, we have to put down a plan of architecture on what integrations we want to develop or what each of the projects would have. Number of applications that would run into and whatever you guys have said to discuss. Identifying or segmenting small, medium, and large into buckets is perfectly depending upon volume and number of transactions. We have seen data that can be flown and the number of times... The business hours have heavy peak loads, then non-business hours have less peak loads. Then depending upon the volume, we could segment down to say .2 weeks or .1 weeks or is something that could run through the basic and run down to point three for whatever can be done in non-prod.\nBut in production, depending upon the volume, we would obviously suggest multiple workers running in to handle the workload and receive the request to get that processed. So that is again where we would calculate the number of applications.\nBecause that is required. So if in the future as the next step, I would suggest if we can put down a plan of the architecture on what projects or what data flow we can analyze to say that is required from the system APIs to the consumers, then that could help us calculate the number of vs that we could do.\nPhilip | 36:21\nWe already have like certain things here, looked up here and did like probably and we all took yesterday had like a call with, Stas Force and USSOFT already and presented our initial info. CS sizing or estimations here and they already like signed that probably are quite too high for regarding our estimates here.\nSo we. And this is good to see that that's what I already see here on your slide here that...\nkailash chanda | 36:53\nYes...\nPhilip | 36:53\nThe numbers are even lower here as well. So we can probably in many cases quite go near the minimum size of certain things because our efforts within all the specific applications are quite low there. I...\nkailash chanda | 37:09\nNo.\nPhilip | 37:09\nMean, there are specific for specific things here, but we have, of course, certain other areas where the loot is quite higher. So we... Yeah. We need to do.\nkailash chanda | 37:18\nWith our experience, what we have done, we have processed up to four to five GB of data that runs into the large brackets in production. Nonrod with two VOR was something that we were able to push through around 4 GB of data load in production with one worker in place.\nSo this is... That's how I think if we foresee that there are more than 4 GB 10 GB of data, that's where we allocate a larger number of workers to be part of it that can run through it. But with two workers more than 5 GB of data, close to 5 GB of data was easily able to transferred between multiple integrations.\nSo that was something that we have observed and that has been done.\nIvan | 38:05\nOkay, I have one question. I just want to be sure if I understood everything correctly, not only here in the talk, but from what I read and what I heard here and there. So two questions...\nkailash chanda | 38:16\nYes.\nIvan | 38:17\nIf I understood correctly, let's assume we assigned 0.2 because for this we... Let's say this is equivalent in... As a benchmark to, I don't know, some memory and some CPU put through measured down to transactions per second.\nOkay. Now let's assume we have... I don't know what the benchmark for 0.2 is, but let's assume it's 10% to 20 transactions per second. Now what happens if at some peak point I have 60 transactions per second? Does it mean only the put through and the worker is working slower? Or is it... How to say a problem in the sense of it could reach some... Memory and blow the application away?\nkailash chanda | 39:04\nSo depending on how the application is designed. So let's consume... Let's understand a design approach. That's where integration patterns come into play. Let's say if there is an unexpected volume of parts of data that can rush through it.\nRight? Number of changes that expect between data hub to be pushed out for a delta change to our customer and we have an MQ pattern. In that case, you put down a point to... And whatever data that is running through is consumed based upon the settings that we do.\nSo when we are going through this reco sizing for any application in production before prod, what we do is we take the business volume estimates from you guys. We do a volume test for 2X and 3X loads and that 2X and 3X loads consume to make sure that the VCOOR is assigned.\nSo if we assign a point to VCOOR, then obviously whatever testing we have done earlier to give that point to... Will consume only 50 to 60% of it. So there will be a certain amount of space that would allow you to process that additional data.\nHow this weaker consumption model works is based on how the code is developed. How many parallel threads are allowed to work or execute, and how much weaker our memory is being processed.\nSo the allocation of VCS is purely understanding the nonfunctional requirements. Performing the load testing to it and then assigning it. If it's a message-based application, we say that \"Hey, process five messages in parallel.\" Then it keeps working even though there is an additional rush of messages that come and get stored down to MQ, then these are processed one by one and don't blow up. Now there is no limitation or constraint on consumption of these MQ messages.\nThere is a heavy rush. Obviously, the message would blow up on it. So the VCS that need to be assigned need to be discussed or identified on how this can be done or how this needs to be allocated before it is deployed based on the volume testing.\nPablo | 41:15\nI have a question regarding that topic. So the recommendation is to have two or three times the peak in order to make sure we are covering all possible scenarios and peaks, isn't it?\nkailash chanda | 41:29\nYeah, generally we do three times the load testing to make sure... Depending on how the business is going to identify what can be the best one. But whatever we identify as per the nonfunctional requirements, we do a 2x to make sure that it is available for 50% to 60% of it.\nPablo | 41:48\nOkay.\nPhilip | 41:48\nBut I'm just testing with the twice the amount of data here to make sure that the size you have chosen on the VC can analyze, right?\nkailash chanda | 41:58\nExactly.\nPhilip | 41:58\nYou don't exactly in the beginning just scale it up and...\nkailash chanda | 42:02\nNo, what...\nPhilip | 42:02\nSo you're just...\nkailash chanda | 42:03\nWe do is.\nPhilip | 42:03\nTesting it against...\nkailash chanda | 42:04\nYeah, if we know that...\nPhilip | 42:05\nAlright, great.\nkailash chanda | 42:05\nOkay, there are 5050 requests per second. Then we do testing with 100. We do testing with one and 01:40 and we will fix it for 100 in production but we will have metrics in the future when you guys are growing. Then those metrics will help you scale up and scale down the workflows.\nPhilip | 42:23\nOkay. So, essentially, this SP means that if you really do it wrong, the application will really just blow up.\nkailash chanda | 42:34\nIt will block.\nPhilip | 42:34\nOkay, all right. I mean...\nIvan | 42:40\nWe don't want that.\nkailash chanda | 42:43\nYeah...\nPhilip | 42:43\nYeah, and that's exactly what... Probably this goes in the direction regarding our heavy data load here. So where will we be putting those capabilities? We have to make sure that this will not break up. Of course...\nkailash chanda | 43:00\nThat it...\nPhilip | 43:00\nThose APIs, which are probably handling the normal APIs probably right? So we have to make sure that those are properly set there. I don't know if even like relocating those specific ones into separate ones. I don't know.\nSo that they are never, breaking up the other ones. I...\nkailash chanda | 43:21\nExactly.\nPhilip | 43:21\nDon't know if they're a patent.\nkailash chanda | 43:23\nThe functionality of applications, the functionality that we are implementing or pushing into each application where the VCO is assigned as you rightly brought up, we have to segregate the functionality into different apps.\nSo assuming right, a new customer being pushed into the data hub is more important than having an update. And a new customer cannot be. I'm just taking a random example. A new customer data Syk into data hub cannot be wait cannot have a wait time.\nBut whereas an update can have a wait time of an existing customer. Then we have to split these two into different applications. So that way, what happens is whenever a new customer is added, that's not impacted with the volume.\nIt is maintained separately, and it is processed independently without affecting any other parallel application. That is functionality that is synced into the application. So the segmentation of functionality into applications is another major important part that needs to be decided when building and deploying an app.\nPhilip | 44:28\nOkay. Yeah, I think we have done this in our calculations about bringing that into certain domains, which probably reflects our maps to the source systems in the end regarding the ingestion part.\nOf course, we are most likely to have certain specific applications for the output way, like putting out the information to the systems if they are not able to do that on their own. Like leveraging our APIs on what we can provide in the future.\nSo I expect that we are most or often have to do those parts on our side. So that means we need dedicated resources in a sense of what we have for sizing here. So we have a better understanding of what the upcoming requirements are for the applications we already have in mind or see here in the upcoming months and years, and of course, have a raw idea of what we need to have in spare for any additional coming up we don't see already here now.\nSo we have a raw idea. Yeah. Additional things we have to keep in our backlog.\nkailash chanda | 45:36\nOkay, yeah, I think anywhere we would put down around ten to ten percent or 20% additional in production to have some additional cost so that whenever we see a consumption that hits up to 70. We suggest that client to see that they kind of have start thinking about the expansion.\nSo that way we don't run into immediate depending upon the project pipeline and the volume of growth in business. That's where we suggest seventy percent is the mark that we would need to revisit and consider the procuring of additional COS depending on these two factors. Any questions that we want to discuss before we run into a couple of examples that we have done?\nPhilip | 46:26\nI mean, we are...\nkailash chanda | 46:26\nJust want to...\nPhilip | 46:29\nBut we have... I think additional time here. I don't know if what's on your side because we are already quite far...\nkailash chanda | 46:35\nYeah, I...\nPhilip | 46:35\nInto the...\nkailash chanda | 46:36\nJust wanted to do a time...\nPhilip | 46:36\nCall. It's...\nkailash chanda | 46:37\nCheck. If you guys...\nPhilip | 46:37\nIt's no...\nkailash chanda | 46:38\nAre okay, then not...\nPhilip | 46:38\nProblem on my side. I don't know guys, what about you?\nIvan | 46:43\nFor me a problem.\nPhilip | 46:45\nI think it's really helpful to have that discussion currently. Here's no problem. If it's possible just...\nkailash chanda | 46:51\nOkay.\nPhilip | 46:51\nContinue here.\nkailash chanda | 46:52\nI think we should be good from our side, so let me share my...\nPhilip | 46:55\nOkay.\nkailash chanda | 46:56\nScreen. Sorry. So this is one to start with a smaller use case where Salesforce is being published the data into a marketing client where they will have all their leads and contacts into Salesforce, which is being published back into a campaign system that runs through their campaigns.\nSo this is basically pulling through more than 100K records for each of the objects that they have, like the customer leads or contacts. So here Mulesoft is using the bulk API part of it to extract from Salesforce and then stream back all of these data return to a CS we extract.\nSo streaming is a built-in feature for Mulesoft to support the bulk data processing to be written through. So what it does is it texts it. When it receives the data from the source system, it streams the data to be written into small chunks one by one which is not visible to the regular world.\nBut it keeps pushing or streaming this data into the target system. Let's consider a CSV SSFTP file here that is being written. Then all of this data is returned onto the CFTP server and available for the customer to consume once the whole data is pushed back.\nSo this is one example where the streaming option can be used depending upon the data load and how the source system is available to access the data. So this is an example for the bulk API from Salesforce.\nBut this streaming option can be used even if there are files that are available on any FTP form to read it and push through to an external client on any APIs or anything as well. On how we can stream this data package into smaller chunks and provide the target system to be able to consume this data.\nIvan | 48:54\nWe could adopt this as, in a way to ingest the data from Salesforce to, let's say the data hub, if I understand this...\nkailash chanda | 49:03\nThis is the right approach that we could use from Salesforce to the data hub as well. So in that case, we will be writing all of this stream data into the data hub by smaller chunks. Parallel that is being available for the customers to consume from the data hub, yes.\nPhilip | 49:24\nSo it's not only limited to SFTP as a system. Just like...\nkailash chanda | 49:28\nNo, the...\nPhilip | 49:28\nIn the end, like writing.\nkailash chanda | 49:29\nTarget, yeah, the target can be anything. We could stream the data and package it into smaller chunks provided for an MCU stage. We could provide it for another API to access it, or we can push that data into smaller chunks and push it into a target system as well. Yes. The streaming option is to process the data, but it can be done into multiple systems and multiple protocols, not only the SFTP.\nSo, we put down another use case from a manufacturing client where all the product and order data is being extracted. When we say product, it has both product and the bill of materials that is being maintained from Sprana. We are extracting all of this data and then doing an I doc.\nI know that Sprana does not support more bulk data as we are able to extract from Salesforce, so Sprana provides us a small chunk of it. So what we are doing is we are doing a bad job here. We are extracting all of these data in parts from Salesforce and then accumulating it and writing it onto a target system target file system, which the manufacturing system is consuming it.\nSo we have done two parts of it. One is the product and BOM data and other is the order data. So both of these have been extracted and pushed through. Here we have gone through the batch approach.\nSo what batch approach does is it takes up the Salesforce APIs. When I say that it could be I doc mode but not the BAPI is synchronous, does not support high volume. So we are using the I doc method to extract the data from parts by using pagination and then getting that data and uploading that back into a CFP service.\nSo this is one of the batch processes. The earlier one was streaming. This one is the batch process that can be used to extract data into multiple chunks from the source system and right into the target into the SFTP part into chunks.\nSo this is breaking down into multiple parts from source and target, but for the consumer it is available once the whole file is available. So we keep appending this chunk data into the existing file and then provide the file into the landing zone for the target system to be consumed.\nPhilip | 51:55\nOkay. Currently in this area of SAP, we have a challenge here that we are regularly extracting the whole data, currently, I think twice or even four times a day. Like the HR data and extracting it, in the sense of calling the APIs here and in the CPI world, putting it into a data store there and then bulk writing it into an SQL server where it's stored in tables there or databases in a database with certain tables for the untransformed. Just like the plain data as it comes out of SSFEC and yeah, already consumes like 20 minutes, I think in the whole to extract all the data we already get some rumors or I don't know if they are at some point unhappy about that. We're extracting the whole thing in one go.\nWe're at some point discussed or heard about if there are better ways to do that in the future. But I think I heard about from SAP they are quite challenging regarding extracting data out of that world.\nStill, even if they are not allowed to limit those things here recently just read about certain things here in the media about that. But, yeah, it I think it's a thing.\nkailash chanda | 53:29\nIn this use case...\nPhilip | 53:29\nYeah, sorry, go...\nkailash chanda | 53:30\nCase, we have done a competitive approach of processing time from the SAP CPI versus Mulesoft, and we were able to show a comparative performance upgrade. And that's where instead of implementing this as part of the AP integration, we have done it in Mulesoft.\nSo yes, I think now SAP is able to expose the majority of the data to the external world not only through a CPI or excite. Then all of these can be done from the external integration platforms as well. Yes...\nPhilip | 54:06\nYeah, maybe we revisit that together again to even understand if there are better ways to do this and in more economical ways.\nIvan | 54:16\nIf you use the worst, there's always a better way.\nkailash chanda | 54:19\nYou protect of...\nPhilip | 54:21\nYeah, but, I mean, we noticed that it's not that easy back then. And...\nIvan | 54:26\nYeah, we know it's a legacy thing, but we need to investigate this. But like I do, this is... Let's say one of our main pain points. I think we need to go into a deeper exchange here.\nBefore I forget it, I wanted to mention something. What you said, let's say some minutes ago now during presenting your styles, what will be great is... Because you said one of the main topics is the segmentation of the applications.\nYeah, and this is a topic or a complete complex. It's even an architectural thing, from my point of view, how to segment and modularize the complete infrastructure. Not only is it... It goes down to two applications, but it's more even on an architectural view. Where to move or how to align the things, how to make the compositions, is it entity-based, app-based, is it a mix? This is maybe a topic we should... If it's possible, discuss in a more deep technical way to figure out from your experience. Let's say with NEWSOFT and transition. Let's call it a spring boot microservice environment to Mulesoft. What options are here? What are the fabs? What are the side effects? We are maybe not aware of when we are starting because I think we rather plan this out properly than to start and at some point get into problems and have to redesign or rethink. St. Philip, I hope you agreed. This is something we have not put on the list because we currently... Our main problem is because of timelines and weaker issues.\nBut I think this is at the end a much bigger topic than...\nkailash chanda | 56:22\nYes.\nIvan | 56:22\nHow many weeks we will use at the end?\nkailash chanda | 56:29\nOkay, I...\nPhilip | 56:29\nOkay.\nkailash chanda | 56:30\nThink that's from my side, Philip, Ivan, and others. Pablo. But any other questions? Happy to answer and support on what we can share.\nPhilip | 56:43\nAs Ivan pointed out, our account focus is... Now to finalize our requirements regarding the VCO so aligning them with what we initially checked on here, but now refining or even changing those numbers that they are better reflect the real expected requirements here.\nSo we expect to have those numbers ready because offers and negotiations start soon with Salesforce. So we need to probably have all those numbers quite good ready here in a time of next week, I assume something like that.\nSo if we can bring our estate like revised estimations to you to cross-check them again if we are heading in the right direction. If you can share, of course, what you have presented today here as a first few another view on what we should target here. That would be helpful if that's a way to continue with collaboration and check on each other here...\nkailash chanda | 57:59\nYeah, I think that would be a great next step. Philip. Once you put down an estimation, I would say when you are sharing the estimations, share us on the factors that you considered for the estimation as well, like the volume and the number of transactions, as Ivan mentioned. Then I think probably our review can help us support to say that we can give you an exact feedback.\nPhilip | 58:21\nThat would be really helpful. As I said, it's of course a tough time here to finish those things, but that would be really helpful to have the best estate estimates now for getting into the negotiations which will soon start altogether. Of course, this will be a combined negotiation with the sales for CRM product as well.\nSo we need to provide those estimates to them.\nkailash chanda | 58:47\nI think...\nPhilip | 58:48\nYeah.\nkailash chanda | 58:48\nOne of the best times to kind of get this was July because that's the quarter end. And that's where they get to see some good deals coming in from Salesforce with our experience because they are a publicly listed company and they do have to post the numbers.\nSo I think what's done... But I think the quarter-ends are the best time to get some good pricing from Salesforce.\nSpeaker 3 | 59:10\nBut this is not quarter. And Kailash, this is the July is, middle of Q3.\nkailash chanda | 59:16\nSalesforce closes its Q2 in July as. So soon.\nSpeaker 3 | 59:23\nOkay? Not in June...\nkailash chanda | 59:24\nNo, July closes the quarter for Q2 and...\nSpeaker 3 | 59:27\nNo.\nkailash chanda | 59:27\nQ3 starts from August. So I think that's where the pricing for Salesforce throughout the history has been majorityly running through based upon the quarter ends because that kind of pops up the stock market impact...\nSpeaker 3 | 59:42\nYeah...\nkailash chanda | 59:42\nAs well. So that's where it plays a major role for pricing.\nSpeaker 3 | 59:47\nYour input came too late, roughly.\nkailash chanda | 59:49\nI'm sorry for that. Yeah, I mean, we probably... The discussion of the week records in the last call. I would have shared this earlier, but it's a bit late. I do understand. Yeah?\nPhilip | 00:00\nOkay. Anyway, I mean, we were in our around here not directly involved in the negotiations and there were other colleagues there are doing those things here. But of course, we hope that there they have a good negotiations on that part...\nkailash chanda | 00:14\nYes.\nPhilip | 00:14\nThe best is that we have really reliable and good numbers here on hand. So that should be our priority now. We will provide those informations to you, with the request that you have a look at that and get a few responses on that.\nSo expect that from us. And so far I think it was quite a good exchange here. Now, guys, what do you think? So very good.\nIvan | 00:46\nWe have solved one problem I didn't know about streaming API. Yeah, so that was very good.\nPhilip | 00:53\nWhat you said about getting later on in more discussion, deeper discussion, how to do the landscape, the sizing, and those things which really involve our idea of how to put all those things later on in place is quite a good thing we should do afterward when we are heading over here or continuing.\nSo yeah.\nkailash chanda | 01:18\nOkay.\nPablo | 01:18\nThe only problem here is we are going to be on a holiday, so maybe we are not going to be so high level in the next weeks.\nPhilip | 01:27\nSo maybe... I can give you some insights here about the event that will be available next week. Then he will leave for three weeks, and Pablo will be there another week, so I will be available during that time completely, but expect something like that so that we are at least a little bit limited here with capacity.\nSo... But anyhow, we'll try to push as much as possible here, but of course, a holiday or vacation time is coming here.\nkailash chanda | 02:03\nI do understand.\nSpeaker 3 | 02:03\nSure, Philip. Philip wants you on this call. I'm sorry. Okay, now, Philip, I just wanted to check. Once you share the details, Kailash will have a look, and then we set up a call. Or we should already put the time on the calendar right away.\nPhilip | 02:25\nI mean, we should do this. We should provide our revised numbers probably. Guys, with the knowledge we got here now, please provide your information you showed today here with the slides and estimates. Probably this will help us to refine our numbers here in the meantime. We can do this today in the afternoon here. Guys, continue to work on them. Probably we need Monday as well. We will see then. We can provide that information as soon as possible to you and let's... I don't know, of course, we can already set up a call if that suits.\nSpeaker 3 | 03:03\nSuit we can do. No.\nPhilip | 03:06\nThat's probably too... Not that late. I think we really... Sorry, but I expect that we need to finish even the end of last week here with coming up with the proper numbers. We, of course, have some follow-up calls probably with Salesforce ours off here about that.\nSo I expect we should do that quite sooner, be it on Tuesday or Wednesday. I don't know. What do you think about...\nSpeaker 3 | 03:39\nI think Monday till Wednesday. Kailash is off, so Thursday morning is probably the latest.\nkailash chanda | 03:46\nThursday morning? Thursday morning.\nPhilip | 03:47\nThursday morning. We can do this. We can always set, there a call there, like 9...\nkailash chanda | 03:55\nYeah. Perf...\nPhilip | 03:55\nOn o'clock.\nSpeaker 3 | 03:59\nI'll be off next week. Can you please set up a call?\nPhilip | 04:03\nYes.\nSpeaker 3 | 04:04\nGuys, I'm actually okay.\nPhilip | 04:08\nSo... We will try to do our best as soon as possible to send you in advance, of course, that information so you can review it and even send it out to us again for review again so we can pinpoint those information to have a really good finishing call on Thursday then.\nSo... Yeah.\nkailash chanda | 04:28\nIf you can...\nPhilip | 04:28\nThat would be...\nkailash chanda | 04:28\nShare us...\nPhilip | 04:29\nA good thing.\nkailash chanda | 04:30\nBy even though I'm off probably whenever I'm available through the... I will review it and share my feedback. Philip and then we can have everything ready for Wednesday's call to Thursday's call.\nPhilip | 04:42\nWe will try our best even if we do our account state and show it to you, and let you know that we are working on those things.\nkailash chanda | 04:49\nThank you. Thanks a lot.\nPhilip | 04:50\nYeah...\nkailash chanda | 04:51\nYeah...\nPhilip | 04:52\nSo good. Thank you. What's really helpful here is the call. I think we should have a very nice weekend here.\nkailash chanda | 05:00\nThank you. Say, I...\nPablo | 05:04\nThank you very much."
+  }
+}
