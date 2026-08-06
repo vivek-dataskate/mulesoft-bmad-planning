@@ -1,0 +1,233 @@
+{
+  "id": "019fd8154cf673bd9781d7bebfd6a178",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019fd80a4fcd755db5543dd6e6d29d3c",
+      "title": "Dataskate / Mule ",
+      "duration": 709,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "6rq7mba8ipg948fsnusik6ishg",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "eliza.pierson@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "kailash@dataskate.io"
+        },
+        {
+          "last_name": null,
+          "id": "40103531424952ffa717b50e6dd04b93",
+          "first_name": null,
+          "email": "rose.kim@salesforce.com"
+        },
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "dev@dataskate.ai"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4
+        }
+      ],
+      "start_date": "2026-08-06T17:05:51.506Z",
+      "end_date": "2026-08-06T17:17:40.506Z",
+      "url": "https://app.krisp.ai/n/019fd80a4fcd755db5543dd6e6d29d3c"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Last thing that we want for you guys is to have an unhappy customer. You guys are trying to be a good partner to us, and we, of course, don't want you to be in the middle there. So, I think the more detail the better. The one admin, Stacy, is pretty in the weeds on a technical standpoint of what they're doing.\nBut yeah, I just wanted to nail that one, and thank you."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, that's an important input. So it's important basically... Want to be as clear as possible."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "With that said, we want to ensure that we're getting the full scope and it's accurate before presenting it. So I want to set up a call for Monday if you can have a 48-hour turnaround on Monday afternoon. Let's say I want to review the so-what with you guys prior to the presentation, I just want to be an overview of the company TLLDR. They're literally the intermediary between an insurance carrier and brokers and agencies.\nSo what they do is, let's say a broker employer wants to shop around for a group health insurance, and they send their plan information, claims, and census data to Bravo Health, which is our client. Right now, they're in the process of setting up their community portal, so all files will be submitted there, and already in their Salesforce ecosystem.\nSo they're not the ones actually creating the proposals, but they essentially have to gather all of these different sorts of documents. There's going to be five to six. Then, they have... I'll send you the list of documents after.\nThen they gather all of these documents, extract the data, and plush it into Salesforce. Then they create this RFP that they centrally send out to, let's say, multiple carriers, the insurance carriers, and they review the information, and they send back a quote or a proposal back to Bravo, which I think people would need to extract.\nBravo takes these quotes and carriers and compares them against each other and makes a final recommendation for their clients. So that's where Mulesoft will come in as the extraction layer. Have you guys worked with the insurance space prior?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Not the insurance, but we worked in the financial banking sector and the loan underwriting sector. But I think..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That should be some..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Got it. So their clients are like all the list of documents could be like SPC census file. One thing to note, the census file is actually in Excel, so you guys will need to use any point for that."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I can confirm with them. I don't think I've confirmed in terms of the format, so let's get that confirmed on how many different formats do you come in on our follow-up call? Or do you think Kailash and... Do you go by dev or is that okay?\nYeah. Just out of curiosity, if they convert that into a JPEG or a PDF, like an Excel file or census, do you recommend using the table format and doing it? Or do you recommend the..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I think I'll go with any point first because the number of columns in the Excel sheet defines how the layout is changed while converting to PDF if the number of columns is higher. And you convert to PDF. Then they run into different pages which would mess up..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "The Excel standard one page. I don't think it's going to be too complex. We can... Let me ask them to share an example of the Census Excel and let me ask if they're... I assume they're all going to be in different formats.\nThat's my main concern. Then you guys have to map out each different... There isn't going to be a standardized Excel. So let's say there are 100 standards like the standard, 100 formats like that does not make sense either.\nSo maybe that is something that we don't take care of because there is. Maybe we can confirm with like how much is this of like a bottleneck for them, which I don't assume like it will be. The other documents would be way more of a priority. With that, can you just confirm? Kailash yes, go ahead. Sorry..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So the next call was this with the clients on Monday."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "No, it's going to be Wednesday, so let me add you guys to that pricing call. Let me first get back to Ken, who is the CEO, and let them know that we're bringing in a third-party implementation partner. I will add you guys to the pricing call. Are you available from 1 to 2 pm Eastern on Wednesday?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "When she looks..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, perfect. Let's put that on hold on your calendars. I want to set up a 30-minute call with your team to review the entire SOW because it needs to be very precise and outlined. So are you guys available on the 10th from 4 to 4:30 pm? Eliza, does that work for you too? Let me just quickly pull up your calendar.\nYeah, you're available. Does that work for your team? Four to 4:30, perfect. Any questions? Kailash, do you want me to send everything to the Dataskate AI moving forward? Not I/O..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah. That will be..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, perfect. And ASA if you can just forward over the transcript to dev as well and the call. But if you look through the recording, you should be able to see how their like Salesforce ecosystem is st up.\nSo like with the data extraction, it's going to be under, like specific like objects. Let me just quickly share my screen here. So if you see here, like, this is how she, like, create an object. Like, it's like, right, they're incumbent detail incumbent plans. And oftentimes there's gonna be like 18 plus different like plans per client per RFP essentially because like, you know, in like an employee insurance, there's like a PPO o version there. There is another version.\nSo those are things to consider. But yeah, this is literally how they input it. They have to open up an object and then this populates, and then they manually key it in. Their current process is they're literally screenshotting the data that they need, putting this document into chat and literally prompting and giving me the answer. A couple of things I highlighted with them are like just a hallucination.\nThis isn't an end-to-end workflow where... Versus us, we'll be able to just automatically create all these objects directly in here with all the data that we have. Please review if you have...\nI think the recording would be worthwhile to explore just how their ecosystem is set up for their Salesforce. I think one thing to know is that there is a whole separate implementation partner that's handling the Salesforce side of things.\nSo they're already a Salesforce existing customer, but Kailash Store is setting up their community portal right now. So if you need to have intros to them, to talk through anything within their sales versus ecosystem, I'm happy to make that introduction across those. Perfect. Well, that's kind of all from my end. I really appreciate your time, Dev, and your time as well, Kailash. Please let me know if there's anything else I can support. Deb, are you on Slack by chance?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes, so I just messaged my email ID, so if you can please add me there, that would be great."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Perfect. Yeah, we can just keep the communication via Slack if you have any questions, just brief... Free to Slack me. I'll create a group channel with us."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So immediately next Monday we are having a review call and Wednesday is the client call. But anything before that will be back and forward and try to... In it so that we're ready for Monday. The idea is that we will get a scope of work as good as near possible by Monday. Exactly if you're ready."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah. Let me get the example of the Census Excel sent over to you guys as well. Let me confirm the different formats. These are the types of documents."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "One other thing... All right, Rose, point that up. I'm not sure you are typically outlying SWB, but it might not hurt if you have a projected timeline of the time that you're thinking... Just trying to make it as predictable as possible for them, like I mentioned. Kailash, I don't think you're wrong.\nI mentioned this earlier, but the current partner who is in the environment, there was a lot of friction between the customer and them because there were some miscommunications between scope and roadmap and basically the whole implementation of everything.\nSo just trying to make it as predictable as possible. So... Yeah. I just wanted to make sure we can get ahead of any of that and give them as much assurance as possible."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure, we'll try to create whatever points you all mentioned into the SWB. I'll have my team work on it and present it on Monday, and then we can take votes and suggestions on what is required, and then we can make the respective changes in feedback into it, right?\nSo we are open to that. I know you... The different types of documents. The list of documents to be processed. You have them. If you have samples, that is great. If not, just share the list with us. We will go through them, and if you can ask for samples, that is good."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Let me ask them. I think as a follow-up today, I will email them the examples for each one of their documents. I'm under the assumption they will all have a variety of different formats because you're dealing with numerous different insurance carriers. One caveat is that they are going to be instances. Let's say it's a 60-page document, but a standard United Healthcare document for this will always be the data will always be in the first 20 pages.\nThen we want to ensure that they're not running through the entire capacity, so there'll be some level of that..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Perfect. Well, hopefully, we can close this by the end of Friday next week. Really appreciate everyone's... One thing is I already validated. I already gave them a range on my end. It's going to come in at $32,000. So..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That's not good."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "We've already confirmed the budget there. Not from the source side, but from our side. That will be where we'll be coming in."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That's good to know. Thanks again for letting us know that. We will try to work on the pricing and the sort of you on score, and I'll share it with you. We'll review it. We'll figure out if something needs to change. We'll change it and be ready for Wednesday."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Perfect. So looking forward to connecting with you on Monday to go over the source, and let's close this everyone. Thank you so much."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Thank you so much, thank you. Bye, take care by."
+      }
+    ],
+    "raw_meeting": "**Dataskate / Mule **\n🕞 Started at 05:05 PM on 06 Aug, lasted 11m",
+    "raw_content": "Speaker 2 | 00:00\nLast thing that we want for you guys is to have an unhappy customer. You guys are trying to be a good partner to us, and we, of course, don't want you to be in the middle there. So, I think the more detail the better. The one admin, Stacy, is pretty in the weeds on a technical standpoint of what they're doing.\nBut yeah, I just wanted to nail that one, and thank you.\nSpeaker 3 | 00:21\nYeah, that's an important input. So it's important basically... Want to be as clear as possible.\nSpeaker 4 | 00:27\nWith that said, we want to ensure that we're getting the full scope and it's accurate before presenting it. So I want to set up a call for Monday if you can have a 48-hour turnaround on Monday afternoon. Let's say I want to review the so-what with you guys prior to the presentation, I just want to be an overview of the company TLLDR. They're literally the intermediary between an insurance carrier and brokers and agencies.\nSo what they do is, let's say a broker employer wants to shop around for a group health insurance, and they send their plan information, claims, and census data to Bravo Health, which is our client. Right now, they're in the process of setting up their community portal, so all files will be submitted there, and already in their Salesforce ecosystem.\nSo they're not the ones actually creating the proposals, but they essentially have to gather all of these different sorts of documents. There's going to be five to six. Then, they have... I'll send you the list of documents after.\nThen they gather all of these documents, extract the data, and plush it into Salesforce. Then they create this RFP that they centrally send out to, let's say, multiple carriers, the insurance carriers, and they review the information, and they send back a quote or a proposal back to Bravo, which I think people would need to extract.\nBravo takes these quotes and carriers and compares them against each other and makes a final recommendation for their clients. So that's where Mulesoft will come in as the extraction layer. Have you guys worked with the insurance space prior?\nkailash chanda | 02:11\nNot the insurance, but we worked in the financial banking sector and the loan underwriting sector. But I think...\nSpeaker 4 | 02:18\nYeah.\nkailash chanda | 02:20\nThat should be some...\nSpeaker 4 | 02:23\nGot it. So their clients are like all the list of documents could be like SPC census file. One thing to note, the census file is actually in Excel, so you guys will need to use any point for that.\nkailash chanda | 02:35\nYes...\nSpeaker 4 | 02:35\nI can confirm with them. I don't think I've confirmed in terms of the format, so let's get that confirmed on how many different formats do you come in on our follow-up call? Or do you think Kailash and... Do you go by dev or is that okay?\nYeah. Just out of curiosity, if they convert that into a JPEG or a PDF, like an Excel file or census, do you recommend using the table format and doing it? Or do you recommend the...\nkailash chanda | 03:05\nNo, I think I'll go with any point first because the number of columns in the Excel sheet defines how the layout is changed while converting to PDF if the number of columns is higher. And you convert to PDF. Then they run into different pages which would mess up...\nSpeaker 4 | 03:20\nThe Excel standard one page. I don't think it's going to be too complex. We can... Let me ask them to share an example of the Census Excel and let me ask if they're... I assume they're all going to be in different formats.\nThat's my main concern. Then you guys have to map out each different... There isn't going to be a standardized Excel. So let's say there are 100 standards like the standard, 100 formats like that does not make sense either.\nSo maybe that is something that we don't take care of because there is. Maybe we can confirm with like how much is this of like a bottleneck for them, which I don't assume like it will be. The other documents would be way more of a priority. With that, can you just confirm? Kailash yes, go ahead. Sorry...\nkailash chanda | 04:11\nSo the next call was this with the clients on Monday.\nSpeaker 4 | 04:16\nNo, it's going to be Wednesday, so let me add you guys to that pricing call. Let me first get back to Ken, who is the CEO, and let them know that we're bringing in a third-party implementation partner. I will add you guys to the pricing call. Are you available from 1 to 2 pm Eastern on Wednesday?\nkailash chanda | 04:36\nWhen she looks...\nSpeaker 4 | 04:37\nOkay, perfect. Let's put that on hold on your calendars. I want to set up a 30-minute call with your team to review the entire SOW because it needs to be very precise and outlined. So are you guys available on the 10th from 4 to 4:30 pm? Eliza, does that work for you too? Let me just quickly pull up your calendar.\nYeah, you're available. Does that work for your team? Four to 4:30, perfect. Any questions? Kailash, do you want me to send everything to the Dataskate AI moving forward? Not I/O...\nkailash chanda | 05:23\nYeah. That will be...\nSpeaker 4 | 05:26\nOkay, perfect. And ASA if you can just forward over the transcript to dev as well and the call. But if you look through the recording, you should be able to see how their like Salesforce ecosystem is st up.\nSo like with the data extraction, it's going to be under, like specific like objects. Let me just quickly share my screen here. So if you see here, like, this is how she, like, create an object. Like, it's like, right, they're incumbent detail incumbent plans. And oftentimes there's gonna be like 18 plus different like plans per client per RFP essentially because like, you know, in like an employee insurance, there's like a PPO o version there. There is another version.\nSo those are things to consider. But yeah, this is literally how they input it. They have to open up an object and then this populates, and then they manually key it in. Their current process is they're literally screenshotting the data that they need, putting this document into chat and literally prompting and giving me the answer. A couple of things I highlighted with them are like just a hallucination.\nThis isn't an end-to-end workflow where... Versus us, we'll be able to just automatically create all these objects directly in here with all the data that we have. Please review if you have...\nI think the recording would be worthwhile to explore just how their ecosystem is set up for their Salesforce. I think one thing to know is that there is a whole separate implementation partner that's handling the Salesforce side of things.\nSo they're already a Salesforce existing customer, but Kailash Store is setting up their community portal right now. So if you need to have intros to them, to talk through anything within their sales versus ecosystem, I'm happy to make that introduction across those. Perfect. Well, that's kind of all from my end. I really appreciate your time, Dev, and your time as well, Kailash. Please let me know if there's anything else I can support. Deb, are you on Slack by chance?\nSpeaker 3 | 08:02\nYes, so I just messaged my email ID, so if you can please add me there, that would be great.\nSpeaker 4 | 08:08\nPerfect. Yeah, we can just keep the communication via Slack if you have any questions, just brief... Free to Slack me. I'll create a group channel with us.\nSpeaker 3 | 08:19\nSo immediately next Monday we are having a review call and Wednesday is the client call. But anything before that will be back and forward and try to... In it so that we're ready for Monday. The idea is that we will get a scope of work as good as near possible by Monday. Exactly if you're ready.\nSpeaker 4 | 08:36\nYeah. Let me get the example of the Census Excel sent over to you guys as well. Let me confirm the different formats. These are the types of documents.\nSpeaker 2 | 08:51\nOne other thing... All right, Rose, point that up. I'm not sure you are typically outlying SWB, but it might not hurt if you have a projected timeline of the time that you're thinking... Just trying to make it as predictable as possible for them, like I mentioned. Kailash, I don't think you're wrong.\nI mentioned this earlier, but the current partner who is in the environment, there was a lot of friction between the customer and them because there were some miscommunications between scope and roadmap and basically the whole implementation of everything.\nSo just trying to make it as predictable as possible. So... Yeah. I just wanted to make sure we can get ahead of any of that and give them as much assurance as possible.\nkailash chanda | 09:31\nSure, we'll try to create whatever points you all mentioned into the SWB. I'll have my team work on it and present it on Monday, and then we can take votes and suggestions on what is required, and then we can make the respective changes in feedback into it, right?\nSo we are open to that. I know you... The different types of documents. The list of documents to be processed. You have them. If you have samples, that is great. If not, just share the list with us. We will go through them, and if you can ask for samples, that is good.\nSpeaker 2 | 10:05\nYeah.\nSpeaker 4 | 10:06\nLet me ask them. I think as a follow-up today, I will email them the examples for each one of their documents. I'm under the assumption they will all have a variety of different formats because you're dealing with numerous different insurance carriers. One caveat is that they are going to be instances. Let's say it's a 60-page document, but a standard United Healthcare document for this will always be the data will always be in the first 20 pages.\nThen we want to ensure that they're not running through the entire capacity, so there'll be some level of that...\nkailash chanda | 10:41\nGot it.\nSpeaker 4 | 10:43\nPerfect. Well, hopefully, we can close this by the end of Friday next week. Really appreciate everyone's... One thing is I already validated. I already gave them a range on my end. It's going to come in at $32,000. So...\nkailash chanda | 10:58\nThat's not good.\nSpeaker 4 | 11:00\nWe've already confirmed the budget there. Not from the source side, but from our side. That will be where we'll be coming in.\nkailash chanda | 11:07\nThat's good to know. Thanks again for letting us know that. We will try to work on the pricing and the sort of you on score, and I'll share it with you. We'll review it. We'll figure out if something needs to change. We'll change it and be ready for Wednesday.\nSpeaker 4 | 11:23\nPerfect. So looking forward to connecting with you on Monday to go over the source, and let's close this everyone. Thank you so much.\nSpeaker 3 | 11:32\nThank you so much, thank you. Bye, take care by."
+  }
+}
