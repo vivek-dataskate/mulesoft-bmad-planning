@@ -1,0 +1,479 @@
+{
+  "id": "019fdd43530c7579a6a4e1e423d98d32",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019fdd16511477bf8d799f4931d59de1",
+      "title": "Client Call",
+      "duration": 1282,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8ko30h2674pj4hhn85248ghg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8kp3ad2285134ca4851k6dpk8osk6ci38p344c1o8krkcdi28cs0_20260807T163000Z",
+      "participants": [],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        }
+      ],
+      "start_date": "2026-08-07T17:04:42.372Z",
+      "end_date": "2026-08-07T17:26:04.372Z",
+      "url": "https://app.krisp.ai/m/019fdd16511477bf8d799f4931d59de1?active_tab=ai_notes"
+    },
+    "content": [
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Go to tablet. So now I'm ant phone gena then in a min of bak on it and I at the. No, I put the work conta..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "No, Mister Kailash. How are we doing?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Doing great. How are you?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I'm great. Best day of my life today. [Laughter]..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "KO being good."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Q2 for me ended up being pretty good all in informatica, but... Yeah, I... I know I don't... I think you might have forgotten. I would love to see where you're at and these important clean plays that are going around."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We closed one deal with Chromatica CDQ data quality..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Probably two or three weeks ago, and we are in place, so let us know how we can help what you do. Yes, it's running."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Would you mind...? I know if you guys need to cross off the costs and everything that's fine, but can you share the sow and the outcomes?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So when you say running, the project is in the implementation phase. We didn't close it out yet, but I can share the SRW..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, cool that yeah just so I can idea..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure, I can do that. A..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Thank you. So this one... I don't know. That I wanted to talk about. Or I didn't know if you knew which exactly account I wanted to talk about."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So yeah, give us a summary. But yeah, I shared all the notes and everything, kind of like you got that right?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, you shared me the roads line. I just wrapped up another call. So I didn't get a chance to run through it, but I will go through it..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, cool. Yeah, if you can give us a high-level summary of what you're looking for, right?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. So really an interesting one. These guys are not non-Salesforce customers. They reached out to us for a demo. They're on a demo. I called them their senior VP of Integrations was the contact, and he basically said, \"Hey, we're having this huge issue right now with all scripts where we are not able...\"\nSo basically, their product is an AI platform that plugs into EMRs, takes all the notes out of the EMRs, parses it, and then gives AI actionable data to send back to the company.\nSo right now... Wait. I just want to make sure I have these numbers. All right, so they're using the Unity API for all scripts, which is notoriously a pain in the ass, and then they're using their fire. One's like, \"Sorry, I'm just pulling out my notes here so I can get the exact...\"\nOkay. So yeah, they have the historical backfill. So they have 50 to 60,000 patient records from the clinic right now that they need to get completed within a month, and there's no way they're going to be able to do that right now.\nThen after they get that backfill done, they want to do daily delta syncs to keep the records real-time. Sync does not need to be real-time, but ideally, it would be real-time for them.\nRight now, it said so their current throughput gap. There's stable throughput. Calling 500 patients per 18 hours. At this rate, 50 to 60k backfill will take well over a month. The customer will then basically churn.\nSo the root cause is they're getting HTTP 500 errors under the sustained load that trace and stall database connections. There are all scripts posts that pre-clinic dedicated service instances that... Some are undersized, so it depends on what server they have.\nThen, when a server crashes, it requires a manual reboot on the ALLSCRIPT side, and it can take them several days to get back to them about the reboot. So to me, when I hear this, \"Can Mulesoft fix the API thing on the backend?\" No, but it seems like there are a lot of things Mulesoft could be set up to do to at least stop these hours of phone calls to get the server reset.\nWe can prevent that from even happening. Kailash, I see you shaking your head. Do you agree with me?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly because I think if there is a limitation on the ALLSCRIPT API, we could do batch processing or have that pagination offset implementation in Mulesoft to make sure we don't overload the ALLSCRIPT API and make it shut it down to get that downtime right.\nSo we could do that implementation in Mulesoft and make sure that we effectively utilize the ALLSCRIPT API and not overload or bottleneck."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So let me know if this is because I think that's what we talked about on the call. So they said the current workaround is that ALLSCRIPT manually supplies CSVs to patient IDs chart lenses, then reads that CSV locally and spends time on API calls against the fire app for everyone in that CSV, so this is how they're handling it right now.\nBut it's still not working. So requests are throttled crudely by increasing to 500 concurrent workers immediately re-triggers 500 mass errors at a server check."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So when ALLSCRIPT is supplying them a CSV of patient ID, they are doing it manually, and then Chart lens reads that CSV, and then they sequentially call the APIs against to get that data. The worker concurrency has manually tooled..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, go ahead."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Increasing 500 concurrent workers triggering..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Mass measures. So this is where we have to find out to do that switch..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Technologies... I just thought I had enough..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Often what exactly is the load that is able to get... Through it and then plan... To extract them or not."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So there..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "500 workers parallel but find the..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Matter over them."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exact number and then extract them. CON..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes, but yeah, okay, that makes sense. I think once I guess... Yeah. So for this one I think it's a smaller just talk about no finding a date. The workers sweet spot. A 26-minute API hang observed via post van was discovered manually. They only log references in all scripts on internal.\nSo I think that's what this is saying is that they've come up with every. We can do it every 26 minutes."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "But again, they are doing it manually and via Postman, which can..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Be automated for our site, right? So. And if..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Right..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "You the other point. And like no circuit breaking logic, no Claude-based mechanism. All of these we can implement through Mulesoft and we can get that done."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, because my SE was like, \"Well, they can just customly build that,\" and I was like, \"Okay, then that's the answer to every question of our product. You could technically try and build everything, but that's not what we're proposing.\""
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "And they have CE..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So what are your guys' thoughts?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I think they don't have that synchronous mechanism. They have to go out for product any external MQ like RabbitMQ or activeMQ. But I think with Mulesoft, we even have the API to which we could use to reduce the end-to-end dependency to do it in a single..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "F never..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Go. We can break down into a sync mode and have that done into multiple steps. So we could do that as well. As you rightly mentioned, they could do that customization, everything we have done, but that's not the time and effort that they would require.\nWhat we could do on one platform and give them the end-to-end observability is more important."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Right. Okay, so I sometimes... My... Makes me feel like I'm insane because I'm like, \"I am missing something here?\""
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I'm surprised..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So I guess I' the only other. Yeah, but this I guess this would be, what has not been tried? I think this is what you were just reading about. Like, no circuit breaker logic, no Q based decoupling, no checkpoint resumed, no automated retry with backup, no client side monitoring observability.\nSo that all looks kind of good to you? What? They. You know, okay..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We could do that. We could do an automated retry. The main thing here... Probably whatever implementation they have done might not be... Understanding exactly the limitations of the API or the all scripts API and getting into implementation.\nIf we get that sorted, then the implementation should be smooth."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So you're saying it'll be smooth if we can get the information from all scripts about what is..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The limitation..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "About details about their API. Okay. So I think I'm going to need to basically take a hold of that because they're all scripts just ignore these guys because they're not all scripts. Customer, they're providing this integration to a clinic that has all scripts, so they're not going to ask their customer to go like call and do this.\nThen when they call all scripts... So... Who's saying sorry?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I said we could do that research to understand what are the limitations as far as we can and then try to re..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay. Because... Then these other things came up. There was a talk of a request to get us S3 signed URLs from them so we could just put it into a dump and then we don't have to call the APIs, but they can't get that approved because they can't talk to them.\nSo what I'm thinking of, my angle is I reach out to the rep that sells to all scripts at Salesforce and I'm going to have them introduce me to someone on the team at all Scripts and be like, \"Hey, here's what's happening.\"\nThen I'm just going to embellish a little bit like, \"Hey, this customer has seven other clinics that they're willing to... They want to bring on that have all scripts, and they're not going to do it.\"\nThose clinics are going to most likely move off all scripts so that they can utilize this platform and see if I can pressure them to be like, \"Hey, let's fix that, fix this because according to my research, they could just go in and up their API for their server like they can do that, okay?\"\nThen the last idea I had... I don't know if it would work, but there is a HIE like Healthcare State and Country sharing Information Act or something like that. If this clinic is part of that, their all scripts data gets sent to the HIE whatever database. The only thing about that is from my research, they're not always the 100% that sometimes it's just like there's some redacted stuff or things along those lines.\nBut even if that's the case, if we only. And then they only have to go back and get half of the calls. If they get 50,000 patients and they get 60% of the info that they needed, now you're only really going after the 10,000 total patients based on the number of those you're already done with. 60% of them or whatever.\nSo I don't know what you think about that idea. I was going to call Clint and just be like, \"Hey, call that Clint and see if they're part of this program because that could be an easy fix.\""
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yup. That that's something. Yes..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "They could do that."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Then the big... I think the most exciting part for you guys here is that this is the very smallest part of the deal we are going to position an unlimited Mule for because they have... The guy was like, \"Well, could we do this with our other e-HRs?\"\nThen I gave the talk track of, \"Yes, you can. You can reuse.\" So if someone's going to move... He goes, \"Actually, the people we're doing all scripts for are moving to Athena one in 18 months.\"\nI was like, \"Yeah. So here we go again.\" Then I was like, \"The TED piece that went successfully.\" He goes, \"Yeah, there are some bumps in the road.\" I was like, \"You got to start over the next mod clinic that comes in from scratch.\"\nHe went, \"Yeah, this is not sustainable.\" Because when they came out with this, they were expecting it to be just for one customer. So that's why they go... Now they're realizing this is a big thing..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That's nice."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "And how do we scale it? And, you know, blah. So. And they confirmed August execution."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Their clinic is not on the Athena free clinic free trial free version right there on the paid version."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "The allscript one Orna..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I think one of the other seven e-HRs that they are connecting like modnt. Athena epic next gen."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So the Athena 3 does not give you API access. The Athena paid ones only give you API access."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So there's one with Athena that's working right now, so..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Then two are to the epic and another one is mid-build. So I have this. I want to get to talk. You guys have got to go. I know I'm taking a lot of your time."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I will go over the transcript once and let me know what questions I have. I will post it to you. But I think you detailed it out pretty well. I will go through it once again, come back with any questions or anything."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, yeah, that would be awesome. They... Yeah, like I said, they're looking to move quick. The budget's not the craziest thing for them, to be honest. So I think we can put together a proposal for them that... I don't know if you guys are seeing this, but this is just what I've built.\nYeah, we can see. Particularly on the Allscripts case, like, \"Hey, here's the issues. The bulk export, the FIRE API, and then here I think Kailash, this is a lot of what we were talking about. We can have these aspects sit in the middle of it, and, at least solve from the breakages and all of that.\"\nSo that's just kind of what I just high level will put together..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "When is the next customer program? Okay, so probably I will... Before I log off today, I will go over all the transcripts, give you any questions, try to create something of a proposal for you.\nThen if you have any questions... We can catch up and solve it before tomorrow..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Morning. That way we are set for everything. As..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, that would be awesome. And then, yeah, maybe if you can, if it's not too much work like a one for just this. Like, hey, we were just gonna fix this. And then like, it doesn't have to be a detailed SW but like if they're going to scale the 30 like if they're going to scale like what your guys' plan would be, are we going to like train them and let them kind of take over, are we going to want to run.\nBut just like because they're very technical. And they did request to not have a partner. But we kind of told them on the last call like, hey, a lot of this stuff is coming from your not the lack of knowledge on your team's end, but the amount of resources that you have and, you know, integrating with these there's our partner system.\nAnd so he was like, maybe so. But I don't think this gets done without my. My team isn't going to be able to figure this out. You know? Like, this is why we have good partners like you guys that can actually.\nYeah, so what it does."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure. Sure. I think that's perfectly aligned."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. Okay, great. And we have the buyers, it's the economics. We have everyone know all the bands and everything. So we told them if it was just this use case for licensing, I expect 30 to 45k. And so, you know, I think.\nAnd they didn't bat an eye. He was like, Dude, we need this fixed. Like, so Michelle is really excited. She is she was on the call and she got off and was like, this is a real one if we do this right."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah. Love customers like this who realize that they need a budget for something like this. It's a big problem, they need to solve it, and it's going to cost them money. Yeah, that's it. Yeah."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Hundred percent. I mean, it's crazy. Yeah, I'm usually pulling teeth trying to get people on calls, and the guy's like, hey, yeah, can we meet tomorrow? Can we meet tomorrow, can we meet? I'm like, Dude, this is.\nAnd he's adding the CTO I was like, this is yeah, and I don't know what me they're probably just wasting our time trying to get free consulting to."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "This looks like a good one."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "That's as long..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah. If we can come in and solve their problem and show them how it's done, then, yeah, let's go."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, I mean, actually, he actually quoted that. He goes, if you could show us how to fix this. And then let's talk to the unlimited thing because this is yeah, this is what we need."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So awesome, right? Right, and let us do it."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Hell, yeah, thank you so much."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Did I send you those transcripts, Kayla?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes, s."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, I think I've uploaded them for Kailash."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Cool. Awesome. Thank you."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Guys. Have a good weekend, brother."
+      }
+    ],
+    "raw_meeting": "**Client Call**\n🕞 Started at 05:04 PM on 07 Aug, lasted 21m",
+    "raw_content": "kailash chanda | 00:03\nGo to tablet. So now I'm ant phone gena then in a min of bak on it and I at the. No, I put the work conta...\nSpeaker 2 | 00:24\nNo, Mister Kailash. How are we doing?\nkailash chanda | 00:33\nDoing great. How are you?\nSpeaker 2 | 00:35\nI'm great. Best day of my life today. [Laughter]...\nkailash chanda | 00:43\nKO being good.\nSpeaker 2 | 00:46\nQ2 for me ended up being pretty good all in informatica, but... Yeah, I... I know I don't... I think you might have forgotten. I would love to see where you're at and these important clean plays that are going around.\nkailash chanda | 01:06\nWe closed one deal with Chromatica CDQ data quality...\nSpeaker 2 | 01:11\nYeah...\nkailash chanda | 01:12\nProbably two or three weeks ago, and we are in place, so let us know how we can help what you do. Yes, it's running.\nSpeaker 2 | 01:22\nWould you mind...? I know if you guys need to cross off the costs and everything that's fine, but can you share the sow and the outcomes?\nkailash chanda | 01:32\nSo when you say running, the project is in the implementation phase. We didn't close it out yet, but I can share the SRW...\nSpeaker 2 | 01:40\nOkay, cool that yeah just so I can idea...\nkailash chanda | 01:44\nSure, I can do that. A...\nSpeaker 2 | 01:50\nThank you. So this one... I don't know. That I wanted to talk about. Or I didn't know if you knew which exactly account I wanted to talk about.\nSpeaker 3 | 02:02\nSo yeah, give us a summary. But yeah, I shared all the notes and everything, kind of like you got that right?\nkailash chanda | 02:11\nYeah, you shared me the roads line. I just wrapped up another call. So I didn't get a chance to run through it, but I will go through it...\nSpeaker 3 | 02:17\nOkay, cool. Yeah, if you can give us a high-level summary of what you're looking for, right?\nSpeaker 2 | 02:24\nYeah. So really an interesting one. These guys are not non-Salesforce customers. They reached out to us for a demo. They're on a demo. I called them their senior VP of Integrations was the contact, and he basically said, \"Hey, we're having this huge issue right now with all scripts where we are not able...\"\nSo basically, their product is an AI platform that plugs into EMRs, takes all the notes out of the EMRs, parses it, and then gives AI actionable data to send back to the company.\nSo right now... Wait. I just want to make sure I have these numbers. All right, so they're using the Unity API for all scripts, which is notoriously a pain in the ass, and then they're using their fire. One's like, \"Sorry, I'm just pulling out my notes here so I can get the exact...\"\nOkay. So yeah, they have the historical backfill. So they have 50 to 60,000 patient records from the clinic right now that they need to get completed within a month, and there's no way they're going to be able to do that right now.\nThen after they get that backfill done, they want to do daily delta syncs to keep the records real-time. Sync does not need to be real-time, but ideally, it would be real-time for them.\nRight now, it said so their current throughput gap. There's stable throughput. Calling 500 patients per 18 hours. At this rate, 50 to 60k backfill will take well over a month. The customer will then basically churn.\nSo the root cause is they're getting HTTP 500 errors under the sustained load that trace and stall database connections. There are all scripts posts that pre-clinic dedicated service instances that... Some are undersized, so it depends on what server they have.\nThen, when a server crashes, it requires a manual reboot on the ALLSCRIPT side, and it can take them several days to get back to them about the reboot. So to me, when I hear this, \"Can Mulesoft fix the API thing on the backend?\" No, but it seems like there are a lot of things Mulesoft could be set up to do to at least stop these hours of phone calls to get the server reset.\nWe can prevent that from even happening. Kailash, I see you shaking your head. Do you agree with me?\nkailash chanda | 05:44\nExactly because I think if there is a limitation on the ALLSCRIPT API, we could do batch processing or have that pagination offset implementation in Mulesoft to make sure we don't overload the ALLSCRIPT API and make it shut it down to get that downtime right.\nSo we could do that implementation in Mulesoft and make sure that we effectively utilize the ALLSCRIPT API and not overload or bottleneck.\nSpeaker 2 | 06:14\nSo let me know if this is because I think that's what we talked about on the call. So they said the current workaround is that ALLSCRIPT manually supplies CSVs to patient IDs chart lenses, then reads that CSV locally and spends time on API calls against the fire app for everyone in that CSV, so this is how they're handling it right now.\nBut it's still not working. So requests are throttled crudely by increasing to 500 concurrent workers immediately re-triggers 500 mass errors at a server check.\nkailash chanda | 07:02\nSo when ALLSCRIPT is supplying them a CSV of patient ID, they are doing it manually, and then Chart lens reads that CSV, and then they sequentially call the APIs against to get that data. The worker concurrency has manually tooled...\nSpeaker 2 | 07:19\nYeah, go ahead.\nkailash chanda | 07:20\nIncreasing 500 concurrent workers triggering...\nSpeaker 2 | 07:23\nYeah...\nkailash chanda | 07:23\nMass measures. So this is where we have to find out to do that switch...\nSpeaker 2 | 07:27\nTechnologies... I just thought I had enough...\nkailash chanda | 07:29\nOften what exactly is the load that is able to get... Through it and then plan... To extract them or not.\nSpeaker 2 | 07:36\nSo there...\nkailash chanda | 07:37\n500 workers parallel but find the...\nSpeaker 2 | 07:39\nMatter over them.\nkailash chanda | 07:39\nExact number and then extract them. CON...\nSpeaker 2 | 07:45\nYes, but yeah, okay, that makes sense. I think once I guess... Yeah. So for this one I think it's a smaller just talk about no finding a date. The workers sweet spot. A 26-minute API hang observed via post van was discovered manually. They only log references in all scripts on internal.\nSo I think that's what this is saying is that they've come up with every. We can do it every 26 minutes.\nkailash chanda | 08:19\nBut again, they are doing it manually and via Postman, which can...\nSpeaker 2 | 08:22\nYes...\nkailash chanda | 08:22\nBe automated for our site, right? So. And if...\nSpeaker 2 | 08:26\nRight...\nkailash chanda | 08:26\nYou the other point. And like no circuit breaking logic, no Claude-based mechanism. All of these we can implement through Mulesoft and we can get that done.\nSpeaker 2 | 08:38\nOkay, because my SE was like, \"Well, they can just customly build that,\" and I was like, \"Okay, then that's the answer to every question of our product. You could technically try and build everything, but that's not what we're proposing.\"\nkailash chanda | 08:56\nAnd they have CE...\nSpeaker 2 | 08:57\nSo what are your guys' thoughts?\nkailash chanda | 09:01\nNo, I think they don't have that synchronous mechanism. They have to go out for product any external MQ like RabbitMQ or activeMQ. But I think with Mulesoft, we even have the API to which we could use to reduce the end-to-end dependency to do it in a single...\nSpeaker 2 | 09:19\nF never...\nkailash chanda | 09:20\nGo. We can break down into a sync mode and have that done into multiple steps. So we could do that as well. As you rightly mentioned, they could do that customization, everything we have done, but that's not the time and effort that they would require.\nWhat we could do on one platform and give them the end-to-end observability is more important.\nSpeaker 2 | 09:43\nRight. Okay, so I sometimes... My... Makes me feel like I'm insane because I'm like, \"I am missing something here?\"\nkailash chanda | 09:55\nI'm surprised...\nSpeaker 2 | 09:56\nSo I guess I' the only other. Yeah, but this I guess this would be, what has not been tried? I think this is what you were just reading about. Like, no circuit breaker logic, no Q based decoupling, no checkpoint resumed, no automated retry with backup, no client side monitoring observability.\nSo that all looks kind of good to you? What? They. You know, okay...\nkailash chanda | 10:25\nWe could do that. We could do an automated retry. The main thing here... Probably whatever implementation they have done might not be... Understanding exactly the limitations of the API or the all scripts API and getting into implementation.\nIf we get that sorted, then the implementation should be smooth.\nSpeaker 2 | 10:53\nSo you're saying it'll be smooth if we can get the information from all scripts about what is...\nkailash chanda | 10:59\nThe limitation...\nSpeaker 2 | 10:59\nAbout details about their API. Okay. So I think I'm going to need to basically take a hold of that because they're all scripts just ignore these guys because they're not all scripts. Customer, they're providing this integration to a clinic that has all scripts, so they're not going to ask their customer to go like call and do this.\nThen when they call all scripts... So... Who's saying sorry?\nkailash chanda | 11:36\nI said we could do that research to understand what are the limitations as far as we can and then try to re...\nSpeaker 2 | 11:45\nOkay. Because... Then these other things came up. There was a talk of a request to get us S3 signed URLs from them so we could just put it into a dump and then we don't have to call the APIs, but they can't get that approved because they can't talk to them.\nSo what I'm thinking of, my angle is I reach out to the rep that sells to all scripts at Salesforce and I'm going to have them introduce me to someone on the team at all Scripts and be like, \"Hey, here's what's happening.\"\nThen I'm just going to embellish a little bit like, \"Hey, this customer has seven other clinics that they're willing to... They want to bring on that have all scripts, and they're not going to do it.\"\nThose clinics are going to most likely move off all scripts so that they can utilize this platform and see if I can pressure them to be like, \"Hey, let's fix that, fix this because according to my research, they could just go in and up their API for their server like they can do that, okay?\"\nThen the last idea I had... I don't know if it would work, but there is a HIE like Healthcare State and Country sharing Information Act or something like that. If this clinic is part of that, their all scripts data gets sent to the HIE whatever database. The only thing about that is from my research, they're not always the 100% that sometimes it's just like there's some redacted stuff or things along those lines.\nBut even if that's the case, if we only. And then they only have to go back and get half of the calls. If they get 50,000 patients and they get 60% of the info that they needed, now you're only really going after the 10,000 total patients based on the number of those you're already done with. 60% of them or whatever.\nSo I don't know what you think about that idea. I was going to call Clint and just be like, \"Hey, call that Clint and see if they're part of this program because that could be an easy fix.\"\nkailash chanda | 14:14\nYup. That that's something. Yes...\nSpeaker 2 | 14:16\nOkay?\nkailash chanda | 14:16\nThey could do that.\nSpeaker 2 | 14:18\nThen the big... I think the most exciting part for you guys here is that this is the very smallest part of the deal we are going to position an unlimited Mule for because they have... The guy was like, \"Well, could we do this with our other e-HRs?\"\nThen I gave the talk track of, \"Yes, you can. You can reuse.\" So if someone's going to move... He goes, \"Actually, the people we're doing all scripts for are moving to Athena one in 18 months.\"\nI was like, \"Yeah. So here we go again.\" Then I was like, \"The TED piece that went successfully.\" He goes, \"Yeah, there are some bumps in the road.\" I was like, \"You got to start over the next mod clinic that comes in from scratch.\"\nHe went, \"Yeah, this is not sustainable.\" Because when they came out with this, they were expecting it to be just for one customer. So that's why they go... Now they're realizing this is a big thing...\nkailash chanda | 15:24\nThat's nice.\nSpeaker 2 | 15:25\nAnd how do we scale it? And, you know, blah. So. And they confirmed August execution.\nkailash chanda | 15:34\nTheir clinic is not on the Athena free clinic free trial free version right there on the paid version.\nSpeaker 2 | 15:42\nThe allscript one Orna...\nkailash chanda | 15:45\nNo, I think one of the other seven e-HRs that they are connecting like modnt. Athena epic next gen.\nSpeaker 2 | 15:53\nYes...\nkailash chanda | 15:54\nSo the Athena 3 does not give you API access. The Athena paid ones only give you API access.\nSpeaker 2 | 16:04\nSo there's one with Athena that's working right now, so...\nkailash chanda | 16:16\nOkay...\nSpeaker 2 | 16:16\nThen two are to the epic and another one is mid-build. So I have this. I want to get to talk. You guys have got to go. I know I'm taking a lot of your time.\nkailash chanda | 16:28\nI will go over the transcript once and let me know what questions I have. I will post it to you. But I think you detailed it out pretty well. I will go through it once again, come back with any questions or anything.\nSpeaker 2 | 16:44\nOkay, yeah, that would be awesome. They... Yeah, like I said, they're looking to move quick. The budget's not the craziest thing for them, to be honest. So I think we can put together a proposal for them that... I don't know if you guys are seeing this, but this is just what I've built.\nYeah, we can see. Particularly on the Allscripts case, like, \"Hey, here's the issues. The bulk export, the FIRE API, and then here I think Kailash, this is a lot of what we were talking about. We can have these aspects sit in the middle of it, and, at least solve from the breakages and all of that.\"\nSo that's just kind of what I just high level will put together...\nkailash chanda | 17:38\nWhen is the next customer program? Okay, so probably I will... Before I log off today, I will go over all the transcripts, give you any questions, try to create something of a proposal for you.\nThen if you have any questions... We can catch up and solve it before tomorrow...\nSpeaker 2 | 17:58\nOkay...\nkailash chanda | 17:58\nMorning. That way we are set for everything. As...\nSpeaker 2 | 18:03\nYeah, that would be awesome. And then, yeah, maybe if you can, if it's not too much work like a one for just this. Like, hey, we were just gonna fix this. And then like, it doesn't have to be a detailed SW but like if they're going to scale the 30 like if they're going to scale like what your guys' plan would be, are we going to like train them and let them kind of take over, are we going to want to run.\nBut just like because they're very technical. And they did request to not have a partner. But we kind of told them on the last call like, hey, a lot of this stuff is coming from your not the lack of knowledge on your team's end, but the amount of resources that you have and, you know, integrating with these there's our partner system.\nAnd so he was like, maybe so. But I don't think this gets done without my. My team isn't going to be able to figure this out. You know? Like, this is why we have good partners like you guys that can actually.\nYeah, so what it does.\nkailash chanda | 19:09\nSure. Sure. I think that's perfectly aligned.\nSpeaker 2 | 19:14\nYeah. Okay, great. And we have the buyers, it's the economics. We have everyone know all the bands and everything. So we told them if it was just this use case for licensing, I expect 30 to 45k. And so, you know, I think.\nAnd they didn't bat an eye. He was like, Dude, we need this fixed. Like, so Michelle is really excited. She is she was on the call and she got off and was like, this is a real one if we do this right.\nSpeaker 3 | 19:57\nYeah. Love customers like this who realize that they need a budget for something like this. It's a big problem, they need to solve it, and it's going to cost them money. Yeah, that's it. Yeah.\nSpeaker 2 | 20:09\nHundred percent. I mean, it's crazy. Yeah, I'm usually pulling teeth trying to get people on calls, and the guy's like, hey, yeah, can we meet tomorrow? Can we meet tomorrow, can we meet? I'm like, Dude, this is.\nAnd he's adding the CTO I was like, this is yeah, and I don't know what me they're probably just wasting our time trying to get free consulting to.\nSpeaker 3 | 20:32\nThis looks like a good one.\nSpeaker 2 | 20:33\nThat's as long...\nSpeaker 3 | 20:34\nYeah. If we can come in and solve their problem and show them how it's done, then, yeah, let's go.\nSpeaker 2 | 20:40\nYeah, I mean, actually, he actually quoted that. He goes, if you could show us how to fix this. And then let's talk to the unlimited thing because this is yeah, this is what we need.\nSpeaker 3 | 20:53\nSo awesome, right? Right, and let us do it.\nSpeaker 2 | 20:58\nHell, yeah, thank you so much.\nkailash chanda | 21:00\nThank you.\nSpeaker 2 | 21:01\nDid I send you those transcripts, Kayla?\nkailash chanda | 21:04\nYes, s.\nSpeaker 3 | 21:04\nYeah, I think I've uploaded them for Kailash.\nSpeaker 2 | 21:09\nCool. Awesome. Thank you.\nSpeaker 3 | 21:12\nGuys. Have a good weekend, brother."
+  }
+}
