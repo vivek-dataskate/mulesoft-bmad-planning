@@ -1,0 +1,438 @@
+{
+  "id": "01a087705c9f774c8ea10dcf254c85b3",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "01a08706644470329cf8c3a7b5722bc2",
+      "title": "MuleSoft & Tzedakah",
+      "duration": 1777,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "2qido3so5l58sfg40cplmeu7j1",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "bklein@tzedakah-house.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "john.henderson@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "kratner@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "dustin@tzedakah-house.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "luke@tzedakah-house.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "sgodina@salesforce.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4
+        },
+        {
+          "index": 5
+        }
+      ],
+      "start_date": "2026-09-09T18:01:00.219Z",
+      "end_date": "2026-09-09T18:30:37.219Z",
+      "url": "https://app.krisp.ai/m/01a08706644470329cf8c3a7b5722bc2?active_tab=ai_notes"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "He said he's just going to be five minutes late. He let me know, but he'll be leading most of the demo. Ben Benjamin Luke created MEA, both named Sean Anderson specifically on the Mulesoft integration side, so that Salesforce is a native integration automation platform. Been speaking with Dustin the past few weeks over a few integration projects.\nSo to start, I just want to do a quick recap on that, but I'll quickly pass it to Kailash, who is a certified partner, and he's the one we selected who would be building something like this out for you guys.\nSo Kailash, if you wouldn't mind doing a quick intro..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure, thank you. Hey, hi everybody, and sorry... I was on. Yeah, I already am. Kailash and I present Dataskate at the integration and automation. At Dataskate, we have been in business for the last 18 years. Specific to integration and automation, and Salesforce partner for the last eight years that we have been helping out and working with small and medium businesses. I should talk to you guys. We like to know more and see how we can support you throughout the..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Excellent. Well, appreciate it. Kailash, I'm going to go ahead and do a quick recap of what we heard. Carl's going to go through a process map when he joins, but just to catch you up to speed, I made this slide.\nSo let me know when you can see my screen here. Yeah, we can see it. Okay, perfect. So with a few calls we had with Dustin, we want to walk through the problems we're looking to solve before Carl goes through more of what the data flow would look like.\nSo I'm at a high level. You guys are using 20 portals. Eight to ten of them are really frequent. Each portal has different logins, different data formats, and some provide Excel exports, some or PDFs which are pulled from a portal.\nSo a lot of inconsistencies and pain points of having to manually push data. So I'd say like the first thing is like time and scalability, where right now your team is having to track the multiple logins when someone goes on vacation. You don't know. We don't remember always the past where you have to pull the data from the portal and mainly to the entry where that can cause delays when commissions actually get recorded.\nSo meanwhile, producers are still being paedo. Their book of business. That mismatch puts pressure on cash flows is a big talking point. Then second, I'd say fewer errors because the data isn't standardized. Coming in, the team is often reconciling by I comparing invoices side by side, which can cause inaccurate commission calculations and missed discrepancies because the process depends on the manual review.\nAnd then really having faster visibility into the late payments. So a big talking point was a later missing payment. Payment is usually only caught when someone happens to notice the commission looks lower than expected. There's no flag when a CRI underpays or ION hasn't paid, so it's discovered after the fact. Sometimes a month or two, which can even compound that cash flow. One other thing that was mentioned was with large carriers like Anthem, reports can run into hundreds of line items once you factor in the dependence and the multiple coverage types.\nSo we're viewing that manually to see if you miss something. Can take a lot of time. So we're looking to consolidate these reports and flag those changes automatically. So that's kind of a high level of the business goals we're trying to solve. We'll kind of walk through what that looks like in actuality in a bit, but I'll pause here. Any questions or anything you would add or change golden perfectt well we're just waiting cloch as sorry not clash Carl so I'll pass it to clash she had a few just kind of finald scoping questions so cla I'll hand you the mic here."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Hey thanks, John. So a couple of questions. What I learned through a few of these portals support API connectivities that can give us the commission data. What is required at an item line level? Item...\nSo I wanted to understand if these APIs... If you guys are aware if it returns a PDS or if it returns data in certain JSON or external formats."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I have no idea, to be honest with you."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No worries. I think that's one. The second question I wanted to see is... I know a few of the carrier portals are being connected with SFDP, so are they placing those data onto any soft server of your organization that your team is accessing and downloading? Or do each of these carrier portals have their own SFDP server?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I'm honestly not familiar with the lingo of that SCP or that connectivity. I mean, we're literally just logging in with the username and password, and then there's usually a dropdown, and then we just export.\nSo there's no..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "There's no feature whatsoever happening today, so to speak."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So you login to the carrier portal, you traverse into some of the options and kind of..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Select and select the file and drop down."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Exactly. Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. Again, I heard even you receive files over emails in CSV, XL, or PDF formats as well. Are these formats consistent when and look or do you see a variance on these to have that?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Th there is quite the I mean, in the scheme of things, they're close, but they're. I mean, some are more involved. Some are very minor detail, you know, so it is a bit of a mix, but, you know, if you put all of them in front of you, they're all pretty much the same thing.\nYeah."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I'd add that there's even some that you can only get a PDF like our goal was to try and export as many Excel as we could, but for some of the carriers, there's only a PDF available, so there's already some variants there. The information's the same, but they're presented differently."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Well, and yeah, and maybe the two of you will address this. But even on the login, we have a lot of different logins for a lot of different people and specific accounts. So... A lot of them, as you probably can assume, are just like Salesforce and multi-factor authentication.\nSo getting... If you can get through that barrier, awesome. But I just know Luke was working on something last Friday, and I had to get a text to give him the code to be able to get in to find that document.\nMaybe that's a hurdle that can be solved otherwise. I don't know, but you guys know more about this..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "The APIs and all that stuff than I do."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That was the question. That was my next question then that when you log into these..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Portals, do you get a code onto an email? Is it configurable to get it on an email, or is it only...?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So it depends on the carrier. Some of them are emails to whether it's me or somebody else, some are calls to our office, and some are texts too. So it is a mix-and-match depending on their multi-factor."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Is that option to change it, or is it some phone call or mandated text? Sometimes when you ask for a dual factor, it gives you the option to send me an email, send me a text."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, it just depends because I want to be cognizant that when we're doing this for these purposes, or at least that we've talked about so far, that's once a month. But I have staff that's using these logins every single day.\nSo we're the ones off trying to get in at that point in time versus if we were to set it up for an email to Luke, he would be getting emails every ten minutes for the rest of the staff to get in here."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, the major challenge with text is we have to identify if the carrier supports any API if it supports a number not mobile, if it supports a V number, then we will be able to use the APIs to retrieve the text and then use that.\nThat's one challenge of orders with carrier portals that are sending out text. If it's email, yes, we can access the email. We can route all of these logins or have a new login created to route all of them to one email.\nWe can use that mail code to log it in. So I think a couple of challenges here, as you mentioned. One, if it's a phone text, we need to confirm whether we could use a voicemail number because the majority of these portals don't allow you to use a voicemail number for..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Security reasons. If that is allowed, then we have multiple carriers that I can work with the team on to give us some options to say that. \"Hey, these are a few things that we could... You could check if that can be used.\" Then that's easy for the system. You'll have to call that API, get the code, and hand it over to the bot to log in and then download it once it's downloaded. Then I think then that should be easy to take forward. The second thing I want to understand is on the frequency and how often these files are being downloaded. Is it like on a daily basis or...?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No. So the way we're doing it now is basically Luke and one of our other colleagues pick one day every month and probably spend an hour to go into all the sites and extract all the data, and then it gets put into a file folder that I access to do my side of things at the end of the day."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, so now if I can..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "But for the. That's for the commission purpose, though, so like to. Yeah. So?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So for the commission's part, what I understand is the whole process runs on identifying these commission files. That you guys download this, then you guys finally calculate the commission and then make an entry into Salesforce.\nSo if the major part of the task is considering or calculating the commissions and entering into Salesforce, that can be automated. If it takes an hour or 30 minutes for the resource to download and upload onto a portal, a Google Drive, or a SharePoint drive, I think from there the crosser will pick off and do the rest of the job to extract data from the PDF or Excel and then understand the calculation of the commissions and then insert into sales. For that part, it is something that is achievable and can be done 100% if we...\nIf there is no possibility to use any white systems, I think the hour or 30 minutes or so to download and upload the files onto SharePoint should help us. SF and REST automate the rest of the things moving forward."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay. One thing that I just know from going through the motions of this. And I think when I was entertaining our open a year or so ago, I'd asked Salesforce about like the capability and like the side of things.\nAnd one of the hurdles that we ran into was that, you know, for some of the commission statements, it's not just like Mulesoft ten dollars, it's like every person at meals. So. And then there's a line item.\nAnd then, like, my Google Sheets have like 2700, like, different rows, even though there's only 270 counts. So I'm just I'm thinking in theory, I guess there's a there's probably pivot tables and stuff that you could run the API through with the data to them.\nLike I just have like bre each account like September commission. It's just a total, you know. So I'm assuming you get to that point as well. Instead of the like we've I'm not sure if Dustins showed this, but like, we've tried using Quotta paths, which, you know, basically took all the Excel files.\nAnd then. But, you know, to the employees, it was like, okay, you're getting paid on 9000 rows. And it's like, okay, I made one cent. And you couldn't even digest, like, what the account was worth at the end of the day. So..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Every month. What we can do then is inside Salesforce, for every account, we can have these statements extract all the data that is part of the PDF or Excel and have the commission calculator or the margin that you have to calculate on all of these rows and then create an entry into Salesforce, which can build up a report to showcase that for every account over the past one year, what is the total commission that has been calculated? This particular account.\nIf there's one person allocated to the account to receive this commission, it makes it more simple. But if there are multiple people for whom the commission needs to be calculated, then I think we can have multiple resources or sales reps to be allocated and then have the commission calculator difference between each of their roles.\nThat can be marked as well. So in the future, then you don't need to pull a copy table, you can just pull up the account to showcase and build a report for each account to showcase. What is it? For the end of the month? It shows you 1.\nIf you show for a year, it would show you to every month of the two lines showing what is the total. It might not show you all those 9000 lines, but it would sum..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The amount for 9000 and then..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Show it that."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Because right now because we have the we're paying on an average now because of the complexity of the data we're talking about. But basically, e every payroll I run usually two reports because some people like there are usually are two payees per account.\nSo I run two reports and then manually key that into payroll so that people get paid, which it's there's a manual error risk to all of this, obviously, which is why we've brought you into the conversation."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think that's where Miro Soft IDP comes into play to eliminate most of the human errors. That is mostly possible to a certain extent. That can automate to extract it and then have that saved into Salesforce. And then we can build up the reports for you guys to look into it. Or, payroll system to be extracted or emailed to you guys as well.\nOkay, so I think one quick last question I have is every career portal you login gives you one PDF with one account. Or that PDF has multiple accounts into it. Okay. And approximate PDF size for each PDF that you guys download from these portals."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Sorry. What, sideize..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "A number of pages as part of one PDF."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Pages? They... I mean, as of right now, the PDFS are probably one to ten pages. Yeah, it's not hundreds of pages or anything like that."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think the Mailchimp is easily able to handle close to 50-60 pages very efficiently and higher. Now with Claude upgraded models, it's able to touch up to 100 very easily with some accuracy. Onto it.\nSo that's where I just wanted to confirm on what is the paid size that we are looking at. So that should be..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. And one last question. Sorry. Too many questions. But on the SL, I wanted to understand how many columns that we are looking at and how many rows approximately."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I want to say the a max of 25."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, got it. That should be okay. Perfect. I think I'm good for my side, John. Carl, I think... Sorry. Took up a lot of your time. But yeah, you..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, no, this was super helpful. As yes. So I made a process map so he's visualize what the data flow is going to look like. As Kailash was saying, \"Hey, you guys are going to have to extract some PDFs from emails for some carrier portals.\" We can potentially build a direct API integration.\nCarl's going to the demo today. It's going to be him showing the PDF extraction and how we had pulled data from an email living inside that email. So, Carl, I'll pass it to you to walk through that."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay. Sounds good. I'm going to pull up my screen super fast here, and everyone, let me know when you can see my screen, please."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "One o'clock watches another person. So no one purchased this. Fine."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "How about now?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Still nothing."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I swear I joke with everyone. I became the Verizon guy with \"Can you hear me now? Can you see me now? How about now?\""
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "We got you know."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Fantastic. Thanks so much, everyone. Apologies for being a few minutes late today. I was double-booked. So yes, to speak through the high-level architecture that we had in our general thought about the flow here going from left to right and starting with our incoming data.\nReally, revenue streams. We are going to be able to ingest commission data from our two primary channel structured data pulling in from our carrier portals and then the unstructured data arriving via PDFs and emails into our shared inbox.\nI know it's shared emails and it's through an email inbox, but this could be any document repository you can put them in. Dropbox, you can put them in whatever it might be, and that's fine once we are able to grab those documents. Both of them feed directly into our Mulesoft integration layer. We're going to split processing based on the source for format. As you see, Route A is going to handle direct API calls for your instant portal sings, while Route B is going to leverage document processing to parse text, tables, and metadata out of email attachments. Moving over to our third step. Once that's ingested, your raw payloads enter the mapping process, and this is standardized through standardize and validate.\nThis is where we're going to unify currency data, math, schema structures. Anything messy or any unlinked data gets routed to match and map exceptions, ensuring that edge cases are caught and either algorithmically resolved or should say either you're alerted to them at this series and in generally that they're algorithmically resolved rather than dropped or putting bad data into Dataskate system.\nThen the final step is really just normalizing your payload before we update Salesforce. That's just mapping your incoming data straight to core business objects, linking carrier name to carrier to policy number to policy, whatever it might be, payment status, things like that.\nThe final step is where we're ensuring the creator update command and that's that real-time visibility into incoming revenue without such manual intervention. Super high level. But this is based on the discussions we've had. I don't think anything said today as far as...\nAs I know I was late to that discussion and I had a couple... There are a couple of things mentioned that I think we could help with if that comes up, but I think this fundamental mental architecture is still strong for the team. Any other thoughts for me thus far?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No, for the sake of time, I won't go... I could go so deep into the weeds of this, but at a high level, I agree with the flows."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay? It's fantastic. Yeah, I mean, if there's goodness, we are really running out of time. Happy to have extra time, happy to if there's yeah."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Let's keep... We'll keep moving."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, let's just do a devil for now and..."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "It. Okay, let's go ahead and sample it. So we'll jump into the platform here. There's quite a bit here, and we're really just going to focus on intelligent document processing. Sorry, I meant to actually..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So Ben and I asked Dustin to send some of your actual documents. So we put that into the IDP platform. So we're actually going to visualize what it looks like extracting your physical documents."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, just super quickly, I want to say. So generally, how this works is you have a document, and we make a template out of it. I think sometimes when I say template, we think, well, Carl, does that mean I have to make a template for every single type of document that comes in?\nThat's not really the case. It really depends on the expected information that you want out of it. If you have twenty different documents that are different in layout, they have different colors, they're from different businesses, whatever it might be, but the information that you need is the same for all these documents.\nThere are no edge cases. Then you can use one template for lots of different document types as long as the data you need is the same. I've had some customers where they have one template, and that accomplishes 99% of their needs.\nI have some customers who have five templates. So they need different things for different customers. But fundamentally, we are creating the template that the machine will then call to extract the data from the document.\nSo that's what document actions are here when we actually start training. So that's really what this process is training the machine to select the data we want from an actual document. So this... Look familiar, and training to select data from the actual document. There are a couple of different parts to it. I'm going to be selecting fields and field names for the document. I can select the model that I want to use for the document. We have quite a few.\nSo Gemini, Anthropic, our own Einstein models, OpenAI, quite a bit. We have personal information masking, lots of different features here. We can recognize images as well. But you are training the machine, so which is a combination of natural language, image processing, and text processing. We're just training the machine to be able to grab a document, look for the given needed information, contextualize it, scrape it, and pull the needed information.\nThen once we do that, we're going to standardize it. So for example, all I asked it was, \"Can you summarize this?\" And you might say, \"Summarize to summarize something is very vague, and the answer is it is.\"\nI really only use this prompt so I can showcase how strong the contextual tool is. I can grab totals. I can grab a pretty solid real document summarization with very little information given to the machine.\nAs you're probably going to guess, this was very generic. The more complex the prompt, the more complex information we can grab. So this is for one-off fields or things like that. I really wanted to show what it looked like when we grabbed a table because we can grab data that's structured as well. You had your membership detail table. I just told it vaguely what the table was called. I said here the field names roughly, we're able to extract this, no problem.\nSo structured and unstructured within the context of a document, so in a table or in free form. Neither of these are our concerns, even if it goes on multiple pages. One thing I want to showcase right here, you see this 95% when we speak to human intervention and humans being in the loop. Obviously, we understand that. No automation is 100% no humans needed generally, we still want, especially in this industry, we always want humans to have some level of oversight. This is our... Everyone can see this, our confidence score. Generally, the more critical the process, the higher the confidence score.\nSo in an insurance context, we might have it at 95% or somebody really high. If you're looking for PS or other order information, what's not critical, you might have it at 80%.\nSo this is a dealer's choice. But ultimately, whenever we set the confidence interval, that's really the threshold of accuracy that the machine looks at before it invokes a human. So this is... You'll get a... Whether it's a Slack or an email, some sort of alert for a human. Whoever the human reviewer is that we have will be pulled in to review the document for errors or mistakes. We have grounding problems for your documents. I don't think this is necessary. I thought it was a cool feature that we have, but we do have grounding problems that you can give the machine.\nSo generally, within AI frontier models, context is king. So the more context you can give a document like prior to the machines are actually trying to contextualize themselves and more accurate it is.\nThat's all that is. So again, if you're a... Documents generally are not complex enough that I think that matters, but broadly it can all... Broadly more context does not hurt you."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So can I ask a question about this? Just for the sake of time and to maybe make sure I understand... So the big-picture wise, we upload the doc. We've trained the system to pull the pieces of the PID that we want or that we want to track. In theory, based on something like this, we could say every Anthem thing like this, we make $20 per person.\nSo then, in theory, there's an expected $20 per person for September. Then, in theory, there's an expected $20 per person for September. Then, when we upload the September commission statement for Anthem and there's not $12 million, something gets flagged and it's reconciled. Or am I two in the weeds there?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "So I think if the question is where the reconciliation or an alert if there's a failure of reconciliation happens, I assume this is data that lives in Salesforce. We've had an order to hit Salesforce and it wouldn't match. I would say that's broadly more Salesforce logic than us. We're extracting, we're pulling it, we're bringing our Salesforce. Now I think that this is maybe even... I think Kailash has more sales straight up Salesforce experience than I do. As far as I know that we can create some flows in Salesforce.\nSo if that lands... and it's not matching, there's some sort of alert that can be made, but that would be more on the Salesforce admin side, I think on that."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, I think that's right. Well, this part does the job of extracting and..."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Put into it. And not the only cancellation part."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I have one hopefully quick question because I do have to drop off in a minute. So back to the APIs and getting into the carrier systems. Since the carrier systems that we'd be getting Mulesoft access to is not just commission data but PHI, what kind of security measures are we looking at?\nBecause I know like with this module in this demo, there was the option of mass the PHI. But in theory, if we give Mulesoft the credentials to get into Anthem system, there are 50,000 people's socials, date of birth and things like that we do not want to give access to.\nSo that might squish the whole thing. But no, they're out there too."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "No, not at all. So we are a HIPAA compliant tool. So we work with clients in the healthcare industry and where security is not an option, right? So if the question is so all data in rest in Mulesoft is encrypted, right?\nSo sorry. All data in motion is encrypted and as far as data and rest, we are not storing people's login information as a part of our platform. When it comes to carrier portals, we at the PDF level again, we monitor an email inbox so that you know it that comes with the... I would assume... Assume if there...\nIf there is a concern of, \"Hey, Carl, there's critical information being sent via email. Please let me know."
+      }
+    ],
+    "raw_meeting": "**MuleSoft & Tzedakah**\n🕞 Started at 06:01 PM on 09 Sep, lasted 29m",
+    "raw_content": "Speaker 2 | 00:00\nHe said he's just going to be five minutes late. He let me know, but he'll be leading most of the demo. Ben Benjamin Luke created MEA, both named Sean Anderson specifically on the Mulesoft integration side, so that Salesforce is a native integration automation platform. Been speaking with Dustin the past few weeks over a few integration projects.\nSo to start, I just want to do a quick recap on that, but I'll quickly pass it to Kailash, who is a certified partner, and he's the one we selected who would be building something like this out for you guys.\nSo Kailash, if you wouldn't mind doing a quick intro...\nkailash chanda | 00:40\nSure, thank you. Hey, hi everybody, and sorry... I was on. Yeah, I already am. Kailash and I present Dataskate at the integration and automation. At Dataskate, we have been in business for the last 18 years. Specific to integration and automation, and Salesforce partner for the last eight years that we have been helping out and working with small and medium businesses. I should talk to you guys. We like to know more and see how we can support you throughout the...\nSpeaker 2 | 01:15\nExcellent. Well, appreciate it. Kailash, I'm going to go ahead and do a quick recap of what we heard. Carl's going to go through a process map when he joins, but just to catch you up to speed, I made this slide.\nSo let me know when you can see my screen here. Yeah, we can see it. Okay, perfect. So with a few calls we had with Dustin, we want to walk through the problems we're looking to solve before Carl goes through more of what the data flow would look like.\nSo I'm at a high level. You guys are using 20 portals. Eight to ten of them are really frequent. Each portal has different logins, different data formats, and some provide Excel exports, some or PDFs which are pulled from a portal.\nSo a lot of inconsistencies and pain points of having to manually push data. So I'd say like the first thing is like time and scalability, where right now your team is having to track the multiple logins when someone goes on vacation. You don't know. We don't remember always the past where you have to pull the data from the portal and mainly to the entry where that can cause delays when commissions actually get recorded.\nSo meanwhile, producers are still being paedo. Their book of business. That mismatch puts pressure on cash flows is a big talking point. Then second, I'd say fewer errors because the data isn't standardized. Coming in, the team is often reconciling by I comparing invoices side by side, which can cause inaccurate commission calculations and missed discrepancies because the process depends on the manual review.\nAnd then really having faster visibility into the late payments. So a big talking point was a later missing payment. Payment is usually only caught when someone happens to notice the commission looks lower than expected. There's no flag when a CRI underpays or ION hasn't paid, so it's discovered after the fact. Sometimes a month or two, which can even compound that cash flow. One other thing that was mentioned was with large carriers like Anthem, reports can run into hundreds of line items once you factor in the dependence and the multiple coverage types.\nSo we're viewing that manually to see if you miss something. Can take a lot of time. So we're looking to consolidate these reports and flag those changes automatically. So that's kind of a high level of the business goals we're trying to solve. We'll kind of walk through what that looks like in actuality in a bit, but I'll pause here. Any questions or anything you would add or change golden perfectt well we're just waiting cloch as sorry not clash Carl so I'll pass it to clash she had a few just kind of finald scoping questions so cla I'll hand you the mic here.\nkailash chanda | 04:11\nHey thanks, John. So a couple of questions. What I learned through a few of these portals support API connectivities that can give us the commission data. What is required at an item line level? Item...\nSo I wanted to understand if these APIs... If you guys are aware if it returns a PDS or if it returns data in certain JSON or external formats.\nSpeaker 3 | 04:44\nI have no idea, to be honest with you.\nkailash chanda | 04:47\nNo worries. I think that's one. The second question I wanted to see is... I know a few of the carrier portals are being connected with SFDP, so are they placing those data onto any soft server of your organization that your team is accessing and downloading? Or do each of these carrier portals have their own SFDP server?\nSpeaker 3 | 05:15\nI'm honestly not familiar with the lingo of that SCP or that connectivity. I mean, we're literally just logging in with the username and password, and then there's usually a dropdown, and then we just export.\nSo there's no...\nkailash chanda | 05:32\nYes.\nSpeaker 3 | 05:33\nThere's no feature whatsoever happening today, so to speak.\nkailash chanda | 05:38\nSo you login to the carrier portal, you traverse into some of the options and kind of...\nSpeaker 3 | 05:43\nYeah...\nkailash chanda | 05:43\nSelect and select the file and drop down.\nSpeaker 3 | 05:46\nExactly. Yeah...\nkailash chanda | 05:48\nGot it. Again, I heard even you receive files over emails in CSV, XL, or PDF formats as well. Are these formats consistent when and look or do you see a variance on these to have that?\nSpeaker 3 | 06:06\nTh there is quite the I mean, in the scheme of things, they're close, but they're. I mean, some are more involved. Some are very minor detail, you know, so it is a bit of a mix, but, you know, if you put all of them in front of you, they're all pretty much the same thing.\nYeah.\nSpeaker 4 | 06:25\nI'd add that there's even some that you can only get a PDF like our goal was to try and export as many Excel as we could, but for some of the carriers, there's only a PDF available, so there's already some variants there. The information's the same, but they're presented differently.\nSpeaker 3 | 06:41\nWell, and yeah, and maybe the two of you will address this. But even on the login, we have a lot of different logins for a lot of different people and specific accounts. So... A lot of them, as you probably can assume, are just like Salesforce and multi-factor authentication.\nSo getting... If you can get through that barrier, awesome. But I just know Luke was working on something last Friday, and I had to get a text to give him the code to be able to get in to find that document.\nMaybe that's a hurdle that can be solved otherwise. I don't know, but you guys know more about this...\nkailash chanda | 07:22\nI think...\nSpeaker 3 | 07:23\nThe APIs and all that stuff than I do.\nkailash chanda | 07:26\nThat was the question. That was my next question then that when you log into these...\nSpeaker 3 | 07:29\nYeah...\nkailash chanda | 07:29\nPortals, do you get a code onto an email? Is it configurable to get it on an email, or is it only...?\nSpeaker 3 | 07:36\nSo it depends on the carrier. Some of them are emails to whether it's me or somebody else, some are calls to our office, and some are texts too. So it is a mix-and-match depending on their multi-factor.\nSpeaker 2 | 07:53\nIs that option to change it, or is it some phone call or mandated text? Sometimes when you ask for a dual factor, it gives you the option to send me an email, send me a text.\nSpeaker 3 | 08:07\nYeah, it just depends because I want to be cognizant that when we're doing this for these purposes, or at least that we've talked about so far, that's once a month. But I have staff that's using these logins every single day.\nSo we're the ones off trying to get in at that point in time versus if we were to set it up for an email to Luke, he would be getting emails every ten minutes for the rest of the staff to get in here.\nkailash chanda | 08:41\nYeah, the major challenge with text is we have to identify if the carrier supports any API if it supports a number not mobile, if it supports a V number, then we will be able to use the APIs to retrieve the text and then use that.\nThat's one challenge of orders with carrier portals that are sending out text. If it's email, yes, we can access the email. We can route all of these logins or have a new login created to route all of them to one email.\nWe can use that mail code to log it in. So I think a couple of challenges here, as you mentioned. One, if it's a phone text, we need to confirm whether we could use a voicemail number because the majority of these portals don't allow you to use a voicemail number for...\nSpeaker 3 | 09:34\nYes...\nkailash chanda | 09:34\nSecurity reasons. If that is allowed, then we have multiple carriers that I can work with the team on to give us some options to say that. \"Hey, these are a few things that we could... You could check if that can be used.\" Then that's easy for the system. You'll have to call that API, get the code, and hand it over to the bot to log in and then download it once it's downloaded. Then I think then that should be easy to take forward. The second thing I want to understand is on the frequency and how often these files are being downloaded. Is it like on a daily basis or...?\nSpeaker 3 | 10:18\nNo. So the way we're doing it now is basically Luke and one of our other colleagues pick one day every month and probably spend an hour to go into all the sites and extract all the data, and then it gets put into a file folder that I access to do my side of things at the end of the day.\nkailash chanda | 10:38\nOkay, so now if I can...\nSpeaker 3 | 10:39\nBut for the. That's for the commission purpose, though, so like to. Yeah. So?\nkailash chanda | 10:46\nSo for the commission's part, what I understand is the whole process runs on identifying these commission files. That you guys download this, then you guys finally calculate the commission and then make an entry into Salesforce.\nSo if the major part of the task is considering or calculating the commissions and entering into Salesforce, that can be automated. If it takes an hour or 30 minutes for the resource to download and upload onto a portal, a Google Drive, or a SharePoint drive, I think from there the crosser will pick off and do the rest of the job to extract data from the PDF or Excel and then understand the calculation of the commissions and then insert into sales. For that part, it is something that is achievable and can be done 100% if we...\nIf there is no possibility to use any white systems, I think the hour or 30 minutes or so to download and upload the files onto SharePoint should help us. SF and REST automate the rest of the things moving forward.\nSpeaker 3 | 11:55\nOkay. One thing that I just know from going through the motions of this. And I think when I was entertaining our open a year or so ago, I'd asked Salesforce about like the capability and like the side of things.\nAnd one of the hurdles that we ran into was that, you know, for some of the commission statements, it's not just like Mulesoft ten dollars, it's like every person at meals. So. And then there's a line item.\nAnd then, like, my Google Sheets have like 2700, like, different rows, even though there's only 270 counts. So I'm just I'm thinking in theory, I guess there's a there's probably pivot tables and stuff that you could run the API through with the data to them.\nLike I just have like bre each account like September commission. It's just a total, you know. So I'm assuming you get to that point as well. Instead of the like we've I'm not sure if Dustins showed this, but like, we've tried using Quotta paths, which, you know, basically took all the Excel files.\nAnd then. But, you know, to the employees, it was like, okay, you're getting paid on 9000 rows. And it's like, okay, I made one cent. And you couldn't even digest, like, what the account was worth at the end of the day. So...\nkailash chanda | 13:15\nEvery month. What we can do then is inside Salesforce, for every account, we can have these statements extract all the data that is part of the PDF or Excel and have the commission calculator or the margin that you have to calculate on all of these rows and then create an entry into Salesforce, which can build up a report to showcase that for every account over the past one year, what is the total commission that has been calculated? This particular account.\nIf there's one person allocated to the account to receive this commission, it makes it more simple. But if there are multiple people for whom the commission needs to be calculated, then I think we can have multiple resources or sales reps to be allocated and then have the commission calculator difference between each of their roles.\nThat can be marked as well. So in the future, then you don't need to pull a copy table, you can just pull up the account to showcase and build a report for each account to showcase. What is it? For the end of the month? It shows you 1.\nIf you show for a year, it would show you to every month of the two lines showing what is the total. It might not show you all those 9000 lines, but it would sum...\nSpeaker 3 | 14:30\nYeah.\nkailash chanda | 14:30\nThe amount for 9000 and then...\nSpeaker 3 | 14:32\nYeah...\nkailash chanda | 14:32\nShow it that.\nSpeaker 3 | 14:34\nBecause right now because we have the we're paying on an average now because of the complexity of the data we're talking about. But basically, e every payroll I run usually two reports because some people like there are usually are two payees per account.\nSo I run two reports and then manually key that into payroll so that people get paid, which it's there's a manual error risk to all of this, obviously, which is why we've brought you into the conversation.\nkailash chanda | 15:05\nI think that's where Miro Soft IDP comes into play to eliminate most of the human errors. That is mostly possible to a certain extent. That can automate to extract it and then have that saved into Salesforce. And then we can build up the reports for you guys to look into it. Or, payroll system to be extracted or emailed to you guys as well.\nOkay, so I think one quick last question I have is every career portal you login gives you one PDF with one account. Or that PDF has multiple accounts into it. Okay. And approximate PDF size for each PDF that you guys download from these portals.\nSpeaker 3 | 15:54\nSorry. What, sideize...\nkailash chanda | 15:55\nA number of pages as part of one PDF.\nSpeaker 3 | 15:58\nPages? They... I mean, as of right now, the PDFS are probably one to ten pages. Yeah, it's not hundreds of pages or anything like that.\nkailash chanda | 16:13\nI think the Mailchimp is easily able to handle close to 50-60 pages very efficiently and higher. Now with Claude upgraded models, it's able to touch up to 100 very easily with some accuracy. Onto it.\nSo that's where I just wanted to confirm on what is the paid size that we are looking at. So that should be...\nSpeaker 3 | 16:30\nYeah...\nkailash chanda | 16:31\nOkay. And one last question. Sorry. Too many questions. But on the SL, I wanted to understand how many columns that we are looking at and how many rows approximately.\nSpeaker 3 | 16:43\nI want to say the a max of 25.\nkailash chanda | 16:50\nOkay, got it. That should be okay. Perfect. I think I'm good for my side, John. Carl, I think... Sorry. Took up a lot of your time. But yeah, you...\nSpeaker 2 | 16:59\nYeah, no, this was super helpful. As yes. So I made a process map so he's visualize what the data flow is going to look like. As Kailash was saying, \"Hey, you guys are going to have to extract some PDFs from emails for some carrier portals.\" We can potentially build a direct API integration.\nCarl's going to the demo today. It's going to be him showing the PDF extraction and how we had pulled data from an email living inside that email. So, Carl, I'll pass it to you to walk through that.\nSpeaker 5 | 17:33\nOkay. Sounds good. I'm going to pull up my screen super fast here, and everyone, let me know when you can see my screen, please.\nkailash chanda | 17:45\nOne o'clock watches another person. So no one purchased this. Fine.\nSpeaker 5 | 17:52\nHow about now?\nSpeaker 2 | 17:55\nStill nothing.\nSpeaker 5 | 17:56\nI swear I joke with everyone. I became the Verizon guy with \"Can you hear me now? Can you see me now? How about now?\"\nSpeaker 2 | 18:03\nWe got you know.\nSpeaker 5 | 18:05\nFantastic. Thanks so much, everyone. Apologies for being a few minutes late today. I was double-booked. So yes, to speak through the high-level architecture that we had in our general thought about the flow here going from left to right and starting with our incoming data.\nReally, revenue streams. We are going to be able to ingest commission data from our two primary channel structured data pulling in from our carrier portals and then the unstructured data arriving via PDFs and emails into our shared inbox.\nI know it's shared emails and it's through an email inbox, but this could be any document repository you can put them in. Dropbox, you can put them in whatever it might be, and that's fine once we are able to grab those documents. Both of them feed directly into our Mulesoft integration layer. We're going to split processing based on the source for format. As you see, Route A is going to handle direct API calls for your instant portal sings, while Route B is going to leverage document processing to parse text, tables, and metadata out of email attachments. Moving over to our third step. Once that's ingested, your raw payloads enter the mapping process, and this is standardized through standardize and validate.\nThis is where we're going to unify currency data, math, schema structures. Anything messy or any unlinked data gets routed to match and map exceptions, ensuring that edge cases are caught and either algorithmically resolved or should say either you're alerted to them at this series and in generally that they're algorithmically resolved rather than dropped or putting bad data into Dataskate system.\nThen the final step is really just normalizing your payload before we update Salesforce. That's just mapping your incoming data straight to core business objects, linking carrier name to carrier to policy number to policy, whatever it might be, payment status, things like that.\nThe final step is where we're ensuring the creator update command and that's that real-time visibility into incoming revenue without such manual intervention. Super high level. But this is based on the discussions we've had. I don't think anything said today as far as...\nAs I know I was late to that discussion and I had a couple... There are a couple of things mentioned that I think we could help with if that comes up, but I think this fundamental mental architecture is still strong for the team. Any other thoughts for me thus far?\nSpeaker 3 | 20:39\nNo, for the sake of time, I won't go... I could go so deep into the weeds of this, but at a high level, I agree with the flows.\nSpeaker 5 | 20:50\nOkay? It's fantastic. Yeah, I mean, if there's goodness, we are really running out of time. Happy to have extra time, happy to if there's yeah.\nSpeaker 3 | 20:58\nLet's keep... We'll keep moving.\nSpeaker 2 | 21:00\nOkay, let's just do a devil for now and...\nSpeaker 5 | 21:03\nIt. Okay, let's go ahead and sample it. So we'll jump into the platform here. There's quite a bit here, and we're really just going to focus on intelligent document processing. Sorry, I meant to actually...\nSpeaker 2 | 21:15\nSo Ben and I asked Dustin to send some of your actual documents. So we put that into the IDP platform. So we're actually going to visualize what it looks like extracting your physical documents.\nSpeaker 5 | 21:31\nYeah, just super quickly, I want to say. So generally, how this works is you have a document, and we make a template out of it. I think sometimes when I say template, we think, well, Carl, does that mean I have to make a template for every single type of document that comes in?\nThat's not really the case. It really depends on the expected information that you want out of it. If you have twenty different documents that are different in layout, they have different colors, they're from different businesses, whatever it might be, but the information that you need is the same for all these documents.\nThere are no edge cases. Then you can use one template for lots of different document types as long as the data you need is the same. I've had some customers where they have one template, and that accomplishes 99% of their needs.\nI have some customers who have five templates. So they need different things for different customers. But fundamentally, we are creating the template that the machine will then call to extract the data from the document.\nSo that's what document actions are here when we actually start training. So that's really what this process is training the machine to select the data we want from an actual document. So this... Look familiar, and training to select data from the actual document. There are a couple of different parts to it. I'm going to be selecting fields and field names for the document. I can select the model that I want to use for the document. We have quite a few.\nSo Gemini, Anthropic, our own Einstein models, OpenAI, quite a bit. We have personal information masking, lots of different features here. We can recognize images as well. But you are training the machine, so which is a combination of natural language, image processing, and text processing. We're just training the machine to be able to grab a document, look for the given needed information, contextualize it, scrape it, and pull the needed information.\nThen once we do that, we're going to standardize it. So for example, all I asked it was, \"Can you summarize this?\" And you might say, \"Summarize to summarize something is very vague, and the answer is it is.\"\nI really only use this prompt so I can showcase how strong the contextual tool is. I can grab totals. I can grab a pretty solid real document summarization with very little information given to the machine.\nAs you're probably going to guess, this was very generic. The more complex the prompt, the more complex information we can grab. So this is for one-off fields or things like that. I really wanted to show what it looked like when we grabbed a table because we can grab data that's structured as well. You had your membership detail table. I just told it vaguely what the table was called. I said here the field names roughly, we're able to extract this, no problem.\nSo structured and unstructured within the context of a document, so in a table or in free form. Neither of these are our concerns, even if it goes on multiple pages. One thing I want to showcase right here, you see this 95% when we speak to human intervention and humans being in the loop. Obviously, we understand that. No automation is 100% no humans needed generally, we still want, especially in this industry, we always want humans to have some level of oversight. This is our... Everyone can see this, our confidence score. Generally, the more critical the process, the higher the confidence score.\nSo in an insurance context, we might have it at 95% or somebody really high. If you're looking for PS or other order information, what's not critical, you might have it at 80%.\nSo this is a dealer's choice. But ultimately, whenever we set the confidence interval, that's really the threshold of accuracy that the machine looks at before it invokes a human. So this is... You'll get a... Whether it's a Slack or an email, some sort of alert for a human. Whoever the human reviewer is that we have will be pulled in to review the document for errors or mistakes. We have grounding problems for your documents. I don't think this is necessary. I thought it was a cool feature that we have, but we do have grounding problems that you can give the machine.\nSo generally, within AI frontier models, context is king. So the more context you can give a document like prior to the machines are actually trying to contextualize themselves and more accurate it is.\nThat's all that is. So again, if you're a... Documents generally are not complex enough that I think that matters, but broadly it can all... Broadly more context does not hurt you.\nSpeaker 3 | 26:15\nSo can I ask a question about this? Just for the sake of time and to maybe make sure I understand... So the big-picture wise, we upload the doc. We've trained the system to pull the pieces of the PID that we want or that we want to track. In theory, based on something like this, we could say every Anthem thing like this, we make $20 per person.\nSo then, in theory, there's an expected $20 per person for September. Then, in theory, there's an expected $20 per person for September. Then, when we upload the September commission statement for Anthem and there's not $12 million, something gets flagged and it's reconciled. Or am I two in the weeds there?\nSpeaker 5 | 27:05\nSo I think if the question is where the reconciliation or an alert if there's a failure of reconciliation happens, I assume this is data that lives in Salesforce. We've had an order to hit Salesforce and it wouldn't match. I would say that's broadly more Salesforce logic than us. We're extracting, we're pulling it, we're bringing our Salesforce. Now I think that this is maybe even... I think Kailash has more sales straight up Salesforce experience than I do. As far as I know that we can create some flows in Salesforce.\nSo if that lands... and it's not matching, there's some sort of alert that can be made, but that would be more on the Salesforce admin side, I think on that.\nkailash chanda | 27:44\nYeah, I think that's right. Well, this part does the job of extracting and...\nSpeaker 3 | 27:49\nI yeah...\nkailash chanda | 27:49\nPut into it. And not the only cancellation part.\nSpeaker 3 | 27:56\nI have one hopefully quick question because I do have to drop off in a minute. So back to the APIs and getting into the carrier systems. Since the carrier systems that we'd be getting Mulesoft access to is not just commission data but PHI, what kind of security measures are we looking at?\nBecause I know like with this module in this demo, there was the option of mass the PHI. But in theory, if we give Mulesoft the credentials to get into Anthem system, there are 50,000 people's socials, date of birth and things like that we do not want to give access to.\nSo that might squish the whole thing. But no, they're out there too.\nSpeaker 5 | 28:39\nNo, not at all. So we are a HIPAA compliant tool. So we work with clients in the healthcare industry and where security is not an option, right? So if the question is so all data in rest in Mulesoft is encrypted, right?\nSo sorry. All data in motion is encrypted and as far as data and rest, we are not storing people's login information as a part of our platform. When it comes to carrier portals, we at the PDF level again, we monitor an email inbox so that you know it that comes with the... I would assume... Assume if there...\nIf there is a concern of, \"Hey, Carl, there's critical information being sent via email. Please let me know."
+  }
+}
