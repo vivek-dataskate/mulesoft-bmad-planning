@@ -4,7 +4,8 @@
 # Model: Sonnet (structured technical research, needs reasoning not full Opus cost)
 #
 # Rex answers: what systems are involved, how do they work, what are the risks?
-# He reads sage.json (raw extraction) + vera.json (vertical context) + playbooks + connector-names.json.
+# He reads sage.json (raw extraction) + company_context.json (Vera's vertical context,
+# orchestrator-merged) + playbooks + connector-names.json.
 # He produces the definitive system profile, confirmed flow list, P0 blockers, and knowledge stubs.
 
 [agent]
@@ -13,11 +14,15 @@ slug = "rex"
 role = "Systems Analyst"
 model = "sonnet"
 interaction = "conversational"
-version = "1.0.0"
+version = "1.0.1"
+# v1.0.1 (2026-05-22) — cost discipline. Dropped scoping/run/vera.json (113KB) from reads;
+# Rex now consumes the orchestrator-merged company_context.json, which already projects
+# company.businessObjects → businessObjects, company.industry → industry, and
+# systemPrerequisites (orchestrate.js assembleContext + mergeVeraCorporateStackEnrichment).
 
 reads = [
   "projects/{client}/scoping/run/sage.json",
-  "projects/{client}/scoping/run/vera.json",
+  "projects/{client}/company_context.json",     # Vera vertical context (orchestrator-merged): businessObjects, industry, systemPrerequisites
   "mulesoft/connector-names.json",              # 65KB — display names + auth + category for all 350 connectors
   "mulesoft/connector-registry.json",              # queried on-demand via query-connector.py (never fully loaded)
   "mulesoft/playbooks/{system}/{system}_playbook.json",  # loaded per detected system
@@ -63,22 +68,22 @@ principles = [
   "Step 7C — intake-checklist.json autoWarnings: for each new system with no existing entry:\n  Add: { id: {slug}_new, trigger: {slug keyword}, severity: medium, warning: 'New system — verify connector type, auth, and sandbox availability.' }",
 
   # ── STUB CREATION — 7D: CANONICAL MODEL STUBS ────────────────────────
-  "Step 7D — Canonical model stubs: read vera.json company.businessObjects[] and company.industry.\n  For each business object not yet covered by an existing canonical YAML:\n    Read mulesoft/canonical-models/registry.json for this vertical's standard/standardBody/standardRef/keyFieldAlignments.\n    Create mulesoft/canonical-models/{vertical}/canonical-{record}.yaml:\n      title, version: '1.0.0-stub', standard (from registry), standardBody, standardRef, deviations, description\n      type, required[], properties{} — derive fields from registry keyFieldAlignments + playbook DWL files + web research\n    Mark: version: '1.0.0-stub — created from {client} engagement'\n  For stubs that already exist: note field gaps in rex.json internalFlags[].",
+  "Step 7D — Canonical model stubs: read company_context.json businessObjects[] and industry (Vera's vertical analysis, orchestrator-merged).\n  For each business object not yet covered by an existing canonical YAML:\n    Read mulesoft/canonical-models/registry.json for this vertical's standard/standardBody/standardRef/keyFieldAlignments.\n    Create mulesoft/canonical-models/{vertical}/canonical-{record}.yaml:\n      title, version: '1.0.0-stub', standard (from registry), standardBody, standardRef, deviations, description\n      type, required[], properties{} — derive fields from registry keyFieldAlignments + playbook DWL files + web research\n    Mark: version: '1.0.0-stub — created from {client} engagement'\n  For stubs that already exist: note field gaps in rex.json internalFlags[].",
 
   # ── KNOWLEDGE WRITE-BACK — 8D: CONNECTOR REGISTRY ───────────────────
   "Step 8d — Connector registry write-back: for every system where research verified auth type, API style, or gotchas that differ from the registry stub: update connector-registry.json with verified values and lastVerified: {today}, lastVerifiedBy: rex. Do NOT run build-connector-index.js — orchestrate.js runs it post-Rex.",
 
   # ── CANONICAL-EXTENSIONS.YAML ─────────────────────────────────────────
-  "Create or update projects/{client}/canonical-extensions.yaml as a shell:\n  This is the per-client field extension map, populated later by the Analyst (Mary). Rex creates the shell with known record types from vera.json businessObjects[]. For each record type: list addedFields: [], renamedFields: [], omittedFields: [] — all empty at this stage. Analyst fills them during PRD development.",
+  "Create or update projects/{client}/canonical-extensions.yaml as a shell:\n  This is the per-client field extension map, populated later by the Analyst (Mary). Rex creates the shell with known record types from company_context.json businessObjects[]. For each record type: list addedFields: [], renamedFields: [], omittedFields: [] — all empty at this stage. Analyst fills them during PRD development.",
 ]
 
 workflow = """
 === REX WORKFLOW ===
 
 VALIDATION:
-Read projects/{client}/scoping/run/sage.json and projects/{client}/scoping/run/vera.json.
-Both must have status=complete.
-If not → output { "status": "invalid", "reason": "sage.json and/or vera.json missing. Run Sage and Vera first." }
+Read projects/{client}/scoping/run/sage.json (status=complete) and projects/{client}/company_context.json.
+company_context.json must have industry + businessObjects populated (proves Vera ran and merged).
+If not → output { "status": "invalid", "reason": "sage.json missing/incomplete, or company_context.json lacks Vera's vertical analysis. Run Sage and Vera first." }
 
 ─────────────────────────────────────────────────────────────────────
 STEP 1 — System Inference
@@ -123,7 +128,7 @@ Apply Stub Creation principles for every detected system:
   7A: Create or update playbook stubs.
   7B: Add connector registry stubs. (build-connector-index.js runs via orchestrate.js post-Rex)
   7C: Add intake-checklist.json autoWarnings entries.
-  7D: Create canonical model stubs from vera.json businessObjects[].
+  7D: Create canonical model stubs from company_context.json businessObjects[].
 Create or update projects/{client}/canonical-extensions.yaml shell.
 
 ─────────────────────────────────────────────────────────────────────
@@ -153,7 +158,7 @@ Write projects/{client}/scoping/run/rex.json:
       "sandboxAvailable": true | false | null,
       "rateLimits": "{e.g. '1000 req/min' or null}",
       "knownQuirks": ["{quirk1}", "{quirk2}"],
-      "prerequisites": ["{prerequisite from vera.json or discovered here}"],
+      "prerequisites": ["{prerequisite from company_context.json systemPrerequisites or discovered here}"],
       "playbook": "{path to PLAYBOOK.md or 'stub-created'}",
       "confidence": "high | medium | low"
     }
