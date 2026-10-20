@@ -1,0 +1,384 @@
+{
+  "id": "01a159cbefb8758b9f6c8011e40734d6",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "01a15655dd92755480498c54bbe8e17e",
+      "title": "Dataskate Sync",
+      "duration": 902,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "1r9498qtstqtgflib2kepf20ec",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "dcanavan@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "ccrandall@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "amar@dataskate.ai"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        }
+      ],
+      "start_date": "2026-10-20T14:35:55.802Z",
+      "end_date": "2026-10-20T14:50:57.802Z",
+      "url": "https://app.krisp.ai/m/01a15655dd92755480498c54bbe8e17e?active_tab=ai_notes"
+    },
+    "content": [
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Nice to meet you again early in the morning. First day. That's nice to get to on the call, but yeah, let's discuss the... Check... Coco went through the Brown company. I think Sage 50 does not have a direct API connectivity. It's on-prem window server hosted machine. Most of the Sage versions have that connectivity issue. In these cases, we build a customer wrapper around the application to expose it and then connect via MuleSoft. Sometimes we deal... We directly have an approach to allow a fixed IP, but that would not be secure. Most of the clients wouldn't... I wouldn't encourage any client to do that because it does not seg data. We are just opening up port.\nSo I prefer doing this customer code and exposing it as an API. We have done it for two other clients and we have gone live with it. So it's been successful, not exactly with Sage, but some other ERPs that are on plan.\nSo we built one in Java and one in .NET and... Sage 50 is more on a .NET framework which could be done. Overall, we are seeing five flows that need to be implemented as part of this whole implementation.\nSo overall, I was looking at 21k to get into the implementation part of it."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, cool. And that's for the... Is that for Sage 50? And is that just Sage 50...?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "It's between Salesforce and Sage 50 and Sharp Spring and Salesforce. I think Sharp Spring and Salesforce. There is only one flow that they are looking at, lead and prospect. From Salesforce to Sage, we are seeing three objects work order, customer, and code.\nFrom Sage to Salesforce we are seeing the invoice cost and revenue recognition. So we will do..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Both read and write custom code into Sage and complete all these five use cases."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Amazing. I think that sounds great. I think the price is fine. I think that will be okay. I think there are some risks. I think I'll outline that here, which is to say they once were pitched between $15,000 to $20,000 to do this.\nShe found it to be too expensive as a middleware platform. So the risk here is that what we're trying to build value on is to say we're going to do low pricing for Mulesoft here. It's going to be able to support Sage to Salesforce as well as the marketing platform as well as their future payroll system that they want to bring online early next year as well as...\nI think there's one other thing..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think the taxation."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Remember i think..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sorry, the transportation..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes, I'm..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Samsarra sa Sara part of it."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Sorry, that's right, Kailash, exactly. The value is going to be in that the platform's going to do it. I think Kailash, the value for you guys there is like, \"Stage 50, that's probably going to be the hardest one out of all the other stuff that we're talking about.\"\nSo you guys can be a strategic partner that will be like the go-to keep building this out, and you guys can be trustworthy, reliable, etc. I think that's where we potentially win. Does that make sense?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes, Dylan. So the major cost that we had to add for the regular pricing is the custom-built. If I could just open up the port and do it, then we would have reduced costs. But I don't feel that's the right way to do it because of the data being exposed over the internet on an unsecured port.\nThat's the only challenge I wanted to have this wrapper built. I know other partners that have been doing... We ran into multiple scenarios where they are just using a static IP from the private space into the Windows machine to all of the traffic\nbut I don't think that's the right way to do it. It's better to expose and wrap over HGDP and then call it, secure it via certificate or some credentials and get into it. One major challenge is to consider if they would be giving us permission for the server where Sage is hosted\nbecause majority of the times that we ran into scenarios is they have production and non-production products running on the same Windows machine and they..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Don't give us full access to the server. So what happens is we build a code we give them to test it, their admin deploys it, runs it, and we don't have access to debug, so it's a tedious process that takes more time.\nSo that's the only challenge that I put forward to have this amount added to the custom code. Otherwise we could have done it like $17K for just the implementation part of..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay. I think obviously $17K would be nice, but I think that what we can tell them is like \"We can do it, people can do this for less money, but it's not as secure.\" So we want to do it in a way that is secure.\nThat's why it costs more. Or whatever. I think that's fair. Okay, cool, are we good on this one? Coco, is there anything else I'm missing?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No, I don't think so. Yeah, I think we're..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "When's the customer called here?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Sorry, what was that?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "When's the customer called for this one?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "It is today at 02:30 eastern."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, do we have attendance from Dataskate on this?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes, both RI. And Kailash are on it and Sarah's accepted."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, let me accept that too. Okay, great, just accept that. Thank you, Coco. Okay, what else do we have, Coco?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Well, we were going to talk about Shendoah, but I think that has maybe like, you know, moved out to what? November because of data came back from vacation."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes, that's true. Okay, cool. So I think on that one, do you know about that, Kailash?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No, I was just asking Coco yesterday to share some insights on that. We had a call scheduled, but they pushed it out due to the non-availability."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I wanted some more info to understand what is..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "This is the NDA one. Yes, I remember this. I got you. So okay, cool. So let's stand by on that and then... Okay, is there anything else, or are we good? That's work good. Okay. Coco. Thank you. Kailash and Amar. Can I steal five more minutes of your time?\nI have another... I want to walk through it with you guys potentially."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Guys. GUE."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, guys. So I had a call with Cynthia yesterday. And essentially the use case is this they have Salesforce and they have like a kind of like an inventory management system, that is like it is cloud based, but there are no APIs of any kind.\nAnd the only it is pretty archaic and the only way to get information out of it is to export CSB reports manually. And currently their process is they have four different locations, 4 offices and 4 stores.\nAnd so they export four stores worth of data across three to five different reports every day, and then take some data points from each one of those exported sheets and consolidate them into one Excel spreadsheet that does some maths."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Then, from that, they import some of that data into Salesforce. This is a big pain point for them. Then there's only one part of it where they'd like to potentially push something back in.\nSo long story short, I see a Dataskate integration, but I think we're going to need either an RPA bought or an agent. Now it is like an archaic system. So she said website. There's a chance this is just a web portal exposed on an on-prem archaic legacy thing is possible.\nSo I think it's very rudimentary and could be an RPA that just as a file export. So do you think that something like that's possible? Agenttic or RPA...?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Two things I was thinking yesterday. I was discussing with another account executive on a similar approach. I think we have the Mulesoft crawler from the community which can do downloading of files, but depending on the complexity and the website support.\nIf that is done, then I think that is..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "As? Awesome."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "A direct use case that we can use this web crawler to download it and but probably again have a VM they have to have a VM there. This kind of run through we download it, save the file either on the VM or share it on a drive from where Mulesoft often picks it up and takes it.\nSo yes, either with a verb or probably I'll say a $50-70/month Microsoft Power Automate that could do it, or any RPA open source Selenium board that we can build and do it. We have been discussing a potential partnership with one of the RPA solutions, which I met in Vegas with their co-founder.\nIt is a really good solution that I'm working through the partnership. I think that will add more value. It's been more stable. We went through their customer list and discussed with them. But I think that... It will take another month for us to get through it.\nBut meanwhile, I think this is what we can have. Three other options to get it and done. One is the new web crawler. One is Microsoft Power Automate. The third one is basically Selenium ORP. Want to download it?\nSo either one of them we can have download all the four reports from... Assuming the four sites have the same portal or a different portal is what I need to understand. If it's four different portals, then we will build four different bots or a bot to do all of them continuously and then have to see how we can get through the process. The reason I didn't pitch GenAI here, Dylan, is first I want the customer to get through the bot implementation and complete the work. Then I can... Because the whole JavaScript part of the GenAI... Agent to read through is again I want to do and kind of a PC and then if it works, we will put them on the agent and remove the bot, reduce their cost. But the first phase, I would get them onto a bot, complete the integration, make them live, realize the value.\nParallelly, we will try to work on an agent that can overcome the part of it. So that way they will reduce what that $50-70 license for each bot that they have to pay. Then because power automate charges per bot that does the work.\nSo if I have to say that four websites... I can do it in one bot in a sequence. Yes, that happens. But if they say that no, I have four different websites. I need to export data at four different times, then they'll need four parts.\nBut if they say that no, all the reports can be downloaded at a single point of time, then I use one bot to download all of them. So we can do that."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, that makes perfect sense and sorry, my computer's doing weird stuff. I added you both to the call. It's on Thursday. I think the expectation here is we're going to demonstrate something to them.\nSo I go to get my involved. But do you guys have anything pre-baked ready to go that could be like web scraping or something that is akin to showing them how something is possible to download a report automatically? Do you have anything like that?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "What time is Thursday, Dylan? I will try to see and work with my team if they will be able to use the web crawler to build that demo, but I will let you know. I'll confirm within half an hour."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Sure. It's at 1:30 pm Eastern on Thursday. Yes, it could be literally any website. I don't care. It doesn't matter as long as it just does a file export and they show it going to a downloads folder and like, \"Look, I downloaded it.\"\nThen we can handle at any point part of it where we say, \"Look how transformations work in data weed or something like we can get that student into that part.\""
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Let me talk to the team, and I'll get back to you. If we are able to demonstrate that, then I think that will be a good thing for us to get in."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, amazing. Give me a post on that. Thank you so much, Kailash."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "No."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "And Amark. Thank you so much. Pleasure to meet you. We'll see you guys on Thursday. Thank you."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "And one last thing. I think ama you can drop off this is with another."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, I'll..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So, Dylan, I think this is the one we were discussing yesterday on the price. So, $19.8 is what you want to keep it under $20k?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes. So I was... Let me tell you some context. I was just brought in on this last night. David's been running most of..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "It. So I think we're talking with the customer in about ten minutes from now, and then I will be able to give you some more... Intil... On what gets it done, but I think that should be good if we can offer that."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, I see in the previous code they put down a VPN configuration, but do the licenses we sell ignite or so they don't have VPN, right? I am wondering why did the other partner request a VPN?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "That's weird. I don't know. Are we selling Ignite? Is that what was positioned? I'm not even 100% sure."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think David to ask which... He is selling it? Because once I saw any point networking VPN configuration, that's where it rings my bell to see whether we are selling any other SKU or if it's just Ignite or what skew are we selling?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I think I don't think it's going to be... I think it's probably going to be one of the older SKUs, like any point starter or any point automation or whatever. That... Includes that stuff, if anything."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That has it. Okay, sure."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah but good call out. I'll verify right now for..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Perfect. Thank you, thanks, Ala. Okay, I think I..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Awesome thank..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Will do it..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "You carlash."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "For 90.8 and take it forward, so let's get that to..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "You first. Thank you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Amazing. I'll have it in my back pocket ready to go then. I appreciate you... Kyle, she lets you... What happens? Thank you."
+      }
+    ],
+    "raw_meeting": "**Dataskate Sync**\n🕞 Started at 02:35 PM on 20 Oct, lasted 15m",
+    "raw_content": "kailash chanda | 00:00\nNice to meet you again early in the morning. First day. That's nice to get to on the call, but yeah, let's discuss the... Check... Coco went through the Brown company. I think Sage 50 does not have a direct API connectivity. It's on-prem window server hosted machine. Most of the Sage versions have that connectivity issue. In these cases, we build a customer wrapper around the application to expose it and then connect via MuleSoft. Sometimes we deal... We directly have an approach to allow a fixed IP, but that would not be secure. Most of the clients wouldn't... I wouldn't encourage any client to do that because it does not seg data. We are just opening up port.\nSo I prefer doing this customer code and exposing it as an API. We have done it for two other clients and we have gone live with it. So it's been successful, not exactly with Sage, but some other ERPs that are on plan.\nSo we built one in Java and one in .NET and... Sage 50 is more on a .NET framework which could be done. Overall, we are seeing five flows that need to be implemented as part of this whole implementation.\nSo overall, I was looking at 21k to get into the implementation part of it.\nSpeaker 2 | 01:28\nOkay, cool. And that's for the... Is that for Sage 50? And is that just Sage 50...?\nkailash chanda | 01:36\nIt's between Salesforce and Sage 50 and Sharp Spring and Salesforce. I think Sharp Spring and Salesforce. There is only one flow that they are looking at, lead and prospect. From Salesforce to Sage, we are seeing three objects work order, customer, and code.\nFrom Sage to Salesforce we are seeing the invoice cost and revenue recognition. So we will do...\nSpeaker 2 | 01:59\nOkay...\nkailash chanda | 01:59\nBoth read and write custom code into Sage and complete all these five use cases.\nSpeaker 2 | 02:06\nAmazing. I think that sounds great. I think the price is fine. I think that will be okay. I think there are some risks. I think I'll outline that here, which is to say they once were pitched between $15,000 to $20,000 to do this.\nShe found it to be too expensive as a middleware platform. So the risk here is that what we're trying to build value on is to say we're going to do low pricing for Mulesoft here. It's going to be able to support Sage to Salesforce as well as the marketing platform as well as their future payroll system that they want to bring online early next year as well as...\nI think there's one other thing...\nkailash chanda | 02:55\nI think the taxation.\nSpeaker 2 | 02:56\nRemember i think...\nkailash chanda | 02:58\nSorry, the transportation...\nSpeaker 2 | 02:59\nYes, I'm...\nkailash chanda | 02:59\nSamsarra sa Sara part of it.\nSpeaker 2 | 03:01\nSorry, that's right, Kailash, exactly. The value is going to be in that the platform's going to do it. I think Kailash, the value for you guys there is like, \"Stage 50, that's probably going to be the hardest one out of all the other stuff that we're talking about.\"\nSo you guys can be a strategic partner that will be like the go-to keep building this out, and you guys can be trustworthy, reliable, etc. I think that's where we potentially win. Does that make sense?\nkailash chanda | 03:28\nYes, Dylan. So the major cost that we had to add for the regular pricing is the custom-built. If I could just open up the port and do it, then we would have reduced costs. But I don't feel that's the right way to do it because of the data being exposed over the internet on an unsecured port.\nThat's the only challenge I wanted to have this wrapper built. I know other partners that have been doing... We ran into multiple scenarios where they are just using a static IP from the private space into the Windows machine to all of the traffic\nbut I don't think that's the right way to do it. It's better to expose and wrap over HGDP and then call it, secure it via certificate or some credentials and get into it. One major challenge is to consider if they would be giving us permission for the server where Sage is hosted\nbecause majority of the times that we ran into scenarios is they have production and non-production products running on the same Windows machine and they...\nSpeaker 2 | 04:32\nYes.\nkailash chanda | 04:32\nDon't give us full access to the server. So what happens is we build a code we give them to test it, their admin deploys it, runs it, and we don't have access to debug, so it's a tedious process that takes more time.\nSo that's the only challenge that I put forward to have this amount added to the custom code. Otherwise we could have done it like $17K for just the implementation part of...\nSpeaker 2 | 05:00\nOkay. I think obviously $17K would be nice, but I think that what we can tell them is like \"We can do it, people can do this for less money, but it's not as secure.\" So we want to do it in a way that is secure.\nThat's why it costs more. Or whatever. I think that's fair. Okay, cool, are we good on this one? Coco, is there anything else I'm missing?\nSpeaker 3 | 05:23\nNo, I don't think so. Yeah, I think we're...\nSpeaker 2 | 05:25\nWhen's the customer called here?\nSpeaker 3 | 05:28\nSorry, what was that?\nSpeaker 2 | 05:29\nWhen's the customer called for this one?\nSpeaker 3 | 05:31\nIt is today at 02:30 eastern.\nSpeaker 2 | 05:34\nOkay, do we have attendance from Dataskate on this?\nSpeaker 3 | 05:37\nYes, both RI. And Kailash are on it and Sarah's accepted.\nSpeaker 2 | 05:42\nOkay, let me accept that too. Okay, great, just accept that. Thank you, Coco. Okay, what else do we have, Coco?\nSpeaker 3 | 05:49\nWell, we were going to talk about Shendoah, but I think that has maybe like, you know, moved out to what? November because of data came back from vacation.\nSpeaker 2 | 06:01\nYes, that's true. Okay, cool. So I think on that one, do you know about that, Kailash?\nkailash chanda | 06:09\nNo, I was just asking Coco yesterday to share some insights on that. We had a call scheduled, but they pushed it out due to the non-availability.\nSpeaker 2 | 06:17\nYeah...\nkailash chanda | 06:17\nI wanted some more info to understand what is...\nSpeaker 2 | 06:20\nThis is the NDA one. Yes, I remember this. I got you. So okay, cool. So let's stand by on that and then... Okay, is there anything else, or are we good? That's work good. Okay. Coco. Thank you. Kailash and Amar. Can I steal five more minutes of your time?\nI have another... I want to walk through it with you guys potentially.\nSpeaker 3 | 06:42\nGuys. GUE.\nSpeaker 2 | 06:47\nOkay, guys. So I had a call with Cynthia yesterday. And essentially the use case is this they have Salesforce and they have like a kind of like an inventory management system, that is like it is cloud based, but there are no APIs of any kind.\nAnd the only it is pretty archaic and the only way to get information out of it is to export CSB reports manually. And currently their process is they have four different locations, 4 offices and 4 stores.\nAnd so they export four stores worth of data across three to five different reports every day, and then take some data points from each one of those exported sheets and consolidate them into one Excel spreadsheet that does some maths.\nkailash chanda | 07:43\nOkay...\nSpeaker 2 | 07:43\nThen, from that, they import some of that data into Salesforce. This is a big pain point for them. Then there's only one part of it where they'd like to potentially push something back in.\nSo long story short, I see a Dataskate integration, but I think we're going to need either an RPA bought or an agent. Now it is like an archaic system. So she said website. There's a chance this is just a web portal exposed on an on-prem archaic legacy thing is possible.\nSo I think it's very rudimentary and could be an RPA that just as a file export. So do you think that something like that's possible? Agenttic or RPA...?\nkailash chanda | 08:28\nTwo things I was thinking yesterday. I was discussing with another account executive on a similar approach. I think we have the Mulesoft crawler from the community which can do downloading of files, but depending on the complexity and the website support.\nIf that is done, then I think that is...\nSpeaker 2 | 08:47\nAs? Awesome.\nkailash chanda | 08:48\nA direct use case that we can use this web crawler to download it and but probably again have a VM they have to have a VM there. This kind of run through we download it, save the file either on the VM or share it on a drive from where Mulesoft often picks it up and takes it.\nSo yes, either with a verb or probably I'll say a $50-70/month Microsoft Power Automate that could do it, or any RPA open source Selenium board that we can build and do it. We have been discussing a potential partnership with one of the RPA solutions, which I met in Vegas with their co-founder.\nIt is a really good solution that I'm working through the partnership. I think that will add more value. It's been more stable. We went through their customer list and discussed with them. But I think that... It will take another month for us to get through it.\nBut meanwhile, I think this is what we can have. Three other options to get it and done. One is the new web crawler. One is Microsoft Power Automate. The third one is basically Selenium ORP. Want to download it?\nSo either one of them we can have download all the four reports from... Assuming the four sites have the same portal or a different portal is what I need to understand. If it's four different portals, then we will build four different bots or a bot to do all of them continuously and then have to see how we can get through the process. The reason I didn't pitch GenAI here, Dylan, is first I want the customer to get through the bot implementation and complete the work. Then I can... Because the whole JavaScript part of the GenAI... Agent to read through is again I want to do and kind of a PC and then if it works, we will put them on the agent and remove the bot, reduce their cost. But the first phase, I would get them onto a bot, complete the integration, make them live, realize the value.\nParallelly, we will try to work on an agent that can overcome the part of it. So that way they will reduce what that $50-70 license for each bot that they have to pay. Then because power automate charges per bot that does the work.\nSo if I have to say that four websites... I can do it in one bot in a sequence. Yes, that happens. But if they say that no, I have four different websites. I need to export data at four different times, then they'll need four parts.\nBut if they say that no, all the reports can be downloaded at a single point of time, then I use one bot to download all of them. So we can do that.\nSpeaker 2 | 11:34\nOkay, that makes perfect sense and sorry, my computer's doing weird stuff. I added you both to the call. It's on Thursday. I think the expectation here is we're going to demonstrate something to them.\nSo I go to get my involved. But do you guys have anything pre-baked ready to go that could be like web scraping or something that is akin to showing them how something is possible to download a report automatically? Do you have anything like that?\nkailash chanda | 12:01\nWhat time is Thursday, Dylan? I will try to see and work with my team if they will be able to use the web crawler to build that demo, but I will let you know. I'll confirm within half an hour.\nSpeaker 2 | 12:14\nSure. It's at 1:30 pm Eastern on Thursday. Yes, it could be literally any website. I don't care. It doesn't matter as long as it just does a file export and they show it going to a downloads folder and like, \"Look, I downloaded it.\"\nThen we can handle at any point part of it where we say, \"Look how transformations work in data weed or something like we can get that student into that part.\"\nkailash chanda | 12:36\nLet me talk to the team, and I'll get back to you. If we are able to demonstrate that, then I think that will be a good thing for us to get in.\nSpeaker 2 | 12:44\nOkay, amazing. Give me a post on that. Thank you so much, Kailash.\nkailash chanda | 12:47\nNo.\nSpeaker 2 | 12:47\nAnd Amark. Thank you so much. Pleasure to meet you. We'll see you guys on Thursday. Thank you.\nkailash chanda | 12:51\nAnd one last thing. I think ama you can drop off this is with another.\nSpeaker 2 | 12:56\nOkay, I'll...\nkailash chanda | 12:56\nSo, Dylan, I think this is the one we were discussing yesterday on the price. So, $19.8 is what you want to keep it under $20k?\nSpeaker 2 | 13:11\nYes. So I was... Let me tell you some context. I was just brought in on this last night. David's been running most of...\nkailash chanda | 13:18\nYes.\nSpeaker 2 | 13:18\nIt. So I think we're talking with the customer in about ten minutes from now, and then I will be able to give you some more... Intil... On what gets it done, but I think that should be good if we can offer that.\nkailash chanda | 13:34\nOkay, I see in the previous code they put down a VPN configuration, but do the licenses we sell ignite or so they don't have VPN, right? I am wondering why did the other partner request a VPN?\nSpeaker 2 | 13:48\nThat's weird. I don't know. Are we selling Ignite? Is that what was positioned? I'm not even 100% sure.\nkailash chanda | 13:53\nI think David to ask which... He is selling it? Because once I saw any point networking VPN configuration, that's where it rings my bell to see whether we are selling any other SKU or if it's just Ignite or what skew are we selling?\nSpeaker 2 | 14:07\nI think I don't think it's going to be... I think it's probably going to be one of the older SKUs, like any point starter or any point automation or whatever. That... Includes that stuff, if anything.\nkailash chanda | 14:17\nThat has it. Okay, sure.\nSpeaker 2 | 14:19\nYeah but good call out. I'll verify right now for...\nkailash chanda | 14:22\nPerfect. Thank you, thanks, Ala. Okay, I think I...\nSpeaker 2 | 14:25\nAwesome thank...\nkailash chanda | 14:25\nWill do it...\nSpeaker 2 | 14:26\nYou carlash.\nkailash chanda | 14:26\nFor 90.8 and take it forward, so let's get that to...\nSpeaker 2 | 14:30\nOkay...\nkailash chanda | 14:30\nYou first. Thank you.\nSpeaker 2 | 14:32\nAmazing. I'll have it in my back pocket ready to go then. I appreciate you... Kyle, she lets you... What happens? Thank you."
+  }
+}
