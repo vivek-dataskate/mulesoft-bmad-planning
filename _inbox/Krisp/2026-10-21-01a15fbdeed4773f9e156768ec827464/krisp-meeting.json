@@ -1,0 +1,627 @@
+{
+  "id": "01a15fbdeed4773f9e156768ec827464",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "01a15ee505ba74489a4fab32cfa5c43c",
+      "title": "BlueRidge- DataSkate Connect - Google Chrome",
+      "duration": 1878,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": null,
+      "participants": [],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "be24d8990cb85b308bd2748e0eecef21",
+          "first_name": "Brad",
+          "email": "aa7ef6adc5534b6798a0a7cc318d943d@noemail.krisp.ai"
+        },
+        {
+          "index": 4,
+          "last_name": null,
+          "id": "c9cb91463075555c86157d8cbe89b5e2",
+          "first_name": "Gary",
+          "email": "266f3bb93a1f405f82240584d1c3bcf5@noemail.krisp.ai"
+        },
+        {
+          "index": 5,
+          "last_name": null,
+          "id": "924ddccffff05c4493a0c9005dd6b167",
+          "first_name": "Kyle",
+          "email": "8520b3397b054fdc90cb29dcfd15eb5a@noemail.krisp.ai"
+        },
+        {
+          "index": 6,
+          "last_name": null,
+          "id": "12c3cf017ab652fc90b08b6e38ab9fd8",
+          "first_name": "Chase",
+          "email": "c29e6f9ebf924cabb49522078ab47b0f@noemail.krisp.ai"
+        },
+        {
+          "index": 7
+        }
+      ],
+      "start_date": "2026-10-21T18:02:00.742Z",
+      "end_date": "2026-10-21T18:33:18.742Z",
+      "url": "https://app.krisp.ai/m/01a15ee505ba74489a4fab32cfa5c43c?active_tab=ai_notes"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I think we have everybody, yeah, there's Greg and then, I know that we had changed the meeting. I know Katie... Katie, I think, said that she was still good. I did not see an update from GA so we'll give Katie just a second. Hey Greg, thanks for joining. Hey guys, I'm here.\nSorry, I'm just trying to figure out Google Meet. No, good. See, there we go. Yeah. Then really just a couple of things for the Dataskate team, we wanted to make sure that the vendors that we're already working with, like Vector X, Equify, and Cantata, were able to give you guys a list of what they would need in order to go make changes.\nSorry, Kyle and Tracy. Not as much for you guys. You guys are just more here because you are familiar with the data and the way everything is set up. But for Ta and for Katie, it would be to make sure that whatever they need to go do in their environments that they would have that.\nI'll send the two of them an email, but maybe we can tackle any other items. The VC or the Jira, don't know if you guys had any other things that you wanted to talk about while I just ping them on the side real quick."
+      },
+      {
+        "speaker": "Brad",
+        "speakerIndex": 3,
+        "text": "Yes, it's Brad Bing's name for myself. Hey."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So yeah, maybe I think first I would call out that we received the access for Informatica. I have informed the Salesforce team as well that we have received the access and we were able to log in. And while we received the access, we did some analysis on the accounts data that has been shared and we wanted to confirm on a few rules and a few approaches that we have thought about and how we can confirm how we are going to approach to have these accounts identified as duplicates or not duplicates and what actions to be taken.\nSo that's where I wanted to start with. If we have all the audience, then I would like to get that started."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, I think let's go ahead and start because I actually just looked at the invite, and I don't think that Katie or GenAI were on the updated meeting invite, so let's just go ahead and start. Then I can find time separately for them to ask their questions as well."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Perfect. So while we went through the account structure inside Salesforce, we identified that there is an parent-child relationship but which is not being used currently that I have seen that there is an option to allocate a parent-child relationship at our level.\nSo that is one thing I would like to call out. So while we are doing analysis to identify or remove duplicates at an account level, the rule set or the checks follow a certain approach and sequence.\nSo when we looked at the data, there are a lot of duplicates that fall into different scenarios. So the approach that we put down to identify first, we would verify the two names of the accounts, right? What account? Let's assume Astrogenica Biologics was one example, Astrogenica Biologicals is another example.\nSo two regards having a similar name, but in a way that has been addressed with different spellings that they have mentioned. So we start off doing a match by removing common things like Limited LLC, Inc., or whatever additional organization types and then punctuation ignore the case and then identify if the first part of the name is the same. Then do a fuzzy logic to identify if both the first part of the name are same, then do a fuzzy logic to identify if both of them match or not. Yes, if they match, then we would go ahead and consider an approach to say that, \"Hey, does the website for this account match or not?\" Do an address and phone numbers. I can match or not?\nIf they do match, then okay. If they have the same website, yes, then that means the same address. That means they are the same record, but two people have entered or have gotten them created as different records, which can put forward to us to say that these can be matched right? Likewise, address.\nIf the address line one, city, state, and zip code... I see somebody raised a hand or any questions?"
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah. It was me. How are you going to handle if they're blank?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So that's where... Okay, let me come back there. So assuming if they are... If the address is blank, okay, let's say they don't match, then we kind of put down a path to say the website is the same. The address is blank, right? Then we would verify the contacts having related with those accounts.\nIf they have the same email domain, then they are the same. They belong to the same company, right? If the email domain doesn't match, then they are a different company. So we have to put down a set of priorities and rules. What I feel from our experience, I have put down this to say that, \"Hey, this is how we can do it.\"\nBut to say that, okay, we look at the website matches, I look at the address is blank. Then I go ahead and look for that person or a contact that is associated with that account. Identify. If their email domains are the same, yes, they both are the same. Then we merge it.\nIf they are not the same, then we can have them sent out for a review or we can have them linked as a parent and child. So that is one approach or one leg of the flow that we are looking at."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "So just to confirm, you don't have this in here. But one of the checks you could potentially do is look at the email domain name for the identify contacts to that account..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah. So that's where I put down here. Greg, if you see person checks... So I found the names are not matching or they don't be similar. Then we will look to the website and address. If they share the same address or website, I'll come down and do a person check.\nHere if you see I'm doing a person check, we will make sure to confirm that both the persons or contacts related to those accounts are the same. I will merge them. If they are not, then I'll keep both of them.\nSo we did consider to have them at a high level. But I will... I'm making note as we speak to say that the next step would be to have an address as blank, then look for a person. If the website and address are the same, then I won't look at the person check."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "And... If you are using the data we gave you in the Excel spreadsheet as part of this matching? Because I don't think there are a lot of addresses in the Salesforce account, but we extracted them from either Kailash or Netsuite.\nSo I just want to make sure we're using all the data that is available and it's just not Salesforce native..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Greg, if that is part of the scenario, then the solution that we will be building or the workflow that looks for data inside Salesforce, if we have to get data from outside systems, then that would be a whole level of a different workflow that we need to build.\nSo what data is inside Salesforce? We could use that data to build this and conform, but if you feel there are other systems then I think that would run in an extended scope of work."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Okay, well, we can talk about extended scope of work or not, but I think if we took a look at Salesforce accounts that are in our current version instance of it. I think the vast majority...\nWill not have a website address or phone number. So using the first-level domain website address and phone match is..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Is not."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Fairly useless. Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "So then this devolves into checking..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The first..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "E mail debates accounts. Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "The person checks, and I don't think that's clean enough..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Right? So I think..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Is this...?"
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "We're going to have to... I think we're going to have to rely on the Excel spreadsheet data and figure out whether we pull it out of Excel or smash it into Salesforce because we've identified that it is in Salesforce and we've got information on it.\nSo I'm just wondering if... Because this approach isn't really going to work if that's your cue because we don't have that information in there."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. And Gary, I would actually add on to that. Like the nets suite data that I have from Katie doesn't like there's a handful that have addresses, for example, but like there's really not a lot."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Correct."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So identifying a unique record. From assuming the data currently residing inside Salesforce to identify a unique record, we would run into a couple of scenarios. 1, the basic is the name check, right?\nSo once the name check doesn't match or matches, then that is part of one level of reduction that we could do. But when we looked through the data export, I saw that there is a billing address billing state.\nI know it does not all the records don't have it, but we have seen majority of the records that have this building street building, state building zip code address as well. And MI have..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "And it. And is that in Salesforce, is that native in Salesforce or are you looking at the Excel data extract?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The Excel data extract from Salesforce..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "It's not... And that's the piece you're missing here. It's not a data extract from Salesforce, it's a data extract from Salesforce. Kattana and that suite all..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Merge together..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "All watch together. Got it? Okay..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "So that, yeah, so there's no death. There's no guarantee that the data you see in that spreadsheet is the data you're going to see in Salesforce because it was merged by Claude."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "But let me show you the spreadsheet. Yes. Thesis."
+      },
+      {
+        "speaker": "Brad",
+        "speakerIndex": 3,
+        "text": "On that spreadsheet, there is a way to segment out only records that exist in Salesforce."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. So I'm looking at the raw data that came out of Salesforce, just to see how many actually have how many are blank. Let me just filter this out real quick and I can tell you how many."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Would you be able to share us? Sen share your screen? Dail."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, me...\nJust do the whole thing because I don't know which page it's on. Okay, so this is the raw data that came out of Salesforce, and..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "There are three thousand that have addresses. Obviously, there are some in here that are random things, but we're still right around that three thousand number. So I think that it might work for parts of it. I don't know if it'll work for all of it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "For all of it..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "For all of it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly. So to identify basically... So this is where we extracted from Salesforce after our developer got the access. The data that I was showing on the screen earlier, that's where we extracted from Salesforce and that's where we saw with the billing addresses.\nBut assuming if there is no billing address and there is no website, then the next resort would be to look through the contact. If there is no contact... As Gary mentioned, if there is data inside Netsuite or Kattana then probably an integration to... I won't... I don't want to build a workflow that could go and check every record in the other system, but rather have that data updated from these systems to keep Salesforce updated.\nSo that way what happens is one job that looks through and works on the whole logic on Salesforce to clean the data and have the data if the addresses are maintained inside. Next week we build an integration to bring the addresses for the respective company and place it here and then run these data updates into data cleansing rooms into Salesforce.\nSo that is the first part to address your question Gary is what data is inside Salesforce would get cleared and what does not. We can look into Netsuite or Kattana as well, but again the names should match between Kattana and Salesforce.\nSo if that approximation works, we will bring the respective addresses from Netsuite and Kattana and then verify for both the ACS and then take action. But to identify... To mention whether this is a unique record or a duplicate record. The most common entities that would run into is address either and FIN ID and financial IDs or tax IDs when I mentioned or rather websites or any other building addresses.\nSo that's where we looked through the export and identified there are addresses we could look to. Creation times. We saw when we analyzed data there were multiple records created in a fraction of a difference, which kind of gives us again, that is duplicate data or can be a potential duplicate data.\nThen there are those ways to identify it. But that's what the approach we were thinking about would be like to understand from you guys. If identifying a manual, a potential duplicate... What are the other factors that we need to look into?"
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "I think what we have to do... I think what we're going to have to do on this is write up some of these rules, right? To take a subset, you... Hey, when you get the 25 potential matches, put the human in the loop and verify the match.\nOkay? Because the other thing just thinking out loud here when you were going through that is... I think we should always use a check on the person regardless if the name and address match. We should look at email domain name too\nand flag... Hey, the address is a match but the email domain doesn't match because there's no guarantee that someone just didn't look at and plug in the corporate office and it's actually a separate entity. So I'd just like you to think about that, too."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "On the matching that as a check to address, website, whatever, the other phone number, whatever it is. If we have contacts that are tied to that account and they don't have matching email domains, we should at least flag that and say... Because it... Because then you're... We're trying to clean up a little bit of data entry issues too. So we... If we're going to scrub it, we might as well scrub it and make sure everything matches, and if not, flag it to do a little research on..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure, I think that's a valid ask, Gary, whether they don't match the domains or they match the domains. I could call it out and have a manual review in place if..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah, because your flow sheet was saying... Well, if..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "It matched, just..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We are..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Approve it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Marching. Yes."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "But we don't have a lot of data fields to check on, so we might as well check on them all before we make a decision."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. So any merge decisions? You want to have a manual review in play? Whether it's good or not, you want to have a... That is what I understand."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah, I think what we have to do is look at a relevant amount of flags. Like my brain goes to twenty five because that's like what you need for a bell curve. And I'm. This isn't a bell curve. It's just, you know, but a reasonable number of flags to put a human in the loop in.\nAnd what we're doing is checking. We're checking the rules of the road before we just turn it loose. Kyle's got his hand up. Yeah."
+      },
+      {
+        "speaker": "Kyle",
+        "speakerIndex": 5,
+        "text": "I was just going to say another thing you may want to take into consideration is leveraging the BRS entity field because when you bring these folks, the person in the loop, when you bring them in, if you start with that entity, that will give you the duplicates per entity that it was brought in.\nSo you'd have all the modality like duplicates put together, and the person looking at that information obviously makes sense to come from modality. When you get to the point of merging across the less entities, that's where you're going to need to have a different group of folks probably come together and do that review.\nSo slightly tactical different approach based on the entity itself. But I just thought that was an important point to call out as you dictate what this process looks like."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure. So, Kyle, if you see my screen, I have highlighted the column K which is the BRS entity, and I see Sutton Creek as one of the entities being listed. And if we look through or a filter on the type of the entity, let me pull it out.\nSo we are seeing six different venues. It can be modality solutions, certain screen talk strategies, design and clinical tricks. So if you are saying that records exist between these BRLS entities. So I see two records which have potentially duplicates between certain and modality solutions. Then you want the human to go to any specific... How do you want to handle that?"
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah, I think what Kyle is saying... I'm not... I can put words... I think what makes sense is we sort out the dupes that are within the division."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "What did that ho?"
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Then we sort out once we've got the divisional dupes or the BRLS entity dupes sorted out, then we look at what dupes we have left at multiple divisions, and then it's going to be a much smaller set, right?\nBecause I looked at Modality Solutions. We have 70 or 80 dupes just in our group, right? We should write rules to clean those up first, and then... Okay, now those are cleaned up, right? Now let's go. Here you go, a... Right? We put a... In three times, bad for us, but let's clean it up.\nThen we're only matching one at... If somebody else is working on it instead of trying to duplicate three times on that we've at least collapsed this into one."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly. Perfect's a that's a valid approach. And I think once this is..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Which I think it's what you were getting at, Kyle right? Okay, Kyle made me. Kyle made me look smart there, so."
+      },
+      {
+        "speaker": "Kyle",
+        "speakerIndex": 5,
+        "text": "So I get paid the medium-sized dollars for exactly..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So... Okay..."
+      },
+      {
+        "speaker": "Chase",
+        "speakerIndex": 6,
+        "text": "One other thing that I think I heard you say, Kailash, was referencing the create date timestamp. I would be a little bit careful there. A large number of these came from our initial imports. So they will all be right at the same time."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Then I will try to ignore that..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Create it as well because this is an important..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "But it's not a bad check because I know we've created some and then three weeks later created a dupe because we're not good at Salesforce, right? You could call it whatever reason you wanted. Just we went in and said, \"I can't find it. I'm going to create another Aglia.\"\nFor example."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes. Okay, and should we consider creating by ID because the import and manual would be different? Do you foresee that looking into the created by ID would give us any detail or can we ignore that?"
+      },
+      {
+        "speaker": "Kyle",
+        "speakerIndex": 5,
+        "text": "It would probably keep me honest, but I'm assuming a majority of those similar to the create data are going to be us."
+      },
+      {
+        "speaker": "Chase",
+        "speakerIndex": 6,
+        "text": "Yeah, I think so."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. And any other unique entity because I see most of the fields that I see like case-insensitive ID because we don't know the business functionality of this field. That's where I couldn't put down the logic to understand if I could duplicate check on these additional custom fields.\nBut do you foresee if this field..."
+      },
+      {
+        "speaker": "Chase",
+        "speakerIndex": 6,
+        "text": "Well, I would ignore case-insensitive ID because that's just the case-insensitive version of the record ID."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. Okay, so we can..."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Ignore that. Then I see the date of execution is that the..."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "What did that be?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Execution for NDs or is it something different?"
+      },
+      {
+        "speaker": "Chase",
+        "speakerIndex": 6,
+        "text": "I think that was probably a legacy field from Sutton's Creek, and no one here would know..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay..."
+      },
+      {
+        "speaker": "Chase",
+        "speakerIndex": 6,
+        "text": "What it means."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure, I will ignore that. And external ID is that I mean because I see majority black. So..."
+      },
+      {
+        "speaker": "Chase",
+        "speakerIndex": 6,
+        "text": "It should be majority blank was used for our initial imports to verify. As we transfer data in..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. If I look at HubSpot sync, I think that's just the timestamp when it was synced, so I can ignore that. Then key account last activity... Yeah, I think we could consider last activity as well.\nBut I know if two people created two different accounts and are mapping contacts or opportunities to those accounts, then we might see an activity debt. But again, we wanted to look through that angle as well.\nWhat can... MSA expiry. NMSA. Notes. Okay, any other field that you guys can let me know? Okay, this makes sense to look out for. Then I will look for that out as Kyle called up for the BL SI think which helps us to make it a subset.\nBut likewise, if there is anything, do let me know."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah, I think another way to do this... If you find a data field that could be telling you information but you don't know what it means, just send us an email..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Sure..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Right? Because you're going to go through this and start scrubbing and think, \"Wow, maybe this is telling us something.\" Then we figure out it's just trash data."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Or it's something you can trigger on to."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "That's where I put down a generic approach, Greg, to get into the conversation and then understand, to filter or narrow down the approach. But now I'm getting more details, I will put down a clear flow path today and I will share it with you guys. You guys can review and I'll have my questions listed out there as well.\nWhile we are focusing on account, I will look through the contacts and opportunities. Just overhead... Or I would say a long thought is once we merge the account, before merging it, I want to pull out the dependencies on where the merged accounts will be linked to...\nBecause as we saw ahead of time, one of the records, we saw multiple records. If those are all linked to certain opportunities, that's where we want to look through on the dependencies to identify what all the records are linked with these entities and make a consideration that should be Miro or not.\nAs you mentioned, Greg, to get through the first 25-30 records into a manual review that will help us to get a detailed approach onto it. So I will put down the approach list of the questions and share it with you guys and we can have a review or you guys can review and come back if everything looks good. Then I'll ask which... The way to schedule a call.\nThen if all looks good, I think we will move to the next object of contact and opportunities as well."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay. Then can we just talk at a high level quickly around timelines for everything because there are other efforts that are happening at BRS and those efforts are actually dependent upon this effort."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay. I think very... I will give you a detailed time effort once I complete the account and opportunity as well so that I know the team has agreed on a timeline. But we will get there and keep it concrete.\nI want to complete the analysis and then immediately we will get to you on a time stamp or a timeline perspective."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay. Then what do you think is a good timeline for the analysis to be complete so we know when?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes. Analysis. I will complete it before Wednesday. So before Friday we will try to wrap that up. Today on the account, I'll put down a flow and review contacts and share questions with contacts as well. By tomorrow morning, you should have my thoughts and questions on contacts.\nThen, by Thursday evening, I will welcome the opportunities and get back to you. So, by Friday morning, you should have the opportunities as well. All the queries and approach I want to finalize by Friday so that once we are all aligned and agreed on, then we will start. We'll give you a timeline and the team will start working on it.\nOkay, thank you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Great. Anything else?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think that's from my side."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay. I will schedule some time for Kantata and the Equify group to ask their questions and confirm what they're going to need as a deliverable out of the system so that they can go do the deduplication efforts on their end.\nSo, I will find some time with them and then send over some options for that."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you. Thanks a lot. Okay, thank you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Gary, you think?"
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah, Kailash, just to make sure you have the permissions you need to add anybody else on your team you need to add, correct? I see you logged in as admin."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes, I have the permissions. I will take care of that, Krisp, and I totally..."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Apologize, I kind of referenced you as correct multiple times today, but again sorry for that."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "No worries. So, and if I added a couple of other people on your team too, if they don't need it, great. You can just delete them as admin and add the team you need. Okay?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Perfect. Thank you."
+      },
+      {
+        "speaker": "Gary",
+        "speakerIndex": 4,
+        "text": "All right."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thanks a"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, thank..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Lot. Thank you."
+      }
+    ],
+    "raw_meeting": "**BlueRidge- DataSkate Connect - Google Chrome**\n🕞 Started at 06:02 PM on 21 Oct, lasted 31m",
+    "raw_content": "Speaker 2 | 00:02\nI think we have everybody, yeah, there's Greg and then, I know that we had changed the meeting. I know Katie... Katie, I think, said that she was still good. I did not see an update from GA so we'll give Katie just a second. Hey Greg, thanks for joining. Hey guys, I'm here.\nSorry, I'm just trying to figure out Google Meet. No, good. See, there we go. Yeah. Then really just a couple of things for the Dataskate team, we wanted to make sure that the vendors that we're already working with, like Vector X, Equify, and Cantata, were able to give you guys a list of what they would need in order to go make changes.\nSorry, Kyle and Tracy. Not as much for you guys. You guys are just more here because you are familiar with the data and the way everything is set up. But for Ta and for Katie, it would be to make sure that whatever they need to go do in their environments that they would have that.\nI'll send the two of them an email, but maybe we can tackle any other items. The VC or the Jira, don't know if you guys had any other things that you wanted to talk about while I just ping them on the side real quick.\nBrad | 01:46\nYes, it's Brad Bing's name for myself. Hey.\nkailash chanda | 01:55\nSo yeah, maybe I think first I would call out that we received the access for Informatica. I have informed the Salesforce team as well that we have received the access and we were able to log in. And while we received the access, we did some analysis on the accounts data that has been shared and we wanted to confirm on a few rules and a few approaches that we have thought about and how we can confirm how we are going to approach to have these accounts identified as duplicates or not duplicates and what actions to be taken.\nSo that's where I wanted to start with. If we have all the audience, then I would like to get that started.\nSpeaker 2 | 02:43\nYeah, I think let's go ahead and start because I actually just looked at the invite, and I don't think that Katie or GenAI were on the updated meeting invite, so let's just go ahead and start. Then I can find time separately for them to ask their questions as well.\nkailash chanda | 03:02\nPerfect. So while we went through the account structure inside Salesforce, we identified that there is an parent-child relationship but which is not being used currently that I have seen that there is an option to allocate a parent-child relationship at our level.\nSo that is one thing I would like to call out. So while we are doing analysis to identify or remove duplicates at an account level, the rule set or the checks follow a certain approach and sequence.\nSo when we looked at the data, there are a lot of duplicates that fall into different scenarios. So the approach that we put down to identify first, we would verify the two names of the accounts, right? What account? Let's assume Astrogenica Biologics was one example, Astrogenica Biologicals is another example.\nSo two regards having a similar name, but in a way that has been addressed with different spellings that they have mentioned. So we start off doing a match by removing common things like Limited LLC, Inc., or whatever additional organization types and then punctuation ignore the case and then identify if the first part of the name is the same. Then do a fuzzy logic to identify if both the first part of the name are same, then do a fuzzy logic to identify if both of them match or not. Yes, if they match, then we would go ahead and consider an approach to say that, \"Hey, does the website for this account match or not?\" Do an address and phone numbers. I can match or not?\nIf they do match, then okay. If they have the same website, yes, then that means the same address. That means they are the same record, but two people have entered or have gotten them created as different records, which can put forward to us to say that these can be matched right? Likewise, address.\nIf the address line one, city, state, and zip code... I see somebody raised a hand or any questions?\nGary | 05:25\nYeah. It was me. How are you going to handle if they're blank?\nkailash chanda | 05:29\nSo that's where... Okay, let me come back there. So assuming if they are... If the address is blank, okay, let's say they don't match, then we kind of put down a path to say the website is the same. The address is blank, right? Then we would verify the contacts having related with those accounts.\nIf they have the same email domain, then they are the same. They belong to the same company, right? If the email domain doesn't match, then they are a different company. So we have to put down a set of priorities and rules. What I feel from our experience, I have put down this to say that, \"Hey, this is how we can do it.\"\nBut to say that, okay, we look at the website matches, I look at the address is blank. Then I go ahead and look for that person or a contact that is associated with that account. Identify. If their email domains are the same, yes, they both are the same. Then we merge it.\nIf they are not the same, then we can have them sent out for a review or we can have them linked as a parent and child. So that is one approach or one leg of the flow that we are looking at.\nGary | 06:52\nSo just to confirm, you don't have this in here. But one of the checks you could potentially do is look at the email domain name for the identify contacts to that account...\nkailash chanda | 07:04\nYeah. So that's where I put down here. Greg, if you see person checks... So I found the names are not matching or they don't be similar. Then we will look to the website and address. If they share the same address or website, I'll come down and do a person check.\nHere if you see I'm doing a person check, we will make sure to confirm that both the persons or contacts related to those accounts are the same. I will merge them. If they are not, then I'll keep both of them.\nSo we did consider to have them at a high level. But I will... I'm making note as we speak to say that the next step would be to have an address as blank, then look for a person. If the website and address are the same, then I won't look at the person check.\nGary | 07:50\nAnd... If you are using the data we gave you in the Excel spreadsheet as part of this matching? Because I don't think there are a lot of addresses in the Salesforce account, but we extracted them from either Kailash or Netsuite.\nSo I just want to make sure we're using all the data that is available and it's just not Salesforce native...\nkailash chanda | 08:22\nGreg, if that is part of the scenario, then the solution that we will be building or the workflow that looks for data inside Salesforce, if we have to get data from outside systems, then that would be a whole level of a different workflow that we need to build.\nSo what data is inside Salesforce? We could use that data to build this and conform, but if you feel there are other systems then I think that would run in an extended scope of work.\nGary | 08:56\nOkay, well, we can talk about extended scope of work or not, but I think if we took a look at Salesforce accounts that are in our current version instance of it. I think the vast majority...\nWill not have a website address or phone number. So using the first-level domain website address and phone match is...\nkailash chanda | 09:26\nIs not.\nGary | 09:26\nFairly useless. Yeah...\nkailash chanda | 09:28\nYes...\nGary | 09:28\nSo then this devolves into checking...\nkailash chanda | 09:32\nThe first...\nGary | 09:32\nE mail debates accounts. Yeah...\nkailash chanda | 09:34\nYes.\nGary | 09:34\nThe person checks, and I don't think that's clean enough...\nkailash chanda | 09:37\nOkay.\nGary | 09:37\nRight? So I think...\nkailash chanda | 09:39\nIs this...?\nGary | 09:40\nWe're going to have to... I think we're going to have to rely on the Excel spreadsheet data and figure out whether we pull it out of Excel or smash it into Salesforce because we've identified that it is in Salesforce and we've got information on it.\nSo I'm just wondering if... Because this approach isn't really going to work if that's your cue because we don't have that information in there.\nSpeaker 2 | 10:17\nYeah. And Gary, I would actually add on to that. Like the nets suite data that I have from Katie doesn't like there's a handful that have addresses, for example, but like there's really not a lot.\nGary | 10:31\nCorrect.\nkailash chanda | 10:32\nSo identifying a unique record. From assuming the data currently residing inside Salesforce to identify a unique record, we would run into a couple of scenarios. 1, the basic is the name check, right?\nSo once the name check doesn't match or matches, then that is part of one level of reduction that we could do. But when we looked through the data export, I saw that there is a billing address billing state.\nI know it does not all the records don't have it, but we have seen majority of the records that have this building street building, state building zip code address as well. And MI have...\nGary | 11:18\nAnd it. And is that in Salesforce, is that native in Salesforce or are you looking at the Excel data extract?\nkailash chanda | 11:26\nThe Excel data extract from Salesforce...\nGary | 11:30\nIt's not... And that's the piece you're missing here. It's not a data extract from Salesforce, it's a data extract from Salesforce. Kattana and that suite all...\nkailash chanda | 11:43\nOkay.\nGary | 11:43\nMerge together...\nkailash chanda | 11:43\nAll watch together. Got it? Okay...\nGary | 11:45\nSo that, yeah, so there's no death. There's no guarantee that the data you see in that spreadsheet is the data you're going to see in Salesforce because it was merged by Claude.\nkailash chanda | 12:01\nBut let me show you the spreadsheet. Yes. Thesis.\nBrad | 12:07\nOn that spreadsheet, there is a way to segment out only records that exist in Salesforce.\nSpeaker 2 | 12:15\nYeah. So I'm looking at the raw data that came out of Salesforce, just to see how many actually have how many are blank. Let me just filter this out real quick and I can tell you how many.\nkailash chanda | 12:35\nWould you be able to share us? Sen share your screen? Dail.\nSpeaker 2 | 12:40\nYeah, me...\nJust do the whole thing because I don't know which page it's on. Okay, so this is the raw data that came out of Salesforce, and...\nkailash chanda | 13:03\nYes...\nSpeaker 2 | 13:03\nThere are three thousand that have addresses. Obviously, there are some in here that are random things, but we're still right around that three thousand number. So I think that it might work for parts of it. I don't know if it'll work for all of it.\nkailash chanda | 13:25\nFor all of it...\nSpeaker 2 | 13:26\nFor all of it.\nkailash chanda | 13:27\nExactly. So to identify basically... So this is where we extracted from Salesforce after our developer got the access. The data that I was showing on the screen earlier, that's where we extracted from Salesforce and that's where we saw with the billing addresses.\nBut assuming if there is no billing address and there is no website, then the next resort would be to look through the contact. If there is no contact... As Gary mentioned, if there is data inside Netsuite or Kattana then probably an integration to... I won't... I don't want to build a workflow that could go and check every record in the other system, but rather have that data updated from these systems to keep Salesforce updated.\nSo that way what happens is one job that looks through and works on the whole logic on Salesforce to clean the data and have the data if the addresses are maintained inside. Next week we build an integration to bring the addresses for the respective company and place it here and then run these data updates into data cleansing rooms into Salesforce.\nSo that is the first part to address your question Gary is what data is inside Salesforce would get cleared and what does not. We can look into Netsuite or Kattana as well, but again the names should match between Kattana and Salesforce.\nSo if that approximation works, we will bring the respective addresses from Netsuite and Kattana and then verify for both the ACS and then take action. But to identify... To mention whether this is a unique record or a duplicate record. The most common entities that would run into is address either and FIN ID and financial IDs or tax IDs when I mentioned or rather websites or any other building addresses.\nSo that's where we looked through the export and identified there are addresses we could look to. Creation times. We saw when we analyzed data there were multiple records created in a fraction of a difference, which kind of gives us again, that is duplicate data or can be a potential duplicate data.\nThen there are those ways to identify it. But that's what the approach we were thinking about would be like to understand from you guys. If identifying a manual, a potential duplicate... What are the other factors that we need to look into?\nGary | 16:27\nI think what we have to do... I think what we're going to have to do on this is write up some of these rules, right? To take a subset, you... Hey, when you get the 25 potential matches, put the human in the loop and verify the match.\nOkay? Because the other thing just thinking out loud here when you were going through that is... I think we should always use a check on the person regardless if the name and address match. We should look at email domain name too\nand flag... Hey, the address is a match but the email domain doesn't match because there's no guarantee that someone just didn't look at and plug in the corporate office and it's actually a separate entity. So I'd just like you to think about that, too.\nkailash chanda | 17:26\nOkay...\nGary | 17:27\nOn the matching that as a check to address, website, whatever, the other phone number, whatever it is. If we have contacts that are tied to that account and they don't have matching email domains, we should at least flag that and say... Because it... Because then you're... We're trying to clean up a little bit of data entry issues too. So we... If we're going to scrub it, we might as well scrub it and make sure everything matches, and if not, flag it to do a little research on...\nkailash chanda | 18:05\nSure, I think that's a valid ask, Gary, whether they don't match the domains or they match the domains. I could call it out and have a manual review in place if...\nGary | 18:16\nYeah, because your flow sheet was saying... Well, if...\nkailash chanda | 18:19\nExactly...\nGary | 18:19\nIt matched, just...\nkailash chanda | 18:20\nWe are...\nGary | 18:21\nApprove it.\nkailash chanda | 18:21\nMarching. Yes.\nGary | 18:22\nBut we don't have a lot of data fields to check on, so we might as well check on them all before we make a decision.\nkailash chanda | 18:30\nOkay. So any merge decisions? You want to have a manual review in play? Whether it's good or not, you want to have a... That is what I understand.\nGary | 18:40\nYeah, I think what we have to do is look at a relevant amount of flags. Like my brain goes to twenty five because that's like what you need for a bell curve. And I'm. This isn't a bell curve. It's just, you know, but a reasonable number of flags to put a human in the loop in.\nAnd what we're doing is checking. We're checking the rules of the road before we just turn it loose. Kyle's got his hand up. Yeah.\nKyle | 19:11\nI was just going to say another thing you may want to take into consideration is leveraging the BRS entity field because when you bring these folks, the person in the loop, when you bring them in, if you start with that entity, that will give you the duplicates per entity that it was brought in.\nSo you'd have all the modality like duplicates put together, and the person looking at that information obviously makes sense to come from modality. When you get to the point of merging across the less entities, that's where you're going to need to have a different group of folks probably come together and do that review.\nSo slightly tactical different approach based on the entity itself. But I just thought that was an important point to call out as you dictate what this process looks like.\nkailash chanda | 19:55\nSure. So, Kyle, if you see my screen, I have highlighted the column K which is the BRS entity, and I see Sutton Creek as one of the entities being listed. And if we look through or a filter on the type of the entity, let me pull it out.\nSo we are seeing six different venues. It can be modality solutions, certain screen talk strategies, design and clinical tricks. So if you are saying that records exist between these BRLS entities. So I see two records which have potentially duplicates between certain and modality solutions. Then you want the human to go to any specific... How do you want to handle that?\nGary | 20:47\nYeah, I think what Kyle is saying... I'm not... I can put words... I think what makes sense is we sort out the dupes that are within the division.\nkailash chanda | 21:00\nWhat did that ho?\nGary | 21:01\nThen we sort out once we've got the divisional dupes or the BRLS entity dupes sorted out, then we look at what dupes we have left at multiple divisions, and then it's going to be a much smaller set, right?\nBecause I looked at Modality Solutions. We have 70 or 80 dupes just in our group, right? We should write rules to clean those up first, and then... Okay, now those are cleaned up, right? Now let's go. Here you go, a... Right? We put a... In three times, bad for us, but let's clean it up.\nThen we're only matching one at... If somebody else is working on it instead of trying to duplicate three times on that we've at least collapsed this into one.\nkailash chanda | 21:56\nExactly. Perfect's a that's a valid approach. And I think once this is...\nGary | 22:02\nWhich I think it's what you were getting at, Kyle right? Okay, Kyle made me. Kyle made me look smart there, so.\nKyle | 22:10\nSo I get paid the medium-sized dollars for exactly...\nkailash chanda | 22:15\nSo... Okay...\nChase | 22:16\nOne other thing that I think I heard you say, Kailash, was referencing the create date timestamp. I would be a little bit careful there. A large number of these came from our initial imports. So they will all be right at the same time.\nkailash chanda | 22:33\nThen I will try to ignore that...\nGary | 22:33\nYeah...\nkailash chanda | 22:36\nCreate it as well because this is an important...\nGary | 22:40\nBut it's not a bad check because I know we've created some and then three weeks later created a dupe because we're not good at Salesforce, right? You could call it whatever reason you wanted. Just we went in and said, \"I can't find it. I'm going to create another Aglia.\"\nFor example.\nkailash chanda | 22:59\nYes. Okay, and should we consider creating by ID because the import and manual would be different? Do you foresee that looking into the created by ID would give us any detail or can we ignore that?\nKyle | 23:16\nIt would probably keep me honest, but I'm assuming a majority of those similar to the create data are going to be us.\nChase | 23:21\nYeah, I think so.\nkailash chanda | 23:22\nGot it. And any other unique entity because I see most of the fields that I see like case-insensitive ID because we don't know the business functionality of this field. That's where I couldn't put down the logic to understand if I could duplicate check on these additional custom fields.\nBut do you foresee if this field...\nChase | 23:43\nWell, I would ignore case-insensitive ID because that's just the case-insensitive version of the record ID.\nkailash chanda | 23:51\nGot it. Okay, so we can...\nSpeaker 7 | 23:53\nYeah...\nkailash chanda | 23:53\nIgnore that. Then I see the date of execution is that the...\nSpeaker 7 | 24:00\nWhat did that be?\nkailash chanda | 24:01\nExecution for NDs or is it something different?\nChase | 24:09\nI think that was probably a legacy field from Sutton's Creek, and no one here would know...\nkailash chanda | 24:13\nOkay...\nChase | 24:14\nWhat it means.\nkailash chanda | 24:15\nSure, I will ignore that. And external ID is that I mean because I see majority black. So...\nChase | 24:23\nIt should be majority blank was used for our initial imports to verify. As we transfer data in...\nkailash chanda | 24:32\nGot it. If I look at HubSpot sync, I think that's just the timestamp when it was synced, so I can ignore that. Then key account last activity... Yeah, I think we could consider last activity as well.\nBut I know if two people created two different accounts and are mapping contacts or opportunities to those accounts, then we might see an activity debt. But again, we wanted to look through that angle as well.\nWhat can... MSA expiry. NMSA. Notes. Okay, any other field that you guys can let me know? Okay, this makes sense to look out for. Then I will look for that out as Kyle called up for the BL SI think which helps us to make it a subset.\nBut likewise, if there is anything, do let me know.\nGary | 25:39\nYeah, I think another way to do this... If you find a data field that could be telling you information but you don't know what it means, just send us an email...\nkailash chanda | 25:53\nSure...\nGary | 25:53\nRight? Because you're going to go through this and start scrubbing and think, \"Wow, maybe this is telling us something.\" Then we figure out it's just trash data.\nkailash chanda | 26:00\nExactly.\nGary | 26:04\nOr it's something you can trigger on to.\nkailash chanda | 26:07\nThat's where I put down a generic approach, Greg, to get into the conversation and then understand, to filter or narrow down the approach. But now I'm getting more details, I will put down a clear flow path today and I will share it with you guys. You guys can review and I'll have my questions listed out there as well.\nWhile we are focusing on account, I will look through the contacts and opportunities. Just overhead... Or I would say a long thought is once we merge the account, before merging it, I want to pull out the dependencies on where the merged accounts will be linked to...\nBecause as we saw ahead of time, one of the records, we saw multiple records. If those are all linked to certain opportunities, that's where we want to look through on the dependencies to identify what all the records are linked with these entities and make a consideration that should be Miro or not.\nAs you mentioned, Greg, to get through the first 25-30 records into a manual review that will help us to get a detailed approach onto it. So I will put down the approach list of the questions and share it with you guys and we can have a review or you guys can review and come back if everything looks good. Then I'll ask which... The way to schedule a call.\nThen if all looks good, I think we will move to the next object of contact and opportunities as well.\nSpeaker 2 | 27:47\nOkay. Then can we just talk at a high level quickly around timelines for everything because there are other efforts that are happening at BRS and those efforts are actually dependent upon this effort.\nkailash chanda | 28:01\nOkay. I think very... I will give you a detailed time effort once I complete the account and opportunity as well so that I know the team has agreed on a timeline. But we will get there and keep it concrete.\nI want to complete the analysis and then immediately we will get to you on a time stamp or a timeline perspective.\nSpeaker 2 | 28:26\nOkay. Then what do you think is a good timeline for the analysis to be complete so we know when?\nkailash chanda | 28:32\nYes. Analysis. I will complete it before Wednesday. So before Friday we will try to wrap that up. Today on the account, I'll put down a flow and review contacts and share questions with contacts as well. By tomorrow morning, you should have my thoughts and questions on contacts.\nThen, by Thursday evening, I will welcome the opportunities and get back to you. So, by Friday morning, you should have the opportunities as well. All the queries and approach I want to finalize by Friday so that once we are all aligned and agreed on, then we will start. We'll give you a timeline and the team will start working on it.\nOkay, thank you.\nSpeaker 2 | 29:17\nGreat. Anything else?\nkailash chanda | 29:19\nI think that's from my side.\nSpeaker 2 | 29:22\nOkay. I will schedule some time for Kantata and the Equify group to ask their questions and confirm what they're going to need as a deliverable out of the system so that they can go do the deduplication efforts on their end.\nSo, I will find some time with them and then send over some options for that.\nkailash chanda | 29:47\nThank you. Thanks a lot. Okay, thank you.\nSpeaker 2 | 29:53\nGary, you think?\nGary | 29:55\nYeah, Kailash, just to make sure you have the permissions you need to add anybody else on your team you need to add, correct? I see you logged in as admin.\nkailash chanda | 30:05\nYes, I have the permissions. I will take care of that, Krisp, and I totally...\nGary | 30:09\nYeah...\nkailash chanda | 30:09\nApologize, I kind of referenced you as correct multiple times today, but again sorry for that.\nGary | 30:15\nNo worries. So, and if I added a couple of other people on your team too, if they don't need it, great. You can just delete them as admin and add the team you need. Okay?\nkailash chanda | 30:30\nPerfect. Thank you.\nGary | 30:32\nAll right.\nkailash chanda | 30:33\nThanks a\nSpeaker 2 | 30:33\nOkay, thank...\nkailash chanda | 30:34\nLot. Thank you."
+  }
+}
