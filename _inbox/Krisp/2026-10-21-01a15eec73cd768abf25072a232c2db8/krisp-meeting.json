@@ -1,0 +1,446 @@
+{
+  "id": "01a15eec73cd768abf25072a232c2db8",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "01a15b27fe0f774d87fad5c48e26c04d",
+      "title": "dataskate / sam meeting of the MINDS!!!",
+      "duration": 768,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "59jhbpv4rcknr4bgjbd5drog56",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "stelson@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": "35ad004c71015a77902020f049461afc",
+          "first_name": "ryan",
+          "email": "ryan@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "acoates@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "kailash@dataskate.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "davis@dataskate.ai"
+        },
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "35ad004c71015a77902020f049461afc",
+          "first_name": "ryan",
+          "email": "ryan@dataskate.ai"
+        },
+        {
+          "index": 4
+        },
+        {
+          "index": 5
+        }
+      ],
+      "start_date": "2026-10-21T14:31:34.460Z",
+      "end_date": "2026-10-21T14:44:22.460Z",
+      "url": "https://app.krisp.ai/m/01a15b27fe0f774d87fad5c48e26c04d?active_tab=ai_notes"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Long story short, they're like, a manufacturer for different like pipe and water spits. Like it's the old school manufacturer basically, right? And the original use case we talked about was IDP and so we like showed them all this stuff about IDP and then they were like this is they were like so in the weeds about like change management and like if IDP doesn't catch every difference with their PO.\nAnd like it basically wanted to point out every single flaw with the platform. And I was like, look, it's not going to be perfect, like, right? So long story short, we pivoted because then they were like, well, Mulesoft is an IPAS, right?\nAnd I was like, well, yes. And they're like, well, we're actually looking at IPAS solutions. It was like, okay, cool, we do that. So we pivoted into purely this like any point discussion. So like if you look through my slides, that's why I had a couple.\nAnd IDP but we're not doing an IDP anymore, we're just going to focus on any point. And the main uses case they want to get started with is co business central. We're with the CO and his number one concern is how they are going to connect into CBRO they want their instance of Cisro on prem.\nSo we were going to have to do the full, like, VPN tunnel rigmarole of like, connecting into it. And like he that's like he basically wants to get on with you guys tomorrow and he wants you guys to like confidently speak to like how you can how we would do this and like what the implementation approach would be.\nAnd then like, they have 13 other systems and like how Mulesoft is like a scalable platform to rebuild. And like why Mulesoft is better than like a Boomie or anything else. So let me pause for questions, and then I can pull up my deck too."
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "Okay, I'm going to just Slack you right now what we've identified so far. Okay? Or cis pro."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, let me share my screen as well. I just want to confirm a couple of things. So this is what I understood. Let's go to the current state. So the current state they have... They do have a middleware, which is not very efficient.\nBasically, we're trying to sync stock and inventory details between CRO. So basically, I think TPPE was acquired by them. That's why you have two different... From what I understood. Exactly."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So... Because they acquired it, they are running two systems. But now when orders flow in or if they look at the inventory, they are missing out on orders because they don't have visibility into Business Central.\nBusiness Central doesn't have visibility into CR, that's what I'm right. That's why they set up a middleware, but the middleware has a lot of limitations because it looks at the same record again\nand again. It doesn't talk about the new stocks or... It keeps reading the same stocks again and again. It doesn't go."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, and so... I don't even think we need to show this because I think they obviously know this. But it's good that you guys have an understanding of why this matters to their business.\nThen, when they're trying to reflect actual inventory on FLEXPPE's website, for example, it's not pulling what's actually in and out of stock in real time. Then when their customers go to their website, they can actually select on the actual inventory that they need, which obviously ties to their revenue.\nOkay, let's see this."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So the only thing I wanted to check was now the Cisro that we that they have is actually on PRI. Right. And, this is this has to connect to Mulesoft via a VPN or something. I wanted some clarity on that, which I think we can ask on the call."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I don't think we need to ask that on the call that we already know that that's what they want. Okay, I have documentation that I can send over of the actual approach that we walked them through because we had one of our lead platform SECs on as well. Let me send you this, Davis.\nI don't think I have you on Slack. But will you send this to Davis, Brian? Brian, will you send this to Davis? That exactly. Yeah. So what the goal of the call is... Obviously, they want you guys to present the future state with Mulesoft, but how Dataskate is going to use Mulesoft to tap into Krisp confidently. The guy is not confident right now, so we need to go in and make him feel like, \"Yes, 100%. Hell yeah, we can do this.\" Kailash, you've connected to a CO before. How...?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Can we connect to on-prem systems? Do you know what I mean? They want to feel confident, but they and Andrew and I... They have 13 other systems. So there are a shit ton of other use cases here.\nSo if we can land it... It's largely probably more of an advanced deal that I'm selling starter for based off of what we... But we want to obviously land it, but there is a ton. So they want to make sure they feel confident with you guys and they feel confident that Mulesoft is the platform they should move forward with."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think Cispro..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "And then my other..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Has the support for API as well. Samantha, but it's not like a Mulesoft API that gives you the full level of detail, but we can send it majority on GitHub. We will build a case of what they are requiring and how we connected with Krisp earlier, and I will... Share that with David so that we can present a future date, how it's going to look like and what we have..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "It is..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Done. Clear. So that will give them more confidence."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Perfect. Then I had another thought, but I forgot it really quick. What was it? My head is all over the place. Andrew, what was I going to say?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So you told us that you were selling a larger deal. You are selling a starter which is under GE and they would require..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "A future."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Like, I mean, if they're gonna connect to all 13, like absolutely, but like I I know what I was going to say. So they're evaluating other IPASSES. And one of the main reasons why, like, Mulesoft is better, obviously it's better because we sell it and we know it's the best.\nBut they want to like, deploy in different environments. So like, for example, like they would probably need like hybrid deployment in terms of like what they want to do with CO and then what they want to do with Business Central and what they want to do with Salesforce.\nSo like, not all other platforms can support that model the way that Mulesoft can. So it's like and like we know that the architecture is not going to be like the most simple for this, but like we want to make it seem like it's going to be super simple and that like your team is the right team to do that. Andrew and I already hyped you up to them that, like, you're a premier partner and like, we work with you all the time.\nBut, like, we just got to go and very confident and, like, assumptive of like, this is how we're going to do this. It's going to take four to twelve weeks, four to eight weeks, whatever. We work with Sam and her team all the time. Mulesoft is the right platform to do what you guys are trying to do, especially with an ERP like Blockchain."
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "Great. And we've done it before. So it's not like new to us, you know?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "That's exactly what we need to say. Just like that."
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "We got it. So it's tomorrow. Did you add it to us?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, let me add your guys I think I forgot on the other things I forgot."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Then if you remember, for Webe Cosmetics, we deal with Cispera."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes, a cosmetics company."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yep, that's kind of interesting. Okay, I mean, how do that. And then, like, I show he. And then I showed them like this, which I'm sure you guys probably got from my deck of, like, just like what that looks like.\nAnd it's obviously this is very high level. But, like, I, you know, I kind of got into the weeds of exactly how we would do this, how we would do this via VPN like, because they are pretty. They are like they kind of know theirs, their stuff. We've shown them two demos.\nI think they feel good about the tech. It's just the past that we need to make them feel super confident in."
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "We got that."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Let's to fix this. And then Andrew, anything that I'm missing."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I don't think so. It's the CISPER component that..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I think..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "We need to..."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Check that. BO we got really good feedback yesterday. The teams have bought in. They're willing to do it this month, but they want to get this done. So I think putting them at ease and giving them confidence that this is going to work and work smoothly with a team that's already done this integration is going to help us bring it home."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Perfect. Okay. Updated that in byte. Let me think, what am I missing? I think that's it, you guys. I mean, I've sent you everything in terms of the transcripts. There is a world in which they want for the actual episode.\nI was picking phase one for them because they couldn't decide. I was like, \"If we don't pick a phase one, they're not going to do something.\" So I picked Cistro to Business Central because they don't have their shit figured out with Salesforce.\nThey did call out in the call that Salesforce is definitely something they want to tap into along with other systems. I emphasized on the call that the bigger lift is going to be the Cistro to BC piece.\nThat's what you want the team hands-on for. I was like, \"We have native Salesforce connectors that you can plug and play with and they'll hold your hand through you to walk through that.\"\nSo they might say, \"I don't think we need to come in with SW here's what's in phase one, here's what's not.\" It's more like, \"We're Dataskate, we're Miro Mulesoft partners. This is how we would tap into COR we've done it before for your use case. We're excited to get started with.\""
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "Do you want us to show a high level, a slide, something that Davis was showing? This is how we would do it."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think we'll put down one slide to showcase what we have done earlier. How do we tap into it? How do we...?"
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Identify a change record and bring that back to..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Business center? Just one slip..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I think one slide, not the whole weird Dataskate blah. It would... Yes. Just like,"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Just like, yeah, here's exactly how we're going to do this within your on prem environment. And like this is exactly the way that we've done it before. So more like architecture. And then they'll ask questions too and like it's more just speaking to Mulesoft ASAP around a whole."
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "We don't provide pricing on this or anything."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "No, I mean, I kind of floated a range, but we can let's chat today. Like, what you actually think the range could be?"
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "What's the range? You floated."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Ten to twenty, is that fine?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah. I think there are about four flows that I saw between Bboro and Business Central. I think there were about four."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, that should be good."
+      },
+      {
+        "speaker": "ryan",
+        "speakerIndex": 3,
+        "text": "Yeah, okay, we'll go in."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, we'll catch up after..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yes."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "The call, and I'll connect you to the team member who did it, so that way..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "We can get the direct from the team guy..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Sounds good."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay? Okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you. We'll..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Get a slide... To you... Sam, before the call so that you can just take a sneak..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yep."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Peek, share your comments and..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Awesome."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Anything and then... Okay, thanks."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Perfect I..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thanks, Andrew."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Appreciate you guys. I'm excited. Thanks, guys. I mean that."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thank you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Contact info. I know the... I'll send you the SW now. Okay, very well. Thanks, guys."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Thanks."
+      }
+    ],
+    "raw_meeting": "**dataskate / sam meeting of the MINDS!!!**\n🕞 Started at 02:31 PM on 21 Oct, lasted 12m",
+    "raw_content": "Speaker 2 | 00:00\nLong story short, they're like, a manufacturer for different like pipe and water spits. Like it's the old school manufacturer basically, right? And the original use case we talked about was IDP and so we like showed them all this stuff about IDP and then they were like this is they were like so in the weeds about like change management and like if IDP doesn't catch every difference with their PO.\nAnd like it basically wanted to point out every single flaw with the platform. And I was like, look, it's not going to be perfect, like, right? So long story short, we pivoted because then they were like, well, Mulesoft is an IPAS, right?\nAnd I was like, well, yes. And they're like, well, we're actually looking at IPAS solutions. It was like, okay, cool, we do that. So we pivoted into purely this like any point discussion. So like if you look through my slides, that's why I had a couple.\nAnd IDP but we're not doing an IDP anymore, we're just going to focus on any point. And the main uses case they want to get started with is co business central. We're with the CO and his number one concern is how they are going to connect into CBRO they want their instance of Cisro on prem.\nSo we were going to have to do the full, like, VPN tunnel rigmarole of like, connecting into it. And like he that's like he basically wants to get on with you guys tomorrow and he wants you guys to like confidently speak to like how you can how we would do this and like what the implementation approach would be.\nAnd then like, they have 13 other systems and like how Mulesoft is like a scalable platform to rebuild. And like why Mulesoft is better than like a Boomie or anything else. So let me pause for questions, and then I can pull up my deck too.\nryan | 01:45\nOkay, I'm going to just Slack you right now what we've identified so far. Okay? Or cis pro.\nSpeaker 4 | 01:56\nYeah, let me share my screen as well. I just want to confirm a couple of things. So this is what I understood. Let's go to the current state. So the current state they have... They do have a middleware, which is not very efficient.\nBasically, we're trying to sync stock and inventory details between CRO. So basically, I think TPPE was acquired by them. That's why you have two different... From what I understood. Exactly.\nSpeaker 2 | 02:35\nExactly.\nSpeaker 4 | 02:36\nSo... Because they acquired it, they are running two systems. But now when orders flow in or if they look at the inventory, they are missing out on orders because they don't have visibility into Business Central.\nBusiness Central doesn't have visibility into CR, that's what I'm right. That's why they set up a middleware, but the middleware has a lot of limitations because it looks at the same record again\nand again. It doesn't talk about the new stocks or... It keeps reading the same stocks again and again. It doesn't go.\nSpeaker 2 | 03:14\nYeah, and so... I don't even think we need to show this because I think they obviously know this. But it's good that you guys have an understanding of why this matters to their business.\nThen, when they're trying to reflect actual inventory on FLEXPPE's website, for example, it's not pulling what's actually in and out of stock in real time. Then when their customers go to their website, they can actually select on the actual inventory that they need, which obviously ties to their revenue.\nOkay, let's see this.\nSpeaker 4 | 03:44\nSo the only thing I wanted to check was now the Cisro that we that they have is actually on PRI. Right. And, this is this has to connect to Mulesoft via a VPN or something. I wanted some clarity on that, which I think we can ask on the call.\nSpeaker 2 | 04:07\nI don't think we need to ask that on the call that we already know that that's what they want. Okay, I have documentation that I can send over of the actual approach that we walked them through because we had one of our lead platform SECs on as well. Let me send you this, Davis.\nI don't think I have you on Slack. But will you send this to Davis, Brian? Brian, will you send this to Davis? That exactly. Yeah. So what the goal of the call is... Obviously, they want you guys to present the future state with Mulesoft, but how Dataskate is going to use Mulesoft to tap into Krisp confidently. The guy is not confident right now, so we need to go in and make him feel like, \"Yes, 100%. Hell yeah, we can do this.\" Kailash, you've connected to a CO before. How...?\nkailash chanda | 05:18\nYes.\nSpeaker 2 | 05:18\nCan we connect to on-prem systems? Do you know what I mean? They want to feel confident, but they and Andrew and I... They have 13 other systems. So there are a shit ton of other use cases here.\nSo if we can land it... It's largely probably more of an advanced deal that I'm selling starter for based off of what we... But we want to obviously land it, but there is a ton. So they want to make sure they feel confident with you guys and they feel confident that Mulesoft is the platform they should move forward with.\nkailash chanda | 05:46\nI think Cispro...\nSpeaker 2 | 05:47\nAnd then my other...\nkailash chanda | 05:48\nHas the support for API as well. Samantha, but it's not like a Mulesoft API that gives you the full level of detail, but we can send it majority on GitHub. We will build a case of what they are requiring and how we connected with Krisp earlier, and I will... Share that with David so that we can present a future date, how it's going to look like and what we have...\nSpeaker 2 | 06:12\nIt is...\nkailash chanda | 06:12\nDone. Clear. So that will give them more confidence.\nSpeaker 2 | 06:14\nPerfect. Then I had another thought, but I forgot it really quick. What was it? My head is all over the place. Andrew, what was I going to say?\nkailash chanda | 06:31\nSo you told us that you were selling a larger deal. You are selling a starter which is under GE and they would require...\nSpeaker 2 | 06:38\nYeah...\nkailash chanda | 06:38\nA future.\nSpeaker 2 | 06:40\nLike, I mean, if they're gonna connect to all 13, like absolutely, but like I I know what I was going to say. So they're evaluating other IPASSES. And one of the main reasons why, like, Mulesoft is better, obviously it's better because we sell it and we know it's the best.\nBut they want to like, deploy in different environments. So like, for example, like they would probably need like hybrid deployment in terms of like what they want to do with CO and then what they want to do with Business Central and what they want to do with Salesforce.\nSo like, not all other platforms can support that model the way that Mulesoft can. So it's like and like we know that the architecture is not going to be like the most simple for this, but like we want to make it seem like it's going to be super simple and that like your team is the right team to do that. Andrew and I already hyped you up to them that, like, you're a premier partner and like, we work with you all the time.\nBut, like, we just got to go and very confident and, like, assumptive of like, this is how we're going to do this. It's going to take four to twelve weeks, four to eight weeks, whatever. We work with Sam and her team all the time. Mulesoft is the right platform to do what you guys are trying to do, especially with an ERP like Blockchain.\nryan | 07:49\nGreat. And we've done it before. So it's not like new to us, you know?\nSpeaker 2 | 07:54\nThat's exactly what we need to say. Just like that.\nryan | 07:58\nWe got it. So it's tomorrow. Did you add it to us?\nSpeaker 2 | 08:01\nYeah, let me add your guys I think I forgot on the other things I forgot.\nkailash chanda | 08:07\nThen if you remember, for Webe Cosmetics, we deal with Cispera.\nSpeaker 2 | 08:10\nYes, a cosmetics company.\nkailash chanda | 08:14\nYes...\nSpeaker 2 | 08:15\nYep, that's kind of interesting. Okay, I mean, how do that. And then, like, I show he. And then I showed them like this, which I'm sure you guys probably got from my deck of, like, just like what that looks like.\nAnd it's obviously this is very high level. But, like, I, you know, I kind of got into the weeds of exactly how we would do this, how we would do this via VPN like, because they are pretty. They are like they kind of know theirs, their stuff. We've shown them two demos.\nI think they feel good about the tech. It's just the past that we need to make them feel super confident in.\nryan | 09:06\nWe got that.\nSpeaker 2 | 09:10\nLet's to fix this. And then Andrew, anything that I'm missing.\nSpeaker 5 | 09:25\nI don't think so. It's the CISPER component that...\nSpeaker 4 | 09:28\nI think...\nSpeaker 2 | 09:28\nWe need to...\nSpeaker 5 | 09:29\nCheck that. BO we got really good feedback yesterday. The teams have bought in. They're willing to do it this month, but they want to get this done. So I think putting them at ease and giving them confidence that this is going to work and work smoothly with a team that's already done this integration is going to help us bring it home.\nSpeaker 2 | 09:47\nPerfect. Okay. Updated that in byte. Let me think, what am I missing? I think that's it, you guys. I mean, I've sent you everything in terms of the transcripts. There is a world in which they want for the actual episode.\nI was picking phase one for them because they couldn't decide. I was like, \"If we don't pick a phase one, they're not going to do something.\" So I picked Cistro to Business Central because they don't have their shit figured out with Salesforce.\nThey did call out in the call that Salesforce is definitely something they want to tap into along with other systems. I emphasized on the call that the bigger lift is going to be the Cistro to BC piece.\nThat's what you want the team hands-on for. I was like, \"We have native Salesforce connectors that you can plug and play with and they'll hold your hand through you to walk through that.\"\nSo they might say, \"I don't think we need to come in with SW here's what's in phase one, here's what's not.\" It's more like, \"We're Dataskate, we're Miro Mulesoft partners. This is how we would tap into COR we've done it before for your use case. We're excited to get started with.\"\nryan | 10:59\nDo you want us to show a high level, a slide, something that Davis was showing? This is how we would do it.\nkailash chanda | 11:06\nI think we'll put down one slide to showcase what we have done earlier. How do we tap into it? How do we...?\nryan | 11:11\nOkay.\nkailash chanda | 11:11\nIdentify a change record and bring that back to...\nSpeaker 2 | 11:13\nOkay.\nkailash chanda | 11:14\nBusiness center? Just one slip...\nSpeaker 2 | 11:15\nI think one slide, not the whole weird Dataskate blah. It would... Yes. Just like,\nkailash chanda | 11:22\nYes.\nSpeaker 2 | 11:22\nJust like, yeah, here's exactly how we're going to do this within your on prem environment. And like this is exactly the way that we've done it before. So more like architecture. And then they'll ask questions too and like it's more just speaking to Mulesoft ASAP around a whole.\nryan | 11:37\nWe don't provide pricing on this or anything.\nSpeaker 2 | 11:40\nNo, I mean, I kind of floated a range, but we can let's chat today. Like, what you actually think the range could be?\nryan | 11:46\nWhat's the range? You floated.\nSpeaker 2 | 11:48\nTen to twenty, is that fine?\nSpeaker 4 | 11:53\nYeah. I think there are about four flows that I saw between Bboro and Business Central. I think there were about four.\nkailash chanda | 12:02\nOkay, that should be good.\nryan | 12:03\nYeah, okay, we'll go in.\nkailash chanda | 12:09\nYeah, we'll catch up after...\nSpeaker 2 | 12:11\nYes.\nkailash chanda | 12:11\nThe call, and I'll connect you to the team member who did it, so that way...\nSpeaker 2 | 12:12\nOkay.\nkailash chanda | 12:14\nWe can get the direct from the team guy...\nSpeaker 2 | 12:17\nSounds good.\nkailash chanda | 12:18\nOkay? Okay.\nSpeaker 2 | 12:18\nYeah.\nkailash chanda | 12:19\nThank you. We'll...\nSpeaker 2 | 12:20\nOkay.\nkailash chanda | 12:20\nGet a slide... To you... Sam, before the call so that you can just take a sneak...\nSpeaker 2 | 12:24\nYep.\nkailash chanda | 12:24\nPeek, share your comments and...\nSpeaker 2 | 12:25\nAwesome.\nkailash chanda | 12:25\nAnything and then... Okay, thanks.\nSpeaker 2 | 12:27\nPerfect I...\nkailash chanda | 12:27\nThanks, Andrew.\nSpeaker 2 | 12:27\nAppreciate you guys. I'm excited. Thanks, guys. I mean that.\nkailash chanda | 12:30\nThank you.\nSpeaker 2 | 12:30\nContact info. I know the... I'll send you the SW now. Okay, very well. Thanks, guys.\nkailash chanda | 12:35\nThanks."
+  }
+}
