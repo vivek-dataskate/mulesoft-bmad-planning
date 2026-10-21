@@ -1,0 +1,653 @@
+{
+  "id": "01a15fa4429e72c89a7f9f0cb8d4f328",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "01a15ed6a31871f6bf9278bfd33c7aa5",
+      "title": "Salesforce | Synergex Med | IDP Demo",
+      "duration": 2869,
+      "owner": {
+        "id": 9056711,
+        "email": "kailash@dataskate.io"
+      },
+      "calendar_event_id": "5g77vtcnf9cq5b8ccgt26ovut1",
+      "participants": [
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "holson@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "bera@synergexmed.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "abdalrahman.mahmoud@synergexmed.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "hirsh@synergexmed.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "bob.chong@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "lilaura@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "pdufour@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "kklobucher@salesforce.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "shimaa@synergexmed.com"
+        },
+        {
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "catherine.kennedy@salesforce.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "chanda",
+          "id": "e335b54b775554769bc6128951b56a4d",
+          "first_name": "kailash",
+          "email": "kailash@dataskate.ai"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4
+        },
+        {
+          "index": 5
+        },
+        {
+          "index": 6
+        },
+        {
+          "index": 7
+        }
+      ],
+      "start_date": "2026-10-21T17:13:45.996Z",
+      "end_date": "2026-10-21T18:01:34.996Z",
+      "url": "https://app.krisp.ai/m/01a15ed6a31871f6bf9278bfd33c7aa5?active_tab=ai_notes"
+    },
+    "content": [
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "We share. Thank you for that, Shimma, by the way. And yeah, we'll kind of walk you through what IDP can do for the business. And then feel free to come off from mute in case you guys have any questions for us as we kind of go through this slide."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, for sure. Thanks Bob, for going through and summarizing what we heard and providing some context to the conversation. So I'll talk through a little bit more about the technical side of things.\nSo I want to show basically how\nMulesoft IDP, or intelligent document processing, can automate a large part of your patient intake referral process. So ingesting those incoming documents and email bodies, running AI-powered extraction across both text and handwriting, and automatically creating patient referral objects in ODU and Slack channel in Slack, all while still having human-in-the-loop governance if needed. So I want to talk first a little bit about what Mulesoft IDP is. So we approach document processing from an integration-first mindset. It's an entire automated lifecycle.\nSo you have your ingestion where listeners are constantly monitoring your intake channels. So in this case, mostly email extraction, we have out-of-the-box and custom generative models that interpret fields, tables, and messy handwriting.\nThen instead of just having this data somewhere stranded, we are able to transform that output and orchestrate business actions on it. So here is a high-level flow of what I'll be demoing today and what we envision a future workflow could look like for Synergy.\nSo we have an email incoming that has multiple attachments maybe and it has text in the email body and that will trigger automation powered by Mulesoft that will run IDP on this new information to extract the data, and then we will insert that extracted data into a target system.\nSo in this case, for the demo purposes, I'll be showing Salesforce and Slack. But we are easily able to connect to ODU as well, and now it's automatically available there. So at a high level, does this make sense? I want to make sure we're all on the same page before actually going through it hands-on."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "That makes sense."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah. Okay, awesome. So I want to show this end-to-end workflow, completely automated. So I have a couple of emails here on an account that I have Mulesoft sending over to an account that I have Mulesoft listening to the inbox for. I'm actually just going to send it over now, and we can look at what the email body says after it's sent.\nSometimes this can take a couple of seconds, but okay, I'll just send that one over. So in here, I have some information about this patient in the email body, and I have three different attachments.\nSo this is one of the PDFs that you guys had sent over, and then a couple of other just generated documents I created based on the email. Or sorry, that PDF. Then I created a form that I handwrote and took a picture of.\nSo this is not super easy to read necessarily off the bat, but just wanted to have that example as well. Then I'm actually going to go ahead and send the second email as well that contains the other image that you sent and then another similar report on top of that.\nSo I'm going to send that over as well. Then on the left here, I have a live pipeline that is meant to show to walk through what's going on in the process. This is not part of the actual Mulesoft product. This is just something that I created for a visual, just to make things a little bit easier to explain.\nSo I have... We have here the two emails that got sent earlier today, and then let's see. I don't... I'm not sure if this is live right now, unfortunately, but after this email IDP will run in the background, and then it will create a new referral inside of Salesforce again. We can easily replace this to be ODU.\nSo it looks like it hasn't gotten picked up yet, but just for the sake of keeping things moving along, this is a previous email that I had sent through that exact same workflow. Then we can see here all of the information that got automatically extracted.\nSo here is actually the email body that was sent to your listening email, and then some other additional documents that were attached as well, like a letter of protection and a neuropsychology evaluation.\nSo you're able to see side by side directly the original documents and the actual patient information. All of that has gotten automatically extracted into an object in Salesforce. So we can see here the treatment history, etc.\nBeyond that, this creates a Slack channel. So we can see here are a bunch of different intake channels that got created. It sounded like in the conversation at the beginning of this call with Bob that you guys actually crave that Slack channel first.\nSo it's possible to have this data flow be bidirectional. So something in Slack goes into your ODU system. So again, here's all of that same information that we saw extracted from the email.\nThen I just created an onboarding checklist. Obviously, you guys can configure this exactly how you want it to be. Then to talk a little bit about the human in the loop portion, you're able to configure exactly how you want to be notified if the model is not sure about something that they're extracting.\nSo I just configured a separate intake channel where you'll get an alert about this. \"Hey, I'm not sure about how this packet, this referral packet, maybe there's some handwriting that it's not able to parse that confidently. Or in this case, there was not even a patient name involved. In which case, you would then step in and be able to manually look at and formalize what that data is.\nSo that's the end-to-end workflow. Unfortunately, it seems the live demo... That's the case sometimes with these things, but I'm happy to send over a video of the full end-to-end flow with that specific email that we sent over.\nBut having this existing mock data is exactly the same process. So we just talked through this end-to-end workflow, wanted to check in, pause, and check in here. Did this resonate? Did this seem like something that would be valuable for you all?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "So I wanted to know more about Mulesoft. Is it HIPAA compliant? Sorry, I haven't... I think Bob mentioned Mulesoft in the previous meeting, and I'm not familiar with Mulesoft when it comes to the live demo. I don't know. Things like that always happen when you are sharing your screen sometimes. I need to share this.\nBoom. Password recovery or send in the code or TP or something. So yeah, maybe you can provide us more details on your soft, what it is, and what else we can do in that besides filtering the emails and sending them to select."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, definitely. So we can take a step back here. So IDP is one of Mulesoft's features. Mulesoft is a product, a platform all in one that's meant to help with your integration, automation, and AI use cases.\nSo as a whole platform, it's able to integrate your different systems together and transport data between them in the ways that you need it in the direction, timeframe, and things like that.\nThen on the automation portion, IDP is one of these products where... I can go a little bit more in depth on how IDP itself actually works as well, but this is our document extraction product.\nThen it's able to, in tandem with the integration portion, send the data that it extracts into the relevant systems for your use case. And then we have different AI features as well to help with agents and things like that.\nBut we don't have to get super in the weeds of that conversation. So if it's helpful, I would be happy to talk through the details of how IDP works unless you have other questions about the platform and bar."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I just wanted to add on so you know, just to add on to what Laura was speaking on for what is MULE soft, right? So it's really that middleware technology, it's really that integration foundation.\nSo our for our first use case for automating the referral intake, that's just one yes, one piece of the platform that we're able to check off the box for you. But as we you know, as we acknowledge and you know are able to see revenue coming in from being able to process more referrals with this piece.\nIt's the same platform that can help connect practice fusion as well as any other systems that you have in mix. You don't have to rebuild something. You'll have the technology that can really connect all the dots within your ecosystem. Today. As far as the compliance question that I know that you had asked previously as WELLSF, you know, we're not new to essentially the HLS kind of space.\nYou know, we're HIPPO compliant. You know, we definitely meet all the requirements when dealing with PH I there is, you know, masking capabilities as well, in case you're you know, you're running it into something like that.\nBut as we're transferring that data, it's really HIPA compliant and it's you know, we work with some of the largest institutes and hospitals today that are, you know, using MULE saw or very similar workflows and use cases like those."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Is HIPA compliance?"
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Yes, without a doubt."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah. Okay."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "So to give you a bit more info on that. Beril, it is HIPAA compliant, but he being HIPAA compliant as a software means shared responsibility. So because we don't store data at rest, we put in place infrastructure so that you can be compliant.\nThen you, as a data owner, will have to put some processes in place in order to remain compliant and HIPAA-compliant. If that makes sense. We're not similar to Salesforce, so hold you where we would store your data. We'll just be basically processing your data from system A to system B. It makes sense. Do you see the difference?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, but you will be providing VA is right. Again, you will be providing v yes."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "We will be indeed."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Maybe I didn't understand the technical part too much."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "But we want... Yeah, and I can say yes, this is..."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "HIPAA, okay, great question. So on the emails, for example, we use admin@synerxmed.com, we receive many emails from different types of requests. Sometimes there are some requests that don't even make sense, but how do we filter the emails that are for new referrals? Or is there any way that we can send a specific email, for example, when we know that it is a new referral? Or maybe Mulesoft can identify when the email that is incoming is a new referral. Or will that be processing all the emails and sending all the emails to that...? When I said the Slack, we don't create a channel for every new patient.\nBecause if we do that, well, we will be creating more than 1600 every month Slack channels. But we send those emails to specific channels. For example, we have neuro referrals, so we know that when there is a new neurology referral, we will be sending the patient demographics to that channel.\nSo someone that is assigned to that queue, we call it that queue. Then we'll be processing that information and then just leave a checkmark in the Slack message when they complete the auto and practice vision profile.\nI know practice vision is not an open API, but perhaps the way that I'm imagining this workflow is okay. Is Mulesoft able to identify which new email will be a new referral and then identify... Besides identifying collected information and creating the new lead in auto and creating the patient's folder and saving the medical records of this patient to whatever medical records were sent via email that can be stored in, let's say, Google Drive.\nSo that way we can make it easier for... And then they can just create manually the patient's profile in practice fusion unless you have a special contract with practice fusion and you can automate this part of the practice fusion.\nIf you do, I'm pretty sure that we will be very interested in..."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "Yeah, I can respond to part of your question. Well, first of all, no, we don't have a special contract with practice fusion. Unfortunately, as far as I understand, they don't have any open APIs, so without any API, I won't be able to write into the system. I was wondering maybe Kailash, I should know this.\nBut I was wondering whether maybe we can do some batch import into the system. I don't know if practice vision allows this. So in that sense, we could be writing into the software in what we call microbatches.\nSo it won't be real-time API, but it would be, let's say, every two minutes, every five minutes, etc. I just don't know if that's possible with the way their software is configured. That's for the second part of the question.\nThen in terms of being able to identify new referrals, yes, absolutely. If you want yourself to define new referrals and then create specific records you do or not, like a channel, etc., all of that can be configured within our transformation and aggregation layer.\nIt's no problem. Customers just do it all the time. I have customers who even want us to treat specific referrals. Then, if the referral doesn't meet certain criteria, stuff there like \"Don't import the data into AD for instance or don't import the data into cells first because they don't want to have dirty data in their system.\" They just want us to stop there and then maybe trigger a new email to the referral being like \"We're missing this C and this before we can process your application if that makes sense.\"\nSo, short answer is yes. All of that can be automated."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah..."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "No."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think one quick addition to what... Has mentioned if the system does not have open APIs that have been put out most of the time, it depends upon the licensing that the client acquires. They do provide APIs separately for the registered customers based upon their licensing contract with the system.\nSo maybe if the Practice Fusion license that is procured by Synergy supports those APIs, then you will be having access particularly to those licensing members. Then we could use that to do it. Otherwise, sometimes they even provide other modes of connectivity which we could explore and then connect the data to it.\nIf there is not direct API, some systems providers, and FTP file transfer where we can batch all of them and send it in a file from where...? From a location which the software can pick it up or even sometimes they even provide access to the database which we can connect and then write data into it. Depending upon the systems, we can find an approach to get the connectivity established and have the data sale out."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay, sounds good. Yeah, we can provide you with the information you need to know if our Practice Fusion account applies or not."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "One quick thing I would say is if Practice Fusion, with your access to the ARC access, supports any connectivity or API and is Practice Fusion basically can provide any other mode of access with the database so that way we can confirm whether we can write data into the system."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay, so basic words."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "De sorry, I missed it, sir."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Can you explain it to me in basic words? What does..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Basic words."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "It mean?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Okay, sure. So Practice Fusion is basically software that runs on a SaaS platform like Salesforce. You log in through a browser, and even I assume Practice Fusion is similar. You log in from a browser, correct?\nSo Practice Fusion is that they provide open APIs that we can use. Our Practice Fusion provides APIs for their licensed customers only depending upon the level of license do you have them..."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I dodorman?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Right?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Can you explain to him what we have on the API?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, we only request... We made a request to have an application or practice region that is only integrated into our account. This application provides an API of credentials that allows us to read only from their API to get some data out of our account\nbut writing is not possible. Some integrations and practices... Fusion do have the right permissions, but they're very limited, and they have a partnership with Practice Fusion, I think, or a special contract."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "So with special contracts, they can give access to the right data into it, is what I see is correct."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, you have to be a partner with Practice Fusion. Then you can publish an application on their marketplace for anyone to install. Once the application has the permissions on the user's account, it can write into their database."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Got it. Okay, so because I mean, as part of the scope, we initially look through the profile creation into ODU and then integrating into Slack. Sorry, I couldn't get to work on the whole of this Practice Fusion part of it, but good that I'm able to know more about this.\nI will do more research to see how we can get data into that system."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Makes sense. So I don't have further questions. Aman, do you have any questions?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah. I'm wondering how easy it is to connect the systems. Do you guys set it up? Or do we get access to an account and we can integrate it directly ourselves?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yeah, it... You could do it two ways. Real-time soft is kind of... And pluck and play easy to code. I won't say you have to write the whole ChatGPT code part of it into integrating it as a partner for Salesforce. We will establish the integration, connect the systems, and have that tested, verified, and made live so that you guys can maintain. Once the whole solution is live, you can maintain it and then look through and understand how it is being worked.\nThen any additions or enhancements to be done can be done at the latest point of stage as well. So yes, it is easy to connect. As you mentioned, if we're talking about a system for... We can get the credentials, let's say API keys, to create and client secret and client ID, and then we should be able to access to create a profile in Azure or create a product inside Azure or do...\nIt's pretty straightforward. It won't take much of a coding effort into doing all of this."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I saw on the landing page for Mulesoft. It's like you guys have your own marketplace, and we can just install whatever integrations we need, right? Without your help..."
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "Yes, if the integration already exists, then it will give you a reusable framework that already is inside the exchange. So the library is called Exchange inside Mulesoft. You can download it if somebody already has published or made it available as part of it, and then you can use that as a framework to build it. It will give you at a high level because every organization has their own business logic, filtering logic, or how to handle the data in a different way. Even though the framework gives you around 20 to 30% and you guys can have to build upon that framework from the reusable marketplace that is part of it."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, makes sense. Thank you. I have no further questions."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, I wanted to know, well, maybe it's too early to ask, but what about the cost? Is this a subscription or how does it work?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. So you know, one of the. And that's definitely a conversation to have with the team with you. One thing that we were really missing to actually put a number to at least the automation piece for the referral intake was essentially, I guess, that average of documents per patient.\nIt's just hard to kind of gage. And I know you had shared a better number for the clarification that at least one page per referral, but again, having instances of sometimes 400 pages or 800 pages. So I don't know if there's any kind of further input from maybe Abdal or Shimma on maybe a better average like, you know, out of a hundred referrals. Again, maybe working with 15 pages or ten pages and then you know and then that would give us a better idea on how much usage you would actually need a part of MULE SAF and then we could definitely put a better number for what the volumes are coming in for Synergy SMED any input from the."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Unfortunately, we don't have an estimate. Not sure we can get it, though. It's kind of hard to collect all the data and give an accurate estimate because it's scattered everywhere."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. And just to add on, as far as like just pricing alone, we do have essentially a consumption model where essentially the team has credits. The package that we were initially looking at is roughly 4 million credits.\nAnd let me just actually. And per page, essentially, that would be 30 credits per page. And so again, I don't have my phone on me. But again, the better average that we can have, we can better size you appropriately. I did want to ask the team just because as this came up a little bit more for today's conversation. Now my idea was really to have a little bit more of a phased approach on where Mulesoft helps. SERJECTSMED really, landing with the automation and referral intake.\nAgain, Mulesoft can, of course, with further research or a potential purchase of open API access with Practice Fusion. We could check that box, right? That same technology can do both use cases as well as future use cases as you look to connect further systems for the business.\nBut I wanted to get what we have all three of you, I guess your take on how important it is to integrate Practice Fusion today. Or is potentially solving the issue for PA referral intake and automating that piece from minutes or hours to minutes for you guys as a phased approach. Something that potentially we can work on or origin on as we further understand the capabilities and access for Practice Fusion because that's a big question mark, right? From my understanding of today's conversation and our first conversation from last week."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, well, I think... Bob, that having this integration with Practice Fusion is actually the most important one."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, I hear you."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "If you get that, we will do many projects that we have that we haven't performed, completed, or had started because we don't have that API, to be honest. We already have the solution for Aman. He already developed something like La Rusher for us. We have developers Impact met.\nSo we're okay with that. We're interested in Mulesoft."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "But if you get the API of Practice Fusion, we can do more than just the referrals thing. I mean, I'm interested on the referrals thing. Yeah. Can you explain them how you did it? Give them a brief?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yes, it's basically the same thing that you guys did. It sets between the system and the Gmail. It listens for any new emails, categorizes them, and sends the attachments to Anthropic. It purges the document and outputs in a next-format and then sends it to the target system."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "So we do that for the first impact TED. That's one of our projects, okay? It's one of... Let's say on a company child actually because they sent us one of the sales first members to use this Slack for first impact. The thing is that we may be interested in doing this with senior checks. We haven't done this with senior X men because, as Alderman mentioned, majority of the stuff here in Synergy is scattered.\nIt's not the same thing that starting from scratch. Starting from scratch as we did with first impact is really... I mean, it's not easy. I appreciate the amount of work, but it's not the same thing as taking 1600 referrals with a lot of documents and stuff. This required more expert expertise and help.\nHowever, I'm trying to see if we can use Mulesoft for something with a better and bigger impact. Of course, filtering referrals via email because I don't know how much... You haven't told me the cost. Maybe you can send me a quote."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Yeah. I mean, so I can drive here. The list price is usually $24k, and like Bob said before, it's usually based on consumption. So that's why we're asking those questions because either it goes up from the $24k or it goes down based on how many documents are being processed, etc.\nBut it sounds like from your perspective, the number one priority at the moment is that integration. I CRA."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Not a priority. I think we can do many projects if you get the API for practice vision. I think we can do many things. But I'm thinking on the meal of payment $24,000 monthly."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "No, sorry."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "That is an annual that's an annual cost."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I'll say so that means $2,000 monthly."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Is that can that be a monthly base or does that...? Do I have to have an annual contract?"
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Sorry. Do you mean do you pay it monthly?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, without an obligation of a contract of one year."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "We could figure that out. I mean, I guess from a cash flow perspective, but you'd rather those payments come quarterly."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, I'd like to pay monthly. Monthly? Yeah."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Okay, let me go back to my internal team and see what we can do there."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I guess. Yeah, but besides that, I would like to know what else we can do if we take meals of subscription. What other capabilities? I wanted to know maybe this can be a good tool for developers. What do you think of money?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, not sure. What kind of integrations do you guys have or if any exist for developers?"
+      },
+      {
+        "speaker": "kailash chanda",
+        "speakerIndex": 1,
+        "text": "I think with Microsoft we can integrate any system that provides API access or REST API web services or database connectivity. Any standard protocol that allows us to exchange data with depending on the systems that are part of the data business with Synergy and we can identify which system supports which connectivity and they can be integrated with real software.\nSo. Yeah. That's my take on it. Sorry, Hanna. I think you weren't going to answer this."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "No, I was just going to ask Pauline and Laura. I don't know if you have access to any point. If you could show just what the platform looks like and maybe we could just show some of the features."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "Yeah, I don't know if you have that ready, but yeah, we can probably do that for the meaning of the hour, but... Virgn and the rest of the team... I think we can schedule a 30-minute separate session just to show you exactly all the features that NOSA provides.\nIt is meant designed for Developers. It is designed for Integration. I think coming into this meeting, we had the understanding that you were looking for something to pre-age and automate all of the documentation.\nBut if you already have a solution in play that you custom-built, we can focus on the integration portion of yourself for sure, which is our bread and butter."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "We don't have the solution for Synergic yet. Aman made it for the first impact. Yeah, what we're saying is that it's not the same thing for Synergy. The company growth and everything was manual.\nSo now we're having a hard time figuring out a way to find a solution without causing any type of disruption or interruption in our current operations day to day because we already have many people calling and emailing.\nSo it's... I think we may require some extra help. That's why I was interested in Bob's proposal to see what we can design around what is already built."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Is there a long more time for that beer?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "So you... I missed that last piece."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, to see what we can design around what is already in place."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. And just adding on to what Mulesoft can do before Laura shows a little bit there. I mean, it's not that we can just do that automation piece, but it's really again, a foundation to really connect all those pieces together as you start having systems. This is... I don't want to confuse you or anything like that, but as the team grows and as a business accrues more revenue based on how we're able to automate and be a little bit more productive,\nwe can help out with AI initiatives being able to govern whether you're trying to do more with less. This is more of a biased opinion, of course, but definitely the right solution to do that, especially if there are a lot of things that are part of your roadmap and big goals for 2027 without, I guess, identifying how to do this. I believe that this is a glue to make it happen with... We're not going to just check off one box for you. We're going to be able again, as we kind of figure out the AP accident practice fusion.\nBut that's our only requirement, right? If you have anything else that needs to be connected to ODU or... Let's just say... Vera, I know you shared this. While I have costs in the room that maybe later down the road you want a better CRM and you wanted to maybe transition to Salesforce as a CRM. There's already that bridge that's already reusable, right?\nIt's that plug-and-play architecture that Kailash shared. So for any pivots, any transitions, any changes for the business, it's very seamless to do that without any heavy lifting from your end.\nAgain, as mentioned, the connections are already built there. So especially with what you're sharing, Mulesoft is going to be able to check off not just this one box, but multiple boxes later down the road. For. For CNJX."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yes. I like this approach. I think that nowadays, with AI and stuff, we are realizing that people already have their own systems, right? They already have their EHRs, they already have their people, their personnel, blah. They will not change their system just because we are offering something, right?\nSo I like the approach that you have that you're proposing based on what you're saying about the company's issues, and you're starting from there. So yeah, definitely we are considering this tool and the automation part as well."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah. Again, that was my game plan, right? To first solve the automation piece because my thoughts and again, feel free to share your input is that, of course, as you're able to process more referrals or patients, you would generate more revenue to further expand and do more projects, right?\nThat's my thought. Understanding your business and again, being able to check off not just the one but further projects later down the road for you. Mulesoft is that piece.\nYou know, to do that."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I appreciate it."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, and I know we only have less than ten minutes left on the clock here, so I want to make the most of everybody's time. If anything, now I know you're really leaned into what we can do with automation.\nAgain, we could do the integration for practice fusion if there is the capability for an open API there. I'm curious to know what else you would like to see from our side of the house to... If you have any kind of..."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "So I'm seeing the subscription. It's going to be $24k a month, approx. Because that may be different depending on how many credits we use for AI, right? How much will that...? I'm assuming that the automation is a separate cost.\nOkay, let's take this automation that LLaMA is presenting from you. That it is tracked the new referrals and sent them to Slack and to... How much would that be? Is that a separate price or...?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "No, that's a part of it. That's a part of $24,000, or the $24,000 that Hanna had shared. Now again, that gives you access to 4 million credits. And again, we work off that credit usage system. Right?\nSo going back to the same question, being able to identify consistent or average volume gives us a better idea of if those four million credits can do the job for you. In case, let's just say you sign on, you do the $24,000 with us, you get the 4 million credits, and if there's ever... Maybe you're at your limit, you'll just get an email from us.\nBut that's why sizing you correctly from the front is always pretty important and being able to scope this out appropriately."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "So sorry, just to clarify, if we do go with both automation as well as... In any point, it will be more expensive than $24,000, and I just want to make that clear. It would be probably expanding from anywhere from $28 to $48,000 again, depending on when we scope this out a little bit more. That being said, I didn't confirm... Sorry."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "The workflow automation is going to be from $28 to $48. Sorry, I'm lost. So the $24 plus the automation of the workflow that you guys presented, is that what you mean? I'm sorry, I didn't understand it."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "No. You're good. So we have what we said IDP so like our automation skew essentially our product and then we have any point which is our product that would be doing essentially the integration.\nSo I just want to clarify that it might be more expensive than $24,000 if that is something that you want to pursue in this phase. And I think... Pauline, did you have something you wanted to add?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay. Sorry."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "No, I think. No, I think instead of maybe sharing numbers, what we can do is we can work on the sizing and then, you know, show you exactly the capacity based on the use cases. And we'll expend this into this use case.\nIt's into the bigger use case, et cetera, so it's going to be maybe a bit more clear."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Yes, exactly. Just to clarify, we can't do monthly payments. I just confirmed. So just wanted to put that up there because I know that was a question there for you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Then there's one thing to keep in mind. So that's going to be as far as just looking at the automation and referral intake use case. That's 24K for our cost, but there's an implementation cost, which Kailash will help us understand and scope out the project and set you guys up, ensuring that it can go smoothly as well. Not to throw out any surprises, but just something to anticipate as part of our pricing."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay, I have two more questions. So, number one, can the IDP work in use of the workflow that Laura has shared? Can this system or workflow organize or trigger how to assign V as...? Let me give you an example. The schedulers for new patients, and that will make sense for my second question, the schedulers on the new patients, new referrals. Let's say we have five schedulers, right? These five schedulers, we need to sign them so they can call the patients and schedule the appointments.\nRight? So can this system assign the patients like, \"Okay, I have already assigned to ABCDE.\" Then because I know that I am assigning to D number five, I will go back to A, but I'm assigning in an equal way to the five of them in order. Can that be possible to assign the referrals equally?"
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "Yeah, no, absolutely, but that's going to be done in... We're going to push that information into Audu, right? This is where you need the data."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, but the LIS the leads are assigned to a user, yes, so. Yeah, okay."
+      },
+      {
+        "speaker": "Speaker 7",
+        "speakerIndex": 7,
+        "text": "That's... We can check user capacity basically, and then if you have a limit to assign it equally, yes, we can do that, no problem."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay, so number two, in order to see... Well, I need a quote with the exact numbers, because what I understood from Hanna..."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "We can go over that in the next call. The way we explained it was a bit complicated, but we'll go through it all step by step in the next call and we have an entire..."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, so before it over and you... I mean, I need to see the... I need to be able to justify the value of the 24K plus the rest of the development cost. So, that's the way we actually work with the executive team.\nI will not be interested in joining a meeting unless I give him a real value and tell him, \"Hey, you will save this amount of money if you do this.\" So my question is, if we are now scheduling referrals between three to four hours of delay, is there any possibility that if you apply this workflow through Mulesoft and you reduce that time to maybe one hour, is there any way that you can help me to see how much we are going to save per client, per referral, or in total, an average? We usually have a... We build per client $1,200.\nSo I think on average per day, we receive around approximately 50 new referrals per day between 50 to 60. So, is there any way that by calculating how much time they will be reducing by using this workflow, we can know...?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I can recall that. And I'll with the number shared today... That gives me more information to build that case for you as well for the next call. Now I know we're right up on time. I'd love to continue this conversation while it's top of mind for everybody."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yeah, I too."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "So yeah."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "I wanted to actually say I know everyone works on the West Coast. I'm at least for your team. Was there any way to actually meet you this Friday? I could have a better time. We could hold the same time if that works for everybody at 10 am PST."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Yeah, I'm free."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay? Okay. And I had an ass, you know, as I work on this business value case for you. With the number shared, I wanted to see if I think URS would be available for this one. I'll be ready to go to kind of present. No."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Until we give a value, he's not going to be interested, but..."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay, and just to clarify, you'd probably be our signer, right? Our decision maker for signing off on yes."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Right, same as Slack and the rest, yes."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Okay. I mean, I'll have numbers ready. Talking about the value come Friday. If you want to share that with him. If you wanted to, you know, just share the message and see if he's available for thirty minutes or that would be my ass from the team. Just because, you know, I'll be able to sort of sharing the message.\nAnd I could have that conversation with them as well."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Thank you so much, guys. Have a great day. Okay."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Thanks very much. Thanks, everybody. Bye."
+      }
+    ],
+    "raw_meeting": "**Salesforce | Synergex Med | IDP Demo**\n🕞 Started at 05:13 PM on 21 Oct, lasted 47m",
+    "raw_content": "Speaker 2 | 00:00\nWe share. Thank you for that, Shimma, by the way. And yeah, we'll kind of walk you through what IDP can do for the business. And then feel free to come off from mute in case you guys have any questions for us as we kind of go through this slide.\nSpeaker 3 | 00:14\nYeah, for sure. Thanks Bob, for going through and summarizing what we heard and providing some context to the conversation. So I'll talk through a little bit more about the technical side of things.\nSo I want to show basically how\nMulesoft IDP, or intelligent document processing, can automate a large part of your patient intake referral process. So ingesting those incoming documents and email bodies, running AI-powered extraction across both text and handwriting, and automatically creating patient referral objects in ODU and Slack channel in Slack, all while still having human-in-the-loop governance if needed. So I want to talk first a little bit about what Mulesoft IDP is. So we approach document processing from an integration-first mindset. It's an entire automated lifecycle.\nSo you have your ingestion where listeners are constantly monitoring your intake channels. So in this case, mostly email extraction, we have out-of-the-box and custom generative models that interpret fields, tables, and messy handwriting.\nThen instead of just having this data somewhere stranded, we are able to transform that output and orchestrate business actions on it. So here is a high-level flow of what I'll be demoing today and what we envision a future workflow could look like for Synergy.\nSo we have an email incoming that has multiple attachments maybe and it has text in the email body and that will trigger automation powered by Mulesoft that will run IDP on this new information to extract the data, and then we will insert that extracted data into a target system.\nSo in this case, for the demo purposes, I'll be showing Salesforce and Slack. But we are easily able to connect to ODU as well, and now it's automatically available there. So at a high level, does this make sense? I want to make sure we're all on the same page before actually going through it hands-on.\nSpeaker 4 | 02:27\nThat makes sense.\nSpeaker 3 | 02:29\nYeah. Okay, awesome. So I want to show this end-to-end workflow, completely automated. So I have a couple of emails here on an account that I have Mulesoft sending over to an account that I have Mulesoft listening to the inbox for. I'm actually just going to send it over now, and we can look at what the email body says after it's sent.\nSometimes this can take a couple of seconds, but okay, I'll just send that one over. So in here, I have some information about this patient in the email body, and I have three different attachments.\nSo this is one of the PDFs that you guys had sent over, and then a couple of other just generated documents I created based on the email. Or sorry, that PDF. Then I created a form that I handwrote and took a picture of.\nSo this is not super easy to read necessarily off the bat, but just wanted to have that example as well. Then I'm actually going to go ahead and send the second email as well that contains the other image that you sent and then another similar report on top of that.\nSo I'm going to send that over as well. Then on the left here, I have a live pipeline that is meant to show to walk through what's going on in the process. This is not part of the actual Mulesoft product. This is just something that I created for a visual, just to make things a little bit easier to explain.\nSo I have... We have here the two emails that got sent earlier today, and then let's see. I don't... I'm not sure if this is live right now, unfortunately, but after this email IDP will run in the background, and then it will create a new referral inside of Salesforce again. We can easily replace this to be ODU.\nSo it looks like it hasn't gotten picked up yet, but just for the sake of keeping things moving along, this is a previous email that I had sent through that exact same workflow. Then we can see here all of the information that got automatically extracted.\nSo here is actually the email body that was sent to your listening email, and then some other additional documents that were attached as well, like a letter of protection and a neuropsychology evaluation.\nSo you're able to see side by side directly the original documents and the actual patient information. All of that has gotten automatically extracted into an object in Salesforce. So we can see here the treatment history, etc.\nBeyond that, this creates a Slack channel. So we can see here are a bunch of different intake channels that got created. It sounded like in the conversation at the beginning of this call with Bob that you guys actually crave that Slack channel first.\nSo it's possible to have this data flow be bidirectional. So something in Slack goes into your ODU system. So again, here's all of that same information that we saw extracted from the email.\nThen I just created an onboarding checklist. Obviously, you guys can configure this exactly how you want it to be. Then to talk a little bit about the human in the loop portion, you're able to configure exactly how you want to be notified if the model is not sure about something that they're extracting.\nSo I just configured a separate intake channel where you'll get an alert about this. \"Hey, I'm not sure about how this packet, this referral packet, maybe there's some handwriting that it's not able to parse that confidently. Or in this case, there was not even a patient name involved. In which case, you would then step in and be able to manually look at and formalize what that data is.\nSo that's the end-to-end workflow. Unfortunately, it seems the live demo... That's the case sometimes with these things, but I'm happy to send over a video of the full end-to-end flow with that specific email that we sent over.\nBut having this existing mock data is exactly the same process. So we just talked through this end-to-end workflow, wanted to check in, pause, and check in here. Did this resonate? Did this seem like something that would be valuable for you all?\nSpeaker 5 | 07:24\nSo I wanted to know more about Mulesoft. Is it HIPAA compliant? Sorry, I haven't... I think Bob mentioned Mulesoft in the previous meeting, and I'm not familiar with Mulesoft when it comes to the live demo. I don't know. Things like that always happen when you are sharing your screen sometimes. I need to share this.\nBoom. Password recovery or send in the code or TP or something. So yeah, maybe you can provide us more details on your soft, what it is, and what else we can do in that besides filtering the emails and sending them to select.\nSpeaker 3 | 08:15\nYeah, definitely. So we can take a step back here. So IDP is one of Mulesoft's features. Mulesoft is a product, a platform all in one that's meant to help with your integration, automation, and AI use cases.\nSo as a whole platform, it's able to integrate your different systems together and transport data between them in the ways that you need it in the direction, timeframe, and things like that.\nThen on the automation portion, IDP is one of these products where... I can go a little bit more in depth on how IDP itself actually works as well, but this is our document extraction product.\nThen it's able to, in tandem with the integration portion, send the data that it extracts into the relevant systems for your use case. And then we have different AI features as well to help with agents and things like that.\nBut we don't have to get super in the weeds of that conversation. So if it's helpful, I would be happy to talk through the details of how IDP works unless you have other questions about the platform and bar.\nSpeaker 2 | 09:33\nI just wanted to add on so you know, just to add on to what Laura was speaking on for what is MULE soft, right? So it's really that middleware technology, it's really that integration foundation.\nSo our for our first use case for automating the referral intake, that's just one yes, one piece of the platform that we're able to check off the box for you. But as we you know, as we acknowledge and you know are able to see revenue coming in from being able to process more referrals with this piece.\nIt's the same platform that can help connect practice fusion as well as any other systems that you have in mix. You don't have to rebuild something. You'll have the technology that can really connect all the dots within your ecosystem. Today. As far as the compliance question that I know that you had asked previously as WELLSF, you know, we're not new to essentially the HLS kind of space.\nYou know, we're HIPPO compliant. You know, we definitely meet all the requirements when dealing with PH I there is, you know, masking capabilities as well, in case you're you know, you're running it into something like that.\nBut as we're transferring that data, it's really HIPA compliant and it's you know, we work with some of the largest institutes and hospitals today that are, you know, using MULE saw or very similar workflows and use cases like those.\nSpeaker 5 | 10:58\nIs HIPA compliance?\nSpeaker 6 | 11:01\nYes, without a doubt.\nSpeaker 5 | 11:03\nYeah. Okay.\nSpeaker 7 | 11:06\nSo to give you a bit more info on that. Beril, it is HIPAA compliant, but he being HIPAA compliant as a software means shared responsibility. So because we don't store data at rest, we put in place infrastructure so that you can be compliant.\nThen you, as a data owner, will have to put some processes in place in order to remain compliant and HIPAA-compliant. If that makes sense. We're not similar to Salesforce, so hold you where we would store your data. We'll just be basically processing your data from system A to system B. It makes sense. Do you see the difference?\nSpeaker 5 | 11:41\nYeah, but you will be providing VA is right. Again, you will be providing v yes.\nSpeaker 7 | 11:48\nWe will be indeed.\nSpeaker 5 | 11:50\nMaybe I didn't understand the technical part too much.\nSpeaker 7 | 11:53\nBut we want... Yeah, and I can say yes, this is...\nSpeaker 5 | 11:57\nHIPAA, okay, great question. So on the emails, for example, we use admin@synerxmed.com, we receive many emails from different types of requests. Sometimes there are some requests that don't even make sense, but how do we filter the emails that are for new referrals? Or is there any way that we can send a specific email, for example, when we know that it is a new referral? Or maybe Mulesoft can identify when the email that is incoming is a new referral. Or will that be processing all the emails and sending all the emails to that...? When I said the Slack, we don't create a channel for every new patient.\nBecause if we do that, well, we will be creating more than 1600 every month Slack channels. But we send those emails to specific channels. For example, we have neuro referrals, so we know that when there is a new neurology referral, we will be sending the patient demographics to that channel.\nSo someone that is assigned to that queue, we call it that queue. Then we'll be processing that information and then just leave a checkmark in the Slack message when they complete the auto and practice vision profile.\nI know practice vision is not an open API, but perhaps the way that I'm imagining this workflow is okay. Is Mulesoft able to identify which new email will be a new referral and then identify... Besides identifying collected information and creating the new lead in auto and creating the patient's folder and saving the medical records of this patient to whatever medical records were sent via email that can be stored in, let's say, Google Drive.\nSo that way we can make it easier for... And then they can just create manually the patient's profile in practice fusion unless you have a special contract with practice fusion and you can automate this part of the practice fusion.\nIf you do, I'm pretty sure that we will be very interested in...\nSpeaker 7 | 14:45\nYeah, I can respond to part of your question. Well, first of all, no, we don't have a special contract with practice fusion. Unfortunately, as far as I understand, they don't have any open APIs, so without any API, I won't be able to write into the system. I was wondering maybe Kailash, I should know this.\nBut I was wondering whether maybe we can do some batch import into the system. I don't know if practice vision allows this. So in that sense, we could be writing into the software in what we call microbatches.\nSo it won't be real-time API, but it would be, let's say, every two minutes, every five minutes, etc. I just don't know if that's possible with the way their software is configured. That's for the second part of the question.\nThen in terms of being able to identify new referrals, yes, absolutely. If you want yourself to define new referrals and then create specific records you do or not, like a channel, etc., all of that can be configured within our transformation and aggregation layer.\nIt's no problem. Customers just do it all the time. I have customers who even want us to treat specific referrals. Then, if the referral doesn't meet certain criteria, stuff there like \"Don't import the data into AD for instance or don't import the data into cells first because they don't want to have dirty data in their system.\" They just want us to stop there and then maybe trigger a new email to the referral being like \"We're missing this C and this before we can process your application if that makes sense.\"\nSo, short answer is yes. All of that can be automated.\nkailash chanda | 16:22\nYeah...\nSpeaker 7 | 16:23\nNo.\nkailash chanda | 16:23\nI think one quick addition to what... Has mentioned if the system does not have open APIs that have been put out most of the time, it depends upon the licensing that the client acquires. They do provide APIs separately for the registered customers based upon their licensing contract with the system.\nSo maybe if the Practice Fusion license that is procured by Synergy supports those APIs, then you will be having access particularly to those licensing members. Then we could use that to do it. Otherwise, sometimes they even provide other modes of connectivity which we could explore and then connect the data to it.\nIf there is not direct API, some systems providers, and FTP file transfer where we can batch all of them and send it in a file from where...? From a location which the software can pick it up or even sometimes they even provide access to the database which we can connect and then write data into it. Depending upon the systems, we can find an approach to get the connectivity established and have the data sale out.\nSpeaker 5 | 17:38\nOkay, sounds good. Yeah, we can provide you with the information you need to know if our Practice Fusion account applies or not.\nkailash chanda | 17:54\nOne quick thing I would say is if Practice Fusion, with your access to the ARC access, supports any connectivity or API and is Practice Fusion basically can provide any other mode of access with the database so that way we can confirm whether we can write data into the system.\nSpeaker 5 | 18:21\nOkay, so basic words.\nkailash chanda | 18:31\nDe sorry, I missed it, sir.\nSpeaker 5 | 18:35\nCan you explain it to me in basic words? What does...\nkailash chanda | 18:37\nBasic words.\nSpeaker 5 | 18:37\nIt mean?\nkailash chanda | 18:38\nOkay, sure. So Practice Fusion is basically software that runs on a SaaS platform like Salesforce. You log in through a browser, and even I assume Practice Fusion is similar. You log in from a browser, correct?\nSo Practice Fusion is that they provide open APIs that we can use. Our Practice Fusion provides APIs for their licensed customers only depending upon the level of license do you have them...\nSpeaker 5 | 19:06\nI dodorman?\nkailash chanda | 19:08\nRight?\nSpeaker 5 | 19:11\nCan you explain to him what we have on the API?\nSpeaker 4 | 19:16\nYeah, we only request... We made a request to have an application or practice region that is only integrated into our account. This application provides an API of credentials that allows us to read only from their API to get some data out of our account\nbut writing is not possible. Some integrations and practices... Fusion do have the right permissions, but they're very limited, and they have a partnership with Practice Fusion, I think, or a special contract.\nkailash chanda | 19:58\nSo with special contracts, they can give access to the right data into it, is what I see is correct.\nSpeaker 4 | 20:05\nYeah, you have to be a partner with Practice Fusion. Then you can publish an application on their marketplace for anyone to install. Once the application has the permissions on the user's account, it can write into their database.\nkailash chanda | 20:21\nGot it. Okay, so because I mean, as part of the scope, we initially look through the profile creation into ODU and then integrating into Slack. Sorry, I couldn't get to work on the whole of this Practice Fusion part of it, but good that I'm able to know more about this.\nI will do more research to see how we can get data into that system.\nSpeaker 5 | 20:47\nMakes sense. So I don't have further questions. Aman, do you have any questions?\nSpeaker 4 | 20:56\nYeah. I'm wondering how easy it is to connect the systems. Do you guys set it up? Or do we get access to an account and we can integrate it directly ourselves?\nkailash chanda | 21:10\nYeah, it... You could do it two ways. Real-time soft is kind of... And pluck and play easy to code. I won't say you have to write the whole ChatGPT code part of it into integrating it as a partner for Salesforce. We will establish the integration, connect the systems, and have that tested, verified, and made live so that you guys can maintain. Once the whole solution is live, you can maintain it and then look through and understand how it is being worked.\nThen any additions or enhancements to be done can be done at the latest point of stage as well. So yes, it is easy to connect. As you mentioned, if we're talking about a system for... We can get the credentials, let's say API keys, to create and client secret and client ID, and then we should be able to access to create a profile in Azure or create a product inside Azure or do...\nIt's pretty straightforward. It won't take much of a coding effort into doing all of this.\nSpeaker 4 | 22:22\nI saw on the landing page for Mulesoft. It's like you guys have your own marketplace, and we can just install whatever integrations we need, right? Without your help...\nkailash chanda | 22:37\nYes, if the integration already exists, then it will give you a reusable framework that already is inside the exchange. So the library is called Exchange inside Mulesoft. You can download it if somebody already has published or made it available as part of it, and then you can use that as a framework to build it. It will give you at a high level because every organization has their own business logic, filtering logic, or how to handle the data in a different way. Even though the framework gives you around 20 to 30% and you guys can have to build upon that framework from the reusable marketplace that is part of it.\nSpeaker 4 | 23:22\nOkay, makes sense. Thank you. I have no further questions.\nSpeaker 5 | 23:28\nYeah, I wanted to know, well, maybe it's too early to ask, but what about the cost? Is this a subscription or how does it work?\nSpeaker 2 | 23:41\nYeah. So you know, one of the. And that's definitely a conversation to have with the team with you. One thing that we were really missing to actually put a number to at least the automation piece for the referral intake was essentially, I guess, that average of documents per patient.\nIt's just hard to kind of gage. And I know you had shared a better number for the clarification that at least one page per referral, but again, having instances of sometimes 400 pages or 800 pages. So I don't know if there's any kind of further input from maybe Abdal or Shimma on maybe a better average like, you know, out of a hundred referrals. Again, maybe working with 15 pages or ten pages and then you know and then that would give us a better idea on how much usage you would actually need a part of MULE SAF and then we could definitely put a better number for what the volumes are coming in for Synergy SMED any input from the.\nSpeaker 4 | 24:45\nUnfortunately, we don't have an estimate. Not sure we can get it, though. It's kind of hard to collect all the data and give an accurate estimate because it's scattered everywhere.\nSpeaker 2 | 25:02\nYeah. And just to add on, as far as like just pricing alone, we do have essentially a consumption model where essentially the team has credits. The package that we were initially looking at is roughly 4 million credits.\nAnd let me just actually. And per page, essentially, that would be 30 credits per page. And so again, I don't have my phone on me. But again, the better average that we can have, we can better size you appropriately. I did want to ask the team just because as this came up a little bit more for today's conversation. Now my idea was really to have a little bit more of a phased approach on where Mulesoft helps. SERJECTSMED really, landing with the automation and referral intake.\nAgain, Mulesoft can, of course, with further research or a potential purchase of open API access with Practice Fusion. We could check that box, right? That same technology can do both use cases as well as future use cases as you look to connect further systems for the business.\nBut I wanted to get what we have all three of you, I guess your take on how important it is to integrate Practice Fusion today. Or is potentially solving the issue for PA referral intake and automating that piece from minutes or hours to minutes for you guys as a phased approach. Something that potentially we can work on or origin on as we further understand the capabilities and access for Practice Fusion because that's a big question mark, right? From my understanding of today's conversation and our first conversation from last week.\nSpeaker 5 | 27:05\nYeah, well, I think... Bob, that having this integration with Practice Fusion is actually the most important one.\nSpeaker 2 | 27:17\nOkay, I hear you.\nSpeaker 5 | 27:19\nIf you get that, we will do many projects that we have that we haven't performed, completed, or had started because we don't have that API, to be honest. We already have the solution for Aman. He already developed something like La Rusher for us. We have developers Impact met.\nSo we're okay with that. We're interested in Mulesoft.\nSpeaker 2 | 27:50\nOkay.\nSpeaker 5 | 27:52\nBut if you get the API of Practice Fusion, we can do more than just the referrals thing. I mean, I'm interested on the referrals thing. Yeah. Can you explain them how you did it? Give them a brief?\nSpeaker 4 | 28:13\nYes, it's basically the same thing that you guys did. It sets between the system and the Gmail. It listens for any new emails, categorizes them, and sends the attachments to Anthropic. It purges the document and outputs in a next-format and then sends it to the target system.\nSpeaker 5 | 28:34\nSo we do that for the first impact TED. That's one of our projects, okay? It's one of... Let's say on a company child actually because they sent us one of the sales first members to use this Slack for first impact. The thing is that we may be interested in doing this with senior checks. We haven't done this with senior X men because, as Alderman mentioned, majority of the stuff here in Synergy is scattered.\nIt's not the same thing that starting from scratch. Starting from scratch as we did with first impact is really... I mean, it's not easy. I appreciate the amount of work, but it's not the same thing as taking 1600 referrals with a lot of documents and stuff. This required more expert expertise and help.\nHowever, I'm trying to see if we can use Mulesoft for something with a better and bigger impact. Of course, filtering referrals via email because I don't know how much... You haven't told me the cost. Maybe you can send me a quote.\nSpeaker 6 | 29:56\nYeah. I mean, so I can drive here. The list price is usually $24k, and like Bob said before, it's usually based on consumption. So that's why we're asking those questions because either it goes up from the $24k or it goes down based on how many documents are being processed, etc.\nBut it sounds like from your perspective, the number one priority at the moment is that integration. I CRA.\nSpeaker 5 | 30:28\nNot a priority. I think we can do many projects if you get the API for practice vision. I think we can do many things. But I'm thinking on the meal of payment $24,000 monthly.\nSpeaker 7 | 30:48\nNo, sorry.\nSpeaker 6 | 30:49\nThat is an annual that's an annual cost.\nSpeaker 5 | 30:53\nI'll say so that means $2,000 monthly.\nSpeaker 6 | 31:00\nExactly.\nSpeaker 5 | 31:01\nIs that can that be a monthly base or does that...? Do I have to have an annual contract?\nSpeaker 6 | 31:12\nSorry. Do you mean do you pay it monthly?\nSpeaker 5 | 31:16\nYeah, without an obligation of a contract of one year.\nSpeaker 6 | 31:22\nWe could figure that out. I mean, I guess from a cash flow perspective, but you'd rather those payments come quarterly.\nSpeaker 5 | 31:30\nYeah, I'd like to pay monthly. Monthly? Yeah.\nSpeaker 6 | 31:35\nOkay, let me go back to my internal team and see what we can do there.\nSpeaker 5 | 31:41\nI guess. Yeah, but besides that, I would like to know what else we can do if we take meals of subscription. What other capabilities? I wanted to know maybe this can be a good tool for developers. What do you think of money?\nSpeaker 4 | 32:03\nYeah, not sure. What kind of integrations do you guys have or if any exist for developers?\nkailash chanda | 32:11\nI think with Microsoft we can integrate any system that provides API access or REST API web services or database connectivity. Any standard protocol that allows us to exchange data with depending on the systems that are part of the data business with Synergy and we can identify which system supports which connectivity and they can be integrated with real software.\nSo. Yeah. That's my take on it. Sorry, Hanna. I think you weren't going to answer this.\nSpeaker 6 | 32:46\nNo, I was just going to ask Pauline and Laura. I don't know if you have access to any point. If you could show just what the platform looks like and maybe we could just show some of the features.\nSpeaker 7 | 32:59\nYeah, I don't know if you have that ready, but yeah, we can probably do that for the meaning of the hour, but... Virgn and the rest of the team... I think we can schedule a 30-minute separate session just to show you exactly all the features that NOSA provides.\nIt is meant designed for Developers. It is designed for Integration. I think coming into this meeting, we had the understanding that you were looking for something to pre-age and automate all of the documentation.\nBut if you already have a solution in play that you custom-built, we can focus on the integration portion of yourself for sure, which is our bread and butter.\nSpeaker 5 | 33:33\nWe don't have the solution for Synergic yet. Aman made it for the first impact. Yeah, what we're saying is that it's not the same thing for Synergy. The company growth and everything was manual.\nSo now we're having a hard time figuring out a way to find a solution without causing any type of disruption or interruption in our current operations day to day because we already have many people calling and emailing.\nSo it's... I think we may require some extra help. That's why I was interested in Bob's proposal to see what we can design around what is already built.\nSpeaker 2 | 34:30\nIs there a long more time for that beer?\nSpeaker 5 | 34:34\nYes.\nSpeaker 2 | 34:35\nSo you... I missed that last piece.\nSpeaker 5 | 34:40\nYeah, to see what we can design around what is already in place.\nSpeaker 2 | 34:46\nYeah. And just adding on to what Mulesoft can do before Laura shows a little bit there. I mean, it's not that we can just do that automation piece, but it's really again, a foundation to really connect all those pieces together as you start having systems. This is... I don't want to confuse you or anything like that, but as the team grows and as a business accrues more revenue based on how we're able to automate and be a little bit more productive,\nwe can help out with AI initiatives being able to govern whether you're trying to do more with less. This is more of a biased opinion, of course, but definitely the right solution to do that, especially if there are a lot of things that are part of your roadmap and big goals for 2027 without, I guess, identifying how to do this. I believe that this is a glue to make it happen with... We're not going to just check off one box for you. We're going to be able again, as we kind of figure out the AP accident practice fusion.\nBut that's our only requirement, right? If you have anything else that needs to be connected to ODU or... Let's just say... Vera, I know you shared this. While I have costs in the room that maybe later down the road you want a better CRM and you wanted to maybe transition to Salesforce as a CRM. There's already that bridge that's already reusable, right?\nIt's that plug-and-play architecture that Kailash shared. So for any pivots, any transitions, any changes for the business, it's very seamless to do that without any heavy lifting from your end.\nAgain, as mentioned, the connections are already built there. So especially with what you're sharing, Mulesoft is going to be able to check off not just this one box, but multiple boxes later down the road. For. For CNJX.\nSpeaker 5 | 36:31\nYes. I like this approach. I think that nowadays, with AI and stuff, we are realizing that people already have their own systems, right? They already have their EHRs, they already have their people, their personnel, blah. They will not change their system just because we are offering something, right?\nSo I like the approach that you have that you're proposing based on what you're saying about the company's issues, and you're starting from there. So yeah, definitely we are considering this tool and the automation part as well.\nSpeaker 2 | 37:17\nYeah. Again, that was my game plan, right? To first solve the automation piece because my thoughts and again, feel free to share your input is that, of course, as you're able to process more referrals or patients, you would generate more revenue to further expand and do more projects, right?\nThat's my thought. Understanding your business and again, being able to check off not just the one but further projects later down the road for you. Mulesoft is that piece.\nYou know, to do that.\nSpeaker 5 | 37:55\nI appreciate it.\nSpeaker 2 | 37:58\nYeah, and I know we only have less than ten minutes left on the clock here, so I want to make the most of everybody's time. If anything, now I know you're really leaned into what we can do with automation.\nAgain, we could do the integration for practice fusion if there is the capability for an open API there. I'm curious to know what else you would like to see from our side of the house to... If you have any kind of...\nSpeaker 5 | 38:30\nSo I'm seeing the subscription. It's going to be $24k a month, approx. Because that may be different depending on how many credits we use for AI, right? How much will that...? I'm assuming that the automation is a separate cost.\nOkay, let's take this automation that LLaMA is presenting from you. That it is tracked the new referrals and sent them to Slack and to... How much would that be? Is that a separate price or...?\nSpeaker 2 | 39:09\nNo, that's a part of it. That's a part of $24,000, or the $24,000 that Hanna had shared. Now again, that gives you access to 4 million credits. And again, we work off that credit usage system. Right?\nSo going back to the same question, being able to identify consistent or average volume gives us a better idea of if those four million credits can do the job for you. In case, let's just say you sign on, you do the $24,000 with us, you get the 4 million credits, and if there's ever... Maybe you're at your limit, you'll just get an email from us.\nBut that's why sizing you correctly from the front is always pretty important and being able to scope this out appropriately.\nSpeaker 6 | 39:54\nSo sorry, just to clarify, if we do go with both automation as well as... In any point, it will be more expensive than $24,000, and I just want to make that clear. It would be probably expanding from anywhere from $28 to $48,000 again, depending on when we scope this out a little bit more. That being said, I didn't confirm... Sorry.\nSpeaker 5 | 40:17\nThe workflow automation is going to be from $28 to $48. Sorry, I'm lost. So the $24 plus the automation of the workflow that you guys presented, is that what you mean? I'm sorry, I didn't understand it.\nSpeaker 6 | 40:35\nNo. You're good. So we have what we said IDP so like our automation skew essentially our product and then we have any point which is our product that would be doing essentially the integration.\nSo I just want to clarify that it might be more expensive than $24,000 if that is something that you want to pursue in this phase. And I think... Pauline, did you have something you wanted to add?\nSpeaker 5 | 41:05\nOkay. Sorry.\nSpeaker 7 | 41:05\nNo, I think. No, I think instead of maybe sharing numbers, what we can do is we can work on the sizing and then, you know, show you exactly the capacity based on the use cases. And we'll expend this into this use case.\nIt's into the bigger use case, et cetera, so it's going to be maybe a bit more clear.\nSpeaker 6 | 41:23\nYes, exactly. Just to clarify, we can't do monthly payments. I just confirmed. So just wanted to put that up there because I know that was a question there for you.\nSpeaker 2 | 41:36\nThen there's one thing to keep in mind. So that's going to be as far as just looking at the automation and referral intake use case. That's 24K for our cost, but there's an implementation cost, which Kailash will help us understand and scope out the project and set you guys up, ensuring that it can go smoothly as well. Not to throw out any surprises, but just something to anticipate as part of our pricing.\nSpeaker 5 | 42:07\nOkay, I have two more questions. So, number one, can the IDP work in use of the workflow that Laura has shared? Can this system or workflow organize or trigger how to assign V as...? Let me give you an example. The schedulers for new patients, and that will make sense for my second question, the schedulers on the new patients, new referrals. Let's say we have five schedulers, right? These five schedulers, we need to sign them so they can call the patients and schedule the appointments.\nRight? So can this system assign the patients like, \"Okay, I have already assigned to ABCDE.\" Then because I know that I am assigning to D number five, I will go back to A, but I'm assigning in an equal way to the five of them in order. Can that be possible to assign the referrals equally?\nSpeaker 7 | 43:36\nYeah, no, absolutely, but that's going to be done in... We're going to push that information into Audu, right? This is where you need the data.\nSpeaker 5 | 43:43\nYeah, but the LIS the leads are assigned to a user, yes, so. Yeah, okay.\nSpeaker 7 | 43:50\nThat's... We can check user capacity basically, and then if you have a limit to assign it equally, yes, we can do that, no problem.\nSpeaker 5 | 43:57\nOkay, so number two, in order to see... Well, I need a quote with the exact numbers, because what I understood from Hanna...\nSpeaker 6 | 44:12\nWe can go over that in the next call. The way we explained it was a bit complicated, but we'll go through it all step by step in the next call and we have an entire...\nSpeaker 5 | 44:26\nYeah, so before it over and you... I mean, I need to see the... I need to be able to justify the value of the 24K plus the rest of the development cost. So, that's the way we actually work with the executive team.\nI will not be interested in joining a meeting unless I give him a real value and tell him, \"Hey, you will save this amount of money if you do this.\" So my question is, if we are now scheduling referrals between three to four hours of delay, is there any possibility that if you apply this workflow through Mulesoft and you reduce that time to maybe one hour, is there any way that you can help me to see how much we are going to save per client, per referral, or in total, an average? We usually have a... We build per client $1,200.\nSo I think on average per day, we receive around approximately 50 new referrals per day between 50 to 60. So, is there any way that by calculating how much time they will be reducing by using this workflow, we can know...?\nSpeaker 2 | 46:02\nI can recall that. And I'll with the number shared today... That gives me more information to build that case for you as well for the next call. Now I know we're right up on time. I'd love to continue this conversation while it's top of mind for everybody.\nSpeaker 3 | 46:18\nYeah, I too.\nSpeaker 5 | 46:19\nSo yeah.\nSpeaker 2 | 46:20\nI wanted to actually say I know everyone works on the West Coast. I'm at least for your team. Was there any way to actually meet you this Friday? I could have a better time. We could hold the same time if that works for everybody at 10 am PST.\nSpeaker 5 | 46:37\nYeah, I'm free.\nSpeaker 2 | 46:39\nOkay? Okay. And I had an ass, you know, as I work on this business value case for you. With the number shared, I wanted to see if I think URS would be available for this one. I'll be ready to go to kind of present. No.\nSpeaker 5 | 46:52\nUntil we give a value, he's not going to be interested, but...\nSpeaker 2 | 46:57\nOkay, and just to clarify, you'd probably be our signer, right? Our decision maker for signing off on yes.\nSpeaker 5 | 47:04\nRight, same as Slack and the rest, yes.\nSpeaker 2 | 47:07\nOkay. I mean, I'll have numbers ready. Talking about the value come Friday. If you want to share that with him. If you wanted to, you know, just share the message and see if he's available for thirty minutes or that would be my ass from the team. Just because, you know, I'll be able to sort of sharing the message.\nAnd I could have that conversation with them as well.\nSpeaker 5 | 47:30\nThank you so much, guys. Have a great day. Okay.\nSpeaker 2 | 47:33\nThanks very much. Thanks, everybody. Bye."
+  }
+}
